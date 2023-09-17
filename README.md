@@ -1,2 +1,28 @@
 # autodiag
 Scantool to read diagnostic codes
+
+# Quick guide to read codes
+1. Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
+2. Download autodiag
+3. Start the car and plug adaptater
+4. Launch autodiag and select /dev/ttyUSB0 device
+5. Read codes
+
+# Why
+Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.
+Some scantools are already avaliable on the market:
+  - [ScanTool.net](https://github.com/RJSzynal/ScanTool.net) : reliable but require recompilation to add new manufacturer DTC list. Also the gui is not ruly smooth.
+
+Autodiag will be a simple scantool for desktop computer that allow to:
+  - read DTCs: with both manufacturer specific definition and generic one
+  - clear MIL: this clear the malfunction lamp on the car
+  - read sensors data: real time data retrieving and maybe graphing
+
+It is mostly inspired from scantool.net but with a revisited GUI written in GTK, possibility to add DTC manufacturer specific after compilation.
+
+# How 
+With low level c language everything is possible<br />
+With unit test, the software will be reliable<br />
+With open source everyone will benefit from the effort<br />
+In first time autodiag will focus on UNIX platform and ELM327 adaptater. Support for others adaptater may come later and support for windows may come later.<br />
+GPL licence will allow both buisnesses and individual to use the software<br />
