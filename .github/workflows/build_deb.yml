@@ -13,6 +13,11 @@ jobs:
     steps:
       - name: Check
         uses: actions/checkout@v2
+      - name: e
+        run: |
+          ls -la
+          pwd
+          ls -la ../
       - name: Install build
         run: |
           apt-get update
