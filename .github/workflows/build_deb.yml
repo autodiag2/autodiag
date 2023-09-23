@@ -19,6 +19,7 @@ jobs:
           apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev
       - name: Submodule fetch
         run: |
+          ls -la
           pwd
           env
           ls /
