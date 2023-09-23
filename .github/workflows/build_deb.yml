@@ -1,0 +1,42 @@
+name: build deb
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        uses: actions/checkout@v2
+      - name: Install build
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential debhelper dh-make devscripts
+      - name: Build pkg
+        run: |
+          dpkg-buildpackage -b -us -uc
+      - name: find package
+        id: find_pkg
+        run: |
+          package_file=$(readlink -f "../*.deb")
+          echo "package_file=${package_file}" >> $GITHUB_OUTPUT
+          echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
+      - name: upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: debian-package
+          path: ${{ steps.find_pkg.outputs.package_file }}
+          retention-days: 1
+      - name: Move to release
+        id: upload-artifact
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ${{ steps.find_pkg.outputs.package_file }}
+          tag_name: ${{ steps.find_pkg.outputs.tag_name }}
+          name: Release ${{ steps.find_pkg.outputs.tag_name }}
+          token: ${{ secrets.TOKEN }}
+          draft: false
+          prerelease: false
