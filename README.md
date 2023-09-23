@@ -1,9 +1,21 @@
 # autodiag
 Scantool to read diagnostic codes
 
+<table>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/main.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/preferences.png"></td>
+  </tr>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/terminal.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/read_dtc.png"></td>
+  </tr>
+</table>
+
+
 # Quick guide to read codes
 1. Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
-2. Download autodiag
+2. Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
 3. Start the car and plug adaptater
 4. Launch autodiag and select /dev/ttyUSB0 device
 5. Read codes
