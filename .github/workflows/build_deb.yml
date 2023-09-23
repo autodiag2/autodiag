@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:bionic-20210723
+      image: ubuntu:lunar-20230301
     steps:
       - name: Check
         uses: actions/checkout@v2
