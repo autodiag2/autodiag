@@ -9,14 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:xenial-20210611
+      image: ubuntu:kinetic-20221024
     steps:
       - name: Check
         uses: actions/checkout@v2
       - name: Install build
         run: |
           apt-get update
-          apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev
+          apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
       - name: Forced fetch
         continue-on-error: true
         run: |
