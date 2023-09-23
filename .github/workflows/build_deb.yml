@@ -16,6 +16,8 @@ jobs:
       - name: e
         run: |
           ls -la
+          echo "--"
+          ls -la data
           pwd
           ls -la ../
       - name: Install build
