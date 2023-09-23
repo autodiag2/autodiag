@@ -15,8 +15,8 @@ jobs:
         uses: actions/checkout@v2
       - name: Install build
         run: |
-          DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
           apt-get update
+          DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
           apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
       - name: Forced fetch
         continue-on-error: true
