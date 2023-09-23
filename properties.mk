@@ -1,5 +1,5 @@
 APP_NAME = autodiag
-APP_VERSION = 10
+APP_VERSION = 11
 APP_MAINTAINER = autodiag2 <autodiag@netcourrier.com>
 APP_DESC = autodiag
 
