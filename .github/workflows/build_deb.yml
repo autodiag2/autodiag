@@ -13,17 +13,14 @@ jobs:
     steps:
       - name: Check
         uses: actions/checkout@v2
-      - name: e
-        run: |
-          ls -la
-          echo "--"
-          ls -la data
-          pwd
-          ls -la ../
       - name: Install build
         run: |
           apt-get update
           apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev
+      - name: Forced fetch
+        continue-on-error: true
+        run: |
+          git clone https://github.com/autodiag2/database data
       - name: Submodule fetch
         continue-on-error: true
         run: |
