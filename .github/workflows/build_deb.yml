@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: ubuntu:focal-20221019
+      image: ubuntu:focal-20210723
     steps:
       - name: Check
         uses: actions/checkout@v2
