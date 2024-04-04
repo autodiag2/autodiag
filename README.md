@@ -1,6 +1,6 @@
 # autodiag
 Scantool to read diagnostic codes
- 
+
 <table>
   <tr>
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/main.png"></td>
