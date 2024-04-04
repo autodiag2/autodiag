@@ -9,4 +9,3 @@ experiments/
 build/
 dist/debian/autodiag*
 dist/debian/DEBIAN/
-autodiag*
