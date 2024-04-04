@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "globals.h"
+#include "lib/lib.h"
 #define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>
@@ -10,8 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include "com/serial/obd/obd.h"
-#include "ui/config.h"
+#include "com/obd/obd.h"
 
 /**
  * Define general configuration of the gui, values can be modified by the options gui or directly in file
@@ -33,11 +32,15 @@ typedef struct {
         bool showTimestamp;
     } commandLine;
     struct {
-        OBDIFACE iface;
+        OBDIFace* iface;
     } ephemere;
     struct {
         double refreshRateS;
+        bool autoRefresh;
     } vehicleExplorer;
+    struct {
+        LogLevel level;
+    } log;
 } Config;
 
 #define CONFIG_DEFAULT_FILENAME "config.ini"

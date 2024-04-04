@@ -16,13 +16,17 @@ gboolean main_onclose(final GtkWidget *dialog, final GdkEvent *event, gpointer u
 }
 
 void debug_show_config() {
-   log_msg("=== Running configuration ===", LOG_INFO);
-   #ifdef POSIX_TERMIOS
-      log_msg("POSIX Standard: Termios", LOG_INFO);
-   #else
-      unsupported_configuration();
-   #endif
-   log_msg("=============================", LOG_INFO);
+    log_msg(LOG_INFO, "=== Running configuration ===");
+    #ifdef OS_POSIX
+        log_msg(LOG_INFO, "POSIX OS (using termios)");
+    #elif defined OS_UNIX
+        log_msg(LOG_INFO, "UNIX OS");
+    #elif defined OS_WINDOWS
+        log_msg(LOG_INFO, "WINDOWS OS");
+    #else
+    #   warning Unsupported OS
+    #endif
+    log_msg(LOG_INFO, "=============================");
 }
 
 void adaptater_state_set_text(final char * str, final char * color) {
@@ -41,7 +45,7 @@ void adaptater_protocol_set_text(final char * str) {
 void adaptater_interface_set_text(final char * str) {
     final const char *format = "<span>\%s</span>";
     final char *markup = g_markup_printf_escaped (format, str);
-    gtk_label_set_markup (GTK_LABEL (mainGui->adaptater.state.more.interface), markup);
+    gtk_label_set_markup (GTK_LABEL (mainGui->adaptater.state.more.interface_name), markup);
     g_free(markup);
 }
 
@@ -79,13 +83,15 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
                 adaptater_state_set_text("No data", "red");
                 break;
         }
-        final OBDIFACE iface = config.ephemere.iface;
+        final OBDIFace* iface = config.ephemere.iface;
         if ( iface == null ) {
-            adaptater_protocol_set_text("Not an OBD interface");
+            adaptater_protocol_set_text(port->describe_communication_layer(DEVICE(port)));
             adaptater_interface_set_text("Not an OBD interface");
         } else {
-            adaptater_protocol_set_text((char*)obd_get_protocol_string(iface->type, iface->protocol));
-            adaptater_interface_set_text((char*)serial_at_port_interface_to_id(iface->type));
+            final char * response = elm_print_id((SERIAL)iface->device);
+            adaptater_interface_set_text((char*)response);
+            adaptater_protocol_set_text((char*)iface->device->describe_communication_layer((_Device*)iface->device));
+            free(response);
         }
     }
     gtk_widget_set_visible(GTK_WIDGET(mainGui->adaptater.state.more.container), config.main.adaptater_detailled_settings_showned);
@@ -111,14 +117,20 @@ void * module_init_main_deferred(void *ignored) {
 void module_init_main() {
     if ( mainGui == null ) {
         config_load();
-        final GtkBuilder *builder = gtk_builder_new();
-        char * config_directory = config_get_data_directory_safe();
-        char * mainUiPath;
-        asprintf(&mainUiPath, "%s/ui/main.glade", config_directory);
-        free(config_directory);
-        if ( gtk_builder_add_from_file (builder, mainUiPath, NULL) == 0 ) {
-            log_msg("Error during ui inflation", LOG_ERROR);
+        
+        if ( ! log_is_env_set() ) {
+            log_set_level(config.log.level);
         }
+
+        char * data_dir = config_get_data_directory_safe(), *mainUiPath, *mainCSSPath;
+        if ( data_dir == null ) {
+            log_msg(LOG_ERROR, "Data directory not found try to reinstall the software");
+            exit(1);
+        }
+        asprintf(&mainUiPath, "%s" PATH_FOLDER_DELIM "ui" PATH_FOLDER_DELIM "main.glade", data_dir);
+        asprintf(&mainCSSPath, "%s" PATH_FOLDER_DELIM "ui" PATH_FOLDER_DELIM "main.css", data_dir);
+        final GtkBuilder *builder = gtk_builder_new_from_file(mainUiPath);
+        free(data_dir);
         free(mainUiPath);
 
         final MainGui gui = {
@@ -129,14 +141,29 @@ void module_init_main() {
                     .waitIcon = (GtkSpinner*)gtk_builder_get_object(builder,"window-root-adaptater-state-spinner"),
                     .more = {
                         .protocole = (GtkLabel*)gtk_builder_get_object(builder,"window-root-adaptater-state-more-protocol"),
-                        .interface = (GtkLabel*)gtk_builder_get_object(builder,"window-root-adaptater-state-more-interface"),
+                        .interface_name = (GtkLabel*)gtk_builder_get_object(builder,"window-root-adaptater-state-more-interface"),
                         .container = (GtkBox*)gtk_builder_get_object(builder,"window-root-adaptater-state-more")
                     }
                 }
             }
         };
+                            
         mainGui = (MainGui*)malloc(sizeof(MainGui));
         (*mainGui) = gui;
+        
+        {
+            GError * error = null;
+            GtkCssProvider * css_provider = gtk_css_provider_new();
+            if ( ! gtk_css_provider_load_from_path (css_provider, mainCSSPath, &error) ) {
+                log_msg(LOG_WARNING, "Error while loading the css '%s': %s (domain:%d/%s code:%d)", mainCSSPath,error->message,error->domain,g_quark_to_string(error->domain),error->code);
+            }  
+            free(mainCSSPath);
+            
+            GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(gui.window));
+            gtk_style_context_add_provider_for_screen(screen,
+                                    GTK_STYLE_PROVIDER(css_provider),
+                                    GTK_STYLE_PROVIDER_PRIORITY_USER);
+        }
 
         g_signal_connect(G_OBJECT(mainGui->window),"delete-event",G_CALLBACK(main_onclose),NULL);
         gtk_builder_add_callback_symbol(builder,"window-root-quit",&module_shutdown_main);
@@ -145,7 +172,6 @@ void module_init_main() {
         module_init_read_codes(builder);
         module_init_options(builder);
         module_init_serial();
-        module_init_obd();
         module_init_command_line(builder);
         module_init_vehicle_explorer(builder);
 
@@ -158,20 +184,4 @@ void module_init_main() {
     } else {
     
     }
-}
-
-int main (int argc, char *argv[])
-{
-    debug_show_config();
-    log_set_from_env();
-    log_msg("Starting application ...", LOG_INFO);
-    gtk_init (&argc, &argv);
-    module_init_main();
-
-    gtk_widget_show (mainGui->window);
-    log_msg("Application started", LOG_INFO);
-    gtk_main();
-
-    log_msg("Application exit", LOG_INFO);
-    return 0;
 }

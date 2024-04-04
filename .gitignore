@@ -7,5 +7,6 @@ TODO
 *.swp
 experiments/
 build/
-debian/autodiag*
-debian/DEBIAN/
+dist/debian/autodiag*
+dist/debian/DEBIAN/
+autodiag*

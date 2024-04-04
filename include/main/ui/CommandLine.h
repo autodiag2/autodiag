@@ -3,22 +3,18 @@
 
 #define MODULE_COMMAND_LINE "CommandLine",
 
-#include "globals.h"
+#include "ui.h"
 #include "com/serial/serial.h"
 #include "com/serial/serial_list.h"
-#include "buffer.h"
-#include "log.h"
-#include "error_feedback.h"
-#include "gtk.h"
+#include "lib/buffer.h"
 #include "config.h"
 
 typedef struct {
     GtkWidget *window;
     GtkEntry *customCommandInput;
     GtkLabel *tooltip;
-    struct serialError {
-        GtkMessageDialog *window;
-    } serialError;
+    GtkGrid* vehicleOBDCodes;
+    ErrorFeedbackWindows errorFeedback;
     struct {
         GtkScrolledWindow *window;
         GtkTextView *frame;

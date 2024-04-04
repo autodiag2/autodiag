@@ -1,6 +1,5 @@
 #include "ui/options.h"
 #include "ui/main.h"
-#include <stdlib.h>
 
 OptionsGui *optionsGui = null;
 
@@ -17,8 +16,8 @@ int ensure_serial_in_list(final Serial * port) {
     if ( port == null ) {
         return 1;
     }
-    for(int i = 0;i < serial_list_size; i++) {
-        if ( serial_list[i] == port ) {
+    for(int i = 0;i < serial_list.size; i++) {
+        if ( serial_list.list[i] == port ) {
             return 1;
         }
     }
@@ -29,9 +28,6 @@ void* options_save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
     final char *selected_port_name = gtk_combo_box_text_get_active_text(optionsGui->serialList);
-    char * activeBaudRateText = gtk_combo_box_text_get_active_text(optionsGui->baudRateSelection);
-    final int serial_baud_rate_code = serial_baud_rate_text_to_code(activeBaudRateText);
-    g_free(activeBaudRateText);
     if ( selected_port_name == null ) {
         if ( config.com.serial.port_name != null ) {
             free(config.com.serial.port_name);
@@ -43,10 +39,20 @@ void* options_save_internal(void *arg) {
         config.com.serial.port_name = strdup(selected_port_name);
         g_free(selected_port_name);
     }
+    const char * activeBaudRateText = gtk_entry_get_text(optionsGui->baudRateSelection);
+    int baud_rate = atoi(activeBaudRateText);
+    if ( baud_rate < 0 ) {
+        log_msg(LOG_ERROR, "Invalid baud rate setup '%s'", activeBaudRateText);
+    } else {
+        config.com.serial.baud_rate = baud_rate;
+    }
+    config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(optionsGui->logLevel));
+    if ( ! log_is_env_set() ) {
+        log_set_level(config.log.level);
+    }
     config.main.adaptater_detailled_settings_showned = gtk_toggle_button_get_active(optionsGui->mainGui.advancedLinkDetails);
     config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(optionsGui->commandLineGui.outputAutoScroll);
     config_commandLine_showTimestamp_set(gtk_toggle_button_get_active(optionsGui->commandLineGui.showTimestamp));
-    config.com.serial.baud_rate = serial_baud_rate_code;
     config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(optionsGui->vehicleExplorerGui.refreshRateS), null);
     config_store();
     config_onchange();
@@ -64,33 +70,13 @@ void options_serial_list_refresh() {
         module_debug(MODULE_OPTIONS "Cannot process with gui attached");
     } else {
         gtk_combo_box_text_remove_all(optionsGui->serialList);
-        for(int serial_i = 0; serial_i < serial_list_size; serial_i++) {
-            final SERIAL port = serial_list[serial_i];
+        for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
+            final SERIAL port = serial_list.list[serial_i];
             gtk_combo_box_text_append(optionsGui->serialList,NULL,port->name);
             if ( port == serial_list_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             }
         }
-    }
-}
-
-void options_serial_baud_rates_refresh() {
-    module_debug(MODULE_OPTIONS "Add some baud rate speed");
-    gtk_combo_box_text_remove_all(optionsGui->baudRateSelection);
-    gtk_combo_box_text_append(optionsGui->baudRateSelection, NULL, "9600");
-    gtk_combo_box_text_append(optionsGui->baudRateSelection, NULL, "38400");
-    gtk_combo_box_text_append(optionsGui->baudRateSelection, NULL, "115200");
-    gtk_combo_box_text_append(optionsGui->baudRateSelection, NULL, "230400");
-
-    switch(config.com.serial.baud_rate) {
-        case BAUD_RATE_9600: gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection, 0); break;
-        case BAUD_RATE_38400: gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection, 1); break;
-        case BAUD_RATE_115200: gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection, 2); break;
-        case BAUD_RATE_230400: gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection, 3); break;
-        default:
-            module_debug(MODULE_OPTIONS "Unknown baud rate");
-            gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection, -1);
-            break;
     }
 }
 
@@ -100,40 +86,29 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     return TRUE;
 }
 
+void options_set_serial_select_from_name(char * name) {
+    for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
+        final SERIAL port = serial_list.list[serial_i];
+        if ( strcmp(name, port->name) == 0 ) {
+            gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
+            break;
+        }
+    }
+}
+
 void options_show_window() {
     gtk_widget_show_now (optionsGui->window);
     options_serial_list_refresh();
-    options_serial_baud_rates_refresh();
     gtk_toggle_button_set_active(optionsGui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
-    if ( config.com.serial.baud_rate != BAUD_RATE_UNDEFINED ) {
-        int index = -1;
-        GList * list = gtk_container_get_children((GtkContainer *)optionsGui->baudRateSelection);
-        while ( list != null ) {
-            index ++;
-            if ( serial_baud_rate_text_to_code((char*)list->data) == config.com.serial.baud_rate ) {
-                break;
-            }
-            list = list->next;
-        }
-        if ( list != null ) {
-            gtk_combo_box_set_active((GtkComboBox *)optionsGui->baudRateSelection,index);
-        }
-    }
+    gtk_combo_box_set_active(GTK_COMBO_BOX(optionsGui->logLevel), config.log.level);
+    char * txt;
+    asprintf(&txt,"%d", config.com.serial.baud_rate);
+    gtk_entry_set_text(optionsGui->baudRateSelection,txt);
+    free(txt);
     if ( config.com.serial.port_name != null ) {
-        int index = -1;
-        GList * list = gtk_container_get_children((GtkContainer *)optionsGui->serialList);
-        while ( list != null ) {
-            index ++;
-            if ( strcmp(config.com.serial.port_name,(char*)list->data) == 0 ) {
-                break;
-            }
-            list = list->next;
-        }
-        if ( list != null ) {
-            gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,index);
-        }
+        options_set_serial_select_from_name(config.com.serial.port_name);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
@@ -141,13 +116,65 @@ void options_show_window() {
     free(text);
 }
 
+void window_options_baud_rate_set_from_button(final GtkButton * button) {
+    char* baud_rate_str = (char*)gtk_button_get_label(button);
+    gtk_entry_set_text(optionsGui->baudRateSelection, baud_rate_str);
+}
+
+gboolean options_launch_simulation_set_pending_text(gpointer data) {
+    ELM327emulation * elm327 = (ELM327emulation*)data;
+    gtk_label_set_text(optionsGui->simulator.launchDesc, "Starting simulation ...");
+    return false;
+}
+gboolean options_launch_simulation_update_gui(gpointer data) {
+    ELM327emulation * elm327 = (ELM327emulation*)data;
+
+    options_serial_list_refresh();
+
+    char * fmt = elm327->ptsname == null ? 
+            "Simulation not started ..." 
+            : "Simulation started at '%s'";
+    char * simu_desc;
+    asprintf(&simu_desc,fmt,elm327->ptsname);
+    gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
+    free(simu_desc);
+    
+    options_set_serial_select_from_name(elm327->ptsname);
+
+    return false;
+}
+
+void options_launch_simulation_internal() {
+    gtk_spinner_start(optionsGui->simulator.spinner);
+    ELM327emulation * elm327 = elm327_sim_new();
+    pthread_t t = elm327_sim_loop_thread(elm327);
+    g_idle_add(options_launch_simulation_set_pending_text, elm327);
+    usleep(500e3);
+    g_idle_add(options_launch_simulation_update_gui, elm327);
+}
+static void options_launch_simulation_clean_up_routine(void *arg) {
+    obd_thread_cleanup_routine(arg);
+    gtk_spinner_stop(optionsGui->simulator.spinner);
+}
+
+THREAD_WRITE_DAEMON(
+        options_launch_simulation_daemon,
+        options_launch_simulation_internal,
+        options_launch_simulation_clean_up_routine, optionsGui->simulator.launchThread
+)
+
+void options_launch_simulation() {
+    thread_allocate_and_start(&optionsGui->simulator.launchThread,&options_launch_simulation_daemon);
+}
+
 void module_init_options(GtkBuilder *builder) {
     if ( optionsGui == null ) {
         optionsGui = (OptionsGui*)malloc(sizeof(OptionsGui));
         OptionsGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
+            .logLevel = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-log-level")),
             .serialList = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-serial-list")),
-            .baudRateSelection = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
+            .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
             .mainGui = {
                 .advancedLinkDetails = (GtkToggleButton*)gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details")
             },
@@ -156,12 +183,19 @@ void module_init_options(GtkBuilder *builder) {
                 .showTimestamp = (GtkToggleButton*)gtk_builder_get_object(builder,"window-options-commandLine-showTimestamp")
             },
             .vehicleExplorerGui = {
-                .refreshRateS = (GtkEntry*)gtk_builder_get_object(builder,"window-options-refresh-rate-s")
+                .refreshRateS = GTK_ENTRY(gtk_builder_get_object(builder,"window-options-refresh-rate-s"))
+            },
+            .simulator = {
+                .spinner = GTK_SPINNER(gtk_builder_get_object(builder,"window-simulation-spinner")),
+                .launchDesc = GTK_LABEL(gtk_builder_get_object(builder,"window-simulation-launch-description")),
+                .launchThread = null
             }
         };
         *optionsGui = g;
 
+        gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
+        gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&options_launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&options_cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&options_save);
         gtk_builder_add_callback_symbol(builder,"show-window-options",&options_show_window);

@@ -4,10 +4,10 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include "globals.h"
-#include "log.h"
-#include "initools.h"
+#include "lib/string.h"
+#include "lib/lib.h"
+#include "lib/log.h"
+#include "lib/initools.h"
 
 typedef struct {
     /**

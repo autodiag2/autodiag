@@ -1,6 +1,6 @@
 # autodiag
 Scantool to read diagnostic codes
-
+ 
 <table>
   <tr>
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/main.png"></td>
@@ -37,5 +37,15 @@ It is mostly inspired from scantool.net but with a revisited GUI written in GTK,
 With low level c language everything is possible<br />
 With unit test, the software will be reliable<br />
 With open source everyone will benefit from the effort<br />
-In first time autodiag will focus on UNIX platform and ELM327 adaptater. Support for others adaptater may come later and support for windows may come later.<br />
+In first time autodiag will focus on UNIX platform and ELM based devices.<br />
 GPL licence will allow both buisnesses and individual to use the software<br />
+
+# Compatibility
+OSs:<br />
+ - linux<br />
+Distros:<br />
+ - debian based<br />
+<br />
+Devices: ELM320 ELM322 ELM323 ELM327 ELM329
+
+

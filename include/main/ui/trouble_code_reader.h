@@ -3,28 +3,25 @@
 
 #define MODULE_CODES_READER "Trouble Code Reader"
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include "gtk.h"
-#include "log.h"
-#include "thread.h"
 #include "main.h"
-#include "error_feedback.h"
-#include "com/serial/obd/saej1979/saej1979.h"
+#include "ui.h"
+#include "com/obd/obd.h"
 
 typedef struct {
-    GtkWidget *window, *noObdInterface;
-    GtkWidget *clearConfirm;
+    GtkWidget *window;
     GtkSpinner *actionWaitIcon;
     GtkWidget *noObdData;
+    ErrorFeedbackWindows errorFeedback;
     struct {
         GtkToggleButton *stored;
         GtkToggleButton *pending;
         GtkToggleButton *permanent;
+        ThreadedAction;
     } read;
     struct {
-        GtkMessageDialog *window;
-    } serialError;
+        GtkWidget *confirm;
+        ThreadedAction;
+    } clear;
     struct {
         GtkLabel* text;
         GtkImage* iconOn;
@@ -40,8 +37,19 @@ typedef struct {
         GtkTextView * explanation;
         GtkTextBuffer*explanationText;
     } dtc;
+    struct {
+        struct {
+            GtkWidget       *window;
+            GtkTextView     *textView;
+            GtkTextBuffer   *text;
+            ThreadedAction;            
+        } showECUsBuffer;
+    } menuBar;
 } TroubleCodeReaderGui;
 
 void module_init_read_codes(GtkBuilder *builder);
+
+#define trouble_code_reader_error_feedback_obd(iface) \
+    error_feedback_obd(tcgui->errorFeedback,iface,serial_list_get_selected())
 
 #endif

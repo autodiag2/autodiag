@@ -1,11 +1,20 @@
 #ifndef __DOCUMENTATION_H
 #define __DOCUMENTATION_H
 
-#include <gtk/gtk.h>
-#include "globals.h"
+#include "ui.h"
 
 typedef struct {
-    GtkWidget *window;
+    GtkWindow *window;
+    GtkFileChooser *fileChooser;
+    GtkNotebook* tabber;
+    struct {
+        GtkLabel* buildTime;
+        GtkLabel* version;
+        GtkLabel* name;
+        GtkLabel* maintainer;
+        GtkTextView* description;
+        GtkTextBuffer* descriptionText;
+    } about;
 } DocumentationGui;
 
 extern DocumentationGui *documentationgui;

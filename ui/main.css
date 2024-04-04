@@ -1,0 +1,6 @@
+.button-hover-react {
+	opacity: 0.4;
+}
+.button-hover-react:hover {
+	opacity: 1;
+}

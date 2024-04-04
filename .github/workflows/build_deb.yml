@@ -32,7 +32,7 @@ jobs:
       - name: find package
         id: find_pkg
         run: |
-          package_file=$(readlink -f "../*.deb")
+          package_file=$(readlink -f "./bin/*.deb")
           echo "package_file=${package_file}" >> $GITHUB_OUTPUT
           echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
       - name: upload

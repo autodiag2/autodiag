@@ -8,8 +8,10 @@ CarEngine* car_engine_new() {
 
 bool engine_description_parser(char * funcData, char *key, char *value) {
     CarEngine* engine = (CarEngine*)funcData;
-    if ( strcmp(key,"model") == 0 ) {
-        engine->model = strdup(value);
+    if ( strcasecmp(key,"model") == 0 ) {
+        engine->model = value;
+        return true;
+    } else if ( strcasecmp(key,"brand") == 0 ) {
         return true;
     }
     return false;
@@ -17,13 +19,13 @@ bool engine_description_parser(char * funcData, char *key, char *value) {
 
 bool car_description_parser(char * funcData, char *key, char *value) {
     CarModel *car = (CarModel*)funcData;
-    if ( strcmp(key,"brand") == 0 ) {
+    if ( strcasecmp(key,"brand") == 0 ) {
         car->brand = value;
         return true;
-    } else if ( strcmp(key,"model") == 0 ) {
+    } else if ( strcasecmp(key,"model") == 0 ) {
         car->model = value;
         return true;
-    } else if ( strcmp(key,"engine") == 0 ) {
+    } else if ( strcasecmp(key,"engine") == 0 ) {
         char * filename;
         final char * path = config_get_data_directory_safe();
         asprintf(&filename, "%s/data/engine/%s", path, value);
@@ -57,7 +59,7 @@ CarModel* car_model_load_from_directory(char * directory) {
 void car_model_dump(CarModel* car) {
     printf("car: {\n");
     printf("    brand:  %s\n", car->brand);
-    printf("    engine: %s\n", car->engine->model);
+    printf("    engine: %s\n", car->engine == null ? "null" : car->engine->model);
     printf("    model:  %s\n", car->model);
     printf("}\n");
 }

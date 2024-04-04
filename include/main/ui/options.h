@@ -3,16 +3,15 @@
 
 #define MODULE_OPTIONS "Options", 
 
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <gtk/gtk.h>
-#include "log.h"
-#include "com/serial/obd/obd.h"
+#include "ui.h"
+#include <stdlib.h>
+#include "sim/sim.h"
 
 typedef struct {
     GtkWidget *window;
     GtkComboBoxText *serialList;
-    GtkComboBoxText *baudRateSelection;
+    GtkEntry *baudRateSelection;
+    GtkComboBoxText *logLevel;
     struct {
         GtkToggleButton * advancedLinkDetails;
     } mainGui;
@@ -23,6 +22,11 @@ typedef struct {
     struct {
         GtkEntry * refreshRateS;
     } vehicleExplorerGui;
+    struct {
+        GtkSpinner * spinner;
+        GtkLabel *launchDesc;
+        pthread_t * launchThread;
+    } simulator;
 } OptionsGui;
 
 extern OptionsGui *optionsGui;

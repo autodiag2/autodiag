@@ -1,7 +1,0 @@
-CC = gcc
-DEBUG_CFLAGS = -g
-CFLAGS = -I include/main/ `pkg-config --cflags gtk+-3.0` -fms-extensions $(DEBUG_CFLAGS)
-LIBS = `pkg-config --libs gtk+-3.0` -lpthread
-define rwildcard
-    $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
-endef
