@@ -1,5 +1,5 @@
 # autodiag
-Scantool to read diagnostic codes
+Scantool to read diagnostic codes with OBD2
 
 <table>
   <tr>
@@ -21,7 +21,7 @@ Scantool to read diagnostic codes
 5. Read codes
 
 # Why
-Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
+Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
 This is a light approach to fix car computer because it reduce the amount of hardware required to work on it, only have to buy a small elm adaptater.
 Some scantools are already avaliable on the market:
   - [ScanTool.net](https://github.com/RJSzynal/ScanTool.net) : reliable but require recompilation to add new manufacturer DTC list. Also the gui is not ruly smooth.
