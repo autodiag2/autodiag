@@ -155,9 +155,9 @@ char* buffer_bin_to_ascii_hex(Buffer *buffer) {
 }
 void BufferList_dump(final BufferList* list) {
     assert(list != null);
-    for(int i = 0; i < list->size; i++) {
-        buffer_dump(list->list[i]);
-    }
+    LIST_FOREACH(list,Buffer,buffer,
+        buffer_dump(buffer);
+    )
 }
 bool buffer_equals(final Buffer * b1, final Buffer * b2) {
     assert(b1 != null);

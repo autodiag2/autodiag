@@ -1,6 +1,6 @@
 #include "ui/config.h"
 
-Config config = {
+const Config DEFAULT_CONFIG = {
     .com = {
         .serial = {
             .baud_rate = SERIAL_DEFAULT_BAUD_RATE,
@@ -25,6 +25,7 @@ Config config = {
         .level = LOG_DEFAULT_LEVEL
     }
 };
+Config config = DEFAULT_CONFIG;
 
 void config_commandLine_showTimestamp_set(final bool state) {
     config.commandLine.showTimestamp = state;
@@ -145,6 +146,11 @@ char *config_get_data_directory_safe() {
     return data_path;
 }
 
+bool config_reset() {
+    config = DEFAULT_CONFIG;
+    return config_store();
+}
+
 bool config_store() {
     bool res = false;
     final char * configPath = config_try_make_config_file();
@@ -166,6 +172,7 @@ bool config_store() {
             fprintf(file,"vehicleExplorer.autoRefresh=%d" FILE_EOL, config.vehicleExplorer.autoRefresh);
             fprintf(file,"log.level=%d" FILE_EOL, config.log.level);
             fclose(file);
+            res = true;
         }
         free(configPath);
     }

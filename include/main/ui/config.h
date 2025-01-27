@@ -56,6 +56,10 @@ bool config_store();
  */
 bool config_load();
 /**
+ * Reset to default
+ */
+bool config_reset();
+/**
  * Apply changes to the system
  */
 void config_onchange();
@@ -63,6 +67,7 @@ void config_onchange();
  * Get the storage directory
  */
 char * config_get_data_directory_safe();
+char *config_get_config_filename();
 void config_dump(Config * config);
 void config_commandLine_showTimestamp_set(final bool state);
 

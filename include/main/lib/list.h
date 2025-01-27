@@ -11,6 +11,12 @@
         list->size = 0;\
     }
 
+#define LIST_FOREACH(list_token_name,element_type,element_token_name,loop_context) \
+    for(int list_element_index = 0; list_element_index < list_token_name->size; list_element_index++ ) { \
+        element_type * element_token_name = list_token_name->list[list_element_index]; \
+        loop_context \
+    } \
+
 /**
  * Used to define generic list - each new value is a pointer
  */

@@ -62,15 +62,14 @@ void trouble_code_reader_read_codes_show_ecus_buffer_internal() {
                 free(ascii_dump);
             }
             
-            for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                BUFFER buffer = ecu->obd_data_buffer->list[j];
+            LIST_FOREACH(ecu->obd_data_buffer,Buffer,buffer,
                 char * dump = buffer_to_hexdump(buffer->buffer, buffer->size);
                 char *tmp;
-                asprintf(&tmp, "%sdata#%d:\n%s",result,j+1,dump);
+                asprintf(&tmp, "%sdata#%d:\n%s",result,list_element_index+1,dump);
                 free(result);
                 result = tmp;
                 free(dump);
-            }
+            )
         }
     }
     g_idle_add(trouble_code_reader_read_codes_show_ecus_buffer_gsource, (gpointer)result);
@@ -111,13 +110,13 @@ gboolean trouble_code_reader_read_codes_set_dtc_list_gsource(gpointer data) {
         ptr = ptr_next;
     }
     if ( dtc_list != null ) {
-        for(int codei = 0; codei < dtc_list->size; codei++) {
-            char * dtc_string = saej1979_dtc_to_string(dtc_list->list[codei]);
+        LIST_FOREACH(dtc_list,SAEJ1979_DTC,dtc,
+            char * dtc_string = saej1979_dtc_to_string(dtc);
             GtkWidget *label = gtk_label_new(dtc_string);
             gtk_container_add((GtkContainer*)tcgui->dtc.list,label);
             gtk_widget_show(label);
             free(dtc_string);
-        }
+        )
     }
     return false;
 }

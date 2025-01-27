@@ -13,24 +13,25 @@ bool testElm(final OBDIFace* iface);
 bool testStringList();
 bool testSIM();
 
-int main() {
+int main(int argc, char **argv) {
     log_set_from_env();
     initLibTest();
-    runTest(testBuffer,null);
-    runTest(testGlobals,null);
-    runTest(testStringList,null);
-    runTest(testSIM,null);
+
+    runTestMaybe(testBuffer,null);
+    runTestMaybe(testGlobals,null);
+    runTestMaybe(testStringList,null);
+    runTestMaybe(testSIM,null);
 
     final OBDIFace* iface = port_open(start_elm327_simulation());
 
-    runTest(testIniTools, iface);
-    runTest(testELM327, iface);
-    runTest(testSerial, iface);
-    runTest(testOBD, iface);
-    runTest(testCarDatabaseLoad, iface);
-    runTest(testSerialListOperations, iface);
-    runTest(testSAEJ1979, iface);
-    runTest(testElm, iface);
+    runTestMaybe(testIniTools, iface);
+    runTestMaybe(testELM327, iface);
+    runTestMaybe(testSerial, iface);
+    runTestMaybe(testOBD, iface);
+    runTestMaybe(testCarDatabaseLoad, iface);
+    runTestMaybe(testSerialListOperations, iface);
+    runTestMaybe(testSAEJ1979, iface);
+    runTestMaybe(testElm, iface);
 
     obd_close(iface);
     obd_free(iface);

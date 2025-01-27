@@ -1,7 +1,11 @@
 #include "libTest.h"
 
 int main(int argc, char **argv) {
-    OBDIFace* port = port_open(start_simulation());
+    ELM327emulation* elm327 = elm327_sim_new();
+    ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));        
+    elm327_sim_loop_start(elm327);
+    usleep(200e3);
+    final OBDIFace* port = port_open(strdup(elm327->ptsname));
 
     printf("PID full support table:\n");
     char * res = strdup(""), *tmp;
@@ -13,7 +17,6 @@ int main(int argc, char **argv) {
         }
     }
     printf("%s\n", res);
-    
-    port_close_destruct_simulation(port);
+    elm327_sim_destroy(elm327);
     return 0;
 }

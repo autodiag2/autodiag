@@ -28,6 +28,23 @@ static void runTestWithMessage(char *msg, bool (*func)(OBDIFace*), OBDIFace* ifa
 
 #define runTest(func,iface) runTestWithMessage(#func,func,iface)
 
+static bool shouldRun(int argc, char **argv, char *element) {
+    if ( argc == 1 ) {
+        return true;
+    }
+    for(int i = 1; i < argc; i ++) {
+        if ( strcmp(argv[i],element) == 0 ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+#define runTestMaybe(func,iface) \
+    if ( shouldRun(argc,argv,#func) ) { \
+        runTest(func,iface); \
+    }
+
 static void testOutput(char *fmt, ...) {
     char *result;
     asprintf(&result, "   %s\n", fmt);
@@ -62,7 +79,7 @@ static OBDIFace* port_parse_open(int argc, char **argv) {
 
 static char* start_elm327_simulation() {
     ELM327emulation* elm327 = elm327_sim_new();
-    pthread_t t = elm327_sim_loop_thread(elm327);
+    elm327_sim_loop_start(elm327);
     usleep(200e3);
     return strdup(elm327->ptsname);
 }

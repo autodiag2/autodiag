@@ -13,13 +13,14 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
 }
 
 SAEJ1979_DTC * SAEJ1979_DTC_list_get(SAEJ1979_DTC_list * list, char *dtcStr) {
-    for(int i = 0; i < list->size; i++) {
-        SAEJ1979_DTC *dtc = list->list[i];
+    LIST_FOREACH(list, SAEJ1979_DTC, dtc, 
+
         final char * searched_dtc = saej1979_dtc_to_string(dtc);
         if ( strcmp(searched_dtc, dtcStr) == 0) {
             return dtc;
         }
-    }
+
+    )
     return null;
 }
 

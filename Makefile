@@ -12,7 +12,7 @@ OUTPUT_MAIN = $(OUTPUT_APP) bin/elm327sim
 SOURCES_test = $(call rwildcard,src/test/,*.c)
 #OUTPUT_TESTS = $(subst src/test/,bin/,$(SOURCES_test:.c=))
 OBJS_test = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supported.o,,$(subst src/test/,obj/test/,$(SOURCES_test:.c=.o))))
-OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported bin/simulator
+OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
 
 # objects of the library
 OBJS_lib = obj/main/ui/config.o $(filter-out obj/main/ui/%.o,$(OBJS_main))

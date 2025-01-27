@@ -13,7 +13,6 @@ void elm327_sim_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
 }
 
-pthread_t elm327_sim_current_activity_monitor_thread = -1;
 void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
     elm327->activity_monitor_count = 0x00;
     while(elm327->activity_monitor_count != 0xFF) {
@@ -42,10 +41,11 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
 }
 
 void elm327_sim_start_activity_monitor(ELM327emulation * elm327) {
-    if ( elm327_sim_current_activity_monitor_thread != -1 ) {
-        pthread_cancel(elm327_sim_current_activity_monitor_thread);
+    if ( elm327->activity_monitor_thread != -1 ) {
+        pthread_cancel(elm327->activity_monitor_thread);
+        elm327->activity_monitor_thread = -1;
     }
-    if ( pthread_create(&elm327_sim_current_activity_monitor_thread, NULL,
+    if ( pthread_create(&elm327->activity_monitor_thread, NULL,
                           (void *(*) (void *)) elm327_sim_activity_monitor_daemon,
                           (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
@@ -337,6 +337,7 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
     elm327->activity_monitor_count = 0x00;
+    elm327->activity_monitor_thread = -1;
     int secs = bitRetrieve(ELM327_SIM_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
@@ -372,18 +373,43 @@ ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
     elm327->ecus = ECUEmulation_list_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE8));
+    elm327->loop_thread = -1;
     elm327_sim_init(elm327);
     return elm327;
 }
-
-pthread_t elm327_sim_loop_thread(ELM327emulation * elm327) {
-    pthread_t t;
-    if ( pthread_create(&t, NULL,
+void elm327_sim_destroy(ELM327emulation * elm327) {
+    if ( elm327->activity_monitor_thread != -1 ) {
+        pthread_cancel(elm327->activity_monitor_thread);
+        elm327->activity_monitor_thread = -1;
+    }
+    if ( elm327->loop_thread != -1 ) {
+        pthread_cancel(elm327->loop_thread);
+        elm327->loop_thread = -1;
+    }
+    free(elm327->eol);
+    free(elm327->dev_description);
+    free(elm327->dev_identifier);
+    free(elm327->ptsname);
+    free(elm327->receive_address);
+    buffer_free(elm327->custom_header);
+    buffer_free(elm327->obd_buffer);
+    buffer_free(elm327->can.mask);
+    buffer_free(elm327->can.filter);
+    buffer_free(elm327->nvm.programmable_parameters);
+    buffer_free(elm327->nvm.programmable_parameters_states);
+    buffer_free(elm327->programmable_parameters_defaults);
+    free(elm327);
+}
+void elm327_sim_loop_start(ELM327emulation * elm327) {
+    if ( elm327->loop_thread != -1 ) {
+        pthread_cancel(elm327->loop_thread);
+        elm327->loop_thread = -1;
+    }
+    if ( pthread_create(&elm327->loop_thread, NULL,
                           (void *(*) (void *)) elm327_sim_loop, (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
         exit(EXIT_FAILURE);
     }
-    return t;
 }
 
 char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {

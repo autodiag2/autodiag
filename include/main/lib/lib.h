@@ -37,5 +37,6 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "stringlist.h"
 #include "initools.h"
 #include "log.h"
+#include "cli_tools.h"
 
 #endif

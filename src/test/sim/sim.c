@@ -4,7 +4,7 @@ bool testSIM() {
     ELM327emulation* elm327 = elm327_sim_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0x1A));        
-    pthread_t t = elm327_sim_loop_thread(elm327);
+    elm327_sim_loop_start(elm327);
     usleep(200e3);
     final OBDIFace* iface = port_open(strdup(elm327->ptsname));
 

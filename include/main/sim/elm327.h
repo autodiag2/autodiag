@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
+#include <pthread.h>
 #include <unistd.h>
 #include <string.h>
 #include "lib/lib.h"
@@ -37,6 +38,8 @@ typedef struct {
     Buffer *custom_header;
     byte activity_monitor_count;
     int activity_monitor_timeout;
+    pthread_t activity_monitor_thread;
+    pthread_t loop_thread;
     
     /**
      * Time in ms to wait for a vehicle response
@@ -114,6 +117,9 @@ typedef struct {
 
 ELM327emulation* elm327_sim_new();
 void elm327_sim_loop(ELM327emulation * elm327);
-pthread_t elm327_sim_loop_thread(ELM327emulation * elm327);
+void elm327_sim_loop_start(ELM327emulation * elm327);
+void elm327_sim_destroy(ELM327emulation * elm327);
+
+#include "elm327_cli.h"
 
 #endif
