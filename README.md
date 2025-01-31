@@ -26,6 +26,10 @@ Scantool to read diagnostic codes with OBD2
 ```bash
 brew install gtk+3
 ```
+### Debian based
+```bash
+sudo apt-get install libgtk-3-0
+```
 ## Build
 ```bash
 git clone https://github.com/autodiag2/autodiag && \
