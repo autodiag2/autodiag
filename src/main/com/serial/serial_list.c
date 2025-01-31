@@ -191,7 +191,7 @@ void serial_list_fill() {
     serial_list_set_to_undetected();
    
     #ifdef OS_POSIX 
-		char part1[][20] = {"ttys","ttyS","ttyUSB"};
+		char part1[][20] = {"ttys","ttyS","ttyUSB","pts"};
 	    serial_list_fill_from_dir("/dev/",3,part1,selected_serial_path,&baud_rate);
 		char part2[][20] = {""};
 		serial_list_fill_from_dir("/dev/pts/",1,part2,selected_serial_path,&baud_rate);
