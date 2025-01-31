@@ -16,10 +16,10 @@
 #include "com/obd/device.h"
 #include "lib/lib.h"
 
-#ifdef OS_POSIX
-#   include <termios.h>
-#elif defined OS_WINDOWS
+#if defined OS_WINDOWS
 #   include <windows.h>
+#elif defined OS_POSIX
+#   include <termios.h>
 #else
 #   warning Unsupported OS
 #endif
@@ -53,11 +53,11 @@ typedef struct {
      * the adaptater
      */
     int (*guess_response)(char *ptr);
-#ifdef OS_POSIX
+#if defined OS_WINDOWS
+    HANDLE com_port;
+#elif OS_POSIX
     int fdtty;
     struct termios oldtio,newtio;
-#elif defined OS_WINDOWS
-    HANDLE com_port;
 #else
 #   warning Unsupported OS
 #endif
