@@ -31,7 +31,8 @@ brew install gtk+3
 git clone https://github.com/autodiag2/autodiag && \
  cd autodiag && \
  git submodule update --init --recursive && \
- make
+ make && \
+ make install
 ```
 ## Run
 ```bash
