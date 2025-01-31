@@ -4,6 +4,7 @@
 #include "compile_target.h"
 #define _GNU_SOURCE
 #include <stdio.h>
+#   include <sys/stat.h>
 #if defined OS_WINDOWS
 #   include <unistd.h>
 #   define FILE_EOL "\r\n"
@@ -12,7 +13,6 @@
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "/"
 #   include <sys/types.h>
-#   include <sys/stat.h>
 #   include <fcntl.h>
 #else
 #   warning Unsupported OS 

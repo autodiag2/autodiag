@@ -24,21 +24,13 @@ bool mkdir_p(char *_path) {
         ptr += currentFolderSz + 1;
         if ( 0 < currentFolderSz ) {
                 
-            #ifdef OS_POSIX
+            #if defined OS_POSIX
                 if ( access(path,R_OK|X_OK) != 0 ) {
                     if ( mkdir(path,S_IRWXU) != 0 ) {
                         if ( chmod(path,S_IRWXU) != 0 ) {
                             rv = false;
                             break;
                         }
-                    }
-                }
-            #elif defined OS_WINDOWS
-                if ( access(path,R_OK|X_OK) != 0 ) {
-                    mkdir(path);
-                    if ( chmod(path,0x700) != 0 ) {
-                        rv = false;
-                        break;
                     }
                 }
             #else
