@@ -33,6 +33,10 @@ git clone https://github.com/autodiag2/autodiag && \
  git submodule update --init --recursive && \
  make
 ```
+## Run
+```bash
+autodiag
+```
 
 # Why
 Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
