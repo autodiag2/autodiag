@@ -55,7 +55,7 @@ typedef struct {
     int (*guess_response)(char *ptr);
 #if defined OS_WINDOWS
     HANDLE com_port;
-#elif OS_POSIX
+#elif defined OS_POSIX
     int fdtty;
     struct termios oldtio,newtio;
 #else
