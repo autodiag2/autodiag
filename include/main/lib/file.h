@@ -4,16 +4,16 @@
 #include "compile_target.h"
 #define _GNU_SOURCE
 #include <stdio.h>
-#if defined OS_UNIX || defined OS_POSIX
+#if defined OS_WINDOWS
+#   include <unistd.h>
+#   define FILE_EOL "\r\n"
+#   define PATH_FOLDER_DELIM "\\"
+#elif defined OS_UNIX || defined OS_POSIX
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "/"
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <fcntl.h>
-#elif defined OS_WINDOWS
-#   include <unistd.h>
-#   define FILE_EOL "\r\n"
-#   define PATH_FOLDER_DELIM "\\"
 #else
 #   warning Unsupported OS 
 #endif
