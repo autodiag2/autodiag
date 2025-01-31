@@ -21,6 +21,12 @@ Scantool to read diagnostic codes with OBD2
 5. Read codes
 
 # Develop
+## Prerequisite
+### MacOS
+```bash
+brew install gtk+3
+```
+## Build
 ```bash
 git clone https://github.com/autodiag2/autodiag && \
  cd autodiag && \
