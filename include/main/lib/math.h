@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-#ifndef OS_WINDOWS
+#ifdef OS_POSIX
 #   define min(a,b) (a < b ? a : b)
 #   define max(a,b) (a < b ? b : a)
 #endif
