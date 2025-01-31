@@ -144,6 +144,7 @@ int serial_open(final Serial * port) {
 
         // Do not open serial if it has not been configured.
         if (port->name == null) {
+            log_msg(LOG_DEBUG, "Open: Cannot open since no name on the serial");
             return GENERIC_FUNCTION_ERROR;
         }
 
