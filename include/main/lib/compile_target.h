@@ -7,14 +7,14 @@
 /**
  * Define OS_* compilation variables
  */
-#if defined __unix__ || defined __APPLE__
+#if defined _WIN32 || defined WIN32 || defined __CYGWIN__ || defined __MINGW64__ || defined __MINGW32__
+#   define OS_WINDOWS
+#elif defined __unix__ || defined __APPLE__
 #   define OS_UNIX
 #   include <unistd.h>
 #   if defined _POSIX_VERSION || defined _POSIX_C_SOURCE || defined _POSIX_SOURCE
 #       define OS_POSIX
 #   endif
-#elif defined _WIN32 || defined WIN32
-#   define OS_WINDOWS
 #else
 #   error "Target OS not supported"
 #endif
