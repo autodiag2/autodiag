@@ -85,10 +85,46 @@ void serial_list_free() {
     serial_list.size = 0;
     serial_list_selected = SERIAL_LIST_NO_SELECTED;
 }
-void serial_list_fill_from_dir(final char * dir, int filter_sz, char filter[][20], char * selected_serial_path, int * baud_rate) {
-    #if defined OS_POSIX
+#if defined OS_WINDOWS
+    void serial_list_fill_comports(char *selected_serial_path, int *baud_rate) {
+        HDEVINFO hDevInfo;
+        SP_DEVINFO_DATA devInfoData;
+        DWORD i;
+        char portName[256];
+        char formattedPortName[256];
+        char formattedPortNameFullPath[256];
+
+        hDevInfo = SetupDiGetClassDevs(&GUID_DEVCLASS_PORTS, 0, 0, DIGCF_PRESENT);
+        if (hDevInfo == INVALID_HANDLE_VALUE) {
+            log_msg(LOG_ERROR, "Error getting device list.\n");
+            return;
+        }
+
+        devInfoData.cbSize = sizeof(SP_DEVINFO_DATA);
+        for (i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, &devInfoData); i++) {
+            if (SetupDiGetDeviceRegistryProperty(hDevInfo, &devInfoData, SPDRP_FRIENDLYNAME, NULL, (BYTE*)portName, sizeof(portName), NULL)) {
+                
+                sscanf(portName, "%*[^(](%[^)])", formattedPortName);
+                snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
+
+                final SERIAL serial = serial_list_add_if_not_in_by_name(formattedPortNameFullPath);
+                
+                if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
+                    if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
+                        serial_list_selected = serial_list.size-1;
+                        serial->baud_rate = *baud_rate;
+                    }
+                }
+            }
+        }
+        
+        SetupDiDestroyDeviceInfoList(hDevInfo);
+    }
+#elif defined OS_POSIX
+    void serial_list_fill_from_dir(final char * dir, int filter_sz, char filter[][20], char * selected_serial_path, int * baud_rate) {
+        
         DIRENT **namelist;
-	    final int namelist_n = scandir(dir, &namelist,NULL,&alphasort);
+        final int namelist_n = scandir(dir, &namelist,NULL,&alphasort);
         if ( namelist_n == -1 ) {
             if ( errno != ENOENT ) {
                 char *path_str;
@@ -100,31 +136,31 @@ void serial_list_fill_from_dir(final char * dir, int filter_sz, char filter[][20
             while (namelist_n--) {
                 switch(namelist[namelist_n]->d_type) {
                     case DT_DIR: 
-					    break;
+                        break;
                     case DT_REG:
                     case DT_BLK:
                     case DT_FIFO:
                     case DT_CHR: {
-					    for(int i = 0; i < filter_sz; i++) {
-						    if ( filter[i] == null || strncmp(filter[i],namelist[namelist_n]->d_name,strlen(filter[i])) == 0 ) {
-							    char *serial_path ;
-							    assert(0 < strlen(dir));
-							    asprintf(&serial_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
-		                        final SERIAL serial = serial_list_add_if_not_in_by_name(serial_path);
-		                        serial->detected = true;
-		                        if ( access(serial_path,R_OK|W_OK) == 0 ) {
-		                            module_debug(MODULE_SERIAL "    All permissions granted");
-		                        } else {
-		                            module_debug(MODULE_SERIAL "    Missing permissions");
-		                        }
-		                        if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
-		                            if ( selected_serial_path != null && strcmp(selected_serial_path,serial_path) == 0 ) {
-		                                serial_list_selected = serial_list.size-1;
-		                                serial->baud_rate = *baud_rate;
-		                            }
-		                        }
-						    }
-					    }
+                        for(int i = 0; i < filter_sz; i++) {
+                            if ( filter[i] == null || strncmp(filter[i],namelist[namelist_n]->d_name,strlen(filter[i])) == 0 ) {
+                                char *serial_path ;
+                                assert(0 < strlen(dir));
+                                asprintf(&serial_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
+                                final SERIAL serial = serial_list_add_if_not_in_by_name(serial_path);
+                                serial->detected = true;
+                                if ( access(serial_path,R_OK|W_OK) == 0 ) {
+                                    module_debug(MODULE_SERIAL "    All permissions granted");
+                                } else {
+                                    module_debug(MODULE_SERIAL "    Missing permissions");
+                                }
+                                if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
+                                    if ( selected_serial_path != null && strcmp(selected_serial_path,serial_path) == 0 ) {
+                                        serial_list_selected = serial_list.size-1;
+                                        serial->baud_rate = *baud_rate;
+                                    }
+                                }
+                            }
+                        }
                         break;
                     }
                     default: {
@@ -133,11 +169,10 @@ void serial_list_fill_from_dir(final char * dir, int filter_sz, char filter[][20
                 }
                 free(namelist[namelist_n]);
             }
-	    }
-    #else
-    #   warning Unsupported OS
-    #endif
-}
+        }
+    }
+#endif
+
 void serial_list_set_to_undetected() {
     for(int i = 0; i < serial_list.size; i++) {
         SERIAL serial = serial_list.list[i];
@@ -190,7 +225,9 @@ void serial_list_fill() {
     }
     serial_list_set_to_undetected();
    
-    #ifdef OS_POSIX 
+    #if defined OS_WINDOWS
+        serial_list_fill_comports(selected_serial_path,&baud_rate);
+    #elif defined OS_POSIX 
 		char part1[][20] = {"ttys","ttyS","ttyUSB"};
 	    serial_list_fill_from_dir("/dev/",3,part1,selected_serial_path,&baud_rate);
 		char part2[][20] = {""};

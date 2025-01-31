@@ -5,6 +5,15 @@
 #include "lib/log.h"
 #include "com/serial/serial.h"
 
+#ifdef OS_WINDOWS
+#   include <windows.h>
+#   include <setupapi.h>
+#   include <initguid.h>
+#   include <devguid.h>
+#   include <stdio.h>
+#   include <string.h>
+#endif
+
 LIST_DEFINE(Serial_list,Serial)
 LIST_APPEND_H(Serial_list,Serial);
 
