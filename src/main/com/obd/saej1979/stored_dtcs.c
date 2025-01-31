@@ -70,15 +70,10 @@ void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_
 }
 
 void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1979_DTC * dtc) {
-    #if defined OS_POSIX || defined OS_WINDOWS
-        DIRENT **namelist;
-        #if defined OS_POSIX
-	        final int namelist_n = scandir(path, &namelist,NULL,&alphasort);
-	    #elif defined OS_WINDOWS
-	        final int namelist_n = scandir(path, &namelist);
-	    #else
-        #   warning Unsupported OS	    
-	    #endif    
+    #if defined OS_POSIX
+        DIRENT **namelist;   
+        final int namelist_n = scandir(path, &namelist,NULL,&alphasort);
+
         if ( namelist_n == -1 ) {
             char *path_str;
             asprintf(&path_str,"scandir error for %s\n", path);

@@ -24,17 +24,7 @@ int serial_send(final Serial * port, const char *command) {
             module_debug(MODULE_SERIAL "Sending");
             bin_dump(tx_buf,bytes_to_send);
         }
-        #ifdef OS_POSIX
-            bytes_sent = write(port->fdtty,tx_buf,bytes_to_send);
-	        if ( bytes_sent != bytes_to_send ) {
-                perror(port->name);
-                log_msg(LOG_ERROR, "Error while writting to the serial");
-                serial_close(port);
-                return DEVICE_ERROR;
-	        } else {
-                tcflush(port->fdtty, TCIFLUSH);
-	        }
-        #elif defined OS_WINDOWS
+        #if defined OS_WINDOWS
             DWORD bytes_written;
 
             PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
@@ -46,6 +36,17 @@ int serial_send(final Serial * port, const char *command) {
                 serial_close(port);
                 return DEVICE_ERROR;
             }
+        #elif defined OS_POSIX
+            bytes_sent = write(port->fdtty,tx_buf,bytes_to_send);
+	        if ( bytes_sent != bytes_to_send ) {
+                perror(port->name);
+                log_msg(LOG_ERROR, "Error while writting to the serial");
+                serial_close(port);
+                return DEVICE_ERROR;
+	        } else {
+                tcflush(port->fdtty, TCIFLUSH);
+	        }
+        
         #else
         #   warning Unsupported OS
         #endif
@@ -57,7 +58,26 @@ int serial_recv_internal(final SERIAL port) {
         return DEVICE_ERROR;
     } else {
         final int initial_buffer_sz = port->recv_buffer->size;
-        #ifdef OS_POSIX
+        #if defined OS_WINDOWS
+            if (port->com_port == INVALID_HANDLE_VALUE) {
+               port->status = SERIAL_STATE_NOT_OPEN;
+               return DEVICE_ERROR;
+            } else {        
+                DWORD bytes_readed = 0;
+                DWORD errors;
+                COMSTAT stat;
+
+                ClearCommError(port->com_port, &errors, &stat);
+                buffer_ensure_capacity(port->recv_buffer, stat.cbInQue);
+                if ( ReadFile(port->com_port, port->recv_buffer, stat.cbInQue, &bytes_readed, 0) ) {
+                    if ( bytes_readed < stat.cbInQue )  {
+                        log_msg(LOG_WARNING, "Not all expected bytes have been readed");
+                    }
+                } else {
+                    log_msg(LOG_WARNING, "Cannot read from the port");
+                }
+            }
+        #elif defined OS_POSIX
             if (port->fdtty < 0) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
@@ -92,25 +112,6 @@ int serial_recv_internal(final SERIAL port) {
                     log_msg(LOG_DEBUG, "Timeout while reading data");
                 } else {
                     log_msg(LOG_ERROR, "unexpected happen on serial line");
-                }
-            }
-        #elif defined OS_WINDOWS
-            if (port->com_port == INVALID_HANDLE_VALUE) {
-               port->status = SERIAL_STATE_NOT_OPEN;
-               return DEVICE_ERROR;
-            } else {        
-                DWORD bytes_readed = 0;
-                DWORD errors;
-                COMSTAT stat;
-
-                ClearCommError(port->com_port, &errors, &stat);
-                buffer_ensure_capacity(port->recv_buffer, stat.cbInQue);
-                if ( ReadFile(port->com_port, port->recv_buffer, stat.cbInQue, &bytes_readed, 0) ) {
-                    if ( bytes_readed < stat.cbInQue )  {
-                        log_msg(LOG_WARNING, "Not all expected bytes have been readed");
-                    }
-                } else {
-                    log_msg(LOG_WARNING, "Cannot read from the port");
                 }
             }
         #else
@@ -148,44 +149,7 @@ int serial_open(final Serial * port) {
 
         assert(0 <= port->baud_rate);
 
-        #ifdef OS_POSIX
-            port->fdtty = open(port->name, O_RDWR | O_NOCTTY);
-            if (port->fdtty < 0) {
-                perror(port->name);
-                if ( errno == ENOENT ) {
-                    port->status = SERIAL_STATE_DISCONNECTED;
-                } else if ( errno == EPERM ) {
-                    port->status = SERIAL_STATE_MISSING_PERM;
-                } else {
-                    port->status = SERIAL_STATE_OPEN_ERROR;
-                }
-                return GENERIC_FUNCTION_ERROR;
-            }
-
-            tcgetattr(port->fdtty, &(port->oldtio)); /* save current port settings */
-
-            bzero(&(port->newtio), sizeof(port->newtio));
-
-            cfsetspeed(&(port->newtio), port->baud_rate);
-
-            cfmakeraw(&(port->newtio));
-            port->newtio.c_cflag |= (CLOCAL | CREAD);
-
-            // No parity (8N1):
-            port->newtio.c_cflag &= ~PARENB;
-            port->newtio.c_cflag &= ~CSTOPB;
-            port->newtio.c_cflag &= ~CSIZE;
-            port->newtio.c_cflag |= CS8;
-
-            // disable hardware flow control
-            port->newtio.c_cflag &= ~CRTSCTS ;
-
-            port->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-            port->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
-
-            tcflush(port->fdtty, TCIFLUSH);
-            tcsetattr(port->fdtty,TCSANOW,&(port->newtio));
-        #elif defined OS_WINDOWS
+        #if defined OS_WINDOWS
 
             #define TX_TIMEOUT_MULTIPLIER    0
             #define TX_TIMEOUT_CONSTANT      1000
@@ -242,6 +206,44 @@ int serial_open(final Serial * port) {
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
             }
+
+        #elif defined OS_POSIX
+            port->fdtty = open(port->name, O_RDWR | O_NOCTTY);
+            if (port->fdtty < 0) {
+                perror(port->name);
+                if ( errno == ENOENT ) {
+                    port->status = SERIAL_STATE_DISCONNECTED;
+                } else if ( errno == EPERM ) {
+                    port->status = SERIAL_STATE_MISSING_PERM;
+                } else {
+                    port->status = SERIAL_STATE_OPEN_ERROR;
+                }
+                return GENERIC_FUNCTION_ERROR;
+            }
+
+            tcgetattr(port->fdtty, &(port->oldtio)); /* save current port settings */
+
+            bzero(&(port->newtio), sizeof(port->newtio));
+
+            cfsetspeed(&(port->newtio), port->baud_rate);
+
+            cfmakeraw(&(port->newtio));
+            port->newtio.c_cflag |= (CLOCAL | CREAD);
+
+            // No parity (8N1):
+            port->newtio.c_cflag &= ~PARENB;
+            port->newtio.c_cflag &= ~CSTOPB;
+            port->newtio.c_cflag &= ~CSIZE;
+            port->newtio.c_cflag |= CS8;
+
+            // disable hardware flow control
+            port->newtio.c_cflag &= ~CRTSCTS ;
+
+            port->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
+            port->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
+
+            tcflush(port->fdtty, TCIFLUSH);
+            tcsetattr(port->fdtty,TCSANOW,&(port->newtio));
         #else
         #   warning Unsupported OS            
         #endif
@@ -258,14 +260,14 @@ void serial_close(final Serial * port) {
         log_msg(LOG_INFO, "Open: No serial currently selected");
     } else {
         if (port->status == SERIAL_STATE_READY) {
-            #ifdef OS_POSIX
-                tcsetattr(port->fdtty,TCSANOW,&(port->oldtio));
-                close(port->fdtty);
-                port->fdtty = -1;
-            #elif defined OS_WINDOWS
+            #if defined OS_WINDOWS
                 PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 CloseHandle(port->com_port);
                 port->com_port = INVALID_HANDLE_VALUE;
+            #elif defined OS_POSIX
+                tcsetattr(port->fdtty,TCSANOW,&(port->oldtio));
+                close(port->fdtty);
+                port->fdtty = -1;
             #else
             #   warning Unsupported OS
             #endif
@@ -355,10 +357,10 @@ void serial_init(final Serial* serial) {
     serial->clear_data = (void (*)(final _Device* device))serial_clear_data;
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->lock_mutex, NULL);
-    #ifdef OS_POSIX
-        serial->fdtty = -1;
-    #elif defined OS_WINDOWS
+    #if defined OS_WINDOWS
         serial->com_port = INVALID_HANDLE_VALUE;
+    #elif defined OS_POSIX
+        serial->fdtty = -1;
     #else
     #   warning Unsupported OS
     #endif

@@ -46,12 +46,12 @@ void config_dump(Config * config) {
 
 char *config_get_config_filename() {
     char *path;
-    #if defined OS_UNIX
-        // XDG Base Directory Specification
-        asprintf(&path,"%s/.config/" APP_NAME "/" CONFIG_DEFAULT_FILENAME, getenv("HOME"));
-    #elif defined OS_WINDOWS
+    #if defined OS_WINDOWS
         // Windows application data directory
         asprintf(&path,"%s\\" APP_NAME "\\" CONFIG_DEFAULT_FILENAME, getenv("APPDATA"));    
+    #elif defined OS_UNIX
+        // XDG Base Directory Specification
+        asprintf(&path,"%s/.config/" APP_NAME "/" CONFIG_DEFAULT_FILENAME, getenv("HOME"));
     #else
     #   warning OS not supported
     #endif
@@ -100,26 +100,7 @@ char *config_try_make_config_file() {
 
 char *config_get_data_directory_safe() {
     char *data_path = null;
-    #ifdef OS_UNIX
-        int mode = R_OK|X_OK;
-
-        // XDG Base Directory Specification
-        asprintf(&data_path, "%s/.local/share/" APP_NAME "/", getenv("HOME"));
-        if ( access(data_path,mode) == 0 ) {
-            return data_path;
-        } else {
-            free(data_path);
-            data_path = null;
-        }
-        // UNIX common location
-        asprintf(&data_path,"/usr/share/" APP_NAME "/");
-        if ( access(data_path,mode) == 0 ) {
-            return data_path;
-        } else {
-            free(data_path);
-            data_path = null;
-        }
-    #elif defined OS_WINDOWS
+    #if defined OS_WINDOWS
         int mode = R_OK|X_OK;
 
         // Local user installation directory
@@ -139,7 +120,25 @@ char *config_get_data_directory_safe() {
             free(data_path);
             data_path = null;
         }
+    #elif defined OS_UNIX
+        int mode = R_OK|X_OK;
 
+        // XDG Base Directory Specification
+        asprintf(&data_path, "%s/.local/share/" APP_NAME "/", getenv("HOME"));
+        if ( access(data_path,mode) == 0 ) {
+            return data_path;
+        } else {
+            free(data_path);
+            data_path = null;
+        }
+        // UNIX common location
+        asprintf(&data_path,"/usr/share/" APP_NAME "/");
+        if ( access(data_path,mode) == 0 ) {
+            return data_path;
+        } else {
+            free(data_path);
+            data_path = null;
+        }
     #else
     #   warning Unsupported OS
     #endif

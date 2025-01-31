@@ -17,12 +17,12 @@ gboolean main_onclose(final GtkWidget *dialog, final GdkEvent *event, gpointer u
 
 void debug_show_config() {
     log_msg(LOG_INFO, "=== Running configuration ===");
-    #ifdef OS_POSIX
+    #if defined OS_WINDOWS
+        log_msg(LOG_INFO, "WINDOWS OS");
+    #elif defined OS_POSIX
         log_msg(LOG_INFO, "POSIX OS (using termios)");
     #elif defined OS_UNIX
         log_msg(LOG_INFO, "UNIX OS");
-    #elif defined OS_WINDOWS
-        log_msg(LOG_INFO, "WINDOWS OS");
     #else
     #   warning Unsupported OS
     #endif
