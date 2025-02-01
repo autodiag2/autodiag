@@ -61,14 +61,14 @@ typedef struct {
  */
 #define DEVICE_RECV_DATA -2
 /**
+ * Nothing has been received by the device
+ */
+#define DEVICE_RECV_NULL -3
+/**
  * When the request information is no available on the corresponding vehicle
  * The wanted OBD data is not available
  */
 #define DEVICE_RECV_DATA_UNAVAILABLE -4
-/**
- * Nothing has been received by the device
- */
-#define DEVICE_RECV_NULL -3
 
 #define DEVICE(var) ((_Device*)var)
 

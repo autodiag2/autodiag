@@ -28,8 +28,11 @@ int serial_send(final Serial * port, const char *command) {
             DWORD bytes_written;
 
             PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            WriteFile(port->com_port, tx_buf, bytes_to_send, &bytes_written, 0);
-            
+            if (!WriteFile(port->com_port, tx_buf, bytes_to_send, &bytes_written, null)) {
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                serial_close(port);
+                return DEVICE_ERROR;
+            }            
             bytes_sent = (int) bytes_written;
             if (bytes_sent != bytes_to_send) {
                 log_msg(LOG_ERROR, "Error while writting to the serial");
@@ -68,13 +71,31 @@ int serial_recv_internal(final SERIAL port) {
                 COMSTAT stat;
 
                 ClearCommError(port->com_port, &errors, &stat);
-                buffer_ensure_capacity(port->recv_buffer, stat.cbInQue);
-                if ( ReadFile(port->com_port, port->recv_buffer, stat.cbInQue, &bytes_readed, 0) ) {
-                    if ( bytes_readed < stat.cbInQue )  {
-                        log_msg(LOG_WARNING, "Not all expected bytes have been readed");
+
+                while(0 < stat.cbInQue) {
+                    buffer_ensure_capacity(port->recv_buffer, stat.cbInQue);
+                    if ( ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, stat.cbInQue, &bytes_readed, 0) ) {
+                        if( 0 < bytes_readed ) {
+                            port->recv_buffer->size += bytes_readed;
+                        } else if ( bytes_readed == 0 ) {
+                            break;
+                        } else {
+                            log_msg(LOG_ERROR, "ReadFile error");
+                        }
+                        if ( bytes_readed < stat.cbInQue )  {
+                            log_msg(LOG_WARNING, "Not all expected bytes have been readed");
+                        } else {
+                            if ( log_has_level(LOG_DEBUG) ) {
+                                module_debug(MODULE_SERIAL "Serial data received");
+                                buffer_dump(port->recv_buffer);
+                            }
+                        }
+
+                    } else {
+                        log_msg(LOG_WARNING, "Cannot read from the port");
+                        break;
                     }
-                } else {
-                    log_msg(LOG_WARNING, "Cannot read from the port");
+                    ClearCommError(port->com_port, &errors, &stat);
                 }
             }
         #elif defined OS_POSIX
@@ -99,13 +120,14 @@ int serial_recv_internal(final SERIAL port) {
                             break;
                         } else {
                             perror("read");
+                            break;
                         }
                         res = poll(&fileDescriptor,1,port->timeout_seq);
                     }
                     if ( log_has_level(LOG_DEBUG) ) {
-                            module_debug(MODULE_SERIAL "Serial data received");
-                            buffer_dump(port->recv_buffer);
-                        }
+                        module_debug(MODULE_SERIAL "Serial data received");
+                        buffer_dump(port->recv_buffer);
+                    }
                 } else if ( res == -1 ) {
                     perror("poll");
                 } else if ( res == 0 ) {
@@ -160,11 +182,18 @@ int serial_open(final Serial * port) {
             DWORD bytes_written;
             port->com_port = CreateFile(port->name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             if (port->com_port == INVALID_HANDLE_VALUE) {
+                log_msg(LOG_WARNING, "Cannot open the port %s", port->name);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
             }
             
-            GetCommState(port->com_port, &dcb);
+            ZeroMemory(&dcb, sizeof(DCB));
+            dcb.DCBlength = sizeof(DCB);
+            if (!GetCommState(port->com_port, &dcb)) {
+                log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
+                CloseHandle(port->com_port);
+                return GENERIC_FUNCTION_ERROR;
+            }
             dcb.BaudRate = port->baud_rate;
             dcb.ByteSize = 8;
             dcb.StopBits = ONESTOPBIT;
@@ -179,14 +208,23 @@ int serial_open(final Serial * port) {
             dcb.fDsrSensitivity = FALSE;
             dcb.fErrorChar = FALSE;
             dcb.fAbortOnError = FALSE;
-            SetCommState(port->com_port, &dcb);
+            if (!SetCommState(port->com_port, &dcb)) {
+                log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
+                CloseHandle(port->com_port);
+                return GENERIC_FUNCTION_ERROR;
+            }
 
+            ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
             timeouts.ReadIntervalTimeout = MAXWORD;
             timeouts.ReadTotalTimeoutMultiplier = 0;
             timeouts.ReadTotalTimeoutConstant = 0;
             timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
             timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-            SetCommTimeouts(port->com_port, &timeouts);
+            if (!SetCommTimeouts(port->com_port, &timeouts)) {
+                log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
+                CloseHandle(port->com_port);
+                return GENERIC_FUNCTION_ERROR;
+            }
 
             // Hack to get around Windows 2000 multiplying timeout values by 15
             GetCommTimeouts(port->com_port, &timeouts);
@@ -202,6 +240,7 @@ int serial_open(final Serial * port) {
             PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
             WriteFile(port->com_port, "?\r", 2, &bytes_written, 0);
             if (bytes_written != 2) { // If Tx timeout occured
+                log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
                 PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 CloseHandle(port->com_port);
                 port->status = SERIAL_STATE_OPEN_ERROR;
