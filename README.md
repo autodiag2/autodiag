@@ -22,6 +22,14 @@ Scantool to read diagnostic codes with OBD2
 
 # Develop
 ## Prerequisite
+### Windows
+ - Install [MSYS2](https://www.msys2.org/)
+ - Install Dependencies
+ ```bash
+ pacman -S mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3 && \
+  echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc && \
+  source ~/.bashrc
+ ```
 ### MacOS
 ```bash
 brew install gtk+3
