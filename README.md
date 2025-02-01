@@ -73,9 +73,8 @@ GPL licence will allow both buisnesses and individual to use the software<br />
 
 # Compatibility
 OSs:<br />
- - linux<br />
-Distros:<br />
- - debian based<br />
+ - debian based 64 bits <br />
+ - windows 64 bits<br />
 <br />
 Devices: ELM320 ELM322 ELM323 ELM327 ELM329
 
