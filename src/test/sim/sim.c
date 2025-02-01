@@ -6,7 +6,7 @@ bool testSIM() {
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0x1A));        
     elm327_sim_loop_start(elm327);
     usleep(200e3);
-    final OBDIFace* iface = port_open(strdup(elm327->ptsname));
+    final OBDIFace* iface = port_open(strdup(elm327->port_name));
 
     {
         int sz = 4;

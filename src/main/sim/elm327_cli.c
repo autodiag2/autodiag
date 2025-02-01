@@ -89,11 +89,11 @@ int elm327_sim_cli_main(int argc, char **argv, int starti) {
     }
     elm327_sim_loop_start(sim);
     usleep(50e3);
-    if ( sim->ptsname == null ) {
-        log_msg(LOG_INFO, "Simualtion not started");
+    if ( sim->port_name == null ) {
+        log_msg(LOG_INFO, "Simulation not started");
         return 1;
     } else {
-        log_msg(LOG_INFO, "Simulation running on %s", sim->ptsname);
+        log_msg(LOG_INFO, "Simulation running on %s", sim->port_name);
         if ( proto != null ) {
             sim->protocolRunning = *proto;
         }

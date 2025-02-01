@@ -23,7 +23,7 @@ typedef struct {
 	bool printing_of_headers;
     char *dev_description;
     char *dev_identifier;
-    char *ptsname;
+    char *port_name;
     double voltage;
     double voltageFactory;
     int baud_rate;
@@ -84,7 +84,9 @@ typedef struct {
     	Buffer* programmable_parameters_states;    	
     } nvm;
 
-    #ifdef OS_POSIX
+    #ifdef OS_WINDOWS
+        HANDLE com_port;
+    #elif defined OS_POSIX
         int fd;
     #else
     #   warning OS unsupported

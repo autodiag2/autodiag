@@ -131,15 +131,15 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
 
     options_serial_list_refresh();
 
-    char * fmt = elm327->ptsname == null ? 
+    char * fmt = elm327->port_name == null ? 
             "Simulation not started ..." 
             : "Simulation started at '%s'";
     char * simu_desc;
-    asprintf(&simu_desc,fmt,elm327->ptsname);
+    asprintf(&simu_desc,fmt,elm327->port_name);
     gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
     free(simu_desc);
     
-    options_set_serial_select_from_name(elm327->ptsname);
+    options_set_serial_select_from_name(elm327->port_name);
 
     return false;
 }

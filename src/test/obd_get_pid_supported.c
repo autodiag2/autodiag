@@ -5,7 +5,7 @@ int main(int argc, char **argv) {
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));        
     elm327_sim_loop_start(elm327);
     usleep(200e3);
-    final OBDIFace* port = port_open(strdup(elm327->ptsname));
+    final OBDIFace* port = port_open(strdup(elm327->port_name));
 
     printf("PID full support table:\n");
     char * res = strdup(""), *tmp;

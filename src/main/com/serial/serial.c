@@ -185,6 +185,8 @@ int serial_open(final Serial * port) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->name);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
+            } else {
+                log_msg(LOG_DEBUG, "Openning port: %s", port->name);
             }
             
             ZeroMemory(&dcb, sizeof(DCB));

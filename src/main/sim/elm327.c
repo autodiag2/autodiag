@@ -29,9 +29,13 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
                     asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                    if ( write(elm327->fd,act_alert,strlen(act_alert)) == -1 ) {
-                        perror("write");
-                    }
+                    #if defined OS_WINDOWS
+                    #   warning simulation not available under windows
+                    #elif defined OS_POSIX
+                        if ( write(elm327->fd,act_alert,strlen(act_alert)) == -1 ) {
+                            perror("write");
+                        }
+                    #endif
                     free(act_alert);
                 }
             }
@@ -329,7 +333,9 @@ void elm327_sim_init(ELM327emulation* elm327) {
             elm327->programmable_parameters_defaults->size
     );
     ELM327_SIM_PPS_STATE(elm327,false)
-    #ifdef OS_POSIX
+    #ifdef OS_WINDOWS
+        elm327->com_port = INVALID_HANDLE_VALUE;
+    #elif defined OS_POSIX
         elm327->fd = -1;
     #else
     #   warning OS unsupported
@@ -341,7 +347,7 @@ void elm327_sim_init(ELM327emulation* elm327) {
     int secs = bitRetrieve(ELM327_SIM_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
-    elm327->ptsname = null;
+    elm327->port_name = null;
     elm327->vehicle_response_timeout = ELM327_SIM_PP_GET(elm327,0x03) * 4;
     elm327->vehicle_response_timeout_adaptive = true;
     elm327->isMemoryEnabled = true;
@@ -389,7 +395,7 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     free(elm327->eol);
     free(elm327->dev_description);
     free(elm327->dev_identifier);
-    free(elm327->ptsname);
+    free(elm327->port_name);
     free(elm327->receive_address);
     buffer_free(elm327->custom_header);
     buffer_free(elm327->obd_buffer);
@@ -752,7 +758,9 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
 }
 
 void elm327_sim_loop(ELM327emulation * elm327) {
-    #ifdef OS_POSIX
+    #ifdef OS_WINDOWS
+    #   warning elm simulation not available under windows
+    #elif defined OS_POSIX
         int fd = posix_openpt(O_RDWR);
         if ( fd == -1 ) {
             perror("openpt");
@@ -766,8 +774,8 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                 return;
             }
             elm327_sim_init(elm327);
-            elm327->ptsname = strdup(ptsname(fd));
-            log_msg(LOG_INFO, "sim running on %s", elm327->ptsname);
+            elm327->port_name = strdup(ptsname(fd));
+            log_msg(LOG_INFO, "sim running on %s", elm327->port_name);
             elm327->fd = fd;
 
             while(true) {
@@ -782,7 +790,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                     log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
                     continue;
                 }
-                int rv = read(fd,buffer,sz-1);
+                int rv = read(elm327->fd,buffer,sz-1);
                 if ( rv == -1 ) {
                     log_msg(LOG_ERROR, "read error: %s", strerror(errno));
                     continue;
@@ -807,7 +815,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                 log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
                 usleep(50e3);
                 log_msg(LOG_DEBUG, "sending back %s", response);
-                if ( write(fd,response,strlen(response)) == -1 ) {
+                if ( write(elm327->fd,response,strlen(response)) == -1 ) {
                     perror("write");
                     break;
                 }
