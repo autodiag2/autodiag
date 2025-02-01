@@ -126,14 +126,17 @@ newVersion:
 	@-control=app.mk ; \
 	version=$$(bash -c "let version=$(APP_VERSION)+1 ; echo \$$version") ; \
 	tmp="/tmp/control_tmp" ; \
-	sed "s/APP_VERSION = .*/APP_VERSION = $${version}/g" $${control} > $${tmp} ; \
-	mv $${tmp} $${control} ; \
+	sed "s/APP_VERSION = .*/APP_VERSION = $${version}/" $${control} > $${tmp} ; \
+		mv $${tmp} $${control} ; \
 	\
 	debchange --changelog dist/debian/changelog --release-heuristic log --newversion $${version} "Version $${version}" ; \
 	\
+	sed "s/AppVersion=.*/AppVersion=$${version}/" dist/windows/package.iss > $${tmp} ; \
+		mv $${tmp} dist/windows/package.iss ; \
+	\
 	git add . ; \
-	git commit -m "Version $$version" ; \
-	git tag "v$$version"
+	git commit -m "Version $${version}" ; \
+	git tag "v$${version}"
 
 # Manual installation
 install: uninstall
