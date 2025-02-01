@@ -132,7 +132,7 @@ newVersion:
 	debchange --changelog dist/debian/changelog --release-heuristic log --newversion $${version} "Version $${version}" ; \
 	\
 	sed "s/AppVersion=.*/AppVersion=$${version}/" dist/windows/package.iss > $${tmp} ; \
-		mv $${tmp} dist/windows/package.iss
+		mv $${tmp} dist/windows/package.iss ; \
 	\
 	git add . ; \
 	git commit -m "Version $${version}" ; \
