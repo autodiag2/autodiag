@@ -108,7 +108,7 @@ void serial_list_free() {
                 snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
 
                 final SERIAL serial = serial_list_add_if_not_in_by_name(formattedPortNameFullPath);
-                
+                serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
                         serial_list_selected = serial_list.size-1;
