@@ -135,8 +135,8 @@ newVersion:
 		mv $${tmp} dist/windows/package.iss
 	\
 	git add . ; \
-	git commit -m "Version $$version" ; \
-	git tag "v$$version"
+	git commit -m "Version $${version}" ; \
+	git tag "v$${version}"
 
 # Manual installation
 install: uninstall
