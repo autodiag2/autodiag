@@ -144,13 +144,22 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
     return false;
 }
 
+gboolean options_launch_feature_unavaible(gpointer data) {
+    gtk_widget_show_now(optionsGui->featureNotAvailable);
+    return false;
+}
+
 void options_launch_simulation_internal() {
-    gtk_spinner_start(optionsGui->simulator.spinner);
-    ELM327emulation * elm327 = elm327_sim_new();
-    elm327_sim_loop_start(elm327);
-    g_idle_add(options_launch_simulation_set_pending_text, elm327);
-    usleep(500e3);
-    g_idle_add(options_launch_simulation_update_gui, elm327);
+    #ifdef OS_WINDOWS
+        g_idle_add(options_launch_feature_unavaible, null);
+    #else
+        gtk_spinner_start(optionsGui->simulator.spinner);
+        ELM327emulation * elm327 = elm327_sim_new();
+        elm327_sim_loop_start(elm327);
+        g_idle_add(options_launch_simulation_set_pending_text, elm327);
+        usleep(500e3);
+        g_idle_add(options_launch_simulation_update_gui, elm327);
+    #endif
 }
 static void options_launch_simulation_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
@@ -172,6 +181,7 @@ void module_init_options(GtkBuilder *builder) {
         optionsGui = (OptionsGui*)malloc(sizeof(OptionsGui));
         OptionsGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
+            .featureNotAvailable = GTK_WIDGET (gtk_builder_get_object (builder, "window-feature-no-available-windows")),
             .logLevel = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-log-level")),
             .serialList = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-serial-list")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
@@ -195,6 +205,7 @@ void module_init_options(GtkBuilder *builder) {
 
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
+        g_signal_connect(G_OBJECT(optionsGui->featureNotAvailable),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&options_launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&options_cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&options_save);

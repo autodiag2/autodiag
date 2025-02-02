@@ -9,6 +9,7 @@
 
 typedef struct {
     GtkWidget *window;
+    GtkWidget *featureNotAvailable;
     GtkComboBoxText *serialList;
     GtkEntry *baudRateSelection;
     GtkComboBoxText *logLevel;
