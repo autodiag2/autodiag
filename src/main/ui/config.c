@@ -105,6 +105,23 @@ char *config_get_data_directory_safe() {
     #if defined OS_WINDOWS
         int mode = R_OK|X_OK;
 
+        // System wide installation
+        char path[MAX_PATH];
+        char folder[MAX_PATH];
+        GetModuleFileName(NULL, path, MAX_PATH);
+        strcpy(folder, path);
+        char *last_backslash = strrchr(folder, '\\');
+        if (last_backslash != NULL) {
+            *last_backslash = '\0'; 
+        }
+        data_path = strdup(folder);
+        if ( access(data_path,mode) == 0 ) {
+            return data_path;
+        } else {
+            free(data_path);
+            data_path = null;
+        }
+
         // Local user installation directory
         asprintf(&data_path,"%s\\" APP_NAME "\\",getenv("LOCALAPPDATA"));
         if ( access(data_path,mode) == 0 ) {
@@ -116,23 +133,6 @@ char *config_get_data_directory_safe() {
 
         // Windows application data directory
         asprintf(&data_path,"%s\\" APP_NAME "\\",getenv("APPDATA"));
-        if ( access(data_path,mode) == 0 ) {
-            return data_path;
-        } else {
-            free(data_path);
-            data_path = null;
-        }
-
-        // System wide installation
-        char path[MAX_PATH];
-        char folder[MAX_PATH];
-        GetModuleFileName(NULL, path, MAX_PATH);
-        strcpy(folder, path);
-        char *last_backslash = strrchr(folder, '\\');
-        if (last_backslash != NULL) {
-            *last_backslash = '\0'; 
-        }
-        data_path = strdup(folder);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
