@@ -79,7 +79,7 @@ char *config_get_config_file_safe() {
 char *config_try_make_config_file() {
     final char * configFile = config_get_config_filename();
     if ( mkdir_p(configFile) ) {
-        #if defined OS_POSIX || defined OS_WINDOWS                
+        #if defined OS_POSIX                
             if ( access(configFile,R_OK|W_OK) != 0 ) {
                 if ( chmod(configFile,0x600) != 0 ) {
                     final FILE * file = fopen(configFile, "w");
@@ -94,6 +94,8 @@ char *config_try_make_config_file() {
         #else
         #   warning Unsupported OS        
         #endif
+    } else {
+        log_msg(LOG_ERROR, "error during mkdir_p");
     }
     return configFile;
 }
@@ -172,11 +174,11 @@ bool config_store() {
     bool res = false;
     final char * configPath = config_try_make_config_file();
     if ( configPath == null ) {
-        log_msg(LOG_WARNING, "Cannot write config");
+        log_msg(LOG_WARNING, "Cannot write config %s", configPath);
     } else {
         final FILE * file = fopen(configPath, "w");
         if ( file == null ) {
-            perror("fopen");
+            log_msg(LOG_ERROR, "Config path is not built %s", configPath);
         } else {
             fprintf(file,"com.serial.baud_rate=%d" FILE_EOL, config.com.serial.baud_rate);
             if ( config.com.serial.port_name != null && strcmp("",config.com.serial.port_name)!=0) {

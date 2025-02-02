@@ -78,5 +78,6 @@ bool file_read_lines(char *fileName,bool func(BUFFER line, void*data), void *dat
  * For a given path with optionally a filename at the end,
  * make sure that all directory along the path are at least readable,
  * and executable. New created folder got user RWX
+ * path must be absolute under windows.
  */
 bool mkdir_p(char *_path);

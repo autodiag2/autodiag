@@ -14,6 +14,10 @@ bool mkdir_p(char *_path) {
     char * ptr = path;
     char * end_ptr = path + strlen(path);
     char *delim = PATH_FOLDER_DELIM;
+    #if defined OS_WINDOWS
+        // skip the first part of the path
+        ptr = strstr(ptr, delim) + strlen(delim);
+    #endif
     while(ptr < end_ptr) {
         char *s = strstr(ptr, delim);
         if ( s == null ) {
