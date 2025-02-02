@@ -148,6 +148,9 @@ gboolean options_launch_feature_unavaible(gpointer data) {
     gtk_widget_show_now(optionsGui->featureNotAvailable);
     return false;
 }
+void options_launch_feature_unavaible_ok() {
+    gtk_widget_hide_on_main_thread(GTK_WIDGET(optionsGui->featureNotAvailable));
+}
 
 void options_launch_simulation_internal() {
     #ifdef OS_WINDOWS
@@ -207,6 +210,7 @@ void module_init_options(GtkBuilder *builder) {
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
         g_signal_connect(G_OBJECT(optionsGui->featureNotAvailable),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&options_launch_simulation);
+        gtk_builder_add_callback_symbol(builder,"window-feature-no-available-windows-ok",&options_launch_feature_unavaible_ok);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&options_cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&options_save);
         gtk_builder_add_callback_symbol(builder,"show-window-options",&options_show_window);

@@ -7325,6 +7325,7 @@ Author: autodiag
     <property name="message-type">error</property>
     <property name="buttons">ok</property>
     <property name="text" translatable="yes">Feature not available under windows, try with a COM port emulator</property>
+    <signal name="response" handler="window-feature-no-available-windows-ok" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="visible">True</property>
