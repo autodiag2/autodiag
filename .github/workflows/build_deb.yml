@@ -36,7 +36,7 @@ jobs:
           echo "package_file=${package_file}" >> $GITHUB_OUTPUT
           echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
       - name: upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: debian-package
           path: ${{ steps.find_pkg.outputs.package_file }}
