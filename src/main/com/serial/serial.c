@@ -67,35 +67,22 @@ int serial_recv_internal(final SERIAL port) {
                return DEVICE_ERROR;
             } else {        
                 DWORD bytes_readed = 0;
-                DWORD errors;
-                COMSTAT stat;
 
-                ClearCommError(port->com_port, &errors, &stat);
-
-                while(0 < stat.cbInQue) {
-                    buffer_ensure_capacity(port->recv_buffer, stat.cbInQue);
-                    if ( ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, stat.cbInQue, &bytes_readed, 0) ) {
-                        if( 0 < bytes_readed ) {
-                            port->recv_buffer->size += bytes_readed;
-                        } else if ( bytes_readed == 0 ) {
-                            break;
-                        } else {
-                            log_msg(LOG_ERROR, "ReadFile error");
-                        }
-                        if ( bytes_readed < stat.cbInQue )  {
-                            log_msg(LOG_WARNING, "Not all expected bytes have been readed");
-                        } else {
-                            if ( log_has_level(LOG_DEBUG) ) {
-                                module_debug(MODULE_SERIAL "Serial data received");
-                                buffer_dump(port->recv_buffer);
-                            }
-                        }
-
-                    } else {
-                        log_msg(LOG_WARNING, "Cannot read from the port");
+                int readLen = 1000;
+                buffer_ensure_capacity(port->recv_buffer, readLen);
+                while(ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0)) {
+                    if( 0 < bytes_readed ) {
+                        port->recv_buffer->size += bytes_readed;
+                    } else if ( bytes_readed == 0 ) {
                         break;
+                    } else {
+                        log_msg(LOG_ERROR, "ReadFile error");
                     }
-                    ClearCommError(port->com_port, &errors, &stat);
+                    if ( log_has_level(LOG_DEBUG) ) {
+                        module_debug(MODULE_SERIAL "Serial data received");
+                        buffer_dump(port->recv_buffer);
+                    }
+                    buffer_ensure_capacity(port->recv_buffer, readLen);
                 }
             }
         #elif defined OS_POSIX
@@ -217,9 +204,9 @@ int serial_open(final Serial * port) {
             }
 
             ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
-            timeouts.ReadIntervalTimeout = MAXWORD;
+            timeouts.ReadIntervalTimeout = port->timeout;
             timeouts.ReadTotalTimeoutMultiplier = 0;
-            timeouts.ReadTotalTimeoutConstant = 0;
+            timeouts.ReadTotalTimeoutConstant = port->timeout;
             timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
             timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
             if (!SetCommTimeouts(port->com_port, &timeouts)) {
@@ -241,9 +228,9 @@ int serial_open(final Serial * port) {
             // If the port is Bluetooth, make sure device is active
             PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
             WriteFile(port->com_port, "?\r", 2, &bytes_written, 0);
+            PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
             if (bytes_written != 2) { // If Tx timeout occured
                 log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
-                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 CloseHandle(port->com_port);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
