@@ -27,8 +27,8 @@ bool car_description_parser(char * funcData, char *key, char *value) {
         return true;
     } else if ( strcasecmp(key,"engine") == 0 ) {
         char * filename;
-        final char * path = config_get_data_directory_safe();
-        asprintf(&filename, "%s/data/engine/%s", path, value);
+        final char * path = config_get_in_data_folder_safe("data/engine");
+        asprintf(&filename, "%s/%s", path, value);
         free(path);
         CarEngine *engine = car_engine_new();
         if ( parse_ini_file(filename,engine_description_parser, engine) ) {

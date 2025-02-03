@@ -122,15 +122,15 @@ void module_init_main() {
             log_set_level(config.log.level);
         }
 
-        char * data_dir = config_get_data_directory_safe(), *mainUiPath, *mainCSSPath;
-        if ( data_dir == null ) {
+        char * ui_dir = config_get_in_data_folder_safe("ui"), *mainUiPath, *mainCSSPath;
+        if ( ui_dir == null ) {
             log_msg(LOG_ERROR, "Data directory not found try to reinstall the software");
             exit(1);
         }
-        asprintf(&mainUiPath, "%s" PATH_FOLDER_DELIM "ui" PATH_FOLDER_DELIM "main.glade", data_dir);
-        asprintf(&mainCSSPath, "%s" PATH_FOLDER_DELIM "ui" PATH_FOLDER_DELIM "main.css", data_dir);
+        asprintf(&mainUiPath, "%s"  PATH_FOLDER_DELIM "main.glade", ui_dir);
+        asprintf(&mainCSSPath, "%s" PATH_FOLDER_DELIM "main.css",   ui_dir);
         final GtkBuilder *builder = gtk_builder_new_from_file(mainUiPath);
-        free(data_dir);
+        free(ui_dir);
         free(mainUiPath);
 
         final MainGui gui = {

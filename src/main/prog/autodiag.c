@@ -48,7 +48,7 @@ int main (int argc, char *argv[]) {
         } else if argIs("data") {
             argNext()
             if argIs("path") {
-                printf("data path: %s\n", config_get_data_directory_safe());
+                printf("data path: %s\n", config_get_in_data_folder_safe(""));
                 return 0;
             }
             ABORT_WITH_HELP()

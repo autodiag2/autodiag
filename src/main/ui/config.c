@@ -99,8 +99,8 @@ char *config_try_make_config_file() {
     }
     return configFile;
 }
+char *config_get_in_data_folder_safe(char *relative_path) {
 
-char *config_get_data_directory_safe() {
     char *data_path = null;
     #if defined OS_WINDOWS
         int mode = R_OK|X_OK;
@@ -114,7 +114,7 @@ char *config_get_data_directory_safe() {
         if (last_backslash != NULL) {
             *last_backslash = '\0'; 
         }
-        data_path = strdup(folder);
+        asprintf(&data_path, "%s\\%s", folder, relative_path);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
@@ -123,7 +123,7 @@ char *config_get_data_directory_safe() {
         }
 
         // Local user installation directory
-        asprintf(&data_path,"%s\\" APP_NAME "\\",getenv("LOCALAPPDATA"));
+        asprintf(&data_path,"%s\\" APP_NAME "\\%s",getenv("LOCALAPPDATA"),relative_path);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
@@ -132,7 +132,7 @@ char *config_get_data_directory_safe() {
         }
 
         // Windows application data directory
-        asprintf(&data_path,"%s\\" APP_NAME "\\",getenv("APPDATA"));
+        asprintf(&data_path,"%s\\" APP_NAME "\\%s",getenv("APPDATA"),relative_path);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
@@ -144,7 +144,7 @@ char *config_get_data_directory_safe() {
         int mode = R_OK|X_OK;
 
         // XDG Base Directory Specification
-        asprintf(&data_path, "%s/.local/share/" APP_NAME "/", getenv("HOME"));
+        asprintf(&data_path, "%s/.local/share/" APP_NAME "/%s", getenv("HOME"), relative_path);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
@@ -152,7 +152,7 @@ char *config_get_data_directory_safe() {
             data_path = null;
         }
         // UNIX common location
-        asprintf(&data_path,"/usr/share/" APP_NAME "/");
+        asprintf(&data_path,"/usr/share/" APP_NAME "/%s", relative_path);
         if ( access(data_path,mode) == 0 ) {
             return data_path;
         } else {
