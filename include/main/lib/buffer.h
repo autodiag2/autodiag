@@ -66,6 +66,10 @@ byte buffer_extract_0(final Buffer* buffer);
 
 char *buffer_to_string(Buffer *buffer);
 Buffer * buffer_from_string(char * str);
+/**
+ * Get free space in the buffer.
+ */
+int buffer_get_free_space(nonnull Buffer * buffer);
 
 #define BUFFER Buffer *
 #define BUFFERLIST BufferList *

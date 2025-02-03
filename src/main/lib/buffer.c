@@ -53,9 +53,14 @@ void buffer_free(nonnull Buffer * buffer) {
     free(buffer);
 }
 
+int buffer_get_free_space(nonnull Buffer * buffer) {
+    assert(buffer != null);
+    return buffer->size_allocated - buffer->size;
+}
+
 bool buffer_ensure_capacity(nonnull Buffer * buffer, int size) {
     assert(buffer != null);
-    final int remaining_space = buffer->size_allocated - buffer->size;
+    final int remaining_space = buffer_get_free_space(buffer);
     if ( size <= remaining_space ) {
         return false;
     } else {
