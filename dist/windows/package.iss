@@ -4,7 +4,7 @@ AppVersion=26
 DefaultDirName={pf}\autodiag
 DefaultGroupName=autodiag
 OutputDir=..\..\bin
-OutputBaseFilename=autodiagInstaller
+OutputBaseFilename=autodiagSetup
 Compression=lzma
 SolidCompression=yes
 
