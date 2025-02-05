@@ -14,11 +14,17 @@ Scantool to read diagnostic codes with OBD2
 
 
 # Quick guide to read codes
-1. Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
-2. Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
-3. Start the car and plug adaptater
-4. Launch autodiag and select /dev/ttyUSB0 device
-5. Read codes
+- Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
+- Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
+#### Debian based
+- Start the car and plug adaptater
+- Launch autodiag and select /dev/ttyUSB0 device
+#### Windows
+- Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
+- Select the right COM port
+<br /><br />
+
+- Read codes
 
 # Develop
 ## Prerequisite
