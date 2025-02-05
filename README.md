@@ -28,7 +28,7 @@ Scantool to read diagnostic codes with OBD2
 
 # Develop
 ## Prerequisite
-### Windows
+#### Windows
  - Install [MSYS2](https://www.msys2.org/)
  - Open MSYS2 MINGW64 shell
  - Install Dependencies
@@ -38,11 +38,11 @@ Scantool to read diagnostic codes with OBD2
   echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc && \
   source ~/.bashrc
  ```
-### MacOS
+#### MacOS
 ```bash
 brew install gtk+3
 ```
-### Debian based
+#### Debian based
 ```bash
 sudo apt-get install libgtk-3-0 git make gcc devscripts 
 ```
@@ -58,6 +58,10 @@ git clone https://github.com/autodiag2/autodiag && \
 ```bash
 autodiag
 ```
+### Simulation for windows
+- Download [Virtual Serial Port Tools](https://freevirtualserialports.com/)
+- Setup a script port
+- Add the script [virtual_serial_port_tools_simulate_elm327.ts](https://raw.githubusercontent.com/autodiag2/autodiag/refs/heads/main/dist/windows/virtual_serial_port_tools_simulate_elm327.ts)
 
 # Why
 Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
