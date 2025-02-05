@@ -9,11 +9,15 @@ This script is a basic implementation of an ELM327 device.
 
 </hhd-description>*/
 
-class LoopbackSerialDevicePull implements Port.IScriptDevice
-{
-    constructor()
-    {
+class LoopbackSerialDevicePull implements Port.IScriptDevice {
+
+	elm327;
+	strWorked;
+
+    constructor() {
         this.run();
+		this.elm327 = this.getStateDefault();
+		this.strWorked = "";
     }
 
     stringToUIntArray(s) {
@@ -33,9 +37,19 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice
 			baud_rate: 38400,
 		}
 	}
+	at_match(cmd) {
+		if ( typeof(cmd) === typeof('') ) {
+			return this.strWorked == ("at" + cmd + this.elm327.eol);
+		} else {
+			return cmd.exec(this.strWorked) != null;
+		}
+	}
+	at_re_bool(re) {
+		return Boolean(parseInt(re.exec(this.strWorked)[1]));
+	}
     async run() {
 		const SERIAL_OK = "OK";
-		let elm327 = this.getStateDefault();
+		
 		const commands = {
 			echo: /ate([\d])/,
 			linefeeds: /atl([\d])/,
@@ -44,36 +58,36 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice
         while (true) {
             var sentData = await port.getSentData();	
 			const receivedString = String.fromCharCode(...sentData).toLowerCase();
-			log(receivedString);
+			this.strWorked = receivedString;
 
 	    	let response;
-			if ( commands.echo.exec(receivedString) != null ) {
-				elm327.echo = Boolean(parseInt(commands.echo.exec(receivedString)[1]));
+			if ( this.at_match(commands.echo) ) {
+				this.elm327.echo = this.at_re_bool(commands.echo);
 				response = SERIAL_OK;
-			} else if (receivedString == ("atib 10" + elm327.eol)) {
-				elm327.baud_rate = 10400;
+			} else if ( this.at_match("ib 10") ) {
+				this.elm327.baud_rate = 10400;
 				response = SERIAL_OK;
-			} else if ( receivedString == ("ati" + elm327.eol) ) {
+			} else if ( this.at_match("i") ) {
 				response = "ELM327 v2.1";
-			} else if ( receivedString == ("atign" + elm327.eol) ) {
+			} else if ( this.at_match("ign") ) {
 				response = Math.random() < 0.5 ? "ON" : "OFF";
-			} else if ( receivedString == ("atd" + elm327.eol) ) {
-				elm327 = this.getStateDefault();
+			} else if ( this.at_match("d") ) {
+				this.elm327 = this.getStateDefault();
 				response = SERIAL_OK;
-			} else if ( commands.linefeeds.exec(receivedString) != null ) {
-				if ( Boolean(parseInt(commands.linefeeds.exec(receivedString)[1])) ) {
-					elm327.eol = "\r\n";
+			} else if ( this.at_match(commands.linefeeds) ) {
+				if ( this.at_re_bool(commands.linefeeds) ) {
+					this.elm327.eol = "\r\n";
 				} else {
-					elm327.eol = "\r";
+					this.elm327.eol = "\r";
 				}
 				response = SERIAL_OK;
 			} else {
 				response = receivedString;
 			}
-			if ( elm327.echo ) {
+			if ( this.elm327.echo ) {
 				response = receivedString + response;
 			}
-			response += elm327.eol;
+			response += this.elm327.eol;
             port.provideReceivedData(this.stringToUIntArray(response));
         }
     }
