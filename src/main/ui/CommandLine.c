@@ -65,27 +65,20 @@ void command_line_send_command_wait_response(final char * command) {
     pthread_t t;
     pthread_create(&t, null, &command_line_send_command_wait_response_internal, command);
 }
-gboolean command_line_set_text_input_data(gpointer data) {
-    char * command = (char*)data;
+gboolean command_line_generic_send_command_from_button_gsource(gpointer button) {
+    final char * command = (char*)gtk_button_get_label((GtkButton*)button);
     gtk_entry_set_text(cmdGui->customCommandInput, command);
-    free(command);
-    return false;
-}
-gboolean command_line_set_text_tooltip_extra(gpointer data) {
-    char * tooltip = (char*)data;
-    gtk_label_set_text(cmdGui->tooltip, tooltip);
-    free(tooltip);
-    return false;
-}
-void command_line_generic_send_command_from_button(final GtkButton * button) {
-    final char * command = (char*)gtk_button_get_label(button);
-    g_idle_add(command_line_set_text_input_data, (gpointer)strdup(command));
+
     char *tooltipText = gtk_widget_get_tooltip_text((GtkWidget*)button);
     if ( tooltipText == null ) {
         tooltipText = strdup("");
         log_msg(LOG_WARNING, "No tooltip text for button with label '%s'", command);
     }
-    g_idle_add(command_line_set_text_tooltip_extra, (gpointer)tooltipText);
+    gtk_label_set_text(cmdGui->tooltip, tooltipText);
+    return false;
+}
+void command_line_generic_send_command_from_button(final GtkButton * button) {
+    g_idle_add(command_line_generic_send_command_from_button_gsource, (gpointer)button);
 }
 
 void show_window_command_line() {
