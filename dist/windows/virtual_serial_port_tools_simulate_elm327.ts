@@ -61,12 +61,23 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
     	return Uint8Array.from(arr);
     }
 	getStateDefault() {
+		const voltageFactory = Math.random() * 20;
 		return {
-			echo: true,
-			eol: "\r\n",
+			echo: true,	// PP
+			eol: "\r\n", // PP
 			baud_rate: 38400,
-			protocol_is_auto_running: true,
-			protocolRunning: ELM327_SIM_DEFAULT_PROTO
+			protocol_is_auto_running: true, // TODO nvm
+			protocolRunning: ELM327_SIM_DEFAULT_PROTO, // TODO nvm
+    		voltage: voltageFactory,
+			voltageFactory: voltageFactory,
+			receive_addresse: null,
+			printing_of_spaces: true, // PP
+			printing_of_headers: false, // TODO PP GET
+			dev_description: "dev description",
+			dev_identifier: "dev identifier",
+			can: {
+				auto_format: true, // TODO PP GET
+			}
 		}
 	}
 	at_match(cmd) {
@@ -76,8 +87,14 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 			return cmd.exec(this.strWorked) != null;
 		}
 	}
+	at_re_string(re) {
+		return re.exec(this.strWorked)[1];
+	}
+	at_re_int(re) {
+		return parseInt(re.exec(this.strWorked)[1]);
+	}
 	at_re_bool(re) {
-		return Boolean(parseInt(re.exec(this.strWorked)[1]));
+		return Boolean(this.at_re_int(re));
 	}
     async run() {
 		const SERIAL_OK = "OK";
@@ -85,6 +102,13 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 		const commands = {
 			echo: /ate([\d])/,
 			linefeeds: /atl([\d])/,
+			calibrate_voltage: /atcv ([\d]+)/,
+			printing_of_spaces: /ats([\d])/,
+			printing_of_headers: /ath([\d])/,
+			dev_identifier: /at@3 ([\w\d]+)/,
+			can: {
+				auto_format: /atcaf([\d])/,
+			}
 		};
 		log("Started emulator");
         while (true) {
@@ -122,8 +146,8 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 				response = "ELM327 v2.1";
 			} else if ( this.at_match("dpn") ) {
 				const elm327_protocol_is_auto_letter = this.elm327.protocol_is_auto_running ? "A" : "";
-				const elm327_protocol_as_int = this.elm327.protocolRunning;
-				response = `${elm327_protocol_is_auto_letter}${elm327_protocol_as_int}`;
+				const elm327_protocol_as_letter = this.elm327.protocolRunning.toString(16);
+				response = `${elm327_protocol_is_auto_letter}${elm327_protocol_as_letter}`;
 			} else if ( this.at_match("dp") ) {
 				const elm327_protocol_is_auto_str = this.elm327.protocol_is_auto_running ? "Auto, " : "";
 				const elm327_protocol_as_str = elm327_protocol_to_string(this.elm327.protocolRunning);
@@ -131,7 +155,76 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 			} else if ( this.at_match("d") ) {
 				this.elm327 = this.getStateDefault();
 				response = SERIAL_OK;
+			} else if ( this.at_match("rv") ) {
+				response = `${this.elm327.voltage.toFixed(2)}`;
+			} else if ( this.at_match("rtr") ) {
+				response = SERIAL_OK;
+			// rd
+			// r
+			} else if ( this.at_match("cv 0000") ) {
+				this.elm327.voltage = this.elm327.voltageFactory;
+				response = SERIAL_OK;
+			// amt
+			// amc
+			} else if ( this.at_match(commands.calibrate_voltage) ) {
+				this.elm327.voltage = this.at_re_int(commands.calibrate_voltage) / 100;
+				response = SERIAL_OK;
+			// pps
+			// pp
+			// bd
+			// brd
+			} else if ( this.at_match("bi") ) {
+				response = SERIAL_OK;
+			// brt
+			} else if ( this.at_match("ar") ) {
+				this.elm327.receive_addresse = null;
+				response = SERIAL_OK;
+			// cp
+			// st
+			// at
+			} else if ( this.at_match("ss") ) {
+				response = SERIAL_OK;
+			} else if ( this.at_match("pc") ) {
+				response = SERIAL_OK;
+			// sh
+			// sr
+			// sd
+			// m
+			// sp A
+			// ta
+			// tp A
+			// sp
+			// tp
+			} else if ( this.at_match(commands.printing_of_spaces) ) {
+				this.elm327.printing_of_spaces = this.at_re_int(commands.printing_of_spaces);
+				response = SERIAL_OK;
+			} else if ( this.at_match(commands.printing_of_headers) ) {
+				this.elm327.printing_of_headers = this.at_re_int(commands.printing_of_headers);
+				response = SERIAL_OK;
+			} else if ( this.at_match("@1") ) {
+				response = this.elm327.dev_description;
+			} else if ( this.at_match("@2") ) {
+				response = this.elm327.dev_identifier;
+			} else if ( this.at_match(commands.dev_identifier) ) {
+				this.elm327.dev_identifier = this.at_re_string(commands.dev_identifier);
+				response = SERIAL_OK;
+			// ws
+			// lp
+			} else if ( this.at_match(commands.can.auto_format) ) {
+				this.elm327.can.auto_format = this.at_re_bool(commands.can.auto_format);
+				response = SERIAL_OK;
+			// kw
+			// cra
+			// cm
+			} else if ( this.at_match("csm") ) {
+				response = SERIAL_OK;
+			} else if ( this.at_match("cfc") ) {
+				response = SERIAL_OK;
+			// cf
+			} else if ( this.at_match("cs") ) {
+				response = "T:00 R:00 ";
 			} else {
+				// sim bus
 				response = receivedString;
 			}
 			if ( this.elm327.echo ) {

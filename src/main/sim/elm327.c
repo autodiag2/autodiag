@@ -529,9 +529,9 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         }
     } else if ((last_index = serial_at_command_lastindex(buffer,"bd")) > -1) {
         #ifdef EMULATE_ELM327_v1_5
-        bool hasSpaces = true;
+            bool hasSpaces = true;
         #else
-        bool hasSpaces = elm327->printing_of_spaces;
+            bool hasSpaces = elm327->printing_of_spaces;
         #endif
         int sz = elm327->obd_buffer->size;
         elm327->obd_buffer->size = elm327->obd_buffer->size_allocated;
