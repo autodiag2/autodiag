@@ -130,6 +130,7 @@ BUFFER ascii_n_to_bin_buffer(char * ascii, int size) {
     BUFFER bin = buffer_new();
     char *ascii_internal;
     if ( size % 2 ) {
+        size ++;
         asprintf(&ascii_internal,"0%s", ascii);
     } else {
         ascii_internal = strndup(ascii,size);
