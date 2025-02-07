@@ -6,19 +6,19 @@ char * buffer_to_hexdump(final byte *buffer, final int size) {
     } else {
         char *hexa_collector = null, *hexa_collector_tmp = null, *ascii_collector = null, *ascii_collector_tmp = null;
         char *result = null,*result_tmp = null;
-        final int cols = 20;
-        int byte = 0;
+        final int col_size = 20;
+        int byte_i = 0;
         do {
-            for(int col = 0; col < cols && byte < size; col++, byte++) {
-                final int byte_as_int = 0xFF&((int)buffer[byte]);
+            for(int col = 0; col < col_size && byte_i < size; col++, byte_i++) {
+                final int byte_as_int = 0xFF&((int)buffer[byte_i]);
                 if ( hexa_collector == null || col == 0 ) {
                     asprintf(&hexa_collector_tmp,"%02x", byte_as_int);
                 } else {
                     asprintf(&hexa_collector_tmp,"%s %02x", hexa_collector, byte_as_int);
                     free(hexa_collector);
                 }
-                if ( 0x20 <= buffer[byte] && buffer[byte] <= 0x7E ) {
-                    asprintf(&ascii_collector_tmp,"%s%c",ascii_collector==null?"":ascii_collector,buffer[byte]);
+                if ( 0x20 <= buffer[byte_i] && buffer[byte_i] <= 0x7E ) {
+                    asprintf(&ascii_collector_tmp,"%s%c",ascii_collector==null?"":ascii_collector,buffer[byte_i]);
                 } else {
                     asprintf(&ascii_collector_tmp,"%s.",ascii_collector==null?"":ascii_collector);
                 }
@@ -31,7 +31,7 @@ char * buffer_to_hexdump(final byte *buffer, final int size) {
                 hexa_collector_tmp = null;
                 ascii_collector_tmp = null;
             }
-            assert(0 < cols);
+            assert(0 < col_size);
             asprintf(&result_tmp,"%s%59s | %20s\n", result == null ? "" : result, hexa_collector==null?"NULL buffer":hexa_collector, ascii_collector==null?"":ascii_collector);
             if ( hexa_collector != null ) {
                 free(hexa_collector);
@@ -45,7 +45,7 @@ char * buffer_to_hexdump(final byte *buffer, final int size) {
                 free(result);
             }
             result = result_tmp;
-        } while(byte < size);
+        } while(byte_i < size);
         return result;
     }
 }

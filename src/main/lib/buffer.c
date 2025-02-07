@@ -96,7 +96,7 @@ void buffer_ensure_termination(nonnull Buffer * buffer) {
 }
 
 void buffer_dump(Buffer * buffer) {
-    assert(buffer != null);    
+        assert(buffer != null);    
     bin_dump(buffer->buffer, buffer->size);
 }
 
@@ -181,7 +181,14 @@ bool buffer_equals(final Buffer * b1, final Buffer * b2) {
 
 char *buffer_to_string(Buffer *buffer) {
     int sz = buffer->size;
-    char * res = (char*)malloc((sz*2 + sz-1) * sizeof(char));
+    int terminal_null_byte_sz = 1;
+    int commas_sz = 0;
+    if ( 1 < sz ) {
+        commas_sz = sz - 1;
+    }
+    int bytes_sz = sz * 2;
+    char * res = (char*)malloc((bytes_sz + commas_sz + terminal_null_byte_sz) * sizeof(char));
+    *res = 0;
     for(int i = 0; i < sz; i++) {
         sprintf(res + i*3, "%02x%s", buffer->buffer[i], i + 1 < sz ? "," : "");
     }
