@@ -100,6 +100,7 @@ class ELM327Sim implements Port.IScriptDevice {
 	}
     async run() {
 		const SERIAL_OK = "OK";
+		const SERIAL_RESPONSE_PROMPT = ">";
 		
 		const commands = {
 			echo: /ate([\d])/,
@@ -232,7 +233,7 @@ class ELM327Sim implements Port.IScriptDevice {
 			if ( this.elm327.echo ) {
 				response = receivedString + response;
 			}
-			response += this.elm327.eol;
+			response += this.elm327.eol + SERIAL_RESPONSE_PROMPT;
             port.provideReceivedData(Utils.stringToUIntArray(response));
         }
     }
