@@ -58,10 +58,19 @@ git clone https://github.com/autodiag2/autodiag && \
 ```bash
 autodiag
 ```
-### Simulation for windows
+#### Simulation for windows
 - Download [Virtual Serial Port Tools](https://freevirtualserialports.com/)
 - Setup a script port
 - Add the script [virtual_serial_port_tools_simulate_elm327.ts](https://raw.githubusercontent.com/autodiag2/autodiag/refs/heads/main/dist/windows/virtual_serial_port_tools_simulate_elm327.ts)
+#### MacOS troubleshoot
+```
+(autodiag:5985): GLib-GIO-ERROR **: 23:33:55.223: No GSettings schemas are installed on the system
+```
+Specify the correct location of gsettings schemas
+```bash
+echo "export GSETTINGS_SCHEMA_DIR=/opt/homebrew/share/glib-2.0/schemas/" >> ~/.bashrc && \
+ source ~/.bashrc
+```
 
 # Why
 Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
