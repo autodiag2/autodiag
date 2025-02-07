@@ -68,21 +68,36 @@ int serial_recv_internal(final SERIAL port) {
             } else {        
                 DWORD bytes_readed = 0;
 
-                int readLen = 1000;
-                buffer_ensure_capacity(port->recv_buffer, readLen);
-                while(ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0)) {
-                    if( 0 < bytes_readed ) {
-                        port->recv_buffer->size += bytes_readed;
-                    } else if ( bytes_readed == 0 ) {
-                        break;
-                    } else {
-                        log_msg(LOG_ERROR, "ReadFile error");
+                DWORD errors;
+                COMSTAT stat = {0};
+
+                int readLen = 0;
+                int sleep_length_ms = 20;
+                for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
+                    ClearCommError(port->com_port, &errors, &stat);
+                    readLen = stat.cbInQue;
+                    if ( readLen == 0 ) {
+                        usleep(1000 * sleep_length_ms);
                     }
-                    if ( log_has_level(LOG_DEBUG) ) {
-                        module_debug(MODULE_SERIAL "Serial data received");
-                        buffer_dump(port->recv_buffer);
-                    }
+                }
+                while(0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
+                    if ( ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
+                        if( readLen == bytes_readed ) {
+                            port->recv_buffer->size += bytes_readed;
+                            if ( log_has_level(LOG_DEBUG) ) {
+                                module_debug(MODULE_SERIAL "Serial data received");
+                                buffer_dump(port->recv_buffer);
+                            }
+                        } else {
+                            log_msg(LOG_ERROR, "ReadFile error");
+                        }
+                    } else {
+                        log_msg(LOG_ERROR, "ReadFile error 2");
+                    }
+                    usleep(1000 * port->timeout_seq);
+                    ClearCommError(port->com_port, &errors, &stat);
+                    readLen = stat.cbInQue;
                 }
             }
         #elif defined OS_POSIX
