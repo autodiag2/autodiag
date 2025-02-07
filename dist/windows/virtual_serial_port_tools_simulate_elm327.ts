@@ -101,6 +101,8 @@ class ELM327Sim implements Port.IScriptDevice {
     async run() {
 		const SERIAL_OK = "OK";
 		const SERIAL_RESPONSE_PROMPT = ">";
+		// Standard RS232 response
+		const ELM_RESPONSE_UNKNOWN = "?";
 		
 		const commands = {
 			echo: /ate([\d])/,
@@ -228,7 +230,7 @@ class ELM327Sim implements Port.IScriptDevice {
 				response = "T:00 R:00 ";
 			} else {
 				// sim bus
-				response = receivedString;
+				response = ELM_RESPONSE_UNKNOWN;
 			}
 			if ( this.elm327.echo ) {
 				response = receivedString + response;
