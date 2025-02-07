@@ -8,6 +8,18 @@
 This script is a basic implementation of an ELM327 device.
 
 </hhd-description>*/
+class Utils {
+	static stringToUIntArray(s) {
+       	var length = s.length;
+       	var index = -1;
+       	var hex;
+		var arr = [];
+       	while (++index < length) {
+        	arr.push(s.charCodeAt(index));
+       	}
+       	return Uint8Array.from(arr);
+    }
+}
 
 enum ELM327_PROTO {
 	ELM327_PROTO_NONE, ELM327_PROTO_SAE_J1850_1,
@@ -39,7 +51,7 @@ function elm327_protocol_to_string(proto) {
     return null;
 }
 
-class LoopbackSerialDevicePull implements Port.IScriptDevice {
+class ELM327Sim implements Port.IScriptDevice {
 
 	public elm327;
 	private strWorked;
@@ -50,16 +62,6 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 		this.strWorked = "";
     }
 
-    stringToUIntArray(s) {
-    	var length = s.length;
-    	var index = -1;
-    	var hex;
-		var arr = [];
-    	while (++index < length) {
-    	    arr.push(s.charCodeAt(index));
-    	}
-    	return Uint8Array.from(arr);
-    }
 	getStateDefault() {
 		const voltageFactory = Math.random() * 20;
 		return {
@@ -231,12 +233,12 @@ class LoopbackSerialDevicePull implements Port.IScriptDevice {
 				response = receivedString + response;
 			}
 			response += this.elm327.eol;
-            port.provideReceivedData(this.stringToUIntArray(response));
+            port.provideReceivedData(Utils.stringToUIntArray(response));
         }
     }
 }
 
 function createDevice(): Port.IScriptDevice
 {
-    return new LoopbackSerialDevicePull;
+    return new ELM327Sim;
 }
