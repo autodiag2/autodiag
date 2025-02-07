@@ -238,6 +238,7 @@ bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327) {
 }
 
 void elm327_sim_init(ELM327emulation* elm327) {
+    elm327->nvm.user_memory = 0;
     elm327->nvm.programmable_parameters = buffer_new();
     elm327->nvm.programmable_parameters_states = buffer_new();
     elm327->programmable_parameters_defaults = buffer_new();    
