@@ -29,6 +29,12 @@ void display_help() {
     return 0;
 
 
+gboolean autodiag_present_window(gpointer mainWindow) {
+    sleep(1);
+    gtk_window_set_keep_above(GTK_WINDOW(mainGui->window), false);
+    return false;
+}
+
 int main (int argc, char *argv[]) {
 
     log_set_from_env();
@@ -81,6 +87,10 @@ int main (int argc, char *argv[]) {
     module_init_main();
 
     gtk_widget_show (mainGui->window);
+
+    gtk_window_set_keep_above(GTK_WINDOW(mainGui->window), true);
+    g_idle_add(autodiag_present_window, (gpointer)mainGui->window);
+
     log_msg(LOG_INFO, "Application started");
     gtk_main();
 
