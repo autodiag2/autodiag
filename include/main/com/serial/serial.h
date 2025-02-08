@@ -103,7 +103,7 @@ int serial_guess_response(final char * buffer);
     buffer_ensure_termination(recv_buffer); \
     char *ptr = recv_buffer->buffer; \
     final char* buffer_last_position = recv_buffer->buffer + recv_buffer->size; \
-    while(*ptr != 0 && ptr < buffer_last_position) { \
+    while(ptr < buffer_last_position && *ptr != 0) { \
         char* end_ptr = strstr(ptr, serial->eol); \
         if ( end_ptr == null ) { \
             end_ptr = buffer_last_position; \
