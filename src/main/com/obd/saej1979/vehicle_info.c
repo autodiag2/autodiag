@@ -13,10 +13,11 @@ bool saej1979_vehicle_info_is_pid_supported(final OBDIFace* iface, final int pid
         } else { \
             n = data->size; \
         } \
-        if ( ecu->name == null ) { \
-            ecu->name = strdup(""); \
+        if ( ecu->name != null ) { \
+            free(ecu->name); \
         } \
-        ecu->name = strncat(ecu->name, data->buffer, n); \
+        ecu->name = (char*)malloc(sizeof(char) * (n + 1)); \
+        strncat(ecu->name, data->buffer, n); \
     }
 
 SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
