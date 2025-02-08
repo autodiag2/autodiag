@@ -125,6 +125,7 @@ bool command_line_vehicle_set_tooltip_text(GtkButton* child) {
         if ( tooltipText != null ) {
             gtk_widget_set_tooltip_text(GTK_WIDGET(child),tooltipText);
             res = true;
+            free(tooltipText);
         }
     }
     buffer_free(bin_buffer);

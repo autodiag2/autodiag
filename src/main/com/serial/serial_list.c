@@ -159,6 +159,7 @@ void serial_list_free() {
                                         serial->baud_rate = *baud_rate;
                                     }
                                 }
+                                free(serial_path);
                             }
                         }
                         break;
@@ -168,7 +169,9 @@ void serial_list_free() {
                     }   
                 }
                 free(namelist[namelist_n]);
+                namelist[namelist_n] = null;
             }
+            free(namelist);
         }
     }
 #endif
