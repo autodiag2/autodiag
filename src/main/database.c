@@ -9,7 +9,7 @@ CarEngine* car_engine_new() {
 bool engine_description_parser(char * funcData, char *key, char *value) {
     CarEngine* engine = (CarEngine*)funcData;
     if ( strcasecmp(key,"model") == 0 ) {
-        engine->model = value;
+        engine->model = strdup(value);
         return true;
     } else if ( strcasecmp(key,"brand") == 0 ) {
         return true;
@@ -20,10 +20,10 @@ bool engine_description_parser(char * funcData, char *key, char *value) {
 bool car_description_parser(char * funcData, char *key, char *value) {
     CarModel *car = (CarModel*)funcData;
     if ( strcasecmp(key,"brand") == 0 ) {
-        car->brand = value;
+        car->brand = strdup(value);
         return true;
     } else if ( strcasecmp(key,"model") == 0 ) {
-        car->model = value;
+        car->model = strdup(value);
         return true;
     } else if ( strcasecmp(key,"engine") == 0 ) {
         char * filename;

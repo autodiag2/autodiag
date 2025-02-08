@@ -3,7 +3,7 @@
 
 bool testIniToolsHandler(char*funcData,char*key,char*value) {
     char **data = (char**)funcData;
-    *data = value;
+    *data = strdup(value);
     return true;
 }
 bool testIniTools(OBDIFace* iface) {
