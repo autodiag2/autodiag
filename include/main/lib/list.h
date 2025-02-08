@@ -97,7 +97,13 @@
         } \
     } \
     if ( 0 <= index ) { \
-        list->list = (type_value**)realloc(list->list, sizeof(type_value*) * (--list->size)); \
+        list->size--; \
+        if ( list->size == 0 ) { \
+            free(list->list); \
+            list->list = null; \
+        } else { \
+            list->list = (type_value**)realloc(list->list, sizeof(type_value*) * (list->size)); \
+        } \
     } \
     return 0 <= index; \
 }
