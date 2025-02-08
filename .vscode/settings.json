@@ -8,6 +8,10 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "initializer_list": "cpp"
+        "initializer_list": "cpp",
+        "deque": "c",
+        "unordered_map": "c",
+        "vector": "c",
+        "typeinfo": "c"
     }
 }
