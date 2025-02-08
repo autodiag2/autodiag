@@ -1,31 +1,32 @@
 #include "ui/config.h"
 
-const Config DEFAULT_CONFIG = {
-    .com = {
-        .serial = {
-            .baud_rate = SERIAL_DEFAULT_BAUD_RATE,
-            .port_name = null
-        }
-    },
-    .main = {
-        .adaptater_detailled_settings_showned = false
-    },
-    .commandLine = {
-        .autoScrollEnabled = true,
-        .showTimestamp = false
-    },
-    .ephemere = {
-        .iface = null
-    },
-    .vehicleExplorer = {
-        .refreshRateS = 0.1,
-        .autoRefresh = true
-    },
-    .log = {
-        .level = LOG_DEFAULT_LEVEL
-    }
+#define _DEFAULT_CONFIG { \
+    .com = { \
+        .serial = { \
+            .baud_rate = SERIAL_DEFAULT_BAUD_RATE, \
+            .port_name = null \
+        } \
+    }, \
+    .main = { \
+        .adaptater_detailled_settings_showned = false \
+    }, \
+    .commandLine = { \
+        .autoScrollEnabled = true, \
+        .showTimestamp = false \
+    }, \
+    .ephemere = { \
+        .iface = null \
+    }, \
+    .vehicleExplorer = { \
+        .refreshRateS = 0.1, \
+        .autoRefresh = true \
+    }, \
+    .log = { \
+        .level = LOG_DEFAULT_LEVEL \
+    } \
 };
-Config config = DEFAULT_CONFIG;
+const Config DEFAULT_CONFIG = _DEFAULT_CONFIG; 
+Config config = _DEFAULT_CONFIG;
 
 void config_commandLine_showTimestamp_set(final bool state) {
     config.commandLine.showTimestamp = state;
