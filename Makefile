@@ -118,6 +118,9 @@ distDebianBin: release
 	mv $(APP_NAME)_*.changes ./bin/
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
+distWindows: release
+	echo '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" dist/windows/package.iss' | powershell.exe
+
 distDebian: distDebianBin
 
 dist: distDebian
