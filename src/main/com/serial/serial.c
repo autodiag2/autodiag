@@ -421,10 +421,10 @@ void module_shutdown_serial() {
 }
 
 void serial_free(final Serial * port) {
-    if ( port != NULL ) {
-        if (port->name != NULL ) {
+    if ( port != null ) {
+        if (port->name != null ) {
             free(port->name);
-            port->name = NULL;
+            port->name = null;
         }
         if ( port->eol != null ) {
             free(port->eol);
@@ -434,6 +434,8 @@ void serial_free(final Serial * port) {
             buffer_free(port->recv_buffer);
             port->recv_buffer = null;
         }
+        free(port);
+        port = null;
     }
 }
 
