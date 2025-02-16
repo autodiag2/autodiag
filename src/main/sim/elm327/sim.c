@@ -24,7 +24,7 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
     }
     return header;     
 }
-char * ecu_sim_generate_header(ELM327emulation* elm327,byte source_address, byte can28bits_prio) {
+char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, byte can28bits_prio) {
     char *protocolSpecificHeader = null;
     char * space = elm327->printing_of_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -98,7 +98,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     if ( 0 < responseOBDdataBin->size ) {
         char *header = "";
         if ( elm327->printing_of_headers ) {
-            char * protocolSpecificHeader = ecu_sim_generate_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             char * space = elm327->printing_of_spaces ? " " : "";
             
             bool hasPid = false;

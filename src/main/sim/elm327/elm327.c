@@ -107,7 +107,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
                     }
                 }
                 if ( ! customHeader ) {
-                    asprintf(&tmpBufferStr,"%s%s00%s%s",ecu_sim_generate_header(elm327,elm327->testerAddress,elm327->can.priority_29bits),space,space,buffer_str);
+                    asprintf(&tmpBufferStr,"%s%s00%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits),space,space,buffer_str);
                 }
             } else {
                 tmpBufferStr = buffer_str;
@@ -116,7 +116,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
             if ( elm327->custom_header->size == 3 ) {
                 asprintf(&tmpBufferStr,"%s%s",elm_ascii_from_bin(elm327->printing_of_spaces, elm327->custom_header),buffer_str);
             } else {
-                asprintf(&tmpBufferStr,"%s%s%s",ecu_sim_generate_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO),space,buffer_str);
+                asprintf(&tmpBufferStr,"%s%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO),space,buffer_str);
             }
         }
         buffer_str = tmpBufferStr;
