@@ -532,9 +532,9 @@ bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
     return result;
 }
 bool serial_at_command_search(char *str, char *atcmd) {
-    return serial_at_command_lastindex(str,atcmd) != -1;
+    return serial_at_index_end(str,atcmd) != -1;
 }
-int serial_at_command_lastindex(char *str, char *atcmd) {
+int serial_at_index_end(char *str, char *atcmd) {
     int idx = -1;
     char * cmdFull;
     asprintf(&cmdFull,"at%s",atcmd);

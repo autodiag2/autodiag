@@ -374,7 +374,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
 
     int last_index;
     char* serial_response = strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]);
-    if ( (last_index = serial_at_command_lastindex(buffer,"l")) > -1 ) {
+    if ( (last_index = serial_at_index_end(buffer,"l")) > -1 ) {
         bool lfe = atoi(buffer+last_index);
         log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
         if ( lfe ) {
@@ -383,65 +383,65 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 asprintf(&elm327->eol,"%c", ELM327_SIM_PP_GET(elm327,0x0D));
         }
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ( (last_index = serial_at_command_lastindex(buffer,"e")) > -1 ) {
+    } else if ( (last_index = serial_at_index_end(buffer,"e")) > -1 ) {
         bool echo = atoi(buffer+last_index);
         log_msg(LOG_INFO, "Set echo %s", echo ? "on" : "off");
         elm327->echo = echo;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ( (last_index = serial_at_command_lastindex(buffer,"z")) > -1 ) {
+    } else if ( (last_index = serial_at_index_end(buffer,"z")) > -1 ) {
         elm327_sim_init(elm327);
         serial_response = strdup("ELM327 v2.1");
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ign")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ign")) > -1) {
         asprintf(&serial_response,"%s",rand()%2?"ON":"OFF");
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ib 10")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ib 10")) > -1) {
         elm327->baud_rate = 10400;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                            
-    } else if ((last_index = serial_at_command_lastindex(buffer,"fe")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"fe")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                            
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ib 48")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ib 48")) > -1) {
         elm327->baud_rate = 4800;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                            
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ib 96")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ib 96")) > -1) {
         elm327->baud_rate = 9600;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                      
-    } else if ( (last_index = serial_at_command_lastindex(buffer,"i")) > -1 ) {
+    } else if ( (last_index = serial_at_index_end(buffer,"i")) > -1 ) {
         serial_response = strdup("ELM327 v2.1");
-    } else if ((last_index = serial_at_command_lastindex(buffer,"dpn")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"dpn")) > -1) {
         asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"dp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"dp")) > -1) {
         asprintf(&serial_response,"%s%s",elm327->protocol_is_auto_running ? "Auto, " : "", elm327_protocol_to_string(elm327->protocolRunning));
-    } else if ((last_index = serial_at_command_lastindex(buffer,"d")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"d")) > -1) {
         log_msg(LOG_INFO, "Reset to defaults");
         elm327_sim_init(elm327);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"rv")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"rv")) > -1) {
         asprintf(&serial_response,"%.2f",elm327->voltage);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"rtr")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"rtr")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                                
-    } else if ((last_index = serial_at_command_lastindex(buffer,"rd")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"rd")) > -1) {
         asprintf(&serial_response,"%02X", elm327->nvm.user_memory);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"r")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"r")) > -1) {
         int value;
         if ( sscanf(buffer+last_index, "%d", &value) == 1 ) {
             elm327->responses = value;
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                                            
         }   
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cv 0000")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cv 0000")) > -1) {
         elm327->voltage = elm327->voltageFactory;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"amt")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"amt")) > -1) {
         if ( sscanf(buffer+last_index, " %02x", &elm327->activity_monitor_timeout) == 1 ) {
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"amc")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"amc")) > -1) {
         asprintf(&serial_response,"%02x", elm327->activity_monitor_count);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cv")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cv")) > -1) {
         int value;
         if ( sscanf(buffer+last_index," %d", &value) == 1 ) {
             elm327->voltage = value / 100.0;
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"pps")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"pps")) > -1) {
         char *totalRes = strdup("");
         for(int i = 0, j = 0; i < elm327->nvm.programmable_parameters->size; i++, j=(j+1)%4) {
             char * res;
@@ -458,7 +458,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             totalRes = resCat;
         }
         serial_response = totalRes;
-    } else if ((last_index = serial_at_command_lastindex(buffer,"pp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"pp")) > -1) {
         int parameter, value;
         char state[4];
         if ( sscanf(buffer+last_index," %02x sv %02x", &parameter,&value) == 2 ) {
@@ -478,7 +478,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 }
             }
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"bd")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"bd")) > -1) {
         #ifdef EMULATE_ELM327_v1_5
             bool hasSpaces = true;
         #else
@@ -488,43 +488,43 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->obd_buffer->size = elm327->obd_buffer->size_allocated;
         asprintf(&serial_response,"%02x%s%s", sz, hasSpaces ? " " : "", elm_ascii_from_bin(hasSpaces,elm327->obd_buffer));
         elm327->obd_buffer->size = sz;
-    } else if ((last_index = serial_at_command_lastindex(buffer,"brd")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"brd")) > -1) {
         int value = 0;
         sscanf(buffer+last_index," %02hhx", (unsigned char*)&value);
         if ( 0 < value ) {
             elm327->baud_rate = 4000000 / ( 1.0 * value);
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"bi")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"bi")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"brt")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"brt")) > -1) {
         int value;
         sscanf(buffer+last_index," %02hhx", (unsigned char*)&value);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ar")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ar")) > -1) {
         if ( elm327->receive_address != null ) free(elm327->receive_address);
         elm327->receive_address = null;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cp")) > -1) {
         sscanf(buffer+last_index," %02hhx",&elm327->can.priority_29bits);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);        
-    } else if ((last_index = serial_at_command_lastindex(buffer,"st")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"st")) > -1) {
         byte tm;
         if ( sscanf(buffer+last_index," %02hhx",&tm) == 1 ) {
             elm327->vehicle_response_timeout = (tm == 0 ? ELM327_SIM_PP_GET(elm327,0x03) : tm) * 4;
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"at")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"at")) > -1) {
         int value;
         if ( sscanf(buffer+last_index,"%d",&value) == 1 ) {        
             elm327->vehicle_response_timeout_adaptive = value != 0;
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ss")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ss")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"pc")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"pc")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);            
-    } else if ((last_index = serial_at_command_lastindex(buffer,"sh")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"sh")) > -1) {
         char header[9];
         if ( sscanf(buffer+last_index," %8s",header) == 1 ||
              sscanf(buffer+last_index," %6s",header) == 1 ||
@@ -541,7 +541,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             elm_ascii_to_bin_internal(false, elm327->custom_header, header, header + strlen(header));
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);        
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"sr")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"sr")) > -1) {
         byte * b = (byte*)malloc(sizeof(byte));
         if ( sscanf(buffer+last_index," %02hhX", b) == 1 ) {
             elm327->receive_address = b;
@@ -549,18 +549,18 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         } else {
             free(b);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"sd")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"sd")) > -1) {
         if ( sscanf(buffer+last_index, " %02hhX", &elm327->nvm.user_memory) == 1 ) {
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"m")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"m")) > -1) {
         if ( sscanf(buffer+last_index," %d", &elm327->isMemoryEnabled) == 1 ) {
             if ( ! elm327->isMemoryEnabled ) {
                 unlink(ELM327_SIM_NON_VOLATILE_MEMORY_PATH);
             }
             serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"sp A")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"sp A")) > -1) {
         short unsigned int p;
         elm327->protocol_is_auto_running = true;
         elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
@@ -568,16 +568,16 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->protocolRunning = p;
         elm327->nvm.protocol = elm327->protocolRunning;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ( (last_index = serial_at_command_lastindex(buffer,"ta")) > -1 ) {
+    } else if ( (last_index = serial_at_index_end(buffer,"ta")) > -1 ) {
         sscanf(buffer+last_index, " %02hhX", &elm327->testerAddress);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
-    } else if ((last_index = serial_at_command_lastindex(buffer,"tp A")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"tp A")) > -1) {
         short unsigned int p;
         elm327->protocol_is_auto_running = true;
         sscanf(buffer+last_index, " A%01hX", &p);
         elm327->protocolRunning = p;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"sp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"sp")) > -1) {
         short unsigned int p;
         elm327->protocol_is_auto_running = false;
         elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
@@ -585,36 +585,36 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->protocolRunning = p;
         elm327->nvm.protocol = elm327->protocolRunning;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"tp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"tp")) > -1) {
         short unsigned int p;
         elm327->protocol_is_auto_running = false;
         sscanf(buffer+last_index, " %01hX", &p);
         elm327->protocolRunning = p;
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"s")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"s")) > -1) {
         elm327->printing_of_spaces = atoi(buffer+last_index);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"h")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"h")) > -1) {
         elm327->printing_of_headers = atoi(buffer+last_index);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"@1")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"@1")) > -1) {
         serial_response = strdup(elm327->dev_description);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"@2")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"@2")) > -1) {
         serial_response = strdup(elm327->dev_identifier);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"@3")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"@3")) > -1) {
         elm327->dev_identifier = strdup(buffer+last_index + strlen(" "));
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"ws")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"ws")) > -1) {
         elm327_sim_init(elm327);
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"lp")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"lp")) > -1) {
         elm327_sim_go_low_power();
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"caf")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"caf")) > -1) {
         elm327->can.auto_format = atoi(buffer+last_index);
         log_msg(LOG_INFO, "Can auto format %s", elm327->can.auto_format ? "enabled" : "disabled");
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-    } else if ((last_index = serial_at_command_lastindex(buffer,"kw")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"kw")) > -1) {
         char number;
         if ( sscanf(buffer+last_index,"%c",&number) == 1 ) {
             if ( number == '0' || number == '1' ) {
@@ -625,7 +625,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 buffer_free(b);
             }                          
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cra")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cra")) > -1) {
         char received_address[9];
         if ( sscanf(buffer+last_index, " %3s", received_address) == 1 || 
              sscanf(buffer+last_index, " %8s", received_address) == 1 ) {
@@ -654,7 +654,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             elm327->can.mask = buffer_new();
             elm327->can.filter = buffer_new();
         }        
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cm")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cm")) > -1) {
         char mask[9];
         if ( sscanf(buffer+last_index, " %3s", mask) == 1 ) {
             char * tmp;
@@ -667,11 +667,11 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         if ( mask != null ) {
             elm327->can.mask = ascii_to_bin_buffer(mask);
         }
-    } else if ((last_index = serial_at_command_lastindex(buffer,"csm")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"csm")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cfc")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cfc")) > -1) {
         serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);                    
-    } else if ((last_index = serial_at_command_lastindex(buffer,"cf")) > -1) {
+    } else if ((last_index = serial_at_index_end(buffer,"cf")) > -1) {
         char filter[9];
         if ( sscanf(buffer+last_index, " %3s", filter) == 1 ) {
             char * tmp;
@@ -686,16 +686,16 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         }                    
     } else {
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-            if ((last_index = serial_at_command_lastindex(buffer,"cs")) > -1) {
+            if ((last_index = serial_at_index_end(buffer,"cs")) > -1) {
                 serial_response = strdup("T:00 R:00 ");
             } else {
                 serial_response = elm327_sim_bus(elm327,buffer);
             }
         } else {
             if ( 3 <= elm327->protocolRunning && elm327->protocolRunning <= 5 ) {
-                if ((last_index = serial_at_command_lastindex(buffer,"fi")) > -1) {
+                if ((last_index = serial_at_index_end(buffer,"fi")) > -1) {
                     serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-                } else if ((last_index = serial_at_command_lastindex(buffer,"si")) > -1) {
+                } else if ((last_index = serial_at_index_end(buffer,"si")) > -1) {
                     serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
                 } else {
                     serial_response = elm327_sim_bus(elm327,buffer);                                

@@ -212,6 +212,6 @@ void serial_reset_to_default(final Serial* serial);
  * Scan the str for AT .*, at.*, AT.*, at .*
  */
 bool serial_at_command_search(char *str, char *atcmd);
-int serial_at_command_lastindex(char *str, char *atcmd);
+int serial_at_index_end(char *str, char *atcmd);
 
 #endif
