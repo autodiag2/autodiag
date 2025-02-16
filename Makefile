@@ -73,7 +73,7 @@ obj/test/%.o:
 	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
 
 # Additionnal specific dependencies
-dependencies: cmd = $(CC) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) >> dependencies.mk;
+dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) >> dependencies.mk;
 dependencies: $(SOURCES)
 	@echo "Generating dependencies..."
 	@> dependencies.mk
