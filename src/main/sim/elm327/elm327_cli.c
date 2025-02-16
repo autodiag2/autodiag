@@ -1,4 +1,4 @@
-#include "sim/elm327_cli.h"
+#include "sim/elm327/elm327_cli.h"
 
 PRINT_MODULAR(elm327_sim_cli_help,
     "\n"

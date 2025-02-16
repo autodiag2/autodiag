@@ -123,5 +123,6 @@ void elm327_sim_loop_start(ELM327emulation * elm327);
 void elm327_sim_destroy(ELM327emulation * elm327);
 
 #include "elm327_cli.h"
+#include "nvm.h"
 
 #endif

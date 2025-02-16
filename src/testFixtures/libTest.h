@@ -13,7 +13,7 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "lib/string.h"
 #include <sys/types.h>
 #include <signal.h>
-#include "sim/sim.h"
+#include "sim/elm327/sim.h"
 #include <stdarg.h>
 #include <assert.h>
 
