@@ -71,7 +71,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
         }
     }
     if ( isOBD && elm327->responses ) {
-        char * space = elm327->printing_of_spaces ? " " : "";
+        char * space = hasSpaces ? " " : "";
         char *tmpBufferStr;
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if ( elm327->can.auto_format ) {
