@@ -65,6 +65,8 @@ typedef struct {
         Buffer * mask;
         Buffer * filter;
         byte priority_29bits;
+        bool extended_addressing;
+        byte extended_addressing_target_address;
     } can;
 
     /**

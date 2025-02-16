@@ -101,22 +101,22 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
                         customHeader = true;
                     } else if ( elm327->custom_header->size == 4 ) {
                         asprintf(&tmpBufferStr,"%s%s", 
-                            elm_ascii_from_bin(elm327->printing_of_spaces,elm327->custom_header),
+                            elm_ascii_from_bin(hasSpaces,elm327->custom_header),
                             buffer_str);
                         customHeader = true;
                     }
                 }
                 if ( ! customHeader ) {
-                    asprintf(&tmpBufferStr,"%s%s00%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits),space,space,buffer_str);
+                    asprintf(&tmpBufferStr,"%s%s00%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces),space,space,buffer_str);
                 }
             } else {
                 tmpBufferStr = buffer_str;
             }
         } else {
             if ( elm327->custom_header->size == 3 ) {
-                asprintf(&tmpBufferStr,"%s%s",elm_ascii_from_bin(elm327->printing_of_spaces, elm327->custom_header),buffer_str);
+                asprintf(&tmpBufferStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),buffer_str);
             } else {
-                asprintf(&tmpBufferStr,"%s%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO),space,buffer_str);
+                asprintf(&tmpBufferStr,"%s%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,buffer_str);
             }
         }
         buffer_str = tmpBufferStr;
@@ -311,7 +311,6 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->dev_identifier = strdup("dev identifier");
     elm327->dev_description = strdup("dev description");    
     elm327->protocol_is_auto_running = elm327->nvm.protocol_is_auto;
-    elm327->can.auto_format = ELM327_SIM_PP_GET(elm327,0x24) == 0x00;
     elm327->voltageFactory = (rand() / (1.0 * RAND_MAX)) * 20;
     elm327->voltage = elm327->voltageFactory;
     elm327->baud_rate = 38400;   
@@ -321,8 +320,10 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->testerAddress = ELM327_SIM_PP_GET(elm327,0x06);
     elm327->can.mask = buffer_new();
     elm327->can.filter = buffer_new();
-    elm327->custom_header = buffer_new();
     elm327->can.priority_29bits = ELM327_CAN_28_BITS_DEFAULT_PRIO;
+    elm327->can.auto_format = ELM327_SIM_PP_GET(elm327,0x24) == 0x00;
+    elm327->can.extended_addressing = false;
+    elm327->custom_header = buffer_new();
     elm327_sim_start_activity_monitor(elm327);
 }
 
@@ -387,6 +388,13 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         if ( sscanf(AT_DATA_START, " %02x", &elm327->activity_monitor_timeout) == 1 ) {
             SET_SERIAL_RESPONSE_OK();
         }
+    } else if AT_PARSE("cea") {
+        if ( sscanf(AT_DATA_START," %02hhx", &elm327->can.extended_addressing_target_address) == 1 ) {
+            elm327->can.extended_addressing = true;
+        } else {
+            elm327->can.extended_addressing = false;
+        }
+        SET_SERIAL_RESPONSE_OK();                    
     } else if AT_PARSE("dpn") {
         asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
     } else if AT_PARSE("dp") {

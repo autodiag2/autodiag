@@ -24,9 +24,9 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
     }
     return header;     
 }
-char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, byte can28bits_prio) {
+char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
-    char * space = elm327->printing_of_spaces ? " " : "";
+    char * space = print_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
             asprintf(&protocolSpecificHeader,"%02X%sDA%sF1%s%02hhX", can28bits_prio, space, space, space,source_address);
@@ -34,6 +34,12 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
             asprintf(&protocolSpecificHeader,"7%02hhX",source_address);
         } else {
             log_msg(LOG_WARNING, "Missing case here");
+        }
+        if ( elm327->can.extended_addressing ) {
+            char *tmp;
+            asprintf(&tmp,"%s%s%02hhX", protocolSpecificHeader, space, elm327->can.extended_addressing_target_address);
+            free(protocolSpecificHeader);
+            protocolSpecificHeader = tmp;
         }
     } else {
         asprintf(&protocolSpecificHeader,"41%s6B%s%02hhX", space,space,source_address);
@@ -56,6 +62,9 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         } else {
             log_msg(LOG_WARNING, "Missing case here");
         }
+        if ( elm327->can.extended_addressing ) {
+            szToRemove += 2 + hasSpaces;
+        }
         if ( strlen(obd_query_str) <= szToRemove ) {
             log_msg(LOG_ERROR, "Can auto formatting is disabled, but seem header not provided");
             return null;
@@ -66,7 +75,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     obd_query_str = obd_query_str + szToRemove;
 
     elm_ascii_to_bin_internal(hasSpaces, bin, obd_query_str, end_ptr == null ? obd_query_str + strlen(obd_query_str): end_ptr);
-    
+
     if ( 0 == bin->size ) {
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
@@ -98,7 +107,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     if ( 0 < responseOBDdataBin->size ) {
         char *header = "";
         if ( elm327->printing_of_headers ) {
-            char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
             char * space = elm327->printing_of_spaces ? " " : "";
             
             bool hasPid = false;

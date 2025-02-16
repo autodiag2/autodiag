@@ -1,6 +1,7 @@
 #include "libTest.h"
 
-bool testSIM() {
+void testSIM_1() {
+
     ELM327emulation* elm327 = elm327_sim_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0x1A));        
@@ -105,6 +106,25 @@ bool testSIM() {
             obd_recv(iface);
             assert(iface->vehicle->obd_data_buffer->size == 2);
         }        
+    }
+}
+
+bool testSIM() {
+    testSIM_1();
+    {
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(200e3);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        obd_clear_data(iface);
+        iface->device->send(DEVICE(iface->device),"atcea 12");
+        iface->device->recv(DEVICE(iface->device));
+        obd_clear_data(iface);
+        iface->device->send(DEVICE(iface->device),"ats1");
+        iface->device->recv(DEVICE(iface->device));
+        obd_send(iface,"0101");
+        obd_clear_data(iface);
+        assert(obd_recv(iface) != OBD_RECV_ERROR);
     }
     return true;
 }
