@@ -424,6 +424,8 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 asprintf(&elm327->eol,"%c", ELM327_SIM_PP_GET(elm327,0x0D));
         }
         SET_SERIAL_RESPONSE_OK();
+    } else if AT_PARSE("nl") {
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("z") {
         elm327_sim_init(elm327);
         serial_response = strdup("ELM327 v2.1");
