@@ -8082,17 +8082,18 @@ obj/test/regression.o: src/test/regression.c src/testFixtures/libTest.h \
   include/main/com/serial/elm/elm320.h include/main/sim/elm327/sim.h \
   include/main/sim/elm327/elm327.h include/main/sim/elm327/elm327_cli.h \
   include/main/sim/elm327/nvm.h
-obj/test/sim/sim.o: src/test/sim/sim.c src/testFixtures/libTest.h \
-  include/main/com/serial/serial.h include/main/lib/string.h \
-  include/main/lib/lang.h include/main/lib/compile_target.h \
-  include/main/com/obd/device.h include/main/com/obd/vehicle.h \
-  include/main/lib/lib.h include/main/lib/list.h include/main/lib/bin.h \
-  include/main/lib/log.h include/main/lib/file.h \
-  include/main/lib/buffer.h include/main/lib/math.h \
-  include/main/lib/poll.h include/main/lib/dirent.h \
-  include/main/lib/thread.h include/main/lib/stringlist.h \
-  include/main/lib/initools.h include/main/lib/cli_tools.h \
-  include/main/com/obd/obd.h include/main/com/obd/iso15031/iso15031.h \
+obj/test/sim/elm327/sim.o: src/test/sim/elm327/sim.c \
+  src/testFixtures/libTest.h include/main/com/serial/serial.h \
+  include/main/lib/string.h include/main/lib/lang.h \
+  include/main/lib/compile_target.h include/main/com/obd/device.h \
+  include/main/com/obd/vehicle.h include/main/lib/lib.h \
+  include/main/lib/list.h include/main/lib/bin.h include/main/lib/log.h \
+  include/main/lib/file.h include/main/lib/buffer.h \
+  include/main/lib/math.h include/main/lib/poll.h \
+  include/main/lib/dirent.h include/main/lib/thread.h \
+  include/main/lib/stringlist.h include/main/lib/initools.h \
+  include/main/lib/cli_tools.h include/main/com/obd/obd.h \
+  include/main/com/obd/iso15031/iso15031.h \
   include/main/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/com/obd/iso15031/../saej1979/data.h \
   include/main/com/obd/iso15031/../saej1979/stored_dtcs.h \
