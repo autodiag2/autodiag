@@ -441,6 +441,13 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("nl") {
         SET_SERIAL_RESPONSE_OK();
+    } else if AT_PARSE("sw") {
+        byte value;
+        if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
+            SET_SERIAL_RESPONSE_OK();
+        }
+    } else if AT_PARSE("wm") {
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("z") {
         elm327_sim_init(elm327);
         serial_response = strdup("ELM327 v2.1");
