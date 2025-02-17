@@ -8,10 +8,11 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
             char * res;
-            asprintf(&res,"%02XDAF100",can28bits_prio);
+            asprintf(&res,"%02XDA0000",can28bits_prio);
             header = ascii_to_bin_buffer(res);
             free(res);
-            header->buffer[header->size-1] = ecu->address;
+            header->buffer[3] = elm327->testerAddress;
+            header->buffer[4] = ecu->address;
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
             header = ascii_to_bin_buffer("0700");
             header->buffer[header->size-1] = ecu->address;
@@ -19,8 +20,9 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
             log_msg(LOG_WARNING, "Missing case here");
         }
     } else {
-        header = ascii_to_bin_buffer("416B00");
-        header->buffer[header->size-1] = ecu->address;
+        header = ascii_to_bin_buffer("410000");
+        header->buffer[1] = elm327->testerAddress;
+        header->buffer[2] = ecu->address;
     }
     return header;     
 }
