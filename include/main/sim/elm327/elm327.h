@@ -68,6 +68,7 @@ typedef struct {
         bool extended_addressing;
         byte extended_addressing_target_address;
         int timeout_multiplier;
+        bool display_dlc;
     } can;
 
     /**

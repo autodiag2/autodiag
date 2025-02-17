@@ -328,6 +328,7 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->can.auto_format = ELM327_SIM_PP_GET(elm327,0x24) == 0x00;
     elm327->can.extended_addressing = false;
     elm327->can.timeout_multiplier = 1;
+    elm327->can.display_dlc = ELM327_SIM_PP_GET(elm327, 0x29) == 0x00;
     elm327->custom_header = buffer_new();
     elm327_sim_start_activity_monitor(elm327);
 }
@@ -408,6 +409,10 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
     } else if AT_PARSE("dp") {
         asprintf(&serial_response,"%s%s",elm327->protocol_is_auto_running ? "Auto, " : "", elm327_protocol_to_string(elm327->protocolRunning));
+    } else if AT_PARSE("d0") {
+        elm327->can.display_dlc = false;
+    } else if AT_PARSE("d1") {
+        elm327->can.display_dlc = true;
     } else if AT_PARSE("d") {
         log_msg(LOG_INFO, "Reset to defaults");
         elm327_sim_init(elm327);

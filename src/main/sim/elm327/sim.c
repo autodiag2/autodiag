@@ -118,11 +118,20 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             }
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 assert(responseOBDdataBin->size <= ISO_15765_SINGLE_FRAME_DATA_BYTES - hasPid);
-                if ( hasPid ) {
-                    asprintf(&header, "%s%s%02X%s%02X%s%02X%s", protocolSpecificHeader, space, responseOBDdataBin->size + 1 + hasPid, space, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space, bin->buffer[1], space);
-                } else {
-                    asprintf(&header, "%s%s%02X%s%02X%s", protocolSpecificHeader, space, responseOBDdataBin->size + 1 + hasPid, space, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space);
+                char *inBuildHeader;
+                asprintf(&header, "%s%s", protocolSpecificHeader, space);
+                if ( elm327->can.display_dlc ) {
+                    asprintf(&inBuildHeader, "%s%02X%s", header, responseOBDdataBin->size + 1 + hasPid, space);
+                    free(header);
+                    header = inBuildHeader;
                 }
+                if ( hasPid ) {
+                    asprintf(&inBuildHeader, "%s%02X%s%02X%s", header, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space, bin->buffer[1], space);
+                } else {
+                    asprintf(&inBuildHeader, "%s%02X%s", header, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space);
+                }
+                free(header);
+                header = inBuildHeader;
             } else {
                 if ( hasPid ) {
                     asprintf(&header, "%s%s%02X%s%02X%s", protocolSpecificHeader, space, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space, bin->buffer[1], space);
