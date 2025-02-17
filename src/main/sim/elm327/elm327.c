@@ -411,8 +411,10 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         asprintf(&serial_response,"%s%s",elm327->protocol_is_auto_running ? "Auto, " : "", elm327_protocol_to_string(elm327->protocolRunning));
     } else if AT_PARSE("d0") {
         elm327->can.display_dlc = false;
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("d1") {
         elm327->can.display_dlc = true;
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("d") {
         log_msg(LOG_INFO, "Reset to defaults");
         elm327_sim_init(elm327);

@@ -76,6 +76,7 @@ bool elm327_configure(final ELM327Device* elm327) {
         }
         if ( elm327_is_can(elm327) ) {
             elm327_set_auto_formatting(elm327,true);
+            serial_query_at_command((Serial*)elm327,"d1");
         }
         serial_query_at_command((Serial*)elm327,"h%d",true);
         return true;
