@@ -176,7 +176,11 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
                     elm327->vehicle_response_timeout_adaptive ) {
                 part = rand() / (1.0 * RAND_MAX);
             }
-            usleep(elm327->vehicle_response_timeout * 1e3 * part);
+            useconds_t timeout_usec = elm327->vehicle_response_timeout * 1e3 * part;
+            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+                timeout_usec *= elm327->can.timeout_multiplier;
+            }
+            usleep(timeout_usec);
             asprintf(&response,"%s%s", ELM327ResponseStr[ELM327_RESPONSE_NO_DATA-ELM327_RESPONSE_OFFSET],elm327->eol);
         }
         elm327_sim_start_activity_monitor(elm327);
@@ -323,6 +327,7 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->can.priority_29bits = ELM327_CAN_28_BITS_DEFAULT_PRIO;
     elm327->can.auto_format = ELM327_SIM_PP_GET(elm327,0x24) == 0x00;
     elm327->can.extended_addressing = false;
+    elm327->can.timeout_multiplier = 1;
     elm327->custom_header = buffer_new();
     elm327_sim_start_activity_monitor(elm327);
 }
@@ -394,7 +399,11 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         } else {
             elm327->can.extended_addressing = false;
         }
-        SET_SERIAL_RESPONSE_OK();                    
+        SET_SERIAL_RESPONSE_OK();   
+    } else if AT_PARSE("ctm1") {
+        elm327->can.timeout_multiplier = 1;
+    } else if AT_PARSE("ctm5") {
+        elm327->can.timeout_multiplier = 5;                 
     } else if AT_PARSE("dpn") {
         asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
     } else if AT_PARSE("dp") {
