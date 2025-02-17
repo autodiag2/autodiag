@@ -560,7 +560,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             elm_ascii_to_bin_internal(false, elm327->custom_header, header, header + strlen(header));
             SET_SERIAL_RESPONSE_OK();        
         }
-    } else if AT_PARSE("sr") {
+    } else if ( AT_PARSE("sr") || AT_PARSE("ra") ) {
         byte * b = (byte*)malloc(sizeof(byte));
         if ( sscanf(AT_DATA_START," %02hhX", b) == 1 ) {
             elm327->receive_address = b;
