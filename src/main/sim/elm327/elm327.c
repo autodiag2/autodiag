@@ -131,14 +131,14 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
 
             char * tmpResponse = ecu->saej1979_sim_response((_ECUEmulation *)ecu,(_ELM327emulation *)elm327,buffer_str,hasSpaces);
 
-            Buffer * header_bin = ecu_sim_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            Buffer * response_header_bin = ecu_sim_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 assert(elm327->can.mask->size == elm327->can.filter->size);
-                if ( header_bin->size == elm327->can.mask->size ) {
+                if ( response_header_bin->size == elm327->can.mask->size ) {
                     bool filtered = false;
                     for(int i = 0; i < elm327->can.mask->size; i ++) {
                         byte m = elm327->can.mask->buffer[i];
-                        int cmp1 = (header_bin->buffer[i] & m);
+                        int cmp1 = (response_header_bin->buffer[i] & m);
                         int cmp2 = (elm327->can.filter->buffer[i] & m);
                         if ( cmp1 != cmp2 ) {
                             filtered = true;
@@ -156,10 +156,10 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * buffer_str) {
                 }
             }
 
-            int sz = min(header_bin->size,12);
+            int sz = min(response_header_bin->size,12);
             buffer_recycle(elm327->obd_buffer);
             buffer_ensure_capacity(elm327->obd_buffer,sz);
-            memmove(elm327->obd_buffer->buffer, header_bin->buffer, sz);
+            memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
             elm327->obd_buffer->size = sz;
 
             if ( tmpResponse != null ) {
