@@ -788,7 +788,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         HANDLE hPipe;
         int i;
         for (i = 0; i < MAX_ATTEMPTS; i++) {
-            snprintf(pipeName, sizeof(pipeName), R"(\\\\.\\pipe\\elm327sim_%d)", i);
+            snprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\elm327sim_%d", i);
 
             // Création du pipe nommé
             hPipe = CreateNamedPipeA(
@@ -866,11 +866,16 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         int sz =  100;
         char buffer[sz];
         #ifdef OS_WINDOWS
+            if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
+                log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                continue;
+            }
             int bytes_readed = 0;
             if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
                 buffer[bytes_readed] = 0;
             } else {
-                log_msg(LOG_ERROR, "read error");
+                log_msg(LOG_ERROR, "read error : %lu", GetLastError());
+                continue;
             }
         #elif defined OS_POSIX
             int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
