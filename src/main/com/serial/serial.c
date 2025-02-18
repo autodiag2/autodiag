@@ -195,8 +195,6 @@ int serial_open(final Serial * port) {
             dcb.DCBlength = sizeof(DCB);
             if (!GetCommState(port->com_port, &dcb)) {
                 log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
             }
             dcb.BaudRate = port->baud_rate;
             dcb.ByteSize = 8;
@@ -214,8 +212,6 @@ int serial_open(final Serial * port) {
             dcb.fAbortOnError = FALSE;
             if (!SetCommState(port->com_port, &dcb)) {
                 log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
             }
 
             ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
@@ -226,8 +222,6 @@ int serial_open(final Serial * port) {
             timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
             if (!SetCommTimeouts(port->com_port, &timeouts)) {
                 log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
             }
 
             // Hack to get around Windows 2000 multiplying timeout values by 15
