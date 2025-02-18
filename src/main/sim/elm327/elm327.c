@@ -813,7 +813,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                 continue;
             } else {
                 log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
-                return;
+                continue;
             }
         }
         if ( i == MAX_ATTEMPTS ) {
@@ -868,7 +868,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         #ifdef OS_WINDOWS
             if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
                 log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                continue;
+                break;
             }
             int bytes_readed = 0;
             if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
