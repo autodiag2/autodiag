@@ -333,7 +333,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327) {
  */
 void elm327_sim_init(ELM327emulation* elm327) {
     #ifdef OS_WINDOWS
-        elm327->com_port = INVALID_HANDLE_VALUE;
+        elm327->pipe_handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
         elm327->fd = -1;
     #else
@@ -781,72 +781,129 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
 
 void elm327_sim_loop(ELM327emulation * elm327) {
     #ifdef OS_WINDOWS
-    #   warning elm simulation not available under windows
+        #define PIPE_NAME R"(\\\\.\\pipe\\MyPseudoConsole)"
+
+        HANDLE hPipe;
+        
+        // Création du pipe nommé
+        hPipe = CreateNamedPipeA(
+            PIPE_NAME,             // Nom du pipe
+            PIPE_ACCESS_DUPLEX,    // Lecture/écriture
+            PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
+            1,                     // Un seul client
+            1024,                  // Taille buffer sortie
+            1024,                  // Taille buffer entrée
+            0,                     // Timeout par défaut
+            NULL                   // Sécurité par défaut
+        );
+
+        if (hPipe == INVALID_HANDLE_VALUE) {
+            log_msg(LOG_ERROR, "Erreur: impossible de créer le pipe: (%lu)", GetLastError());
+            return 1;
+        }
+
     #elif defined OS_POSIX
         int fd = posix_openpt(O_RDWR);
         if ( fd == -1 ) {
             perror("openpt");
-        } else {
-            if ( grantpt(fd) == -1 ) {
-                perror("grantpt");
-                return;
-            }
-            if ( unlockpt(fd) == -1 ) {
-                perror("unlockpt");
-                return;
-            }
-            elm327_sim_init(elm327);
-            elm327->port_name = strdup(ptsname(fd));
-            log_msg(LOG_INFO, "sim running on %s", elm327->port_name);
-            elm327->fd = fd;
-
-            final POLLFD fileDescriptor = {
-                .fd = elm327->fd,
-                .events = POLLIN
-            };
-            while(true) {
-                int sz =  100;
-                char buffer[sz];
-                int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
-                if ( res == -1 ) {
-                    log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-                    continue;
-                }
-                int rv = read(elm327->fd,buffer,sz-1);
-                if ( rv == -1 ) {
-                    log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-                    continue;
-                }
-
-                buffer[rv] = 0;
-                
-                char * serial_response = elm327_sim_loop_process_command(elm327, buffer);
-
-                if ( serial_response == null ) {
-                    serial_response = strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]);                
-                }
-
-                char * response;
-                asprintf(&response,"%s%s%s%s%s",
-                    elm327->echo ? buffer : "", elm327->echo ? elm327->eol : "", 
-                    serial_response,
-                    elm327->eol,
-                    SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
-                );
-                free(serial_response);
-                log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
-                usleep(50e3);
-                log_msg(LOG_DEBUG, "sending back %s", response);
-                if ( write(elm327->fd,response,strlen(response)) == -1 ) {
-                    perror("write");
-                    break;
-                }
-                free(response);
-                elm327_sim_non_volatile_memory_store(elm327);                
-            }
-
+            return;
+        }
+        if ( grantpt(fd) == -1 ) {
+            perror("grantpt");
+            return;
+        }
+        if ( unlockpt(fd) == -1 ) {
+            perror("unlockpt");
+            return;
         }
     #else
     #   warning OS unsupported
     #endif
+
+    elm327_sim_init(elm327);
+
+    #ifdef OS_WINDOWS
+        elm327->port_name = strdup(PIPE_NAME);
+        elm327->pipe_handle = hPipe;
+    #elif defined OS_POSIX
+        elm327->port_name = strdup(ptsname(fd));
+        elm327->fd = fd;
+    #else
+    #   warning OS unsupported
+    #endif
+
+    log_msg(LOG_INFO, "sim running on %s", elm327->port_name);
+
+    #ifdef OS_WINDOWS
+    #elif defined OS_POSIX
+        final POLLFD fileDescriptor = {
+            .fd = elm327->fd,
+            .events = POLLIN
+        };
+    #else
+    #   warning OS unsupported
+    #endif
+    while(true) {
+        int sz =  100;
+        char buffer[sz];
+        #ifdef OS_WINDOWS
+            int bytes_readed = 0;
+            if ( ReadFile(port->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
+                buffer[bytes_readed] = 0;
+            } else {
+                log_msg(LOG_ERROR, "read error");
+            }
+        #elif defined OS_POSIX
+            int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
+            if ( res == -1 ) {
+                log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+                continue;
+            }
+            int rv = read(elm327->fd,buffer,sz-1);
+            if ( rv == -1 ) {
+                log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+                continue;
+            }
+
+            buffer[rv] = 0;
+        #else
+        #   warning OS unsupported
+        #endif
+        
+        char * serial_response = elm327_sim_loop_process_command(elm327, buffer);
+
+        if ( serial_response == null ) {
+            serial_response = strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]);                
+        }
+
+        char * response;
+        asprintf(&response,"%s%s%s%s%s",
+            elm327->echo ? buffer : "", elm327->echo ? elm327->eol : "", 
+            serial_response,
+            elm327->eol,
+            SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
+        );
+        free(serial_response);
+        log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
+        usleep(50e3);
+        log_msg(LOG_DEBUG, "sending back %s", response);
+
+        #ifdef OS_WINDOWS
+            int bytes_written = 0;
+            if (!WriteFile(port->pipe_handle, response, strlen(response), &bytes_written, null)) {
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                break;
+            }
+        #elif defined OS_POSIX
+            if ( write(elm327->fd,response,strlen(response)) == -1 ) {
+                perror("write");
+                break;
+            }
+        #else
+        #   warning OS unsupported
+        #endif
+        free(response);
+        elm327_sim_non_volatile_memory_store(elm327);                
+    }
+
 }

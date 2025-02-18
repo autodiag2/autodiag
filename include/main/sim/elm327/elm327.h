@@ -89,7 +89,7 @@ typedef struct {
     } nvm;
 
     #ifdef OS_WINDOWS
-        HANDLE com_port;
+        HANDLE pipe_handle;
     #elif defined OS_POSIX
         int fd;
     #else
