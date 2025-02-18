@@ -795,7 +795,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                 pipeName,             // Nom du pipe
                 PIPE_ACCESS_DUPLEX,    // Lecture/écriture
                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
-                PIPE_UNLIMITED_INSTANCES,
+                1,
                 1024,                  // Taille buffer sortie
                 1024,                  // Taille buffer entrée
                 0,                     // Timeout par défaut
