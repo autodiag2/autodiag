@@ -404,7 +404,11 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("ctm1") {
         elm327->can.timeout_multiplier = 1;
     } else if AT_PARSE("ctm5") {
-        elm327->can.timeout_multiplier = 5;                 
+        elm327->can.timeout_multiplier = 5;     
+    } else if AT_PARSE("dm1") {
+        if ( 0xA <= elm327->protocolRunning && elm327->protocolRunning <= 0xC ) {
+            SET_SERIAL_RESPONSE_OK();
+        }  
     } else if AT_PARSE("dpn") {
         asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
     } else if AT_PARSE("dp") {
