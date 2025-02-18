@@ -619,37 +619,40 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             }
             SET_SERIAL_RESPONSE_OK();                    
         }
-    } else if AT_PARSE("sp A") {
-        short unsigned int p;
-        elm327->protocol_is_auto_running = true;
-        elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
-        sscanf(AT_DATA_START, " A%01hX", &p); 
-        elm327->protocolRunning = p;
-        elm327->nvm.protocol = elm327->protocolRunning;
-        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("ta") {
         sscanf(AT_DATA_START, " %02hhX", &elm327->testerAddress);
         SET_SERIAL_RESPONSE_OK();                    
-    } else if AT_PARSE("tp A") {
-        short unsigned int p;
-        elm327->protocol_is_auto_running = true;
-        sscanf(AT_DATA_START, " A%01hX", &p);
-        elm327->protocolRunning = p;
-        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("sp") {
         short unsigned int p;
-        elm327->protocol_is_auto_running = false;
-        elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
-        sscanf(AT_DATA_START, " %01hX", &p); 
-        elm327->protocolRunning = p;
-        elm327->nvm.protocol = elm327->protocolRunning;
-        SET_SERIAL_RESPONSE_OK();
+        bool success = true;
+        if ( sscanf(AT_DATA_START, " A%01hX", &p) == 1 ) {
+            elm327->protocol_is_auto_running = true;
+            elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
+        } else if ( sscanf(AT_DATA_START, " %01hX", &p) == 1 ) {
+            elm327->protocol_is_auto_running = false;
+            elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
+        } else {
+            success = false;
+        }
+        if ( success ) {
+            elm327->protocolRunning = p;
+            elm327->nvm.protocol = elm327->protocolRunning;
+            SET_SERIAL_RESPONSE_OK();
+        }
     } else if AT_PARSE("tp") {
         short unsigned int p;
-        elm327->protocol_is_auto_running = false;
-        sscanf(AT_DATA_START, " %01hX", &p);
-        elm327->protocolRunning = p;
-        SET_SERIAL_RESPONSE_OK();
+        bool success = true;
+        if ( sscanf(AT_DATA_START, " A%01hX", &p) == 1 ) {
+            elm327->protocol_is_auto_running = true;
+        } else if ( sscanf(AT_DATA_START, " %01hX", &p) == 1 ) {
+            elm327->protocol_is_auto_running = false;
+        } else {
+            success = false;
+        }
+        if ( success ) {
+            elm327->protocolRunning = p;
+            SET_SERIAL_RESPONSE_OK();
+        }
     } else if AT_PARSE("s") {
         elm327->printing_of_spaces = atoi(AT_DATA_START);
         SET_SERIAL_RESPONSE_OK();
