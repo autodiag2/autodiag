@@ -12,6 +12,7 @@
         "deque": "c",
         "unordered_map": "c",
         "vector": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "serial_list.h": "c"
     }
 }

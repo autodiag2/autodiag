@@ -1,6 +1,13 @@
 #include "com/serial/serial.h"
 #include "com/serial/serial_list.h"
 
+#if defined OS_WINDOWS
+    bool isComport(HANDLE file) {
+        DCB dcb;
+        return GetCommState(file,&dcb);
+    }
+#endif
+
 int serial_guess_response(final char * buffer) {
     for(int i = 0; i < SerialResponseStrNumber; i++) {
         assert(SerialResponseStr[i] != null);
@@ -73,13 +80,23 @@ int serial_recv_internal(final SERIAL port) {
 
                 int readLen = 0;
                 int sleep_length_ms = 20;
-                for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
-                    ClearCommError(port->com_port, &errors, &stat);
-                    readLen = stat.cbInQue;
-                    if ( readLen == 0 ) {
-                        usleep(1000 * sleep_length_ms);
+                if ( isComport(port->com_port) ) {
+                    for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
+                        ClearCommError(port->com_port, &errors, &stat);
+                        readLen = stat.cbInQue;
+                        if ( readLen == 0 ) {
+                            usleep(1000 * sleep_length_ms);
+                        }
+                    }
+                } else {
+                    for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
+                        PeekNamedPipe(port->com_port, NULL, 0, NULL, &readLen, NULL);
+                        if ( readLen == 0 ) {
+                            usleep(1000 * sleep_length_ms);
+                        }
                     }
                 }
+                
                 while(0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
                     if ( ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
@@ -96,8 +113,12 @@ int serial_recv_internal(final SERIAL port) {
                         log_msg(LOG_ERROR, "ReadFile error 2");
                     }
                     usleep(1000 * port->timeout_seq);
-                    ClearCommError(port->com_port, &errors, &stat);
-                    readLen = stat.cbInQue;
+                    if ( isComport(port->com_port) ) {
+                        ClearCommError(port->com_port, &errors, &stat);
+                        readLen = stat.cbInQue;
+                    } else {
+                        PeekNamedPipe(port->com_port, NULL, 0, NULL, &readLen, NULL);
+                    }
                 }
             }
         #elif defined OS_POSIX
@@ -191,64 +212,66 @@ int serial_open(final Serial * port) {
                 log_msg(LOG_DEBUG, "Openning port: %s", port->name);
             }
             
-            ZeroMemory(&dcb, sizeof(DCB));
-            dcb.DCBlength = sizeof(DCB);
-            if (!GetCommState(port->com_port, &dcb)) {
-                log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
-            }
-            dcb.BaudRate = port->baud_rate;
-            dcb.ByteSize = 8;
-            dcb.StopBits = ONESTOPBIT;
-            dcb.fParity = FALSE;
-            dcb.Parity = NOPARITY;
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            dcb.fDtrControl = DTR_CONTROL_ENABLE;
-            dcb.fRtsControl = RTS_CONTROL_ENABLE;
-            dcb.fDsrSensitivity = FALSE;
-            dcb.fErrorChar = FALSE;
-            dcb.fAbortOnError = FALSE;
-            if (!SetCommState(port->com_port, &dcb)) {
-                log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
-            }
+            if ( isComport(port->com_port) ) {
+                ZeroMemory(&dcb, sizeof(DCB));
+                dcb.DCBlength = sizeof(DCB);
+                if (!GetCommState(port->com_port, &dcb)) {
+                    log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
+                    CloseHandle(port->com_port);
+                    return GENERIC_FUNCTION_ERROR;
+                }
+                dcb.BaudRate = port->baud_rate;
+                dcb.ByteSize = 8;
+                dcb.StopBits = ONESTOPBIT;
+                dcb.fParity = FALSE;
+                dcb.Parity = NOPARITY;
+                dcb.fOutxCtsFlow = FALSE;
+                dcb.fOutxDsrFlow = FALSE;
+                dcb.fOutX = FALSE;
+                dcb.fInX = FALSE;
+                dcb.fDtrControl = DTR_CONTROL_ENABLE;
+                dcb.fRtsControl = RTS_CONTROL_ENABLE;
+                dcb.fDsrSensitivity = FALSE;
+                dcb.fErrorChar = FALSE;
+                dcb.fAbortOnError = FALSE;
+                if (!SetCommState(port->com_port, &dcb)) {
+                    log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
+                    CloseHandle(port->com_port);
+                    return GENERIC_FUNCTION_ERROR;
+                }
 
-            ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
-            timeouts.ReadIntervalTimeout = port->timeout;
-            timeouts.ReadTotalTimeoutMultiplier = 0;
-            timeouts.ReadTotalTimeoutConstant = port->timeout;
-            timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
-            timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-            if (!SetCommTimeouts(port->com_port, &timeouts)) {
-                log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
-                CloseHandle(port->com_port);
-                return GENERIC_FUNCTION_ERROR;
-            }
+                ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
+                timeouts.ReadIntervalTimeout = port->timeout;
+                timeouts.ReadTotalTimeoutMultiplier = 0;
+                timeouts.ReadTotalTimeoutConstant = port->timeout;
+                timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
+                timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
+                if (!SetCommTimeouts(port->com_port, &timeouts)) {
+                    log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
+                    CloseHandle(port->com_port);
+                    return GENERIC_FUNCTION_ERROR;
+                }
 
-            // Hack to get around Windows 2000 multiplying timeout values by 15
-            GetCommTimeouts(port->com_port, &timeouts);
-            if (TX_TIMEOUT_MULTIPLIER > 0) {
-                timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
-            }
-            if (TX_TIMEOUT_CONSTANT > 0) {
-                timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
-            }
-            SetCommTimeouts(port->com_port, &timeouts);
+                // Hack to get around Windows 2000 multiplying timeout values by 15
+                GetCommTimeouts(port->com_port, &timeouts);
+                if (TX_TIMEOUT_MULTIPLIER > 0) {
+                    timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
+                }
+                if (TX_TIMEOUT_CONSTANT > 0) {
+                    timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
+                }
+                SetCommTimeouts(port->com_port, &timeouts);
 
-            // If the port is Bluetooth, make sure device is active
-            PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            WriteFile(port->com_port, "?\r", 2, &bytes_written, 0);
-            PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            if (bytes_written != 2) { // If Tx timeout occured
-                log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
-                CloseHandle(port->com_port);
-                port->status = SERIAL_STATE_OPEN_ERROR;
-                return GENERIC_FUNCTION_ERROR;
+                // If the port is Bluetooth, make sure device is active
+                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                WriteFile(port->com_port, "?\r", 2, &bytes_written, 0);
+                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                if (bytes_written != 2) { // If Tx timeout occured
+                    log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
+                    CloseHandle(port->com_port);
+                    port->status = SERIAL_STATE_OPEN_ERROR;
+                    return GENERIC_FUNCTION_ERROR;
+                }
             }
 
         #elif defined OS_POSIX
