@@ -120,6 +120,37 @@ void serial_list_free() {
         
         SetupDiDestroyDeviceInfoList(hDevInfo);
     }
+    void serial_list_fill_pipes(char *selected_serial_path, int *baud_rate) {
+        char pipeName[256];
+        WIN32_FIND_DATAA findFileData;
+        HANDLE hFind;
+
+        log_msg(LOG_INFO, "Liste des pipes existants:");
+        
+        snprintf(pipeName, sizeof(pipeName), R"(\\.\pipe\*)"); // Match all pipes
+        hFind = FindFirstFileA(pipeName, &findFileData);
+
+        if (hFind == INVALID_HANDLE_VALUE) {
+            log_msg(LOG_INFO, "Aucun pipe trouvé.");
+            return;
+        }
+
+        do {
+            if (strncmp(findFileData.cFileName, "elm327sim_", 10) == 0) {
+                printf(" - %s\n", findFileData.cFileName);
+                final SERIAL serial = serial_list_add_if_not_in_by_name(findFileData.cFileName);
+                serial->detected = true;
+                if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
+                    if ( selected_serial_path != null && strcmp(selected_serial_path,findFileData.cFileName) == 0 ) {
+                        serial_list_selected = serial_list.size-1;
+                        serial->baud_rate = *baud_rate;
+                    }
+                }
+            }
+        } while (FindNextFileA(hFind, &findFileData));
+
+        FindClose(hFind);
+    }
 #elif defined OS_POSIX
     void serial_list_fill_from_dir(final char * dir, int filter_sz, char filter[][20], char * selected_serial_path, int * baud_rate) {
         
@@ -230,6 +261,7 @@ void serial_list_fill() {
    
     #if defined OS_WINDOWS
         serial_list_fill_comports(selected_serial_path,&baud_rate);
+        serial_list_fill_pipes(selected_serial_path, &baud_rate);
     #elif defined OS_POSIX 
 		char part1[][20] = {"ttys","ttyS","ttyUSB"};
 	    serial_list_fill_from_dir("/dev/",3,part1,selected_serial_path,&baud_rate);
