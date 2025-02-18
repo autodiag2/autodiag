@@ -137,11 +137,12 @@ void serial_list_free() {
 
         do {
             if (strncmp(findFileData.cFileName, "elm327sim_", 10) == 0) {
-                printf(" - %s\n", findFileData.cFileName);
-                final SERIAL serial = serial_list_add_if_not_in_by_name(findFileData.cFileName);
+                char *pipeFullPath;
+                asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
+                final SERIAL serial = serial_list_add_if_not_in_by_name(pipeFullPath);
                 serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
-                    if ( selected_serial_path != null && strcmp(selected_serial_path,findFileData.cFileName) == 0 ) {
+                    if ( selected_serial_path != null && strcmp(selected_serial_path,pipeFullPath) == 0 ) {
                         serial_list_selected = serial_list.size-1;
                         serial->baud_rate = *baud_rate;
                     }
