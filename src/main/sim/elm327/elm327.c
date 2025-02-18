@@ -452,6 +452,8 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         }
     } else if AT_PARSE("i") {
         serial_response = strdup("ELM327 v2.1");
+    } else if AT_PARSE("je") {
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("l") {
         bool lfe = atoi(AT_DATA_START);
         log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
