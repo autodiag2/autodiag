@@ -459,11 +459,15 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("nl") {
         SET_SERIAL_RESPONSE_OK();
+    } else if AT_PARSE("pb") {
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("sw") {
         byte value;
         if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
             SET_SERIAL_RESPONSE_OK();
         }
+    } else if ( AT_PARSE("v0") || AT_PARSE("v1") ) {
+        SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("wm") {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("z") {
