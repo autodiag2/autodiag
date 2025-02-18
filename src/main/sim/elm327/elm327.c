@@ -781,25 +781,44 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
 
 void elm327_sim_loop(ELM327emulation * elm327) {
     #ifdef OS_WINDOWS
-        #define PIPE_NAME R"(\\\\.\\pipe\\MyPseudoConsole)"
+        #define MAX_ATTEMPTS 20
+
+        char pipeName[256];
 
         HANDLE hPipe;
-        
-        // Création du pipe nommé
-        hPipe = CreateNamedPipeA(
-            PIPE_NAME,             // Nom du pipe
-            PIPE_ACCESS_DUPLEX,    // Lecture/écriture
-            PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
-            1,                     // Un seul client
-            1024,                  // Taille buffer sortie
-            1024,                  // Taille buffer entrée
-            0,                     // Timeout par défaut
-            NULL                   // Sécurité par défaut
-        );
+        int i;
+        for (i = 0; i < MAX_ATTEMPTS; i++) {
+            snprintf(pipeName, sizeof(pipeName), R"(\\\\.\\pipe\\elm327sim_%d)", i);
 
-        if (hPipe == INVALID_HANDLE_VALUE) {
-            log_msg(LOG_ERROR, "Erreur: impossible de créer le pipe: (%lu)", GetLastError());
-            return 1;
+            // Création du pipe nommé
+            hPipe = CreateNamedPipeA(
+                pipeName,             // Nom du pipe
+                PIPE_ACCESS_DUPLEX,    // Lecture/écriture
+                PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
+                1,                     // Un seul client
+                1024,                  // Taille buffer sortie
+                1024,                  // Taille buffer entrée
+                0,                     // Timeout par défaut
+                NULL                   // Sécurité par défaut
+            );
+
+            if (hPipe != INVALID_HANDLE_VALUE) {
+                log_msg(LOG_INFO, "Pipe créé: %s", pipeName);
+                break;
+            }
+
+            DWORD err = GetLastError();
+            if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS) {
+                log_msg(LOG_INFO, "Pipe %s existe déjà, tentative suivante...", pipeName);
+                continue;
+            } else {
+                log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
+                return;
+            }
+        }
+        if ( i == MAX_ATTEMPTS ) {
+            log_msg(LOG_ERROR, "No valid slot found");
+            return;
         }
 
     #elif defined OS_POSIX
@@ -823,7 +842,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     elm327_sim_init(elm327);
 
     #ifdef OS_WINDOWS
-        elm327->port_name = strdup(PIPE_NAME);
+        elm327->port_name = strdup(pipeName);
         elm327->pipe_handle = hPipe;
     #elif defined OS_POSIX
         elm327->port_name = strdup(ptsname(fd));
@@ -848,7 +867,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         char buffer[sz];
         #ifdef OS_WINDOWS
             int bytes_readed = 0;
-            if ( ReadFile(port->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
+            if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
                 buffer[bytes_readed] = 0;
             } else {
                 log_msg(LOG_ERROR, "read error");
@@ -890,7 +909,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
 
         #ifdef OS_WINDOWS
             int bytes_written = 0;
-            if (!WriteFile(port->pipe_handle, response, strlen(response), &bytes_written, null)) {
+            if (!WriteFile(elm327->pipe_handle, response, strlen(response), &bytes_written, null)) {
                 log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                 break;
             }
