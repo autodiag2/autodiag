@@ -808,12 +808,12 @@ void elm327_sim_loop(ELM327emulation * elm327) {
             }
 
             DWORD err = GetLastError();
-            if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS) {
+            if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS || err == ERROR_PIPE_BUSY) {
                 log_msg(LOG_INFO, "Pipe %s existe déjà, tentative suivante...", pipeName);
                 continue;
             } else {
                 log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
-                continue;
+                break;
             }
         }
         if ( i == MAX_ATTEMPTS ) {
