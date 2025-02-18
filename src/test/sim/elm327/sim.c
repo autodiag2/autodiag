@@ -126,5 +126,15 @@ bool testSIM() {
         obd_clear_data(iface);
         assert(obd_recv(iface) != OBD_RECV_ERROR);
     }
+    {
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(200e3);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        obd_clear_data(iface);
+        iface->device->send(DEVICE(iface->device),"atd");
+        int recv = iface->device->recv(DEVICE(iface->device));
+        printf("recv=%d\n", recv);
+    }
     return true;
 }

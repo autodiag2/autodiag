@@ -191,7 +191,10 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
     return response;
 }
 
-void elm327_sim_init(ELM327emulation* elm327) {
+/**
+ * Init an emulation loading settings from nvm
+ */
+void elm327_sim_init_from_nvm(ELM327emulation* elm327) {
     elm327->nvm.user_memory = 0;
     elm327->nvm.programmable_parameters = buffer_new();
     elm327->nvm.programmable_parameters_states = buffer_new();
@@ -288,13 +291,6 @@ void elm327_sim_init(ELM327emulation* elm327) {
             elm327->programmable_parameters_defaults->size
     );
     ELM327_SIM_PPS_STATE(elm327,false)
-    #ifdef OS_WINDOWS
-        elm327->com_port = INVALID_HANDLE_VALUE;
-    #elif defined OS_POSIX
-        elm327->fd = -1;
-    #else
-    #   warning OS unsupported
-    #endif
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
     elm327->activity_monitor_count = 0x00;
@@ -332,13 +328,26 @@ void elm327_sim_init(ELM327emulation* elm327) {
     elm327->custom_header = buffer_new();
     elm327_sim_start_activity_monitor(elm327);
 }
+/**
+ * One time emulation init
+ */
+void elm327_sim_init(ELM327emulation* elm327) {
+    #ifdef OS_WINDOWS
+        elm327->com_port = INVALID_HANDLE_VALUE;
+    #elif defined OS_POSIX
+        elm327->fd = -1;
+    #else
+    #   warning OS unsupported
+    #endif
+    elm327_sim_init_from_nvm(elm327);
+}
 
 ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
     elm327->ecus = ECUEmulation_list_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE8));
     elm327->loop_thread = -1;
-    elm327_sim_init(elm327);
+    elm327_sim_init_from_nvm(elm327);
     return elm327;
 }
 void elm327_sim_destroy(ELM327emulation * elm327) {
@@ -421,7 +430,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("d") {
         log_msg(LOG_INFO, "Reset to defaults");
-        elm327_sim_init(elm327);
+        elm327_sim_init_from_nvm(elm327);
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("e") {
         bool echo = atoi(AT_DATA_START);
@@ -477,7 +486,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("wm") {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("z") {
-        elm327_sim_init(elm327);
+        elm327_sim_init_from_nvm(elm327);
         serial_response = strdup("ELM327 v2.1");
     } else if AT_PARSE("rv") {
         asprintf(&serial_response,"%.2f",elm327->voltage);
@@ -667,7 +676,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->dev_identifier = strdup(AT_DATA_START + strlen(" "));
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("ws") {
-        elm327_sim_init(elm327);
+        elm327_sim_init_from_nvm(elm327);
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("lp") {
         elm327_sim_go_low_power();
@@ -791,13 +800,13 @@ void elm327_sim_loop(ELM327emulation * elm327) {
             log_msg(LOG_INFO, "sim running on %s", elm327->port_name);
             elm327->fd = fd;
 
+            final POLLFD fileDescriptor = {
+                .fd = elm327->fd,
+                .events = POLLIN
+            };
             while(true) {
                 int sz =  100;
                 char buffer[sz];
-                final POLLFD fileDescriptor = {
-                    .fd = elm327->fd,
-                    .events = POLLIN
-                };
                 int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
                 if ( res == -1 ) {
                     log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
