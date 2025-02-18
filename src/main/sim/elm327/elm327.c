@@ -425,7 +425,9 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->echo = echo;
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("fe") {
-        SET_SERIAL_RESPONSE_OK();                            
+        SET_SERIAL_RESPONSE_OK();
+    } else if AT_PARSE("fc") {
+        SET_SERIAL_RESPONSE_OK();                         
     } else if AT_PARSE("ib 10") {
         elm327->baud_rate = 10400;
         SET_SERIAL_RESPONSE_OK();                            
