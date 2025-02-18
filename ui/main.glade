@@ -7315,48 +7315,6 @@ Author: autodiag
       </object>
     </child>
   </object>
-  <object class="GtkMessageDialog" id="window-feature-no-available-windows">
-    <property name="can-focus">False</property>
-    <property name="title" translatable="yes">Error</property>
-    <property name="modal">True</property>
-    <property name="window-position">center</property>
-    <property name="type-hint">dialog</property>
-    <property name="urgency-hint">True</property>
-    <property name="message-type">error</property>
-    <property name="buttons">ok</property>
-    <property name="text" translatable="yes">Feature not available under windows, try with a COM port emulator</property>
-    <signal name="response" handler="window-feature-no-available-windows-ok" swapped="no"/>
-    <child internal-child="vbox">
-      <object class="GtkBox">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox">
-            <property name="can-focus">False</property>
-            <property name="layout-style">end</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-      <placeholder/>
-    </child>
   </object>
   <object class="GtkMessageDialog" id="window-no-obd-data">
     <property name="can-focus">False</property>
