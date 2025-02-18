@@ -795,7 +795,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
                 pipeName,             // Nom du pipe
                 PIPE_ACCESS_DUPLEX,    // Lecture/écriture
                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
-                1,                     // Un seul client
+                PIPE_UNLIMITED_INSTANCES,
                 1024,                  // Taille buffer sortie
                 1024,                  // Taille buffer entrée
                 0,                     // Timeout par défaut
@@ -874,7 +874,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
             if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
                 buffer[bytes_readed] = 0;
             } else {
-                log_msg(LOG_ERROR, "read error : %lu", GetLastError());
+                log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
                 continue;
             }
         #elif defined OS_POSIX
