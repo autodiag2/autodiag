@@ -24,14 +24,33 @@ bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *valu
     }    
     return false;
 }
-
+char * elm327_sim_non_volatile_get_filename() {
+    #ifdef OS_WINDOWS
+    #   include <windows.h>
+        char tempPath[MAX_PATH];
+        if ( ! GetTempPath(MAX_PATH, tempPath) ) {
+            log_msg(LOG_ERROR, "failed to get the temp path");
+        }
+        char * path;
+        asprintf(&path, "%s" PATH_FOLDER_DELIM "sim_memory.txt", tempPath);
+        return path;
+    #elif defined OS_POSIX
+        return strdup("/tmp/sim_memory.txt");
+    #else
+    #   warning OS unsupported
+    #endif
+}
+bool elm327_sim_non_volatile_wipe_out() {
+    unlink(elm327_sim_non_volatile_get_filename());
+    return true;
+}
 bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327) {
-    return parse_ini_file(ELM327_SIM_NON_VOLATILE_MEMORY_PATH, elm327_sim_non_volatile_memory_parse, elm327);
+    return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, elm327);
 }
 
 bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327) {
     if ( elm327->isMemoryEnabled ) {
-        final FILE * file = fopen(ELM327_SIM_NON_VOLATILE_MEMORY_PATH, "w");
+        final FILE * file = fopen(elm327_sim_non_volatile_get_filename(), "w");
         if ( file == null ) {
             perror("fopen");
             return false;

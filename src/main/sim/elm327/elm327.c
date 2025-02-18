@@ -624,7 +624,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("m") {
         if ( sscanf(AT_DATA_START," %d", &elm327->isMemoryEnabled) == 1 ) {
             if ( ! elm327->isMemoryEnabled ) {
-                unlink(ELM327_SIM_NON_VOLATILE_MEMORY_PATH);
+                elm327_sim_non_volatile_wipe_out();
             }
             SET_SERIAL_RESPONSE_OK();                    
         }
