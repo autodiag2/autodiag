@@ -867,8 +867,13 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         char buffer[sz];
         #ifdef OS_WINDOWS
             if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
-                log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                break;
+                DWORD err = GetLastError();
+                if ( err == ERROR_PIPE_CONNECTED ) {
+                    log_msg(LOG_DEBUG, "pipe already connected");
+                } else {
+                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                    break;
+                }
             }
             int bytes_readed = 0;
             if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
