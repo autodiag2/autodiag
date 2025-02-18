@@ -34,8 +34,8 @@ int serial_send(final Serial * port, const char *command) {
         #if defined OS_WINDOWS
             DWORD bytes_written;
 
-            PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            if (!WriteFile(port->com_port, tx_buf, bytes_to_send, &bytes_written, null)) {
+            PurgeComm(port->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            if (!WriteFile(port->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
                 log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                 serial_close(port);
                 return DEVICE_ERROR;
@@ -69,7 +69,7 @@ int serial_recv_internal(final SERIAL port) {
     } else {
         final int initial_buffer_sz = port->recv_buffer->size;
         #if defined OS_WINDOWS
-            if (port->com_port == INVALID_HANDLE_VALUE) {
+            if (port->connexion_handle == INVALID_HANDLE_VALUE) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
             } else {        
@@ -80,9 +80,9 @@ int serial_recv_internal(final SERIAL port) {
 
                 int readLen = 0;
                 int sleep_length_ms = 20;
-                if ( isComport(port->com_port) ) {
+                if ( isComport(port->connexion_handle) ) {
                     for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
-                        ClearCommError(port->com_port, &errors, &stat);
+                        ClearCommError(port->connexion_handle, &errors, &stat);
                         readLen = stat.cbInQue;
                         if ( readLen == 0 ) {
                             usleep(1000 * sleep_length_ms);
@@ -90,7 +90,7 @@ int serial_recv_internal(final SERIAL port) {
                     }
                 } else {
                     for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
-                        PeekNamedPipe(port->com_port, NULL, 0, NULL, &readLen, NULL);
+                        PeekNamedPipe(port->connexion_handle, NULL, 0, NULL, &readLen, NULL);
                         if ( readLen == 0 ) {
                             usleep(1000 * sleep_length_ms);
                         }
@@ -99,7 +99,7 @@ int serial_recv_internal(final SERIAL port) {
                 
                 while(0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
-                    if ( ReadFile(port->com_port, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
+                    if ( ReadFile(port->connexion_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
                         if( readLen == bytes_readed ) {
                             port->recv_buffer->size += bytes_readed;
                             if ( log_has_level(LOG_DEBUG) ) {
@@ -113,11 +113,11 @@ int serial_recv_internal(final SERIAL port) {
                         log_msg(LOG_ERROR, "ReadFile error 2");
                     }
                     usleep(1000 * port->timeout_seq);
-                    if ( isComport(port->com_port) ) {
-                        ClearCommError(port->com_port, &errors, &stat);
+                    if ( isComport(port->connexion_handle) ) {
+                        ClearCommError(port->connexion_handle, &errors, &stat);
                         readLen = stat.cbInQue;
                     } else {
-                        PeekNamedPipe(port->com_port, NULL, 0, NULL, &readLen, NULL);
+                        PeekNamedPipe(port->connexion_handle, NULL, 0, NULL, &readLen, NULL);
                     }
                 }
             }
@@ -203,8 +203,8 @@ int serial_open(final Serial * port) {
             DCB dcb;
             COMMTIMEOUTS timeouts;
             DWORD bytes_written;
-            port->com_port = CreateFile(port->name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-            if (port->com_port == INVALID_HANDLE_VALUE) {
+            port->connexion_handle = CreateFile(port->name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            if (port->connexion_handle == INVALID_HANDLE_VALUE) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->name);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
@@ -212,12 +212,12 @@ int serial_open(final Serial * port) {
                 log_msg(LOG_DEBUG, "Openning port: %s", port->name);
             }
             
-            if ( isComport(port->com_port) ) {
+            if ( isComport(port->connexion_handle) ) {
                 ZeroMemory(&dcb, sizeof(DCB));
                 dcb.DCBlength = sizeof(DCB);
-                if (!GetCommState(port->com_port, &dcb)) {
+                if (!GetCommState(port->connexion_handle, &dcb)) {
                     log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
-                    CloseHandle(port->com_port);
+                    CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
                 dcb.BaudRate = port->baud_rate;
@@ -234,9 +234,9 @@ int serial_open(final Serial * port) {
                 dcb.fDsrSensitivity = FALSE;
                 dcb.fErrorChar = FALSE;
                 dcb.fAbortOnError = FALSE;
-                if (!SetCommState(port->com_port, &dcb)) {
+                if (!SetCommState(port->connexion_handle, &dcb)) {
                     log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
-                    CloseHandle(port->com_port);
+                    CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
 
@@ -246,29 +246,29 @@ int serial_open(final Serial * port) {
                 timeouts.ReadTotalTimeoutConstant = port->timeout;
                 timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
                 timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-                if (!SetCommTimeouts(port->com_port, &timeouts)) {
+                if (!SetCommTimeouts(port->connexion_handle, &timeouts)) {
                     log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
-                    CloseHandle(port->com_port);
+                    CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
 
                 // Hack to get around Windows 2000 multiplying timeout values by 15
-                GetCommTimeouts(port->com_port, &timeouts);
+                GetCommTimeouts(port->connexion_handle, &timeouts);
                 if (TX_TIMEOUT_MULTIPLIER > 0) {
                     timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
                 }
                 if (TX_TIMEOUT_CONSTANT > 0) {
                     timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
                 }
-                SetCommTimeouts(port->com_port, &timeouts);
+                SetCommTimeouts(port->connexion_handle, &timeouts);
 
                 // If the port is Bluetooth, make sure device is active
-                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-                WriteFile(port->com_port, "?\r", 2, &bytes_written, 0);
-                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                PurgeComm(port->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                WriteFile(port->connexion_handle, "?\r", 2, &bytes_written, 0);
+                PurgeComm(port->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 if (bytes_written != 2) { // If Tx timeout occured
                     log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
-                    CloseHandle(port->com_port);
+                    CloseHandle(port->connexion_handle);
                     port->status = SERIAL_STATE_OPEN_ERROR;
                     return GENERIC_FUNCTION_ERROR;
                 }
@@ -328,9 +328,9 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                PurgeComm(port->com_port, PURGE_TXCLEAR|PURGE_RXCLEAR);
-                CloseHandle(port->com_port);
-                port->com_port = INVALID_HANDLE_VALUE;
+                PurgeComm(port->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                CloseHandle(port->connexion_handle);
+                port->connexion_handle = INVALID_HANDLE_VALUE;
             #elif defined OS_POSIX
                 tcsetattr(port->fdtty,TCSANOW,&(port->oldtio));
                 close(port->fdtty);
@@ -425,7 +425,7 @@ void serial_init(final Serial* serial) {
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->lock_mutex, NULL);
     #if defined OS_WINDOWS
-        serial->com_port = INVALID_HANDLE_VALUE;
+        serial->connexion_handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
         serial->fdtty = -1;
     #else
