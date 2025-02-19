@@ -9,22 +9,25 @@ FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 
 mkdir -p "$FRAMEWORKS_PATH"
 mkdir -p "$EXECS_PATH"
-cp bin/autodiag "$EXECS_PATH"
-cp bin/elm327sim "$EXECS_PATH"
 
-# Get the list of Homebrew dependencies
-DEPENDENCIES=$(otool -L "$EXECUTABLE" | grep -E "/opt/homebrew/" | awk '{print $1}')
+for EXECUTABLE in bin/autodiag bin/elm327sim; do
 
-for LIB in $DEPENDENCIES; do
-    LIB_NAME=$(basename "$LIB")
+    # Get the list of Homebrew dependencies
+    DEPENDENCIES=$(otool -L "$EXECUTABLE" | grep -E "/opt/homebrew/" | awk '{print $1}')
 
-    # Copy library to the Frameworks folder if not already there
-    if [ ! -f "$FRAMEWORKS_PATH/$LIB_NAME" ]; then
-        cp "$LIB" "$FRAMEWORKS_PATH/"
-    fi
+    for LIB in $DEPENDENCIES; do
+        LIB_NAME=$(basename "$LIB")
 
-    # Update the app binary to use the local Frameworks path
-    install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$EXECUTABLE"
+        # Copy library to the Frameworks folder if not already there
+        if [ ! -f "$FRAMEWORKS_PATH/$LIB_NAME" ]; then
+            cp "$LIB" "$FRAMEWORKS_PATH/"
+        fi
+
+        # Update the app binary to use the local Frameworks path
+        install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$EXECUTABLE"
+    done
+
+    cp "$EXECUTABLE" "$EXECS_PATH"
 
 done
 
