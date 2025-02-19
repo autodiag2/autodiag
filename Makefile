@@ -122,8 +122,7 @@ distWindows: release
 	echo '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" dist/windows/package.iss' | powershell.exe
 
 distMacOS: release
-	-codesign --force -s - ./bin/autodiag
-	-codesign --force -s - ./bin/elm327sim
+	./dist/macos/package.sh
 
 distDebian: distDebianBin
 
