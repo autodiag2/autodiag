@@ -90,6 +90,7 @@ int main (int argc, char *argv[]) {
 
     gtk_window_set_keep_above(GTK_WINDOW(mainGui->window), true);
     g_idle_add(autodiag_present_window, (gpointer)mainGui->window);
+    gtk_window_present(GTK_WINDOW(mainGui->window));
 
     log_msg(LOG_INFO, "Application started");
     gtk_main();
