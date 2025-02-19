@@ -177,6 +177,8 @@ help:
 	@-echo "Software management"
 	@-echo " dist         - package for all distros"
 	@-echo " distDebian   - package for debian"
+	@-echo " distWindows  - package in an installer for windows"
+	@-echo " distMacOS    - build and sign for macOS"
 	@-echo " newVersion   - create a new version"
 	@-echo "Configuration variables"
 	@-echo " TOOLCHAIN           - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
