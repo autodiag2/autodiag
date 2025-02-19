@@ -16,9 +16,10 @@ Scantool to read diagnostic codes with OBD2
 # Quick guide to read codes
 - Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
 - Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
-#### Debian based
 - Start the car and plug adaptater
-- Launch autodiag and select /dev/ttyUSB0 device
+- Launch autodiag
+#### Debian based
+- Select /dev/ttyUSB0 device
 #### Windows
 - Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
 - Select the right COM port
@@ -96,6 +97,7 @@ GPL licence will allow both buisnesses and individual to use the software<br />
 OSs:<br />
  - debian based 64 bits <br />
  - windows 64 bits<br />
+ - macOS<br />
 <br />
 Devices: ELM320 ELM322 ELM323 ELM327 ELM329
 
