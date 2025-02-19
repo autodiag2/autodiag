@@ -13,7 +13,7 @@ cp bin/autodiag "$EXECS_PATH"
 cp bin/elm327sim "$EXECS_PATH"
 
 # Get the list of Homebrew dependencies
-DEPENDENCIES=$(otool -L "$EXECUTABLE" | grep -E "/(usr/local|opt/homebrew)/lib/" | awk '{print $1}')
+DEPENDENCIES=$(otool -L "$EXECUTABLE" | grep -E "/opt/homebrew/" | awk '{print $1}')
 
 for LIB in $DEPENDENCIES; do
     LIB_NAME=$(basename "$LIB")
@@ -26,16 +26,6 @@ for LIB in $DEPENDENCIES; do
     # Update the app binary to use the local Frameworks path
     install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$EXECUTABLE"
 
-    # Also fix dependencies inside copied libraries
-    otool -L "$FRAMEWORKS_PATH/$LIB_NAME" | grep -E "/(usr/local|opt/homebrew)/lib/" | awk '{print $1}' | while read SUB_LIB; do
-        SUB_LIB_NAME=$(basename "$SUB_LIB")
-        if [ -f "/opt/homebrew/lib/$SUB_LIB_NAME" ]; then
-            cp -n "/opt/homebrew/lib/$SUB_LIB_NAME" "$FRAMEWORKS_PATH/"
-        elif [ -f "/usr/local/lib/$SUB_LIB_NAME" ]; then
-            cp -n "/usr/local/lib/$SUB_LIB_NAME" "$FRAMEWORKS_PATH/"
-        fi
-        install_name_tool -change "$SUB_LIB" "@executable_path/../Frameworks/$SUB_LIB_NAME" "$FRAMEWORKS_PATH/$LIB_NAME"
-    done
 done
 
 # Ad-hoc sign the app
