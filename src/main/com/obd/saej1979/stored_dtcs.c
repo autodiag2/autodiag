@@ -29,24 +29,30 @@ bool saej1979_read_tsv_line(BUFFER line, void*data) {
     char * searched_dtc = (char*)ptrs[0];
     SAEJ1979_DTC_DESCRIPTION *dtc_desc = (SAEJ1979_DTC_DESCRIPTION *)ptrs[1];
 
-    char * firstTab = strchr(line->buffer,'\t');
-    char * secondTab = null;
-    if ( firstTab != null ) {
-        *firstTab = 0;
-        secondTab = strchr(line->buffer,'\t');
-        if ( secondTab != null ) {
-            *secondTab = 0;
+    if ( 0 < line->size ) {
+        if ( line->buffer[0] == '#' ) {
+
+        } else {
+            char * firstTab = strchr(line->buffer,'\t');
+            char * secondTab = null;
+            if ( firstTab != null ) {
+                *firstTab = 0;
+                secondTab = strchr(line->buffer,'\t');
+                if ( secondTab != null ) {
+                    *secondTab = 0;
+                }
+            }
+            if ( strcmp(searched_dtc,line->buffer) == 0 ) {
+                if ( firstTab != null ) {
+                    dtc_desc->reason = strdup(firstTab + 1);
+                }
+                if ( secondTab != null ) {
+                    dtc_desc->solution = strdup(secondTab + 1);
+                }
+            }
         }
     }
-    if ( strcmp(searched_dtc,line->buffer) == 0 ) {
-        if ( firstTab != null ) {
-            dtc_desc->reason = strdup(firstTab + 1);
-        }
-        if ( secondTab != null ) {
-            dtc_desc->solution = strdup(secondTab + 1);
-        }
-    }
-        
+
     return true;
 }
 
