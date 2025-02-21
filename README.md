@@ -45,7 +45,7 @@ brew install gtk+3
 ```
 #### Debian based
 ```bash
-sudo apt-get install libgtk-3-0 git make gcc devscripts 
+sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
 ```
 ## Build
 ```bash
