@@ -6,11 +6,17 @@ APP_PACKAGE="./bin/$APP_NAME.dmg"
 EXECS_PATH="$APP_PATH/Contents/MacOS/"
 EXECUTABLE="$EXECS_PATH/$APP_NAME"
 FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
+RESOURCES_PATH="$APP_PATH/Contents/Resources"
 
 mkdir -p "$FRAMEWORKS_PATH"
 mkdir -p "$EXECS_PATH"
+mkdir -p "$RESOURCES_PATH"
 
-for EXECUTABLE in bin/autodiag bin/elm327sim; do
+for folder in ui data/data media ; do
+    cp -fr "$folder" "$RESOURCES_PATH"
+done
+
+for EXECUTABLE in bin/autodiag bin/elm327sim ; do
 
     # Get the list of Homebrew dependencies
     DEPENDENCIES=$(otool -L "$EXECUTABLE" | grep -E "/opt/homebrew/" | awk '{print $1}')

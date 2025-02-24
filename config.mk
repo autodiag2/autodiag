@@ -19,13 +19,13 @@ endif
 ifdef INSTALL_BIN_FOLDER
 
 else ifdef LOCALAPPDATA
-        INSTALL_BIN_FOLDER = .
+    INSTALL_BIN_FOLDER = .
 else ifdef APPDATA
-        INSTALL_BIN_FOLDER = .
+    INSTALL_BIN_FOLDER = .
 else ifdef XDG_DATA_DIRS
-        INSTALL_BIN_FOLDER = $(HOME)/.local/bin/
+    INSTALL_BIN_FOLDER = $(HOME)/.local/bin/
 else
-        INSTALL_BIN_FOLDER = /usr/bin/
+    INSTALL_BIN_FOLDER = /usr/bin/
 endif
 
 DEBUG_CFLAGS = -ggdb

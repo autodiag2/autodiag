@@ -11,6 +11,10 @@
 #   define OS_WINDOWS
 #endif
 
+#if defined __APPLE__
+#   define OS_APPLE
+#endif
+
 #if defined __unix__ || defined __APPLE__
 #   define OS_UNIX
 #   include <unistd.h>
