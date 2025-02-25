@@ -221,7 +221,7 @@ VH_OX_SENSOR_GSOURCE_SYM(1) VH_OX_SENSOR_GSOURCE_SYM(2) VH_OX_SENSOR_GSOURCE_SYM
 VH_OX_SENSOR_GSOURCE_SYM(4) VH_OX_SENSOR_GSOURCE_SYM(5) VH_OX_SENSOR_GSOURCE_SYM(6)
 VH_OX_SENSOR_GSOURCE_SYM(7) VH_OX_SENSOR_GSOURCE_SYM(8)
 
-#define VH_REFRESH_SENSOR(sensor_i) \
+#define VH_REFRESH_OX_SENSOR(sensor_i) \
     if ( VH_SHOULD_REFRESH_WIDGET(vdgui->engine.oxSensors.sensor_##sensor_i.voltage) ) { \
         g_idle_add(vehicle_explorer_saej1979_data_oxygen_sensor_voltage_##sensor_i##_gsource,doubledup(saej1979_data_oxygen_sensor_voltage(iface, vehicle_explorer_show_freeze_frame_get_state(), sensor_i))); \
     } \
@@ -275,8 +275,8 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank2,   saej1979_data_long_term_fuel_trim_bank_2,   int);  
         VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank1,  saej1979_data_short_term_fuel_trim_bank_1,  int);
         VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank2,  saej1979_data_short_term_fuel_trim_bank_2,  int);               
-        VH_REFRESH_SENSOR(1) VH_REFRESH_SENSOR(2) VH_REFRESH_SENSOR(3) VH_REFRESH_SENSOR(4)
-        VH_REFRESH_SENSOR(5) VH_REFRESH_SENSOR(6) VH_REFRESH_SENSOR(7) VH_REFRESH_SENSOR(8)
+        VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
+        VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
