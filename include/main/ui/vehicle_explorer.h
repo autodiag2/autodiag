@@ -8,7 +8,7 @@
 #include "config.h"
 #include "counter.h"
 
-#define VH_GEN_SENSOR_STRUCT(i) \
+#define VH_GEN_OX_SENSOR_STRUCT(i) \
     struct { \
         GtkLabel* voltage; \
         GtkLabel* current; \
@@ -66,14 +66,14 @@ typedef struct {
             } rail;
         } fuel;
         struct {
-            VH_GEN_SENSOR_STRUCT(1);
-            VH_GEN_SENSOR_STRUCT(2);
-            VH_GEN_SENSOR_STRUCT(3);
-            VH_GEN_SENSOR_STRUCT(4);
-            VH_GEN_SENSOR_STRUCT(5);
-            VH_GEN_SENSOR_STRUCT(6);
-            VH_GEN_SENSOR_STRUCT(7);
-            VH_GEN_SENSOR_STRUCT(8);
+            VH_GEN_OX_SENSOR_STRUCT(1);
+            VH_GEN_OX_SENSOR_STRUCT(2);
+            VH_GEN_OX_SENSOR_STRUCT(3);
+            VH_GEN_OX_SENSOR_STRUCT(4);
+            VH_GEN_OX_SENSOR_STRUCT(5);
+            VH_GEN_OX_SENSOR_STRUCT(6);
+            VH_GEN_OX_SENSOR_STRUCT(7);
+            VH_GEN_OX_SENSOR_STRUCT(8);
         } oxSensors;
         GtkContainer* tests;
     } engine;
