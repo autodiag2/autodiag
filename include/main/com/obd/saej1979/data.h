@@ -537,7 +537,7 @@ int saej1979_data_catalyst_tempature_with_bank(final OBDIFace* iface, bool useFr
  * Service 0*41
  */
 /**
- * Service 0*42
+ * Service 0*42 - control module voltage (ECU)
  * @return V or -1 on error
  */
 #define saej1979_data_ecu_voltage_iterator(data) \
