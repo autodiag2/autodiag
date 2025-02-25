@@ -429,7 +429,7 @@ void vehicle_explorer_mapped_false(GtkWidget *widget, gpointer data) {
     }
 }
 
-#define VH_RETRIEVE_SENSOR(i) \
+#define VH_RETRIEVE_OX_SENSOR(i) \
     .sensor_##i = { \
         .voltage = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-sensors-"#i"-voltage")), \
         .current = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-sensors-"#i"-current")), \
@@ -488,8 +488,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                     .obdStandard = (GtkLabel*)gtk_builder_get_object (builder, "vehicle-explorer-ecu-obd-standard")
                 },
                 .oxSensors = {
-                    VH_RETRIEVE_SENSOR(1),VH_RETRIEVE_SENSOR(2),VH_RETRIEVE_SENSOR(3),VH_RETRIEVE_SENSOR(4),
-                    VH_RETRIEVE_SENSOR(5),VH_RETRIEVE_SENSOR(6),VH_RETRIEVE_SENSOR(7),VH_RETRIEVE_SENSOR(8)
+                    VH_RETRIEVE_OX_SENSOR(1),VH_RETRIEVE_OX_SENSOR(2),VH_RETRIEVE_OX_SENSOR(3),VH_RETRIEVE_OX_SENSOR(4),
+                    VH_RETRIEVE_OX_SENSOR(5),VH_RETRIEVE_OX_SENSOR(6),VH_RETRIEVE_OX_SENSOR(7),VH_RETRIEVE_OX_SENSOR(8)
                 },
                 .tests = GTK_CONTAINER(gtk_builder_get_object (builder,"vehicle-explorer-engine-tests"))
             }
