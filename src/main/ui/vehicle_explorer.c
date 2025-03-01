@@ -87,6 +87,12 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_intake_air_temperature,
     "%d °C", vdgui->engine.intakeAir.temperature
 )
 
+VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_intake_manifold_pressure,
+    int,
+    SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MIN,SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MAX,SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR,
+    "%d kPa", vdgui->engine.intakeAir.manifoldPressure
+)
+
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_1,
     int,
     SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%d %%", 
@@ -260,6 +266,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         bool useFreezeFrame = vehicle_explorer_show_freeze_frame_get_state();
         VH_REFRESH_WIDGET(vdgui->engine.coolant.temperature,        saej1979_data_engine_coolant_temperature,   int);
         VH_REFRESH_WIDGET(vdgui->engine.intakeAir.temperature,      saej1979_data_intake_air_temperature,       int);
+        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.manifoldPressure, saej1979_data_intake_manifold_pressure,     int);
         VH_REFRESH_WIDGET(vdgui->engine.speed,                      saej1979_data_engine_speed,                 double);
         VH_REFRESH_WIDGET(vdgui->engine.ecu.voltage,                saej1979_data_ecu_voltage,                  double);
         VH_REFRESH_WIDGET(vdgui->engine.load,                       saej1979_data_engine_load,                  int);               

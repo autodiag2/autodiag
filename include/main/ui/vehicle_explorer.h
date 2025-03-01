@@ -41,6 +41,7 @@ typedef struct {
         } ecu;
         struct {
             GtkProgressBar* temperature;
+            GtkProgressBar* manifoldPressure;
         } intakeAir;
         struct {
             GtkProgressBar* temperature;
