@@ -144,7 +144,12 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_frp_relative,
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_injection_timing,
     double,
     SAEJ1979_DATA_FUEL_INJECTION_TIMING_MIN,SAEJ1979_DATA_FUEL_INJECTION_TIMING_MAX,SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR,
-    "%.2f °", vdgui->engine.fuel.injectionTiming
+    "%.2f °", vdgui->engine.injectionSystem.injectionTiming
+)
+VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_timing_advance_cycle_1,
+    double,
+    SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_MIN,SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_MAX,SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_ERROR,
+    "%.2f °", vdgui->engine.injectionSystem.timingAdvance
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_fuel_rate,
@@ -264,24 +269,25 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         return false;
     } else {
         bool useFreezeFrame = vehicle_explorer_show_freeze_frame_get_state();
-        VH_REFRESH_WIDGET(vdgui->engine.coolant.temperature,        saej1979_data_engine_coolant_temperature,   int);
-        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.temperature,      saej1979_data_intake_air_temperature,       int);
-        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.manifoldPressure, saej1979_data_intake_manifold_pressure,     int);
-        VH_REFRESH_WIDGET(vdgui->engine.speed,                      saej1979_data_engine_speed,                 double);
-        VH_REFRESH_WIDGET(vdgui->engine.ecu.voltage,                saej1979_data_ecu_voltage,                  double);
-        VH_REFRESH_WIDGET(vdgui->engine.load,                       saej1979_data_engine_load,                  int);               
-        VH_REFRESH_WIDGET(vdgui->engine.vehicleSpeed,               saej1979_data_vehicle_speed,                int);
-        VH_REFRESH_WIDGET(vdgui->engine.secondsSinceStart,          saej1979_data_seconds_since_engine_start,   int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.pressure,              saej1979_data_fuel_pressure,                int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.level,                 saej1979_data_fuel_tank_level_input,        double);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.ethanol,               saej1979_data_ethanol_fuel_percent,         int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.rail.pressure,         saej1979_data_frp_relative,                 double);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.injectionTiming,       saej1979_data_fuel_injection_timing,        double);        
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.rate,                  saej1979_data_engine_fuel_rate,             double);        
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank1,   saej1979_data_long_term_fuel_trim_bank_1,   int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank2,   saej1979_data_long_term_fuel_trim_bank_2,   int);  
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank1,  saej1979_data_short_term_fuel_trim_bank_1,  int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank2,  saej1979_data_short_term_fuel_trim_bank_2,  int);               
+        VH_REFRESH_WIDGET(vdgui->engine.coolant.temperature,                        saej1979_data_engine_coolant_temperature,   int);
+        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
+        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
+        VH_REFRESH_WIDGET(vdgui->engine.speed,                                      saej1979_data_engine_speed,                 double);
+        VH_REFRESH_WIDGET(vdgui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
+        VH_REFRESH_WIDGET(vdgui->engine.load,                                       saej1979_data_engine_load,                  int);               
+        VH_REFRESH_WIDGET(vdgui->engine.vehicleSpeed,                               saej1979_data_vehicle_speed,                int);
+        VH_REFRESH_WIDGET(vdgui->engine.secondsSinceStart,                          saej1979_data_seconds_since_engine_start,   int);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.pressure,                              saej1979_data_fuel_pressure,                int);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.level,                                 saej1979_data_fuel_tank_level_input,        double);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.ethanol,                               saej1979_data_ethanol_fuel_percent,         int);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.rail.pressure,                         saej1979_data_frp_relative,                 double);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.rate,                                  saej1979_data_engine_fuel_rate,             double);        
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank1,                   saej1979_data_long_term_fuel_trim_bank_1,   int);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank2,                   saej1979_data_long_term_fuel_trim_bank_2,   int);  
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank1,                  saej1979_data_short_term_fuel_trim_bank_1,  int);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank2,                  saej1979_data_short_term_fuel_trim_bank_2,  int);               
+        VH_REFRESH_WIDGET(vdgui->engine.injectionSystem.injectionTiming,            saej1979_data_fuel_injection_timing,        double);        
+        VH_REFRESH_WIDGET(vdgui->engine.injectionSystem.timingAdvance,              saej1979_data_timing_advance_cycle_1,       double);        
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
@@ -470,7 +476,6 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                     .level = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-engine-fuel-level"),
                     .type = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-fuel-type")),
                     .ethanol = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-fuel-ethanol")),
-                    .injectionTiming = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-fuel-injection-timing")),
                     .rate = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-fuel-rate")),                    
                     .trim = {
                         .longTerm = {
@@ -486,6 +491,10 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                         .pressure = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-fuel-rail-pressure"))
                     },
                     .status = GTK_LABEL(gtk_builder_get_object (builder,"vehicle-explorer-engine-fuel-system-status"))
+                },
+                .injectionSystem = {
+                    .injectionTiming = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-fuel-injection-timing")),
+                    .timingAdvance = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "vehicle-explorer-engine-time-advance"))
                 },
                 .coolant = {
                     .temperature = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-coolant-temperature-graph")

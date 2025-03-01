@@ -52,7 +52,6 @@ typedef struct {
             GtkLabel* status;
             GtkLabel* type;    
             GtkProgressBar* ethanol;        
-            GtkProgressBar* injectionTiming;
             GtkProgressBar* rate;
             struct {
                 struct {
@@ -66,6 +65,10 @@ typedef struct {
                 GtkProgressBar* pressure;
             } rail;
         } fuel;
+        struct {
+            GtkProgressBar* injectionTiming;
+            GtkProgressBar* timingAdvance;
+        } injectionSystem;
         struct {
             VH_GEN_OX_SENSOR_STRUCT(1);
             VH_GEN_OX_SENSOR_STRUCT(2);
