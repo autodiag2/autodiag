@@ -475,7 +475,9 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .vehicleSpeed = GTK_PROGRESS_BAR(gtk_builder_get_object(builder,"vehicle-explorer-vehicle-speed")),
                 .secondsSinceStart = GTK_LABEL(gtk_builder_get_object(builder,"vehicle-explorer-engine-seconds-since-start")),
                 .intakeAir = {
-                    .temperature = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-intake-air-temperature")
+                    .temperature = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-intake-air-temperature"),
+                    .manifoldPressure = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-intake-air-manifold-pressure"),
+                    .mafRate = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-intake-air-maf-rate")
                 },
                 .fuel = {
                     .pressure = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-engine-fuel-pressure"),

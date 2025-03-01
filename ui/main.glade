@@ -9324,7 +9324,7 @@ What can be done:
                                                   </packing>
                                                 </child>
                                                 <child>
-                                                  <object class="GtkProgressBar" id="vehicle-explorer-intake-air-manifold-pressure1">
+                                                  <object class="GtkProgressBar" id="vehicle-explorer-intake-air-maf-rate">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
                                                     <property name="text" translatable="yes">0 g/s</property>
