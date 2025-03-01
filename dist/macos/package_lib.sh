@@ -21,6 +21,7 @@ function process_dependencies() {
             if [ ! -f "$FRAMEWORKS_PATH/$LIB_NAME" ]; then
                 cp "$LIB" "$FRAMEWORKS_PATH/"
                 NEW_LIBS_FOUND=true
+                process_dependencies "$FRAMEWORKS_PATH/$LIB_NAME" "$FRAMEWORKS_PATH"
             fi
 
             # Update the binary to reference the local Frameworks path
