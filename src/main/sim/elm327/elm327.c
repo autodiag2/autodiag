@@ -45,9 +45,9 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
 }
 
 void elm327_sim_start_activity_monitor(ELM327emulation * elm327) {
-    if ( elm327->activity_monitor_thread != -1 ) {
+    if ( elm327->activity_monitor_thread != null ) {
         pthread_cancel(elm327->activity_monitor_thread);
-        elm327->activity_monitor_thread = -1;
+        elm327->activity_monitor_thread = null;
     }
     if ( pthread_create(&elm327->activity_monitor_thread, NULL,
                           (void *(*) (void *)) elm327_sim_activity_monitor_daemon,
@@ -294,7 +294,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327) {
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
     elm327->activity_monitor_count = 0x00;
-    elm327->activity_monitor_thread = -1;
+    elm327->activity_monitor_thread = null;
     int secs = bitRetrieve(ELM327_SIM_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
@@ -346,18 +346,18 @@ ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
     elm327->ecus = ECUEmulation_list_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE8));
-    elm327->loop_thread = -1;
+    elm327->loop_thread = null;
     elm327_sim_init_from_nvm(elm327);
     return elm327;
 }
 void elm327_sim_destroy(ELM327emulation * elm327) {
-    if ( elm327->activity_monitor_thread != -1 ) {
+    if ( elm327->activity_monitor_thread != null ) {
         pthread_cancel(elm327->activity_monitor_thread);
-        elm327->activity_monitor_thread = -1;
+        elm327->activity_monitor_thread = null;
     }
-    if ( elm327->loop_thread != -1 ) {
+    if ( elm327->loop_thread != null ) {
         pthread_cancel(elm327->loop_thread);
-        elm327->loop_thread = -1;
+        elm327->loop_thread = null;
     }
     free(elm327->eol);
     free(elm327->dev_description);
@@ -374,9 +374,9 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     free(elm327);
 }
 void elm327_sim_loop_start(ELM327emulation * elm327) {
-    if ( elm327->loop_thread != -1 ) {
+    if ( elm327->loop_thread != null ) {
         pthread_cancel(elm327->loop_thread);
-        elm327->loop_thread = -1;
+        elm327->loop_thread = null;
     }
     if ( pthread_create(&elm327->loop_thread, NULL,
                           (void *(*) (void *)) elm327_sim_loop, (void *)elm327) != 0 ) {
