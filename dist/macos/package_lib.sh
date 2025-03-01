@@ -26,6 +26,7 @@ function process_dependencies() {
 
             # Update the binary to reference the local Frameworks path
             install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$TARGET"
+            install_name_tool -id "@executable_path/../Frameworks/$LIB_NAME" "$TARGET"
 
             # Mark library as processed
             PROCESSED_LIBS+=("$LIB_NAME")
