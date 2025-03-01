@@ -42,6 +42,7 @@ typedef struct {
         struct {
             GtkProgressBar* temperature;
             GtkProgressBar* manifoldPressure;
+            GtkProgressBar* mafRate;
         } intakeAir;
         struct {
             GtkProgressBar* temperature;

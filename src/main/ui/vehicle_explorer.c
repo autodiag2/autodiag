@@ -92,6 +92,11 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_intake_manifold_pressure,
     SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MIN,SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MAX,SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR,
     "%d kPa", vdgui->engine.intakeAir.manifoldPressure
 )
+VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_maf_air_flow_rate,
+    double,
+    SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MIN,SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MAX,SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_ERROR,
+    "%.2f g/s", vdgui->engine.intakeAir.mafRate
+)
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_1,
     int,
@@ -272,6 +277,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_WIDGET(vdgui->engine.coolant.temperature,                        saej1979_data_engine_coolant_temperature,   int);
         VH_REFRESH_WIDGET(vdgui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
         VH_REFRESH_WIDGET(vdgui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
+        VH_REFRESH_WIDGET(vdgui->engine.intakeAir.mafRate,                          saej1979_data_maf_air_flow_rate,            double);        
         VH_REFRESH_WIDGET(vdgui->engine.speed,                                      saej1979_data_engine_speed,                 double);
         VH_REFRESH_WIDGET(vdgui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
         VH_REFRESH_WIDGET(vdgui->engine.load,                                       saej1979_data_engine_load,                  int);               
