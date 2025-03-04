@@ -96,10 +96,15 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         case 0x09: {
             if ( 1 < bin->size ) {            
                 switch(bin->buffer[1]) {
-                    case 0x0A:
+                    case 0x00: {
+                        buffer_append(responseOBDdataBin, ascii_to_bin_buffer("FFFFFFFF"));
+                        break;
+                    }
+                    case 0x0A: {
                         // ECU name : 'TEST'
                         buffer_append(responseOBDdataBin, ascii_to_bin_buffer("5445535400"));
                         break;
+                    }
                 }
             } else {
                 log_msg(LOG_ERROR, "Missing PID");

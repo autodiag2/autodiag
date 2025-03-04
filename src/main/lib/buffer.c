@@ -1,5 +1,17 @@
 #include "lib/buffer.h"
 
+bool buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
+    if ( buf1->size != buf2->size ) {
+        return false;
+    }
+    for(int i = 0; i < buf1->size; i++) {
+        if ( buf1->buffer[i] != buf2->buffer[i] ) {
+            return false;
+        }
+    }
+    return true;
+}
+
 Buffer * buffer_new_random(int sz) {
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);
@@ -96,7 +108,7 @@ void buffer_ensure_termination(nonnull Buffer * buffer) {
 }
 
 void buffer_dump(Buffer * buffer) {
-        assert(buffer != null);    
+    assert(buffer != null);    
     bin_dump(buffer->buffer, buffer->size);
 }
 

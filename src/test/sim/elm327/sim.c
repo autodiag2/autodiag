@@ -136,5 +136,16 @@ bool testSIM() {
         int recv = iface->device->recv(DEVICE(iface->device));
         printf("recv=%d\n", recv);
     }
+    {
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(200e3);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        obd_clear_data(iface);
+        obd_send(iface, "0900");
+        obd_clear_data(iface);
+        obd_recv(iface);
+        assert(buffer_cmp(iface->vehicle->obd_data_buffer->list[0], ascii_to_bin_buffer("4900FFFFFFFF")));
+    }
     return true;
 }

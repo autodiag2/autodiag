@@ -70,6 +70,10 @@ Buffer * buffer_from_string(char * str);
  * Get free space in the buffer.
  */
 int buffer_get_free_space(nonnull Buffer * buffer);
+/**
+ * Compare two buffers
+ */
+bool buffer_cmp(final Buffer *buf1, final Buffer *buf2);
 
 #define BUFFER Buffer *
 #define BUFFERLIST BufferList *
