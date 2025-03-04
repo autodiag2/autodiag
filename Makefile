@@ -63,18 +63,18 @@ bin/%: src/test/%.c $(OBJS_lib) $(OBJS_test)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_TESTS) $^ -o '$@' $(LIBS) $(LIBS_TESTS)
 
-obj/main/%.o: src/main/%.c
+obj/main/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) -c $(filter %.c,$(^)) -o '$@'
 
-obj/test/%.o: src/test/%.c
+obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
 
 # Additionnal specific dependencies
-dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) >> dependencies.mk;
+dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) |grep -v "^[ \t]\+/" >> dependencies.mk;
 dependencies: $(SOURCES)
 	@echo "Generating dependencies..."
 	@> dependencies.mk

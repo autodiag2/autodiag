@@ -11,4 +11,3 @@ dist/debian/autodiag*
 dist/debian/DEBIAN/
 autodiag.exe
 __pycache__
-dependencies.mk
