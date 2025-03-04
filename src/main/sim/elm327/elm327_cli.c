@@ -93,7 +93,7 @@ int elm327_sim_cli_main(int argc, char **argv, int starti) {
         log_msg(LOG_INFO, "Simulation not started");
         return 1;
     } else {
-        printf("Simulation running on %s", sim->port_name);
+        printf("Simulation running on %s\n", sim->port_name);
         if ( proto != null ) {
             sim->protocolRunning = *proto;
         }
