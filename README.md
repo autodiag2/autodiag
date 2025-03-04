@@ -52,13 +52,13 @@ sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgt
 git clone https://github.com/autodiag2/autodiag && \
  cd autodiag && \
  git submodule update --init --recursive && \
- make dependencies && \
  make && \
  make install
 ```
 ## Run
 ```bash
-autodiag
+./bin/autodiag
+./bin/elm327sim
 ```
 #### Simulation for windows
 - Download [Virtual Serial Port Tools](https://freevirtualserialports.com/)
@@ -72,14 +72,6 @@ Specify the correct location of gsettings schemas
 ```bash
 echo "export GSETTINGS_SCHEMA_DIR=/opt/homebrew/share/glib-2.0/schemas/" >> ~/.bashrc && \
  source ~/.bashrc
-```
-#### Compile errors
-```
-make: ***  Aucune règle pour fabriquer la cible « /mingw64/include/gtk-3.0/gtk/gtk.h », nécessaire pour « obj/main/ui/CommandLine.o ». Arrêt.
-```
-Recompile dependencies
-```bash
-make dependencies
 ```
 #### Alternative simulator
 ##### ELM327 simulator
