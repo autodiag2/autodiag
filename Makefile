@@ -17,6 +17,7 @@ OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
 # objects of the library
 OBJS_lib = obj/main/ui/config.o $(filter-out obj/main/ui/%.o,$(OBJS_main))
 
+
 SOURCES = $(SOURCES_main) $(SOURCES_test)
 OBJS = $(OBJS_main) $(OBJS_test)
 
@@ -62,13 +63,13 @@ bin/%: src/test/%.c $(OBJS_lib) $(OBJS_test)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_TESTS) $^ -o '$@' $(LIBS) $(LIBS_TESTS)
 
-obj/main/%.o:
+obj/main/%.o: src/main/%.c
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) -c $(filter %.c,$(^)) -o '$@'
 
-obj/test/%.o:
+obj/test/%.o: src/test/%.c
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
 
@@ -77,7 +78,7 @@ dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -M
 dependencies: $(SOURCES)
 	@echo "Generating dependencies..."
 	@> dependencies.mk
-	@$(foreach var, $(SOURCES), $(cmd))
+	@$(foreach var, $(SOURCES), $(cmd))	
 
 -include dependencies.mk
 
