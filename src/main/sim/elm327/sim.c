@@ -51,7 +51,7 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
 
 char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = null;
-    Buffer* bin = buffer_new();
+    Buffer* obd_query_bin = buffer_new();
     Buffer* responseOBDdataBin = buffer_new();
     char * end_ptr = strstr(obd_query_str,elm327->eol);
 
@@ -76,14 +76,14 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     }
     obd_query_str = obd_query_str + szToRemove;
 
-    elm_ascii_to_bin_internal(hasSpaces, bin, obd_query_str, end_ptr == null ? obd_query_str + strlen(obd_query_str): end_ptr);
+    elm_ascii_to_bin_internal(hasSpaces, obd_query_bin, obd_query_str, end_ptr == null ? obd_query_str + strlen(obd_query_str): end_ptr);
 
-    if ( 0 == bin->size ) {
+    if ( 0 == obd_query_bin->size ) {
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
 
-    switch(bin->buffer[0]) {
+    switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
             buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1));
         } break;
@@ -94,15 +94,51 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case 0x09: {
-            if ( 1 < bin->size ) {            
-                switch(bin->buffer[1]) {
+            if ( 1 < obd_query_bin->size ) {            
+                switch(obd_query_bin->buffer[1]) {
                     case 0x00: {
                         buffer_append(responseOBDdataBin, ascii_to_bin_buffer("FFFFFFFF"));
+                        break;
+                    }
+                    case 0x01: {
+                        buffer_append_byte(responseOBDdataBin, 0x05);
+                        break;
+                    }
+                    case 0x02: {
+                        buffer_append(responseOBDdataBin,buffer_new_random(17));                
+                        break;
+                    }
+                    case 0x03: {
+                        buffer_append(responseOBDdataBin,buffer_new_random(16));                
+                        break;
+                    }
+                    case 0x05: {
+                        buffer_append_byte(responseOBDdataBin,0x01);
+                        break;
+                    }
+                    case 0x06: {
+                        buffer_append(responseOBDdataBin,buffer_new_random(4));
+                        break;
+                    }
+                    case 0x07: {
+                        buffer_append_byte(responseOBDdataBin,0x01);
+                        break;
+                    }
+                    case 0x08: {
+                        buffer_append(responseOBDdataBin,buffer_new_random(4));
+                        break;
+                    }
+                    case 0x09: {
+                        buffer_append_byte(responseOBDdataBin,0x01);
                         break;
                     }
                     case 0x0A: {
                         // ECU name : 'TEST'
                         buffer_append(responseOBDdataBin, ascii_to_bin_buffer("5445535400"));
+                        break;
+                    }
+                    case 0x0B: {
+                        buffer_append(responseOBDdataBin,buffer_new_random(4));
                         break;
                     }
                 }
@@ -112,43 +148,85 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         } break;
     }
     if ( 0 < responseOBDdataBin->size ) {
-        char *header = "";
-        if ( elm327->printing_of_headers ) {
-            char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
-            char * space = elm327->printing_of_spaces ? " " : "";
+        bool iso_15765_is_multi_message = false;
+        int iso_15765_multi_message_sn = 0;
+        int obdMessageDataBytes = 0;
+        for(int responseBodyIndex = 0; responseBodyIndex < responseOBDdataBin->size; responseBodyIndex += obdMessageDataBytes, iso_15765_multi_message_sn += 1) {
             
+            final Buffer * responseBodyChunk = buffer_new();
+            bool iso_15765_is_multi_message_ff = false;
+
             bool hasPid = false;
-            switch(bin->buffer[0]) {
+            switch(obd_query_bin->buffer[0]) {
                 case 0x01: case 0x02: case 0x09: hasPid = true; break;
             }
-            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                assert(responseOBDdataBin->size <= ISO_15765_SINGLE_FRAME_DATA_BYTES - hasPid);
-                char *inBuildHeader;
-                asprintf(&header, "%s%s", protocolSpecificHeader, space);
-                if ( elm327->can.display_dlc ) {
-                    asprintf(&inBuildHeader, "%s%02X%s", header, responseOBDdataBin->size + 1 + hasPid, space);
-                    free(header);
-                    header = inBuildHeader;
-                }
+
+            if ( responseBodyIndex == 0 ) {
+                buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
                 if ( hasPid ) {
-                    asprintf(&inBuildHeader, "%s%02X%s%02X%s", header, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space, bin->buffer[1], space);
-                } else {
-                    asprintf(&inBuildHeader, "%s%02X%s", header, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space);
+                    buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[1]);
                 }
-                free(header);
-                header = inBuildHeader;
-            } else {
-                if ( hasPid ) {
-                    asprintf(&header, "%s%s%02X%s%02X%s", protocolSpecificHeader, space, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space, bin->buffer[1], space);
-                } else {
-                    asprintf(&header, "%s%s%02X%s", protocolSpecificHeader, space, bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE, space);
+                iso_15765_is_multi_message = 7 < responseOBDdataBin->size;
+                if ( iso_15765_is_multi_message ) {
+                    iso_15765_is_multi_message_ff = true;
                 }
             }
+
+            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+                if ( iso_15765_is_multi_message ) {
+                    if ( iso_15765_is_multi_message_ff ) {
+                        obdMessageDataBytes = min(6,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
+                    } else {
+                        obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
+                    }
+                } else {
+                    obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
+                }
+            } else {
+                obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
+            }
+            buffer_slice(responseBodyChunk, responseOBDdataBin, responseBodyIndex, obdMessageDataBytes);
+
+            char * space = elm327->printing_of_spaces ? " " : "";
+            char *header = "";
+            if ( elm327->printing_of_headers ) {
+                char *inBuildHeader = "";
+                char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+
+                asprintf(&header, "%s%s", protocolSpecificHeader, space);
+                if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+                    
+                    if ( iso_15765_is_multi_message ) {
+                        if ( iso_15765_is_multi_message_ff ) {
+                            log_msg(LOG_DEBUG, "reply first frame");
+                            int dl11_8 = responseOBDdataBin->size & 0x0F00 >> 8;
+                            final byte pci = Iso15765FirstFrame << 4 | dl11_8;
+                            final byte dl7_0 = responseOBDdataBin->size & 0xFF;
+                            asprintf(&inBuildHeader, "%s%02X%s%02X%s", header, pci, space, dl7_0, space);
+                            free(header);
+                            header = inBuildHeader;
+                        } else {
+                            log_msg(LOG_DEBUG, "reply consecurive frame");
+                            final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
+                            asprintf(&inBuildHeader, "%s%02X%s", header, pci, space);
+                            free(header);
+                            header = inBuildHeader;
+                        }
+                    } else {
+                        log_msg(LOG_DEBUG, "reply as single frame");
+                        final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
+                        asprintf(&inBuildHeader, "%s%02X%s", header, pci, space);
+                        free(header);
+                        header = inBuildHeader;
+                    }
+                }
+            }
+
+            asprintf(&response, "%s%s", header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk));
         }
-        asprintf(&response, "%s%s", header, elm_ascii_from_bin(elm327->printing_of_spaces, responseOBDdataBin));
     }
     buffer_free(responseOBDdataBin);
-    buffer_free(bin);
+    buffer_free(obd_query_bin);
     return response;
 }
 
