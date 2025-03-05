@@ -208,7 +208,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                             free(header);
                             header = inBuildHeader;
                         } else {
-                            log_msg(LOG_DEBUG, "reply consecurive frame");
+                            log_msg(LOG_DEBUG, "reply consecutive frame");
                             final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
                             asprintf(&inBuildHeader, "%s%02X%s", header, pci, space);
                             free(header);
