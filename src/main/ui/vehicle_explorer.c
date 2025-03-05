@@ -412,9 +412,7 @@ gboolean vehicle_explorer_set_widget_visible_true_callback(gpointer data) {
     return false;
 }
 void vehicle_explorer_mapped_true_one_level_callback(GtkWidget *widget, gpointer data) {
-    printf("A\n");
     final const char * name = gtk_widget_get_name(widget);
-    printf("A2\n");
     if ( strcmp(name,"GtkBox") == 0 ) {
         gtk_container_foreach((GtkContainer*)widget,
             vehicle_explorer_mapped_true_one_level_callback,
@@ -434,9 +432,7 @@ void vehicle_explorer_mapped_true_one_level(GtkExpander* expander, gpointer data
 
 void vehicle_explorer_mapped_false(GtkWidget *widget, gpointer data) {
     final bool mapped = false;
-    printf("B\n");
     final const char * name = gtk_widget_get_name(widget);
-    printf("B1\n");
     if ( strcmp(name,"GtkExpander") == 0 ) {
         g_signal_connect(G_OBJECT(widget),"activate",G_CALLBACK(vehicle_explorer_mapped_true_one_level),NULL);
         gtk_container_foreach(
