@@ -37,6 +37,7 @@ void buffer_recycle(Buffer * buffer);
 void buffer_left_shift(final Buffer * buffer, final int shift);
 void buffer_append(final Buffer * dest, final Buffer * src);
 void buffer_append_bytes(final Buffer * dest, final byte *data, final int size);
+void buffer_append_byte(final Buffer * dest, final byte b);
 void buffer_append_str(final Buffer* dest, final char *data);
 bool buffer_equals(final Buffer * b1, final Buffer * b2);
 /**

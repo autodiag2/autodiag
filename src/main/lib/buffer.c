@@ -91,6 +91,11 @@ void buffer_append_bytes(final BUFFER dest, final byte *data, final int size) {
     memcpy(dest->buffer+dest->size, data, size);
     dest->size += size;
 }
+void buffer_append_byte(final BUFFER dest, final byte b) {
+    buffer_ensure_capacity(dest, 1);
+    dest->buffer[dest->size] = b;
+    dest->size ++;
+}
 void buffer_append_str(final BUFFER dest, final char *data) {
     buffer_append_bytes(dest,data,strlen(data));
 }
