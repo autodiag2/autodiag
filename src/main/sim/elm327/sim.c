@@ -156,12 +156,11 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             final Buffer * responseBodyChunk = buffer_new();
             bool iso_15765_is_multi_message_ff = false;
 
-            bool hasPid = false;
-            switch(obd_query_bin->buffer[0]) {
-                case 0x01: case 0x02: case 0x09: hasPid = true; break;
-            }
-
             if ( responseBodyIndex == 0 ) {
+                bool hasPid = false;
+                switch(obd_query_bin->buffer[0]) {
+                    case 0x01: case 0x02: case 0x09: hasPid = true; break;
+                }
                 buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
                 if ( hasPid ) {
                     buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[1]);
@@ -172,19 +171,15 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                 }
             }
 
+            int obdMessageDataBytesMax = 7;
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {
-                        obdMessageDataBytes = min(6,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
-                    } else {
-                        obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
+                        obdMessageDataBytesMax = 6;
                     }
-                } else {
-                    obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
                 }
-            } else {
-                obdMessageDataBytes = min(7,responseOBDdataBin->size - responseBodyIndex - responseBodyChunk->size);
             }
+            obdMessageDataBytes = min(obdMessageDataBytesMax - responseBodyChunk->size, responseOBDdataBin->size - responseBodyIndex);
             buffer_slice(responseBodyChunk, responseOBDdataBin, responseBodyIndex, obdMessageDataBytes);
 
             char * space = elm327->printing_of_spaces ? " " : "";
