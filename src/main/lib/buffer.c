@@ -85,9 +85,9 @@ void buffer_slice(final Buffer *dest, final Buffer * src, final int index, final
     assert(size <= src->size);
     assert(dest != null);
     assert(src != null);
-    assert(index < src->size);
+    assert(index+size <= src->size);
     buffer_ensure_capacity(dest, size);
-    memcpy(dest->buffer+dest->size, src->buffer, size);
+    memcpy(dest->buffer+dest->size, src->buffer + index, size);
     dest->size += size;
 }
 void buffer_append(final BUFFER dest, final BUFFER src) {
