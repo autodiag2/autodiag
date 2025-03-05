@@ -109,6 +109,10 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                         break;
                     }
                     case 0x03: {
+                        buffer_append_byte(responseOBDdataBin,0x01);
+                        break;
+                    }
+                    case 0x04: {
                         buffer_append(responseOBDdataBin,buffer_new_random(16));                
                         break;
                     }
