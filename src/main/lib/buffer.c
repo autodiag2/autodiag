@@ -170,6 +170,14 @@ BUFFER ascii_n_to_bin_buffer(char * ascii, int size) {
     free(ascii_internal);
     return bin;
 }
+void buffer_padding(final Buffer * buffer, int until, final byte pad) {
+    final int toPadSz = until - buffer->size;
+    buffer_ensure_capacity(buffer, toPadSz);
+    for(int i = 0; i < toPadSz; i++) {
+        buffer->buffer[buffer->size + i] = pad;
+    }
+    buffer->size += until;
+}
 Buffer* ascii_to_bin_buffer(char * ascii) {
     return ascii_n_to_bin_buffer(ascii,strlen(ascii));
 }

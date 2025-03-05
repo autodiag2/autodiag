@@ -138,7 +138,9 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                     }
                     case 0x0A: {
                         // ECU name : 'TEST'
-                        buffer_append(responseOBDdataBin, ascii_to_bin_buffer("5445535400"));
+                        final Buffer * name = ascii_to_bin_buffer("5445535400");
+                        buffer_padding(name, 20, 0x00);
+                        buffer_append(responseOBDdataBin, name);
                         break;
                     }
                     case 0x0B: {
