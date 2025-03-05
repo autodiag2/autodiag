@@ -50,7 +50,7 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
 }
 
 char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
-    char * response = null;
+    char * response = "";
     Buffer* obd_query_bin = buffer_new();
     Buffer* responseOBDdataBin = buffer_new();
     char * end_ptr = strstr(obd_query_str,elm327->eol);
@@ -217,7 +217,9 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                 }
             }
 
-            asprintf(&response, "%s%s", header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk));
+            char *tmpResponse;
+            asprintf(&tmpResponse, "%s%s%s%s", response, header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol);
+            response = tmpResponse;
         }
     }
     buffer_free(responseOBDdataBin);
