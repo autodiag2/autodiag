@@ -35,6 +35,10 @@ void buffer_recycle(Buffer * buffer);
  * Make a left shift on the buffer (remove the first n bytes)
  */
 void buffer_left_shift(final Buffer * buffer, final int shift);
+/**
+ * Extract part of a buffer into an other
+ */
+void buffer_slice(final Buffer *dest, final Buffer * src, final int index, final int size);
 void buffer_append(final Buffer * dest, final Buffer * src);
 void buffer_append_bytes(final Buffer * dest, final byte *data, final int size);
 void buffer_append_byte(final Buffer * dest, final byte b);

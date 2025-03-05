@@ -81,7 +81,15 @@ bool buffer_ensure_capacity(nonnull Buffer * buffer, int size) {
         return true;
     }
 }
-
+void buffer_slice(final Buffer *dest, final Buffer * src, final int index, final int size) {
+    assert(size <= src->size);
+    assert(dest != null);
+    assert(src != null);
+    assert(index < src->size);
+    buffer_ensure_capacity(dest, size);
+    memcpy(dest->buffer+dest->size, src->buffer, size);
+    dest->size += size;
+}
 void buffer_append(final BUFFER dest, final BUFFER src) {
     buffer_append_bytes(dest, src->buffer, src->size);
 }
