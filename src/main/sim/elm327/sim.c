@@ -85,10 +85,10 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
 
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
-            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1));
+            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2));
         } break;
         case 0x07: case 0x0A: case 0x03: {
-            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES));                
+            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1));                
         } break;
         case 0x04: {
             response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
