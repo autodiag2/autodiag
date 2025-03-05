@@ -194,7 +194,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                     if ( iso_15765_is_multi_message ) {
                         if ( iso_15765_is_multi_message_ff ) {
                             log_msg(LOG_DEBUG, "reply first frame");
-                            int dl11_8 = responseOBDdataBin->size & 0x0F00 >> 8;
+                            int dl11_8 = (responseOBDdataBin->size & 0x0F00) >> 8;
                             final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                             final byte dl7_0 = responseOBDdataBin->size & 0xFF;
                             asprintf(&inBuildHeader, "%s%02X%s%02X%s", header, pci, space, dl7_0, space);
