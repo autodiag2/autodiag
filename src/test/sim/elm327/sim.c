@@ -1,6 +1,6 @@
 #include "libTest.h"
 
-#define SIM_START_WAIT_MS 200e3
+#define SIM_START_WAIT_MS 100e3
 void testSIM_1() {
 
     ELM327emulation* elm327 = elm327_sim_new();
