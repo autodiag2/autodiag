@@ -158,7 +158,7 @@ bool testSIM() {
         obd_clear_data(iface);
         obd_recv(iface);
         BufferList_dump(iface->vehicle->obd_data_buffer);
-        assert(17 < iface->vehicle->obd_data_buffer->size);
+        assert(17 < iface->vehicle->obd_data_buffer->list[0]->size);
     }
     return true;
 }
