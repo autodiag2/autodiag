@@ -1,15 +1,15 @@
 #include "database.h"
 
-CarEngine* car_engine_new() {
-    final CarEngine * ce = (CarEngine*)malloc(sizeof(CarEngine));
+CarECU* car_ecu_new() {
+    final CarECU * ce = (CarECU*)malloc(sizeof(CarECU));
     ce->model = null;
     return ce;
 }
 
-bool engine_description_parser(char * funcData, char *key, char *value) {
-    CarEngine* engine = (CarEngine*)funcData;
+bool ecu_description_parser(char * funcData, char *key, char *value) {
+    CarECU* ecu = (CarECU*)funcData;
     if ( strcasecmp(key,"model") == 0 ) {
-        engine->model = strdup(value);
+        ecu->model = strdup(value);
         return true;
     } else if ( strcasecmp(key,"brand") == 0 ) {
         return true;
@@ -25,16 +25,16 @@ bool car_description_parser(char * funcData, char *key, char *value) {
     } else if ( strcasecmp(key,"model") == 0 ) {
         car->model = strdup(value);
         return true;
-    } else if ( strcasecmp(key,"engine") == 0 ) {
+    } else if ( strcasecmp(key,"ecu") == 0 ) {
         char * filename;
-        final char * path = config_get_in_data_folder_safe("data/engine");
+        final char * path = config_get_in_data_folder_safe("data/ecu");
         asprintf(&filename, "%s/%s", path, value);
         free(path);
-        CarEngine *engine = car_engine_new();
-        if ( parse_ini_file(filename,engine_description_parser, engine) ) {
-            car->engine = engine;
+        CarECU *ecu = car_ecu_new();
+        if ( parse_ini_file(filename,ecu_description_parser, ecu) ) {
+            car->ecu = ecu;
         } else {
-            free(engine);
+            free(ecu);
         }
         free(filename);
         return true;
@@ -59,7 +59,7 @@ CarModel* car_model_load_from_directory(char * directory) {
 void car_model_dump(CarModel* car) {
     printf("car: {\n");
     printf("    brand:  %s\n", car->brand);
-    printf("    engine: %s\n", car->engine == null ? "null" : car->engine->model);
+    printf("    ecu: %s\n", car->ecu == null ? "null" : car->ecu->model);
     printf("    model:  %s\n", car->model);
     printf("}\n");
 }
@@ -67,7 +67,7 @@ void car_model_dump(CarModel* car) {
 CarModel* car_model_new() {
     CarModel* car = (CarModel*)malloc(sizeof(CarModel));
     car->brand = null;
-    car->engine = null;
+    car->ecu = null;
     car->model = null;
     car->internal.directory = null;
     return car;
@@ -78,9 +78,9 @@ void car_model_free(CarModel* car) {
         free(car->brand);
         car->brand = null;
     }
-    if ( car->engine != null ) {
-        free(car->engine);
-        car->engine = null;
+    if ( car->ecu != null ) {
+        free(car->ecu);
+        car->ecu = null;
     }
     if ( car->model != null ) {
         free(car->model);
@@ -92,13 +92,13 @@ void car_model_free(CarModel* car) {
     }
 }
 
-CarEngine* car_engine_from_model(char *model) {
-    CarEngine * ce = (CarEngine*)malloc(sizeof(CarEngine));
+CarECU* car_ecu_from_model(char *model) {
+    CarECU * ce = (CarECU*)malloc(sizeof(CarECU));
     ce->model = strdup(model);
     return ce;
 }
 
-void car_engine_free(CarEngine *engine) {
+void car_ecu_free(CarECU *engine) {
     if ( engine != null ) {
         free(engine);
         engine = null;

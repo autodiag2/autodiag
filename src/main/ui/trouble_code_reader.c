@@ -211,10 +211,10 @@ void trouble_code_reader_append_multi_brand_explanation(GtkTextBuffer *buffer, S
 
     } else {
         char *textEngine;
-        if ( desc->car->engine == null || desc->car->engine->model == null ) {
+        if ( desc->car->ecu == null || desc->car->ecu->model == null ) {
             textEngine = strdup("");
         } else {
-            asprintf(&textEngine, "(engine: %s)", desc->car->engine == null ? "" : desc->car->engine->model == null ? "" : desc->car->engine->model);
+            asprintf(&textEngine, "(ecu: %s)", desc->car->ecu == null ? "" : desc->car->ecu->model == null ? "" : desc->car->ecu->model);
         }
         char *text;
         asprintf(&text, " %s %s %s\n\t%s\n", desc->car->brand, desc->car->model == null ? "" : desc->car->model, textEngine, part);
