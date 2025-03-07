@@ -144,16 +144,6 @@ char *config_get_in_data_folder_safe(char *relative_path) {
     #elif defined OS_UNIX
         int mode = R_OK|X_OK;
 
-        #if defined OS_APPLE
-            asprintf(&data_path, "/Applications/" APP_NAME ".app/Contents/Resources/%s", relative_path);
-            if ( access(data_path,mode) == 0 ) {
-                return data_path;
-            } else {
-                free(data_path);
-                data_path = null;
-            }
-        #endif
-
         // XDG Base Directory Specification
         asprintf(&data_path, "%s/.local/share/" APP_NAME "/%s", getenv("HOME"), relative_path);
         if ( access(data_path,mode) == 0 ) {
@@ -170,6 +160,16 @@ char *config_get_in_data_folder_safe(char *relative_path) {
             free(data_path);
             data_path = null;
         }
+
+        #if defined OS_APPLE
+            asprintf(&data_path, "/Applications/" APP_NAME ".app/Contents/Resources/%s", relative_path);
+            if ( access(data_path,mode) == 0 ) {
+                return data_path;
+            } else {
+                free(data_path);
+                data_path = null;
+            }
+        #endif
     #else
     #   warning Unsupported OS
     #endif
