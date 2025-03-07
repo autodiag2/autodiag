@@ -56,6 +56,10 @@ Buffer* ascii_to_bin_buffer(char * ascii);
  * Get an ascii hex the given data.
  */
 char* buffer_bin_to_ascii_hex(Buffer *buffer);
+/**
+ * Convert buffer to ascii string.
+ */
+char * buffer_bin_to_ascii(final Buffer *buffer);
 
 LIST_DEFINE_WITH_MEMBERS(BufferList,Buffer)
 void BufferList_empty(BufferList* list);

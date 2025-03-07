@@ -200,6 +200,12 @@ void buffer_padding(final Buffer * buffer, int until, final byte pad) {
 Buffer* ascii_to_bin_buffer(char * ascii) {
     return ascii_n_to_bin_buffer(ascii,strlen(ascii));
 }
+char * buffer_bin_to_ascii(final Buffer *buffer) {
+    char * res = (char*) malloc(sizeof(char) * (buffer->size+1));
+    memcpy(res, buffer->buffer, buffer->size);
+    res[buffer->size] = 0;
+    return res;
+}
 char* buffer_bin_to_ascii_hex(Buffer *buffer) {
     assert(buffer != null);
     char *hex = (char*)malloc(sizeof(char) * (buffer->size*2 + 1));

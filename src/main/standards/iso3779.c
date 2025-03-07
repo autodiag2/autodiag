@@ -14,7 +14,7 @@ void iso3779_vin_free(iso3779decoded *vin) {
 }
 
 char * iso3779decode_country_from(final Buffer *vin_raw) {
-    final char * vin = buffer_bin_to_ascii_hex(vin_raw);
+    final char * vin = buffer_bin_to_ascii(vin_raw);
     if ( buffer_alphabet_compare(vin,"AA","AH") ) {
         return strdup("South Africa");
     }
