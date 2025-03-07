@@ -736,7 +736,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             SET_SERIAL_RESPONSE_OK();                    
         }
         if ( mask != null ) {
-            elm327->can.mask = ascii_to_bin_buffer(mask);
+            elm327->can.mask = buffer_from_ascii_hex(mask);
         }
     } else if AT_PARSE("csm") {
         SET_SERIAL_RESPONSE_OK();                    
@@ -753,7 +753,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             SET_SERIAL_RESPONSE_OK();                    
         }
         if ( filter != null ) {
-            elm327->can.filter = ascii_to_bin_buffer(filter);
+            elm327->can.filter = buffer_from_ascii_hex(filter);
         }                    
     } else {
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {

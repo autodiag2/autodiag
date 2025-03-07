@@ -146,7 +146,7 @@ bool testSIM() {
         obd_send(iface, "0900");
         obd_clear_data(iface);
         obd_recv(iface);
-        assert(buffer_cmp(iface->vehicle->obd_data_buffer->list[0], ascii_to_bin_buffer("4900FFFFFFFF")));
+        assert(buffer_cmp(iface->vehicle->obd_data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       

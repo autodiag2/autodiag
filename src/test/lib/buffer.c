@@ -3,12 +3,12 @@
 
 void testLeftShift() {
     {
-        final BUFFER b = ascii_to_bin_buffer("0000");
+        final BUFFER b = buffer_from_ascii_hex("0000");
         buffer_left_shift(b,2);
         assert(b->size == 0);
     }
     {
-        final BUFFER b = ascii_to_bin_buffer("000102");
+        final BUFFER b = buffer_from_ascii_hex("000102");
         buffer_left_shift(b,2);
         assert(b->size == 1);
         assert(b->buffer[0] == 0x02);
@@ -23,7 +23,7 @@ bool testBuffer() {
         buffer->buffer[1] = 0x01;
         buffer->buffer[2] = 0x02;
         buffer->size = 3;
-        char* ascii = buffer_bin_to_ascii_hex(buffer);
+        char* ascii = buffer_to_ascii_hex(buffer);
         testOutput(ascii);
         assert(strcmp(ascii,"000102")==0);
     }
@@ -40,24 +40,24 @@ bool testBuffer() {
         assert(buffer_new() != null);
     }
     {
-        final BUFFER b = ascii_to_bin_buffer("0000000");    
+        final BUFFER b = buffer_from_ascii_hex("0000000");    
         assert(buffer_ensure_capacity(b, 4));
         assert(!buffer_ensure_capacity(b, 4));
     }
     {
-        final BUFFER b = ascii_to_bin_buffer("0000000");
+        final BUFFER b = buffer_from_ascii_hex("0000000");
         BUFFER b1 = buffer_new();
         buffer_append(b1,b);
         assert(b->size == b1->size);    
     }
     {
         {
-            final BUFFER b = ascii_to_bin_buffer("010203");    
+            final BUFFER b = buffer_from_ascii_hex("010203");    
             buffer_ensure_termination(b);
             assert(b->size == 4);
         }
         {
-            final BUFFER b = ascii_to_bin_buffer("010200");    
+            final BUFFER b = buffer_from_ascii_hex("010200");    
             buffer_ensure_termination(b);
             assert(b->size == 3);
         }

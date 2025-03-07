@@ -13,7 +13,7 @@ int oneHex(char c);
             memcpy(id_ascii,ptr,id_sz_chars); \
             ptr += id_sz_chars + elm->printing_of_spaces; \
             \
-            final BUFFER address = ascii_n_to_bin_buffer(id_ascii,id_sz_chars); \
+            final BUFFER address = buffer_from_ascii_hex_n(id_ascii,id_sz_chars); \
             final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
             buffer_free(address); \
             Iso15765Conversation *conversation = Iso15765Conversation_list_find(conversations, current_ecu); \

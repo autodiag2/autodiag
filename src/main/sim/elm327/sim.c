@@ -9,18 +9,18 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
             char * res;
             asprintf(&res,"%02XDA0000",can28bits_prio);
-            header = ascii_to_bin_buffer(res);
+            header = buffer_from_ascii_hex(res);
             free(res);
             header->buffer[3] = elm327->testerAddress;
             header->buffer[4] = ecu->address;
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            header = ascii_to_bin_buffer("0700");
+            header = buffer_from_ascii_hex("0700");
             header->buffer[header->size-1] = ecu->address;
         } else {
             log_msg(LOG_WARNING, "Missing case here");
         }
     } else {
-        header = ascii_to_bin_buffer("410000");
+        header = buffer_from_ascii_hex("410000");
         header->buffer[1] = elm327->testerAddress;
         header->buffer[2] = ecu->address;
     }
@@ -97,7 +97,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             if ( 1 < obd_query_bin->size ) {            
                 switch(obd_query_bin->buffer[1]) {
                     case 0x00: {
-                        buffer_append(responseOBDdataBin, ascii_to_bin_buffer("FFFFFFFF"));
+                        buffer_append(responseOBDdataBin, buffer_from_ascii_hex("FFFFFFFF"));
                         break;
                     }
                     case 0x01: {
@@ -138,7 +138,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                     }
                     case 0x0A: {
                         // ECU name : 'TEST'
-                        final Buffer * name = ascii_to_bin_buffer("5445535400");
+                        final Buffer * name = buffer_from_ascii_hex("5445535400");
                         buffer_padding(name, 20, 0x00);
                         buffer_append(responseOBDdataBin, name);
                         break;

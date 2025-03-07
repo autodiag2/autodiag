@@ -43,7 +43,7 @@ bool testELM327(OBDIFace* iface) {
                 BUFFER data = ecu->obd_data_buffer->list[j];
                 if ( 14 == data->size ) {
                     found = true;
-                    assert(buffer_equals(ascii_to_bin_buffer("4306133613401338008713371339"),data));
+                    assert(buffer_equals(buffer_from_ascii_hex("4306133613401338008713371339"),data));
                 }
             }
         }
@@ -60,7 +60,7 @@ bool testELM327(OBDIFace* iface) {
         vehicle_dump(tmp->vehicle);
         assert(tmp->vehicle->ecus_len == 2);
 
-        final BUFFER should_obtain = ascii_to_bin_buffer("4306133613401338008713371339");
+        final BUFFER should_obtain = buffer_from_ascii_hex("4306133613401338008713371339");
         
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
@@ -83,7 +83,7 @@ bool testELM327(OBDIFace* iface) {
         assert(elm_standard_obd_message_parse_response((ELMDevice*)elm327,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
         assert(tmp->vehicle->ecus_len == 2);
-        final BUFFER should_obtain = ascii_to_bin_buffer("43010300000000");
+        final BUFFER should_obtain = buffer_from_ascii_hex("43010300000000");
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
             final ECU* ecu = tmp->vehicle->ecus[i];
@@ -106,8 +106,8 @@ bool testELM327(OBDIFace* iface) {
         vehicle_dump(tmp->vehicle);
         assert(tmp->vehicle->ecus_len == 1);
 
-        assert(buffer_equals(ascii_to_bin_buffer("43010301040105"),tmp->vehicle->ecus[0]->obd_data_buffer->list[0]));
-        assert(buffer_equals(ascii_to_bin_buffer("43010601070108"),tmp->vehicle->ecus[0]->obd_data_buffer->list[1]));
+        assert(buffer_equals(buffer_from_ascii_hex("43010301040105"),tmp->vehicle->ecus[0]->obd_data_buffer->list[0]));
+        assert(buffer_equals(buffer_from_ascii_hex("43010601070108"),tmp->vehicle->ecus[0]->obd_data_buffer->list[1]));
     }
     return true;
 }

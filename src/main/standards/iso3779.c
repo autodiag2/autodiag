@@ -13,7 +13,7 @@ void iso3779_vin_free(iso3779decoded *vin) {
     free(vin);
 }
 char * iso3779decode_region_from(final Buffer *vin_raw) {
-    final char * vin = buffer_bin_to_ascii(vin_raw);
+    final char * vin = buffer_to_ascii(vin_raw);
     if ( buffer_alphabet_compare(vin,"A","H") ) {
         return strdup("Africa");
     }
@@ -35,7 +35,7 @@ char * iso3779decode_region_from(final Buffer *vin_raw) {
     return strdup("Unknown");
 }
 char * iso3779decode_country_from(final Buffer *vin_raw) {
-    final char * vin = buffer_bin_to_ascii(vin_raw);
+    final char * vin = buffer_to_ascii(vin_raw);
     if ( buffer_alphabet_compare(vin,"AA","AH") ) {
         return strdup("South Africa");
     }

@@ -116,7 +116,7 @@ void command_line_output_copy() {
 bool command_line_vehicle_set_tooltip_text(GtkButton* child) {
     const gchar* text = gtk_button_get_label(child);
     bool res = false;
-    final Buffer* bin_buffer = ascii_to_bin_buffer((char*)text);
+    final Buffer* bin_buffer = buffer_from_ascii_hex((char*)text);
     gchar *tooltipText = null;
     if ( 1 < bin_buffer->size ) {
         switch(bin_buffer->buffer[0]) {

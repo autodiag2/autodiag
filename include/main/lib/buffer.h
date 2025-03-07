@@ -47,19 +47,20 @@ bool buffer_equals(final Buffer * b1, final Buffer * b2);
 /**
  * Only accept full ascii buffer, do not take in account OBD specific like printing of spaces.
  */
-Buffer* ascii_n_to_bin_buffer(char * ascii, int size);
+Buffer* buffer_from_ascii_hex_n(char * ascii_hex, int size);
 /**
  * assuming ascii is null terminated
  */
-Buffer* ascii_to_bin_buffer(char * ascii);
+Buffer* buffer_from_ascii_hex(char * ascii_hex);
+Buffer* buffer_from_ascii(char *ascii);
 /**
  * Get an ascii hex the given data.
  */
-char* buffer_bin_to_ascii_hex(Buffer *buffer);
+char* buffer_to_ascii_hex(Buffer *buffer);
 /**
  * Convert buffer to ascii string.
  */
-char * buffer_bin_to_ascii(final Buffer *buffer);
+char * buffer_to_ascii(final Buffer *buffer);
 
 LIST_DEFINE_WITH_MEMBERS(BufferList,Buffer)
 void BufferList_empty(BufferList* list);

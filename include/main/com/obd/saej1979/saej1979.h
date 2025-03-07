@@ -22,7 +22,7 @@
     obd_lock(iface); \
     int response = 0; \
     type result = errorValue; \
-    BUFFER obd_req = ascii_to_bin_buffer(obd_request_str); \
+    BUFFER obd_req = buffer_from_ascii_hex(obd_request_str); \
     int pid; \
     bool hasPid = ( 1 < obd_req->size ); \
     if ( hasPid ) { \

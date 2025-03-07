@@ -169,15 +169,15 @@ void BufferList_empty(BUFFERLIST list) {
     list->list = null;
     list->size = 0;
 }
-BUFFER ascii_n_to_bin_buffer(char * ascii, int size) {
-    assert(ascii != null);
+BUFFER buffer_from_ascii_hex_n(char * ascii_hex, int size) {
+    assert(ascii_hex != null);
     BUFFER bin = buffer_new();
     char *ascii_internal;
     if ( size % 2 ) {
         size ++;
-        asprintf(&ascii_internal,"0%s", ascii);
+        asprintf(&ascii_internal,"0%s", ascii_hex);
     } else {
-        ascii_internal = strndup(ascii,size);
+        ascii_internal = strndup(ascii_hex,size);
     }
     char hex[3];
     hex[2] = 0;
@@ -197,16 +197,23 @@ void buffer_padding(final Buffer * buffer, int until, final byte pad) {
     }
     buffer->size += until;
 }
-Buffer* ascii_to_bin_buffer(char * ascii) {
-    return ascii_n_to_bin_buffer(ascii,strlen(ascii));
+Buffer* buffer_from_ascii(char *ascii) {
+    Buffer * result = buffer_new();
+    buffer_ensure_capacity(result, strlen(ascii));
+    memcpy(result->buffer,ascii,strlen(ascii));
+    result->size = strlen(ascii);
+    return result;
 }
-char * buffer_bin_to_ascii(final Buffer *buffer) {
+Buffer* buffer_from_ascii_hex(char * ascii_hex) {
+    return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
+}
+char * buffer_to_ascii(final Buffer *buffer) {
     char * res = (char*) malloc(sizeof(char) * (buffer->size+1));
     memcpy(res, buffer->buffer, buffer->size);
     res[buffer->size] = 0;
     return res;
 }
-char* buffer_bin_to_ascii_hex(Buffer *buffer) {
+char* buffer_to_ascii_hex(Buffer *buffer) {
     assert(buffer != null);
     char *hex = (char*)malloc(sizeof(char) * (buffer->size*2 + 1));
     hex[0] = 0;

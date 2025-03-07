@@ -55,7 +55,7 @@ void trouble_code_reader_read_codes_show_ecus_buffer_internal() {
             ECU* ecu = vehicle->ecus[i];
             {
                 char *tmp;
-                char * ascii_dump = buffer_bin_to_ascii_hex(ecu->address);
+                char * ascii_dump = buffer_to_ascii_hex(ecu->address);
                 asprintf(&tmp,"%sOn ECU '%s' at address: %s\n",result,ecu->name == null ? "" : ecu->name,ascii_dump);
                 free(result);
                 result = tmp;
