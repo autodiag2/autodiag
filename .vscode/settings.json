@@ -1,5 +1,6 @@
 {
     "files.associations": {
+        "**/*.html": "jinja-html",
         "array": "c",
         "string": "c",
         "string_view": "c",
@@ -13,6 +14,11 @@
         "unordered_map": "c",
         "vector": "c",
         "typeinfo": "c",
-        "serial_list.h": "c"
+        "serial_list.h": "c",
+        "__hash_table": "c",
+        "__split_buffer": "c",
+        "bitset": "c",
+        "queue": "c",
+        "stack": "c"
     }
 }

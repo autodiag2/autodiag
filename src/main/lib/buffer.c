@@ -1,5 +1,24 @@
 #include "lib/buffer.h"
 
+bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
+    assert(cmp1 != null);
+    assert(ascii_hex != null);
+    if ( strlen(ascii_hex) < strlen(cmp1)) {
+        return false;
+    }
+    if ( cmp2 == null ) {
+        return strncmp(cmp1,ascii_hex,strlen(cmp1)) == 0;
+    }
+    assert(strlen(cmp1) == strlen(cmp2));
+    for(int i = 0; i < strlen(cmp1); i++) {
+        if ( cmp1[i] <= ascii_hex[i] && ascii_hex[i] <= cmp2[i] ) {
+            continue;
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
 bool buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     if ( buf1->size != buf2->size ) {
         return false;

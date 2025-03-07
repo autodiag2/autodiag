@@ -68,5 +68,11 @@ bool testBuffer() {
         assert(b->size == 4);
         assert(strcmp(buffer_to_string(b),"00,01,02,03") == 0);
     }
+    {
+        assert(buffer_alphabet_compare("AA", "A0", "AZ"));
+        assert(!buffer_alphabet_compare("BZ", "A0", "AZ"));
+        assert(buffer_alphabet_compare("A0", "A0", "AZ"));
+        assert(buffer_alphabet_compare("AZ", "A0", "AZ"));
+    }
     return true;
 }
