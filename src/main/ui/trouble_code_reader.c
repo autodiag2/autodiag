@@ -217,7 +217,7 @@ void trouble_code_reader_append_multi_brand_explanation(GtkTextBuffer *buffer, S
             asprintf(&textEngine, "(ecu: %s)", desc->car->ecu == null ? "" : desc->car->ecu->model == null ? "" : desc->car->ecu->model);
         }
         char *text;
-        asprintf(&text, " %s %s %s\n\t%s\n", desc->car->brand, desc->car->model == null ? "" : desc->car->model, textEngine, part);
+        asprintf(&text, " %s %s %s\n\t%s\n", desc->car->brand, desc->car->engine == null ? "" : desc->car->engine, textEngine, part);
         free(textEngine);
         GtkTextIter iter;
         gtk_text_buffer_get_iter_at_offset(buffer,&iter,-1);

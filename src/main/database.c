@@ -22,8 +22,8 @@ bool car_description_parser(char * funcData, char *key, char *value) {
     if ( strcasecmp(key,"brand") == 0 ) {
         car->brand = strdup(value);
         return true;
-    } else if ( strcasecmp(key,"model") == 0 ) {
-        car->model = strdup(value);
+    } else if ( strcasecmp(key,"engine") == 0 ) {
+        car->engine = strdup(value);
         return true;
     } else if ( strcasecmp(key,"ecu") == 0 ) {
         char * filename;
@@ -60,7 +60,7 @@ void car_model_dump(CarModel* car) {
     printf("car: {\n");
     printf("    brand:  %s\n", car->brand);
     printf("    ecu: %s\n", car->ecu == null ? "null" : car->ecu->model);
-    printf("    model:  %s\n", car->model);
+    printf("    engine:  %s\n", car->engine);
     printf("}\n");
 }
 
@@ -68,7 +68,7 @@ CarModel* car_model_new() {
     CarModel* car = (CarModel*)malloc(sizeof(CarModel));
     car->brand = null;
     car->ecu = null;
-    car->model = null;
+    car->engine = null;
     car->internal.directory = null;
     return car;
 }
@@ -82,9 +82,9 @@ void car_model_free(CarModel* car) {
         free(car->ecu);
         car->ecu = null;
     }
-    if ( car->model != null ) {
-        free(car->model);
-        car->model = null;
+    if ( car->engine != null ) {
+        free(car->engine);
+        car->engine = null;
     }
     if ( car->internal.directory != null ) {
         free(car->internal.directory);

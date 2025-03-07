@@ -25,7 +25,7 @@ typedef struct {
     /**
      * eg EP6DT
      */
-    char *model;
+    char *engine;
     struct {
         /**
          * Directory containing meta datas for this car
