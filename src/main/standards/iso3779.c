@@ -12,7 +12,28 @@ void iso3779_vin_free(iso3779decoded *vin) {
     }
     free(vin);
 }
-
+char * iso3779decode_region_from(final Buffer *vin_raw) {
+    final char * vin = buffer_bin_to_ascii(vin_raw);
+    if ( buffer_alphabet_compare(vin,"A","H") ) {
+        return strdup("Africa");
+    }
+    if ( buffer_alphabet_compare(vin,"J","R") ) {
+        return strdup("Asia");
+    }
+    if ( buffer_alphabet_compare(vin,"S","Z") ) {
+        return strdup("Europe");
+    }
+    if ( buffer_alphabet_compare(vin,"1","5") ) {
+        return strdup("North America");
+    }
+    if ( buffer_alphabet_compare(vin,"6","7") ) {
+        return strdup("Oceania");
+    }
+    if ( buffer_alphabet_compare(vin,"8","9") ) {
+        return strdup("South America");
+    }
+    return strdup("Unknown");
+}
 char * iso3779decode_country_from(final Buffer *vin_raw) {
     final char * vin = buffer_bin_to_ascii(vin_raw);
     if ( buffer_alphabet_compare(vin,"AA","AH") ) {
@@ -344,8 +365,6 @@ char * iso3779decode_country_from(final Buffer *vin_raw) {
     }
     return strdup("Unassigned");
 }
-
-
 iso3779decoded* iso3779decode_from(final Buffer *vin) {
     iso3779decoded * vinDecoded = iso3779_vin_new();
     vinDecoded->wmi.country = iso3779decode_country_from(vin);

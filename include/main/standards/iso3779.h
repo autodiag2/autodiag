@@ -22,7 +22,12 @@ void iso3779_vin_free(iso3779decoded *vin);
  * Decode fields from the vin number.
  */
 iso3779decoded* iso3779decode_from(final Buffer *vin);
-
+/**
+ * Get the country associated with the VIN.
+ */
 char * iso3779decode_country_from(final Buffer *vin_raw);
-
+/**
+ * Get the geographical region associated with VIN.
+ */
+char * iso3779decode_region_from(final Buffer *vin_raw);
 #endif
