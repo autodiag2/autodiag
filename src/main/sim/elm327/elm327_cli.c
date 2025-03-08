@@ -72,8 +72,45 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 sim->ecus->list[sim->ecus->size-1]->generator.type = ecu_sim_generator_from_string(optarg);
                 ECUEmulationGenerator * generator = &(sim->ecus->list[sim->ecus->size-1]->generator);
                 if ( generator->type == ECUEmulationGeneratorTypeGui ) {
+                    
+                    gtk_init (0, null);
+
+                    char * ui_dir = config_get_in_data_folder_safe("ui"), *elm327simUiPath;
+                    if ( ui_dir == null ) {
+                        log_msg(LOG_ERROR, "Data directory not found try to reinstall the software");
+                        exit(1);
+                    }
+                    asprintf(&elm327simUiPath, "%s"  PATH_FOLDER_DELIM "elm327sim.glade", ui_dir);
+                    final GtkBuilder *builder = gtk_builder_new_from_file(elm327simUiPath);
+                    free(ui_dir);
+                    free(elm327simUiPath);
+
+                    final ELM327SimGui gui = {
+                        .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-root")),
+                        .dtcs = {
+                            .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
+                            .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
+                            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button"))
+                        }
+                    };
+                                        
+                    ELM327SimGui* simGui = (ELM327SimGui*)malloc(sizeof(ELM327SimGui));
+                    (*simGui) = gui;
+
+                    g_signal_connect(G_OBJECT(simGui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
+
+                    //gtk_builder_add_callback_symbol(builder,"dtc-list-input-button-click",NULL);
+
+                    gtk_builder_connect_signals (builder, NULL);
+                    g_object_unref (G_OBJECT (builder));
+
+                    gtk_widget_show (simGui->window);
+                    gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
+                    gtk_window_present(GTK_WINDOW(simGui->window));
+                    gtk_main();
+
                     log_msg(LOG_DEBUG, "should load and display the gui");
-                    generator->seed = null;
+                    generator->seed = (void*)simGui;
                 }
             } break;
             case '?': {

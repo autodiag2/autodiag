@@ -55,7 +55,7 @@ bin/$(APP_NAME): $(OBJS_main) src/main/prog/autodiag.c
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
 
-bin/elm327sim: $(OBJS_lib) src/main/prog/elm327sim.c
+bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
 
