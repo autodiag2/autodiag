@@ -2,7 +2,7 @@
 #define __SIM_H
 
 #include "elm327.h"
-
+#include "sim_generators.h"
 #define ELM327_CAN_28_BITS_DEFAULT_PRIO 0x18
 
 ECUEmulation* ecu_emulation_new(byte address);
