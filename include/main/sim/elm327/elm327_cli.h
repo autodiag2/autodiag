@@ -11,8 +11,9 @@
 typedef struct {
     GtkWidget *window;
     struct {
-
-    } sensors;
+        GtkScaleButton* vehicleSpeed;
+        GtkScaleButton* coolantTemperature;
+    } data;
     struct {
         GtkListBox* listView;
         GtkEntry* input;

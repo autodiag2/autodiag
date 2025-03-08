@@ -63,6 +63,10 @@ void *gtk_launch_ecu_generator_gui(void *data) {
             .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
             .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil")),
             .dtcCleared = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-dtc-cleared"))
+        },
+        .data = {
+            .vehicleSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-vehicle-speed")),
+            .coolantTemperature = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-coolant-temperature"))
         }
     };
 
