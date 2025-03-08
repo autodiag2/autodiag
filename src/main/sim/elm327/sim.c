@@ -61,7 +61,7 @@ ECUEmulationGeneratorType ecu_sim_generator_from_string(final char *generator) {
 }
 
 char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
-    char * response = "";
+    char * response = null;
     Buffer* obd_query_bin = buffer_new();
     Buffer* responseOBDdataBin = buffer_new();
     char * end_ptr = strstr(obd_query_str,elm327->eol);
@@ -176,7 +176,8 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             }
 
             char *tmpResponse;
-            asprintf(&tmpResponse, "%s%s%s%s", response, header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol);
+            asprintf(&tmpResponse, "%s%s%s%s", response == null ? "" : response, header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol);
+            free(response);
             response = tmpResponse;
         }
     }
