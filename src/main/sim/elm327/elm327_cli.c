@@ -38,6 +38,52 @@ void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
     gtk_widget_show(label);
 }
 
+void *gtk_launch_ecu_generator_gui(void *data) {
+    ECUEmulationGenerator *generator = (ECUEmulationGenerator *)data;
+
+    gtk_init(0, NULL);
+
+    char *ui_dir = config_get_in_data_folder_safe("ui"), *elm327simUiPath;
+    if (ui_dir == NULL) {
+        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
+        return NULL;
+    }
+    asprintf(&elm327simUiPath, "%s" PATH_FOLDER_DELIM "elm327sim.glade", ui_dir);
+    
+    GtkBuilder *builder = gtk_builder_new_from_file(elm327simUiPath);
+    free(ui_dir);
+    free(elm327simUiPath);
+
+    ELM327SimGui *simGui = (ELM327SimGui *)malloc(sizeof(ELM327SimGui));
+    *simGui = (ELM327SimGui){
+        .window = GTK_WIDGET(gtk_builder_get_object(builder, "window-root")),
+        .dtcs = {
+            .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
+            .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
+            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
+            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil"))
+        }
+    };
+
+    g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
+    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
+
+    gtk_builder_connect_signals(builder, NULL);
+    g_object_unref(G_OBJECT(builder));
+
+    gtk_widget_show(simGui->window);
+    gtk_window_set_keep_above(GTK_WINDOW(simGui->window), TRUE);
+    gtk_window_present(GTK_WINDOW(simGui->window));
+
+    generator->seed = (void *)simGui;
+
+    log_msg(LOG_DEBUG, "GTK GUI initialized in a separate thread.");
+
+    gtk_main();  // Run the GTK main loop in the new thread
+
+    return NULL;
+}
+
 int elm327_sim_cli_main(int argc, char **argv) {
     ELM327emulation* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
@@ -77,49 +123,11 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
-                sim->ecus->list[sim->ecus->size-1]->generator.type = ecu_sim_generator_from_string(optarg);
-                ECUEmulationGenerator * generator = &(sim->ecus->list[sim->ecus->size-1]->generator);
-                if ( generator->type == ECUEmulationGeneratorTypeGui ) {
-                    
-                    gtk_init (0, null);
+                sim->ecus->list[sim->ecus->size - 1]->generator.type = ecu_sim_generator_from_string(optarg);
+                ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
 
-                    char * ui_dir = config_get_in_data_folder_safe("ui"), *elm327simUiPath;
-                    if ( ui_dir == null ) {
-                        log_msg(LOG_ERROR, "Data directory not found try to reinstall the software");
-                        exit(1);
-                    }
-                    asprintf(&elm327simUiPath, "%s"  PATH_FOLDER_DELIM "elm327sim.glade", ui_dir);
-                    final GtkBuilder *builder = gtk_builder_new_from_file(elm327simUiPath);
-                    free(ui_dir);
-                    free(elm327simUiPath);
-
-                    final ELM327SimGui gui = {
-                        .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-root")),
-                        .dtcs = {
-                            .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
-                            .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
-                            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
-                            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"dtc-list-mil"))
-                        }
-                    };
-                                        
-                    ELM327SimGui* simGui = (ELM327SimGui*)malloc(sizeof(ELM327SimGui));
-                    (*simGui) = gui;
-
-                    g_signal_connect(G_OBJECT(simGui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
-
-                    g_signal_connect(gui.dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
-
-                    gtk_builder_connect_signals (builder, NULL);
-                    g_object_unref (G_OBJECT (builder));
-
-                    gtk_widget_show (simGui->window);
-                    gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
-                    gtk_window_present(GTK_WINDOW(simGui->window));
-                    gtk_main();
-
-                    log_msg(LOG_DEBUG, "should load and display the gui");
-                    generator->seed = (void*)simGui;
+                if (generator->type == ECUEmulationGeneratorTypeGui) {
+                    g_thread_new("Gui generator", gtk_launch_ecu_generator_gui, generator);
                 }
             } break;
             case '?': {
