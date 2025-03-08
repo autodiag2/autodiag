@@ -62,6 +62,8 @@
                 <property name="hexpand">True</property>
                 <property name="vexpand">True</property>
                 <property name="shadow-type">in</property>
+                <property name="min-content-width">200</property>
+                <property name="min-content-height">400</property>
                 <child>
                   <object class="GtkViewport">
                     <property name="visible">True</property>
