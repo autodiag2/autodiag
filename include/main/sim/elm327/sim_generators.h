@@ -5,10 +5,6 @@
 #include "elm327.h"
 
 /**
- * Go to the next cycle.
- */
-void ecu_saej1979_sim_generator_cycle_iterate();
-/**
  * Cyclic iteration over values.
  */
 void ecu_saej1979_sim_generator_cycle(char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
