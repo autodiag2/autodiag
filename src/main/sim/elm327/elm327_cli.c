@@ -30,6 +30,14 @@ void elm327_sim_cli_display_help() {
     elm327_sim_cli_help("");
 }
 
+void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
+    ELM327SimGui* simGui = (ELM327SimGui*)user_data;
+    char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
+    GtkWidget *label = gtk_label_new(dtc_string);
+    gtk_container_add((GtkContainer*)simGui->dtcs.listView,label);
+    gtk_widget_show(label);
+}
+
 int elm327_sim_cli_main(int argc, char **argv) {
     ELM327emulation* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
@@ -99,7 +107,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
 
                     g_signal_connect(G_OBJECT(simGui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
 
-                    //gtk_builder_add_callback_symbol(builder,"dtc-list-input-button-click",NULL);
+                    g_signal_connect(gui.dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
 
                     gtk_builder_connect_signals (builder, NULL);
                     g_object_unref (G_OBJECT (builder));
