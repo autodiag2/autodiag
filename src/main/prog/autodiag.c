@@ -66,7 +66,7 @@ int main (int argc, char *argv[]) {
                     elm327_sim_cli_display_help();
                     return 0;
                 } else if argIs("run") {
-                    return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex(), 1);
+                    return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
                 }
             }
            ABORT_WITH_HELP()

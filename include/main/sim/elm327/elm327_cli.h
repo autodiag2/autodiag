@@ -7,6 +7,6 @@
 #include "sim.h"
 
 void elm327_sim_cli_display_help();
-int elm327_sim_cli_main(int argc, char **argv, int starti);
+int elm327_sim_cli_main(int argc, char **argv);
 
 #endif

@@ -25,16 +25,13 @@ void elm327_sim_cli_display_help() {
     elm327_sim_cli_help("");
 }
 
-int elm327_sim_cli_main(int argc, char **argv, int starti) {
-    if ( argc <= starti ) {
-        log_msg(LOG_ERROR, "index more than number of args");
-    }
+int elm327_sim_cli_main(int argc, char **argv) {
     ELM327emulation* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
     
     int opt;
-    optind = starti;
+    optind = 1;
     while ((opt = getopt(argc, argv, "he:l:p:")) != -1) {
         switch (opt) {
             case 'h': {
