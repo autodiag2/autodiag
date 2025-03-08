@@ -106,7 +106,10 @@ typedef enum {
 
 typedef struct {
     byte address;
-    ECUEmulationGenerator generator;
+    struct {
+        ECUEmulationGenerator type;
+        void *seed;
+    } generator;
 } _ECUEmulation;
 
 /**

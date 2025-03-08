@@ -346,7 +346,7 @@ ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
     elm327->ecus = ECUEmulation_list_new();
     ECUEmulation *ecu = ecu_emulation_new(0xE8);
-    ecu->generator = ECUEmulationGeneratorRandom;
+    ecu->generator.type = ECUEmulationGeneratorRandom;
     ECUEmulation_list_append(elm327->ecus,ecu);
     elm327->loop_thread = null;
     elm327_sim_init_from_nvm(elm327);
