@@ -5,6 +5,19 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
     ELM327SimGui *gui = (ELM327SimGui *)generator->seed;
     
     switch(obd_query_bin->buffer[0]) {
+        case 0x01: {
+            if ( 1 < obd_query_bin->size ) {            
+                switch(obd_query_bin->buffer[1]) {
+                    case 0x01: {
+                        gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
+                        Buffer* status = buffer_new();
+                        buffer_padding(status, 4, 0x00);
+                        status->buffer[0] |= is_checked << 7;
+                        buffer_append(responseOBDdataBin, status);
+                    }
+                }
+            }
+        } break;
         case 0x03: {
             GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
             while (ptr != NULL) {
