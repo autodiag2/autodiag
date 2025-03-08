@@ -115,10 +115,18 @@ typedef struct {
 LIST_DEFINE_WITH_MEMBERS_AUTO(ECUEmulation)
 ///
 
+typedef enum {
+    ELM327emulationGeneratorRandom,
+    ELM327emulationGeneratorCycle
+} ELM327emulationGenerator;
+
+ELM327emulationGenerator elm327_sim_generator_from_string(final char *generator);
+
 #define ELM327_SIM_PPS_SZ 0x30
 typedef struct {
     _ELM327emulation;
     ECUEmulation_list * ecus;
+    ELM327emulationGenerator generator;
 } ELM327emulation;
 
 ELM327emulation* elm327_sim_new();

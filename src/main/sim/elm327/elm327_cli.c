@@ -4,13 +4,15 @@ PRINT_MODULAR(elm327_sim_cli_help,
     "\n"
     "ELM327 simulator\n"
     "\n"
-    " -h         : display this help\n"
-    " -e hh      : add an ecu to the simulation with address hh\n"
-    " -p         : list protocols\n"
-    " -p h       : set protocol to h\n"
-    " -p Ah      : set protocol to automatic, h\n"
-    " -l         : list level of logging\n"
-    " -l level   : set level of logging\n"
+    " -h            : display this help\n"
+    " -e hh         : add an ecu to the simulation with address hh\n"
+    " -p            : list protocols\n"
+    " -p h          : set protocol to h\n"
+    " -p Ah         : set protocol to automatic, h\n"
+    " -l            : list level of logging\n"
+    " -l level      : set level of logging\n"
+    " -g            : list available generators\n"
+    " -g generator  : set the generator of values\n"
 )
 
 
@@ -32,7 +34,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
     
     int opt;
     optind = 1;
-    while ((opt = getopt(argc, argv, "he:l:p:")) != -1) {
+    while ((opt = getopt(argc, argv, "he:l:p:g:")) != -1) {
         switch (opt) {
             case 'h': {
                 elm327_sim_cli_display_help();
@@ -63,6 +65,9 @@ int elm327_sim_cli_main(int argc, char **argv) {
             case 'l': {
                 logger.current_level = log_level_from_str(optarg);
             } break;
+            case 'g': {
+                sim->generator = elm327_sim_generator_from_string(optarg);
+            } break;
             case '?': {
                 switch ( optopt ) {
                     case 'p':
@@ -78,6 +83,11 @@ int elm327_sim_cli_main(int argc, char **argv) {
                         break; 
                     case 'e':
                         printf("example: -e E8\n");                   
+                        break;
+                    case 'g':
+                        printf("Available generators:\n");
+                        printf("random\n");
+                        printf("cycle\n");
                         break;
                 }
                 return 1;

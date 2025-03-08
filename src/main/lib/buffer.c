@@ -30,7 +30,15 @@ bool buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     }
     return true;
 }
-
+Buffer * buffer_new_cycle(int sz, int percent) {
+    Buffer * buffer = buffer_new();
+    buffer_ensure_capacity(buffer, sz);
+    for(int i = 0; i < sz; i++) {
+        buffer->buffer[i] = (byte)((percent / 100.0) * 0xFF);
+    }
+    buffer->size = sz;
+    return buffer;
+}
 Buffer * buffer_new_random(int sz) {
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);

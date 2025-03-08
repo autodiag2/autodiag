@@ -69,6 +69,7 @@ void BufferList_dump(final BufferList* list);
  * Obtain a new buffer with bytes initialized to random value
  */
 Buffer * buffer_new_random(int sz);
+Buffer * buffer_new_cycle(int sz, int percent);
 /**
  * Remove the first byte of the buffer.
  */

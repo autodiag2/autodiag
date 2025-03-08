@@ -82,9 +82,14 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-
-    ecu_saej1979_sim_generator_random(&response, responseOBDdataBin, obd_query_bin);
-
+    switch (elm327->generator) {
+        case ELM327emulationGeneratorRandom: {
+            ecu_saej1979_sim_generator_random(&response, responseOBDdataBin, obd_query_bin);
+        } break;
+        case ELM327emulationGeneratorCycle: {
+            ecu_saej1979_sim_generator_cycle(&response, responseOBDdataBin, obd_query_bin);
+        } break;
+    }
     if ( 0 < responseOBDdataBin->size ) {
         bool iso_15765_is_multi_message = false;
         int iso_15765_multi_message_sn = 0;
