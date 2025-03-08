@@ -98,7 +98,8 @@ int elm327_sim_cli_main(int argc, char **argv) {
                         .dtcs = {
                             .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
                             .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
-                            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button"))
+                            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
+                            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"dtc-list-mil"))
                         }
                     };
                                         
