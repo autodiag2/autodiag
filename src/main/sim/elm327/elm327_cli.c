@@ -66,7 +66,8 @@ void *gtk_launch_ecu_generator_gui(void *data) {
         },
         .data = {
             .vehicleSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-vehicle-speed")),
-            .coolantTemperature = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-coolant-temperature"))
+            .coolantTemperature = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-coolant-temperature")),
+            .engineSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-engine-speed"))
         }
     };
 

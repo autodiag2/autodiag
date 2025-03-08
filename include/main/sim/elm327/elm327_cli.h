@@ -13,6 +13,7 @@ typedef struct {
     struct {
         GtkScaleButton* vehicleSpeed;
         GtkScaleButton* coolantTemperature;
+        GtkScaleButton* engineSpeed;
     } data;
     struct {
         GtkListBox* listView;
