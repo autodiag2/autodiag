@@ -61,7 +61,8 @@ void *gtk_launch_ecu_generator_gui(void *data) {
             .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
             .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
             .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
-            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil"))
+            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil")),
+            .dtcCleared = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-dtc-cleared"))
         }
     };
 

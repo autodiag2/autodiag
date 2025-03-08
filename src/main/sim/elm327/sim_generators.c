@@ -19,24 +19,30 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
             }
         } break;
         case 0x03: {
-            GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
-            while (ptr != NULL) {
-                GList *ptr_next = ptr->next;
-                GtkWidget *row = GTK_WIDGET(ptr->data);
+            if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
+                GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+                while (ptr != NULL) {
+                    GList *ptr_next = ptr->next;
+                    GtkWidget *row = GTK_WIDGET(ptr->data);
 
-                if (GTK_IS_LIST_BOX_ROW(row)) {
-                    GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
-                    if (GTK_IS_LABEL(child)) {
-                        char *dtc = gtk_label_get_text(GTK_LABEL(child));
-                        Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
-                        buffer_append(responseOBDdataBin, dtc_bin);
-                    } else {
-                        g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
+                    if (GTK_IS_LIST_BOX_ROW(row)) {
+                        GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
+                        if (GTK_IS_LABEL(child)) {
+                            char *dtc = gtk_label_get_text(GTK_LABEL(child));
+                            Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
+                            buffer_append(responseOBDdataBin, dtc_bin);
+                        } else {
+                            g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
+                        }
                     }
-                }
 
-                ptr = ptr_next;
+                    ptr = ptr_next;
+                }
             }
+        } break;
+        case 0x04: {
+            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
+            (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
 
     }

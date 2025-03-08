@@ -18,6 +18,7 @@ typedef struct {
         GtkEntry* input;
         GtkButton* inputButton;
         GtkCheckButton* milOn;
+        GtkCheckButton* dtcCleared;
     } dtcs;
 } ELM327SimGui;
 
