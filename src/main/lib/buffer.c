@@ -118,6 +118,8 @@ void buffer_slice(final Buffer *dest, final Buffer * src, final int index, final
     dest->size += size;
 }
 void buffer_append(final BUFFER dest, final BUFFER src) {
+    assert(src != null);
+    assert(dest != null);
     buffer_append_bytes(dest, src->buffer, src->size);
 }
 

@@ -18,12 +18,12 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                     case 0x05: {
                         gdouble value = gtk_scale_button_get_value(gui->data.coolantTemperature);
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                        buffer_append(responseOBDdataBin, (byte)(value * span));
+                        buffer_append_byte(responseOBDdataBin, (byte)(value * span));
                     }
                     case 0x0C: {
                         gdouble value = gtk_scale_button_get_value(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICULE_SPEED_MAX - SAEJ1979_DATA_VEHICULE_SPEED_MIN;
-                        buffer_append(responseOBDdataBin, (byte)(value * span));
+                        buffer_append_byte(responseOBDdataBin, (byte)(value * span));
                     }
                 }
             }
