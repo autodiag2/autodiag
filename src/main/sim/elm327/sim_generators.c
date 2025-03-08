@@ -60,8 +60,7 @@ void ecu_saej1979_sim_generator_cycle(char ** response, final Buffer *responseOB
                         break;
                     }
                     case 0x0A: {
-                        // ECU name : 'TEST'
-                        final Buffer * name = buffer_from_ascii_hex("5445535400");
+                        final Buffer * name = buffer_from_ascii("TEST");
                         buffer_padding(name, 20, 0x00);
                         buffer_append(responseOBDdataBin, name);
                         break;
@@ -134,8 +133,7 @@ void ecu_saej1979_sim_generator_random(char ** response, final Buffer *responseO
                         break;
                     }
                     case 0x0A: {
-                        // ECU name : 'TEST'
-                        final Buffer * name = buffer_from_ascii_hex("5445535400");
+                        final Buffer * name = buffer_from_ascii("TEST");
                         buffer_padding(name, 20, 0x00);
                         buffer_append(responseOBDdataBin, name);
                         break;
