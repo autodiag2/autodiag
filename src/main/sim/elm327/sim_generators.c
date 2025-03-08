@@ -5,7 +5,7 @@ void ecu_saej1979_sim_generator_cycle_iterate(int service_id, int pid) {
     ecu_saej1979_sim_generator_cycle_percent[service_id][pid] += 10;
     ecu_saej1979_sim_generator_cycle_percent[service_id][pid] %= 100;
 }
-void ecu_saej1979_sim_generator_cycle(char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
             buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, ecu_saej1979_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
@@ -78,7 +78,7 @@ void ecu_saej1979_sim_generator_cycle(char ** response, final Buffer *responseOB
     ecu_saej1979_sim_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0);
 }
 
-void ecu_saej1979_sim_generator_random(char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
             buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2));

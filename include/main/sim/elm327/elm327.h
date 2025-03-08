@@ -100,16 +100,17 @@ typedef struct {
 /// TO BE DEPLACED TO SIM.h
 
 typedef enum {
-    ECUEmulationGeneratorRandom,
-    ECUEmulationGeneratorCycle
+    ECUEmulationGeneratorTypeRandom,
+    ECUEmulationGeneratorTypeCycle
+} ECUEmulationGeneratorType;
+typedef struct {
+    ECUEmulationGeneratorType type;
+    void *seed;
 } ECUEmulationGenerator;
 
 typedef struct {
     byte address;
-    struct {
-        ECUEmulationGenerator type;
-        void *seed;
-    } generator;
+    ECUEmulationGenerator generator;
 } _ECUEmulation;
 
 /**

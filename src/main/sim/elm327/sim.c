@@ -49,11 +49,11 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
     return protocolSpecificHeader;     
 }
 
-ECUEmulationGenerator ecu_sim_generator_from_string(final char *generator) {
+ECUEmulationGeneratorType ecu_sim_generator_from_string(final char *generator) {
     if ( strcasecmp(generator, "random") == 0 ) {
-        return ECUEmulationGeneratorRandom;
+        return ECUEmulationGeneratorTypeRandom;
     } else if ( strcasecmp(generator, "cycle") == 0 ) {
-        return ECUEmulationGeneratorCycle;
+        return ECUEmulationGeneratorTypeCycle;
     }
     assert(false);
 }
@@ -92,11 +92,11 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         return null;
     }
     switch (ecu->generator.type) {
-        case ECUEmulationGeneratorRandom: {
-            ecu_saej1979_sim_generator_random(&response, responseOBDdataBin, obd_query_bin);
+        case ECUEmulationGeneratorTypeRandom: {
+            ecu_saej1979_sim_generator_random(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
         } break;
-        case ECUEmulationGeneratorCycle: {
-            ecu_saej1979_sim_generator_cycle(&response, responseOBDdataBin, obd_query_bin);
+        case ECUEmulationGeneratorTypeCycle: {
+            ecu_saej1979_sim_generator_cycle(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
         } break;
     }
     if ( 0 < responseOBDdataBin->size ) {
