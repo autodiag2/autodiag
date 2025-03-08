@@ -15,8 +15,7 @@ void display_help() {
            "  data path    : display app data\n"
            "\n"
            " Simulation order:\n"
-           "  sim elm327 help : display sim help\n"
-           "  sim elm327 run  : run sim\n"
+           "  sim elm327 run [elm327sim args] : run sim\n"
            "\n"
            " Gui order:\n"
            "  gui run : run the gui\n"
@@ -62,10 +61,7 @@ int main (int argc, char *argv[]) {
             argNext()
             if argIs("elm327") {
                 argNext()
-                if argIs("help") {
-                    elm327_sim_cli_display_help();
-                    return 0;
-                } else if argIs("run") {
+                if argIs("run") {
                     return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
                 }
             }

@@ -13,6 +13,9 @@ PRINT_MODULAR(elm327_sim_cli_help,
     " -l level      : set level of logging\n"
     " -g            : list available generators\n"
     " -g generator  : set the generator of values\n"
+    "\n"
+    "Examples:\n"
+    " elm327sim -g cycle -e EA -g random : default ecu E8 cycle generator, EA ecu random generator\n"
 )
 
 
