@@ -101,7 +101,8 @@ typedef struct {
 
 typedef enum {
     ECUEmulationGeneratorTypeRandom,
-    ECUEmulationGeneratorTypeCycle
+    ECUEmulationGeneratorTypeCycle,
+    ECUEmulationGeneratorTypeGui
 } ECUEmulationGeneratorType;
 typedef struct {
     ECUEmulationGeneratorType type;

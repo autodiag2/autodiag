@@ -70,6 +70,11 @@ int elm327_sim_cli_main(int argc, char **argv) {
             } break;
             case 'g': {
                 sim->ecus->list[sim->ecus->size-1]->generator.type = ecu_sim_generator_from_string(optarg);
+                ECUEmulationGenerator * generator = &(sim->ecus->list[sim->ecus->size-1]->generator);
+                if ( generator->type == ECUEmulationGeneratorTypeGui ) {
+                    log_msg(LOG_DEBUG, "should load and display the gui");
+                    generator->seed = null;
+                }
             } break;
             case '?': {
                 switch ( optopt ) {
@@ -91,6 +96,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                         printf("Available generators:\n");
                         printf("random\n");
                         printf("cycle\n");
+                        printf("gui\n");
                         break;
                 }
                 return 1;

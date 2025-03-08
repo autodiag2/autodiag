@@ -54,6 +54,8 @@ ECUEmulationGeneratorType ecu_sim_generator_from_string(final char *generator) {
         return ECUEmulationGeneratorTypeRandom;
     } else if ( strcasecmp(generator, "cycle") == 0 ) {
         return ECUEmulationGeneratorTypeCycle;
+    } else if ( strcasecmp(generator,"gui") == 0 ) {
+        return ECUEmulationGeneratorTypeGui;
     }
     assert(false);
 }
@@ -97,6 +99,9 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         } break;
         case ECUEmulationGeneratorTypeCycle: {
             ecu_saej1979_sim_generator_cycle(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
+        } break;
+        case ECUEmulationGeneratorTypeGui: {
+            ecu_saej1979_sim_generator_gui(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
         } break;
     }
     if ( 0 < responseOBDdataBin->size ) {

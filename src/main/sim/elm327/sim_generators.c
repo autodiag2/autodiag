@@ -1,5 +1,9 @@
 #include "sim/elm327/sim_generators.h"
 
+void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+    assert(false);
+}
+
 int ecu_saej1979_sim_generator_cycle_percent[0xFF][0xFF] = {0};
 void ecu_saej1979_sim_generator_cycle_iterate(int service_id, int pid) {
     ecu_saej1979_sim_generator_cycle_percent[service_id][pid] += 10;

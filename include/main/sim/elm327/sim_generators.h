@@ -12,5 +12,9 @@ void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** 
  * Random data.
  */
 void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
+/**
+ * Set the data from a gui.
+ */
+void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
 
 #endif
