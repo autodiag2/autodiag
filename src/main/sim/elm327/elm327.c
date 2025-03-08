@@ -9,15 +9,6 @@
         elm327->nvm.programmable_parameters_states->buffer[i] = state; \
     }
 
-ECUEmulationGenerator elm327_sim_generator_from_string(final char *generator) {
-    if ( strcasecmp(generator, "random") == 0 ) {
-        return ECUEmulationGeneratorRandom;
-    } else if ( strcasecmp(generator, "cycle") == 0 ) {
-        return ECUEmulationGeneratorCycle;
-    }
-    assert(false);
-}
-
 void elm327_sim_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
 }

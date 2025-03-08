@@ -49,6 +49,15 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
     return protocolSpecificHeader;     
 }
 
+ECUEmulationGenerator ecu_sim_generator_from_string(final char *generator) {
+    if ( strcasecmp(generator, "random") == 0 ) {
+        return ECUEmulationGeneratorRandom;
+    } else if ( strcasecmp(generator, "cycle") == 0 ) {
+        return ECUEmulationGeneratorCycle;
+    }
+    assert(false);
+}
+
 char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = "";
     Buffer* obd_query_bin = buffer_new();
