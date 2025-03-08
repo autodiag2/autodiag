@@ -1,7 +1,22 @@
 #include "sim/elm327/sim_generators.h"
+#include "sim/elm327/elm327_cli.h"
 
 void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
-    assert(false);
+    ELM327SimGui *gui = (ELM327SimGui *)generator->seed;
+    
+    switch(obd_query_bin->buffer[0]) {
+        case 0x03: {
+            GList *ptr = gtk_container_get_children((GtkContainer*)gui->dtcs.listView);
+            while(ptr != null) {
+                final GList *ptr_next = ptr->next;
+                char * dtc = gtk_label_get_text(ptr->data);
+                Buffer * dtc_bin = saej1979_dtc_bin_from_string(dtc);
+                buffer_append(responseOBDdataBin,dtc_bin);
+                ptr = ptr_next;
+            }
+        } break;
+    }
+
 }
 
 int ecu_saej1979_sim_generator_cycle_percent[0xFF][0xFF] = {0};

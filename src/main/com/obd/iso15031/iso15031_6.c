@@ -23,6 +23,20 @@ bool iso15031_dtc_is_generic_code(char display_character_2) {
     return false;
 }
 
+ISO15031_DTC_TYPE iso15031_dtc_first_letter_to_type(final char letter) {
+    switch(letter) {
+        case 'p':
+        case 'P':   return ISO15031_DTC_TYPE_POWERTRAIN;
+        case 'c':
+        case 'C':   return ISO15031_DTC_TYPE_CHASSIS;
+        case 'b':
+        case 'B':   return ISO15031_DTC_TYPE_BODY;
+        case 'u':
+        case 'U':   return ISO15031_DTC_TYPE_NETWORK;
+    }
+    assert(false);
+}
+
 char iso15031_dtc_type_first_letter(final ISO15031_DTC_TYPE type) {
     switch(type) {
         case ISO15031_DTC_TYPE_POWERTRAIN:  return 'P';

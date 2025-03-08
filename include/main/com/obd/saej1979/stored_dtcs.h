@@ -71,6 +71,10 @@ SAEJ1979_DTC_list * saej1979_retrieve_permanent_dtcs(final OBDIFace* iface);
  */
 char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc);
 /**
+ * eg. 1122
+ */
+Buffer* saej1979_dtc_bin_from_string(char *dtc_string);
+/**
  * Fill DTC description fields from the file codes.tsv
  */
 void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_DTC_DESCRIPTION * dtc_desc);

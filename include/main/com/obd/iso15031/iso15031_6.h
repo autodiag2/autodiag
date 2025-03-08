@@ -29,6 +29,7 @@ bool iso15031_dtc_is_generic_code(char display_character_2);
  * From a dtc type output the first letter
  */
 char iso15031_dtc_type_first_letter(final ISO15031_DTC_TYPE type);
+ISO15031_DTC_TYPE iso15031_dtc_first_letter_to_type(final char letter);
 /**
  * Number is only digits from the dtc
  * eg P0103 -> 0103
