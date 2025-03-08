@@ -66,7 +66,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
-                sim->generator = elm327_sim_generator_from_string(optarg);
+                sim->ecus->list[sim->ecus->size-1]->generator = elm327_sim_generator_from_string(optarg);
             } break;
             case '?': {
                 switch ( optopt ) {

@@ -9,11 +9,11 @@
         elm327->nvm.programmable_parameters_states->buffer[i] = state; \
     }
 
-ELM327emulationGenerator elm327_sim_generator_from_string(final char *generator) {
+ECUEmulationGenerator elm327_sim_generator_from_string(final char *generator) {
     if ( strcasecmp(generator, "random") == 0 ) {
-        return ELM327emulationGeneratorRandom;
+        return ECUEmulationGeneratorRandom;
     } else if ( strcasecmp(generator, "cycle") == 0 ) {
-        return ELM327emulationGeneratorCycle;
+        return ECUEmulationGeneratorCycle;
     }
     assert(false);
 }
@@ -354,9 +354,10 @@ void elm327_sim_init(ELM327emulation* elm327) {
 ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
     elm327->ecus = ECUEmulation_list_new();
-    ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE8));
+    ECUEmulation *ecu = ecu_emulation_new(0xE8);
+    ecu->generator = ECUEmulationGeneratorRandom;
+    ECUEmulation_list_append(elm327->ecus,ecu);
     elm327->loop_thread = null;
-    elm327->generator = ELM327emulationGeneratorRandom;
     elm327_sim_init_from_nvm(elm327);
     return elm327;
 }

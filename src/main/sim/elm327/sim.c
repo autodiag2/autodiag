@@ -82,11 +82,11 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    switch (elm327->generator) {
-        case ELM327emulationGeneratorRandom: {
+    switch (ecu->generator) {
+        case ECUEmulationGeneratorRandom: {
             ecu_saej1979_sim_generator_random(&response, responseOBDdataBin, obd_query_bin);
         } break;
-        case ELM327emulationGeneratorCycle: {
+        case ECUEmulationGeneratorCycle: {
             ecu_saej1979_sim_generator_cycle(&response, responseOBDdataBin, obd_query_bin);
         } break;
     }
