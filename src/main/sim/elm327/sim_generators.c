@@ -50,7 +50,7 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                             char *dtc = gtk_label_get_text(GTK_LABEL(child));
                             Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
                             if ( dtc_bin == null ) {
-                                log_msg(LOG_INFO, "gui show error");
+                                log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
                                 buffer_append(responseOBDdataBin, dtc_bin);
                             }

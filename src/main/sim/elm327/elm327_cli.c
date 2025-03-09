@@ -33,9 +33,14 @@ void elm327_sim_cli_display_help() {
 void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
     ELM327SimGui* simGui = (ELM327SimGui*)user_data;
     char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
-    GtkWidget *label = gtk_label_new(dtc_string);
-    gtk_container_add((GtkContainer*)simGui->dtcs.listView,label);
-    gtk_widget_show(label);
+    if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
+        gtk_message_dialog_format_secondary_text(simGui->dtcs.invalidDtc,"%s: expected LXXXX where L is P,C,B,U",dtc_string);
+        gtk_widget_show_on_main_thread(simGui->dtcs.invalidDtc);
+    } else {
+        GtkWidget *label = gtk_label_new(dtc_string);
+        gtk_container_add((GtkContainer*)simGui->dtcs.listView,label);
+        gtk_widget_show(label);
+    }
 }
 
 ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
@@ -61,7 +66,8 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
             .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
             .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
             .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil")),
-            .dtcCleared = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-dtc-cleared"))
+            .dtcCleared = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-dtc-cleared")),
+            .invalidDtc = GTK_WIDGET(gtk_builder_get_object(builder, "window-invalid-dtc"))
         },
         .data = {
             .vehicleSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-vehicle-speed")),
@@ -71,6 +77,7 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
     };
 
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
+    g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
 
     gtk_builder_connect_signals(builder, NULL);
@@ -187,8 +194,6 @@ int elm327_sim_cli_main(int argc, char **argv) {
     for(int i = 0; i < guis->size; i ++) {
         ELM327SimGui *simGui = guis->list[i];
         gtk_widget_show(simGui->window);
-        gtk_window_set_keep_above(GTK_WINDOW(simGui->window), TRUE);
-        gtk_window_present(GTK_WINDOW(simGui->window));
     }
 
     ELM327SimData data = {
