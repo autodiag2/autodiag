@@ -34,339 +34,165 @@ char * iso3779decode_region_from(final Buffer *vin_raw) {
     }
     return strdup("Unknown");
 }
+
+typedef struct {
+    char start[3];
+    char end[3];
+    char country[100];
+} ISO3779WmiCountry;
+
+ISO3779WmiCountry ISO3779_wmi_countries[] = {
+    {"AA", "AH", "South Africa"},
+    {"AJ", "AN", "Ivory Coast"},
+    {"AP", "A0", "Unassigned"},
+    {"BA", "BE", "Angola"},
+    {"BF", "BK", "Kenya"},
+    {"BL", "BR", "Tanzania"},
+    {"BS", "B0", "Unassigned"},
+    {"CA", "CE", "Benin"},
+    {"CF", "CK", "Madagascar"},
+    {"CL", "CR", "Tunisia"},
+    {"CS", "C0", "Unassigned"},
+    {"DA", "DE", "Egypt"},
+    {"DF", "DK", "Morocco"},
+    {"DL", "DR", "Zambia"},
+    {"DS", "D0", "Unassigned"},
+    {"EA", "EE", "Ethiopia"},
+    {"EF", "EK", "Mozambique"},
+    {"EL", "E0", "Unassigned"},
+    {"FA", "FE", "Ghana"},
+    {"FF", "FK", "Nigeria"},
+    {"FL", "F0", "Unassigned"},
+    {"GA", "G0", "Unassigned"},
+    {"HA", "H0", "Unassigned"},
+    {"JA", "J0", "Japan"},
+    {"KA", "KE", "Sri Lanka"},
+    {"KF", "KK", "Israel"},
+    {"KL", "KR", "South Korea"},
+    {"KS", "K0", "Unassigned"},
+    {"LA", "L0", "China"},
+    {"MA", "ME", "India"},
+    {"MF", "MK", "Indonesia"},
+    {"ML", "MR", "Thailand"},
+    {"MS", "M0", "Unassigned"},
+    {"NF", "NK", "Pakistan"},
+    {"NL", "NR", "Turkey"},
+    {"NS", "N0", "Unassigned"},
+    {"PA", "PE", "Philippines"},
+    {"PF", "PK", "Singapore"},
+    {"PL", "PR", "Malaysia"},
+    {"PS", "P0", "Unassigned"},
+    {"RA", "RE", "United Arab Emirates"},
+    {"RF", "RK", "Taiwan"},
+    {"RL", "RR", "Vietnam"},
+    {"RS", "R0", "Unassigned"},
+    {"SA", "SM", "Great Britain"},
+    {"SN", "ST", "Germany"},
+    {"SU", "SZ", "Poland"},
+    {"S1", "S0", "Unassigned"},
+    {"TA", "TH", "Switzerland"},
+    {"TJ", "TP", "Czech Republic"},
+    {"TR", "TV", "Hungary"},
+    {"TW", "T1", "Portugal"},
+    {"T2", "T0", "Unassigned"},
+    {"UA", "UG", "Unassigned"},
+    {"UH", "UM", "Denmark"},
+    {"UN", "UT", "Ireland"},
+    {"UU", "UZ", "Romania"},
+    {"U1", "U4", "Unassigned"},
+    {"U5", "U7", "Slovakia"},
+    {"U8", "U0", "Unassigned"},
+    {"VA", "VE", "Austria"},
+    {"VF", "VR", "France"},
+    {"VS", "VW", "Spain"},
+    {"VX", "V2", "Yugoslavia"},
+    {"V3", "V5", "Croatia"},
+    {"V6", "V0", "Estonia"},
+    {"WA", "W0", "Germany"},
+    {"XA", "XE", "Bulgaria"},
+    {"XF", "XK", "Greece"},
+    {"XL", "XR", "Netherlands"},
+    {"XS", "XW", "Russia"},
+    {"XX", "X2", "Luxembourg"},
+    {"X3", "X0", "Russia"},
+    {"YA", "YE", "Belgium"},
+    {"YF", "YK", "Finland"},
+    {"YL", "YR", "Malta"},
+    {"YS", "YW", "Sweden"},
+    {"YX", "Y2", "Norway"},
+    {"Y3", "Y5", "Belarus"},
+    {"Y6", "Y0", "Ukraine"},
+    {"ZA", "ZR", "Italy"},
+    {"ZS", "ZW", "Unassigned"},
+    {"ZX", "Z2", "Slovenia"},
+    {"Z3", "Z5", "Lithuania"},
+    {"Z6", "Z0", "Unassigned"},
+    {"", "", ""} // Marqueur de fin
+};
+
 char * iso3779decode_country_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
-    if ( buffer_alphabet_compare(vin,"AA","AH") ) {
-        return strdup("South Africa");
-    }
-    if ( buffer_alphabet_compare(vin,"AJ","AN") ) {
-        return strdup("Ivory Coast");
-    }
-    if ( buffer_alphabet_compare(vin,"AP","A0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"BA","BE") ) {
-        return strdup("Angola");
-    }
-    if ( buffer_alphabet_compare(vin,"BF","BK") ) {
-        return strdup("Kenya");
-    }
-    if ( buffer_alphabet_compare(vin,"BL","BR") ) {
-        return strdup("Tanzania");
-    }
-    if ( buffer_alphabet_compare(vin,"BS","B0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"CA","CE") ) {
-        return strdup("Benin");
-    }
-    if ( buffer_alphabet_compare(vin,"CF","CK") ) {
-        return strdup("Madagascar");
-    }
-    if ( buffer_alphabet_compare(vin,"CL","CR") ) {
-        return strdup("Tunisia");
-    }
-    if ( buffer_alphabet_compare(vin,"CS","C0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"DA","DE") ) {
-        return strdup("Egypt");
-    }
-    if ( buffer_alphabet_compare(vin,"DF","DK") ) {
-        return strdup("Morocco");
-    }
-    if ( buffer_alphabet_compare(vin,"DL","DR") ) {
-        return strdup("Zambia");
-    }
-    if ( buffer_alphabet_compare(vin,"DS","D0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"EA","EE") ) {
-        return strdup("Ethiopia");
-    }
-    if ( buffer_alphabet_compare(vin,"EF","EK") ) {
-        return strdup("Mozambique");
-    }
-    if ( buffer_alphabet_compare(vin,"EL","E0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"FA","FE") ) {
-        return strdup("Ghana");
-    }
-    if ( buffer_alphabet_compare(vin,"FF","FK") ) {
-        return strdup("Nigeria");
-    }
-    if ( buffer_alphabet_compare(vin,"FF","FK") ) {
-        return strdup("Madagascar");
-    }
-    if ( buffer_alphabet_compare(vin,"FL","F0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"GA","G0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"HA","H0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"JA","J0") ) {
-        return strdup("Japan");
-    }
-    if ( buffer_alphabet_compare(vin,"KA","KE") ) {
-        return strdup("Sri Lanka");
-    }
-    if ( buffer_alphabet_compare(vin,"KF","KK") ) {
-        return strdup("Israel");
-    }
-    if ( buffer_alphabet_compare(vin,"KL","KR") ) {
-        return strdup("South Korea");
-    }
-    if ( buffer_alphabet_compare(vin,"KS","K0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"LA","L0") ) {
-        return strdup("China");
-    }
-    if ( buffer_alphabet_compare(vin,"MA","ME") ) {
-        return strdup("India");
-    }
-    if ( buffer_alphabet_compare(vin,"MF","MK") ) {
-        return strdup("Indonesia");
-    }
-    if ( buffer_alphabet_compare(vin,"ML","MR") ) {
-        return strdup("Thailand");
-    }
-    if ( buffer_alphabet_compare(vin,"MS","M0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"NF","NK") ) {
-        return strdup("Pakistan");
-    }
-    if ( buffer_alphabet_compare(vin,"NL","NR") ) {
-        return strdup("Turkey");
-    }
-    if ( buffer_alphabet_compare(vin,"NS","N0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"PA","PE") ) {
-        return strdup("Philippines");
-    }
-    if ( buffer_alphabet_compare(vin,"PF","PK") ) {
-        return strdup("Singapore");
-    }
-    if ( buffer_alphabet_compare(vin,"PL","PR") ) {
-        return strdup("Malaysia");
-    }
-    if ( buffer_alphabet_compare(vin,"PS","P0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"RA","RE") ) {
-        return strdup("United Arab Emirates");
-    }
-    if ( buffer_alphabet_compare(vin,"RF","RK") ) {
-        return strdup("Taiwan");
-    }
-    if ( buffer_alphabet_compare(vin,"RL","RR") ) {
-        return strdup("Vietnam");
-    }
-    if ( buffer_alphabet_compare(vin,"RS","R0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"SA","SM") ) {
-        return strdup("Great Britain");
-    }
-    if ( buffer_alphabet_compare(vin,"SN","ST") ) {
-        return strdup("Germany");
-    }
-    if ( buffer_alphabet_compare(vin,"SU","SZ") ) {
-        return strdup("Poland");
-    }
-    if ( buffer_alphabet_compare(vin,"S1","S0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"TA","TH") ) {
-        return strdup("Switzerland");
-    }
-    if ( buffer_alphabet_compare(vin,"TJ","TP") ) {
-        return strdup("Czech Republic");
-    }
-    if ( buffer_alphabet_compare(vin,"TR","TV") ) {
-        return strdup("Hungary");
-    }
-    if ( buffer_alphabet_compare(vin,"TW","T1") ) {
-        return strdup("Portugal");
-    }
-    if ( buffer_alphabet_compare(vin,"T2","T0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"UA","UG") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"UH","UM") ) {
-        return strdup("Denmark");
-    }
-    if ( buffer_alphabet_compare(vin,"UN","UT") ) {
-        return strdup("Ireland");
-    }
-    if ( buffer_alphabet_compare(vin,"UU","UZ") ) {
-        return strdup("Romania");
-    }
-    if ( buffer_alphabet_compare(vin,"U1","U4") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"U5","U7") ) {
-        return strdup("Slovakia");
-    }
-    if ( buffer_alphabet_compare(vin,"U8","U0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"VA","VE") ) {
-        return strdup("Austria");
-    }
-    if ( buffer_alphabet_compare(vin,"VF","VR") ) {
-        return strdup("France");
-    }
-    if ( buffer_alphabet_compare(vin,"VS","VW") ) {
-        return strdup("Spain");
-    }
-    if ( buffer_alphabet_compare(vin,"VX","V2") ) {
-        return strdup("Yugoslavia");
-    }
-    if ( buffer_alphabet_compare(vin,"V3","V5") ) {
-        return strdup("Croatia");
-    }
-    if ( buffer_alphabet_compare(vin,"V6","V0") ) {
-        return strdup("Estonia");
-    }
-    if ( buffer_alphabet_compare(vin,"WA","W0") ) {
-        return strdup("Germany");
-    }
-    if ( buffer_alphabet_compare(vin,"XA","XE") ) {
-        return strdup("Bulgaria");
-    }
-    if ( buffer_alphabet_compare(vin,"XF","XK") ) {
-        return strdup("Greece");
-    }
-    if ( buffer_alphabet_compare(vin,"XL","XR") ) {
-        return strdup("Netherlands");
-    }
-    if ( buffer_alphabet_compare(vin,"XS","XW") ) {
-        return strdup("Russia");
-    }
-    if ( buffer_alphabet_compare(vin,"XX","X2") ) {
-        return strdup("Luxembourg");
-    }
-    if ( buffer_alphabet_compare(vin,"X3","X0") ) {
-        return strdup("Russia");
-    }
-    if ( buffer_alphabet_compare(vin,"YA","YE") ) {
-        return strdup("Belgium");
-    }
-    if ( buffer_alphabet_compare(vin,"YF","YK") ) {
-        return strdup("Finland");
-    }
-    if ( buffer_alphabet_compare(vin,"YL","YR") ) {
-        return strdup("Malta");
-    }
-    if ( buffer_alphabet_compare(vin,"YS","YW") ) {
-        return strdup("Sweden");
-    }
-    if ( buffer_alphabet_compare(vin,"YX","Y2") ) {
-        return strdup("Norway");
-    }
-    if ( buffer_alphabet_compare(vin,"Y3","Y5") ) {
-        return strdup("Belarus");
-    }
-    if ( buffer_alphabet_compare(vin,"Y6","Y0") ) {
-        return strdup("Ukraine");
-    }
-    if ( buffer_alphabet_compare(vin,"ZA","ZR") ) {
-        return strdup("Italy");
-    }
-    if ( buffer_alphabet_compare(vin,"ZS","ZW") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"ZX","Z2") ) {
-        return strdup("Slovenia");
-    }
-    if ( buffer_alphabet_compare(vin,"Z3","Z5") ) {
-        return strdup("Lithuania");
-    }
-    if ( buffer_alphabet_compare(vin,"Z6","Z0") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"1A","10") ) {
-        return strdup("United States");
-    }
-    if ( buffer_alphabet_compare(vin,"2A","20") ) {
-        return strdup("Canada");
-    }
-    if ( buffer_alphabet_compare(vin,"3A","3W") ) {
-        return strdup("Mexico");
-    }
-    if ( buffer_alphabet_compare(vin,"3X","37") ) {
-        return strdup("Costa Rica");
-    }
-    if ( buffer_alphabet_compare(vin,"38","30") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"4A","40") ) {
-        return strdup("United States");
-    }
-    if ( buffer_alphabet_compare(vin,"5A","50") ) {
-        return strdup("United States");
-    }
-    if ( buffer_alphabet_compare(vin,"6A","6W") ) {
-        return strdup("Australia");
-    }
-    if ( buffer_alphabet_compare(vin,"6X","60") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"7A","7E") ) {
-        return strdup("New Zealand");
-    }
-    if ( buffer_alphabet_compare(vin,"7F","70") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"8A","8E") ) {
-        return strdup("Argentina");
-    }
-    if ( buffer_alphabet_compare(vin,"8F","8K") ) {
-        return strdup("Chile");
-    }
-    if ( buffer_alphabet_compare(vin,"8L","8R") ) {
-        return strdup("Ecuador");
-    }
-    if ( buffer_alphabet_compare(vin,"8S","8W") ) {
-        return strdup("Peru");
-    }
-    if ( buffer_alphabet_compare(vin,"8X","82") ) {
-        return strdup("Venezuela");
-    }
-    if ( buffer_alphabet_compare(vin,"83","80") ) {
-        return strdup("Unassigned");
-    }
-    if ( buffer_alphabet_compare(vin,"9A","9E") ) {
-        return strdup("Brazil");
-    }
-    if ( buffer_alphabet_compare(vin,"9F","9K") ) {
-        return strdup("Colombia");
-    }
-    if ( buffer_alphabet_compare(vin,"9L","9R") ) {
-        return strdup("Paraguay");
-    }
-    if ( buffer_alphabet_compare(vin,"9S","9W") ) {
-        return strdup("Uruguay");
-    }
-    if ( buffer_alphabet_compare(vin,"9X","92") ) {
-        return strdup("Trinidad & Tobago");
-    }
-    if ( buffer_alphabet_compare(vin,"93","99") ) {
-        return strdup("Brazil");
+    for (int i = 0; ISO3779_wmi_countries[i].start[0] != '\0'; i++) {
+        if (buffer_alphabet_compare(vin, ISO3779_wmi_countries[i].start, ISO3779_wmi_countries[i].end)) {
+            return strdup(ISO3779_wmi_countries[i].country);
+        }
     }
     return strdup("Unassigned");
 }
+bool iso3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
+    return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
+}
+typedef struct {
+    char code[4];
+    char manufaturer[100];
+} ISO3779_WMI_Manufacturer;
+
+// https://fr.wikipedia.org/wiki/Code_constructeur-WMI
+ISO3779_WMI_Manufacturer ISO3779_wmi_manufacturers[] = {
+    {"VF1", "Renault"},
+    {"VF3", "Peugeot"},
+    {"VF4", "Talbot"},
+    {"VF6", "Renault Trucks (Volvo)"},
+    {"VF7", "Citroën"},
+    {"VF8", "Matra"},
+    {"VF9", "Bugatti,Hommell"},
+    {"VFA", "Alpine Renault"},
+    {"VJ1", "Heuliez Bus"},
+    {"VJ2", "Mia Electric"},
+    {"VN1", "Opel (Utilitaires)"},
+    {"VNE", "Irisbus (Bus)"},
+    {"VNV", "Nissan (Utilitaires)"},
+    {"VNK", "Toyota"},
+    {"VR1", "DS Automobiles"},
+    {"VR3", "Peugeot"},
+    {"VR7", "Citroën"},
+    {"VSS", "SEAT"},
+    {"VSX", "Opel"},
+    {"VS6", "Ford"},
+    {"VS7", "Citroën"},
+    {"VSG", "Nissan"},
+    {"VSA", "Mercedes"},
+    {"VSE", "Santana Motors"},
+    {"VWV", "Volkswagen"},
+    {"", ""}
+};
+
+char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
+    final char * vin = buffer_to_ascii(vin_raw);
+    for (int i = 0; ISO3779_wmi_manufacturers[i].code[0] != '\0'; i++) {
+        if (strncasecmp(vin, ISO3779_wmi_manufacturers[i].code, 3) == 0) {
+            return strdup(ISO3779_wmi_manufacturers[i].manufaturer);
+        }
+    }
+    return strdup("Unknown manufacturer");
+}
+/**
+ * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
+ * WMI-----   VDS------          VIS-----------
+ */
 iso3779decoded* iso3779decode_from(final Buffer *vin) {
     iso3779decoded * vinDecoded = iso3779_vin_new();
     vinDecoded->wmi.country = iso3779decode_country_from(vin);
+    vinDecoded->wmi.manufacturer = iso3779decode_manufacturer_from(vin);
     return vinDecoded;
 }

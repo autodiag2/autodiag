@@ -8,11 +8,12 @@
 #include "lib/buffer.h"
 #include <string.h>
 
+#define ISO3779_WMI_MANUFACTURER_LESS_500 9
 typedef struct {
     struct {
         char * country;
+        char * manufacturer;
     } wmi;
-
 
 } iso3779decoded;
 
@@ -30,4 +31,6 @@ char * iso3779decode_country_from(final Buffer *vin_raw);
  * Get the geographical region associated with VIN.
  */
 char * iso3779decode_region_from(final Buffer *vin_raw);
+char * iso3779decode_manufacturer_from(final Buffer *vin_raw);
+
 #endif

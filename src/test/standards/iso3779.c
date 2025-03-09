@@ -12,5 +12,10 @@ bool testISO3779() {
         char *country = iso3779decode_region_from(vin);
         assert(strcmp(country, "Europe") == 0);
     }
+    {
+        final Buffer *vin = buffer_from_ascii("VF10");
+        char *manufaturer = iso3779decode_manufacturer_from(vin);
+        assert(strcmp(manufaturer, "Renault") == 0);
+    }
     return true;
 }
