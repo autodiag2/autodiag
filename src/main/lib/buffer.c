@@ -194,6 +194,18 @@ BUFFER buffer_from_ascii_hex_n(char * ascii_hex, int size) {
     buffer_ensure_capacity(bin,size/2);
     for ( int i = 0; i < size; i += 2) {
         memcpy(hex, ascii_internal+i, 2);
+        for(int j = 0; j < 2; j++) {
+            if ( 'A' <= hex[j] && hex[j] <= 'F' || 
+                 'a' <= hex[j] && hex[j] <= 'f' || 
+                 '0' <= hex[j] && hex[j] <= '9' 
+            ) {
+
+            } else {
+                buffer_free(bin);
+                free(ascii_internal);
+                return null;
+            }
+        }
         bin->buffer[bin->size++] = (char)strtol(hex,null,16);
     }
     free(ascii_internal);

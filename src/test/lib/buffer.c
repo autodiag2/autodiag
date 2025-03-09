@@ -74,5 +74,11 @@ bool testBuffer() {
         assert(buffer_alphabet_compare("A0", "A0", "AZ"));
         assert(buffer_alphabet_compare("AZ", "A0", "AZ"));
     }
+    {
+        assert(buffer_from_ascii_hex("Z123") == null);
+        assert(buffer_from_ascii_hex("G123") == null);
+        assert(buffer_from_ascii_hex("12G3") == null);
+        assert(buffer_from_ascii_hex("1123") != null);
+    }
     return true;
 }

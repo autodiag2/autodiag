@@ -59,7 +59,7 @@ bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
 
-bin/%: src/test/%.c $(OBJS_lib) $(OBJS_test) 
+bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) 
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_TESTS) $^ -o '$@' $(LIBS) $(LIBS_TESTS)
 
