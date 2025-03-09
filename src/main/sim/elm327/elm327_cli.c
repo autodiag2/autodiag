@@ -129,8 +129,15 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
-                sim->ecus->list[sim->ecus->size - 1]->generator.type = ecu_sim_generator_from_string(optarg);
-                ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
+                final ECUEmulationGeneratorType type = ecu_sim_generator_from_string(optarg);
+                #ifdef OS_APPLE
+                    if ( type == ECUEmulationGeneratorTypeGui ) {
+                        printf("Not usable under macos\n");
+                        exit(1);
+                    }
+                #endif
+                sim->ecus->list[sim->ecus->size - 1]->generator.type = type;
+                final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
 
                 if (generator->type == ECUEmulationGeneratorTypeGui) {
                     g_thread_new("Gui generator", gtk_launch_ecu_generator_gui, generator);
