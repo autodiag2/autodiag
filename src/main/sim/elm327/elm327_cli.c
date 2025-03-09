@@ -184,7 +184,8 @@ int elm327_sim_cli_main(int argc, char **argv) {
                         }
                     } break;
                     default: {
-                        printf("Generator type %d as no user definalbe context\n", generator->type);
+                        printf("Generator type %d as no user definable context\n", generator->type);
+                        return 1;
                     } break;
                 }
             } break;
