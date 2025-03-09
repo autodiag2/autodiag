@@ -19,6 +19,7 @@
         "__split_buffer": "c",
         "bitset": "c",
         "queue": "c",
-        "stack": "c"
+        "stack": "c",
+        "memory": "cpp"
     }
 }

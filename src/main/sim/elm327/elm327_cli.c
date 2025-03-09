@@ -38,8 +38,7 @@ void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
     gtk_widget_show(label);
 }
 
-void *gtk_launch_ecu_generator_gui(void *data) {
-    ECUEmulationGenerator *generator = (ECUEmulationGenerator *)data;
+ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
 
     gtk_init(0, NULL);
 
@@ -77,23 +76,43 @@ void *gtk_launch_ecu_generator_gui(void *data) {
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
 
-    gtk_widget_show(simGui->window);
-    gtk_window_set_keep_above(GTK_WINDOW(simGui->window), TRUE);
-    gtk_window_present(GTK_WINDOW(simGui->window));
-
     generator->seed = (void *)simGui;
 
-    log_msg(LOG_DEBUG, "GTK GUI initialized in a separate thread.");
+    return simGui;
+}
 
-    gtk_main();  // Run the GTK main loop in the new thread
+LIST_DEFINE_WITH_MEMBERS_AUTO(ELM327SimGui)
+LIST_DEFINE_MEMBERS_SYM_AUTO(ELM327SimGui)
+typedef struct {
+    ELM327emulation* sim;
+    ELM327_PROTO *proto;
+    bool * proto_is_auto;
+} ELM327SimData;
 
-    return NULL;
+void *elm327_sim_daemon(void *d) {
+    ELM327SimData* da = d;
+    ELM327SimData data = *da;
+    elm327_sim_loop_start(data.sim);
+    usleep(50e3);
+    if ( data.sim->port_name == null ) {
+        log_msg(LOG_WARNING, "Simulation not started");
+    } else {
+        printf("Simulation running on %s\n", data.sim->port_name);
+        if ( data.proto != null ) {
+            data.sim->protocolRunning = *data.proto;
+        }
+        if ( data.proto_is_auto != null ) {
+            data.sim->protocol_is_auto_running = *data.proto_is_auto;
+        }
+        pthread_join(data.sim->loop_thread, NULL);
+    }
 }
 
 int elm327_sim_cli_main(int argc, char **argv) {
     ELM327emulation* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
+    ELM327SimGui_list * guis = ELM327SimGui_list_new();
     
     int opt;
     optind = 1;
@@ -130,17 +149,11 @@ int elm327_sim_cli_main(int argc, char **argv) {
             } break;
             case 'g': {
                 final ECUEmulationGeneratorType type = ecu_sim_generator_from_string(optarg);
-                #ifdef OS_APPLE
-                    if ( type == ECUEmulationGeneratorTypeGui ) {
-                        printf("Not usable under macos\n");
-                        exit(1);
-                    }
-                #endif
                 sim->ecus->list[sim->ecus->size - 1]->generator.type = type;
                 final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
 
                 if (generator->type == ECUEmulationGeneratorTypeGui) {
-                    g_thread_new("Gui generator", gtk_launch_ecu_generator_gui, generator);
+                    ELM327SimGui_list_append(guis, elm327_sim_build_gui(generator));
                 }
             } break;
             case '?': {
@@ -170,21 +183,28 @@ int elm327_sim_cli_main(int argc, char **argv) {
             }
         }
     }
-    elm327_sim_loop_start(sim);
-    usleep(50e3);
-    if ( sim->port_name == null ) {
-        log_msg(LOG_INFO, "Simulation not started");
-        return 1;
-    } else {
-        printf("Simulation running on %s\n", sim->port_name);
-        if ( proto != null ) {
-            sim->protocolRunning = *proto;
-        }
-        if ( proto_is_auto != null ) {
-            sim->protocol_is_auto_running = *proto_is_auto;
-        }
-        pthread_join(sim->loop_thread, NULL);
-        return 0;
+
+    for(int i = 0; i < guis->size; i ++) {
+        ELM327SimGui *simGui = guis->list[i];
+        gtk_widget_show(simGui->window);
+        gtk_window_set_keep_above(GTK_WINDOW(simGui->window), TRUE);
+        gtk_window_present(GTK_WINDOW(simGui->window));
     }
+
+    ELM327SimData data = {
+        .sim = sim,
+        .proto = proto,
+        .proto_is_auto = proto_is_auto
+    };
+    pthread_t simThread;
+    pthread_create(&simThread, null, &elm327_sim_daemon, &data);
+
+    if ( 0 < guis->size ) {
+        gtk_main();
+    } else {
+        pthread_join(simThread, null);
+    }
+
+    ELM327SimGui_list_free(guis);
 }
 
