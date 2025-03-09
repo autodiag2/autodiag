@@ -42,7 +42,6 @@ void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
         gtk_widget_show(label);
     }
 }
-
 ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
 
     gtk_init(0, NULL);
