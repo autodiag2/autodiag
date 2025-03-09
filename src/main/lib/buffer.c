@@ -39,14 +39,18 @@ Buffer * buffer_new_cycle(int sz, int percent) {
     buffer->size = sz;
     return buffer;
 }
-Buffer * buffer_new_random(int sz) {
+Buffer * buffer_new_random_with_seed(int sz, unsigned * seed) {
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);
     for(int i = 0; i < sz; i++) {
-        buffer->buffer[i] = (char)rand();
+        buffer->buffer[i] = (char)rand_r(seed);
     }
     buffer->size = sz;
     return buffer;
+}
+Buffer * buffer_new_random(int sz) {
+    unsigned seed = 1;
+    return buffer_new_random_with_seed(sz, &seed);
 }
 
 byte buffer_extract_0(final BUFFER buffer) {

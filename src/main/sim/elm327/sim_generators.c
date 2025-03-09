@@ -73,11 +73,15 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
 }
 
 int ecu_saej1979_sim_generator_cycle_percent[0xFF][0xFF] = {0};
-void ecu_saej1979_sim_generator_cycle_iterate(int service_id, int pid) {
-    ecu_saej1979_sim_generator_cycle_percent[service_id][pid] += 10;
+void ecu_saej1979_sim_generator_cycle_iterate(int service_id, int pid, unsigned gears) {
+    ecu_saej1979_sim_generator_cycle_percent[service_id][pid] += (100/gears);
     ecu_saej1979_sim_generator_cycle_percent[service_id][pid] %= 100;
 }
 void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+    unsigned gears = 10;
+    if ( generator->seed != null ) {
+        gears = *((unsigned*)generator->seed);
+    }
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
             buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, ecu_saej1979_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
@@ -147,16 +151,21 @@ void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** 
             }
         } break;
     }
-    ecu_saej1979_sim_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0);
+    ecu_saej1979_sim_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0, gears);
 }
 
 void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+    unsigned * seed = generator->seed;
+    if ( seed == null ) {
+        seed = (unsigned*)malloc(sizeof(unsigned));
+        *seed = 1;
+    }
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
-            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2));
+            buffer_append(responseOBDdataBin,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
         case 0x07: case 0x0A: case 0x03: {
-            buffer_append(responseOBDdataBin,buffer_new_random(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1));                
+            buffer_append(responseOBDdataBin,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case 0x04: {
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
@@ -173,7 +182,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
                         break;
                     }
                     case 0x02: {
-                        buffer_append(responseOBDdataBin,buffer_new_random(17));                
+                        buffer_append(responseOBDdataBin,buffer_new_random_with_seed(17, seed));                
                         break;
                     }
                     case 0x03: {
@@ -181,7 +190,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
                         break;
                     }
                     case 0x04: {
-                        buffer_append(responseOBDdataBin,buffer_new_random(16));                
+                        buffer_append(responseOBDdataBin,buffer_new_random_with_seed(16, seed));                
                         break;
                     }
                     case 0x05: {
@@ -189,7 +198,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
                         break;
                     }
                     case 0x06: {
-                        buffer_append(responseOBDdataBin,buffer_new_random(4));
+                        buffer_append(responseOBDdataBin,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
@@ -197,7 +206,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
                         break;
                     }
                     case 0x08: {
-                        buffer_append(responseOBDdataBin,buffer_new_random(4));
+                        buffer_append(responseOBDdataBin,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
@@ -211,7 +220,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(responseOBDdataBin,buffer_new_random(4));
+                        buffer_append(responseOBDdataBin,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }

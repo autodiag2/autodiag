@@ -69,6 +69,10 @@ void BufferList_dump(final BufferList* list);
  * Obtain a new buffer with bytes initialized to random value
  */
 Buffer * buffer_new_random(int sz);
+/**
+ * Same but with a seed ensuring sequence replayability
+ */
+Buffer * buffer_new_random_with_seed(int sz, unsigned * seed);
 Buffer * buffer_new_cycle(int sz, int percent);
 /**
  * Remove the first byte of the buffer.

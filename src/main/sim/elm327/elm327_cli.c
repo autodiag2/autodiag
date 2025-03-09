@@ -13,9 +13,12 @@ PRINT_MODULAR(elm327_sim_cli_help,
     " -l level      : set level of logging\n"
     " -g            : list available generators\n"
     " -g generator  : set the generator of values\n"
+    " -s seed       : seed for the generator\n"
     "\n"
     "Examples:\n"
-    " elm327sim -g cycle -e EA -g random : default ecu E8 cycle generator, EA ecu random generator\n"
+    " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
+    " elm327sim -g random -s 1234           : use the seed 1234 for generating random numbers\n"
+    " elm327sim -g cycle -s 10              : number of gears used in the cycle\n"
 )
 
 
@@ -122,7 +125,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
     
     int opt;
     optind = 1;
-    while ((opt = getopt(argc, argv, "he:l:p:g:")) != -1) {
+    while ((opt = getopt(argc, argv, "he:l:p:g:s:")) != -1) {
         switch (opt) {
             case 'h': {
                 elm327_sim_cli_display_help();
@@ -155,11 +158,34 @@ int elm327_sim_cli_main(int argc, char **argv) {
             } break;
             case 'g': {
                 final ECUEmulationGeneratorType type = ecu_sim_generator_from_string(optarg);
-                sim->ecus->list[sim->ecus->size - 1]->generator.type = type;
                 final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
-
+                generator->type = type;
                 if (generator->type == ECUEmulationGeneratorTypeGui) {
                     ELM327SimGui_list_append(guis, elm327_sim_build_gui(generator));
+                }
+            } break;
+            case 's': {
+                final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
+                switch (generator->type) {
+                    case ECUEmulationGeneratorTypeRandom: {
+                        unsigned *seed = (unsigned*)malloc(sizeof(unsigned));
+                        generator->seed = seed; 
+                        if ( sscanf(optarg, "%u", seed) != 1 ) {
+                            printf("Expected unsigned int seed for random generator\n");
+                            return 1;
+                        }
+                    } break;
+                    case ECUEmulationGeneratorTypeCycle: {
+                        unsigned *seed = (unsigned*)malloc(sizeof(unsigned));
+                        generator->seed = seed; 
+                        if ( sscanf(optarg, "%u", seed) != 1 ) {
+                            printf("Expected unsigned int number of gears for cycle generator\n");
+                            return 1;
+                        }
+                    } break;
+                    default: {
+                        printf("Generator type %d is not seedable\n", generator->type);
+                    } break;
                 }
             } break;
             case '?': {
@@ -184,6 +210,9 @@ int elm327_sim_cli_main(int argc, char **argv) {
                         printf("cycle\n");
                         printf("gui\n");
                         break;
+                    case 's': {
+                        printf("wrong seed : %s\n", optarg);
+                    } break;
                 }
                 return 1;
             }
