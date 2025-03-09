@@ -2,7 +2,7 @@
 #include "sim/elm327/elm327_cli.h"
 
 void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
-    ELM327SimGui *gui = (ELM327SimGui *)generator->seed;
+    ELM327SimGui *gui = (ELM327SimGui *)generator->context;
     
     switch(obd_query_bin->buffer[0]) {
         case 0x01: {
@@ -79,8 +79,8 @@ void ecu_saej1979_sim_generator_cycle_iterate(int service_id, int pid, unsigned 
 }
 void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned gears = 10;
-    if ( generator->seed != null ) {
-        gears = *((unsigned*)generator->seed);
+    if ( generator->context != null ) {
+        gears = *((unsigned*)generator->context);
     }
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
@@ -155,7 +155,7 @@ void ecu_saej1979_sim_generator_cycle(ECUEmulationGenerator *generator, char ** 
 }
 
 void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
-    unsigned * seed = generator->seed;
+    unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
         *seed = 1;

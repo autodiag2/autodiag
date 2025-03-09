@@ -106,7 +106,7 @@ typedef enum {
 } ECUEmulationGeneratorType;
 typedef struct {
     ECUEmulationGeneratorType type;
-    void *seed;
+    void *context;
 } ECUEmulationGenerator;
 
 typedef struct {

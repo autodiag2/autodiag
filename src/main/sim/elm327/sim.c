@@ -191,6 +191,6 @@ ECUEmulation* ecu_emulation_new(byte address) {
     emu->saej1979_sim_response = (char * (*)(_ECUEmulation *, _ELM327emulation *, char *,bool))ecu_saej1979_sim_response;
     emu->address = address;
     emu->generator.type = ECUEmulationGeneratorTypeRandom;
-    emu->generator.seed = null;
+    emu->generator.context = null;
     return emu;
 }
