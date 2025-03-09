@@ -7,7 +7,7 @@
 #   include <sys/stat.h>
 #if defined OS_WINDOWS
 #   include <unistd.h>
-#   define FILE_EOL "\r\n"
+#   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "\\"
 #elif defined OS_UNIX || defined OS_POSIX
 #   define FILE_EOL "\n"

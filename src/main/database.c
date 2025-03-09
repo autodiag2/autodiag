@@ -57,6 +57,7 @@ CarModel* car_model_load_from_directory(char * directory) {
 }
 
 void car_model_dump(CarModel* car) {
+    assert(car != null);
     printf("car: {\n");
     printf("    brand:  %s\n", car->brand);
     printf("    ecu: %s\n", car->ecu == null ? "null" : car->ecu->model);
