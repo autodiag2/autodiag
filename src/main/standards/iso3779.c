@@ -142,49 +142,53 @@ char * iso3779decode_country_from(final Buffer *vin_raw) {
 bool iso3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
     return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }
-typedef struct {
-    char code[4];
-    char manufaturer[100];
-} ISO3779_WMI_Manufacturer;
 
-// https://fr.wikipedia.org/wiki/Code_constructeur-WMI
-ISO3779_WMI_Manufacturer ISO3779_wmi_manufacturers[] = {
-    {"VF1", "Renault"},
-    {"VF3", "Peugeot"},
-    {"VF4", "Talbot"},
-    {"VF6", "Renault Trucks (Volvo)"},
-    {"VF7", "Citroën"},
-    {"VF8", "Matra"},
-    {"VF9", "Bugatti,Hommell"},
-    {"VFA", "Alpine Renault"},
-    {"VJ1", "Heuliez Bus"},
-    {"VJ2", "Mia Electric"},
-    {"VN1", "Opel (Utilitaires)"},
-    {"VNE", "Irisbus (Bus)"},
-    {"VNV", "Nissan (Utilitaires)"},
-    {"VNK", "Toyota"},
-    {"VR1", "DS Automobiles"},
-    {"VR3", "Peugeot"},
-    {"VR7", "Citroën"},
-    {"VSS", "SEAT"},
-    {"VSX", "Opel"},
-    {"VS6", "Ford"},
-    {"VS7", "Citroën"},
-    {"VSG", "Nissan"},
-    {"VSA", "Mercedes"},
-    {"VSE", "Santana Motors"},
-    {"VWV", "Volkswagen"},
-    {"", ""}
-};
+bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
+    void **ptrs = data;
+    char * searched_wmi = (char*)ptrs[0];
+    char **manufacturer = (char **)ptrs[1];
+
+    if ( 0 < line->size ) {
+        if ( line->buffer[0] == '#' ) {
+
+        } else {
+            char * firstTab = strchr(line->buffer,'\t');
+            if ( firstTab != null ) {
+                *firstTab = 0;
+            }
+            if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
+                if ( firstTab != null ) {
+                    *manufacturer = strdup(firstTab + 1);
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+bool iso3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer) {
+    void ** ptrs = (void**)malloc(sizeof(void*)*2);
+    ptrs[0] = searched_wmi;
+    ptrs[1] = manufacturer;
+    final bool res = file_read_lines(fileName,iso3779_wmi_manufacturers_read_tsv_line,ptrs);
+    free(ptrs);
+    return res;
+}
 
 char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
-    for (int i = 0; ISO3779_wmi_manufacturers[i].code[0] != '\0'; i++) {
-        if (strncasecmp(vin, ISO3779_wmi_manufacturers[i].code, 3) == 0) {
-            return strdup(ISO3779_wmi_manufacturers[i].manufaturer);
-        }
+    char *manufacturers_file = config_get_in_data_folder_safe("data/VIN/manufacturers.tsv");
+    if (manufacturers_file == NULL) {
+        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
+        return null;
     }
-    return strdup("Unknown manufacturer");
+    char *manufacturer = null;
+    if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer) ) {
+        return manufacturer;
+    } else {
+        return strdup("Unknown manufacturer");
+    }
 }
 /**
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17

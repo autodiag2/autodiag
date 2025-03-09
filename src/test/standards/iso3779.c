@@ -15,7 +15,7 @@ bool testISO3779() {
     {
         final Buffer *vin = buffer_from_ascii("VF10");
         char *manufaturer = iso3779decode_manufacturer_from(vin);
-        assert(strcmp(manufaturer, "Renault") == 0);
+        assert(strcmp(manufaturer, "RENAULT") == 0);
     }
     return true;
 }

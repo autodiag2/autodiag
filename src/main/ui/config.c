@@ -104,7 +104,7 @@ char *config_get_in_data_folder_safe(char *relative_path) {
 
     char *data_path = null;
     #if defined OS_WINDOWS
-        int mode = R_OK|X_OK;
+        int mode = R_OK;
 
         // System wide installation
         char path[MAX_PATH];
@@ -142,7 +142,7 @@ char *config_get_in_data_folder_safe(char *relative_path) {
         }
 
     #elif defined OS_UNIX
-        int mode = R_OK|X_OK;
+        int mode = R_OK;
 
         // XDG Base Directory Specification
         asprintf(&data_path, "%s/.local/share/" APP_NAME "/%s", getenv("HOME"), relative_path);
