@@ -181,8 +181,13 @@ char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc) {
 Buffer* saej1979_dtc_bin_from_string(char *dtc_string) {
     final Buffer * dtc_bin = buffer_from_ascii_hex(&(dtc_string[1]));
     ISO15031_DTC_TYPE dtc_type = iso15031_dtc_first_letter_to_type(dtc_string[0]);
-    dtc_bin->buffer[0] |= dtc_type << 6;
-    return dtc_bin;
+    if ( ISO15031_DTC_TYPE_UNKNOWN == dtc_type ) {
+        buffer_free(dtc_bin);
+        return null;
+    } else {
+        dtc_bin->buffer[0] |= dtc_type << 6;
+        return dtc_bin;
+    }
 }
 
 char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {

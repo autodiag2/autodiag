@@ -49,7 +49,11 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         if (GTK_IS_LABEL(child)) {
                             char *dtc = gtk_label_get_text(GTK_LABEL(child));
                             Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
-                            buffer_append(responseOBDdataBin, dtc_bin);
+                            if ( dtc_bin == null ) {
+                                log_msg(LOG_INFO, "gui show error");
+                            } else {
+                                buffer_append(responseOBDdataBin, dtc_bin);
+                            }
                         } else {
                             g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
                         }

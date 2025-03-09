@@ -34,7 +34,7 @@ ISO15031_DTC_TYPE iso15031_dtc_first_letter_to_type(final char letter) {
         case 'u':
         case 'U':   return ISO15031_DTC_TYPE_NETWORK;
     }
-    assert(false);
+    return ISO15031_DTC_TYPE_UNKNOWN;
 }
 
 char iso15031_dtc_type_first_letter(final ISO15031_DTC_TYPE type) {
