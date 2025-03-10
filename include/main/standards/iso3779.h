@@ -15,6 +15,9 @@ typedef struct {
         char * country;
         char * manufacturer;
     } wmi;
+    struct {
+        char *year;
+    } vis;
 
 } iso3779decoded;
 
@@ -33,5 +36,6 @@ char * iso3779decode_country_from(final Buffer *vin_raw);
  */
 char * iso3779decode_region_from(final Buffer *vin_raw);
 char * iso3779decode_manufacturer_from(final Buffer *vin_raw);
+char* ISO3779_vis_get_year_from(final Buffer *vin_raw);
 
 #endif

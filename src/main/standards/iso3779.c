@@ -190,6 +190,42 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
         return strdup("Unknown manufacturer");
     }
 }
+char* ISO3779_vis_get_year_from(final Buffer *vin_raw) {
+    switch (vin_raw->buffer[9]) {
+        case 'M': return strdup("1991 or 2021");
+        case 'N': return strdup("1992 or 2022");
+        case 'P': return strdup("1993 or 2023");
+        case 'R': return strdup("1994 or 2024");
+        case 'S': return strdup("1995 or 2025");
+        case 'T': return strdup("1996 or 2026");
+        case 'V': return strdup("1997 or 2027");
+        case 'W': return strdup("1998 or 2028");
+        case 'X': return strdup("1999 or 2029");
+        case 'Y': return strdup("2000 or 2030");
+        case '1': return strdup("2001");
+        case '2': return strdup("2002");
+        case '3': return strdup("2003");
+        case '4': return strdup("2004");
+        case '5': return strdup("2005");
+        case '6': return strdup("2006");
+        case '7': return strdup("2007");
+        case '8': return strdup("2008");
+        case '9': return strdup("2009");
+        case 'A': return strdup("2010");
+        case 'B': return strdup("2011");
+        case 'C': return strdup("2012");
+        case 'D': return strdup("2013");
+        case 'E': return strdup("2014");
+        case 'F': return strdup("2015");
+        case 'G': return strdup("2016");
+        case 'H': return strdup("2017");
+        case 'J': return strdup("2018");
+        case 'K': return strdup("2019");
+        case 'L': return strdup("2020");
+        default: return strdup("Unknown year");
+    }
+}
+
 /**
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
  * WMI-----   VDS------          VIS-----------
@@ -198,5 +234,6 @@ iso3779decoded* iso3779decode_from(final Buffer *vin) {
     iso3779decoded * vinDecoded = iso3779_vin_new();
     vinDecoded->wmi.country = iso3779decode_country_from(vin);
     vinDecoded->wmi.manufacturer = iso3779decode_manufacturer_from(vin);
+    vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
     return vinDecoded;
 }
