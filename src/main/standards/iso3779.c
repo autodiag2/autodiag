@@ -217,7 +217,7 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
     char *manufacturer_code = null;
     if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
         manufacturer_code = (char*)malloc(sizeof(char) * 4);
-        strncpy(manufacturer_code,&vin_raw->buffer[14],3);
+        strncpy(manufacturer_code,&vin_raw->buffer[11],3);
     }
     if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
         return manufacturer;

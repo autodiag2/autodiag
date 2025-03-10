@@ -26,18 +26,18 @@ bool testISO3779() {
         }
     }
     {
-        final Buffer * vin = buffer_from_ascii("LA9BB05CF26010LC0");
+        final Buffer * vin = buffer_from_ascii("LA9BB05CF26LC0010");
         char *manufaturer = iso3779decode_manufacturer_from(vin);
         printf("manufaturer=%s\n", manufaturer);
         assert(strncasecmp(manufaturer,"byd", 3) == 0);
     }
     {
-        final Buffer * vin = buffer_from_ascii("KF9BB05CF26010004");
+        final Buffer * vin = buffer_from_ascii("KF9BB05CF26004010");
         char *manufaturer = iso3779decode_manufacturer_from(vin);
         assert(strncasecmp(manufaturer,"tomcar", 6) == 0);
     }
     {
-        final Buffer * vin = buffer_from_ascii("SA9BB05CF26010202");
+        final Buffer * vin = buffer_from_ascii("SA9BB05CF26202010");
         char *manufaturer = iso3779decode_manufacturer_from(vin);
         printf("manufaturer=%s\n", manufaturer);
         assert(strncasecmp("morgan",manufaturer,6) == 0);
