@@ -162,6 +162,7 @@ bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
     void **ptrs = data;
     char * searched_wmi = (char*)ptrs[0];
     char **manufacturer = (char **)ptrs[1];
+    char *searched_manufacturer_code = (char *)ptrs[2];
 
     if ( 0 < line->size ) {
         if ( line->buffer[0] == '#' ) {
@@ -171,9 +172,21 @@ bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
             if ( firstTab != null ) {
                 *firstTab = 0;
             }
+            char * secondTab = strchr(firstTab+1,'\t');
+            if ( secondTab != null ) {
+                *secondTab = 0;
+            }
             if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
                 if ( firstTab != null ) {
-                    *manufacturer = strdup(firstTab + 1);
+                    if ( searched_manufacturer_code == null ) {
+                        *manufacturer = strdup(firstTab + 1);
+                    } else {
+                        if ( secondTab != null ) {
+                            if ( strncasecmp(searched_manufacturer_code,secondTab+1, strlen(secondTab+1)) == 0 ) {
+                                *manufacturer = strdup(firstTab + 1);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -182,10 +195,11 @@ bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
     return true;
 }
 
-bool iso3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer) {
-    void ** ptrs = (void**)malloc(sizeof(void*)*2);
+bool iso3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer, char *manufacturer_code) {
+    void ** ptrs = (void**)malloc(sizeof(void*)*3);
     ptrs[0] = searched_wmi;
     ptrs[1] = manufacturer;
+    ptrs[2] = manufacturer_code;
     final bool res = file_read_lines(fileName,iso3779_wmi_manufacturers_read_tsv_line,ptrs);
     free(ptrs);
     return res;
@@ -199,12 +213,12 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
         return null;
     }
     char *manufacturer = null;
+    char *manufacturer_code = null;
     if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
-        char manufacturer_code[4] = {0};
-        memcpy(manufacturer_code,&vin_raw->buffer[11],3);
-        log_msg(LOG_WARNING, "should get the manufacturer code: '%s' from vis", manufacturer_code);
+        manufacturer_code = (char*)malloc(sizeof(char));
+        strncpy(manufacturer_code,&vin_raw->buffer[11],3);
     }
-    if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer) ) {
+    if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
         return manufacturer;
     } else {
         return strdup("Unknown manufacturer");
