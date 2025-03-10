@@ -2,26 +2,45 @@
 #include "standards/iso3779.h"
 
 bool testISO3779() {
-    final Buffer * vin = buffer_from_ascii("VF1BB05CF26010203");
     {
-        char *country = iso3779decode_country_from(vin);
-        assert(strcmp(country, "France") == 0);
+        final Buffer * vin = buffer_from_ascii("VF1BB05CF26010203");
+        {
+            char *country = iso3779decode_country_from(vin);
+            assert(strcmp(country, "France") == 0);
+        }
+        {
+            char *country = iso3779decode_region_from(vin);
+            assert(strcmp(country, "Europe") == 0);
+        }
+        {
+            char *manufaturer = iso3779decode_manufacturer_from(vin);
+            assert(strncasecmp(manufaturer, "RENAULT", strlen("RENAULT")) == 0);
+        }
+        {
+            char *year = ISO3779_vis_get_year_from(vin);
+            assert(strcmp(year,"2002") == 0);
+        }
+        {
+            char *serial_number = ISO3779_vis_serial_number_from(vin);
+            assert(strcmp(serial_number, "010203") == 0);  
+        }
     }
     {
-        char *country = iso3779decode_region_from(vin);
-        assert(strcmp(country, "Europe") == 0);
-    }
-    {
+        final Buffer * vin = buffer_from_ascii("LA9BB05CF26010LC0");
         char *manufaturer = iso3779decode_manufacturer_from(vin);
-        assert(strcmp(manufaturer, "RENAULT") == 0);
+        printf("manufaturer=%s\n", manufaturer);
+        assert(strncasecmp(manufaturer,"byd", 3) == 0);
     }
     {
-        char *year = ISO3779_vis_get_year_from(vin);
-        assert(strcmp(year,"2002") == 0);
+        final Buffer * vin = buffer_from_ascii("KF9BB05CF26010004");
+        char *manufaturer = iso3779decode_manufacturer_from(vin);
+        assert(strncasecmp(manufaturer,"tomcar", 6) == 0);
     }
     {
-        char *serial_number = ISO3779_vis_serial_number_from(vin);
-        assert(strcmp(serial_number, "010203") == 0);  
+        final Buffer * vin = buffer_from_ascii("SA9BB05CF26010202");
+        char *manufaturer = iso3779decode_manufacturer_from(vin);
+        printf("manufaturer=%s\n", manufaturer);
+        assert(strncasecmp("morgan",manufaturer,6) == 0);
     }
     return true;
 }
