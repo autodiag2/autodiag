@@ -200,7 +200,9 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
     }
     char *manufacturer = null;
     if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
-        log_msg(LOG_WARNING, "should get the manufacturer code from vis");
+        char manufacturer_code[4] = {0};
+        memcpy(manufacturer_code,&vin_raw->buffer[11],3);
+        log_msg(LOG_WARNING, "should get the manufacturer code: '%s' from vis", manufacturer_code);
     }
     if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer) ) {
         return manufacturer;
