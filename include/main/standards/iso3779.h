@@ -9,7 +9,7 @@
 #include <string.h>
 #include "ui/config.h"
 
-#define ISO3779_WMI_MANUFACTURER_LESS_500 9
+#define ISO3779_WMI_MANUFACTURER_LESS_500 '9'
 typedef struct {
     struct {
         char * country;

@@ -169,12 +169,13 @@ bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
 
         } else {
             char * firstTab = strchr(line->buffer,'\t');
+            char * secondTab = null;
             if ( firstTab != null ) {
                 *firstTab = 0;
-            }
-            char * secondTab = strchr(firstTab+1,'\t');
-            if ( secondTab != null ) {
-                *secondTab = 0;
+                secondTab = strchr(firstTab+1,'\t');
+                if ( secondTab != null ) {
+                    *secondTab = 0;
+                }
             }
             if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
                 if ( firstTab != null ) {
@@ -215,8 +216,8 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
     char *manufacturer = null;
     char *manufacturer_code = null;
     if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
-        manufacturer_code = (char*)malloc(sizeof(char));
-        strncpy(manufacturer_code,&vin_raw->buffer[11],3);
+        manufacturer_code = (char*)malloc(sizeof(char) * 4);
+        strncpy(manufacturer_code,&vin_raw->buffer[14],3);
     }
     if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
         return manufacturer;
@@ -263,9 +264,9 @@ char* ISO3779_vis_get_year_from(final Buffer *vin_raw) {
 char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
     char * sn = null;
     if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
-        sn = strdup(vin_raw[14]);
+        sn = strdup(&vin_raw->buffer[14]);
     } else {
-        sn = strdup(vin_raw[11]);
+        sn = strdup(&vin_raw->buffer[11]);
     }
     return sn;
 }
