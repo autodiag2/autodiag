@@ -17,6 +17,7 @@ typedef struct {
     } wmi;
     struct {
         char *year;
+        char *serial_number;
     } vis;
 
 } iso3779decoded;
@@ -37,5 +38,6 @@ char * iso3779decode_country_from(final Buffer *vin_raw);
 char * iso3779decode_region_from(final Buffer *vin_raw);
 char * iso3779decode_manufacturer_from(final Buffer *vin_raw);
 char* ISO3779_vis_get_year_from(final Buffer *vin_raw);
+char* ISO3779_vis_serial_number_from(final Buffer *vin_raw);
 
 #endif

@@ -19,5 +19,9 @@ bool testISO3779() {
         char *year = ISO3779_vis_get_year_from(vin);
         assert(strcmp(year,"2002") == 0);
     }
+    {
+        char *serial_number = ISO3779_vis_serial_number_from(vin);
+        assert(strcmp(serial_number, "010203") == 0);  
+    }
     return true;
 }

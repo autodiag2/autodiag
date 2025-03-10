@@ -3,12 +3,27 @@
 iso3779decoded * iso3779_vin_new() {
     iso3779decoded * vinDecoded = (iso3779decoded*)malloc(sizeof(iso3779decoded));
     vinDecoded->wmi.country = null;
+    vinDecoded->wmi.manufacturer = null;
+    vinDecoded->vis.serial_number = null;
+    vinDecoded->vis.year = null;
     return vinDecoded;
 }
 void iso3779_vin_free(iso3779decoded *vin) {
     if ( vin->wmi.country != null ) {
         free(vin->wmi.country);
         vin->wmi.country = null;
+    }
+    if ( vin->wmi.manufacturer != null ) {
+        free(vin->wmi.manufacturer);
+        vin->wmi.manufacturer = null;
+    }
+    if ( vin->vis.serial_number != null ) {
+        free(vin->vis.serial_number);
+        vin->vis.serial_number = null;
+    }
+    if ( vin->vis.year != null ) {
+        free(vin->vis.year);
+        vin->vis.year = null;
     }
     free(vin);
 }
@@ -226,6 +241,16 @@ char* ISO3779_vis_get_year_from(final Buffer *vin_raw) {
     }
 }
 
+char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
+    char * sn = null;
+    if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
+        sn = strdup(vin_raw[14]);
+    } else {
+        sn = strdup(vin_raw[11]);
+    }
+    return sn;
+}
+
 /**
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
  * WMI-----   VDS------          VIS-----------
@@ -235,5 +260,6 @@ iso3779decoded* iso3779decode_from(final Buffer *vin) {
     vinDecoded->wmi.country = iso3779decode_country_from(vin);
     vinDecoded->wmi.manufacturer = iso3779decode_manufacturer_from(vin);
     vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
+    vinDecoded->vis.serial_number = ISO3779_vis_serial_number_from(vin);
     return vinDecoded;
 }
