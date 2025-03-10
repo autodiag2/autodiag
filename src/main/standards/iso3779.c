@@ -271,6 +271,21 @@ char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
     return sn;
 }
 
+void ISO3779_dump(final Buffer *vin) {
+    iso3779decoded * vinDecoded = iso3779decode_from(vin);
+    char * region = iso3779decode_region_from(vin);
+    printf("dump {\n");
+    printf("    wmi {\n");
+    printf("        region:         %s\n", region);
+    printf("        country:        %s\n", vinDecoded->wmi.country);
+    printf("        manufacturer:   %s\n", vinDecoded->wmi.manufacturer);
+    printf("    }\n");
+    printf("    vis {\n");
+    printf("        year:           %s\n", vinDecoded->vis.year);
+    printf("        serial number:  %s\n", vinDecoded->vis.serial_number);
+    printf("    }\n");
+    printf("}\n");
+}
 /**
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
  * WMI-----   VDS------          VIS-----------
