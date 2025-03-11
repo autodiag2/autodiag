@@ -12,7 +12,7 @@ bool testIniTools(OBDIFace* iface);
 bool testElm(final OBDIFace* iface);
 bool testStringList();
 bool testSIM();
-bool testISO3779();
+bool testISO3779_();
 
 int main(int argc, char **argv) {
     log_set_from_env();
@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testGlobals,null);
     runTestMaybe(testStringList,null);
     runTestMaybe(testSIM,null);
-    runTestMaybe(testISO3779,null);
+    runTestMaybe(testISO3779_,null);
 
     final OBDIFace* iface = port_open(start_elm327_simulation());
 

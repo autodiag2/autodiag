@@ -20,23 +20,23 @@ typedef struct {
         char *serial_number;
     } vis;
 
-} iso3779decoded;
+} ISO3779_decoded;
 
-iso3779decoded * iso3779_vin_new();
-void iso3779_vin_free(iso3779decoded *vin);
+ISO3779_decoded * ISO3779_vin_new();
+void ISO3779_vin_free(ISO3779_decoded *vin);
 /**
  * Decode fields from the vin number.
  */
-iso3779decoded* iso3779decode_from(final Buffer *vin);
+ISO3779_decoded* ISO3779_decode_from(final Buffer *vin);
 /**
  * Get the country associated with the VIN.
  */
-char * iso3779decode_country_from(final Buffer *vin_raw);
+char * ISO3779_decode_country_from(final Buffer *vin_raw);
 /**
  * Get the geographical region associated with VIN.
  */
-char * iso3779decode_region_from(final Buffer *vin_raw);
-char * iso3779decode_manufacturer_from(final Buffer *vin_raw);
+char * ISO3779_decode_region_from(final Buffer *vin_raw);
+char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw);
 char* ISO3779_vis_get_year_from(final Buffer *vin_raw);
 char* ISO3779_vis_serial_number_from(final Buffer *vin_raw);
 void ISO3779_dump(final Buffer *vin);

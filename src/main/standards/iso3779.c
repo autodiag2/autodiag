@@ -1,14 +1,14 @@
 #include "standards/iso3779.h"
 
-iso3779decoded * iso3779_vin_new() {
-    iso3779decoded * vinDecoded = (iso3779decoded*)malloc(sizeof(iso3779decoded));
+ISO3779_decoded * ISO3779_vin_new() {
+    ISO3779_decoded * vinDecoded = (ISO3779_decoded*)malloc(sizeof(ISO3779_decoded));
     vinDecoded->wmi.country = null;
     vinDecoded->wmi.manufacturer = null;
     vinDecoded->vis.serial_number = null;
     vinDecoded->vis.year = null;
     return vinDecoded;
 }
-void iso3779_vin_free(iso3779decoded *vin) {
+void ISO3779_vin_free(ISO3779_decoded *vin) {
     if ( vin->wmi.country != null ) {
         free(vin->wmi.country);
         vin->wmi.country = null;
@@ -27,7 +27,7 @@ void iso3779_vin_free(iso3779decoded *vin) {
     }
     free(vin);
 }
-char * iso3779decode_region_from(final Buffer *vin_raw) {
+char * ISO3779_decode_region_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
     if ( buffer_alphabet_compare(vin,"A","H") ) {
         return strdup("Africa");
@@ -54,9 +54,9 @@ typedef struct {
     char start[3];
     char end[3];
     char country[100];
-} ISO3779WmiCountry;
+} ISO3779_WmiCountry;
 
-ISO3779WmiCountry ISO3779_wmi_countries[] = {
+ISO3779_WmiCountry ISO3779_wmi_countries[] = {
     {"AA", "AH", "South Africa"},
     {"AJ", "AN", "Ivory Coast"},
     {"AP", "A0", "Unassigned"},
@@ -145,7 +145,7 @@ ISO3779WmiCountry ISO3779_wmi_countries[] = {
     {"", "", ""} // Marqueur de fin
 };
 
-char * iso3779decode_country_from(final Buffer *vin_raw) {
+char * ISO3779_decode_country_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
     for (int i = 0; ISO3779_wmi_countries[i].start[0] != '\0'; i++) {
         if (buffer_alphabet_compare(vin, ISO3779_wmi_countries[i].start, ISO3779_wmi_countries[i].end)) {
@@ -154,11 +154,11 @@ char * iso3779decode_country_from(final Buffer *vin_raw) {
     }
     return strdup("Unassigned");
 }
-bool iso3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
+bool ISO3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
     return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }
 
-bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
+bool ISO3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
     void **ptrs = data;
     char * searched_wmi = (char*)ptrs[0];
     char **manufacturer = (char **)ptrs[1];
@@ -196,17 +196,17 @@ bool iso3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
     return true;
 }
 
-bool iso3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer, char *manufacturer_code) {
+bool ISO3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer, char *manufacturer_code) {
     void ** ptrs = (void**)malloc(sizeof(void*)*3);
     ptrs[0] = searched_wmi;
     ptrs[1] = manufacturer;
     ptrs[2] = manufacturer_code;
-    final bool res = file_read_lines(fileName,iso3779_wmi_manufacturers_read_tsv_line,ptrs);
+    final bool res = file_read_lines(fileName,ISO3779_wmi_manufacturers_read_tsv_line,ptrs);
     free(ptrs);
     return res;
 }
 
-char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
+char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
     char *manufacturers_file = config_get_in_data_folder_safe("data/VIN/manufacturers.tsv");
     if (manufacturers_file == NULL) {
@@ -215,11 +215,11 @@ char * iso3779decode_manufacturer_from(final Buffer *vin_raw) {
     }
     char *manufacturer = null;
     char *manufacturer_code = null;
-    if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
+    if ( ISO3779_wmi_manufacturer_is_less_500(vin_raw) ) {
         manufacturer_code = (char*)malloc(sizeof(char) * 4);
         strncpy(manufacturer_code,&vin_raw->buffer[11],3);
     }
-    if ( iso3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
+    if ( ISO3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
         return manufacturer;
     } else {
         return strdup("Unknown manufacturer");
@@ -263,7 +263,7 @@ char* ISO3779_vis_get_year_from(final Buffer *vin_raw) {
 
 char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
     char * sn = null;
-    if ( iso3779_wmi_manufacturer_is_less_500(vin_raw) ) {
+    if ( ISO3779_wmi_manufacturer_is_less_500(vin_raw) ) {
         sn = strdup(&vin_raw->buffer[14]);
     } else {
         sn = strdup(&vin_raw->buffer[11]);
@@ -272,8 +272,8 @@ char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
 }
 
 void ISO3779_dump(final Buffer *vin) {
-    iso3779decoded * vinDecoded = iso3779decode_from(vin);
-    char * region = iso3779decode_region_from(vin);
+    ISO3779_decoded * vinDecoded = ISO3779_decode_from(vin);
+    char * region = ISO3779_decode_region_from(vin);
     printf("dump {\n");
     printf("    wmi {\n");
     printf("        region:         %s\n", region);
@@ -290,10 +290,10 @@ void ISO3779_dump(final Buffer *vin) {
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
  * WMI-----   VDS------          VIS-----------
  */
-iso3779decoded* iso3779decode_from(final Buffer *vin) {
-    iso3779decoded * vinDecoded = iso3779_vin_new();
-    vinDecoded->wmi.country = iso3779decode_country_from(vin);
-    vinDecoded->wmi.manufacturer = iso3779decode_manufacturer_from(vin);
+ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
+    ISO3779_decoded * vinDecoded = ISO3779_vin_new();
+    vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
+    vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
     vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
     vinDecoded->vis.serial_number = ISO3779_vis_serial_number_from(vin);
     return vinDecoded;
