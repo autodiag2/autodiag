@@ -73,6 +73,7 @@ int serial_cli_main(int argc, char *argv[]) {
         char command[1000] = {0};
         printf("> ");
         fgets(command, sizeof(command), stdin);
+        command[strlen(command)-1] = 0;
         if ( serial->send(DEVICE(serial), command) == DEVICE_ERROR ) {
             printf("Error while sending the command '%s'\n", command);
         } else {
