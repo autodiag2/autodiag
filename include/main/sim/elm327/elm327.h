@@ -59,6 +59,10 @@ typedef struct {
      * Holds default values for PPs
      */
     Buffer *programmable_parameters_defaults;
+    /**
+     * Holds the type of load required for the prog parameter to be effective.
+     */
+    Buffer* programmable_parameters_pending_load_type;
 
     struct {
         bool auto_format;
@@ -84,7 +88,21 @@ typedef struct {
         byte user_memory;        
     	ELM327_PROTO protocol;
     	bool protocol_is_auto;    	
+        /**
+         * Holds the states of the programmable parameters
+         * already written to the nvm and loaded
+         */
     	Buffer* programmable_parameters;
+        /**
+         * Holds the states of the programmable parameters
+         * already written to the nvm but not loaded yet
+         */
+        Buffer* programmable_parameters_pending;
+        /**
+         * Holds the states of the programmable parameters.
+         * OFF or ON.
+         * A PP may be ON state but need atd to be effective.
+         */
     	Buffer* programmable_parameters_states;    	
     } nvm;
 

@@ -22,6 +22,13 @@
         "stack": "c",
         "memory": "cpp",
         "elm327.h": "c",
-        "nvm.h": "c"
+        "nvm.h": "c",
+        "__locale": "c",
+        "cstddef": "c",
+        "ios": "c",
+        "limits": "c",
+        "locale": "c",
+        "new": "c",
+        "variant": "c"
     }
 }

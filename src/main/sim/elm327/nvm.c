@@ -1,7 +1,13 @@
 #include "sim/elm327/nvm.h"
 
+typedef struct {
+    ELM327emulation * elm327;
+    int load_mask;
+} ELM327_SIM_NVM_LOAD_DATA;
+
 bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *value) {
-    ELM327emulation * elm327 = (ELM327emulation*)funcData;
+    ELM327_SIM_NVM_LOAD_DATA * data = (ELM327_SIM_NVM_LOAD_DATA*)funcData;
+    ELM327emulation * elm327 = (ELM327emulation*)data->elm327;
     if ( strcasecmp(key,"nvm.protocol") == 0 ) {
         elm327->nvm.protocol = atoi(value);
         return true;
@@ -15,7 +21,12 @@ bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *valu
         return true;
     }
     if ( strcasecmp(key,"nvm.programmable_parameters") == 0 ) {
-        elm327->nvm.programmable_parameters = buffer_from_string(value);
+        elm327->nvm.programmable_parameters_pending = buffer_from_string(value);
+        for(int i = 0; i < elm327->nvm.programmable_parameters_pending->size; i++) {
+            if ( (data->load_mask & elm327->programmable_parameters_pending_load_type->buffer[i]) != 0 ) {
+                elm327->nvm.programmable_parameters->buffer[i] = elm327->nvm.programmable_parameters_pending->buffer[i];
+            }
+        }
         return true;
     } 
     if ( strcasecmp(key,"nvm.programmable_parameters_states") == 0 ) {
@@ -44,8 +55,9 @@ bool elm327_sim_non_volatile_wipe_out() {
     unlink(elm327_sim_non_volatile_get_filename());
     return true;
 }
-bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327, ELM327_SIM_INIT_TYPE type) {
-    return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, elm327);
+bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327, int load_mask) {
+    ELM327_SIM_NVM_LOAD_DATA data = { elm327, load_mask };
+    return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, &data);
 }
 
 bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327) {
@@ -58,7 +70,7 @@ bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327) {
         fprintf(file,"nvm.user_memory=%d" FILE_EOL, elm327->nvm.user_memory);
         fprintf(file,"nvm.protocol=%d" FILE_EOL, elm327->nvm.protocol);
         fprintf(file,"nvm.protocolIsAuto=%d" FILE_EOL, elm327->nvm.protocol_is_auto);
-        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, buffer_to_string(elm327->nvm.programmable_parameters));
+        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, buffer_to_string(elm327->nvm.programmable_parameters_pending));
         fprintf(file,"nvm.programmable_parameters_states=%s" FILE_EOL, buffer_to_string(elm327->nvm.programmable_parameters_states));
         fclose(file);
         return true;

@@ -198,93 +198,144 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->nvm.user_memory = 0;
     elm327->nvm.programmable_parameters = buffer_new();
     elm327->nvm.programmable_parameters_states = buffer_new();
+    elm327->nvm.programmable_parameters_pending = buffer_new();
+    elm327->programmable_parameters_pending_load_type = buffer_new();
     elm327->programmable_parameters_defaults = buffer_new();  
     buffer_ensure_capacity(elm327->programmable_parameters_defaults, ELM327_SIM_PPS_SZ);
-    elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ;  
+    elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ; 
+    buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, ELM327_SIM_PPS_SZ);
+    elm327->programmable_parameters_pending_load_type->size = ELM327_SIM_PPS_SZ;  
     // Perform an AT MA command after powerup or reset
     elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x00] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Printing of header bytes (AT H default setting)
     elm327->programmable_parameters_defaults->buffer[0x01] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x01] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Allow long messages (AT AL default setting)
     elm327->programmable_parameters_defaults->buffer[0x02] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x02] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // NO DATA timeout time (AT ST default setting) setting = value x 4.096 msec
     elm327->programmable_parameters_defaults->buffer[0x03] = 0x32;
+    elm327->programmable_parameters_pending_load_type->buffer[0x03] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Default Adaptive Timing mode (AT AT setting)
     elm327->programmable_parameters_defaults->buffer[0x04] = 0x01;
+    elm327->programmable_parameters_pending_load_type->buffer[0x04] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // OBD Source (Tester) Address. Not used for J1939 protocols.
     elm327->programmable_parameters_defaults->buffer[0x06] = 0xF1;
+    elm327->programmable_parameters_pending_load_type->buffer[0x06] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Last Protocol to try during automatic searches
     elm327->programmable_parameters_defaults->buffer[0x07] = 0x09;
+    elm327->programmable_parameters_pending_load_type->buffer[0x07] = ELM327_SIM_INIT_TYPE_IMMEDIATE;
     // Character echo (AT E default setting)
     elm327->programmable_parameters_defaults->buffer[0x09] = 0x00;
+    elm327->programmable_parameters_pending_load_type->buffer[0x09] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Linefeed Character
     elm327->programmable_parameters_defaults->buffer[0x0A] = 0x0A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x0A] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // RS232 baud rate divisor when pin 6 is high (logic 1) baud rate (in kbps) = 4000 ÷ (PP 0C value)
     elm327->programmable_parameters_defaults->buffer[0x0C] = 0x68;
+    elm327->programmable_parameters_pending_load_type->buffer[0x0C] = ELM327_SIM_INIT_TYPE_POWER_OFF;
     // Carriage Return Character
     elm327->programmable_parameters_defaults->buffer[0x0D] = 0x0D;
+    elm327->programmable_parameters_pending_load_type->buffer[0x0D] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Power Control options
     elm327->programmable_parameters_defaults->buffer[0x0E] = 0x9A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x0E] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Activity Monitor options
     elm327->programmable_parameters_defaults->buffer[0x0F] = 0xD5;
+    elm327->programmable_parameters_pending_load_type->buffer[0x0F] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // J1850 voltage settling time setting (in msec) = (PP 10 value) x 4.096
     elm327->programmable_parameters_defaults->buffer[0x10] = 0x0D;
+    elm327->programmable_parameters_pending_load_type->buffer[0x10] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // J1850 Break Signal monitor enable (reports BUS ERROR if break signal duration limits are exceeded)
     elm327->programmable_parameters_defaults->buffer[0x11] = 0x00;
+    elm327->programmable_parameters_pending_load_type->buffer[0x11] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // J1850 Volts (pin 3) output polarity
     elm327->programmable_parameters_defaults->buffer[0x12] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x12] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Time delay added between protocols 1 & 2 during a search setting (in msec) = 150 + (PP 13 value) x 4.096
     elm327->programmable_parameters_defaults->buffer[0x13] = 0x55;
+    elm327->programmable_parameters_pending_load_type->buffer[0x13] = ELM327_SIM_INIT_TYPE_IMMEDIATE;
     // ISO/KWP final stop bit width (provides P4 interbyte time) setting (in μsec) = 98 + (PP 14 value) x 64
     elm327->programmable_parameters_defaults->buffer[0x14] = 0x50;
+    elm327->programmable_parameters_pending_load_type->buffer[0x14] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // ISO/KWP maximum inter-byte time (P1), and also used for the minimum inter-message time (P2).
     elm327->programmable_parameters_defaults->buffer[0x15] = 0x0A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x15] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Default ISO/KWP baud rate (AT IB default setting)
     elm327->programmable_parameters_defaults->buffer[0x16] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x16] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // ISO/KWP wakeup message rate (AT SW default setting)
     elm327->programmable_parameters_defaults->buffer[0x17] = 0x92;
+    elm327->programmable_parameters_pending_load_type->buffer[0x17] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // ISO/KWP delay before a fast init, if a slow init has taken place setting (in msec) = 1000 + (PP 18 value) x 20.48
     elm327->programmable_parameters_defaults->buffer[0x18] = 0x31;
+    elm327->programmable_parameters_pending_load_type->buffer[0x18] = ELM327_SIM_INIT_TYPE_IMMEDIATE;
     // ISO/KWP delay before a slow init, if a fast init has taken place setting (in msec) = 1000 + (PP 19 value) x 20.48
     elm327->programmable_parameters_defaults->buffer[0x19] = 0x31;
+    elm327->programmable_parameters_pending_load_type->buffer[0x19] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Protocol 5 fast initiation active time (Tini L ) setting (in msec) = (PP 1A value) x 2.5
     elm327->programmable_parameters_defaults->buffer[0x1A] = 0x0A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x1A] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Protocol 5 fast initiation passive time (Tini H ) setting (in msec) = (PP 1B value) x 2.5
     elm327->programmable_parameters_defaults->buffer[0x1B] = 0x0A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x1B] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // ISO/KWP outputs used for initiation (b7 to b2 are not used)
     elm327->programmable_parameters_defaults->buffer[0x1C] = 0x03;
+    elm327->programmable_parameters_pending_load_type->buffer[0x1C] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // ISO/KWP P3 time (delay before sending requests) Ave time (in msec) = (PP 1D value - 0.5) x 4.096
     elm327->programmable_parameters_defaults->buffer[0x1D] = 0x0F;
+    elm327->programmable_parameters_pending_load_type->buffer[0x1D] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // ISO/KWP K line minimum quiet time before an init can begin (W5) setting (in msec) = (PP 1E value) x 4.096
     elm327->programmable_parameters_defaults->buffer[0x1E] = 0x4A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x1E] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Default CAN Silent Monitoring setting (for AT CSM)
     elm327->programmable_parameters_defaults->buffer[0x21] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x21] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // CAN auto formatting (AT CAF default setting)
     elm327->programmable_parameters_defaults->buffer[0x24] = 0x00;
+    elm327->programmable_parameters_pending_load_type->buffer[0x24] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // CAN auto flow control (AT CFC default setting)
     elm327->programmable_parameters_defaults->buffer[0x25] = 0x00;
+    elm327->programmable_parameters_pending_load_type->buffer[0x25] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // CAN filler byte (used to pad out messages)
     elm327->programmable_parameters_defaults->buffer[0x26] = 0x00;
+    elm327->programmable_parameters_pending_load_type->buffer[0x26] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // CAN Filter settings (controls CAN sends while searching)
     elm327->programmable_parameters_defaults->buffer[0x28] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x28] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Printing of the CAN data length (DLC) when printing header bytes (AT D0/D1 default setting)
     elm327->programmable_parameters_defaults->buffer[0x29] = 0xFF;
+    elm327->programmable_parameters_pending_load_type->buffer[0x29] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // CAN Error Checking (applies to protocols 6 to C)
     elm327->programmable_parameters_defaults->buffer[0x2A] = 0x3C;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2A] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_DEFAULTS;
     // Protocol A (SAE J1939) CAN baud rate divisor baud rate (in kbps) = 500 ÷ (PP 2B value)
     elm327->programmable_parameters_defaults->buffer[0x2B] = 0x02;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2B] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Protocol B (USER1) CAN options.
     elm327->programmable_parameters_defaults->buffer[0x2C] = 0xE0;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2C] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Protocol B (USER1) baud rate divisor. See PP 2B for a description.
     elm327->programmable_parameters_defaults->buffer[0x2D] = 0x04;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2D] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Protocol C (USER2) CAN options. See PP 2C for a description.
     elm327->programmable_parameters_defaults->buffer[0x2E] = 0x80;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2E] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     // Protocol C (USER2) baud rate divisor. See PP 2B for a description.
     elm327->programmable_parameters_defaults->buffer[0x2F] = 0x0A;
+    elm327->programmable_parameters_pending_load_type->buffer[0x2F] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
     elm327->nvm.programmable_parameters->size = ELM327_SIM_PPS_SZ;
     buffer_ensure_capacity(elm327->nvm.programmable_parameters, ELM327_SIM_PPS_SZ);
     memcpy( 
             elm327->nvm.programmable_parameters->buffer,
+            elm327->programmable_parameters_defaults->buffer,
+            elm327->programmable_parameters_defaults->size
+    );
+    elm327->nvm.programmable_parameters_pending->size = ELM327_SIM_PPS_SZ;
+    buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, ELM327_SIM_PPS_SZ);
+    memcpy( 
+            elm327->nvm.programmable_parameters_pending->buffer,
             elm327->programmable_parameters_defaults->buffer,
             elm327->programmable_parameters_defaults->size
     );
@@ -370,6 +421,7 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     buffer_free(elm327->can.mask);
     buffer_free(elm327->can.filter);
     buffer_free(elm327->nvm.programmable_parameters);
+    buffer_free(elm327->nvm.programmable_parameters_pending);
     buffer_free(elm327->nvm.programmable_parameters_states);
     buffer_free(elm327->programmable_parameters_defaults);
     free(elm327);
@@ -531,8 +583,8 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         int parameter, value;
         char state[4];
         if ( sscanf(AT_DATA_START," %02x sv %02x", &parameter,&value) == 2 ) {
-            if ( parameter < elm327->nvm.programmable_parameters->size ) {                        
-                elm327->nvm.programmable_parameters->buffer[parameter] = value;
+            if ( parameter < elm327->nvm.programmable_parameters_pending->size ) {                        
+                elm327->nvm.programmable_parameters_pending->buffer[parameter] = value;
                 SET_SERIAL_RESPONSE_OK();                    
             }
         } else if ( sscanf(AT_DATA_START," %02x %3s", &parameter, state) == 2 ) {
@@ -541,7 +593,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 ELM327_SIM_PPS_STATE(elm327,stateBool)
                 SET_SERIAL_RESPONSE_OK();                    
             } else {
-                if ( parameter < elm327->nvm.programmable_parameters->size ) {                        
+                if ( parameter < elm327->nvm.programmable_parameters_states->size ) {                        
                     elm327->nvm.programmable_parameters_states->buffer[parameter] = stateBool;
                     SET_SERIAL_RESPONSE_OK();                    
                 }
