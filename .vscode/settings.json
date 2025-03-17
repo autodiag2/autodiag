@@ -29,6 +29,7 @@
         "limits": "c",
         "locale": "c",
         "new": "c",
-        "variant": "c"
+        "variant": "c",
+        "elm327_cli.h": "c"
     }
 }

@@ -1,4 +1,5 @@
 #include "ui/main.h"
+#include "com/serial/serial_cli.h"
 
 void display_help() {
     printf(
@@ -15,10 +16,13 @@ void display_help() {
            "  data path    : display app data\n"
            "\n"
            " Simulation order:\n"
-           "  sim elm327 run [elm327sim args] : run sim\n"
+           "  sim elm327 [elm327sim args] : run sim\n"
            "\n"
            " Gui order:\n"
-           "  gui run : run the gui\n"
+           "  gui : run the gui\n"
+           "\n"
+           " Cli order:\n"
+           "  cli [cli args] : run serial client\n"
            "\n"
     );
 }
@@ -33,7 +37,6 @@ gboolean autodiag_present_window(gpointer mainWindow) {
     gtk_window_set_keep_above(GTK_WINDOW(mainGui->window), false);
     return false;
 }
-
 int main (int argc, char *argv[]) {
 
     log_set_from_env();
@@ -60,19 +63,13 @@ int main (int argc, char *argv[]) {
         } else if argIs("sim") {
             argNext()
             if argIs("elm327") {
-                argNext()
-                if argIs("run") {
-                    return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
-                }
+                return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
             }
            ABORT_WITH_HELP()
         } else if argIs("gui") {
-            argNext()
-            if argIs("run") {
-                log_msg(LOG_INFO, "this is the default behaviour");
-            } else {
-                ABORT_WITH_HELP()
-            }
+            log_msg(LOG_INFO, "this is the default behaviour");
+        } else if argIs("cli") {
+            return serial_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
         }
     }
     
