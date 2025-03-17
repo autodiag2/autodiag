@@ -194,7 +194,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
 /**
  * Init an emulation loading settings from nvm
  */
-void elm327_sim_init_from_nvm(ELM327emulation* elm327) {
+void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYPE type) {
     elm327->nvm.user_memory = 0;
     elm327->nvm.programmable_parameters = buffer_new();
     elm327->nvm.programmable_parameters_states = buffer_new();
@@ -304,7 +304,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327) {
     elm327->isMemoryEnabled = true;
     elm327->nvm.protocol = ELM327_SIM_DEFAULT_PROTO;
     elm327->nvm.protocol_is_auto = true;
-    elm327_sim_non_volatile_memory_load(elm327);
+    elm327_sim_non_volatile_memory_load(elm327, type);
     asprintf(&elm327->eol,"%c%c", ELM327_SIM_PP_GET(elm327,0x0D), ELM327_SIM_PP_GET(elm327,0x0A));
     elm327->protocolRunning = elm327->nvm.protocol;
     elm327->printing_of_spaces = true;
@@ -339,7 +339,7 @@ void elm327_sim_init(ELM327emulation* elm327) {
     #else
     #   warning OS unsupported
     #endif
-    elm327_sim_init_from_nvm(elm327);
+    elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
 }
 
 ELM327emulation* elm327_sim_new() {
@@ -348,7 +348,7 @@ ELM327emulation* elm327_sim_new() {
     ECUEmulation *ecu = ecu_emulation_new(0xE8);
     ECUEmulation_list_append(elm327->ecus,ecu);
     elm327->loop_thread = null;
-    elm327_sim_init_from_nvm(elm327);
+    elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
     return elm327;
 }
 void elm327_sim_destroy(ELM327emulation * elm327) {
@@ -431,7 +431,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("d") {
         log_msg(LOG_INFO, "Reset to defaults");
-        elm327_sim_init_from_nvm(elm327);
+        elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_DEFAULTS);
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("e") {
         bool echo = atoi(AT_DATA_START);
@@ -487,7 +487,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("wm") {
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("z") {
-        elm327_sim_init_from_nvm(elm327);
+        elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
         serial_response = strdup("ELM327 v2.1");
     } else if AT_PARSE("rv") {
         asprintf(&serial_response,"%.2f",elm327->voltage);
@@ -677,7 +677,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         elm327->dev_identifier = strdup(AT_DATA_START + strlen(" "));
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("ws") {
-        elm327_sim_init_from_nvm(elm327);
+        elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_RESET);
         SET_SERIAL_RESPONSE_OK();
     } else if AT_PARSE("lp") {
         elm327_sim_go_low_power();

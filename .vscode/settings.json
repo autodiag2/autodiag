@@ -20,6 +20,8 @@
         "bitset": "c",
         "queue": "c",
         "stack": "c",
-        "memory": "cpp"
+        "memory": "cpp",
+        "elm327.h": "c",
+        "nvm.h": "c"
     }
 }

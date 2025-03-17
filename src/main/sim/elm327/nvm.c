@@ -44,7 +44,7 @@ bool elm327_sim_non_volatile_wipe_out() {
     unlink(elm327_sim_non_volatile_get_filename());
     return true;
 }
-bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327) {
+bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327, ELM327_SIM_INIT_TYPE type) {
     return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, elm327);
 }
 
