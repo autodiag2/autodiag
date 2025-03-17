@@ -198,13 +198,9 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->nvm.user_memory = 0;
     elm327->nvm.programmable_parameters = buffer_new();
     elm327->nvm.programmable_parameters_states = buffer_new();
-    elm327->programmable_parameters_defaults = buffer_new();    
-    buffer_ensure_capacity(elm327->nvm.programmable_parameters, ELM327_SIM_PPS_SZ);
-    elm327->nvm.programmable_parameters->size = ELM327_SIM_PPS_SZ;
-    buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, ELM327_SIM_PPS_SZ);
-    elm327->nvm.programmable_parameters_states->size = ELM327_SIM_PPS_SZ;    
+    elm327->programmable_parameters_defaults = buffer_new();  
     buffer_ensure_capacity(elm327->programmable_parameters_defaults, ELM327_SIM_PPS_SZ);
-    elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ;
+    elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ;  
     // Perform an AT MA command after powerup or reset
     elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;
     // Printing of header bytes (AT H default setting)
@@ -285,11 +281,15 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->programmable_parameters_defaults->buffer[0x2E] = 0x80;
     // Protocol C (USER2) baud rate divisor. See PP 2B for a description.
     elm327->programmable_parameters_defaults->buffer[0x2F] = 0x0A;
+    elm327->nvm.programmable_parameters->size = ELM327_SIM_PPS_SZ;
+    buffer_ensure_capacity(elm327->nvm.programmable_parameters, ELM327_SIM_PPS_SZ);
     memcpy( 
             elm327->nvm.programmable_parameters->buffer,
             elm327->programmable_parameters_defaults->buffer,
             elm327->programmable_parameters_defaults->size
     );
+    buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, ELM327_SIM_PPS_SZ);
+    elm327->nvm.programmable_parameters_states->size = ELM327_SIM_PPS_SZ;
     ELM327_SIM_PPS_STATE(elm327,false)
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
