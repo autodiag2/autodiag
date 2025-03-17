@@ -196,15 +196,26 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
  */
 void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYPE type) {
     elm327->nvm.user_memory = 0;
-    elm327->nvm.programmable_parameters = buffer_new();
-    elm327->nvm.programmable_parameters_states = buffer_new();
-    elm327->nvm.programmable_parameters_pending = buffer_new();
-    elm327->programmable_parameters_pending_load_type = buffer_new();
-    elm327->programmable_parameters_defaults = buffer_new();  
-    buffer_ensure_capacity(elm327->programmable_parameters_defaults, ELM327_SIM_PPS_SZ);
-    elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ; 
-    buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, ELM327_SIM_PPS_SZ);
-    elm327->programmable_parameters_pending_load_type->size = ELM327_SIM_PPS_SZ;  
+
+    if ( type == ELM327_SIM_INIT_TYPE_POWER_OFF ) {
+        elm327->nvm.programmable_parameters = buffer_new();
+        elm327->nvm.programmable_parameters_states = buffer_new();
+        elm327->nvm.programmable_parameters_pending = buffer_new();
+        elm327->programmable_parameters_pending_load_type = buffer_new();
+        elm327->programmable_parameters_defaults = buffer_new();  
+        buffer_ensure_capacity(elm327->programmable_parameters_defaults, ELM327_SIM_PPS_SZ);
+        elm327->programmable_parameters_defaults->size = ELM327_SIM_PPS_SZ; 
+        buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, ELM327_SIM_PPS_SZ);
+        elm327->programmable_parameters_pending_load_type->size = ELM327_SIM_PPS_SZ;
+        buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, ELM327_SIM_PPS_SZ);
+        elm327->nvm.programmable_parameters_states->size = ELM327_SIM_PPS_SZ;
+        ELM327_SIM_PPS_STATE(elm327,false)  
+        elm327->nvm.programmable_parameters->size = ELM327_SIM_PPS_SZ;
+        buffer_ensure_capacity(elm327->nvm.programmable_parameters, ELM327_SIM_PPS_SZ);
+        elm327->nvm.programmable_parameters_pending->size = ELM327_SIM_PPS_SZ;
+        buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, ELM327_SIM_PPS_SZ);
+    }
+
     // Perform an AT MA command after powerup or reset
     elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;
     elm327->programmable_parameters_pending_load_type->buffer[0x00] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
@@ -325,23 +336,19 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     // Protocol C (USER2) baud rate divisor. See PP 2B for a description.
     elm327->programmable_parameters_defaults->buffer[0x2F] = 0x0A;
     elm327->programmable_parameters_pending_load_type->buffer[0x2F] = ELM327_SIM_INIT_TYPE_POWER_OFF | ELM327_SIM_INIT_TYPE_RESET;
-    elm327->nvm.programmable_parameters->size = ELM327_SIM_PPS_SZ;
-    buffer_ensure_capacity(elm327->nvm.programmable_parameters, ELM327_SIM_PPS_SZ);
-    memcpy( 
-            elm327->nvm.programmable_parameters->buffer,
-            elm327->programmable_parameters_defaults->buffer,
-            elm327->programmable_parameters_defaults->size
-    );
-    elm327->nvm.programmable_parameters_pending->size = ELM327_SIM_PPS_SZ;
-    buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, ELM327_SIM_PPS_SZ);
-    memcpy( 
-            elm327->nvm.programmable_parameters_pending->buffer,
-            elm327->programmable_parameters_defaults->buffer,
-            elm327->programmable_parameters_defaults->size
-    );
-    buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, ELM327_SIM_PPS_SZ);
-    elm327->nvm.programmable_parameters_states->size = ELM327_SIM_PPS_SZ;
-    ELM327_SIM_PPS_STATE(elm327,false)
+    
+    if ( type == ELM327_SIM_INIT_TYPE_POWER_OFF ) {
+        memcpy( 
+                elm327->nvm.programmable_parameters->buffer,
+                elm327->programmable_parameters_defaults->buffer,
+                elm327->programmable_parameters_defaults->size
+        );
+        memcpy( 
+                elm327->nvm.programmable_parameters_pending->buffer,
+                elm327->programmable_parameters_defaults->buffer,
+                elm327->programmable_parameters_defaults->size
+        );
+    }
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
     elm327->activity_monitor_count = 0x00;
