@@ -585,6 +585,9 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         if ( sscanf(AT_DATA_START," %02x sv %02x", &parameter,&value) == 2 ) {
             if ( parameter < elm327->nvm.programmable_parameters_pending->size ) {                        
                 elm327->nvm.programmable_parameters_pending->buffer[parameter] = value;
+                if ( elm327->programmable_parameters_pending_load_type->buffer[parameter] == ELM327_SIM_INIT_TYPE_IMMEDIATE ) {
+                    elm327->nvm.programmable_parameters->buffer[parameter] = value;
+                }
                 SET_SERIAL_RESPONSE_OK();                    
             }
         } else if ( sscanf(AT_DATA_START," %02x %3s", &parameter, state) == 2 ) {
