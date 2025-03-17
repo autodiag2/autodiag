@@ -32,6 +32,7 @@ int serial_cli_main(int argc, char *argv[]) {
             } break;
             case 'l': {
                 config.log.level = log_level_from_str(optarg);
+                log_set_level(config.log.level);
             } break;
             case '?': {
                 switch(optopt) {
@@ -64,7 +65,7 @@ int serial_cli_main(int argc, char *argv[]) {
     config_onchange();
 
     Serial * serial = serial_list_get_selected();
-    if ( serial == null ) {
+    if ( serial == null || serial->status != SERIAL_STATE_READY ) {
         printf("Serial port seem not open\n");
         return 1;
     }
