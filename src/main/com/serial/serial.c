@@ -75,27 +75,8 @@ int serial_recv_internal(final SERIAL port) {
             } else {        
                 DWORD bytes_readed = 0;
 
-                DWORD errors;
-                COMSTAT stat = {0};
-
                 int readLen = 0;
-                int sleep_length_ms = 20;
-                if ( isComport(port->connexion_handle) ) {
-                    for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
-                        ClearCommError(port->connexion_handle, &errors, &stat);
-                        readLen = stat.cbInQue;
-                        if ( readLen == 0 ) {
-                            usleep(1000 * sleep_length_ms);
-                        }
-                    }
-                } else {
-                    for(int i = 0; i < port->timeout / sleep_length_ms && readLen == 0; i++) {
-                        PeekNamedPipe(port->connexion_handle, NULL, 0, NULL, &readLen, NULL);
-                        if ( readLen == 0 ) {
-                            usleep(1000 * sleep_length_ms);
-                        }
-                    }
-                }
+                file_pool(&port->connexion_handle, &readLen, port->timeout);
                 
                 while(0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
@@ -112,13 +93,7 @@ int serial_recv_internal(final SERIAL port) {
                     } else {
                         log_msg(LOG_ERROR, "ReadFile error 2");
                     }
-                    usleep(1000 * port->timeout_seq);
-                    if ( isComport(port->connexion_handle) ) {
-                        ClearCommError(port->connexion_handle, &errors, &stat);
-                        readLen = stat.cbInQue;
-                    } else {
-                        PeekNamedPipe(port->connexion_handle, NULL, 0, NULL, &readLen, NULL);
-                    }
+                    file_pool(&port->connexion_handle, &readLen, port->timeout_seq);
                 }
             }
         #elif defined OS_POSIX
@@ -127,12 +102,8 @@ int serial_recv_internal(final SERIAL port) {
                return DEVICE_ERROR;
             } else {
                 int res = 1;
-                int block_sz = 64;               
-                final POLLFD fileDescriptor = {
-                    .fd = port->fdtty,
-                    .events = POLLIN
-                };
-                res = poll(&fileDescriptor,1,port->timeout);
+                int block_sz = 64;
+                res = file_pool(&port->fdtty, null, port->timeout);
                 if ( 0 < res ) {
                     while( 0 < res && port->fdtty != -1 ) {
                         buffer_ensure_capacity(port->recv_buffer, block_sz);
@@ -145,7 +116,7 @@ int serial_recv_internal(final SERIAL port) {
                             perror("read");
                             break;
                         }
-                        res = poll(&fileDescriptor,1,port->timeout_seq);
+                        res = file_pool(&port->fdtty, null, port->timeout_seq);
                     }
                     if ( log_has_level(LOG_DEBUG) ) {
                         module_debug(MODULE_SERIAL "Serial data received");

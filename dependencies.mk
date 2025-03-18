@@ -591,6 +591,8 @@ obj/main/lib/lib.o: src/main/lib/lib.c include/main/lib/lib.h \
 obj/main/lib/log.o: src/main/lib/log.c include/main/lib/log.h \
   include/main/lib/string.h include/main/lib/lang.h \
   include/main/lib/compile_target.h
+obj/main/lib/poll.o: src/main/lib/poll.c include/main/lib/poll.h \
+  include/main/lib/compile_target.h include/main/lib/lang.h
 obj/main/lib/string.o: src/main/lib/string.c include/main/lib/string.h \
   include/main/lib/lang.h include/main/lib/compile_target.h
 obj/main/lib/stringlist.o: src/main/lib/stringlist.c \
