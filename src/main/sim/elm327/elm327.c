@@ -510,7 +510,7 @@ bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_res
     return true;
 }
 
-bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, bool preventWrite) {
+bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
     int last_index;
@@ -867,7 +867,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
             }
             char *maskCmd;
             asprintf(&maskCmd,"atcm %s", mask);
-            elm327_sim_loop_process_command(elm327, maskCmd, true);
+            elm327_sim_command_and_protocol_interpreter(elm327, maskCmd, true);
             free(maskCmd);
 
             char filter[9];
@@ -877,7 +877,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
             }
             char *filterCmd;
             asprintf(&filterCmd,"atcf %s", filter);            
-            elm327_sim_loop_process_command(elm327, filterCmd, true);
+            elm327_sim_command_and_protocol_interpreter(elm327, filterCmd, true);
             free(filterCmd);
 
         } else {
@@ -1034,7 +1034,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         
         elm327_sim_receive(elm327, sz, buffer, SERIAL_DEFAULT_TIMEOUT);
 
-        if ( ! elm327_sim_loop_process_command(elm327, buffer, false) ) {
+        if ( ! elm327_sim_command_and_protocol_interpreter(elm327, buffer, false) ) {
             if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 exit(1);
             }
