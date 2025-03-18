@@ -471,7 +471,7 @@ bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_res
     return true;
 }
 
-bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
+bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
     int last_index;
@@ -480,10 +480,12 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     #define AT_PARSE(atpart) ((last_index = serial_at_index_end(buffer,(atpart))) > -1)
     #define AT_DATA_START buffer+last_index
     #define ELM327_SIM_REPLY(isGeneric, ...) \
-        char *serial_response; \
-        asprintf(&serial_response, __VA_ARGS__); \
-        if ( ! elm327_sim_reply(elm327, buffer, serial_response, isGeneric) ) { \
-            exit(1); \
+        if ( ! preventWrite ) { \
+            char *serial_response; \
+            asprintf(&serial_response, __VA_ARGS__); \
+            if ( ! elm327_sim_reply(elm327, buffer, serial_response, isGeneric) ) { \
+                exit(1); \
+            } \
         } \
         commandReconized = true;
     #define ELM327_SIM_REPLY_GENERIC(...) \
@@ -816,7 +818,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             }
             char *maskCmd;
             asprintf(&maskCmd,"atcm %s", mask);
-            elm327_sim_loop_process_command(elm327, maskCmd);
+            elm327_sim_loop_process_command(elm327, maskCmd, true);
             free(maskCmd);
 
             char filter[9];
@@ -826,7 +828,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             }
             char *filterCmd;
             asprintf(&filterCmd,"atcf %s", filter);            
-            elm327_sim_loop_process_command(elm327, filterCmd);
+            elm327_sim_loop_process_command(elm327, filterCmd, true);
             free(filterCmd);
 
         } else {
@@ -1014,7 +1016,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         #   warning OS unsupported
         #endif
         
-        if ( ! elm327_sim_loop_process_command(elm327, buffer) ) {
+        if ( ! elm327_sim_loop_process_command(elm327, buffer, false) ) {
             if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 exit(1);
             }
