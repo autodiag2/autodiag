@@ -1,7 +1,7 @@
 #include "libTest.h"
 #include "standards/iso3779.h"
 
-bool testISO3779_() {
+bool testISO3779() {
     {
         final Buffer * vin = buffer_from_ascii("VF1BB05CF26010203");
         {
