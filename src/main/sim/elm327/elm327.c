@@ -390,19 +390,6 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->custom_header = buffer_new();
     elm327_sim_start_activity_monitor(elm327);
 }
-/**
- * One time emulation init
- */
-void elm327_sim_init(ELM327emulation* elm327) {
-    #ifdef OS_WINDOWS
-        elm327->pipe_handle = INVALID_HANDLE_VALUE;
-    #elif defined OS_POSIX
-        elm327->fd = -1;
-    #else
-    #   warning OS unsupported
-    #endif
-    elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
-}
 
 ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
@@ -914,7 +901,14 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     #   warning OS unsupported
     #endif
 
-    elm327_sim_init(elm327);
+    #ifdef OS_WINDOWS
+        elm327->pipe_handle = INVALID_HANDLE_VALUE;
+    #elif defined OS_POSIX
+        elm327->fd = -1;
+    #else
+    #   warning OS unsupported
+    #endif
+    elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
 
     #ifdef OS_WINDOWS
         elm327->port_name = strdup(pipeName);
