@@ -629,6 +629,13 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         if ( 0 < baud_rate_divisor ) {
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
             SET_SERIAL_RESPONSE_OK();
+            log_msg(LOG_DEBUG, "TODO implement the baud rate change");
+            // wait 75ms pp 0x0C
+            // send ati
+            // wait 75ms pp 0x0C carriage return
+            // if carriage return received send OK
+            // else revert to previous baud rate
+            // send prompt
         }
     } else if AT_PARSE("bi") {
         SET_SERIAL_RESPONSE_OK();
