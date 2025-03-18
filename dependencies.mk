@@ -477,7 +477,29 @@ obj/main/com/serial/serial_cli.o: src/main/com/serial/serial_cli.c \
   include/main/lib/math.h include/main/lib/poll.h \
   include/main/lib/dirent.h include/main/lib/thread.h \
   include/main/lib/stringlist.h include/main/lib/initools.h \
-  include/main/lib/cli_tools.h
+  include/main/lib/cli_tools.h include/main/ui/config.h \
+  include/main/com/obd/obd.h include/main/com/obd/vehicle.h \
+  include/main/com/obd/device.h include/main/com/obd/iso15031/iso15031.h \
+  include/main/com/obd/iso15031/../saej1979/saej1979.h \
+  include/main/com/obd/iso15031/../saej1979/data.h \
+  include/main/com/obd/iso15031/../saej1979/stored_dtcs.h \
+  include/main/database.h \
+  include/main/com/obd/iso15031/../saej1979/../iso15031/iso15031_6.h \
+  include/main/com/obd/iso15031/../saej1979/vehicle_info.h \
+  include/main/com/obd/iso15031/iso15031_6.h include/main/com/can/can.h \
+  include/main/com/can/iso15765.h include/main/com/serial/elm/elm.h \
+  include/main/com/serial/serial.h include/main/com/serial/serial_list.h \
+  include/main/com/serial/elm/elm_iso15765.h \
+  include/main/com/serial/elm/elm329/elm329.h \
+  include/main/com/serial/elm/elm329/../elm.h \
+  include/main/com/serial/elm/elm329/iso15765.h \
+  include/main/com/serial/elm/elm327/elm327.h \
+  include/main/com/serial/elm/elm327/../elm.h \
+  include/main/com/serial/elm/elm327/iso15765.h \
+  include/main/com/serial/elm/elm323/elm323.h \
+  include/main/com/serial/elm/elm323/../elm.h \
+  include/main/com/serial/elm/elm322.h \
+  include/main/com/serial/elm/elm320.h
 obj/main/com/serial/serial_list.o: src/main/com/serial/serial_list.c \
   include/main/com/serial/serial_list.h include/main/lib/dirent.h \
   include/main/lib/compile_target.h include/main/lib/log.h \
@@ -614,7 +636,7 @@ obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/sim/elm327/elm327_cli.h include/main/sim/elm327/nvm.h \
   include/main/sim/elm327/sim_generators.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h include/main/ui/counter.h \
-  include/main/ui/documentation.h
+  include/main/ui/documentation.h include/main/com/serial/serial_cli.h
 obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/sim/elm327/elm327_cli.h include/main/lib/lib.h \
   include/main/lib/compile_target.h include/main/lib/lang.h \
@@ -649,7 +671,8 @@ obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/com/serial/elm/elm327/../elm.h \
   include/main/com/serial/elm/elm327/iso15765.h \
   include/main/sim/elm327/nvm.h include/main/sim/elm327/sim_generators.h \
-  include/main/ui/gtk.h
+  include/main/ui/gtk.h \
+  
 obj/main/sim/elm327/elm327.o: src/main/sim/elm327/elm327.c \
   include/main/sim/elm327/elm327.h include/main/lib/lib.h \
   include/main/lib/compile_target.h include/main/lib/lang.h \
@@ -719,7 +742,8 @@ obj/main/sim/elm327/elm327_cli.o: src/main/sim/elm327/elm327_cli.c \
   include/main/com/serial/elm/elm327/../elm.h \
   include/main/com/serial/elm/elm327/iso15765.h \
   include/main/sim/elm327/nvm.h include/main/sim/elm327/sim_generators.h \
-  include/main/ui/gtk.h
+  include/main/ui/gtk.h \
+  
 obj/main/sim/elm327/nvm.o: src/main/sim/elm327/nvm.c \
   include/main/sim/elm327/nvm.h include/main/lib/lib.h \
   include/main/lib/compile_target.h include/main/lib/lang.h \
@@ -754,7 +778,8 @@ obj/main/sim/elm327/nvm.o: src/main/sim/elm327/nvm.c \
   include/main/com/serial/elm/elm327/iso15765.h \
   include/main/sim/elm327/elm327.h include/main/sim/elm327/elm327_cli.h \
   include/main/sim/elm327/sim.h include/main/sim/elm327/sim_generators.h \
-  include/main/ui/gtk.h
+  include/main/ui/gtk.h \
+  
 obj/main/sim/elm327/sim.o: src/main/sim/elm327/sim.c \
   include/main/sim/elm327/sim.h include/main/sim/elm327/elm327.h \
   include/main/lib/lib.h include/main/lib/compile_target.h \
