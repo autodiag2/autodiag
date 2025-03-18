@@ -192,7 +192,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
 }
 void elm327_sim_set_baud_rate_divisor_timeout(final ELM327emulation * elm327, final int timeout) {
     elm327->baud_rate_timeout_msec = timeout * 5;
-    if ( elm327->baud_rate_timeout_msec == 0 ) {
+    if ( timeout == 0 ) {
         elm327->baud_rate_timeout_msec = 256 * 5;
     }
 }
@@ -436,6 +436,42 @@ void elm327_sim_loop_start(ELM327emulation * elm327) {
     }
 }
 
+void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer) {
+    #ifdef OS_WINDOWS
+        if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
+            DWORD err = GetLastError();
+            if ( err == ERROR_PIPE_CONNECTED ) {
+                log_msg(LOG_DEBUG, "pipe already connected");
+            } else {
+                log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                break;
+            }
+        }
+        int bytes_readed = 0;
+        if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
+            buffer[bytes_readed] = 0;
+        } else {
+            log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
+            return;
+        }
+    #elif defined OS_POSIX
+        int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
+        if ( res == -1 ) {
+            log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+            return;
+        }
+        int rv = read(elm327->fd,buffer,sz-1);
+        if ( rv == -1 ) {
+            log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+            return;
+        }
+
+        buffer[rv] = 0;
+    #else
+    #   warning OS unsupported
+    #endif
+}
+
 bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_response, final bool isGeneric) {
     char * response;
     if ( isGeneric ) {
@@ -492,6 +528,8 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
         ELM327_SIM_REPLY(true, __VA_ARGS__)
     #define ELM327_SIM_REPLY_OK() \
         ELM327_SIM_REPLY_GENERIC(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+    #define ELM327_SIM_REPLY_ATI() \
+        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
 
     if AT_PARSE("al") {
         ELM327_SIM_REPLY_OK();
@@ -558,7 +596,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
             ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("i") {
-        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
+        ELM327_SIM_REPLY_ATI();
     } else if AT_PARSE("je") {
         ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("l") {
@@ -585,7 +623,7 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
         ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("z") {
         elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
-        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
+        ELM327_SIM_REPLY_ATI();
     } else if AT_PARSE("rv") {
         ELM327_SIM_REPLY_GENERIC("%.2f",elm327->voltage);
     } else if AT_PARSE("rtr") {
@@ -662,15 +700,16 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
         int baud_rate_divisor = 0;
         sscanf(AT_DATA_START," %02hhx", (unsigned char*)&baud_rate_divisor);
         if ( 0 < baud_rate_divisor ) {
+            final int previous_baud_rate = elm327->baud_rate;
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
             ELM327_SIM_REPLY_OK();
             log_msg(LOG_DEBUG, "TODO implement the baud rate change");
-            // wait 75ms pp 0x0C
-            // send ati
+            usleep(elm327->baud_rate_timeout_msec * 1000);
+            ELM327_SIM_REPLY_ATI();
             // wait 75ms pp 0x0C carriage return
             // if carriage return received send OK
-            // else revert to previous baud rate
-            // send prompt
+            // else elm327->baud_rate = previous_baud_rate;
+            ELM327_SIM_REPLY_GENERIC("");
         }
     } else if AT_PARSE("bi") {
         ELM327_SIM_REPLY_OK();
@@ -982,46 +1021,14 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     while(true) {
         int sz =  100;
         char buffer[sz];
-        #ifdef OS_WINDOWS
-            if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
-                DWORD err = GetLastError();
-                if ( err == ERROR_PIPE_CONNECTED ) {
-                    log_msg(LOG_DEBUG, "pipe already connected");
-                } else {
-                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                    break;
-                }
-            }
-            int bytes_readed = 0;
-            if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
-                buffer[bytes_readed] = 0;
-            } else {
-                log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
-                continue;
-            }
-        #elif defined OS_POSIX
-            int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
-            if ( res == -1 ) {
-                log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-                continue;
-            }
-            int rv = read(elm327->fd,buffer,sz-1);
-            if ( rv == -1 ) {
-                log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-                continue;
-            }
-
-            buffer[rv] = 0;
-        #else
-        #   warning OS unsupported
-        #endif
         
+        elm327_sim_receive(elm327, sz, buffer);
+
         if ( ! elm327_sim_loop_process_command(elm327, buffer, false) ) {
             if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 exit(1);
             }
         }
-
         
         elm327_sim_non_volatile_memory_store(elm327);                
     }

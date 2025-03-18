@@ -111,6 +111,21 @@ void testSIM_1() {
 }
 
 bool testSIM() {
+    {
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(SIM_START_WAIT_MS);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        obd_clear_data(iface);
+        iface->device->send(DEVICE(iface->device),"atbrd 12");
+        obd_clear_data(iface);
+        iface->device->recv(DEVICE(iface->device)); // OK
+        obd_clear_data(iface);
+        iface->device->recv(DEVICE(iface->device)); // ATI
+        iface->device->send(DEVICE(iface->device),"\r");
+        iface->device->recv(DEVICE(iface->device)); // OK
+        exit(1);
+    }
     testSIM_1();
     {
         ELM327emulation* elm327 = elm327_sim_new();       
