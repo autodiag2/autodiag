@@ -18,6 +18,7 @@ int main(int argc, char **argv) {
     log_set_from_env();
     initLibTest();
     
+    
     runTestMaybe(testBuffer,null);
     runTestMaybe(testGlobals,null);
     runTestMaybe(testStringList,null);

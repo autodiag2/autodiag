@@ -436,7 +436,7 @@ void elm327_sim_loop_start(ELM327emulation * elm327) {
     }
 }
 
-void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer) {
+void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer, int timeout) {
     #ifdef OS_WINDOWS
         if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
             DWORD err = GetLastError();
@@ -531,8 +531,9 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
         ELM327_SIM_REPLY(true, __VA_ARGS__)
     #define ELM327_SIM_REPLY_OK() \
         ELM327_SIM_REPLY_GENERIC(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+    #define ELM327_SIM_ATI "ELM327 v2.1"
     #define ELM327_SIM_REPLY_ATI() \
-        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
+        ELM327_SIM_REPLY_GENERIC(ELM327_SIM_ATI);
 
     if AT_PARSE("al") {
         ELM327_SIM_REPLY_OK();
@@ -705,13 +706,19 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer, boo
         if ( 0 < baud_rate_divisor ) {
             final int previous_baud_rate = elm327->baud_rate;
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
-            ELM327_SIM_REPLY_OK();
-            log_msg(LOG_DEBUG, "TODO implement the baud rate change");
+            ELM327_SIM_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
             usleep(elm327->baud_rate_timeout_msec * 1000);
-            ELM327_SIM_REPLY_ATI();
-            // wait 75ms pp 0x0C carriage return
-            // if carriage return received send OK
-            // else elm327->baud_rate = previous_baud_rate;
+            ELM327_SIM_REPLY(false, ELM327_SIM_ATI);
+            int sz = 50;
+            char recv[sz];
+            elm327_sim_receive(elm327, sz-1, recv, elm327->baud_rate_timeout_msec);
+            recv[sz-1] = 0;
+            recv[strlen(recv)] = 0;
+            if ( recv[0] == '\r' ) {
+                ELM327_SIM_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            } else {
+                elm327->baud_rate = previous_baud_rate;
+            }
             ELM327_SIM_REPLY_GENERIC("");
         }
     } else if AT_PARSE("bi") {
@@ -1025,7 +1032,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         int sz =  100;
         char buffer[sz];
         
-        elm327_sim_receive(elm327, sz, buffer);
+        elm327_sim_receive(elm327, sz, buffer, SERIAL_DEFAULT_TIMEOUT);
 
         if ( ! elm327_sim_loop_process_command(elm327, buffer, false) ) {
             if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {

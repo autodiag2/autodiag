@@ -120,11 +120,14 @@ bool testSIM() {
         iface->device->send(DEVICE(iface->device),"atbrd 12");
         obd_clear_data(iface);
         iface->device->recv(DEVICE(iface->device)); // OK
+        final Serial* serial = (Serial*)iface->device;
+        assert(strncasecmp("OK", serial->recv_buffer, 2));
         obd_clear_data(iface);
         iface->device->recv(DEVICE(iface->device)); // ATI
+        obd_clear_data(iface);
         iface->device->send(DEVICE(iface->device),"\r");
-        iface->device->recv(DEVICE(iface->device)); // OK
-        exit(1);
+        obd_clear_data(iface);
+        iface->device->recv(DEVICE(iface->device)); // OK + Prompt
     }
     testSIM_1();
     {
