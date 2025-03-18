@@ -477,17 +477,17 @@ bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     int last_index;
     bool commandReconized = false;
     
-    #define AT_PARSE(atpart) ((last_index = serial_at_index_end(buffer,atpart)) > -1)
+    #define AT_PARSE(atpart) ((last_index = serial_at_index_end(buffer,(atpart))) > -1)
     #define AT_DATA_START buffer+last_index
-    #define ELM327_SIM_REPLY(isGeneric, fmt, ...) \
+    #define ELM327_SIM_REPLY(isGeneric, ...) \
         char *serial_response; \
-        asprintf(&serial_response, fmt, __VA_ARGS__); \
+        asprintf(&serial_response, __VA_ARGS__); \
         if ( ! elm327_sim_reply(elm327, buffer, serial_response, isGeneric) ) { \
             exit(1); \
         } \
         commandReconized = true;
-    #define ELM327_SIM_REPLY_GENERIC(fmt, ...) \
-        ELM327_SIM_REPLY(true, fmt, __VA_ARGS__)
+    #define ELM327_SIM_REPLY_GENERIC(...) \
+        ELM327_SIM_REPLY(true, __VA_ARGS__)
     #define ELM327_SIM_REPLY_OK() \
         ELM327_SIM_REPLY_GENERIC(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
 
