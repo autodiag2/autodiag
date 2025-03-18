@@ -26,6 +26,9 @@ typedef struct {
     char *port_name;
     double voltage;
     double voltageFactory;
+    /**
+     * in bauds/bps
+     */
     int baud_rate;
     /**
      * Unused by J1939 (0xA to 0xC)

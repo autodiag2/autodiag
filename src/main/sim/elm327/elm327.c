@@ -369,7 +369,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->protocol_is_auto_running = elm327->nvm.protocol_is_auto;
     elm327->voltageFactory = (rand() / (1.0 * RAND_MAX)) * 20;
     elm327->voltage = elm327->voltageFactory;
-    elm327->baud_rate = 38400;   
+    elm327->baud_rate = (4000.0 / ELM327_SIM_PP_GET(elm327,0x0C)) * 1000;   
     elm327->responses = true; 
     elm327->printing_of_headers = ELM327_SIM_PP_GET(elm327,0x01) == 0x00;
     elm327->echo = ELM327_SIM_PP_GET(elm327,0x09) == 0x00;
@@ -618,11 +618,11 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         asprintf(&serial_response,"%02x%s%s", sz, hasSpaces ? " " : "", elm_ascii_from_bin(hasSpaces,elm327->obd_buffer));
         elm327->obd_buffer->size = sz;
     } else if AT_PARSE("brd") {
-        int value = 0;
-        sscanf(AT_DATA_START," %02hhx", (unsigned char*)&value);
+        int baud_rate_divisor = 0;
+        sscanf(AT_DATA_START," %02hhx", (unsigned char*)&baud_rate_divisor);
         if ( 0 < value ) {
-            elm327->baud_rate = 4000000 / ( 1.0 * value);
-            SET_SERIAL_RESPONSE_OK();                    
+            elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
+            SET_SERIAL_RESPONSE_OK();
         }
     } else if AT_PARSE("bi") {
         SET_SERIAL_RESPONSE_OK();
