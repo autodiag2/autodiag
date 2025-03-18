@@ -55,6 +55,7 @@ Buffer* buffer_from_ascii_hex(char * ascii_hex);
 Buffer* buffer_from_ascii(char *ascii);
 /**
  * Get an ascii hex the given data.
+ * Without spaces.
  */
 char* buffer_to_ascii_hex(Buffer *buffer);
 /**
