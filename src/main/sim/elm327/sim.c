@@ -179,7 +179,11 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                     if ( iso_15765_is_multi_message_ff ) {
                         Buffer * leading_frame = buffer_new();
                         buffer_append_byte(leading_frame, responseBodyChunk->buffer[0]);
-                        buffer_append_byte(leading_frame, 0x00);
+                        if ( hasPid ) {
+                            buffer_append_byte(leading_frame, responseBodyChunk->buffer[1]);
+                        } else {
+                            buffer_append_byte(leading_frame, 0x00);
+                        }
                         int extra_size = 1 + hasPid;
                         asprintf(&response, "%s%s%03d%s", elm_ascii_from_bin(elm327->printing_of_spaces, leading_frame), elm327->eol, extra_size + responseOBDdataBin->size, elm327->eol);
                         buffer_free(leading_frame);
