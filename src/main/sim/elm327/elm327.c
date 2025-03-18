@@ -436,23 +436,68 @@ void elm327_sim_loop_start(ELM327emulation * elm327) {
     }
 }
 
-char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
+bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_response, final bool isGeneric) {
+    char * response;
+    if ( isGeneric ) {
+        asprintf(&response,"%s%s%s%s%s",
+            elm327->echo ? buffer : "", elm327->echo ? elm327->eol : "", 
+            serial_response,
+            elm327->eol,
+            SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
+        );
+        log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
+        usleep(50e3);
+    } else {
+        asprintf(&response,"%s%s", serial_response, elm327->eol);
+    }
+    free(serial_response);
+    log_msg(LOG_DEBUG, "sending back %s", response);
+
+    #ifdef OS_WINDOWS
+        int bytes_written = 0;
+        if (!WriteFile(elm327->pipe_handle, response, strlen(response), &bytes_written, null)) {
+            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+            return false;
+        }
+    #elif defined OS_POSIX
+        if ( write(elm327->fd,response,strlen(response)) == -1 ) {
+            perror("write");
+            return false;
+        }
+    #else
+    #   warning OS unsupported
+    #endif
+    free(response);
+    return true;
+}
+
+bool elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
     int last_index;
-    char* serial_response = strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]);
+    bool commandReconized = false;
     
     #define AT_PARSE(atpart) ((last_index = serial_at_index_end(buffer,atpart)) > -1)
     #define AT_DATA_START buffer+last_index
-    #define SET_SERIAL_RESPONSE_OK() serial_response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+    #define ELM327_SIM_REPLY(isGeneric, fmt, ...) \
+        char *serial_response; \
+        asprintf(&serial_response, fmt, __VA_ARGS__); \
+        if ( ! elm327_sim_reply(elm327, buffer, serial_response, isGeneric) ) { \
+            exit(1); \
+        } \
+        commandReconized = true;
+    #define ELM327_SIM_REPLY_GENERIC(fmt, ...) \
+        ELM327_SIM_REPLY(true, fmt, __VA_ARGS__)
+    #define ELM327_SIM_REPLY_OK() \
+        ELM327_SIM_REPLY_GENERIC(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
 
     if AT_PARSE("al") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("amc") {
-        asprintf(&serial_response,"%02x", elm327->activity_monitor_count);
+        ELM327_SIM_REPLY_GENERIC("%02x", elm327->activity_monitor_count);
     } else if AT_PARSE("amt") {
         if ( sscanf(AT_DATA_START, " %02x", &elm327->activity_monitor_timeout) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("cea") {
         if ( sscanf(AT_DATA_START," %02hhx", &elm327->can.extended_addressing_target_address) == 1 ) {
@@ -460,60 +505,60 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         } else {
             elm327->can.extended_addressing = false;
         }
-        SET_SERIAL_RESPONSE_OK();   
+        ELM327_SIM_REPLY_OK();   
     } else if AT_PARSE("ctm1") {
         elm327->can.timeout_multiplier = 1;
     } else if AT_PARSE("ctm5") {
         elm327->can.timeout_multiplier = 5;     
     } else if AT_PARSE("dm1") {
         if ( 0xA <= elm327->protocolRunning && elm327->protocolRunning <= 0xC ) {
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }  
     } else if AT_PARSE("dpn") {
-        asprintf(&serial_response,"%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
+        ELM327_SIM_REPLY_GENERIC("%s%01x", elm327->protocol_is_auto_running ? "A" : "", elm327->protocolRunning);
     } else if AT_PARSE("dp") {
-        asprintf(&serial_response,"%s%s",elm327->protocol_is_auto_running ? "Auto, " : "", elm327_protocol_to_string(elm327->protocolRunning));
+        ELM327_SIM_REPLY_GENERIC("%s%s",elm327->protocol_is_auto_running ? "Auto, " : "", elm327_protocol_to_string(elm327->protocolRunning));
     } else if AT_PARSE("d0") {
         elm327->can.display_dlc = false;
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("d1") {
         elm327->can.display_dlc = true;
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("d") {
         log_msg(LOG_INFO, "Reset to defaults");
         elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_DEFAULTS);
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("e") {
         bool echo = atoi(AT_DATA_START);
         log_msg(LOG_INFO, "Set echo %s", echo ? "on" : "off");
         elm327->echo = echo;
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("fe") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("fc") {
-        SET_SERIAL_RESPONSE_OK();                         
+        ELM327_SIM_REPLY_OK();                         
     } else if AT_PARSE("ib 10") {
         elm327->baud_rate = 10400;
-        SET_SERIAL_RESPONSE_OK();                            
+        ELM327_SIM_REPLY_OK();                            
     } else if AT_PARSE("ib 48") {
         elm327->baud_rate = 4800;
-        SET_SERIAL_RESPONSE_OK();                            
+        ELM327_SIM_REPLY_OK();                            
     } else if AT_PARSE("ib 96") {
         elm327->baud_rate = 9600;
-        SET_SERIAL_RESPONSE_OK(); 
+        ELM327_SIM_REPLY_OK(); 
     } else if AT_PARSE("ifr") {
-        SET_SERIAL_RESPONSE_OK();                     
+        ELM327_SIM_REPLY_OK();                     
     } else if AT_PARSE("ign") {
-        asprintf(&serial_response,"%s",rand()%2?"ON":"OFF");
+        ELM327_SIM_REPLY_GENERIC(rand()%2?"ON":"OFF");
     } else if AT_PARSE("iia") {
         byte value;
         if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("i") {
-        serial_response = strdup("ELM327 v2.1");
+        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
     } else if AT_PARSE("je") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("l") {
         bool lfe = atoi(AT_DATA_START);
         log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
@@ -522,43 +567,43 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         } else {
                 asprintf(&elm327->eol,"%c", ELM327_SIM_PP_GET(elm327,0x0D));
         }
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("nl") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("pb") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("sw") {
         byte value;
         if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if ( AT_PARSE("v0") || AT_PARSE("v1") ) {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("wm") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("z") {
         elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
-        serial_response = strdup("ELM327 v2.1");
+        ELM327_SIM_REPLY_GENERIC("ELM327 v2.1");
     } else if AT_PARSE("rv") {
-        asprintf(&serial_response,"%.2f",elm327->voltage);
+        ELM327_SIM_REPLY_GENERIC("%.2f",elm327->voltage);
     } else if AT_PARSE("rtr") {
-        SET_SERIAL_RESPONSE_OK();                                
+        ELM327_SIM_REPLY_OK();                                
     } else if AT_PARSE("rd") {
-        asprintf(&serial_response,"%02X", elm327->nvm.user_memory);
+        ELM327_SIM_REPLY_GENERIC("%02X", elm327->nvm.user_memory);
     } else if AT_PARSE("r") {
         int value;
         if ( sscanf(AT_DATA_START, "%d", &value) == 1 ) {
             elm327->responses = value;
-            SET_SERIAL_RESPONSE_OK();                                            
+            ELM327_SIM_REPLY_OK();                                            
         }   
     } else if AT_PARSE("cv 0000") {
         elm327->voltage = elm327->voltageFactory;
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("cv") {
         int value;
         if ( sscanf(AT_DATA_START," %d", &value) == 1 ) {
             elm327->voltage = value / 100.0;
-            SET_SERIAL_RESPONSE_OK();                    
+            ELM327_SIM_REPLY_OK();                    
         }
     } else if AT_PARSE("pps") {
         char *totalRes = strdup("");
@@ -576,7 +621,8 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             free(totalRes);
             totalRes = resCat;
         }
-        serial_response = totalRes;
+        ELM327_SIM_REPLY_GENERIC("%s",totalRes);
+        free(totalRes);
     } else if AT_PARSE("pp") {
         int parameter, value;
         char state[4];
@@ -586,17 +632,17 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
                 if ( elm327->programmable_parameters_pending_load_type->buffer[parameter] == ELM327_SIM_INIT_TYPE_IMMEDIATE ) {
                     elm327->nvm.programmable_parameters->buffer[parameter] = value;
                 }
-                SET_SERIAL_RESPONSE_OK();                    
+                ELM327_SIM_REPLY_OK();                    
             }
         } else if ( sscanf(AT_DATA_START," %02x %3s", &parameter, state) == 2 ) {
             bool stateBool = strcasecmp(state,"on") == 0;
             if ( parameter == 0xFF ) {
                 ELM327_SIM_PPS_STATE(elm327,stateBool)
-                SET_SERIAL_RESPONSE_OK();                    
+                ELM327_SIM_REPLY_OK();                    
             } else {
                 if ( parameter < elm327->nvm.programmable_parameters_states->size ) {                        
                     elm327->nvm.programmable_parameters_states->buffer[parameter] = stateBool;
-                    SET_SERIAL_RESPONSE_OK();                    
+                    ELM327_SIM_REPLY_OK();                    
                 }
             }
         }
@@ -608,14 +654,14 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         #endif
         int sz = elm327->obd_buffer->size;
         elm327->obd_buffer->size = elm327->obd_buffer->size_allocated;
-        asprintf(&serial_response,"%02x%s%s", sz, hasSpaces ? " " : "", elm_ascii_from_bin(hasSpaces,elm327->obd_buffer));
+        ELM327_SIM_REPLY_GENERIC("%02x%s%s", sz, hasSpaces ? " " : "", elm_ascii_from_bin(hasSpaces,elm327->obd_buffer));
         elm327->obd_buffer->size = sz;
     } else if AT_PARSE("brd") {
         int baud_rate_divisor = 0;
         sscanf(AT_DATA_START," %02hhx", (unsigned char*)&baud_rate_divisor);
         if ( 0 < baud_rate_divisor ) {
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
             log_msg(LOG_DEBUG, "TODO implement the baud rate change");
             // wait 75ms pp 0x0C
             // send ati
@@ -625,35 +671,35 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             // send prompt
         }
     } else if AT_PARSE("bi") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("brt") {
         int value;
         sscanf(AT_DATA_START," %02hhx", (unsigned char*)&value);
         elm327_sim_set_baud_rate_divisor_timeout(elm327, value);
-        SET_SERIAL_RESPONSE_OK();                    
+        ELM327_SIM_REPLY_OK();                    
     } else if AT_PARSE("ar") {
         if ( elm327->receive_address != null ) free(elm327->receive_address);
         elm327->receive_address = null;
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("cp") {
         sscanf(AT_DATA_START," %02hhx",&elm327->can.priority_29bits);
-        SET_SERIAL_RESPONSE_OK();        
+        ELM327_SIM_REPLY_OK();        
     } else if AT_PARSE("st") {
         byte tm;
         if ( sscanf(AT_DATA_START," %02hhx",&tm) == 1 ) {
             elm327->vehicle_response_timeout = (tm == 0 ? ELM327_SIM_PP_GET(elm327,0x03) : tm) * 4;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("at") {
         int value;
         if ( sscanf(AT_DATA_START,"%d",&value) == 1 ) {        
             elm327->vehicle_response_timeout_adaptive = value != 0;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("ss") {
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("pc") {
-        SET_SERIAL_RESPONSE_OK();            
+        ELM327_SIM_REPLY_OK();            
     } else if AT_PARSE("sh") {
         char header[9];
         if ( sscanf(AT_DATA_START," %8s",header) == 1 ||
@@ -669,30 +715,30 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
 
             buffer_recycle(elm327->custom_header);
             elm_ascii_to_bin_internal(false, elm327->custom_header, header, header + strlen(header));
-            SET_SERIAL_RESPONSE_OK();        
+            ELM327_SIM_REPLY_OK();        
         }
     } else if ( AT_PARSE("sr") || AT_PARSE("ra") ) {
         byte * b = (byte*)malloc(sizeof(byte));
         if ( sscanf(AT_DATA_START," %02hhX", b) == 1 ) {
             elm327->receive_address = b;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         } else {
             free(b);
         }
     } else if AT_PARSE("sd") {
         if ( sscanf(AT_DATA_START, " %02hhX", &elm327->nvm.user_memory) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("m") {
         if ( sscanf(AT_DATA_START," %d", &elm327->isMemoryEnabled) == 1 ) {
             if ( ! elm327->isMemoryEnabled ) {
                 elm327_sim_non_volatile_wipe_out();
             }
-            SET_SERIAL_RESPONSE_OK();                    
+            ELM327_SIM_REPLY_OK();                    
         }
     } else if AT_PARSE("ta") {
         sscanf(AT_DATA_START, " %02hhX", &elm327->testerAddress);
-        SET_SERIAL_RESPONSE_OK();                    
+        ELM327_SIM_REPLY_OK();                    
     } else if AT_PARSE("sp") {
         short unsigned int p;
         bool success = true;
@@ -708,7 +754,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         if ( success ) {
             elm327->protocolRunning = p;
             elm327->nvm.protocol = elm327->protocolRunning;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("tp") {
         short unsigned int p;
@@ -722,39 +768,39 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
         }
         if ( success ) {
             elm327->protocolRunning = p;
-            SET_SERIAL_RESPONSE_OK();
+            ELM327_SIM_REPLY_OK();
         }
     } else if AT_PARSE("s") {
         elm327->printing_of_spaces = atoi(AT_DATA_START);
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("h") {
         elm327->printing_of_headers = atoi(AT_DATA_START);
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("@1") {
-        serial_response = strdup(elm327->dev_description);
+        ELM327_SIM_REPLY_GENERIC("%s", elm327->dev_description);
     } else if AT_PARSE("@2") {
-        serial_response = strdup(elm327->dev_identifier);
+        ELM327_SIM_REPLY_GENERIC("%s", elm327->dev_identifier);
     } else if AT_PARSE("@3") {
         elm327->dev_identifier = strdup(AT_DATA_START + strlen(" "));
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("ws") {
         elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_RESET);
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("lp") {
         elm327_sim_go_low_power();
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("caf") {
         elm327->can.auto_format = atoi(AT_DATA_START);
         log_msg(LOG_INFO, "Can auto format %s", elm327->can.auto_format ? "enabled" : "disabled");
-        SET_SERIAL_RESPONSE_OK();
+        ELM327_SIM_REPLY_OK();
     } else if AT_PARSE("kw") {
         char number;
         if ( sscanf(AT_DATA_START,"%c",&number) == 1 ) {
             if ( number == '0' || number == '1' ) {
-                SET_SERIAL_RESPONSE_OK();                                
+                ELM327_SIM_REPLY_OK();                                
             } else {
                 Buffer * b = buffer_new_random(2);
-                asprintf(&serial_response,"1:%02x 2:%02x ",b->buffer[0],b->buffer[1]);
+                ELM327_SIM_REPLY_GENERIC("1:%02x 2:%02x",b->buffer[0],b->buffer[1]);
                 buffer_free(b);
             }                          
         }
@@ -793,26 +839,26 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
             char * tmp;
             asprintf(&tmp,"0%s", mask);
             strcpy(mask,tmp);free(tmp);
-            SET_SERIAL_RESPONSE_OK();                
+            ELM327_SIM_REPLY_OK();                
         } else if ( sscanf(AT_DATA_START, " %8s", mask) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();                    
+            ELM327_SIM_REPLY_OK();                    
         }
         if ( mask != null ) {
             elm327->can.mask = buffer_from_ascii_hex(mask);
         }
     } else if AT_PARSE("csm") {
-        SET_SERIAL_RESPONSE_OK();                    
+        ELM327_SIM_REPLY_OK();                    
     } else if AT_PARSE("cfc") {
-        SET_SERIAL_RESPONSE_OK();                    
+        ELM327_SIM_REPLY_OK();                    
     } else if AT_PARSE("cf") {
         char filter[9];
         if ( sscanf(AT_DATA_START, " %3s", filter) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", filter);
             strcpy(filter,tmp);free(tmp);
-            SET_SERIAL_RESPONSE_OK();                
+            ELM327_SIM_REPLY_OK();                
         } else if ( sscanf(AT_DATA_START, " %8s", filter) == 1 ) {
-            SET_SERIAL_RESPONSE_OK();                    
+            ELM327_SIM_REPLY_OK();                    
         }
         if ( filter != null ) {
             elm327->can.filter = buffer_from_ascii_hex(filter);
@@ -820,25 +866,25 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else {
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if AT_PARSE("cs") {
-                serial_response = strdup("T:00 R:00 ");
+                ELM327_SIM_REPLY_GENERIC("T:00 R:00 ")
             } else {
-                serial_response = elm327_sim_bus(elm327,buffer);
+                ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
             }
         } else {
             if ( 3 <= elm327->protocolRunning && elm327->protocolRunning <= 5 ) {
                 if AT_PARSE("fi") {
-                    SET_SERIAL_RESPONSE_OK();
+                    ELM327_SIM_REPLY_OK();
                 } else if AT_PARSE("si") {
-                    SET_SERIAL_RESPONSE_OK();
+                    ELM327_SIM_REPLY_OK();
                 } else {
-                    serial_response = elm327_sim_bus(elm327,buffer);                                
+                    ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
                 }
             } else {
-                serial_response = elm327_sim_bus(elm327,buffer);
+                ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
             }
         }
     }
-    return serial_response;
+    return commandReconized;
 }
 
 void elm327_sim_loop(ELM327emulation * elm327) {
@@ -968,39 +1014,13 @@ void elm327_sim_loop(ELM327emulation * elm327) {
         #   warning OS unsupported
         #endif
         
-        char * serial_response = elm327_sim_loop_process_command(elm327, buffer);
-
-        if ( serial_response == null ) {
-            serial_response = strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]);                
+        if ( ! elm327_sim_loop_process_command(elm327, buffer) ) {
+            if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
+                exit(1);
+            }
         }
 
-        char * response;
-        asprintf(&response,"%s%s%s%s%s",
-            elm327->echo ? buffer : "", elm327->echo ? elm327->eol : "", 
-            serial_response,
-            elm327->eol,
-            SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
-        );
-        free(serial_response);
-        log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
-        usleep(50e3);
-        log_msg(LOG_DEBUG, "sending back %s", response);
-
-        #ifdef OS_WINDOWS
-            int bytes_written = 0;
-            if (!WriteFile(elm327->pipe_handle, response, strlen(response), &bytes_written, null)) {
-                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-                break;
-            }
-        #elif defined OS_POSIX
-            if ( write(elm327->fd,response,strlen(response)) == -1 ) {
-                perror("write");
-                break;
-            }
-        #else
-        #   warning OS unsupported
-        #endif
-        free(response);
+        
         elm327_sim_non_volatile_memory_store(elm327);                
     }
 
