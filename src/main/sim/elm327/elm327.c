@@ -190,7 +190,12 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
     }
     return response;
 }
-
+void elm327_sim_set_baud_rate_divisor_timeout(final ELM327emulation * elm327, final int timeout) {
+    elm327->baud_rate_timeout_msec = timeout * 5;
+    if ( elm327->baud_rate_timeout_msec == 0 ) {
+        elm327->baud_rate_timeout_msec = 256 * 5;
+    }
+}
 /**
  * Init an emulation loading settings from nvm
  */
@@ -369,7 +374,8 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->protocol_is_auto_running = elm327->nvm.protocol_is_auto;
     elm327->voltageFactory = (rand() / (1.0 * RAND_MAX)) * 20;
     elm327->voltage = elm327->voltageFactory;
-    elm327->baud_rate = (4000.0 / ELM327_SIM_PP_GET(elm327,0x0C)) * 1000;   
+    elm327->baud_rate = (4000.0 / ELM327_SIM_PP_GET(elm327,0x0C)) * 1000;
+    elm327_sim_set_baud_rate_divisor_timeout(elm327, ELM327_SIM_PP_GET(elm327,0x0C));
     elm327->responses = true; 
     elm327->printing_of_headers = ELM327_SIM_PP_GET(elm327,0x01) == 0x00;
     elm327->echo = ELM327_SIM_PP_GET(elm327,0x09) == 0x00;
@@ -620,7 +626,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("brd") {
         int baud_rate_divisor = 0;
         sscanf(AT_DATA_START," %02hhx", (unsigned char*)&baud_rate_divisor);
-        if ( 0 < value ) {
+        if ( 0 < baud_rate_divisor ) {
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
             SET_SERIAL_RESPONSE_OK();
         }
@@ -629,6 +635,7 @@ char * elm327_sim_loop_process_command(ELM327emulation * elm327, char* buffer) {
     } else if AT_PARSE("brt") {
         int value;
         sscanf(AT_DATA_START," %02hhx", (unsigned char*)&value);
+        elm327_sim_set_baud_rate_divisor_timeout(elm327, value);
         SET_SERIAL_RESPONSE_OK();                    
     } else if AT_PARSE("ar") {
         if ( elm327->receive_address != null ) free(elm327->receive_address);

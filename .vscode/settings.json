@@ -30,6 +30,10 @@
         "locale": "c",
         "new": "c",
         "variant": "c",
-        "elm327_cli.h": "c"
+        "elm327_cli.h": "c",
+        "__bit_reference": "c",
+        "__node_handle": "c",
+        "optional": "c",
+        "ratio": "c"
     }
 }

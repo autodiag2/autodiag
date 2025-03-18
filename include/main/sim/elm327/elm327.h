@@ -30,6 +30,7 @@ typedef struct {
      * in bauds/bps
      */
     int baud_rate;
+    int baud_rate_timeout_msec;
     /**
      * Unused by J1939 (0xA to 0xC)
      */
