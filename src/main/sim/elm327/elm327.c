@@ -447,6 +447,9 @@ void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer) {
                 break;
             }
         }
+        if ( file_pool(&port->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
+            log_msg(LOG_ERROR, "Error while pooling");
+        }
         int bytes_readed = 0;
         if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
             buffer[bytes_readed] = 0;
@@ -455,7 +458,7 @@ void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer) {
             return;
         }
     #elif defined OS_POSIX
-        int res = poll(&fileDescriptor,1,SERIAL_DEFAULT_TIMEOUT);
+        int res = file_pool(&elm327->fd, null, SERIAL_DEFAULT_TIMEOUT);
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
             return;
