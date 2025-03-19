@@ -172,8 +172,8 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                             int dl11_8 = (bytesSent & 0x0F00) >> 8;
                             final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                             final byte dl7_0 = bytesSent & 0xFF;
-                            buffer_prepend_byte(responseBodyChunk, pci);
                             buffer_prepend_byte(responseBodyChunk, dl7_0);
+                            buffer_prepend_byte(responseBodyChunk, pci);
                         } else {
                             log_msg(LOG_DEBUG, "reply consecutive frame");
                             final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
