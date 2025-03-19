@@ -117,6 +117,21 @@ bool testSIM() {
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         final Serial* serial = (Serial*)iface->device;
+        iface->device->send(DEVICE(iface->device),"atcaf0");
+        iface->device->recv(DEVICE(iface->device));
+        iface->device->send(DEVICE(iface->device),"ath1");
+        iface->device->recv(DEVICE(iface->device));
+        obd_clear_data(iface);
+        iface->device->send(DEVICE(iface->device),"030902");
+        iface->device->recv(DEVICE(iface->device));
+        assert(strnstr(serial->recv_buffer->buffer, "<DATA ERROR", serial->recv_buffer->size) != null);
+    }
+    {
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(SIM_START_WAIT_MS);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        final Serial* serial = (Serial*)iface->device;
         obd_clear_data(iface);
         iface->device->send(DEVICE(iface->device),"unknown");
         iface->device->recv(DEVICE(iface->device));

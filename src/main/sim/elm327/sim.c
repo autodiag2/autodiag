@@ -88,7 +88,15 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     obd_query_str = obd_query_str + szToRemove;
 
     elm_ascii_to_bin_internal(hasSpaces, obd_query_bin, obd_query_str, end_ptr == null ? obd_query_str + strlen(obd_query_str): end_ptr);
-
+    if ( ! elm327->can.auto_format ) {
+        byte pci = obd_query_bin->buffer[0];
+        assert((pci & 0xF0) == Iso15765SingleFrame);
+        int sz = pci & 0x0F;
+        if ( obd_query_bin->size != (sz + 1) ) {
+            log_msg(LOG_WARNING, "Single frame pci size does not match");
+            return strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+        }
+    }
     if ( 0 == obd_query_bin->size ) {
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
