@@ -913,7 +913,10 @@ bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char*
             if AT_PARSE("cs") {
                 ELM327_SIM_REPLY_GENERIC("T:00 R:00 ")
             } else {
-                ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
+                char * response = elm327_sim_bus(elm327,buffer);
+                if ( response != null ) {
+                    ELM327_SIM_REPLY_GENERIC("%s", response);
+                }
             }
         } else {
             if ( 3 <= elm327->protocolRunning && elm327->protocolRunning <= 5 ) {
@@ -922,10 +925,15 @@ bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char*
                 } else if AT_PARSE("si") {
                     ELM327_SIM_REPLY_OK();
                 } else {
-                    ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
-                }
+                    char * response = elm327_sim_bus(elm327,buffer);
+                    if ( response != null ) {
+                        ELM327_SIM_REPLY_GENERIC("%s", response);
+                    }                }
             } else {
-                ELM327_SIM_REPLY_GENERIC("%s", elm327_sim_bus(elm327,buffer));
+                char * response = elm327_sim_bus(elm327,buffer);
+                if ( response != null ) {
+                    ELM327_SIM_REPLY_GENERIC("%s", response);
+                }
             }
         }
     }
