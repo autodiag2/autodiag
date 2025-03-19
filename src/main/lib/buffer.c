@@ -121,6 +121,22 @@ void buffer_slice(final Buffer *dest, final Buffer * src, final int index, final
     memcpy(dest->buffer+dest->size, src->buffer + index, size);
     dest->size += size;
 }
+void buffer_prepend_byte(final Buffer* dest, final byte b) {
+    buffer_prepend_bytes(dest, &b, 1);
+}
+void buffer_prepend(final Buffer* dest, final Buffer * src) {
+    assert(src != null);
+    assert(dest != null);
+    buffer_prepend_bytes(dest, src->buffer, src->size);
+}
+void buffer_prepend_bytes(final Buffer* dest, final byte * data, final int size) {
+    buffer_ensure_capacity(dest, size);
+    for(int i = dest->size; 0 < i; i--) {
+        dest->buffer[i] = dest->buffer[i-1];
+    }
+    memcpy(dest->buffer, data, size);
+    dest->size += size;
+}
 void buffer_append(final BUFFER dest, final BUFFER src) {
     assert(src != null);
     assert(dest != null);

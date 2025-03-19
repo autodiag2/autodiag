@@ -144,11 +144,19 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             char *header = "";
             if ( elm327->printing_of_headers ) {
                 char *inBuildHeader = "";
-                char * protocolSpecificHeader = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+                header = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+            } else {
+                if ( iso_15765_is_multi_message ) {
+                    if ( iso_15765_is_multi_message_ff ) {
+                        int extra_size = 1 + hasPid;
+                        asprintf(&response, "%03d%s", extra_size + responseOBDdataBin->size, elm327->eol);
+                    }
+                    asprintf(&header,"%d:", iso_15765_multi_message_sn);
+                }
+            }
 
-                asprintf(&header, "%s%s", protocolSpecificHeader, space);
+            if ( elm327->printing_of_headers || ! elm327->can.auto_format ) {
                 if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                    
                     if ( iso_15765_is_multi_message ) {
                         if ( iso_15765_is_multi_message_ff ) {
                             log_msg(LOG_DEBUG, "reply first frame");
@@ -156,36 +164,26 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
                             int dl11_8 = (bytesSent & 0x0F00) >> 8;
                             final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                             final byte dl7_0 = bytesSent & 0xFF;
-                            asprintf(&inBuildHeader, "%s%02X%s%02X%s", header, pci, space, dl7_0, space);
-                            free(header);
-                            header = inBuildHeader;
+                            buffer_prepend_byte(responseBodyChunk, pci);
+                            buffer_prepend_byte(responseBodyChunk, dl7_0);
                         } else {
                             log_msg(LOG_DEBUG, "reply consecutive frame");
                             final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
-                            asprintf(&inBuildHeader, "%s%02X%s", header, pci, space);
-                            free(header);
-                            header = inBuildHeader;
+                            buffer_prepend_byte(responseBodyChunk, pci);
                         }
                     } else {
                         log_msg(LOG_DEBUG, "reply as single frame");
                         final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
-                        asprintf(&inBuildHeader, "%s%02X%s", header, pci, space);
-                        free(header);
-                        header = inBuildHeader;
+                        buffer_prepend_byte(responseBodyChunk, pci);
                     }
-                }
-            } else {
-                if ( iso_15765_is_multi_message ) {
-                    if ( iso_15765_is_multi_message_ff ) {
-                        int extra_size = 1 + hasPid;
-                        asprintf(&response, "%03d%s%s", extra_size + responseOBDdataBin->size, elm327->eol);
-                    }
-                    asprintf(&header,"%d:%s", iso_15765_multi_message_sn, space);
                 }
             }
 
             char *tmpResponse;
-            asprintf(&tmpResponse, "%s%s%s%s", response == null ? "" : response, header, elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol);
+            asprintf(&tmpResponse, "%s%s%s%s%s", response == null ? "" : response, 
+                header, strlen(header) == 0 ? "" : space, 
+                elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol
+            );
             free(response);
             response = tmpResponse;
         }

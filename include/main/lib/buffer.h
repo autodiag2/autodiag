@@ -43,6 +43,9 @@ void buffer_append(final Buffer * dest, final Buffer * src);
 void buffer_append_bytes(final Buffer * dest, final byte *data, final int size);
 void buffer_append_byte(final Buffer * dest, final byte b);
 void buffer_append_str(final Buffer* dest, final char *data);
+void buffer_prepend_byte(final Buffer* dest, final byte b);
+void buffer_prepend(final Buffer* dest, final Buffer * src);
+void buffer_prepend_bytes(final Buffer* dest, final byte * data, final int size);
 bool buffer_equals(final Buffer * b1, final Buffer * b2);
 /**
  * Only accept full ascii buffer, do not take in account OBD specific like printing of spaces.
