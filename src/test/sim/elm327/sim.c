@@ -182,7 +182,7 @@ bool testSIM() {
         obd_clear_data(iface);
         iface->device->recv(DEVICE(iface->device)); // OK
         final Serial* serial = (Serial*)iface->device;
-        assert(strncasecmp("OK", serial->recv_buffer, 2));
+        assert(strncasecmp("OK", serial->recv_buffer->buffer, 2));
         obd_clear_data(iface);
         iface->device->recv(DEVICE(iface->device)); // ATI
         obd_clear_data(iface);
