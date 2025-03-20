@@ -6,6 +6,7 @@
 
 #ifdef OS_WINDOWS
 #   include <windows.h>
+    bool isComport(HANDLE file);
 #elif defined OS_POSIX
 #   include <poll.h>
     typedef struct pollfd POLLFD;

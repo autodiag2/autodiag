@@ -34,6 +34,7 @@
         "__bit_reference": "c",
         "__node_handle": "c",
         "optional": "c",
-        "ratio": "c"
+        "ratio": "c",
+        "poll.h": "c"
     }
 }

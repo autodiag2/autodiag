@@ -1,13 +1,6 @@
 #include "com/serial/serial.h"
 #include "com/serial/serial_list.h"
 
-#if defined OS_WINDOWS
-    bool isComport(HANDLE file) {
-        DCB dcb;
-        return GetCommState(file,&dcb);
-    }
-#endif
-
 int serial_guess_response(final char * buffer) {
     for(int i = 0; i < SerialResponseStrNumber; i++) {
         assert(SerialResponseStr[i] != null);
