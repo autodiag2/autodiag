@@ -112,6 +112,22 @@ void testSIM_1() {
 
 bool testSIM() {
     {
+        log_msg(LOG_INFO, "Random generate gives different values over two different runs");
+        ELM327emulation* elm327 = elm327_sim_new();       
+        elm327_sim_loop_start(elm327);
+        usleep(SIM_START_WAIT_MS);
+        final OBDIFace* iface = port_open(strdup(elm327->port_name));
+        final Serial* serial = (Serial*)iface->device;
+        iface->device->send(DEVICE(iface->device),"0104");
+        obd_clear_data(iface);
+        iface->device->recv(DEVICE(iface->device));
+        Buffer * response = buffer_copy(serial->recv_buffer);
+        iface->device->send(DEVICE(iface->device),"0104");
+        obd_clear_data(iface);
+        iface->device->recv(DEVICE(iface->device));
+        assert( ! buffer_cmp(response, serial->recv_buffer));
+    }
+    {
         ELM327emulation* elm327 = elm327_sim_new();       
         elm327_sim_loop_start(elm327);
         usleep(SIM_START_WAIT_MS);

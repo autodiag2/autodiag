@@ -159,6 +159,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
         *seed = 1;
+        generator->context = seed;
     }
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
