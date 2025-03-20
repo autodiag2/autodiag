@@ -443,10 +443,10 @@ void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer, int tim
                 log_msg(LOG_DEBUG, "pipe already connected");
             } else {
                 log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                break;
+                return;
             }
         }
-        if ( file_pool(&port->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
+        if ( file_pool(&elm327->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
         }
         int bytes_readed = 0;
