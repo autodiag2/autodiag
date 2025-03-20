@@ -30,11 +30,16 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
                     #if defined OS_WINDOWS
-                    #   warning simulation not available under windows
+                        int bytes_written = 0;
+                        if (!WriteFile(elm327->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
+                            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                        }
                     #elif defined OS_POSIX
                         if ( write(elm327->fd,act_alert,strlen(act_alert)) == -1 ) {
                             perror("write");
                         }
+                    #else
+                    #   warning OS unsupported
                     #endif
                     free(act_alert);
                 }
