@@ -140,7 +140,7 @@ bool testSIM() {
         obd_clear_data(iface);
         iface->device->send(DEVICE(iface->device),"030902");
         iface->device->recv(DEVICE(iface->device));
-        assert(strnstr(serial->recv_buffer->buffer, "<DATA ERROR", serial->recv_buffer->size) != null);
+        assert(strstr(serial->recv_buffer->buffer, "<DATA ERROR") != null);
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
@@ -152,7 +152,7 @@ bool testSIM() {
         iface->device->send(DEVICE(iface->device),"unknown");
         iface->device->recv(DEVICE(iface->device));
         buffer_dump(serial->recv_buffer);
-        assert(strnstr(serial->recv_buffer->buffer, "?", serial->recv_buffer->size) != null);
+        assert(strstr(serial->recv_buffer->buffer, "?") != null);
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
@@ -166,11 +166,11 @@ bool testSIM() {
         iface->device->send(DEVICE(iface->device),"0902");
         iface->device->recv(DEVICE(iface->device));
         final Serial* serial = (Serial*)iface->device;
-        assert(strnstr(serial->recv_buffer->buffer, "019", serial->recv_buffer->size) != null);
-        assert(strnstr(serial->recv_buffer->buffer, "0:", serial->recv_buffer->size) != null);
-        assert(strnstr(serial->recv_buffer->buffer, "1:", serial->recv_buffer->size) != null);
-        assert(strnstr(serial->recv_buffer->buffer, "2:", serial->recv_buffer->size) != null);
-        assert(strnstr(serial->recv_buffer->buffer, "4902", serial->recv_buffer->size) != null);
+        assert(strstr(serial->recv_buffer->buffer, "019") != null);
+        assert(strstr(serial->recv_buffer->buffer, "0:") != null);
+        assert(strstr(serial->recv_buffer->buffer, "1:") != null);
+        assert(strstr(serial->recv_buffer->buffer, "2:") != null);
+        assert(strstr(serial->recv_buffer->buffer, "4902") != null);
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
