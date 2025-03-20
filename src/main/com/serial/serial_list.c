@@ -136,7 +136,7 @@ void serial_list_free() {
         }
 
         do {
-            if (strncmp(findFileData.cFileName, "elm327sim_", 10) == 0) {
+            if (strncmp(findFileData.cFileName, SERIAL_LIST_PIPE_PREFIX, strlen(SERIAL_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
                 final SERIAL serial = serial_list_add_if_not_in_by_name(pipeFullPath);

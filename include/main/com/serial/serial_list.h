@@ -12,6 +12,7 @@
 #   include <devguid.h>
 #   include <stdio.h>
 #   include <string.h>
+#   define SERIAL_LIST_PIPE_PREFIX "elm327sim_"
 #endif
 
 LIST_DEFINE(Serial_list,Serial)
