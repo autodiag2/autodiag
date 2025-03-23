@@ -116,10 +116,13 @@ double counter_throttle_calculate_angle(double x, double y) {
     //return atan2(y - CENTER_Y, x - CENTER_X);
     return 0.5;
 }
-gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data) {
-    if (event->button == 1) {
-        double angle = counter_throttle_calculate_angle(event->x, event->y);
+gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton event, gpointer data) {
+    printf("button press\n");
+    if (event.button == 1) {
+        double angle = counter_throttle_calculate_angle(event.x, event.y);
+        printf("angle=%f\n",angle);
         gtk_progress_bar_set_fraction((GtkProgressBar*)widget, 1 - angle / G_PI);
+        printf("fraction=%f\n",1 - angle / G_PI);
         gtk_widget_queue_draw(widget);
         g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
             intdup(1), 
@@ -129,18 +132,22 @@ gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton *event, gpoin
     }
     return TRUE;
 }
-gboolean counter_on_button_release(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+gboolean counter_on_button_release(GtkWidget *widget, GdkEventButton event, gpointer data) {
+    printf("button release\n");
     g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
         intdup(0), 
         &counter_destroy_progress_bar_allocations
     );
     return TRUE;
 }
-gboolean counter_on_motion_notify(GtkWidget *widget, GdkEventMotion *event, gpointer data) {
+gboolean counter_on_motion_notify(GtkWidget *widget, GdkEventMotion event, gpointer data) {
+    printf("motion notify\n");
     int dragging = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_DRAGGING));
+    printf("dragging=%d\n",dragging);
     if (dragging) {
-        double angle = counter_throttle_calculate_angle(event->x, event->y);
+        double angle = counter_throttle_calculate_angle(event.x, event.y);
         gtk_progress_bar_set_fraction((GtkProgressBar*)widget, 1 - angle / G_PI);
+        printf("angle=%.2d fraction=%f\n",angle, 1 - angle / G_PI);
         gtk_widget_queue_draw(widget);
     }
     return TRUE;
@@ -229,6 +236,7 @@ GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool
                             );
     g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL);  
     if ( isModifiable ) {
+        printf("is modifiable\n");
         g_signal_connect(G_OBJECT (bar), "button-press-event", G_CALLBACK(counter_on_button_press), NULL);
         g_signal_connect(G_OBJECT (bar), "button-release-event", G_CALLBACK(counter_on_button_release), NULL);
         g_signal_connect(G_OBJECT (bar), "motion-notify-event", G_CALLBACK(counter_on_motion_notify), NULL);
