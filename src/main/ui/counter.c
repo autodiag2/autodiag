@@ -25,7 +25,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
         if ( GTK_IS_PROGRESS_BAR(widget) ) {
             text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
         } else {
-            text = strdup("");
+            text = strdup("SOME");
         }
         cairo_text_extents_t extents;
         cairo_scaled_font_text_extents (cairo_get_scaled_font(cr),
@@ -63,15 +63,15 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     int widget_img_offset_x = (width - widget_img_w) / 2;
     int widget_img_offset_y = (widget_counter_height - widget_img_h) / 2;
 
-    g_object_set_data_full (G_OBJECT(widget), "widget_img_offset_x",
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_WIDGET_IMG_OFFSET_X,
         intdup(widget_img_offset_x),
         &counter_destroy_progress_bar_allocations
     );
-    g_object_set_data_full (G_OBJECT(widget), "widget_img_offset_y",
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_WIDGET_IMG_OFFSET_Y,
         intdup(widget_img_offset_y),
         &counter_destroy_progress_bar_allocations
     );
-    g_object_set_data_full (G_OBJECT(widget), "scale_img_to_widget",
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_SCALE_IMG_TO_WIDGET,
         doubledup(scale_img_to_widget),
         &counter_destroy_progress_bar_allocations
     );
@@ -148,9 +148,9 @@ double counter_throttle_calculate_angle(GtkWidget *widget, double x, double y) {
     int widget_width = gtk_widget_get_allocated_width(widget);
     int widget_height = gtk_widget_get_allocated_height(widget);
 
-    int widget_img_offset_x = *((int*)g_object_get_data(G_OBJECT(widget),"widget_img_offset_x"));
-    int widget_img_offset_y = *((int*)g_object_get_data(G_OBJECT(widget),"widget_img_offset_y"));
-    double scale_img_to_widget = *((double*)g_object_get_data(G_OBJECT(widget),"scale_img_to_widget"));
+    int widget_img_offset_x = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_WIDGET_IMG_OFFSET_X));
+    int widget_img_offset_y = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_WIDGET_IMG_OFFSET_Y));
+    double scale_img_to_widget = *((double*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_SCALE_IMG_TO_WIDGET));
 
     int throttle_length_on_picture = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE));
 
@@ -285,7 +285,6 @@ GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool
                             );
     g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL);  
     if ( isModifiable ) {
-        printf("is modifiable\n");
         g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_DRAGGING,
             intdup(0), 
             &counter_destroy_progress_bar_allocations

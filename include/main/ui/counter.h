@@ -31,4 +31,7 @@ GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool
 #define COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y "counter_key_throttle_offset_on_pict_y"
 #define COUNTER_KEY_THROTTLE_DRAGGING "counter_key_throttle_dragging"
 #define COUNTER_KEY_THROTTLE_FRACTION "counter_key_throttle_fraction"
+#define COUNTER_KEY_WIDGET_IMG_OFFSET_X "widget_img_offset_x"
+#define COUNTER_KEY_WIDGET_IMG_OFFSET_Y "widget_img_offset_y"
+#define COUNTER_KEY_SCALE_IMG_TO_WIDGET "scale_img_to_widget"
 #endif
