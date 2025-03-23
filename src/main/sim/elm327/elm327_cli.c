@@ -73,7 +73,7 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
             .invalidDtc = GTK_WIDGET(gtk_builder_get_object(builder, "window-invalid-dtc"))
         },
         .data = {
-            .vehicleSpeed = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "data-vehicle-speed")),
+            .vehicleSpeed = GTK_DRAWING_AREA(gtk_builder_get_object(builder, "data-vehicle-speed")),
             .coolantTemperature = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-coolant-temperature")),
             .engineSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-engine-speed"))
         }

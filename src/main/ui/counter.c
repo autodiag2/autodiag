@@ -237,6 +237,10 @@ GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool
     g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL);  
     if ( isModifiable ) {
         printf("is modifiable\n");
+        g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_DRAGGING,
+            intdup(0), 
+            &counter_destroy_progress_bar_allocations
+        );
         g_signal_connect(G_OBJECT (bar), "button-press-event", G_CALLBACK(counter_on_button_press), NULL);
         g_signal_connect(G_OBJECT (bar), "button-release-event", G_CALLBACK(counter_on_button_release), NULL);
         g_signal_connect(G_OBJECT (bar), "motion-notify-event", G_CALLBACK(counter_on_motion_notify), NULL);

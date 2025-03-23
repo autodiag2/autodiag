@@ -12,7 +12,7 @@
 typedef struct {
     GtkWidget *window;
     struct {
-        GtkProgressBar* vehicleSpeed;
+        GtkDrawingArea* vehicleSpeed;
         GtkScaleButton* coolantTemperature;
         GtkScaleButton* engineSpeed;
     } data;

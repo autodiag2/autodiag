@@ -71,12 +71,12 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkProgressBar" id="data-vehicle-speed">
+                  <object class="GtkDrawingArea" id="data-vehicle-speed">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
