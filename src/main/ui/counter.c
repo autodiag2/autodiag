@@ -1,5 +1,11 @@
 #include "ui/counter.h"
 
+void counter_destroy_progress_bar_allocations(gpointer data) {
+    if ( data != null ) {
+        free(data);
+    }
+}
+
 /**
  * Due to the GtkProgressBar implementation if you allocate a width requested
  * less that the required to show the text, the widget will be resized so that the text
@@ -19,7 +25,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
         if ( GTK_IS_PROGRESS_BAR(widget) ) {
             text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
         } else {
-            text = strdup("TODO");
+            text = strdup("");
         }
         cairo_text_extents_t extents;
         cairo_scaled_font_text_extents (cairo_get_scaled_font(cr),
@@ -75,9 +81,17 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
         
         if ( throttle_center_offset_on_picture_x == -1 ) {
             throttle_center_offset_on_picture_x = img_w / 2;
+            g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_X,
+                intdup(throttle_center_offset_on_picture_x),
+                &counter_destroy_progress_bar_allocations
+            );
         } 
         if ( throttle_center_offset_on_picture_y == -1 ) {
             throttle_center_offset_on_picture_y = 0;
+            g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y,
+                intdup(throttle_center_offset_on_picture_y),
+                &counter_destroy_progress_bar_allocations
+            );
         }
 
         int throttle_screen_offset_on_picture_x = throttle_center_offset_on_picture_x - throttle_length_on_picture,
@@ -116,23 +130,29 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     }
     return TRUE;
 }
-void counter_destroy_progress_bar_allocations(gpointer data) {
-    if ( data != null ) {
-        free(data);
-    }
-}
 
-double counter_throttle_calculate_angle(double x, double y) {
-    //return atan2(y - CENTER_Y, x - CENTER_X);
-    return 0.5;
+double counter_throttle_calculate_angle(GtkWidget *widget, double x, double y) {
+    int width = gtk_widget_get_allocated_width(widget);
+    int height = gtk_widget_get_allocated_height(widget);
+
+    int center_x = width / 2;
+    int center_y = height;
+    double x_in_circle = (x - center_x) / (width / 2);
+
+    printf("0,0 -> %d,%d\n", width, height);
+    printf(" X=%f\n", x);
+    printf(" A=(%d,%d)\n", center_x, center_y);
+
+    double teta = acos(x_in_circle);
+    double fraction = (G_PI - teta) / G_PI;
+    printf(" teta=%f fraction=%f\n",teta,fraction);
+    return fraction;
 }
 gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton event, gpointer data) {
-    printf("button press\n");
     if (event.button == 1) {
-        double angle = counter_throttle_calculate_angle(event.x, event.y);
-        printf("angle=%f\n",angle);
+        double angle = counter_throttle_calculate_angle(widget, event.x, event.y);
         g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_FRACTION,
-            doubledup(0.5), 
+            doubledup(angle), 
             &counter_destroy_progress_bar_allocations
         );
         g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
@@ -144,7 +164,6 @@ gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton event, gpoint
     return TRUE;
 }
 gboolean counter_on_button_release(GtkWidget *widget, GdkEventButton event, gpointer data) {
-    printf("button release\n");
     g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
         intdup(0), 
         &counter_destroy_progress_bar_allocations
@@ -152,16 +171,13 @@ gboolean counter_on_button_release(GtkWidget *widget, GdkEventButton event, gpoi
     return TRUE;
 }
 gboolean counter_on_motion_notify(GtkWidget *widget, GdkEventMotion event, gpointer data) {
-    printf("motion notify\n");
     int dragging = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_DRAGGING));
-    printf("dragging=%d\n",dragging);
     if (dragging) {
-        double angle = counter_throttle_calculate_angle(event.x, event.y);
+        double angle = counter_throttle_calculate_angle(widget, event.x, event.y);
         g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_FRACTION,
-            doubledup(0.5), 
+            doubledup(angle),
             &counter_destroy_progress_bar_allocations
         );
-        printf("angle=%.2d fraction=%f\n",angle, 1 - angle / G_PI);
         gtk_widget_queue_draw(widget);
     }
     return TRUE;
