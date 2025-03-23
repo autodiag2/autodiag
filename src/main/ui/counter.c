@@ -163,9 +163,12 @@ double counter_throttle_calculate_angle(GtkWidget *widget, double x, double y) {
     int widget_img_throttle_height = throttle_length_on_picture * scale_img_to_widget;
 
     double widget_img_throttle_center_x = widget_img_offset_x + throttle_center_offset_on_picture_x * scale_img_to_widget;
+    double widget_img_throttle_center_y = widget_img_offset_y + widget_img_throttle_height - throttle_center_offset_on_picture_y * scale_img_to_widget;
 
     double x_in_circle = max(-1, min(1, (x - widget_img_throttle_center_x) / (widget_img_throttle_width / 2)));
-    double teta = acos(x_in_circle);
+    double y_in_circle = max(0, min(1,(widget_img_throttle_center_y - y) / widget_img_throttle_height));
+
+    double teta = atan2(y_in_circle, x_in_circle);
     double fraction = (G_PI - teta) / G_PI;
     return fraction;
 }
