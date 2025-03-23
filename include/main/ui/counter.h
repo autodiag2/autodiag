@@ -19,6 +19,10 @@ GtkProgressBar* counter_init(GtkProgressBar* bar);
  */
 GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName);
 GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool isModifiable);
+/**
+ * Percent is in [0;1]
+ */
+double counter_get_fraction(GtkWidget *widget);
 
 #define COUNTER_REL_FILE_PATH_KEY "counter_rel_file_path"
 #define COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE "counter_throttle_length_on_picture"

@@ -13,8 +13,8 @@ typedef struct {
     GtkWidget *window;
     struct {
         GtkWidget* vehicleSpeed;
-        GtkScaleButton* coolantTemperature;
-        GtkScaleButton* engineSpeed;
+        GtkWidget* coolantTemperature;
+        GtkWidget* engineSpeed;
     } data;
     struct {
         GtkListBox* listView;

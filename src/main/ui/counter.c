@@ -6,6 +6,14 @@ void counter_destroy_progress_bar_allocations(gpointer data) {
     }
 }
 
+double counter_get_fraction(GtkWidget *widget) {
+    if ( GTK_IS_PROGRESS_BAR(widget) ) {
+        return gtk_progress_bar_get_fraction((GtkProgressBar*)widget);
+    } else {
+        return *((double*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_FRACTION));
+    }
+}
+
 /**
  * Due to the GtkProgressBar implementation if you allocate a width requested
  * less that the required to show the text, the widget will be resized so that the text
@@ -25,7 +33,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
         if ( GTK_IS_PROGRESS_BAR(widget) ) {
             text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
         } else {
-            text = strdup("SOME");
+            text = strdup("");
         }
         cairo_text_extents_t extents;
         cairo_scaled_font_text_extents (cairo_get_scaled_font(cr),
@@ -116,12 +124,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
         int throttle_center_x = throttle_screen_width/2,
             throttle_center_y = throttle_screen_height;
 
-        final double p;
-        if ( GTK_IS_PROGRESS_BAR(widget) ) {
-            p = gtk_progress_bar_get_fraction((GtkProgressBar*)widget);
-        } else {
-            p = *((double*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_FRACTION));
-        }
+        final double p = counter_get_fraction(widget);
         double rad = (1-p) * G_PI;
         int throttle_extreme_x = throttle_screen_width * (1 + cos(rad)) / 2.0,
             throttle_extreme_y = throttle_screen_height * (1 - sin(rad));
@@ -143,7 +146,6 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     }
     return TRUE;
 }
-
 double counter_throttle_calculate_angle(GtkWidget *widget, double x, double y) {
     int widget_width = gtk_widget_get_allocated_width(widget);
     int widget_height = gtk_widget_get_allocated_height(widget);

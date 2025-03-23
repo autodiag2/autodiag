@@ -35,6 +35,7 @@
         "__node_handle": "c",
         "optional": "c",
         "ratio": "c",
-        "poll.h": "c"
+        "poll.h": "c",
+        "counter.h": "c"
     }
 }

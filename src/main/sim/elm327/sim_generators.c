@@ -16,12 +16,12 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         buffer_append(responseOBDdataBin, status);
                     } break;
                     case 0x05: {
-                        gdouble percent = gtk_scale_button_get_value(gui->data.coolantTemperature) / 100.0;
+                        gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                         buffer_append_byte(responseOBDdataBin, (byte)(percent * span));
                     } break;
                     case 0x0C: {
-                        gdouble percent = gtk_scale_button_get_value(gui->data.engineSpeed) / 100.0;
+                        gdouble percent = counter_get_fraction(gui->data.engineSpeed);
                         double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
                         int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
                         byte bA = (0xFF00 & value) >> 8;
@@ -30,7 +30,7 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         buffer_append_byte(responseOBDdataBin, bB);
                     } break;
                     case 0x0D: {
-                        gdouble percent = gtk_scale_button_get_value(gui->data.vehicleSpeed) / 100.0;
+                        gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICULE_SPEED_MAX - SAEJ1979_DATA_VEHICULE_SPEED_MIN;
                         buffer_append_byte(responseOBDdataBin, (byte)(percent * span));
                     } break;

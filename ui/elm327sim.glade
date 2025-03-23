@@ -106,34 +106,12 @@ temperature
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScaleButton" id="data-coolant-temperature">
+                  <object class="GtkDrawingArea" id="data-coolant-temperature">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
-                    <property name="orientation">vertical</property>
-                    <child internal-child="plus_button">
-                      <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="relief">none</property>
-                      </object>
-                    </child>
-                    <child internal-child="minus_button">
-                      <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="relief">none</property>
-                      </object>
-                    </child>
+                    <property name="can-focus">False</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
@@ -162,34 +140,12 @@ temperature
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkScaleButton" id="data-engine-speed">
+                  <object class="GtkDrawingArea" id="data-engine-speed">
                     <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="relief">none</property>
-                    <property name="orientation">vertical</property>
-                    <child internal-child="plus_button">
-                      <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="relief">none</property>
-                      </object>
-                    </child>
-                    <child internal-child="minus_button">
-                      <object class="GtkButton">
-                        <property name="can-focus">True</property>
-                        <property name="receives-default">True</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="relief">none</property>
-                      </object>
-                    </child>
+                    <property name="can-focus">False</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
