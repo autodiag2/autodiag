@@ -18,7 +18,12 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                     case 0x05: {
                         gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                        buffer_append_byte(responseOBDdataBin, (byte)(percent * span));
+                        int value = percent * span;
+                        buffer_append_byte(responseOBDdataBin, (byte)(value));
+                        char *res;
+                        asprintf(&res, "%d °C", value);
+                        counter_set_label(gui->data.coolantTemperature, res);
+                        free(res);
                     } break;
                     case 0x0C: {
                         gdouble percent = counter_get_fraction(gui->data.engineSpeed);
@@ -28,11 +33,20 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         byte bB = 0xFF & value;
                         buffer_append_byte(responseOBDdataBin, bA);
                         buffer_append_byte(responseOBDdataBin, bB);
+                        char *res;
+                        asprintf(&res, "%d r/min", value);
+                        counter_set_label(gui->data.engineSpeed, res);
+                        free(res);
                     } break;
                     case 0x0D: {
                         gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICULE_SPEED_MAX - SAEJ1979_DATA_VEHICULE_SPEED_MIN;
-                        buffer_append_byte(responseOBDdataBin, (byte)(percent * span));
+                        int value = percent * span;
+                        buffer_append_byte(responseOBDdataBin, (byte)value);
+                        char *res;
+                        asprintf(&res, "%d km/h", value);
+                        counter_set_label(gui->data.vehicleSpeed, res);
+                        free(res);
                     } break;
                 }
             }

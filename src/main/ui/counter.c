@@ -5,7 +5,6 @@ void counter_destroy_progress_bar_allocations(gpointer data) {
         free(data);
     }
 }
-
 double counter_get_fraction(GtkWidget *widget) {
     if ( GTK_IS_PROGRESS_BAR(widget) ) {
         return gtk_progress_bar_get_fraction((GtkProgressBar*)widget);
@@ -13,7 +12,25 @@ double counter_get_fraction(GtkWidget *widget) {
         return *((double*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_FRACTION));
     }
 }
-
+char* counter_get_label(GtkWidget *widget) {
+    final char * text;
+    if ( GTK_IS_PROGRESS_BAR(widget) ) {
+        text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
+    } else {
+        text = (char*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_TEXT);
+    }
+    return text;
+}
+void counter_set_label(GtkWidget *widget, char* label) {
+    if ( GTK_IS_PROGRESS_BAR(widget) ) {
+        gtk_progress_bar_set_text((GtkProgressBar*)widget, label);
+    } else {
+        g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_TEXT,
+            strdup(label),
+            &counter_destroy_progress_bar_allocations
+        );
+    }
+}
 /**
  * Due to the GtkProgressBar implementation if you allocate a width requested
  * less that the required to show the text, the widget will be resized so that the text
@@ -29,12 +46,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     
     int text_height;
     {
-        final char *text;
-        if ( GTK_IS_PROGRESS_BAR(widget) ) {
-            text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
-        } else {
-            text = strdup("");
-        }
+        final char *text = counter_get_label(widget);
         cairo_text_extents_t extents;
         cairo_scaled_font_text_extents (cairo_get_scaled_font(cr),
                                     text,
