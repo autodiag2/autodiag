@@ -21,7 +21,7 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         int value = percent * span;
                         buffer_append_byte(responseOBDdataBin, (byte)(value));
                         char *res;
-                        asprintf(&res, "%d °C", value);
+                        asprintf(&res, "%d °C", value - 40);
                         counter_set_label(gui->data.coolantTemperature, res);
                         free(res);
                     } break;
@@ -34,7 +34,7 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         buffer_append_byte(responseOBDdataBin, bA);
                         buffer_append_byte(responseOBDdataBin, bB);
                         char *res;
-                        asprintf(&res, "%d r/min", value);
+                        asprintf(&res, "%.2f r/min", value/4.0);
                         counter_set_label(gui->data.engineSpeed, res);
                         free(res);
                     } break;
