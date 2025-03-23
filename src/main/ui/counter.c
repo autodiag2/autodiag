@@ -54,17 +54,30 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     free(img_path);
     int img_w = cairo_image_surface_get_width(surface);
     int img_h = cairo_image_surface_get_height(surface);
-    int h_height = height - text_height;
+    int widget_counter_height = height - text_height;
     double scale_x = 1 + (width - img_w * 1.0) / ( img_w * 1.0 );
-    double scale_y = 1 + (h_height - img_h * 1.0) / ( img_h * 1.0 );
-    double scale = min(scale_x,scale_y);
-    int new_img_w = img_w * scale;
-    int new_img_h = img_h * scale;
-    int img_offset_x = (width - new_img_w) / 2;
-    int img_offset_y = (h_height - new_img_h) / 2;
+    double scale_y = 1 + (widget_counter_height - img_h * 1.0) / ( img_h * 1.0 );
+    double scale_img_to_widget = min(scale_x,scale_y);
+    int widget_img_w = img_w * scale_img_to_widget;
+    int widget_img_h = img_h * scale_img_to_widget;
+    int widget_img_offset_x = (width - widget_img_w) / 2;
+    int widget_img_offset_y = (widget_counter_height - widget_img_h) / 2;
 
-    cairo_translate(cr,img_offset_x,img_offset_y);
-    cairo_scale(cr,scale,scale);
+    g_object_set_data_full (G_OBJECT(widget), "widget_img_offset_x",
+        intdup(widget_img_offset_x),
+        &counter_destroy_progress_bar_allocations
+    );
+    g_object_set_data_full (G_OBJECT(widget), "widget_img_offset_y",
+        intdup(widget_img_offset_y),
+        &counter_destroy_progress_bar_allocations
+    );
+    g_object_set_data_full (G_OBJECT(widget), "scale_img_to_widget",
+        doubledup(scale_img_to_widget),
+        &counter_destroy_progress_bar_allocations
+    );
+
+    cairo_translate(cr,widget_img_offset_x,widget_img_offset_y);
+    cairo_scale(cr,scale_img_to_widget,scale_img_to_widget);
     cairo_set_source_surface (cr,surface,0,0);
     cairo_paint(cr);
 
@@ -132,20 +145,26 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
 }
 
 double counter_throttle_calculate_angle(GtkWidget *widget, double x, double y) {
-    int width = gtk_widget_get_allocated_width(widget);
-    int height = gtk_widget_get_allocated_height(widget);
+    int widget_width = gtk_widget_get_allocated_width(widget);
+    int widget_height = gtk_widget_get_allocated_height(widget);
 
-    int center_x = width / 2;
-    int center_y = height;
-    double x_in_circle = (x - center_x) / (width / 2);
+    int widget_img_offset_x = *((int*)g_object_get_data(G_OBJECT(widget),"widget_img_offset_x"));
+    int widget_img_offset_y = *((int*)g_object_get_data(G_OBJECT(widget),"widget_img_offset_y"));
+    double scale_img_to_widget = *((double*)g_object_get_data(G_OBJECT(widget),"scale_img_to_widget"));
 
-    printf("0,0 -> %d,%d\n", width, height);
-    printf(" X=%f\n", x);
-    printf(" A=(%d,%d)\n", center_x, center_y);
+    int throttle_length_on_picture = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE));
 
+    int throttle_center_offset_on_picture_x = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_X)), 
+        throttle_center_offset_on_picture_y = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y));
+
+    int widget_img_throttle_width  = throttle_length_on_picture * 2 * scale_img_to_widget;
+    int widget_img_throttle_height = throttle_length_on_picture * scale_img_to_widget;
+
+    double widget_img_throttle_center_x = widget_img_offset_x + throttle_center_offset_on_picture_x * scale_img_to_widget;
+
+    double x_in_circle = max(-1, min(1, (x - widget_img_throttle_center_x) / (widget_img_throttle_width / 2)));
     double teta = acos(x_in_circle);
     double fraction = (G_PI - teta) / G_PI;
-    printf(" teta=%f fraction=%f\n",teta,fraction);
     return fraction;
 }
 gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton event, gpointer data) {
