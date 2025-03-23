@@ -7,11 +7,12 @@
 #include "lib/lib.h"
 #include "sim.h"
 #include "ui/gtk.h"
+#include "ui/counter.h"
 
 typedef struct {
     GtkWidget *window;
     struct {
-        GtkScaleButton* vehicleSpeed;
+        GtkProgressBar* vehicleSpeed;
         GtkScaleButton* coolantTemperature;
         GtkScaleButton* engineSpeed;
     } data;

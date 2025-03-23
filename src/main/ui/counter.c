@@ -111,10 +111,48 @@ void counter_destroy_progress_bar_allocations(gpointer data) {
         free(data);
     }
 }
+
+double counter_throttle_calculate_angle(double x, double y) {
+    //return atan2(y - CENTER_Y, x - CENTER_X);
+    return 0.5;
+}
+gboolean counter_on_button_press(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    if (event->button == 1) {
+        double angle = counter_throttle_calculate_angle(event->x, event->y);
+        gtk_progress_bar_set_fraction((GtkProgressBar*)widget, 1 - angle / G_PI);
+        gtk_widget_queue_draw(widget);
+        g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
+            intdup(1), 
+            &counter_destroy_progress_bar_allocations
+        );
+        gtk_widget_queue_draw(widget);
+    }
+    return TRUE;
+}
+gboolean counter_on_button_release(GtkWidget *widget, GdkEventButton *event, gpointer data) {
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
+        intdup(0), 
+        &counter_destroy_progress_bar_allocations
+    );
+    return TRUE;
+}
+gboolean counter_on_motion_notify(GtkWidget *widget, GdkEventMotion *event, gpointer data) {
+    int dragging = *((int*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_DRAGGING));
+    if (dragging) {
+        double angle = counter_throttle_calculate_angle(event->x, event->y);
+        gtk_progress_bar_set_fraction((GtkProgressBar*)widget, 1 - angle / G_PI);
+        gtk_widget_queue_draw(widget);
+    }
+    return TRUE;
+}
+
 GtkProgressBar* counter_init(GtkProgressBar* bar) {
     return counter_init_with(bar,"counter_85_2_255_0_0_255.png");
 }
 GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName) {
+    return counter_init_modifiable(bar,pngName, false);
+}
+GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool isModifiable) {
     assert(bar != null);
     g_object_set_data_full (G_OBJECT(bar), COUNTER_REL_FILE_PATH_KEY,
                             strdup(pngName), 
@@ -189,6 +227,12 @@ GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName) {
                             intdup(throttle_offset_on_pict_y), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL);    
+    g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL);  
+    if ( isModifiable ) {
+        g_signal_connect(G_OBJECT (bar), "button-press-event", G_CALLBACK(counter_on_button_press), NULL);
+        g_signal_connect(G_OBJECT (bar), "button-release-event", G_CALLBACK(counter_on_button_release), NULL);
+        g_signal_connect(G_OBJECT (bar), "motion-notify-event", G_CALLBACK(counter_on_motion_notify), NULL);
+        gtk_widget_add_events(GTK_WIDGET(bar), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
+    }
     return bar;
 }

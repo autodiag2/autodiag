@@ -73,7 +73,7 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
             .invalidDtc = GTK_WIDGET(gtk_builder_get_object(builder, "window-invalid-dtc"))
         },
         .data = {
-            .vehicleSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-vehicle-speed")),
+            .vehicleSpeed = GTK_PROGRESS_BAR(gtk_builder_get_object(builder, "data-vehicle-speed")),
             .coolantTemperature = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-coolant-temperature")),
             .engineSpeed = GTK_SCALE_BUTTON(gtk_builder_get_object(builder, "data-engine-speed"))
         }
@@ -82,6 +82,8 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
+
+    counter_init_modifiable(simGui->data.vehicleSpeed,"counter_85_2_255_0_0_255.png", true);
 
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));

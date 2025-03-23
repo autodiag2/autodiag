@@ -18,6 +18,7 @@ GtkProgressBar* counter_init(GtkProgressBar* bar);
  * Y: Y-offset in pixels off the throttle center on the image of the counter with (0,0) at bottom left
  */
 GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName);
+GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool isModifiable);
 
 #define COUNTER_REL_FILE_PATH_KEY "counter_rel_file_path"
 #define COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE "counter_throttle_length_on_picture"
@@ -28,4 +29,5 @@ GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName);
 #define COUNTER_KEY_THROTTLE_WIDTH "counter_key_throttle_width"
 #define COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_X "counter_key_throttle_offset_on_pict_x"
 #define COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y "counter_key_throttle_offset_on_pict_y"
+#define COUNTER_KEY_THROTTLE_DRAGGING "counter_key_throttle_dragging"
 #endif
