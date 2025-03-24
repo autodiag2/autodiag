@@ -30,6 +30,7 @@ void counter_set_label(GtkWidget *widget, char* label) {
             &counter_destroy_progress_bar_allocations
         );
     }
+    gtk_widget_queue_draw(widget);
 }
 /**
  * Due to the GtkProgressBar implementation if you allocate a width requested
