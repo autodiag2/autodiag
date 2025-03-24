@@ -435,7 +435,7 @@ void elm327_sim_loop_start(ELM327emulation * elm327) {
     }
 }
 
-void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer, int timeout) {
+bool elm327_sim_receive(ELM327emulation * elm327, final Buffer * buffer, int timeout) {
     #ifdef OS_WINDOWS
         if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
             DWORD err = GetLastError();
@@ -443,35 +443,33 @@ void elm327_sim_receive(ELM327emulation * elm327, int sz, char * buffer, int tim
                 log_msg(LOG_DEBUG, "pipe already connected");
             } else {
                 log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                return;
+                return false;
             }
         }
         if ( file_pool(&elm327->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
         }
-        int bytes_readed = 0;
-        if ( ReadFile(elm327->pipe_handle, buffer, sz-1, &bytes_readed, 0) ) {
-            buffer[bytes_readed] = 0;
-        } else {
+        if ( ! ReadFile(elm327->pipe_handle, buffer->buffer, buffer->size_allocated-1, &buffer->size, 0) ) {
             log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
-            return;
+            return false;
         }
     #elif defined OS_POSIX
         int res = file_pool(&elm327->fd, null, SERIAL_DEFAULT_TIMEOUT);
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-            return;
+            return false;
         }
-        int rv = read(elm327->fd,buffer,sz-1);
+        int rv = read(elm327->fd,buffer->buffer,buffer->size_allocated-1);
         if ( rv == -1 ) {
             log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-            return;
+            return false;
         }
-
-        buffer[rv] = 0;
+        buffer->size = rv;
     #else
     #   warning OS unsupported
     #endif
+    buffer_ensure_termination(buffer);
+    return true;
 }
 
 bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_response, final bool isGeneric) {
@@ -708,17 +706,16 @@ bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char*
             ELM327_SIM_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
             usleep(elm327->baud_rate_timeout_msec * 1000);
             ELM327_SIM_REPLY(false, ELM327_SIM_ATI);
-            int sz = 50;
-            char recv[sz];
-            elm327_sim_receive(elm327, sz-1, recv, elm327->baud_rate_timeout_msec);
-            recv[sz-1] = 0;
-            recv[strlen(recv)] = 0;
-            if ( recv[0] == '\r' ) {
-                ELM327_SIM_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-            } else {
-                elm327->baud_rate = previous_baud_rate;
+            final Buffer * recv = buffer_new();
+            buffer_ensure_capacity(recv, 50);
+            if ( elm327_sim_receive(elm327, recv, elm327->baud_rate_timeout_msec) ) {
+                if ( recv->buffer[0] == '\r' ) {
+                    ELM327_SIM_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+                } else {
+                    elm327->baud_rate = previous_baud_rate;
+                }
+                ELM327_SIM_REPLY_GENERIC("");
             }
-            ELM327_SIM_REPLY_GENERIC("");
         }
     } else if AT_PARSE("bi") {
         ELM327_SIM_REPLY_OK();
@@ -1035,14 +1032,21 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     #else
     #   warning OS unsupported
     #endif
+    final Buffer * recv_buffer = buffer_new();
+    buffer_ensure_capacity(recv_buffer, 100);
     while(true) {
-        int sz =  100;
-        char buffer[sz];
+        buffer_recycle(recv_buffer);
         
-        elm327_sim_receive(elm327, sz, buffer, SERIAL_DEFAULT_TIMEOUT);
+        if ( ! elm327_sim_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
+            exit(1);
+        }
 
-        if ( ! elm327_sim_command_and_protocol_interpreter(elm327, buffer, false) ) {
-            if ( ! elm327_sim_reply(elm327, buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
+        if ( recv_buffer->size <= 1 ) {
+            continue;
+        }
+
+        if ( ! elm327_sim_command_and_protocol_interpreter(elm327, recv_buffer->buffer, false) ) {
+            if ( ! elm327_sim_reply(elm327, recv_buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 exit(1);
             }
         }
