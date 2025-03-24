@@ -34,7 +34,7 @@ void display_help() {
 
 gboolean autodiag_present_window(gpointer mainWindow) {
     sleep(1);
-    gtk_window_set_keep_above(GTK_WINDOW(mainGui->window), false);
+    gtk_window_set_keep_above(GTK_WINDOW(mainWindow), false);
     return false;
 }
 int main (int argc, char *argv[]) {

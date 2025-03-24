@@ -122,7 +122,11 @@ void *elm327_sim_daemon(void *d) {
         pthread_join(data.sim->loop_thread, NULL);
     }
 }
-
+gboolean elm327_sim_present_window(gpointer w) {
+    sleep(1);
+    gtk_window_set_keep_above(GTK_WINDOW(w), false);
+    return false;
+}
 int elm327_sim_cli_main(int argc, char **argv) {
     ELM327emulation* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
@@ -225,10 +229,12 @@ int elm327_sim_cli_main(int argc, char **argv) {
             }
         }
     }
-
     for(int i = 0; i < guis->size; i ++) {
         ELM327SimGui *simGui = guis->list[i];
         gtk_widget_show(simGui->window);
+        gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
+        g_idle_add(elm327_sim_present_window, (gpointer)simGui->window);
+        gtk_window_present(GTK_WINDOW(simGui->window));
     }
 
     ELM327SimData data = {
