@@ -19,6 +19,7 @@ PRINT_MODULAR(elm327_sim_cli_help,
     " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
     " elm327sim -g random -c 1234           : use the seed 1234 for generating random numbers\n"
     " elm327sim -g cycle -c 10              : number of gears used in the cycle\n"
+    " elm327sim -g gui                      : default ecu with gui value generator\n"
     "\n"
 )
 
