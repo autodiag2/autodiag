@@ -1,6 +1,6 @@
 import os
 from ctypes import *
-from ...libloader import load_lib
+from pyautodiag.libautodiag.libloader import load_lib
 
 char_p = c_char_p
 c_void_p = c_void_p
