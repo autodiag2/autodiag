@@ -8,12 +8,12 @@
 
 int asprintf(char **strp, const char *fmt, ...);
 
-#include "com/serial/serial.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/serial/serial.h"
+#include "libautodiag/com/obd/obd.h"
 #include "libautodiag/string.h"
 #include <sys/types.h>
 #include <signal.h>
-#include "sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/sim.h"
 #include <stdarg.h>
 #include <assert.h>
 

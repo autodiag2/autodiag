@@ -5,7 +5,7 @@
 
 #include "main.h"
 #include "ui.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/obd/obd.h"
 
 typedef struct {
     GtkWidget *window;

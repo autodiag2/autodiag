@@ -4,7 +4,7 @@
 #define MODULE_VEHICULE_DIAGNOSTIC "Vehicle Diagnostic",
 
 #include "ui.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/obd/obd.h"
 #include "config.h"
 #include "counter.h"
 

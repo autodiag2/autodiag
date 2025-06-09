@@ -10,7 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
-#include "com/obd/obd.h"
+#include "libautodiag/com/obd/obd.h"
 
 /**
  * Define general configuration of the gui, values can be modified by the options gui or directly in file

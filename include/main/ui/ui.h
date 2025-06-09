@@ -6,7 +6,7 @@
 #include "ui/gtk.h"
 #include "libautodiag/log.h"
 #include "libautodiag/thread.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/obd/obd.h"
 #include "error_feedback.h"
 #include "config.h"
 

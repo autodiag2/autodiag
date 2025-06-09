@@ -5,7 +5,7 @@
 
 #include "ui.h"
 #include <stdlib.h>
-#include "sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/sim.h"
 
 typedef struct {
     GtkWidget *window;

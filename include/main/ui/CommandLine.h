@@ -4,8 +4,8 @@
 #define MODULE_COMMAND_LINE "CommandLine",
 
 #include "ui.h"
-#include "com/serial/serial.h"
-#include "com/serial/serial_list.h"
+#include "libautodiag/com/serial/serial.h"
+#include "libautodiag/com/serial/serial_list.h"
 #include "libautodiag/buffer.h"
 #include "config.h"
 

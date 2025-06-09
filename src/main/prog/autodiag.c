@@ -1,5 +1,5 @@
 #include "ui/main.h"
-#include "com/serial/serial_cli.h"
+#include "libautodiag/com/serial/serial_cli.h"
 
 void display_help() {
     printf(

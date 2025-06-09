@@ -9,8 +9,8 @@
 #include "libautodiag/lib.h"
 #include "config.h"
 #include "libautodiag/log.h"
-#include "com/serial/serial.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/serial/serial.h"
+#include "libautodiag/com/obd/obd.h"
 #include "libautodiag/lib.h"
 #include "libautodiag/math.h"
 

@@ -3,8 +3,8 @@
 
 #include "libautodiag/lib.h"
 #include "ui/gtk.h"
-#include "com/serial/serial.h"
-#include "com/obd/obd.h"
+#include "libautodiag/com/serial/serial.h"
+#include "libautodiag/com/obd/obd.h"
 
 typedef struct {
     GtkMessageDialog * serial;

@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "com/obd/saej1979/saej1979.h"
+#include "libautodiag/com/obd/saej1979/saej1979.h"
 
 bool testSAEJ1979(OBDIFace* iface) {
     {
