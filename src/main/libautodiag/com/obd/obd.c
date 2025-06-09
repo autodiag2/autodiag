@@ -6,7 +6,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         byte receiver_address = buffer_extract_0(bin_buffer); 
         byte emitter_address = buffer_extract_0(bin_buffer); 
         
-        final BUFFER address = buffer_new(); 
+        final Buffer * address = buffer_new(); 
         buffer_append_bytes(address,&emitter_address,1); 
         final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
         buffer_free(address); 
@@ -50,7 +50,7 @@ int obd_recv(final OBDIFace* iface) {
         for(int i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
             for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                final BUFFER data = ecu->obd_data_buffer->list[j];
+                final Buffer * data = ecu->obd_data_buffer->list[j];
                 if ( 0 < data->size ) {
                     final byte service_id = data->buffer[0];
                     if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
@@ -58,7 +58,7 @@ int obd_recv(final OBDIFace* iface) {
                         continue;
                     } else {
                         service_id &= ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
-                        final BUFFER data_copy = buffer_copy(data);
+                        final Buffer * data_copy = buffer_copy(data);
                         buffer_extract_0(data_copy);
                         switch(service_id) {
                             case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data,data_copy);break;

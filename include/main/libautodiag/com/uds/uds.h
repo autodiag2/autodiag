@@ -63,7 +63,7 @@ typedef struct {
  * For given frame in buffer (in binary format) give corresponding data structure
  * @return decoded frame or null in case of decoding error result must be free'd
  */
-UDSFrame * uds_decode_buffer_as(final BUFFER buffer, final int frame_type);
-UDSFrame * uds_decode_buffer_auto(final BUFFER buffer);
-UDSFrame * uds_decode_buffer_as_internal(final BUFFER buffer, final int frame_type, final int forceDataSize);
+UDSFrame * uds_decode_buffer_as(final Buffer * buffer, final int frame_type);
+UDSFrame * uds_decode_buffer_auto(final Buffer * buffer);
+UDSFrame * uds_decode_buffer_as_internal(final Buffer * buffer, final int frame_type, final int forceDataSize);
 #endif

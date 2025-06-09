@@ -40,10 +40,10 @@ char * elm_print_id(final nonnull SERIAL port);
  */
 OBDIFace* elm_open_from_serial(final SERIAL port);
 
-BUFFER elm_ascii_to_bin(final ELMDevice * elm, final BUFFER ascii);
-BUFFER elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr);
-void elm_ascii_to_bin_internal(final bool printing_of_spaces, final BUFFER bin, final char * ascii, final char * end_ptr);
-char* elm_ascii_from_bin(final bool printing_of_spaces, final BUFFER bin);
+Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii);
+Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr);
+void elm_ascii_to_bin_internal(final bool printing_of_spaces, final Buffer * bin, final char * ascii, final char * end_ptr);
+char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin);
 
 bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle* vehicle);
 

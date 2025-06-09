@@ -62,11 +62,11 @@ bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, fina
         obd_clear_data(iface);
         obd_recv(iface);
         if ( service_id == 0x01 ) {
-            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data,saej1979_is_pid_supported_iterator,current_set)
+            OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.current_data,saej1979_is_pid_supported_iterator,current_set)
         } else if ( service_id == 0x02 ) {
-            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.freeze_frame_data,saej1979_is_pid_supported_iterator,current_set)
+            OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.freeze_frame_data,saej1979_is_pid_supported_iterator,current_set)
         } else if ( service_id == 0x09 ) {
-            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.request_vehicle_information,saej1979_is_pid_supported_iterator,current_set)
+            OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.request_vehicle_information,saej1979_is_pid_supported_iterator,current_set)
         }
         obd_unlock(iface);
     

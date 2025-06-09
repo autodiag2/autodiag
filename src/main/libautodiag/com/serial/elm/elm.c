@@ -3,7 +3,7 @@
 #define ELM_STANDARD_OBD_MESSAGE_PARSE_RESPONSE_ITERATOR(ptr,end_ptr) \
     switch(elm->guess_response(ptr)) { \
         case DEVICE_RECV_DATA: { \
-            final BUFFER bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
+            final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
             if ( bin_buffer == null ) { \
                 return false; \
             } else { \
@@ -15,7 +15,7 @@
     }
 
 bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle* vehicle) {
-    SERIAL_BUFFER_ITERATE(elm,ELM_STANDARD_OBD_MESSAGE_PARSE_RESPONSE_ITERATOR)
+    SERIAL_Buffer *_ITERATE(elm,ELM_STANDARD_OBD_MESSAGE_PARSE_RESPONSE_ITERATOR)
     return true;
 }
 
@@ -79,7 +79,7 @@ char * elm_print_id(final nonnull SERIAL port) {
     char * id = null;
     
     buffer_ensure_termination(port->recv_buffer); 
-    SERIAL_BUFFER_ITERATE(port,ELM_PRINT_ID_ITERATOR)
+    SERIAL_Buffer *_ITERATE(port,ELM_PRINT_ID_ITERATOR)
         
     return id;
 }
@@ -178,11 +178,11 @@ OBDIFace* elm_open_from_serial(final SERIAL port) {
     }
 }
 
-void elm_ascii_to_bin_with_device(final ELMDevice * elm, final BUFFER bin, final char * ascii, final char * end_ptr) {
+void elm_ascii_to_bin_with_device(final ELMDevice * elm, final Buffer * bin, final char * ascii, final char * end_ptr) {
     elm_ascii_to_bin_internal(elm->printing_of_spaces,bin,ascii,end_ptr);
 }
 
-void elm_ascii_to_bin_internal(final bool printing_of_spaces, final BUFFER bin, final char * ascii, final char * end_ptr) {
+void elm_ascii_to_bin_internal(final bool printing_of_spaces, final Buffer * bin, final char * ascii, final char * end_ptr) {
     char hex[3];
     hex[2] = 0;
     for(char *ptr = ascii; (ptr+1) < end_ptr; ptr+=(2 + printing_of_spaces)) {
@@ -192,7 +192,7 @@ void elm_ascii_to_bin_internal(final bool printing_of_spaces, final BUFFER bin, 
     }
 }
 
-char* elm_ascii_from_bin(final bool printing_of_spaces, final BUFFER bin) {
+char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin) {
     char hex[4];
     hex[3] = 0;
     char * ascii = (char*)malloc((bin->size * (2 + printing_of_spaces) + 1) * sizeof(char));
@@ -202,15 +202,15 @@ char* elm_ascii_from_bin(final bool printing_of_spaces, final BUFFER bin) {
     return ascii;
 }
 
-BUFFER elm_ascii_to_bin(final ELMDevice * elm, final BUFFER ascii) {
-    final BUFFER bin = buffer_new();
+Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii) {
+    final Buffer * bin = buffer_new();
     buffer_ensure_capacity(bin,ascii->size);
     elm_ascii_to_bin_with_device(elm, bin, ascii->buffer, ascii->buffer + ascii->size);
     return bin;
 }
 
-BUFFER elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr) {
-    final BUFFER bin = buffer_new();
+Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr) {
+    final Buffer * bin = buffer_new();
     elm_ascii_to_bin_with_device(elm, bin, ascii, end_ptr);
     return bin;
 }

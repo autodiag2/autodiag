@@ -53,7 +53,7 @@ Buffer * buffer_new_random(int sz) {
     return buffer_new_random_with_seed(sz, &seed);
 }
 
-byte buffer_extract_0(final BUFFER buffer) {
+byte buffer_extract_0(final Buffer * buffer) {
     assert(0 < buffer->size);
     final byte b0 = buffer->buffer[0];
     buffer_left_shift(buffer,1);
@@ -137,23 +137,23 @@ void buffer_prepend_bytes(final Buffer* dest, final byte * data, final int size)
     memcpy(dest->buffer, data, size);
     dest->size += size;
 }
-void buffer_append(final BUFFER dest, final BUFFER src) {
+void buffer_append(final Buffer * dest, final Buffer * src) {
     assert(src != null);
     assert(dest != null);
     buffer_append_bytes(dest, src->buffer, src->size);
 }
 
-void buffer_append_bytes(final BUFFER dest, final byte *data, final int size) {
+void buffer_append_bytes(final Buffer * dest, final byte *data, final int size) {
     buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, data, size);
     dest->size += size;
 }
-void buffer_append_byte(final BUFFER dest, final byte b) {
+void buffer_append_byte(final Buffer * dest, final byte b) {
     buffer_ensure_capacity(dest, 1);
     dest->buffer[dest->size] = b;
     dest->size ++;
 }
-void buffer_append_str(final BUFFER dest, final char *data) {
+void buffer_append_str(final Buffer * dest, final char *data) {
     buffer_append_bytes(dest,data,strlen(data));
 }
 
@@ -187,7 +187,7 @@ void buffer_recycle(Buffer * buffer) {
 
 LIST_DEFINE_MEMBERS_SYM(BufferList,Buffer)
 
-void BufferList_empty(BUFFERLIST list) {
+void BufferList_empty(BufferList * list) {
     assert(list != null);
     for(int i = 0; i < list->size; i ++) {
         if ( list->list[i] != null ) {
@@ -199,9 +199,9 @@ void BufferList_empty(BUFFERLIST list) {
     list->list = null;
     list->size = 0;
 }
-BUFFER buffer_from_ascii_hex_n(char * ascii_hex, int size) {
+Buffer * buffer_from_ascii_hex_n(char * ascii_hex, int size) {
     assert(ascii_hex != null);
-    BUFFER bin = buffer_new();
+    Buffer * bin = buffer_new();
     char *ascii_internal;
     if ( size % 2 ) {
         size ++;

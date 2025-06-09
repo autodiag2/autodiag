@@ -44,7 +44,7 @@ bool elm327_iso15765_parse_response(final ELM327Device* elm327, final Vehicle* v
 
     final ELMDevice* elm = (ELMDevice*)elm327;
     final Iso15765Conversation_list* conversations = Iso15765Conversation_list_new();
-    SERIAL_BUFFER_ITERATE(elm,ELM_ISO15765_PARSE_RESPONSE_ITERATOR)
+    SERIAL_Buffer *_ITERATE(elm,ELM_ISO15765_PARSE_RESPONSE_ITERATOR)
     Iso15765Conversation_list_free(conversations);
     return true;
 }

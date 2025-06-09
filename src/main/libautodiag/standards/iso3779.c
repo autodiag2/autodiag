@@ -163,7 +163,7 @@ bool ISO3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
     return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }
 
-bool ISO3779_wmi_manufacturers_read_tsv_line(BUFFER line, void*data) {
+bool ISO3779_wmi_manufacturers_read_tsv_line(Buffer * line, void*data) {
     void **ptrs = data;
     char * searched_wmi = (char*)ptrs[0];
     char **manufacturer = (char **)ptrs[1];

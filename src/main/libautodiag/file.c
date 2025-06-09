@@ -1,10 +1,10 @@
 #include "libautodiag/file.h"
 
-bool file_read_line(BUFFER line,bool func(BUFFER line, void*data),void *data) {
+bool file_read_line(Buffer * line,bool func(Buffer * line, void*data),void *data) {
     return func(line,data);
 }
 
-bool file_read_lines(char *fileName,bool func(BUFFER line, void*data), void *data) {
+bool file_read_lines(char *fileName,bool func(Buffer * line, void*data), void *data) {
     FILE_READ_LINES_WITH(fileName,file_read_line,func,data);
 }
 

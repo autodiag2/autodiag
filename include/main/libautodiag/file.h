@@ -34,7 +34,7 @@
                                 \
                                 \
         int bulk_sz = 500; \
-        BUFFER buffer = buffer_new(); \
+        Buffer * buffer = buffer_new(); \
                                         \
         do { \
             buffer_ensure_capacity(buffer,bulk_sz); \
@@ -72,7 +72,7 @@
     
 #endif
 
-bool file_read_lines(char *fileName,bool func(BUFFER line, void*data), void *data);
+bool file_read_lines(char *fileName,bool func(Buffer * line, void*data), void *data);
 
 /**
  * For a given path with optionally a filename at the end,

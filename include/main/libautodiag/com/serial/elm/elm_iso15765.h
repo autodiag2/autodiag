@@ -13,7 +13,7 @@ int oneHex(char c);
             memcpy(id_ascii,ptr,id_sz_chars); \
             ptr += id_sz_chars + elm->printing_of_spaces; \
             \
-            final BUFFER address = buffer_from_ascii_hex_n(id_ascii,id_sz_chars); \
+            final Buffer * address = buffer_from_ascii_hex_n(id_ascii,id_sz_chars); \
             final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
             buffer_free(address); \
             Iso15765Conversation *conversation = Iso15765Conversation_list_find(conversations, current_ecu); \
@@ -48,7 +48,7 @@ int oneHex(char c);
                 case Iso15765ConsecutiveFrame: { \
                     if ( conversation == null ) { \
                         log_msg(LOG_ERROR, "Conversation has not started properly"); \
-                        final BUFFER bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
+                        final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
                         buffer_dump(bin_buffer); \
                     } else { \
                         log_msg(LOG_DEBUG, "consecutive frame"); \
@@ -68,7 +68,7 @@ int oneHex(char c);
             } \
             if ( conversation != null ) { \
                 conversation->ecu = current_ecu; \
-                final BUFFER bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
+                final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
                 if ( bin_buffer == null ) { \
                     log_msg(LOG_ERROR, "Error while decoding the ascii buffer"); \
                     return false; \

@@ -22,7 +22,7 @@
     obd_lock(iface); \
     int response = 0; \
     type result = errorValue; \
-    BUFFER obd_req = buffer_from_ascii_hex(obd_request_str); \
+    Buffer * obd_req = buffer_from_ascii_hex(obd_request_str); \
     int pid; \
     bool hasPid = ( 1 < obd_req->size ); \
     if ( hasPid ) { \
@@ -33,9 +33,9 @@
     response = obd_recv(iface); \
     if ( 0 < response ) { \
         if ( hasPid ) { \
-            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(obd_data_buffer_accessor,iterator,pid); \
+            OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(obd_data_buffer_accessor,iterator,pid); \
         } else { \
-            OBD_ITERATE_ECUS_DATA_BUFFER(obd_data_buffer_accessor,iterator); \
+            OBD_ITERATE_ECUS_DATA_Buffer *(obd_data_buffer_accessor,iterator); \
         } \
     } \
     obd_unlock(iface); \

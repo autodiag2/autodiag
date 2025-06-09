@@ -1,5 +1,5 @@
-#ifndef __UDS_FRAME_BUFFER_H
-#define __UDS_FRAME_BUFFER_H
+#ifndef __UDS_FRAME_Buffer *_H
+#define __UDS_FRAME_Buffer *_H
 
 #include "libautodiag/com/uds/uds.h"
 
@@ -28,6 +28,6 @@ void uds_frame_buffer_recycle(UDSFrameBuffer* buffer);
  */
 void uds_frame_buffer_free(UDSFrameBuffer* buffer);
 
-#define UDSFRAMEBUFFER UDSFrameBuffer*
+#define UDSFRAMEBuffer * UDSFrameBuffer*
 
 #endif

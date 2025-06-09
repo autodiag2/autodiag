@@ -24,7 +24,7 @@ SAEJ1979_DTC * SAEJ1979_DTC_list_get(SAEJ1979_DTC_list * list, char *dtcStr) {
     return null;
 }
 
-bool saej1979_read_tsv_line(BUFFER line, void*data) {
+bool saej1979_read_tsv_line(Buffer * line, void*data) {
     void **ptrs = data;
     char * searched_dtc = (char*)ptrs[0];
     SAEJ1979_DTC_DESCRIPTION *dtc_desc = (SAEJ1979_DTC_DESCRIPTION *)ptrs[1];

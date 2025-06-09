@@ -33,7 +33,7 @@ typedef struct {
 #define ELM329_RESPONSE_STOPPED                 0xF001
 #define ELM329_RESPONSE_NO_DATA                 0xF002
 #define ELM329_RESPONSE_ACT_ALERT               0xF003
-#define ELM329_RESPONSE_BUFFER_FULL             0xF004
+#define ELM329_RESPONSE_Buffer *_FULL             0xF004
 #define ELM329_RESPONSE_CAN_ERROR               0xF005
 #define ELM329_RESPONSE_DATA_ERROR              0xF006
 #define ELM329_RESPONSE_DATA_ERROR_AT_LINE      0xF007
@@ -49,7 +49,7 @@ static char * ELM329ResponseStr[] = {
     "STOPPED",          
     "NO DATA",          
     "ACT ALERT",        
-    "BUFFER FULL",      
+    "Buffer * FULL",      
     "CAN ERROR",        
     "DATA ERROR",       
     "<DATA ERROR",      

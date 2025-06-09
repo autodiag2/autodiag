@@ -166,7 +166,7 @@ ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
     elm327->recv(elm327);
 
     ELM327_PROTO current_protocol = ELM327_PROTO_NONE;
-    SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_PROTOCOL_ITERATOR)
+    SERIAL_Buffer *_ITERATE(elm327,ELM327_CURRENT_PROTOCOL_ITERATOR)
 
     free(command);
     return current_protocol;
@@ -191,7 +191,7 @@ double elm327_get_current_battery_voltage(final ELM327Device* elm327) {
     elm327->recv(elm327);
 
     final double result = -1;
-    SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_BATTERY_VOLTAGE_ITERATOR)
+    SERIAL_Buffer *_ITERATE(elm327,ELM327_CURRENT_BATTERY_VOLTAGE_ITERATOR)
     free(command);
     return result;
 }

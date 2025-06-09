@@ -36,7 +36,7 @@ typedef struct {
     /**
      * Data buffer of the conversation
      */
-    BUFFER data;
+    Buffer * data;
     /**
      * sequence serial number of the currently proceceed message (or 0 if only one kind of trame)
      */

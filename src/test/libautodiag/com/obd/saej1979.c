@@ -49,7 +49,7 @@ bool testSAEJ1979(OBDIFace* iface) {
             for(int i = 0; i < v->ecus_len; i++) {
                 ECU * ecu = v->ecus[i];
                 for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                    final BUFFER data = ecu->obd_data_buffer->list[j];
+                    final Buffer * data = ecu->obd_data_buffer->list[j];
                     if ( 0 < data->size ) {
                         final byte service_id = data->buffer[0];
                         if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
@@ -57,7 +57,7 @@ bool testSAEJ1979(OBDIFace* iface) {
                             continue;
                         } else {
                             service_id &= ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
-                            final BUFFER data_copy = buffer_copy(data);
+                            final Buffer * data_copy = buffer_copy(data);
                             buffer_extract_0(data_copy);
                             switch(service_id) {
                                 case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data,data_copy);break;
@@ -73,7 +73,7 @@ bool testSAEJ1979(OBDIFace* iface) {
         vehicle_fill_global_obd_data_from_ecus(v);
         
         int pid = 0x42;
-        OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data,iterator,pid);
+        OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.current_data,iterator,pid);
         assert(result);
     }
     return true;

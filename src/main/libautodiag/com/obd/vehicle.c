@@ -105,7 +105,7 @@ void vehicle_dump(Vehicle* v) {
         log_msg(LOG_DEBUG, "Dump of one ECU");
         ECU * ecu = v->ecus[i];
         log_msg(LOG_DEBUG, "Address");
-        BUFFER address = ecu->address;
+        Buffer * address = ecu->address;
         buffer_dump(address);
         log_msg(LOG_DEBUG, "content");
         BufferList_dump(ecu->obd_data_buffer);

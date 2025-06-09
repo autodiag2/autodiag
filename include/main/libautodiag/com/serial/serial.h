@@ -45,7 +45,7 @@ typedef struct {
     char *eol;
     int timeout;             // timeout in ms before considering no reply from the remote
     int timeout_seq;         // timeout in ms for burst reception
-    BUFFER recv_buffer;      // buffer for input data
+    Buffer * recv_buffer;      // buffer for input data
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
     bool detected;           // did the serial port has been detected during the previous scan
     /**
@@ -99,8 +99,8 @@ int serial_guess_response(final char * buffer);
  * position in the text in argument
  * handle: (ptr, end_ptr) where end_ptr is the excluded bound (exclude eol), ptr the start (end_ptr-ptr is the size)
  */
-#define SERIAL_BUFFER_ITERATE(serial,handle) { \
-    BUFFER recv_buffer = buffer_copy(serial->recv_buffer); \
+#define SERIAL_Buffer *_ITERATE(serial,handle) { \
+    Buffer * recv_buffer = buffer_copy(serial->recv_buffer); \
     buffer_ensure_termination(recv_buffer); \
     char *ptr = recv_buffer->buffer; \
     final char* buffer_last_position = recv_buffer->buffer + recv_buffer->size; \
@@ -172,7 +172,7 @@ int serial_send(final SERIAL port, const char *command);
                 if ( bytes_received == 0 ) { \
                     return DEVICE_RECV_NULL; \
                 } else { \
-                    SERIAL_BUFFER_ITERATE(((SERIAL)serial),ITERATOR) \
+                    SERIAL_Buffer *_ITERATE(((SERIAL)serial),ITERATOR) \
                 } \
             } \
         } \

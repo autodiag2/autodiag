@@ -33,7 +33,7 @@ typedef struct {
 #define ELM327_RESPONSE_NO_DATA                 0xF002
 #define ELM327_RESPONSE_ACT_ALERT               0xF003
 #define ELM327_RESPONSE_ACT_ALERT2              0xF004
-#define ELM327_RESPONSE_BUFFER_FULL             0xF005
+#define ELM327_RESPONSE_Buffer *_FULL             0xF005
 #define ELM327_RESPONSE_BUS_BUSY                0xF006
 #define ELM327_RESPONSE_BUS_ERROR               0xF007
 #define ELM327_RESPONSE_CAN_ERROR               0xF008
@@ -54,7 +54,7 @@ static char * ELM327ResponseStr[] = {
     "NO DATA",
     "ACT ALERT",
     "!ACT ALERT",
-    "BUFFER FULL",
+    "Buffer * FULL",
     "BUS BUSY",
     "BUS ERROR",
     "CAN ERROR",

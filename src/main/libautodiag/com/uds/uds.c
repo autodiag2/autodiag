@@ -1,6 +1,6 @@
 #include "libautodiag/com/uds/uds.h"
 
-UDSFrame * uds_decode_buffer_as_internal(final BUFFER buffer, final int frame_type, final int forceDataSize) {
+UDSFrame * uds_decode_buffer_as_internal(final Buffer * buffer, final int frame_type, final int forceDataSize) {
     UDSFrame * result = null;
     final int sz = buffer->size;
     if ( 1 <= sz ) {
@@ -36,7 +36,7 @@ UDSFrame * uds_decode_buffer_as_internal(final BUFFER buffer, final int frame_ty
     return result;
 }
 
-UDSFrame * uds_decode_buffer_auto(final BUFFER buffer) {
+UDSFrame * uds_decode_buffer_auto(final Buffer * buffer) {
     if ( buffer->size < 1 ) {
         final char byte_0 = buffer->buffer[0];
         final int frame_type = byte_0 & 0xF0;
@@ -46,7 +46,7 @@ UDSFrame * uds_decode_buffer_auto(final BUFFER buffer) {
     }
 }
 
-UDSFrame * uds_decode_buffer_as(final BUFFER buffer, final int frame_type) {
+UDSFrame * uds_decode_buffer_as(final Buffer * buffer, final int frame_type) {
     return uds_decode_buffer_as_internal(buffer, frame_type, -1);
 }
 
