@@ -126,20 +126,16 @@ typedef struct ECUEmulationGenerator {
     void * (*obd_sim_response)(struct ECUEmulationGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
 } ECUEmulationGenerator;
 
-typedef struct {
-    byte address;
-    ECUEmulationGenerator * generator;
-} _ECUEmulation;
-
 /**
  * Used to simulate an ECU on the bus
  */
-typedef struct {
-    _ECUEmulation;
+typedef struct ECUEmulation {
+    byte address;
+    ECUEmulationGenerator * generator;
     /**
      * Respond to an SAEJ1979 query
      */
-    char * (*saej1979_sim_response)(_ECUEmulation * ecu, _ELM327emulation * elm327, char * obd_query_str, bool hasSpaces);
+    char * (*saej1979_sim_response)(struct ECUEmulation * ecu, _ELM327emulation * elm327, char * obd_query_str, bool hasSpaces);
 } ECUEmulation;
 LIST_DEFINE_WITH_MEMBERS_AUTO(ECUEmulation)
 ///
