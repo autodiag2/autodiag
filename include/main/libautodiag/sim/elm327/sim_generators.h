@@ -7,6 +7,6 @@
 ECUEmulationGenerator* sim_ecu_generator_new_cycle();
 ECUEmulationGenerator* sim_ecu_generator_new_random();
 ECUEmulationGenerator * sim_ecu_generator_new();
-#define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((void *(*)(_ECUEmulationGenerator *, char **, Buffer *, Buffer *))f)
+#define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((void *(*)(ECUEmulationGenerator *, char **, Buffer *, Buffer *))f)
 
 #endif

@@ -120,13 +120,10 @@ typedef struct {
 } _ELM327emulation;
 
 /// TO BE DEPLACED TO SIM.h
-typedef struct {
+typedef struct ECUEmulationGenerator {
     void *context;
     char *type;
-} _ECUEmulationGenerator; 
-typedef struct {
-    _ECUEmulationGenerator;
-    void * (*obd_sim_response)(_ECUEmulationGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
+    void * (*obd_sim_response)(struct ECUEmulationGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
 } ECUEmulationGenerator;
 
 typedef struct {
