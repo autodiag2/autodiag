@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "libautodiag/lib.h"
-#include "sim.h"
+#include "libautodiag/sim/elm327/sim.h"
 #include "ui/gtk.h"
 #include "ui/counter.h"
 

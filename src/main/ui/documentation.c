@@ -3,7 +3,7 @@
 DocumentationGui *documentationgui = null;
 
 void documentation_set_manuals_directory() {
-    final char * basepath = config_get_in_data_folder_safe("data" PATH_FOLDER_DELIM "manuals");
+    final char * basepath = installation_folder("data" PATH_FOLDER_DELIM "manuals");
     gtk_file_chooser_set_current_folder(documentationgui->fileChooser,basepath);
     free(basepath);
 }

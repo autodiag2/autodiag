@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include "ui.h"
 #include "libautodiag/lib.h"
-#include "config.h"
+#include "libprog/config.h"
 #include "libautodiag/log.h"
 #include "libautodiag/com/serial/serial.h"
 #include "libautodiag/com/obd/obd.h"

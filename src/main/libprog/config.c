@@ -1,4 +1,4 @@
-#include "ui/config.h"
+#include "libprog/config.h"
 
 #define _DEFAULT_CONFIG { \
     .com = { \

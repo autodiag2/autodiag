@@ -8,6 +8,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/log.h"
 #include "libautodiag/initools.h"
+#include "libautodiag/installation.h"
 
 typedef struct {
     /**
@@ -33,8 +34,6 @@ typedef struct {
         char *directory;
     } internal;
 } CarModel;
-
-#include "ui/config.h"
 
 bool car_description_parser(char * funcData, char *key, char *value);
 void car_engine_free(CarECU *engine);

@@ -2,7 +2,7 @@
 #define __UI_COUNTER_H
 
 #include "ui/gtk.h"
-#include "ui/config.h"
+#include "libprog/config.h"
 #include "libautodiag/math.h"
 
 GtkProgressBar* counter_init(GtkProgressBar* bar);

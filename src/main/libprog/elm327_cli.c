@@ -1,4 +1,4 @@
-#include "libautodiag/sim/elm327/elm327_cli.h"
+#include "libprog/elm327_cli.h"
 
 PRINT_MODULAR(elm327_sim_cli_help,
     "\n"
@@ -51,7 +51,7 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
 
     gtk_init(0, NULL);
 
-    char *ui_dir = config_get_in_data_folder_safe("ui"), *elm327simUiPath;
+    char *ui_dir = installation_folder("ui"), *elm327simUiPath;
     if (ui_dir == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
         return NULL;

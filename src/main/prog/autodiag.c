@@ -1,5 +1,5 @@
 #include "ui/main.h"
-#include "libautodiag/com/serial/serial_cli.h"
+#include "libprog/serial_cli.h"
 
 void display_help() {
     printf(
@@ -56,7 +56,7 @@ int main (int argc, char *argv[]) {
         } else if argIs("data") {
             argNext()
             if argIs("path") {
-                printf("data path: %s\n", config_get_in_data_folder_safe(""));
+                printf("data path: %s\n", installation_folder(""));
                 return 0;
             }
             ABORT_WITH_HELP()

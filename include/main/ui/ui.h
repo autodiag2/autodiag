@@ -8,7 +8,7 @@
 #include "libautodiag/thread.h"
 #include "libautodiag/com/obd/obd.h"
 #include "error_feedback.h"
-#include "config.h"
+#include "libprog/config.h"
 
 /**
  * Perform operation such as lock release on obd interface on thread cancel event

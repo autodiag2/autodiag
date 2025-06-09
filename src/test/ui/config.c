@@ -1,7 +1,7 @@
 #include "libTest.h"
 
 bool testCarDatabaseLoad(OBDIFace* iface) {
-    final char *carDirectory = config_get_in_data_folder_safe("data/car/citroen/973");
+    final char *carDirectory = installation_folder("data/car/citroen/973");
     CarModel * car = car_model_load_from_directory(carDirectory);
     car_model_dump(car);
     assert(car != null);

@@ -37,6 +37,9 @@
         "ratio": "c",
         "poll.h": "c",
         "counter.h": "c",
-        "byte.h": "c"
+        "byte.h": "c",
+        "config.h": "c",
+        "lib.h": "c",
+        "obd.h": "c"
     }
 }

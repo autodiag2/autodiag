@@ -7,7 +7,7 @@
 #include "libautodiag/com/serial/serial.h"
 #include "libautodiag/com/serial/serial_list.h"
 #include "libautodiag/buffer.h"
-#include "config.h"
+#include "libprog/config.h"
 
 typedef struct {
     GtkWidget *window;

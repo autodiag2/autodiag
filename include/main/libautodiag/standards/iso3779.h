@@ -8,7 +8,7 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/byte.h"
 #include <string.h>
-#include "ui/config.h"
+#include "libautodiag/installation.h"
 
 #define ISO3779_WMI_MANUFACTURER_LESS_500 '9'
 typedef struct {

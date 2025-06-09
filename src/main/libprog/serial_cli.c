@@ -1,4 +1,4 @@
-#include "libautodiag/com/serial/serial_cli.h"
+#include "libprog/serial_cli.h"
 
 PRINT_MODULAR(serial_cli_help,
     "\n"

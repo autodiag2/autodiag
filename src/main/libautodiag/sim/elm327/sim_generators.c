@@ -1,5 +1,4 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
-#include "libautodiag/sim/elm327/elm327_cli.h"
 
 void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     ELM327SimGui *gui = (ELM327SimGui *)generator->context;

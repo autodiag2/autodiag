@@ -13,6 +13,6 @@
 /**
  * Get the storage directory
  */
-char *config_get_in_data_folder_safe(char *relative_path);
+char *installation_folder(char *relative_path);
 
 #endif

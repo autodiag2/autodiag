@@ -38,5 +38,6 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "initools.h"
 #include "log.h"
 #include "cli_tools.h"
+#include "installation.h"
 
 #endif

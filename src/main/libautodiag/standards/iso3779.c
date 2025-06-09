@@ -213,7 +213,7 @@ bool ISO3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, cha
 
 char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
     final char * vin = buffer_to_ascii(vin_raw);
-    char *manufacturers_file = config_get_in_data_folder_safe("data/VIN/manufacturers.tsv");
+    char *manufacturers_file = installation_folder("data/VIN/manufacturers.tsv");
     if (manufacturers_file == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
         return null;

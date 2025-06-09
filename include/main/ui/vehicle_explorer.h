@@ -5,7 +5,7 @@
 
 #include "ui.h"
 #include "libautodiag/com/obd/obd.h"
-#include "config.h"
+#include "libprog/config.h"
 #include "counter.h"
 
 #define VH_GEN_OX_SENSOR_STRUCT(i) \

@@ -1,6 +1,6 @@
-#include "libautodiag/config.h"
+#include "libautodiag/installation.h"
 
-char *config_get_in_data_folder_safe(char *relative_path) {
+char *installation_folder(char *relative_path) {
 
     char *data_path = null;
     #if defined OS_WINDOWS

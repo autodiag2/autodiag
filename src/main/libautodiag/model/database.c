@@ -27,7 +27,7 @@ bool car_description_parser(char * funcData, char *key, char *value) {
         return true;
     } else if ( strcasecmp(key,"ecu") == 0 ) {
         char * filename;
-        final char * path = config_get_in_data_folder_safe("data/ecu");
+        final char * path = installation_folder("data/ecu");
         asprintf(&filename, "%s/%s", path, value);
         free(path);
         CarECU *ecu = car_ecu_new();

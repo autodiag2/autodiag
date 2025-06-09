@@ -122,7 +122,7 @@ void module_init_main() {
             log_set_level(config.log.level);
         }
 
-        char * ui_dir = config_get_in_data_folder_safe("ui"), *mainUiPath, *mainCSSPath;
+        char * ui_dir = installation_folder("ui"), *mainUiPath, *mainCSSPath;
         if ( ui_dir == null ) {
             log_msg(LOG_ERROR, "Data directory not found try to reinstall the software");
             exit(1);
