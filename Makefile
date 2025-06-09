@@ -3,28 +3,28 @@ include app.mk
 
 INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
-SOURCES_main = $(call rwildcard,src/main/,*.c)
-# all objects needed for the main application
-OBJS_main = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o))))
-OUTPUT_APP = bin/$(APP_NAME)
-OUTPUT_MAIN = $(OUTPUT_APP) bin/elm327sim
+# Programs
+SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
+OBJS_PROGS = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o))))
+BIN_MAIN_APP = bin/$(APP_NAME)
+BINS_PROGS = $(BIN_MAIN_APP) bin/elm327sim
 
-SOURCES_test = $(call rwildcard,src/test/,*.c)
-#OUTPUT_TESTS = $(subst src/test/,bin/,$(SOURCES_test:.c=))
-OBJS_test = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supported.o,,$(subst src/test/,obj/test/,$(SOURCES_test:.c=.o))))
-OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
-
-# objects of the library
-OBJS_lib = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
-OUTPUT_lib = bin/libautodiag
+# Library shared object
+OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
+BIN_LIB = bin/libautodiag
 LIB_PYTHON_INSTALL_FOLDER = pyautodiag/pyautodiag/libautodiag
 
-SOURCES = $(SOURCES_main) $(SOURCES_test)
-OBJS = $(OBJS_main) $(OBJS_test)
+# Tests
+SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
+OBJS_TESTS = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supported.o,,$(subst src/test/,obj/test/,$(SOURCES_TESTS:.c=.o))))
+BINS_TESTS = bin/regression bin/obd_get_pid_supported
+
+SOURCES = $(SOURCES_PROGS) $(SOURCES_TESTS)
+OBJS = $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
 
 CFLAGS_TESTS = -I src/testFixtures/
-CFLAGS_OBJECTS = 
-LIBS_TESTS = 
+CFLAGS_COVERAGE = 
+CFLAGS_LIBS_TESTS = 
 
 ifneq ($(filter release, $(MAKECMDGOALS)),)
     CFLAGS += $(DEBUG_CFLAGS)
@@ -37,33 +37,33 @@ CC = $(TOOLCHAIN)gcc
 default: compile_main
 
 release: compile_main
-	@-$(TOOLCHAIN)strip $(OUTPUT_MAIN)
+	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
-compile_main: $(OUTPUT_MAIN)
-	@-echo "Software ready at: $(OUTPUT_APP)"
+compile_main: $(BINS_PROGS)
+	@-echo "Software ready at: $(BIN_MAIN_APP)"
 
-compile_test: $(OUTPUT_TESTS)
-	@-echo "Tests: $(OUTPUT_TESTS)"
+compile_test: $(BINS_TESTS)
+	@-echo "Tests: $(BINS_TESTS)"
 
-compile_lib: $(OUTPUT_lib)
-	@-echo "Library ready at: $(OUTPUT_lib)"
+compile_lib: $(BIN_LIB)
+	@-echo "Library ready at: $(BIN_LIB)"
 
-coverage: CFLAGS_OBJECTS += --coverage
-coverage: LIBS_TESTS += -lgcov
+coverage: CFLAGS_COVERAGE += --coverage
+coverage: CFLAGS_LIBS_TESTS += -lgcov
 coverage: veryclean compile_test
 	echo "running coverage with : $(CFLAGS)"
 	./bin/regression
-	$(TOOLCHAIN)gcov -p -t $(OBJS_lib)
+	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
-bin/$(APP_NAME): $(OBJS_main) src/main/prog/autodiag.c $(OUTPUT_lib)
+bin/$(APP_NAME): $(OBJS_PROGS) src/main/prog/autodiag.c $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
-bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c $(OUTPUT_lib)
+bin/elm327sim: $(OBJS_PROGS) src/main/prog/elm327sim.c $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
-bin/libautodiag: $(OBJS_lib)
+bin/libautodiag: $(OBJS_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(CFLAGS_LIBS)
 
@@ -77,19 +77,19 @@ installPythonDev: compile_lib
 	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so 
 	ln -s $(PWD)/bin/libautodiag $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so
 
-bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) $(OUTPUT_lib)
+bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(LIBS_TESTS)
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS)
 
 obj/main/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_OBJECTS) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
 obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
 
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
@@ -106,17 +106,17 @@ veryclean: clean
 	rm -rf bin/
 
 run: default
-	$(OUTPUT_APP)
+	$(BIN_MAIN_APP)
 runDebug: default
-	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug $(OUTPUT_APP)
+	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug $(BIN_MAIN_APP)
 runTest: ./bin/regression
 	./bin/regression
 
 info:
 	@-echo "OBJS=$(OBJS)"
-	@-echo "OBJS_test=$(OBJS_test)"
-	@-echo "OBJS_main=$(OBJS_main)"	
-	@-echo "OBJS_lib=$(OBJS_lib)"
+	@-echo "OBJS_TESTS=$(OBJS_TESTS)"
+	@-echo "OBJS_PROGS=$(OBJS_PROGS)"	
+	@-echo "OBJS_LIB=$(OBJS_LIB)"
 	@-echo "SOURCES=$(SOURCES)"
 
 tarball:
