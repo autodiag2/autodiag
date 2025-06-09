@@ -6,25 +6,8 @@
 #include <stdio.h>
 #include "libautodiag/lib.h"
 #include "libautodiag/sim/elm327/sim.h"
-#include "ui/gtk.h"
-#include "ui/counter.h"
-
-typedef struct {
-    GtkWidget *window;
-    struct {
-        GtkWidget* vehicleSpeed;
-        GtkWidget* coolantTemperature;
-        GtkWidget* engineSpeed;
-    } data;
-    struct {
-        GtkListBox* listView;
-        GtkEntry* input;
-        GtkButton* inputButton;
-        GtkCheckButton* milOn;
-        GtkCheckButton* dtcCleared;
-        GtkWidget *invalidDtc;
-    } dtcs;
-} ELM327SimGui;
+#include "libautodiag/sim/elm327/sim_generators.h"
+#include "libprog/sim_obd_generators.h"
 
 void elm327_sim_cli_display_help();
 int elm327_sim_cli_main(int argc, char **argv);

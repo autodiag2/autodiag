@@ -167,36 +167,38 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
-                final ECUEmulationGeneratorType type = ecu_sim_generator_from_string(optarg);
-                final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
-                generator->type = type;
-                if (generator->type == ECUEmulationGeneratorTypeGui) {
-                    ELM327SimGui_list_append(guis, elm327_sim_build_gui(generator));
+                final ECUEmulationGenerator * generator;
+                if ( strcasecmp(optarg, "random") == 0 ) {
+                    generator = sim_ecu_generator_new_random();
+                } else if ( strcasecmp(optarg, "cycle") == 0 ) {
+                    generator = sim_ecu_generator_new_cycle();
+                } else if ( strcasecmp(optarg,"gui") == 0 ) {
+                    generator = sim_ecu_generator_new_gui();
+                    ELM327SimGui * context = elm327_sim_build_gui(generator);
+                    generator->context = context;
+                    ELM327SimGui_list_append(guis, context);
                 }
+                generator->type = strdup(optarg);
             } break;
             case 'c': {
                 final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
-                switch (generator->type) {
-                    case ECUEmulationGeneratorTypeRandom: {
-                        unsigned *context = (unsigned*)malloc(sizeof(unsigned));
-                        generator->context = context; 
-                        if ( sscanf(optarg, "%u", context) != 1 ) {
-                            printf("Expected unsigned int context for random generator, context is used as the seed\n");
-                            return 1;
-                        }
-                    } break;
-                    case ECUEmulationGeneratorTypeCycle: {
-                        unsigned *context = (unsigned*)malloc(sizeof(unsigned));
-                        generator->context = context; 
-                        if ( sscanf(optarg, "%u", context) != 1 ) {
-                            printf("Expected unsigned int number of gears for cycle generator\n");
-                            return 1;
-                        }
-                    } break;
-                    default: {
-                        printf("Generator type %d as no user definable context\n", generator->type);
+                if ( strcasecmp(generator->type, "random") == 0 ) {
+                    unsigned *context = (unsigned*)malloc(sizeof(unsigned));
+                    generator->context = context; 
+                    if ( sscanf(optarg, "%u", context) != 1 ) {
+                        printf("Expected unsigned int context for random generator, context is used as the seed\n");
                         return 1;
-                    } break;
+                    }
+                } else if ( strcasecmp(generator->type, "cycle") == 0 ) {
+                    unsigned *context = (unsigned*)malloc(sizeof(unsigned));
+                    generator->context = context; 
+                    if ( sscanf(optarg, "%u", context) != 1 ) {
+                        printf("Expected unsigned int number of gears for cycle generator\n");
+                        return 1;
+                    }
+                } else {
+                    printf("Generator type %s as no user definable context\n", generator->type);
+                    return 1;
                 }
             } break;
             case '?': {

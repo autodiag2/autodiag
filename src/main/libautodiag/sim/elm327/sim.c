@@ -49,17 +49,6 @@ char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, 
     return protocolSpecificHeader;     
 }
 
-ECUEmulationGeneratorType ecu_sim_generator_from_string(final char *generator) {
-    if ( strcasecmp(generator, "random") == 0 ) {
-        return ECUEmulationGeneratorTypeRandom;
-    } else if ( strcasecmp(generator, "cycle") == 0 ) {
-        return ECUEmulationGeneratorTypeCycle;
-    } else if ( strcasecmp(generator,"gui") == 0 ) {
-        return ECUEmulationGeneratorTypeGui;
-    }
-    assert(false);
-}
-
 char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = null;
     Buffer* obd_query_bin = buffer_new();
@@ -101,17 +90,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    switch (ecu->generator.type) {
-        case ECUEmulationGeneratorTypeRandom: {
-            ecu_saej1979_sim_generator_random(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
-        } break;
-        case ECUEmulationGeneratorTypeCycle: {
-            ecu_saej1979_sim_generator_cycle(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
-        } break;
-        case ECUEmulationGeneratorTypeGui: {
-            ecu_saej1979_sim_generator_gui(&(ecu->generator), &response, responseOBDdataBin, obd_query_bin);
-        } break;
-    }
+    ecu->generator->obd_sim_response(ecu.generator, &response, responseOBDdataBin, obd_query_bin);
     if ( 0 < responseOBDdataBin->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;

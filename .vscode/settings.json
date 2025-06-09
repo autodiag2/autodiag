@@ -40,6 +40,17 @@
         "byte.h": "c",
         "config.h": "c",
         "lib.h": "c",
-        "obd.h": "c"
+        "obd.h": "c",
+        "installation.h": "c",
+        "sim_generators.h": "c",
+        "cmath": "c",
+        "__config": "c",
+        "atomic": "c",
+        "complex": "c",
+        "cstdarg": "c",
+        "iterator": "c",
+        "mutex": "c",
+        "streambuf": "c",
+        "sim.h": "c"
     }
 }
