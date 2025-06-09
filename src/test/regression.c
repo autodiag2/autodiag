@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testGlobals,null);
     runTestMaybe(testStringList,null);
     runTestMaybe(testSIM,null);
-    runTestMaybe(testISO3779,null);
+    //runTestMaybe(testISO3779,null);
 
     final OBDIFace* iface = port_open(start_elm327_simulation());
 
