@@ -40,7 +40,7 @@ int elm_linefeeds(final nonnull SERIAL port, final bool state) {
     if ( serial_send_at_command(port, "l%d", state) ) {
         port->eol =  strdup(state ? "\r\n" : "\r");
         buffer_recycle(port->recv_buffer);
-        if ( port->recv(DEVICE(port)) == SERIAL_RESPONSE_OK ) {
+        if ( port->recv(port) == SERIAL_RESPONSE_OK ) {
             return state;
         } else {
             port->eol = original_eol;        

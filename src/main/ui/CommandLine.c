@@ -40,10 +40,10 @@ void * command_line_send_command_wait_response_internal(final void * arg) {
                 command_line_append_text_to_output(msg);
                 free(ctime);
             }
-            if ( port->send(DEVICE(port), command) == DEVICE_ERROR ) {
+            if ( port->send(port, command) == DEVICE_ERROR ) {
                 error_feedback_serial(cmdGui->errorFeedback,port);                
             } else {
-                port->recv(DEVICE(port));
+                port->recv(port);
                 {
                     final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
                     if ( result == null ) {

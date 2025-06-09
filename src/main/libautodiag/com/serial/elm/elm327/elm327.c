@@ -111,12 +111,12 @@ char* elm327_describe_communication_layer(final ELM327Device* elm327) {
 }
 
 void elm327_init(ELM327Device* d) {
-    d->send = (int (*)(_Device *, const char *))elm327_send;
-    d->recv = (int (*)(_Device *))elm327_recv;
-    d->describe_communication_layer = (char*(*)(_Device*))elm327_describe_communication_layer;
-    d->parse_data = (bool (*)(_Device* , Vehicle*))elm327_obd_data_parse;
+    d->send = elm327_send;
+    d->recv = elm327_recv;
+    d->describe_communication_layer = elm327_describe_communication_layer;
+    d->parse_data = elm327_obd_data_parse;
     d->guess_response = elm327_guess_response;
-    d->configure = (bool (*)(Device*))elm327_configure;
+    d->configure = elm327_configure;
     d->protocol = ELM327_PROTO_NONE;
     d->printing_of_spaces = true;
 }

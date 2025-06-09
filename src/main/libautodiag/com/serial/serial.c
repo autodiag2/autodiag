@@ -376,16 +376,16 @@ void serial_init(final Serial* serial) {
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
     serial->timeout_seq = SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT;
     serial->detected = false;
-    serial->open = (void (*)(final _Device* ))serial_open;
-    serial->close = (void (*)(final _Device* ))serial_close;
-    serial->send = (int (*)(_Device *, const char *))serial_send;
-    serial->recv = (int (*)(_Device *))serial_recv;
-    serial->describe_communication_layer = (char* (*)(_Device*))serial_describe_communication_layer;
+    serial->open = serial_open;
+    serial->close = serial_close;
+    serial->send = serial_send;
+    serial->recv = serial_recv;
+    serial->describe_communication_layer = serial_describe_communication_layer;
     serial->parse_data = null;
     serial->guess_response = serial_guess_response;
-    serial->lock = (void(*)(_Device*))serial_lock;
-    serial->unlock = (void(*)(_Device*))serial_unlock;
-    serial->clear_data = (void (*)(final _Device* device))serial_clear_data;
+    serial->lock = serial_lock;
+    serial->unlock = serial_unlock;
+    serial->clear_data = serial_clear_data;
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->lock_mutex, NULL);
     #if defined OS_WINDOWS

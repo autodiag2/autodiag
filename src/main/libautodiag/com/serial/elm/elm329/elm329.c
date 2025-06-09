@@ -149,13 +149,13 @@ bool elm329_configure(final ELM329Device* elm329) {
 }
 
 void elm329_init(ELM329Device* d) {
-    d->send = (int (*)(_Device *, const char *))elm329_send;
-    d->recv = (int (*)(_Device *))elm329_recv;
-    d->describe_communication_layer = (char*(*)(_Device*))elm329_describe_communication_layer;
-    d->parse_data = (bool (*)(_Device* , Vehicle*))elm329_obd_data_parse;
+    d->send = elm329_send;
+    d->recv = elm329_recv;
+    d->describe_communication_layer = elm329_describe_communication_layer;
+    d->parse_data = elm329_obd_data_parse;
     d->protocol = ELM329_PROTO_NONE;
     d->guess_response = elm329_guess_response;
-    d->configure = (bool (*)(Device*))elm329_configure;
+    d->configure = elm329_configure;
     d->printing_of_spaces = true;
 }
 ELM329Device* elm329_new() {

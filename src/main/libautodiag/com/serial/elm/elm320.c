@@ -42,10 +42,10 @@ bool elm320_configure(final ELM320Device* elm320) {
 GEN_SERIAL_RECV(elm320_recv,ELM320Device,ELM320_RECV_ITERATOR)
 
 void elm320_init(ELM320Device* d) {
-    d->send = (int (*)(_Device *, const char *))serial_send;
-    d->recv = (int (*)(_Device *))elm320_recv;
-    d->describe_communication_layer = (char*(*)(_Device*))elm320_describe_communication_layer;
-    d->parse_data = (bool (*)(_Device* , Vehicle*))elm_standard_obd_message_parse_response;
+    d->send = (int (*)(Device *, const char *))serial_send;
+    d->recv = (int (*)(Device *))elm320_recv;
+    d->describe_communication_layer = (char*(*)(Device*))elm320_describe_communication_layer;
+    d->parse_data = (bool (*)(Device* , Vehicle*))elm_standard_obd_message_parse_response;
     d->guess_response = elm320_guess_response;
     d->configure = (bool (*)(Device*))elm320_configure;
     d->printing_of_spaces = true;

@@ -85,12 +85,12 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
         }
         final OBDIFace* iface = config.ephemere.iface;
         if ( iface == null ) {
-            adaptater_protocol_set_text(port->describe_communication_layer(DEVICE(port)));
+            adaptater_protocol_set_text(port->describe_communication_layer(port));
             adaptater_interface_set_text("Not an OBD interface");
         } else {
             final char * response = elm_print_id((SERIAL)iface->device);
             adaptater_interface_set_text((char*)response);
-            adaptater_protocol_set_text((char*)iface->device->describe_communication_layer((_Device*)iface->device));
+            adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
             free(response);
         }
     }

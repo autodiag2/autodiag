@@ -20,21 +20,21 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
 }
 
 void obd_close(final OBDIFace* iface) {
-    iface->device->close((_Device*)iface->device);    
+    iface->device->close(iface->device);    
 }
 
 int obd_send(final OBDIFace* iface, const char *request) {
-    return iface->device->send((_Device*)iface->device, request);
+    return iface->device->send(iface->device, request);
 }
 
 int obd_recv(final OBDIFace* iface) {
     final int initial_data_buffer_received = iface->vehicle->obd_data_buffer->size;
-    switch(iface->device->recv(DEVICE(iface->device))) {
+    switch(iface->device->recv(iface->device)) {
         case DEVICE_RECV_DATA: {
             if ( iface->device->parse_data == null ) {
                 log_msg(LOG_WARNING, "parsing incoming data on a device without obd parser");
             } else {
-                iface->device->parse_data(DEVICE(iface->device),iface->vehicle);
+                iface->device->parse_data(iface->device,iface->vehicle);
             }
         } break;
         case DEVICE_RECV_DATA_UNAVAILABLE: {
@@ -86,15 +86,15 @@ int obd_recv(final OBDIFace* iface) {
 }
 
 void obd_lock(final nonnull OBDIFace* iface) {
-    iface->device->lock((_Device*)iface->device);
+    iface->device->lock(iface->device);
 }
 
 void obd_unlock(final nonnull OBDIFace* iface) {
-    iface->device->unlock((_Device*)iface->device);
+    iface->device->unlock(iface->device);
 }
 
 void obd_clear_data(final OBDIFace* iface) {
-    iface->device->clear_data((_Device*)iface->device);
+    iface->device->clear_data(iface->device);
     for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
         vehicle_ecu_empty(iface->vehicle->ecus[i]);
     }

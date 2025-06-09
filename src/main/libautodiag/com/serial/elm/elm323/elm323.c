@@ -42,12 +42,12 @@ bool elm323_configure(final ELM323Device* elm323) {
 GEN_SERIAL_RECV(elm323_recv,ELM323Device,ELM323_RECV_ITERATOR)
 
 void elm323_init(ELM323Device* d) {
-    d->send = (int (*)(_Device *, const char *))serial_send;
-    d->recv = (int (*)(_Device *))elm323_recv;
-    d->describe_communication_layer = (char*(*)(_Device*))elm323_describe_communication_layer;
-    d->parse_data = (bool (*)(_Device* , Vehicle*))elm_standard_obd_message_parse_response;    
+    d->send = serial_send;
+    d->recv = elm323_recv;
+    d->describe_communication_layer = elm323_describe_communication_layer;
+    d->parse_data = elm_standard_obd_message_parse_response;    
     d->guess_response = elm323_guess_response;
-    d->configure = (bool (*)(Device*))elm323_configure;
+    d->configure = elm323_configure;
     d->printing_of_spaces = true;
 }
 

@@ -40,10 +40,10 @@ bool elm322_configure(final ELM322Device* elm322) {
 GEN_SERIAL_RECV(elm322_recv,ELM322Device,ELM322_RECV_ITERATOR)
 
 void elm322_init(ELM322Device* d) {
-    d->send = (int (*)(_Device *, const char *))serial_send;
-    d->recv = (int (*)(_Device *))elm322_recv;
-    d->describe_communication_layer = (char*(*)(_Device*))elm322_describe_communication_layer;
-    d->parse_data = (bool (*)(_Device* , Vehicle*))elm_standard_obd_message_parse_response;
+    d->send = serial_send;
+    d->recv = elm322_recv;
+    d->describe_communication_layer = elm322_describe_communication_layer;
+    d->parse_data = elm_standard_obd_message_parse_response;
     d->guess_response = elm322_guess_response;
     d->configure = (bool (*)(Device*))elm322_configure;
     d->printing_of_spaces = true;
