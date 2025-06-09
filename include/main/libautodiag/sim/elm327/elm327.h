@@ -131,7 +131,7 @@ typedef struct {
 
 typedef struct {
     byte address;
-    ECUEmulationGenerator generator;
+    ECUEmulationGenerator * generator;
 } _ECUEmulation;
 
 /**

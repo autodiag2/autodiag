@@ -87,7 +87,7 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
 
 ECUEmulationGenerator* sim_ecu_generator_new_gui() {
     ECUEmulationGenerator * generator = sim_ecu_generator_new();
-    generator->obd_sim_response = ecu_saej1979_sim_generator_gui;
+    generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(ecu_saej1979_sim_generator_gui);
     generator->type = strdup("gui");
     return generator;
 }

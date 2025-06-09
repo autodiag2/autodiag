@@ -685,7 +685,8 @@ obj/main/libautodiag/initools.o: src/main/libautodiag/initools.c \
   include/main/libautodiag/log.h include/main/libautodiag/byte.h \
   include/main/libautodiag/file.h
 obj/main/libautodiag/installation.o: src/main/libautodiag/installation.c \
-  include/main/libautodiag/installation.h
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/lang.h
 obj/main/libautodiag/lang.o: src/main/libautodiag/lang.c \
   include/main/libautodiag/lang.h
 obj/main/libautodiag/lib.o: src/main/libautodiag/lib.c \
@@ -1003,7 +1004,7 @@ obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
-  include/main/ui/gtk.h \
+  include/main/libprog/sim_obd_generators.h include/main/ui/gtk.h \
   include/main/ui/counter.h include/main/libprog/config.h
 obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libprog/serial_cli.h include/main/libautodiag/lib.h \
@@ -1045,6 +1046,53 @@ obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libautodiag/com/serial/elm/elm323/../elm.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h
+obj/main/libprog/sim_obd_generators.o: \
+  src/main/libprog/sim_obd_generators.c \
+  include/main/libprog/sim_obd_generators.h \
+  include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang.h include/main/libautodiag/list.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/string.h \
+  include/main/libautodiag/log.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h \
+  include/main/libautodiag/stringlist.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/com/serial/elm/elm327/elm327.h \
+  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/com/obd/vehicle.h \
+  include/main/libautodiag/com/obd/device.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/stored_dtcs.h \
+  include/main/libautodiag/model/database.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/../iso15031/iso15031_6.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/vehicle_info.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
+  include/main/libautodiag/com/can/can.h \
+  include/main/libautodiag/com/can/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm.h \
+  include/main/libautodiag/com/serial/serial.h \
+  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/elm/elm_iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm329/elm329.h \
+  include/main/libautodiag/com/serial/elm/elm329/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm329/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm323/elm323.h \
+  include/main/libautodiag/com/serial/elm/elm323/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm322.h \
+  include/main/libautodiag/com/serial/elm/elm320.h \
+  include/main/libautodiag/com/serial/elm/elm327/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
+  include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libautodiag/sim/elm327/sim_generators.h \
+  include/main/ui/gtk.h \
+  include/main/ui/counter.h include/main/libprog/config.h
 obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/ui/ui.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
@@ -1139,7 +1187,7 @@ obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
-  include/main/ui/gtk.h \
+  include/main/libprog/sim_obd_generators.h include/main/ui/gtk.h \
   include/main/ui/counter.h include/main/libprog/config.h
 obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/ui/CommandLine.h include/main/ui/ui.h \

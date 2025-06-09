@@ -90,7 +90,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    ecu->generator->obd_sim_response(ecu.generator, &response, responseOBDdataBin, obd_query_bin);
+    ecu->generator->obd_sim_response(ecu->generator, &response, responseOBDdataBin, obd_query_bin);
     if ( 0 < responseOBDdataBin->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;
@@ -184,7 +184,6 @@ ECUEmulation* ecu_emulation_new(byte address) {
     ECUEmulation* emu = (ECUEmulation*)malloc(sizeof(ECUEmulation));
     emu->saej1979_sim_response = (char * (*)(_ECUEmulation *, _ELM327emulation *, char *,bool))ecu_saej1979_sim_response;
     emu->address = address;
-    emu->generator.type = ECUEmulationGeneratorTypeRandom;
-    emu->generator.context = null;
+    emu->generator = sim_ecu_generator_new_random();
     return emu;
 }

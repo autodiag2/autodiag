@@ -1,5 +1,6 @@
 #include "ui/main.h"
 #include "libprog/serial_cli.h"
+#include "libprog/elm327_cli.h"
 
 void display_help() {
     printf(

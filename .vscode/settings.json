@@ -51,6 +51,7 @@
         "iterator": "c",
         "mutex": "c",
         "streambuf": "c",
-        "sim.h": "c"
+        "sim.h": "c",
+        "iso3779.h": "c"
     }
 }

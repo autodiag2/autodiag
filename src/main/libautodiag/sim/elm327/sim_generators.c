@@ -8,22 +8,22 @@ ECUEmulationGenerator * sim_ecu_generator_new() {
     return generator;
 }
 
-int sim_ecu_sim_generator_cycle_percent[0xFF][0xFF] = {0};
-void sim_ecu_sim_generator_cycle_iterate(int service_id, int pid, unsigned gears) {
-    sim_ecu_sim_generator_cycle_percent[service_id][pid] += (100/gears);
-    sim_ecu_sim_generator_cycle_percent[service_id][pid] %= 100;
+int sim_ecu_generator_cycle_percent[0xFF][0xFF] = {0};
+void sim_ecu_generator_cycle_iterate(int service_id, int pid, unsigned gears) {
+    sim_ecu_generator_cycle_percent[service_id][pid] += (100/gears);
+    sim_ecu_generator_cycle_percent[service_id][pid] %= 100;
 }
-void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
     }
     switch(obd_query_bin->buffer[0]) {
         case 0x02: case 0x01: {
-            buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+            buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
         } break;
         case 0x07: case 0x0A: case 0x03: {
-            buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][0]));                
+            buffer_append(responseOBDdataBin,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][0]));                
         } break;
         case 0x04: {
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
@@ -40,7 +40,7 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
                         break;
                     }
                     case 0x02: {
-                        buffer_append(responseOBDdataBin,buffer_new_cycle(17, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
+                        buffer_append(responseOBDdataBin,buffer_new_cycle(17, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
                         break;
                     }
                     case 0x03: {
@@ -48,7 +48,7 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
                         break;
                     }
                     case 0x04: {
-                        buffer_append(responseOBDdataBin,buffer_new_cycle(16, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
+                        buffer_append(responseOBDdataBin,buffer_new_cycle(16, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
                         break;
                     }
                     case 0x05: {
@@ -56,7 +56,7 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
                         break;
                     }
                     case 0x06: {
-                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
                         break;
                     }
                     case 0x07: {
@@ -64,7 +64,7 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
                         break;
                     }
                     case 0x08: {
-                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
                         break;
                     }
                     case 0x09: {
@@ -78,7 +78,7 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_sim_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(responseOBDdataBin,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
                         break;
                     }
                 }
@@ -87,17 +87,17 @@ void sim_ecu_sim_generator_cycle(ECUEmulationGenerator *generator, char ** respo
             }
         } break;
     }
-    ecu_saej1979_sim_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0, gears);
+    sim_ecu_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0, gears);
 }
 
 ECUEmulationGenerator* sim_ecu_generator_new_cycle() {
     ECUEmulationGenerator * generator = sim_ecu_generator_new();
-    generator->obd_sim_response = sim_ecu_sim_generator_cycle;
+    generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_cycle);
     generator->type = strdup("cycle");
     return generator;
 }
 
-void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -176,7 +176,7 @@ void ecu_saej1979_sim_generator_random(ECUEmulationGenerator *generator, char **
 }
 ECUEmulationGenerator* sim_ecu_generator_new_random() {
     ECUEmulationGenerator * generator = sim_ecu_generator_new();
-    generator->obd_sim_response = ecu_saej1979_sim_generator_random;
+    generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_random);
     generator->type = strdup("random");
     return generator;
 }
