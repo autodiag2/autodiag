@@ -25,7 +25,7 @@ CFLAGS_TESTS = -I src/testFixtures/
 CFLAGS_COVERAGE = 
 CFLAGS_LIBS_TESTS = 
 
-ifneq ($(filter release, $(MAKECMDGOALS)),)
+ifeq ($(filter release_progs, $(MAKECMDGOALS)),)
     CFLAGS += $(DEBUG_CFLAGS)
 endif
 
@@ -35,7 +35,7 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-release: compile_progs
+release_progs: compile_progs
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
@@ -126,16 +126,16 @@ tarball:
 distDebianSrc: veryclean
 	dpkg-source --format="$$(cat dist/debian/source/format)" -l$$(pwd)/dist/debian/changelog -c$$(pwd)/dist/debian/control -b .
 
-distDebianBin: release
+distDebianBin: release_progs
 	cd dist/ && dpkg-buildpackage -b --buildinfo-option=-u../bin/ --changes-option=-u../bin/ -us -uc --hook-done='fakeroot debian/rules done'
 	# Due to missing behaviour in dpkg-genchanges(1.19.7) (that is in dpkg-genbuilinfo) look -u -O, we are required to do this
 	mv $(APP_NAME)_*.changes ./bin/
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
-distWindows: release
+distWindows: release_progs
 	echo '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" dist/windows/package.iss' | powershell.exe
 
-distMacOS: release
+distMacOS: release_progs
 	./dist/macos/package.sh
 
 distDebian: distDebianBin
@@ -180,8 +180,8 @@ help:
 	@-echo " run          	- run the software"
 	@-echo " runDebug     	- run with debug flags"
 	@-echo " runTest      	- run regression test"
-	@-echo " compile_progs 	- compile progs"
-	@-echo " release      	- compile progs with debugging info removed"
+	@-echo " compile_progs  - compile progs"
+	@-echo " release_progs  - compile progs with debugging info removed"
 	@-echo " compile_tests 	- compile tests"
 	@-echo " compile_lib  	- compile the library"
 	@-echo " installPython	- install lib in the python package"
