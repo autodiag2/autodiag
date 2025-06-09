@@ -17,6 +17,7 @@ OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
 # objects of the library
 OBJS_lib = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
 OUTPUT_lib = bin/libautodiag
+LIB_PYTHON_INSTALL_FOLDER = pyautodiag/pyautodiag/libautodiag
 
 SOURCES = $(SOURCES_main) $(SOURCES_test)
 OBJS = $(OBJS_main) $(OBJS_test)
@@ -25,8 +26,8 @@ CFLAGS_TESTS = -I src/testFixtures/
 CFLAGS_OBJECTS = 
 LIBS_TESTS = 
 
-ifeq ($(filter release, $(MAKECMDGOALS)),)
-        CFLAGS += $(DEBUG_CFLAGS)
+ifneq ($(filter release, $(MAKECMDGOALS)),)
+    CFLAGS += $(DEBUG_CFLAGS)
 endif
 
 CFLAGS += -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\""
@@ -44,7 +45,8 @@ compile_main: $(OUTPUT_MAIN)
 compile_test: $(OUTPUT_TESTS)
 	@-echo "Tests: $(OUTPUT_TESTS)"
 
-compile_lib: $(OBJS_lib)
+compile_lib: $(OUTPUT_lib)
+	@-echo "Library ready at: $(OUTPUT_lib)"
 
 coverage: CFLAGS_OBJECTS += --coverage
 coverage: LIBS_TESTS += -lgcov
@@ -64,6 +66,16 @@ bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c $(OUTPUT_lib)
 bin/libautodiag: $(OBJS_lib)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+
+installPython: compile_lib
+	@-echo "Installing library in the python package"
+	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so 
+	cp -f bin/libautodiag $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so
+
+installPythonDev: compile_lib
+	@-echo "Installing library in the python package"
+	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so 
+	ln -s $(PWD)/bin/libautodiag $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so
 
 bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
@@ -156,7 +168,7 @@ install: uninstall
 	cp -fr data/data "$(INSTALL_FOLDER)"
 	cp -fr media "$(INSTALL_FOLDER)"
 	cp ./bin/$(APP_NAME) "$(INSTALL_BIN_FOLDER)"
-installDebug: uninstall
+installDev: uninstall
 	mkdir -p "$(INSTALL_FOLDER)" "$(INSTALL_BIN_FOLDER)"
 	ln -s "$${PWD}/data/data" "$(INSTALL_FOLDER)"
 	ln -s "$${PWD}/ui" "$(INSTALL_FOLDER)"
@@ -167,22 +179,25 @@ uninstall:
 	rm -f "$(INSTALL_BIN_FOLDER)/$(APP_NAME)"
 help:
 	@-echo "Development setup"
-	@-echo " install      - copy files"
-	@-echo " installDebug - using symlinks"
-	@-echo " uninstall    - delete previous installation"
-	@-echo " run          - run the software"
-	@-echo " runDebug     - run with debug flags"
-	@-echo " runTest      - run regression test"
-	@-echo " compile_main - compile the main"
-	@-echo " release      - compile the main with debugging info removed"
-	@-echo " compile_test - compile tests"
-	@-echo " coverage     - recompile project with coverage information included"
-	@-echo " dependencies - update project files dependencies"
+	@-echo " install      	- copy files"
+	@-echo " installDev 	- using symlinks"
+	@-echo " uninstall    	- delete previous installation"
+	@-echo " run          	- run the software"
+	@-echo " runDebug     	- run with debug flags"
+	@-echo " runTest      	- run regression test"
+	@-echo " compile_main 	- compile the main"
+	@-echo " release      	- compile the main with debugging info removed"
+	@-echo " compile_test 	- compile tests"
+	@-echo " compile_lib  	- compile the library"
+	@-echo " installPython	- install lib in the python package"
+	@-echo " installPythonDev	- same but using symlinks"
+	@-echo " coverage     	- recompile project with coverage information included"
+	@-echo " dependencies 	- update project files dependencies"
 	@-echo "Software management"
-	@-echo " distDebian   - package for debian"
-	@-echo " distWindows  - package in an installer for windows"
-	@-echo " distMacOS    - package as DMG for macOS"
-	@-echo " newVersion   - create a new version"
+	@-echo " distDebian   	- package for debian"
+	@-echo " distWindows  	- package in an installer for windows"
+	@-echo " distMacOS    	- package as DMG for macOS"
+	@-echo " newVersion   	- create a new version"
 	@-echo "Configuration variables"
 	@-echo " TOOLCHAIN           - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
 	@-echo " INSTALL_DATA_FOLDER - where to install application data"
