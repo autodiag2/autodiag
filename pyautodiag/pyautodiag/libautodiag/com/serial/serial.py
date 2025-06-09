@@ -1,6 +1,7 @@
 from ctypes import *
 from pyautodiag.libautodiag.libloader import load_lib
 from pyautodiag.libautodiag.buffer import Buffer
+from pyautodiag.libautodiag.com.obd.device import Device
 
 lib = load_lib()
 
@@ -8,9 +9,6 @@ byte = c_ubyte
 bool_ = c_bool
 char_p = c_char_p
 c_int_p = POINTER(c_int)
-
-class Device(Structure):
-    pass
 
 class SerialStatus(c_int):
     pass

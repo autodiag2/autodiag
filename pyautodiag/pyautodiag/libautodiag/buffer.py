@@ -9,28 +9,27 @@ class Buffer(Structure):
         ("size", c_int),
         ("buffer", POINTER(c_ubyte))
     ]
-    def __init__(self, ptr=None):
-        self.ptr = ptr or lib.buffer_new()
     
-    def free(self): lib.buffer_free(self.ptr)
-    def copy(self): return Buffer(lib.buffer_copy(self.ptr))
-    def append(self, other): lib.buffer_append(self.ptr, other.ptr)
-    def append_bytes(self, data): lib.buffer_append_bytes(self.ptr, (c_ubyte * len(data))(*data), len(data))
-    def append_byte(self, b): lib.buffer_append_byte(self.ptr, b)
-    def append_str(self, s): lib.buffer_append_str(self.ptr, c_char_p(s.encode()))
-    def prepend(self, other): lib.buffer_prepend(self.ptr, other.ptr)
-    def prepend_byte(self, b): lib.buffer_prepend_byte(self.ptr, b)
-    def prepend_bytes(self, data): lib.buffer_prepend_bytes(self.ptr, (c_ubyte * len(data))(*data), len(data))
-    def ensure_capacity(self, sz): return lib.buffer_ensure_capacity(self.ptr, sz)
-    def ensure_termination(self): lib.buffer_ensure_termination(self.ptr)
-    def equals(self, other): return lib.buffer_equals(self.ptr, other.ptr)
-    def cmp(self, other): return lib.buffer_cmp(self.ptr, other.ptr)
-    def padding(self, until, pad): lib.buffer_padding(self.ptr, until, pad)
-    def to_ascii_hex(self): return lib.buffer_to_ascii_hex(self.ptr).decode()
-    def to_ascii(self): return lib.buffer_to_ascii(self.ptr).decode()
-    def to_string(self): return lib.buffer_to_string(self.ptr).decode()
-    def get_free_space(self): return lib.buffer_get_free_space(self.ptr)
-    def extract_first(self): return lib.buffer_extract_0(self.ptr)
+    def dump(self): lib.buffer_dump(self)
+    def free(self): lib.buffer_free(self)
+    def copy(self): return Buffer(lib.buffer_copy(self))
+    def append(self, other): lib.buffer_append(self, other)
+    def append_bytes(self, data): lib.buffer_append_bytes(self, (c_ubyte * len(data))(*data), len(data))
+    def append_byte(self, b): lib.buffer_append_byte(self, b)
+    def append_str(self, s): lib.buffer_append_str(self, c_char_p(s.encode()))
+    def prepend(self, other): lib.buffer_prepend(self, other)
+    def prepend_byte(self, b): lib.buffer_prepend_byte(self, b)
+    def prepend_bytes(self, data): lib.buffer_prepend_bytes(self, (c_ubyte * len(data))(*data), len(data))
+    def ensure_capacity(self, sz): return lib.buffer_ensure_capacity(self, sz)
+    def ensure_termination(self): lib.buffer_ensure_termination(self)
+    def equals(self, other): return lib.buffer_equals(self, other)
+    def cmp(self, other): return lib.buffer_cmp(self, other)
+    def padding(self, until, pad): lib.buffer_padding(self, until, pad)
+    def to_ascii_hex(self): return lib.buffer_to_ascii_hex(self).decode()
+    def to_ascii(self): return lib.buffer_to_ascii(self).decode()
+    def to_string(self): return lib.buffer_to_string(self).decode()
+    def get_free_space(self): return lib.buffer_get_free_space(self)
+    def extract_first(self): return lib.buffer_extract_0(self)
 
     @classmethod
     def from_ascii_hex(cls, s): return cls(lib.buffer_from_ascii_hex(s.encode()))
@@ -79,4 +78,5 @@ lib.buffer_ensure_capacity.restype = c_bool
 lib.buffer_get_free_space.argtypes = [POINTER(Buffer)]
 lib.buffer_get_free_space.restype = c_int
 lib.buffer_padding.argtypes = [POINTER(Buffer), c_int, c_ubyte]
-lib.buffer_free.argtypes = [POINTER(Buffer)]
+lib.buffer_free.argtypes = [POINTER(Buffer)]   
+lib.buffer_dump.argtypes = [POINTER(Buffer)]
