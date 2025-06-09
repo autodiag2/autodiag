@@ -1,5 +1,5 @@
-#ifndef __UDS_FRAME_Buffer *_H
-#define __UDS_FRAME_Buffer *_H
+#ifndef __UDS_FRAME_BUFFER_H
+#define __UDS_FRAME_BUFFER_H
 
 #include "libautodiag/com/uds/uds.h"
 

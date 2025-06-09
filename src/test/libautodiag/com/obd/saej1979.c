@@ -73,7 +73,7 @@ bool testSAEJ1979(OBDIFace* iface) {
         vehicle_fill_global_obd_data_from_ecus(v);
         
         int pid = 0x42;
-        OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.current_data,iterator,pid);
+        OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data,iterator,pid);
         assert(result);
     }
     return true;

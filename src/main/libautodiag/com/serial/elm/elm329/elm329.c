@@ -59,7 +59,7 @@ ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     elm329->recv(elm329);
 
     ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
-    SERIAL_Buffer *_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)
+    SERIAL_BUFFER_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)
 
     free(command);
     return current_protocol;

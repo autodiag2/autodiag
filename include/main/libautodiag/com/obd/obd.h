@@ -69,7 +69,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
 /**
  * handler has the shape: handler(Buffer * data, arg)
  */
-#define OBD_ITERATE_ECUS_DATA_Buffer *(BufferList,handler) { \
+#define OBD_ITERATE_ECUS_DATA_BUFFER(BufferList,handler) { \
     final Vehicle* v = iface->vehicle; \
     for(int i = 0; i < v->ecus_len; i++) { \
         final ECU* ecu = v->ecus[i]; \
@@ -84,9 +84,9 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
  * handler has the shape: handler(Buffer * data, arg) 
  * and is called only when the pid match the wanted one
  * ex: 
- *  OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(ecu->obd_service.current_data, saej1979_get_current_vehicle_speed_iterator, 0x0D, result);
+ *  OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data, saej1979_get_current_vehicle_speed_iterator, 0x0D, result);
  */
-#define OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(BufferList,handler,_expected_pid) { \
+#define OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(BufferList,handler,_expected_pid) { \
     int expected_pid = _expected_pid; \
     final Vehicle* v = iface->vehicle; \
     for(int i = 0; i < v->ecus_len; i++) { \

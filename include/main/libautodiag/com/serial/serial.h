@@ -99,7 +99,7 @@ int serial_guess_response(final char * buffer);
  * position in the text in argument
  * handle: (ptr, end_ptr) where end_ptr is the excluded bound (exclude eol), ptr the start (end_ptr-ptr is the size)
  */
-#define SERIAL_Buffer *_ITERATE(serial,handle) { \
+#define SERIAL_BUFFER_ITERATE(serial,handle) { \
     Buffer * recv_buffer = buffer_copy(serial->recv_buffer); \
     buffer_ensure_termination(recv_buffer); \
     char *ptr = recv_buffer->buffer; \
@@ -172,7 +172,7 @@ int serial_send(final SERIAL port, const char *command);
                 if ( bytes_received == 0 ) { \
                     return DEVICE_RECV_NULL; \
                 } else { \
-                    SERIAL_Buffer *_ITERATE(((SERIAL)serial),ITERATOR) \
+                    SERIAL_BUFFER_ITERATE(((SERIAL)serial),ITERATOR) \
                 } \
             } \
         } \

@@ -42,7 +42,7 @@ void module_init_documentation(GtkBuilder *builder) {
                 .name = GTK_LABEL (gtk_builder_get_object(builder, "window-documentation-about-app-name")),                
                 .maintainer = GTK_LABEL (gtk_builder_get_object(builder, "window-documentation-about-app-maintainer")),                
                 .description = GTK_TEXT_VIEW (gtk_builder_get_object(builder, "window-documentation-about-app-desc")),                
-                .descriptionText = GTK_TEXT_Buffer * (gtk_builder_get_object(builder, "window-documentation-description-buffer"))
+                .descriptionText = GTK_TEXT_BUFFER (gtk_builder_get_object(builder, "window-documentation-description-buffer"))
             }
         };
         *documentationgui = g;

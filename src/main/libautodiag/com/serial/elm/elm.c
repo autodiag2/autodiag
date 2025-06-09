@@ -15,7 +15,7 @@
     }
 
 bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle* vehicle) {
-    SERIAL_Buffer *_ITERATE(elm,ELM_STANDARD_OBD_MESSAGE_PARSE_RESPONSE_ITERATOR)
+    SERIAL_BUFFER_ITERATE(elm,ELM_STANDARD_OBD_MESSAGE_PARSE_RESPONSE_ITERATOR)
     return true;
 }
 
@@ -79,7 +79,7 @@ char * elm_print_id(final nonnull SERIAL port) {
     char * id = null;
     
     buffer_ensure_termination(port->recv_buffer); 
-    SERIAL_Buffer *_ITERATE(port,ELM_PRINT_ID_ITERATOR)
+    SERIAL_BUFFER_ITERATE(port,ELM_PRINT_ID_ITERATOR)
         
     return id;
 }

@@ -33,9 +33,9 @@
     response = obd_recv(iface); \
     if ( 0 < response ) { \
         if ( hasPid ) { \
-            OBD_ITERATE_ECUS_DATA_Buffer *_WITH_PID(obd_data_buffer_accessor,iterator,pid); \
+            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(obd_data_buffer_accessor,iterator,pid); \
         } else { \
-            OBD_ITERATE_ECUS_DATA_Buffer *(obd_data_buffer_accessor,iterator); \
+            OBD_ITERATE_ECUS_DATA_BUFFER(obd_data_buffer_accessor,iterator); \
         } \
     } \
     obd_unlock(iface); \
