@@ -8,3 +8,10 @@ print("ECUEmulation created with address:", hex(ecuEmulation.address))
 
 from pyautodiag.libautodiag.installation import installation_folder
 print("Installation folder:", installation_folder("ui"))
+
+from pyautodiag.libautodiag.log import *
+log_set_level(LOG_DEBUG)
+log_msg(LOG_INFO, "This is an info message")
+log_msg(LOG_WARNING, "This is a warning message")
+log_msg(LOG_ERROR, "This is an error message")
+log_msg(LOG_DEBUG, "This is a debug message")
