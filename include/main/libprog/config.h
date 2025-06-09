@@ -25,6 +25,9 @@ typedef struct {
         } serial;
     } com;
     struct {
+        LogLevel level;
+    } log;
+    struct {
         bool adaptater_detailled_settings_showned;
     } main;
     struct {
@@ -38,9 +41,6 @@ typedef struct {
         double refreshRateS;
         bool autoRefresh;
     } vehicleExplorer;
-    struct {
-        LogLevel level;
-    } log;
 } Config;
 
 #define CONFIG_DEFAULT_FILENAME "config.ini"
@@ -63,10 +63,6 @@ bool config_reset();
  * Apply changes to the system
  */
 void config_onchange();
-/**
- * Get the storage directory
- */
-char *config_get_in_data_folder_safe(char *relative_path);
 char *config_get_config_filename();
 void config_dump(Config * config);
 void config_commandLine_showTimestamp_set(final bool state);
