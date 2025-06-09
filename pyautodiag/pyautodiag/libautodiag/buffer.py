@@ -10,44 +10,55 @@ class Buffer(Structure):
         ("buffer", POINTER(c_ubyte))
     ]
     
-    def dump(self): lib.buffer_dump(self)
-    def free(self): lib.buffer_free(self)
-    def copy(self): return Buffer(lib.buffer_copy(self))
-    def append(self, other): lib.buffer_append(self, other)
-    def append_bytes(self, data): lib.buffer_append_bytes(self, (c_ubyte * len(data))(*data), len(data))
-    def append_byte(self, b): lib.buffer_append_byte(self, b)
-    def append_str(self, s): lib.buffer_append_str(self, c_char_p(s.encode()))
-    def prepend(self, other): lib.buffer_prepend(self, other)
-    def prepend_byte(self, b): lib.buffer_prepend_byte(self, b)
-    def prepend_bytes(self, data): lib.buffer_prepend_bytes(self, (c_ubyte * len(data))(*data), len(data))
-    def ensure_capacity(self, sz): return lib.buffer_ensure_capacity(self, sz)
-    def ensure_termination(self): lib.buffer_ensure_termination(self)
-    def equals(self, other): return lib.buffer_equals(self, other)
-    def cmp(self, other): return lib.buffer_cmp(self, other)
-    def padding(self, until, pad): lib.buffer_padding(self, until, pad)
-    def to_ascii_hex(self): return lib.buffer_to_ascii_hex(self).decode()
-    def to_ascii(self): return lib.buffer_to_ascii(self).decode()
-    def to_string(self): return lib.buffer_to_string(self).decode()
-    def get_free_space(self): return lib.buffer_get_free_space(self)
-    def extract_first(self): return lib.buffer_extract_0(self)
-    def get_free_space(self): return lib.buffer_get_free_space(self)
-    def recycle(self): lib.buffer_recycle(self)
+    def dump(self): lib.buffer_dump(byref(self))
+    def free(self): lib.buffer_free(byref(self))
+    def copy(self): return lib.buffer_copy(byref(self)).contents
+    def append(self, other): lib.buffer_append(byref(self), byref(other))
+    def append_bytes(self, data): lib.buffer_append_bytes(byref(self), (c_ubyte * len(data))(*data), len(data))
+    def append_byte(self, b): lib.buffer_append_byte(byref(self), b)
+    def append_str(self, s): lib.buffer_append_str(byref(self), c_char_p(s.encode()))
+    def prepend(self, other): lib.buffer_prepend(byref(self), byref(other))
+    def prepend_byte(self, b): lib.buffer_prepend_byte(byref(self), b)
+    def prepend_bytes(self, data): lib.buffer_prepend_bytes(byref(self), (c_ubyte * len(data))(*data), len(data))
+    def ensure_capacity(self, sz): return lib.buffer_ensure_capacity(byref(self), sz)
+    def ensure_termination(self): lib.buffer_ensure_termination(byref(self))
+    def equals(self, other): return lib.buffer_equals(byref(self), byref(other))
+    def cmp(self, other): return lib.buffer_cmp(byref(self), byref(other))
+    def padding(self, until, pad): lib.buffer_padding(byref(self), until, pad)
+    def to_ascii_hex(self): return lib.buffer_to_ascii_hex(byref(self)).decode()
+    def to_ascii(self): return lib.buffer_to_ascii(byref(self)).decode()
+    def to_string(self): return lib.buffer_to_string(byref(self)).decode()
+    def get_free_space(self): return lib.buffer_get_free_space(byref(self))
+    def extract_first(self): return lib.buffer_extract_0(byref(self))
+    def recycle(self): lib.buffer_recycle(byref(self))
 
     @classmethod
-    def from_ascii_hex(cls, s): return cls(lib.buffer_from_ascii_hex(s.encode()))
+    def from_ascii_hex(cls, s):
+        ptr = lib.buffer_from_ascii_hex(s.encode())
+        return ptr.contents
     @classmethod
-    def from_ascii(cls, s): return cls(lib.buffer_from_ascii(s.encode()))
+    def from_ascii(cls, s):
+        ptr = lib.buffer_from_ascii(s.encode())
+        return ptr.contents
     @classmethod
-    def from_string(cls, s): return cls(lib.buffer_from_string(s.encode()))
+    def from_string(cls, s):
+        ptr = lib.buffer_from_string(s.encode())
+        return ptr.contents
     @classmethod
-    def new_random(cls, sz): return cls(lib.buffer_new_random(sz))
+    def new_random(cls, sz):
+        ptr = lib.buffer_new_random(sz)
+        return ptr.contents
     @classmethod
-    def new_random_with_seed(cls, sz, seed): 
-        seed_ptr = pointer(c_uint(seed))
-        return cls(lib.buffer_new_random_with_seed(sz, seed_ptr))
+    def new_random_with_seed(cls, sz, seed):
+        seed_c = c_uint(seed)
+        ptr = lib.buffer_new_random_with_seed(sz, byref(seed_c))
+        return ptr.contents
     @classmethod
-    def new_cycle(cls, sz, percent): return cls(lib.buffer_new_cycle(sz, percent))
+    def new_cycle(cls, sz, percent):
+        ptr = lib.buffer_new_cycle(sz, percent)
+        return ptr.contents
 
+lib.buffer_new.argtypes = [c_int]
 lib.buffer_new.restype = POINTER(Buffer)
 lib.buffer_copy.argtypes = [POINTER(Buffer)]
 lib.buffer_copy.restype = POINTER(Buffer)
