@@ -29,7 +29,7 @@ else
 endif
 
 DEBUG_CFLAGS = -ggdb
-CFLAGS = -I include/main/ -fms-extensions `pkg-config --cflags gtk+-3.0`
+CFLAGS = $(DEBUG_CFLAGS) -I include/main/ -fms-extensions `pkg-config --cflags gtk+-3.0`
 LIBS = -lpthread -lm `pkg-config --libs gtk+-3.0`
 
 define rwildcard

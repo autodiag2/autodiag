@@ -5,7 +5,7 @@ INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 SOURCES_main = $(call rwildcard,src/main/,*.c)
 # all objects needed for the main application
-OBJS_main = $(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
+OBJS_main = $(filter-out obj/main/lib/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o))))
 OUTPUT_APP = bin/$(APP_NAME)
 OUTPUT_MAIN = $(OUTPUT_APP) bin/elm327sim
 
@@ -15,8 +15,8 @@ OBJS_test = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supporte
 OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
 
 # objects of the library
-OBJS_lib = obj/main/ui/config.o $(filter-out obj/main/ui/%.o,$(OBJS_main))
-
+OBJS_lib = $(filter obj/main/lib/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
+OUTPUT_lib = bin/libautodiag
 
 SOURCES = $(SOURCES_main) $(SOURCES_test)
 OBJS = $(OBJS_main) $(OBJS_test)
@@ -44,6 +44,8 @@ compile_main: $(OUTPUT_MAIN)
 compile_test: $(OUTPUT_TESTS)
 	@-echo "Tests: $(OUTPUT_TESTS)"
 
+compile_lib: $(OBJS_lib)
+
 coverage: CFLAGS_OBJECTS += --coverage
 coverage: LIBS_TESTS += -lgcov
 coverage: veryclean compile_test
@@ -51,15 +53,19 @@ coverage: veryclean compile_test
 	./bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_lib)
 
-bin/$(APP_NAME): $(OBJS_main) src/main/prog/autodiag.c
+bin/$(APP_NAME): $(OBJS_main) src/main/prog/autodiag.c $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
 
-bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c
+bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
 
-bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) 
+bin/libautodiag: $(OBJS_lib)
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(LIBS)
+
+bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_TESTS) $^ -o '$@' $(LIBS) $(LIBS_TESTS)
 
