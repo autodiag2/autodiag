@@ -198,6 +198,7 @@ void serial_strip_char_internal(final Buffer * buffer, final char * char_to_stri
  * @return allocated with malloc
  */
 char * serial_status_to_string(final SerialStatus status);
+char * serial_describe_status(final Serial * port);
 
 char * at_command(char * at_command, ...);
 char * at_command_va(char * at_command, va_list ap);

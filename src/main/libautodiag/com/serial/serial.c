@@ -459,6 +459,15 @@ char * serial_status_to_string(final SerialStatus status) {
     }
 }
 
+char * serial_describe_status(final Serial * port) {
+    assert(port != null);
+    char *status = serial_status_to_string(port->status);
+    char *result = null;
+    asprintf(&result, "Serial status: %s", status);
+    free(status);
+    return result;
+}
+
 bool at_is_command(char * command) {
     return strncmp(command,"at",2) == 0;
 }
