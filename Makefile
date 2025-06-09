@@ -55,29 +55,29 @@ coverage: veryclean compile_test
 
 bin/$(APP_NAME): $(OBJS_main) src/main/prog/autodiag.c $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 bin/elm327sim: $(OBJS_main) src/main/prog/elm327sim.c $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $^ -o '$@' $(LIBS)
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 bin/libautodiag: $(OBJS_lib)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(LIBS)
+	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(CFLAGS_LIBS)
 
 bin/%: src/test/%.c $(OBJS_main) $(OBJS_test) $(OUTPUT_lib)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CFLAGS_TESTS) $^ -o '$@' $(LIBS) $(LIBS_TESTS)
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(LIBS_TESTS)
 
 obj/main/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_OBJECTS) -c $(filter %.c,$(^)) -o '$@'
 
 obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_OBJECTS) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
 
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;

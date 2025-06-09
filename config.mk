@@ -28,9 +28,11 @@ else
     INSTALL_BIN_FOLDER = /usr/bin/
 endif
 
-DEBUG_CFLAGS = -ggdb
-CFLAGS = $(DEBUG_CFLAGS) -I include/main/ -fms-extensions `pkg-config --cflags gtk+-3.0`
-LIBS = -lpthread -lm `pkg-config --libs gtk+-3.0`
+CFLAGS_DEBUG    = -ggdb
+CGLAGS_GUI      = `pkg-config --cflags gtk+-3.0`
+CFLAGS          = -I include/main/ -fms-extensions
+CFLAGS_LIBS     = -lpthread -lm
+CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
 
 define rwildcard
 	$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
