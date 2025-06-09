@@ -427,13 +427,13 @@ void serial_free(final Serial * port) {
 }
 
 void serial_dump(final Serial * port) {
-    const char * title = "Serial dump (number/baud_rate/status/name/eol):";
+    const char * title = "Serial dump (name/baud_rate/status/eol):";
     char *result = null;
     if ( port == null ) {
         asprintf(&result, "%s NULL", title);
         module_debug(MODULE_SERIAL result);
     } else {
-        asprintf(&result, "%s %d/%d/%s/%s", title, port->baud_rate, port->status,port->name,port->eol);
+        asprintf(&result, "%s %d/%d/%s/%s", title, port->name, port->baud_rate, port->status, port->eol);
         module_debug(MODULE_SERIAL result);
     }
     free(result);
