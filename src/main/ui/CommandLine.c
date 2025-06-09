@@ -45,7 +45,7 @@ void * command_line_send_command_wait_response_internal(final void * arg) {
             } else {
                 port->recv(DEVICE(port));
                 {
-                    final char * result = buffer_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
+                    final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
                     if ( result == null ) {
                         command_line_append_text_to_output("No data received from the device\n");
                     } else {

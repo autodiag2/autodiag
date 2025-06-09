@@ -36,6 +36,7 @@
         "optional": "c",
         "ratio": "c",
         "poll.h": "c",
-        "counter.h": "c"
+        "counter.h": "c",
+        "byte.h": "c"
     }
 }

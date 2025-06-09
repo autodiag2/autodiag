@@ -81,7 +81,7 @@ int serial_cli_main(int argc, char *argv[]) {
             serial->clear_data(serial);
             serial->recv(DEVICE(serial));
             {
-                final char * result = buffer_to_hexdump(serial->recv_buffer->buffer, serial->recv_buffer->size);
+                final char * result = bytes_to_hexdump(serial->recv_buffer->buffer, serial->recv_buffer->size);
                 if ( result == null ) {
                     printf("No data received from the device\n");
                 } else {

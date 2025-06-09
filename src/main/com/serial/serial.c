@@ -22,7 +22,7 @@ int serial_send(final Serial * port, const char *command) {
 
         if ( log_has_level(LOG_DEBUG) ) {
             module_debug(MODULE_SERIAL "Sending");
-            bin_dump(tx_buf,bytes_to_send);
+            bytes_dump(tx_buf,bytes_to_send);
         }
         #if defined OS_WINDOWS
             DWORD bytes_written;

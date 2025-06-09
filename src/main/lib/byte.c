@@ -1,6 +1,25 @@
-#include "lib/bin.h"
+#include "lib/byte.h"
 
-char * buffer_to_hexdump(final byte *buffer, final int size) {
+char * bytes_to_ascii(final byte *buffer, final int size) {
+    assert(buffer != null);
+    char * res = (char*) malloc(sizeof(char) * (size+1));
+    memcpy(res, buffer, size);
+    res[size] = 0;
+    return res;
+}
+char * bytes_to_ascii_hex(final byte *buffer, final int size) {
+    assert(buffer != null);
+    char *hex = (char*)malloc(sizeof(char) * (size*2 + 1));
+    hex[0] = 0;
+    char h[3] = {0};
+    for(int i = 0; i < size; i++) {
+        sprintf((char*)&h,"%02x",buffer[i]);
+        strcpy(hex + i * 2, h);
+    }
+    return hex;
+}
+
+char * bytes_to_hexdump(final byte *buffer, final int size) {
     if ( buffer == null ) {
         return null;
     } else {
@@ -50,11 +69,11 @@ char * buffer_to_hexdump(final byte *buffer, final int size) {
     }
 }
 
-void bin_dump(final byte *buffer, final int size) {
+void bytes_dump(final byte *buffer, final int size) {
     if ( buffer == null ) {
         log_msg(LOG_DEBUG, "NULL buffer");
     } else {
-        final char * result = buffer_to_hexdump(buffer, size);
+        final char * result = bytes_to_hexdump(buffer, size);
         int sz = strlen(result);
         assert(0 < sz);
         if ( result[sz-1] == '\n' ) {

@@ -27,7 +27,7 @@ GENERATE_TYPE_DUP_HEADER(int);
 GENERATE_TYPE_DUP_HEADER(double);
 GENERATE_TYPE_DUP_HEADER(byte);
 
-#include "bin.h"
+#include "byte.h"
 #include "file.h"
 #include "buffer.h"
 #include "math.h"

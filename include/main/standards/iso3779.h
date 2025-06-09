@@ -6,6 +6,7 @@
 #define _STD_ISO3779_H
 
 #include "lib/buffer.h"
+#include "lib/byte.h"
 #include <string.h>
 #include "ui/config.h"
 
@@ -15,6 +16,9 @@ typedef struct {
         char * country;
         char * manufacturer;
     } wmi;
+    struct {
+        char *data;
+    } vds;
     struct {
         char *year;
         char *serial_number;

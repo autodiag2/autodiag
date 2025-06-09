@@ -4,6 +4,7 @@ ISO3779_decoded * ISO3779_vin_new() {
     ISO3779_decoded * vinDecoded = (ISO3779_decoded*)malloc(sizeof(ISO3779_decoded));
     vinDecoded->wmi.country = null;
     vinDecoded->wmi.manufacturer = null;
+    vinDecoded->vds.data = null;
     vinDecoded->vis.serial_number = null;
     vinDecoded->vis.year = null;
     return vinDecoded;
@@ -16,6 +17,10 @@ void ISO3779_vin_free(ISO3779_decoded *vin) {
     if ( vin->wmi.manufacturer != null ) {
         free(vin->wmi.manufacturer);
         vin->wmi.manufacturer = null;
+    }
+    if ( vin->vds.data != null ) {
+        free(vin->vds.data);
+        vin->vds.data = null;
     }
     if ( vin->vis.serial_number != null ) {
         free(vin->vis.serial_number);
@@ -294,6 +299,7 @@ ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
     ISO3779_decoded * vinDecoded = ISO3779_vin_new();
     vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
     vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
+    vinDecoded->vds.data = bytes_to_ascii_hex(vin->buffer + 3, 6);
     vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
     vinDecoded->vis.serial_number = ISO3779_vis_serial_number_from(vin);
     return vinDecoded;

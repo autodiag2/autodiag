@@ -171,13 +171,13 @@ void buffer_ensure_termination(nonnull Buffer * buffer) {
 
 void buffer_dump(Buffer * buffer) {
     assert(buffer != null);    
-    bin_dump(buffer->buffer, buffer->size);
+    bytes_dump(buffer->buffer, buffer->size);
 }
 
 void buffer_debug(Buffer *buffer) {
     assert(buffer != null);
     log_msg(LOG_DEBUG, "buffer: {size_allocated: %d, size: %d, addr: 0x%p}",buffer->size_allocated,buffer->size,buffer->buffer);
-    bin_dump(buffer->buffer, buffer->size);
+    bytes_dump(buffer->buffer, buffer->size);
 }
 
 void buffer_recycle(Buffer * buffer) {
@@ -250,21 +250,10 @@ Buffer* buffer_from_ascii_hex(char * ascii_hex) {
     return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
 char * buffer_to_ascii(final Buffer *buffer) {
-    char * res = (char*) malloc(sizeof(char) * (buffer->size+1));
-    memcpy(res, buffer->buffer, buffer->size);
-    res[buffer->size] = 0;
-    return res;
+    return bytes_to_ascii(buffer->buffer, buffer->size);
 }
 char* buffer_to_ascii_hex(Buffer *buffer) {
-    assert(buffer != null);
-    char *hex = (char*)malloc(sizeof(char) * (buffer->size*2 + 1));
-    hex[0] = 0;
-    char h[3] = {0};
-    for(int i = 0; i < buffer->size; i++) {
-        sprintf((char*)&h,"%02x",buffer->buffer[i]);
-        strcpy(hex + i * 2, h);
-    }
-    return hex;
+    return bytes_to_ascii_hex(buffer->buffer, buffer->size);
 }
 void BufferList_dump(final BufferList* list) {
     assert(list != null);
