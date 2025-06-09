@@ -63,6 +63,7 @@ typedef struct {
 #endif
 } Serial;
 #define SERIAL Serial*
+#define CAST_SERIAL_GUESS_RESPONSE(var) ((int (*)(char* ptr))var)
 
 /**
  * Responses defined by Hayes command set:

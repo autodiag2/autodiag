@@ -54,9 +54,9 @@ int elm329_guess_response(final char * buffer) {
 
 ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     final char * command = at_command("dpn");
-    final bool result = (3 <= elm329->send(DEVICE(elm329), command));
+    final bool result = (3 <= elm329->send(elm329, command));
     buffer_recycle(elm329->recv_buffer);
-    elm329->recv(DEVICE(elm329));
+    elm329->recv(elm329);
 
     ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
     SERIAL_BUFFER_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)
@@ -149,15 +149,16 @@ bool elm329_configure(final ELM329Device* elm329) {
 }
 
 void elm329_init(ELM329Device* d) {
-    d->send = elm329_send;
-    d->recv = elm329_recv;
-    d->describe_communication_layer = elm329_describe_communication_layer;
-    d->parse_data = elm329_obd_data_parse;
+    d->send = CAST_DEVICE_SEND(elm329_send);
+    d->recv = CAST_DEVICE_RECV(elm329_recv);
+    d->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm329_describe_communication_layer);
+    d->parse_data = CAST_DEVICE_PARSE_DATA(elm329_obd_data_parse);
     d->protocol = ELM329_PROTO_NONE;
-    d->guess_response = elm329_guess_response;
-    d->configure = elm329_configure;
+    d->guess_response = CAST_SERIAL_GUESS_RESPONSE(elm329_guess_response);
+    d->configure = CAST_ELM_DEVICE_CONFIGURE(elm329_configure);
     d->printing_of_spaces = true;
 }
+
 ELM329Device* elm329_new() {
     ELM329Device* d = (ELM329Device*)malloc(sizeof(ELM329Device));
     elm329_init(d);

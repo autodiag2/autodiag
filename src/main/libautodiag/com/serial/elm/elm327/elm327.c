@@ -111,15 +111,16 @@ char* elm327_describe_communication_layer(final ELM327Device* elm327) {
 }
 
 void elm327_init(ELM327Device* d) {
-    d->send = elm327_send;
-    d->recv = elm327_recv;
-    d->describe_communication_layer = elm327_describe_communication_layer;
-    d->parse_data = elm327_obd_data_parse;
-    d->guess_response = elm327_guess_response;
-    d->configure = elm327_configure;
+    d->send = CAST_DEVICE_SEND(elm327_send);
+    d->recv = CAST_DEVICE_RECV(elm327_recv);
+    d->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm327_describe_communication_layer);
+    d->parse_data = CAST_DEVICE_PARSE_DATA(elm327_obd_data_parse);
+    d->guess_response = CAST_SERIAL_GUESS_RESPONSE(elm327_guess_response);
+    d->configure = CAST_ELM_DEVICE_CONFIGURE(elm327_configure);
     d->protocol = ELM327_PROTO_NONE;
     d->printing_of_spaces = true;
 }
+
 ELM327Device* elm327_new() {
     ELM327Device* d = (ELM327Device*)malloc(sizeof(ELM327Device));
     elm327_init(d);
@@ -160,9 +161,9 @@ bool elm327_printing_of_spaces(final ELM327Device* elm327, bool state) {
 
 ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
     final char * command = at_command("dpn");
-    final bool result = (3 <= elm327->send(DEVICE(elm327), command));
+    final bool result = (3 <= elm327->send(elm327, command));
     buffer_recycle(elm327->recv_buffer);
-    elm327->recv(DEVICE(elm327));
+    elm327->recv(elm327);
 
     ELM327_PROTO current_protocol = ELM327_PROTO_NONE;
     SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_PROTOCOL_ITERATOR)
@@ -185,9 +186,9 @@ bool elm327_calibrate_battery_voltage(final ELM327Device* elm327, double voltage
 
 double elm327_get_current_battery_voltage(final ELM327Device* elm327) {
     final char * command = at_command("rv");
-    elm327->send(DEVICE(elm327), command);
+    elm327->send(elm327, command);
     buffer_recycle(elm327->recv_buffer);
-    elm327->recv(DEVICE(elm327));
+    elm327->recv(elm327);
 
     final double result = -1;
     SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_BATTERY_VOLTAGE_ITERATOR)

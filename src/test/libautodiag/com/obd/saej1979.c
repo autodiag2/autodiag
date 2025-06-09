@@ -41,7 +41,7 @@ bool testSAEJ1979(OBDIFace* iface) {
         obd_clear_data(iface);
         buffer_append_str(((SERIAL)iface->device)->recv_buffer,"\r7E804410C59C019\r>");
         
-        iface->device->parse_data(DEVICE(iface->device),iface->vehicle);
+        iface->device->parse_data(iface->device,iface->vehicle);
 
         log_msg(LOG_DEBUG, "Storing in the corresponding service");
         VEHICLE v = iface->vehicle;

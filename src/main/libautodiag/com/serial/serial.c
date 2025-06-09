@@ -376,16 +376,16 @@ void serial_init(final Serial* serial) {
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
     serial->timeout_seq = SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT;
     serial->detected = false;
-    serial->open = serial_open;
-    serial->close = serial_close;
-    serial->send = serial_send;
-    serial->recv = serial_recv;
-    serial->describe_communication_layer = serial_describe_communication_layer;
+    serial->open = CAST_DEVICE_OPEN(serial_open);
+    serial->close = CAST_DEVICE_CLOSE(serial_close);
+    serial->send = CAST_DEVICE_SEND(serial_send);
+    serial->recv = CAST_DEVICE_RECV(serial_recv);
+    serial->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(serial_describe_communication_layer);
     serial->parse_data = null;
-    serial->guess_response = serial_guess_response;
-    serial->lock = serial_lock;
-    serial->unlock = serial_unlock;
-    serial->clear_data = serial_clear_data;
+    serial->guess_response = CAST_SERIAL_GUESS_RESPONSE(serial_guess_response);
+    serial->lock = CAST_DEVICE_LOCK(serial_lock);
+    serial->unlock = CAST_DEVICE_UNLOCK(serial_unlock);
+    serial->clear_data = CAST_DEVICE_CLEAR_DATA(serial_clear_data);
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->lock_mutex, NULL);
     #if defined OS_WINDOWS
@@ -505,7 +505,7 @@ bool serial_send_at_command_internal(final Serial* serial, char *cmd, va_list ap
 
     va_end(ap);
 
-    if ( serial->send(DEVICE(serial), cmdAt) == DEVICE_ERROR ) {
+    if ( serial->send(serial, cmdAt) == DEVICE_ERROR ) {
         return false;
     }
     free(cmdAt);
@@ -525,7 +525,7 @@ bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
     }
 
     buffer_recycle(serial->recv_buffer);
-    bool result = serial->recv(DEVICE(serial)) == SERIAL_RESPONSE_OK;
+    bool result = serial->recv(serial) == SERIAL_RESPONSE_OK;
     
     return result;
 }
