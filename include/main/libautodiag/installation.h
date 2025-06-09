@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "lang.h"
+#include "compile_target.h"
 
 /**
  * Get the storage directory
