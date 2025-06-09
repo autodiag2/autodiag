@@ -6,7 +6,7 @@ INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 # Programs
 SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
 OBJS_PROGS = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o))))
-BINS_PROGS = bin/autodiag bin/elm327sim
+BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,*.c))
 
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
@@ -54,11 +54,7 @@ coverage: veryclean compile_tests
 	./bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
-bin/$(APP_NAME): $(OBJS_PROGS) src/main/prog/autodiag.c $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
-
-bin/elm327sim: $(OBJS_PROGS) src/main/prog/elm327sim.c $(BIN_LIB)
+bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
