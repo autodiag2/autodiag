@@ -4,7 +4,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdio.h>
-#include "lib/string.h"
+#include "libautodiag/string.h"
 #include <assert.h>
 #include <time.h>
 #include <stdlib.h>

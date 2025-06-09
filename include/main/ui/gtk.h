@@ -4,7 +4,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <gtk/gtk.h>
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 
 /**
  * Any struct that inherit this is a threaded action, an action that runs on a thread.

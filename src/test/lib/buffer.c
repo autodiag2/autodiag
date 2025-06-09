@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "lib/buffer.h"
+#include "libautodiag/buffer.h"
 
 void testLeftShift() {
     {

@@ -1,4 +1,4 @@
-#include "lib/initools.h"
+#include "libautodiag/initools.h"
 
 bool parse_ini_file_parse_a_line(final BUFFER buffer, bool func(char*,char*,char*), void *funcData) {
     char * eqChar = strchr(buffer->buffer,'=');

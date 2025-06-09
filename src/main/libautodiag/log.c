@@ -1,4 +1,4 @@
-#include "lib/log.h"
+#include "libautodiag/log.h"
 
 Logger logger = {
     .current_level = LOG_ERROR,

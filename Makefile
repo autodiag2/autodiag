@@ -5,7 +5,7 @@ INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 SOURCES_main = $(call rwildcard,src/main/,*.c)
 # all objects needed for the main application
-OBJS_main = $(filter-out obj/main/lib/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o))))
+OBJS_main = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o))))
 OUTPUT_APP = bin/$(APP_NAME)
 OUTPUT_MAIN = $(OUTPUT_APP) bin/elm327sim
 
@@ -15,7 +15,7 @@ OBJS_test = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supporte
 OUTPUT_TESTS = bin/regression bin/obd_get_pid_supported
 
 # objects of the library
-OBJS_lib = $(filter obj/main/lib/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
+OBJS_lib = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_main:.c=.o)))
 OUTPUT_lib = bin/libautodiag
 
 SOURCES = $(SOURCES_main) $(SOURCES_test)

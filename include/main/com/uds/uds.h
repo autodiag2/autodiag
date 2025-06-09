@@ -1,7 +1,7 @@
 #ifndef __UDS_H
 #define __UDS_H
 
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 
 typedef enum {
     UDS_FRAME_SF,UDS_FRAME_FF,UDS_FRAME_CF

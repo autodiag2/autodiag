@@ -10,11 +10,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "lib/string.h"
+#include "libautodiag/string.h"
 #include <unistd.h>
 #include <errno.h>
 #include "com/obd/device.h"
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 
 #if defined OS_WINDOWS
 #   include <windows.h>

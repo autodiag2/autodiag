@@ -4,8 +4,8 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include "ui/gtk.h"
-#include "lib/log.h"
-#include "lib/thread.h"
+#include "libautodiag/log.h"
+#include "libautodiag/thread.h"
 #include "com/obd/obd.h"
 #include "error_feedback.h"
 #include "config.h"

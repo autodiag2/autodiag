@@ -4,8 +4,8 @@
 #ifndef __VEHICLE_H
 #define __VEHICLE_H
 
-#include "lib/lib.h"
-#include "lib/buffer.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/buffer.h"
 
 typedef struct {
     /**

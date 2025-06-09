@@ -1,4 +1,4 @@
-#include "lib/file.h"
+#include "libautodiag/file.h"
 
 bool file_read_line(BUFFER line,bool func(BUFFER line, void*data),void *data) {
     return func(line,data);

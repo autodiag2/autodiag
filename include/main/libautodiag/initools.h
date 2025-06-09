@@ -2,7 +2,7 @@
 #define __INITOOLS_H
 
 #include <stdio.h>
-#include "lib/string.h"
+#include "libautodiag/string.h"
 #include "buffer.h"
 #include "file.h"
 

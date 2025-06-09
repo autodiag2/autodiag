@@ -11,7 +11,7 @@ EXECUTABLE="$EXECS_PATH/glade"
 mkdir -p "$EXECS_PATH" "$FRAMEWORKS_PATH"
 
 cp /opt/homebrew/bin/glade "$EXECS_PATH"
-cp /opt/homebrew/Cellar/icu4c@76/76.1_1/lib/libicudata.76.dylib "$FRAMEWORKS_PATH"
+cp /opt/homebrew/Cellar/icu4c@76/76.1_1/libautodiag/libicudata.76.dylib "$FRAMEWORKS_PATH"
 process_dependencies "$EXECUTABLE" "$FRAMEWORKS_PATH"
 
 # Process all libraries inside Frameworks folder recursively

@@ -1,8 +1,8 @@
 #ifndef __SERIAL_LIST_H
 #define __SERIAL_LIST_H
 
-#include "lib/dirent.h"
-#include "lib/log.h"
+#include "libautodiag/dirent.h"
+#include "libautodiag/log.h"
 #include "com/serial/serial.h"
 
 #ifdef OS_WINDOWS

@@ -1,4 +1,4 @@
-#include "lib/poll.h"
+#include "libautodiag/poll.h"
 
 #if defined OS_WINDOWS
     bool isComport(HANDLE file) {

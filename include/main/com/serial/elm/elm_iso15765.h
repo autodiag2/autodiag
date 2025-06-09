@@ -1,8 +1,8 @@
 #ifndef __ELM_ISO15765_H
 #define __ELM_ISO15765_H
 
-#include "lib/lib.h"
-#include "lib/math.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/math.h"
 
 int oneHex(char c);
 

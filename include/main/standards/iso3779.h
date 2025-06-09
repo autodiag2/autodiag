@@ -5,8 +5,8 @@
 #ifndef _STD_ISO3779_H
 #define _STD_ISO3779_H
 
-#include "lib/buffer.h"
-#include "lib/byte.h"
+#include "libautodiag/buffer.h"
+#include "libautodiag/byte.h"
 #include <string.h>
 #include "ui/config.h"
 

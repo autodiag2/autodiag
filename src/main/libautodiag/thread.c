@@ -1,4 +1,4 @@
-#include "lib/thread.h"
+#include "libautodiag/thread.h"
 
 void thread_allocate_and_start(pthread_t** t, void*ptr) {
     if ( *t == null ) {

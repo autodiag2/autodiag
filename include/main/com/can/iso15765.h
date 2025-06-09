@@ -6,8 +6,8 @@
 #define __iso15765_2_H
 
 #include "can.h"
-#include "lib/lib.h"
-#include "lib/buffer.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/buffer.h"
 #include "com/obd/vehicle.h"
 
 typedef enum {

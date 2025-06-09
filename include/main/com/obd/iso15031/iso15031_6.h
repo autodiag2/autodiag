@@ -1,8 +1,8 @@
 #ifndef __ISO15031_6_H
 #define __ISO15031_6_H
 
-#include "lib/lib.h"
-#include "lib/string.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/string.h"
 
 /**
  * ISO 15031-6

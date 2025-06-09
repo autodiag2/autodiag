@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <string.h>
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #include "com/serial/elm/elm327/elm327.h"
 
 #define ELM327_SIM_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1

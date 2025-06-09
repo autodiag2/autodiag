@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #include "sim.h"
 #include "ui/gtk.h"
 #include "ui/counter.h"

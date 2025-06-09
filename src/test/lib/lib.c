@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 
 bool testGlobals() {
     {

@@ -2,7 +2,7 @@
 #define __SERIAL_CLI_H
 
 #include <stdio.h>
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #include "ui/config.h"
 #include "com/serial/serial.h"
 

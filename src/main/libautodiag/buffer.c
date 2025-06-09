@@ -1,4 +1,4 @@
-#include "lib/buffer.h"
+#include "libautodiag/buffer.h"
 
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
     assert(cmp1 != null);

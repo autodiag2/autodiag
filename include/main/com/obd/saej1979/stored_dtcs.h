@@ -3,13 +3,13 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include "lib/dirent.h"
-#include "lib/list.h"
+#include "libautodiag/dirent.h"
+#include "libautodiag/list.h"
 #include "saej1979.h"
 #include "ui/config.h"
 #include "database.h"
 #include "../iso15031/iso15031_6.h"
-#include "lib/file.h"
+#include "libautodiag/file.h"
 
 typedef struct {
     /**

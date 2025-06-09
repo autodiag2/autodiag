@@ -6,13 +6,13 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include "ui.h"
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #include "config.h"
-#include "lib/log.h"
+#include "libautodiag/log.h"
 #include "com/serial/serial.h"
 #include "com/obd/obd.h"
-#include "lib/lib.h"
-#include "lib/math.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/math.h"
 
 #include "trouble_code_reader.h"
 #include "options.h"

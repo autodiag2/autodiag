@@ -1,7 +1,7 @@
 #ifndef __CONFIG_H
 #define __CONFIG_H
 
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #define _GNU_SOURCE
 #include <stdlib.h>
 #include <stdio.h>

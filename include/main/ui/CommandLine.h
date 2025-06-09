@@ -6,7 +6,7 @@
 #include "ui.h"
 #include "com/serial/serial.h"
 #include "com/serial/serial_list.h"
-#include "lib/buffer.h"
+#include "libautodiag/buffer.h"
 #include "config.h"
 
 typedef struct {

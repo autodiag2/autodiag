@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "lib/stringlist.h"
+#include "libautodiag/stringlist.h"
 
 bool testStringList() {
     {

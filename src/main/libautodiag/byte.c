@@ -1,4 +1,4 @@
-#include "lib/byte.h"
+#include "libautodiag/byte.h"
 
 char * bytes_to_ascii(final byte *buffer, final int size) {
     assert(buffer != null);

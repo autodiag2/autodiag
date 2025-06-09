@@ -1,10 +1,10 @@
 #ifndef __SAEJ1979_DATA_H
 #define __SAEJ1979_DATA_H
 
-#include "lib/lib.h"
-#include "lib/string.h"
-#include "lib/log.h"
-#include "lib/buffer.h"
+#include "libautodiag/lib.h"
+#include "libautodiag/string.h"
+#include "libautodiag/log.h"
+#include "libautodiag/buffer.h"
 #include "com/obd/obd.h"
 #include "saej1979.h"
 

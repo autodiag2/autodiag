@@ -1,4 +1,4 @@
-#include "lib/string.h"
+#include "libautodiag/string.h"
 
 #ifndef OS_POSIX
 

@@ -1,7 +1,7 @@
 #ifndef __SIM_ELM327_SIM_GENERATORS_H
 #define __SIM_ELM327_SIM_GENERATORS_H
 
-#include "lib/lib.h"
+#include "libautodiag/lib.h"
 #include "elm327.h"
 
 /**
