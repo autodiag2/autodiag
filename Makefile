@@ -6,8 +6,7 @@ INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 # Programs
 SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
 OBJS_PROGS = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o))))
-BIN_MAIN_APP = bin/$(APP_NAME)
-BINS_PROGS = $(BIN_MAIN_APP) bin/elm327sim
+BINS_PROGS = bin/autodiag bin/elm327sim
 
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
@@ -34,23 +33,23 @@ CFLAGS += -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\""
 CFLAGS += -DAPP_MAINTAINER="\"$(APP_MAINTAINER)\"" -DAPP_DESC="\"$(APP_DESC)\""
 CC = $(TOOLCHAIN)gcc
 
-default: compile_main
+default: compile_progs
 
-release: compile_main
+release: compile_progs
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
-compile_main: $(BINS_PROGS)
-	@-echo "Software ready at: $(BIN_MAIN_APP)"
+compile_progs: $(BINS_PROGS)
+	@-echo "Software ready at: $^"
 
-compile_test: $(BINS_TESTS)
-	@-echo "Tests: $(BINS_TESTS)"
+compile_tests: $(BINS_TESTS)
+	@-echo "Tests: $^"
 
 compile_lib: $(BIN_LIB)
-	@-echo "Library ready at: $(BIN_LIB)"
+	@-echo "Library ready at: $^"
 
 coverage: CFLAGS_COVERAGE += --coverage
 coverage: CFLAGS_LIBS_TESTS += -lgcov
-coverage: veryclean compile_test
+coverage: veryclean compile_tests
 	echo "running coverage with : $(CFLAGS)"
 	./bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
@@ -106,9 +105,9 @@ veryclean: clean
 	rm -rf bin/
 
 run: default
-	$(BIN_MAIN_APP)
+	bin/$(APP_NAME)
 runDebug: default
-	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug $(BIN_MAIN_APP)
+	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug bin/$(APP_NAME)
 runTest: ./bin/regression
 	./bin/regression
 
@@ -185,9 +184,9 @@ help:
 	@-echo " run          	- run the software"
 	@-echo " runDebug     	- run with debug flags"
 	@-echo " runTest      	- run regression test"
-	@-echo " compile_main 	- compile the main"
-	@-echo " release      	- compile the main with debugging info removed"
-	@-echo " compile_test 	- compile tests"
+	@-echo " compile_progs 	- compile progs"
+	@-echo " release      	- compile progs with debugging info removed"
+	@-echo " compile_tests 	- compile tests"
 	@-echo " compile_lib  	- compile the library"
 	@-echo " installPython	- install lib in the python package"
 	@-echo " installPythonDev	- same but using symlinks"
