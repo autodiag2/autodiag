@@ -18,7 +18,10 @@ serial.recv_buffer.contents.recycle()
 serial.send("ATL0")
 serial.recv()
 serial.recv_buffer.contents.recycle()
-serial.send("ATI")
-serial.recv()
+serial.eol = b'\r'
+for i in range(10):
+    serial.send("ATI")
+    serial.recv()
+    serial.recv_buffer.contents.recycle()
 serial.close()
 log_set_level(LOG_NONE)
