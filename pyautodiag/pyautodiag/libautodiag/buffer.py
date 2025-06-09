@@ -30,6 +30,8 @@ class Buffer(Structure):
     def to_string(self): return lib.buffer_to_string(self).decode()
     def get_free_space(self): return lib.buffer_get_free_space(self)
     def extract_first(self): return lib.buffer_extract_0(self)
+    def get_free_space(self): return lib.buffer_get_free_space(self)
+    def recycle(self): lib.buffer_recycle(self)
 
     @classmethod
     def from_ascii_hex(cls, s): return cls(lib.buffer_from_ascii_hex(s.encode()))
@@ -80,3 +82,4 @@ lib.buffer_get_free_space.restype = c_int
 lib.buffer_padding.argtypes = [POINTER(Buffer), c_int, c_ubyte]
 lib.buffer_free.argtypes = [POINTER(Buffer)]   
 lib.buffer_dump.argtypes = [POINTER(Buffer)]
+lib.buffer_recycle.argtypes = [POINTER(Buffer)]
