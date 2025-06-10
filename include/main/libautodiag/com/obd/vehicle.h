@@ -77,6 +77,4 @@ ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_fill_global_obd_data_from_ecus(Vehicle* v);
 void vehicle_dump(Vehicle* v);
 
-#define VEHICLE Vehicle*
-
 #endif

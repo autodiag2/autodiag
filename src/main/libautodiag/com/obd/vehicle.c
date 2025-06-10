@@ -66,15 +66,15 @@ void vehicle_ecu_free(ECU* ecu) {
     }
 }
 
-VEHICLE vehicle_new() {
-    VEHICLE v = (VEHICLE)malloc(sizeof(Vehicle));
+Vehicle * vehicle_new() {
+    Vehicle * v = (Vehicle *)malloc(sizeof(Vehicle));
     v->ecus = null;
     v->ecus_len = 0;
     v->obd_data_buffer = BufferList_new();
     return v;
 }
 
-void vehicle_free(VEHICLE v) {
+void vehicle_free(Vehicle * v) {
     if ( v != null ) {
         BufferList_free(v->obd_data_buffer);
         if ( v->ecus != null ) {

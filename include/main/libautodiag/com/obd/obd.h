@@ -31,7 +31,7 @@ typedef struct {
     /**
      * Data structure representing the data received from the vehicle itself.
      */
-    VEHICLE vehicle;
+    Vehicle * vehicle;
 } OBDIFace;
 
 OBDIFace* obd_new();

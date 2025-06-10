@@ -45,7 +45,7 @@ int obd_recv(final OBDIFace* iface) {
     } 
 
     log_msg(LOG_DEBUG, "Storing in the corresponding service");
-    VEHICLE v = iface->vehicle;
+    Vehicle * v = iface->vehicle;
     if ( 0 < v->ecus_len ) {
         for(int i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
