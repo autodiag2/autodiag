@@ -44,7 +44,10 @@ class ELMDevice(Structure):
 
     @staticmethod
     def open_from_serial(serial: Serial) -> OBDIFace:
-        return lib.elm_open_from_serial(byref(serial)).contents
+        iface_ptr = lib.elm_open_from_serial(byref(serial))
+        if not iface_ptr:
+            return None
+        return iface_ptr.contents
 
 # function not bound to an instance
 lib.elm_guess_response.argtypes = [c_char_p]
