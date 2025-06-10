@@ -439,6 +439,36 @@ void serial_dump(final Serial * port) {
     free(result);
 }
 
+void serial_debug(final SERIAL port) {
+    if ( port == null ) {
+        log_msg(LOG_DEBUG, "Serial debug: NULL");
+    } else {
+        log_msg(LOG_DEBUG, "Serial: {");
+        log_msg(LOG_DEBUG, "    Device: {");
+        log_msg(LOG_DEBUG, "        send: %p", port->send);
+        log_msg(LOG_DEBUG, "        recv: %p", port->recv);
+        log_msg(LOG_DEBUG, "        open: %p", port->open);
+        log_msg(LOG_DEBUG, "        close: %p", port->close);
+        log_msg(LOG_DEBUG, "        describe_communication_layer: %p", port->describe_communication_layer);
+        log_msg(LOG_DEBUG, "        parse_data: %p", port->parse_data);
+        log_msg(LOG_DEBUG, "        clear_data: %p", port->clear_data);
+        log_msg(LOG_DEBUG, "        lock: %p", port->lock);
+        log_msg(LOG_DEBUG, "        unlock: %p", port->unlock);
+        log_msg(LOG_DEBUG, "    }");
+        log_msg(LOG_DEBUG, "    echo: %s", port->echo ? "true" : "false");
+        log_msg(LOG_DEBUG, "    baud_rate: %d", port->baud_rate);
+        log_msg(LOG_DEBUG, "    status: %d", port->status);
+        log_msg(LOG_DEBUG, "    name: %s", port->name);
+        log_msg(LOG_DEBUG, "    eol: %s", port->eol);
+        log_msg(LOG_DEBUG, "    timeout: %d ms", port->timeout);
+        log_msg(LOG_DEBUG, "    timeout_seq: %d ms", port->timeout_seq);
+        log_msg(LOG_DEBUG, "    recv_buffer: %p", port->recv_buffer);
+        log_msg(LOG_DEBUG, "    detected: %s", port->detected ? "true" : "false");
+        log_msg(LOG_DEBUG, "    guess_response: %p", port->guess_response);
+        log_msg(LOG_DEBUG, "}");
+    }
+}
+
 void serial_set_name(final Serial * port, final char *name) {
     if ( port->name != NULL ) {
         free(port->name);

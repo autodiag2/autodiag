@@ -141,6 +141,7 @@ void serial_unlock(final SERIAL port);
  * Debug information on a Serial
  */
 void serial_dump(final SERIAL port);
+void serial_debug(final SERIAL port);
 void serial_free(final SERIAL port);
 /**
  * Get the selected Serial (port on which we are currently working) or NULL if no port currently selected.

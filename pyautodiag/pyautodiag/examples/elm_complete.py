@@ -12,6 +12,8 @@ port_location = sys.argv[1]
 log_set_level(LOG_DEBUG)
 serial = Serial()
 serial.name = port_location.encode('utf-8')
+serial.debug()
+serial.debug_from_python()
 iface = ELMDevice.open_from_serial(serial)
 iface.send("0101")
 iface.recv()

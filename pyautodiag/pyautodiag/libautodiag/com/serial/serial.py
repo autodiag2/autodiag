@@ -65,6 +65,38 @@ class Serial(Structure):
         lib.serial_dump.restype = None
         lib.serial_dump(pointer(self))
 
+    def debug(self):
+        lib.serial_debug.argtypes = [POINTER(Serial)]
+        lib.serial_debug.restype = None
+        lib.serial_debug(pointer(self))
+
+    def debug_from_python(self):
+        def addr(f): return f"0x{cast(f, c_void_p).value:x}" if f else "None"
+        print("Serial: {")
+        print("  Device:{")
+        print(f"    send: {addr(self.device.send)}")
+        print(f"    recv: {addr(self.device.recv)}")
+        print(f"    open: {addr(self.device.open)}")
+        print(f"    close: {addr(self.device.close)}")
+        print(f"    describe_communication_layer: {addr(self.device.describe_communication_layer)}")
+        print(f"    parse_data: {addr(self.device.parse_data)}")
+        print(f"    clear_data: {addr(self.device.clear_data)}")
+        print(f"    lock: {addr(self.device.lock)}")
+        print(f"    unlock: {addr(self.device.unlock)}")
+        print("  }")
+        print(f"  echo: {self.echo}")
+        print(f"  baud_rate: {self.baud_rate}")
+        print(f"  status: {self.status}")
+        print(f"  name: {self.name.decode('utf-8') if self.name else None}")
+        print(f"  eol: {self.eol.decode('utf-8') if self.eol else None}")
+        print(f"  timeout: {self.timeout}")
+        print(f"  timeout_seq: {self.timeout_seq}")
+        if self.recv_buffer:
+            print(f"  recv_buffer: {self.recv_buffer.contents}")
+        else:
+            print("  recv_buffer: None")
+        print("}")
+
     def free(self):
         lib.serial_free.argtypes = [POINTER(Serial)]
         lib.serial_free.restype = None
