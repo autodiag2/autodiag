@@ -9,7 +9,7 @@ lib = load_lib()
 class OBDIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
-        ("vehicle", Vehicle),
+        ("vehicle", POINTER(Vehicle)),
     ]
 
     def __new__(cls, device=None):
