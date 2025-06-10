@@ -433,7 +433,7 @@ void serial_dump(final Serial * port) {
         asprintf(&result, "%s NULL", title);
         module_debug(MODULE_SERIAL result);
     } else {
-        asprintf(&result, "%s %d/%d/%s/%s", title, port->name, port->baud_rate, port->status, port->eol);
+        asprintf(&result, "%s %s/%d/%d/%s", title, port->name, port->baud_rate, port->status, port->eol);
         module_debug(MODULE_SERIAL result);
     }
     free(result);
