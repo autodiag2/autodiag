@@ -9,6 +9,7 @@
 #include "elm_iso15765.h"
 
 typedef struct {
+    Serial;
     /**
      * Did responses print space between bytes
      */
@@ -17,7 +18,6 @@ typedef struct {
      * Mainly send at commands to prepare interface.
      */
     bool (*configure)(final Device* elm);
-    Serial;
 } ELMDevice;
 
 #define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
@@ -44,7 +44,7 @@ Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii);
 Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr);
 void elm_ascii_to_bin_internal(final bool printing_of_spaces, final Buffer * bin, final char * ascii, final char * end_ptr);
 char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin);
-
+void elm_debug(final ELMDevice * elm);
 bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle* vehicle);
 
 #include "elm329/elm329.h"

@@ -5,14 +5,15 @@ from pyautodiag.libautodiag.com.serial.serial import Serial
 from pyautodiag.libautodiag.com.obd.device import Device
 from pyautodiag.libautodiag.com.obd.obd import OBDIFace
 from pyautodiag.libautodiag.com.obd.vehicle import Vehicle
+from pyautodiag.libautodiag.lib import addr
 
 lib = load_lib()
 
 class ELMDevice(Structure):
     _fields_ = [
+        ('serial', Serial),
         ('printing_of_spaces', c_bool),
         ('configure', CFUNCTYPE(c_bool, POINTER(Device))),
-        ('serial', Serial),
     ]
 
     def guess_response(self, buffer: bytes) -> int:
@@ -48,6 +49,18 @@ class ELMDevice(Structure):
         if not iface_ptr:
             return None
         return iface_ptr.contents
+
+    def debug(self):
+        lib.elm_debug.argtypes = [POINTER(ELMDevice)]
+        lib.elm_debug.restype = None
+        lib.elm_debug(pointer(self))
+
+    def debug_from_python(self):
+        print("ElmDevice: {")
+        self.serial.debug_from_python()
+        print(f"  printing_of_spaces: {self.printing_of_spaces}")
+        print(f"  configure: {addr(self.configure)}")
+        print("}")
 
 # function not bound to an instance
 lib.elm_guess_response.argtypes = [c_char_p]

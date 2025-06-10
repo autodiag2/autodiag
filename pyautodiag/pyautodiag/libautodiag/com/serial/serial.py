@@ -2,6 +2,7 @@ from ctypes import *
 from pyautodiag.libautodiag.libloader import load_lib
 from pyautodiag.libautodiag.buffer import Buffer
 from pyautodiag.libautodiag.com.obd.device import Device
+from pyautodiag.libautodiag.lib import addr
 
 lib = load_lib()
 
@@ -71,7 +72,6 @@ class Serial(Structure):
         lib.serial_debug(pointer(self))
 
     def debug_from_python(self):
-        def addr(f): return f"0x{cast(f, c_void_p).value:x}" if f else "None"
         print("Serial: {")
         print("  Device:{")
         print(f"    send: {addr(self.device.send)}")

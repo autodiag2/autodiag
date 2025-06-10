@@ -147,6 +147,14 @@ OBDIFace* elm_open_from_serial_internal(final SERIAL * port) {
     return elm_open_from_serial_internal2(port);
 }
 
+void elm_debug(final ELMDevice * elm) {
+    printf("ElmDevice: {\n");
+    serial_debug(elm);
+    printf("    printing_of_spaces: %d\n", elm->printing_of_spaces);
+    printf("    configure: %p\n", elm->configure);
+    printf("}\n");
+}
+
 OBDIFace* elm_open_from_serial(final SERIAL port) {
     if ( port == null ) {
         return null;
