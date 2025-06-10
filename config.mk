@@ -34,6 +34,28 @@ CFLAGS          = -I include/main/ -fms-extensions
 CFLAGS_LIBS     = -lpthread -lm
 CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
 
+UNAME_S := $(shell uname -s)
+UNAME_M := $(shell uname -m)
+
+ifeq ($(OS),Windows_NT)
+    SYSTEM := windows
+    EXT := dll
+    CFLAGS_LIB_COMPILE := -shared
+else
+    ifeq ($(UNAME_S),Darwin)
+        SYSTEM := darwin
+        EXT := dylib
+        CFLAGS_LIB_COMPILE := -dynamiclib
+    else
+        SYSTEM := linux
+        EXT := so
+        CFLAGS_LIB_COMPILE := -shared
+    endif
+endif
+
+MACHINE := $(UNAME_M)
+BIN_LIB_NAME := libautodiag-$(SYSTEM)-$(MACHINE).$(EXT)
+
 define rwildcard
 	$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 endef

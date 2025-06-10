@@ -12,4 +12,6 @@ dist/debian/DEBIAN/
 autodiag.exe
 __pycache__
 autodiag
-libautodiag.so
+*.so
+*.dylib
+*.dll

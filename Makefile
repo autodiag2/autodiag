@@ -10,8 +10,8 @@ BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,
 
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
-BIN_LIB = bin/libautodiag
-LIB_PYTHON_INSTALL_FOLDER = pyautodiag/pyautodiag/libautodiag
+BIN_LIB := bin/$(BIN_LIB_NAME)
+LIB_PYTHON_INSTALL_FOLDER = pyautodiag/pyautodiag/libautodiag/libs/
 
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
@@ -58,19 +58,20 @@ bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
-bin/libautodiag: $(OBJS_LIB)
+$(BIN_LIB): $(OBJS_LIB)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) -shared -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
 
-installPython: compile_lib
+_installPython: compile_lib
 	@-echo "Installing library in the python package"
-	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so 
-	cp -f bin/libautodiag $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so
+	mkdir -p "$(LIB_PYTHON_INSTALL_FOLDER)"
+	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
 
-installPythonDev: compile_lib
-	@-echo "Installing library in the python package"
-	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so 
-	ln -s $(PWD)/bin/libautodiag $(LIB_PYTHON_INSTALL_FOLDER)/libautodiag.so
+installPython: _installPython
+	cp -f $(BIN_LIB) $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
+
+installPythonDev: _installPython
+	ln -s $(PWD)/$(BIN_LIB) $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
 
 bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
