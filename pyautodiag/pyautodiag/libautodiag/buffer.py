@@ -9,7 +9,16 @@ class Buffer(Structure):
         ("size", c_int),
         ("buffer", POINTER(c_ubyte))
     ]
-    
+
+    def __new__(cls):
+        lib.buffer_new.restype = POINTER(Buffer)
+        ptr = lib.buffer_new()
+        if not ptr:
+            raise MemoryError("Failed to create Serial instance")
+        obj = cast(ptr, POINTER(cls)).contents
+        obj.__class__ = cls
+        return obj
+
     def dump(self): lib.buffer_dump(byref(self))
     def free(self): lib.buffer_free(byref(self))
     def copy(self): return lib.buffer_copy(byref(self)).contents
@@ -58,7 +67,7 @@ class Buffer(Structure):
         ptr = lib.buffer_new_cycle(sz, percent)
         return ptr.contents
 
-lib.buffer_new.argtypes = [c_int]
+lib.buffer_new.argtypes = []
 lib.buffer_new.restype = POINTER(Buffer)
 lib.buffer_copy.argtypes = [POINTER(Buffer)]
 lib.buffer_copy.restype = POINTER(Buffer)
@@ -94,3 +103,15 @@ lib.buffer_padding.argtypes = [POINTER(Buffer), c_int, c_ubyte]
 lib.buffer_free.argtypes = [POINTER(Buffer)]   
 lib.buffer_dump.argtypes = [POINTER(Buffer)]
 lib.buffer_recycle.argtypes = [POINTER(Buffer)]
+
+class BufferList(Structure):
+    _fields_ = [
+        ("size", c_int),
+        ("list", POINTER(Buffer))
+    ]
+
+    def empty(self): lib.BufferList_empty(byref(self))
+    def dump(self): lib.BufferList_dump(byref(self))
+
+lib.BufferList_empty.argtypes = [POINTER(BufferList)]
+lib.BufferList_dump.argtypes = [POINTER(BufferList)]
