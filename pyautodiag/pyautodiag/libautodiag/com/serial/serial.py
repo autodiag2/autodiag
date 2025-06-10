@@ -11,7 +11,12 @@ bool_ = c_bool
 char_p = c_char_p
 c_int_p = POINTER(c_int)
 
+GuessResponseFunc = CFUNCTYPE(c_int, char_p)
+
 class SerialStatus(c_int):
+    pass
+
+class SerialImplementation(Structure):
     pass
 
 class Serial(Structure):
@@ -24,7 +29,10 @@ class Serial(Structure):
         ("eol", char_p),
         ("timeout", c_int),
         ("timeout_seq", c_int),
-        ("recv_buffer", POINTER(Buffer))
+        ("recv_buffer", POINTER(Buffer)),
+        ("detected", bool_),
+        ("guess_response", GuessResponseFunc),
+        ("implementation", POINTER(SerialImplementation))
     ]
 
     def __new__(cls):

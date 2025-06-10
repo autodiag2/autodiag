@@ -36,6 +36,19 @@ typedef enum {
 #define SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT 0
 #define SERIAL_DEFAULT_BAUD_RATE 38400
 
+// Implementation related fields, to avoid breaking bindings
+typedef struct {
+    pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
+#if defined OS_WINDOWS
+    HANDLE connexion_handle;
+#elif defined OS_POSIX
+    int fdtty;
+    struct termios oldtio,newtio;
+#else
+#   warning Unsupported OS
+#endif
+} SerialImplementation;
+
 typedef struct {
     Device;
     bool echo;
@@ -46,21 +59,13 @@ typedef struct {
     int timeout;             // timeout in ms before considering no reply from the remote
     int timeout_seq;         // timeout in ms for burst reception
     Buffer * recv_buffer;      // buffer for input data
-    pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
     bool detected;           // did the serial port has been detected during the previous scan
     /**
      * Guess error responses and specicial response sent back by
      * the adaptater
      */
     int (*guess_response)(char *ptr);
-#if defined OS_WINDOWS
-    HANDLE connexion_handle;
-#elif defined OS_POSIX
-    int fdtty;
-    struct termios oldtio,newtio;
-#else
-#   warning Unsupported OS
-#endif
+    SerialImplementation* implementation;
 } Serial;
 #define SERIAL Serial*
 #define CAST_SERIAL_GUESS_RESPONSE(var) ((int (*)(char* ptr))var)
