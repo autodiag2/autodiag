@@ -9,7 +9,6 @@
 #include "elm_iso15765.h"
 
 typedef struct {
-    Serial;
     /**
      * Did responses print space between bytes
      */
@@ -18,6 +17,7 @@ typedef struct {
      * Mainly send at commands to prepare interface.
      */
     bool (*configure)(final Device* elm);
+    Serial;
 } ELMDevice;
 
 #define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)

@@ -3,14 +3,10 @@ from pyautodiag.libautodiag.libloader import load_lib
 from pyautodiag.libautodiag.buffer import Buffer
 from pyautodiag.libautodiag.com.serial.serial import Serial
 from pyautodiag.libautodiag.com.obd.device import Device
+from pyautodiag.libautodiag.com.obd.obd import OBDIFace
+from pyautodiag.libautodiag.com.obd.vehicle import Vehicle
 
 lib = load_lib()
-
-class Vehicle(Structure):
-    _fields_ = []
-
-class OBDIFace(Structure):
-    _fields_ = []
 
 class ELMDevice(Structure):
     _fields_ = [
@@ -48,7 +44,7 @@ class ELMDevice(Structure):
 
     @staticmethod
     def open_from_serial(serial: Serial) -> OBDIFace:
-        return lib.elm_open_from_serial(byref(serial))
+        return lib.elm_open_from_serial(byref(serial)).contents
 
 # function not bound to an instance
 lib.elm_guess_response.argtypes = [c_char_p]
@@ -64,7 +60,7 @@ lib.elm_print_id.argtypes = [POINTER(Serial)]
 lib.elm_print_id.restype = c_char_p
 
 lib.elm_open_from_serial.argtypes = [POINTER(Serial)]
-lib.elm_open_from_serial.restype = POINTER(Device)  # or OBDIFace if defined
+lib.elm_open_from_serial.restype = POINTER(OBDIFace)
 
 lib.elm_ascii_to_bin.argtypes = [POINTER(ELMDevice), POINTER(Buffer)]
 lib.elm_ascii_to_bin.restype = POINTER(Buffer)
