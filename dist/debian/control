@@ -7,6 +7,6 @@ Package: autodiag
 Depends: libc6, libgtk-3-0
 Section: electronics
 Priority: optional
-Architecture: amd64
+Architecture: any
 Description: <managed in app.mk changing this will do nothing>
 Homepage: https://github.com/autodiag2/autodiag/
