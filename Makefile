@@ -173,7 +173,11 @@ installDev: _install
 	ln -s "$${PWD}"/bin/* "$(INSTALL_BIN_FOLDER)"
 uninstall:
 	rm -fr "$(INSTALL_FOLDER)"
-	rm -f "$(INSTALL_BIN_FOLDER)/$(APP_NAME)"
+	for bin in "$${PWD}"/bin/*; do \
+		if [ -f "$${bin}" ]; then \
+			rm -f "$(INSTALL_BIN_FOLDER)/$$(basename "$${bin}")"; \
+		fi; \
+	done
 help:
 	@-echo "Development setup"
 	@-echo " install      	- copy files"

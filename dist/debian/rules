@@ -8,6 +8,7 @@ PKG_SRC_DIR=$(SRC_ROOT)/dist/debian/
 BUILD_DIR=$(PKG_SRC_DIR)/$(APP_NAME)/
 BUILD_BIN=$(BUILD_DIR)/usr/bin/
 BUILD_SHARE=$(BUILD_DIR)/usr/share/$(APP_NAME)
+BUILD_LIB=$(BUILD_DIR)/usr/lib/
 BUILDINFO_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).buildinfo
 CHANGES_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).changes
 
@@ -15,13 +16,17 @@ build:
 	cd $(SRC_ROOT) && make default
 
 binary:
-	mkdir -p $(BUILD_DIR) $(BUILD_BIN) $(BUILD_SHARE) $(BUILD_DIR)/DEBIAN/
+	mkdir -p $(BUILD_DIR) $(BUILD_LIB) $(BUILD_BIN) $(BUILD_SHARE) $(BUILD_DIR)/DEBIAN/
 
 	for f in $(SRC_ROOT)/bin/*; do \
 		case "$$f" in \
 			*.so|*.deb|*.changes|*.buildinfo) continue ;; \
 			*) install -m 755 "$$f" $(BUILD_BIN) ;; \
 		esac \
+	done
+
+	for f in $(SRC_ROOT)/bin/*.so; do \
+		install -m 644 "$$f" $(BUILD_LIB) ; \
 	done
 
 	cp -r $(SRC_ROOT)/ui $(BUILD_SHARE)
