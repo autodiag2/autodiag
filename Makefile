@@ -10,7 +10,7 @@ BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,
 
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
-BIN_LIB := bin/$(BIN_LIB_NAME)
+BIN_LIB := $(BIN_LIB_NAME)
 LIB_PYTHON_INSTALL_FOLDER = pyautodiag/pyautodiag/libautodiag/libs/
 
 # Tests
@@ -59,8 +59,9 @@ bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 $(BIN_LIB): $(OBJS_LIB)
-	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+	mkdir -p bin/
+	cp "$@" bin/
 
 _installPython: compile_lib
 	@-echo "Installing library in the python package"
@@ -98,6 +99,7 @@ dependencies: $(SOURCES)
 
 clean:
 	rm -rf obj/
+	rm -f $(BIN_LIB)
 veryclean: clean
 	rm -rf bin/
 

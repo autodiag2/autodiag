@@ -36,7 +36,7 @@ for LIB in bin/*.dylib; do
     cp "$LIB" "$FRAMEWORKS_PATH"
     LIB_NAME=$(basename "$LIB")
     for EXEC in "$EXECS_PATH"/*; do
-        install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$EXEC"
+        install_name_tool -change "$LIB_NAME" "@executable_path/../Frameworks/$LIB_NAME" "$EXEC"
     done
 done
 
