@@ -19,14 +19,25 @@ for folder in ui data/data media ; do
 done
 
 # Process all executables
-for EXECUTABLE in bin/autodiag bin/elm327sim; do
+for EXECUTABLE in bin/*; do
+    [[ "$EXECUTABLE" == *.dylib ]] && continue
+    [[ "$EXECUTABLE" == *.dmg ]] && continue
+    [[ "$EXECUTABLE" == *.app ]] && continue
     process_dependencies "$EXECUTABLE" "$FRAMEWORKS_PATH"
     cp "$EXECUTABLE" "$EXECS_PATH"
 done
 
 # Process all libraries inside Frameworks folder recursively
-for LIB in "$FRAMEWORKS_PATH"/*.dylib; do
+for LIB in "$FRAMEWORKS_PATH"/*.dylib bin/*.dylib; do
     process_dependencies "$LIB" "$FRAMEWORKS_PATH"
+done
+
+for LIB in bin/*.dylib; do
+    cp "$LIB" "$FRAMEWORKS_PATH"
+    LIB_NAME=$(basename "$LIB")
+    for EXEC in "$EXECS_PATH"/*; do
+        install_name_tool -change "$LIB" "@executable_path/../Frameworks/$LIB_NAME" "$EXEC"
+    done
 done
 
 # Ad-hoc sign the app
