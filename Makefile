@@ -157,19 +157,20 @@ newVersion:
 	git commit -m "Version $${version}" ; \
 	git tag "v$${version}"
 
-# Manual installation
-install: uninstall
+_install: uninstall
 	mkdir -p "$(INSTALL_FOLDER)" "$(INSTALL_BIN_FOLDER)"
+
+# Manual installation
+install: _install
 	cp -fr ui "$(INSTALL_FOLDER)"
 	cp -fr data/data "$(INSTALL_FOLDER)"
 	cp -fr media "$(INSTALL_FOLDER)"
-	cp ./bin/$(APP_NAME) "$(INSTALL_BIN_FOLDER)"
-installDev: uninstall
-	mkdir -p "$(INSTALL_FOLDER)" "$(INSTALL_BIN_FOLDER)"
+	cp ./bin/* "$(INSTALL_BIN_FOLDER)"
+installDev: _install
 	ln -s "$${PWD}/data/data" "$(INSTALL_FOLDER)"
 	ln -s "$${PWD}/ui" "$(INSTALL_FOLDER)"
 	ln -s "$${PWD}/media" "$(INSTALL_FOLDER)"
-	ln -s "$${PWD}/bin/$(APP_NAME)" "$(INSTALL_BIN_FOLDER)"
+	ln -s "$${PWD}"/bin/* "$(INSTALL_BIN_FOLDER)"
 uninstall:
 	rm -fr "$(INSTALL_FOLDER)"
 	rm -f "$(INSTALL_BIN_FOLDER)/$(APP_NAME)"
