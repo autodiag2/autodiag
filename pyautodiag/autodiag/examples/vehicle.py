@@ -1,6 +1,6 @@
-from autodiag.libautodiag.com.obd.vehicle import Vehicle
+from autodiag.com.obd.vehicle import Vehicle
 
-from autodiag.libautodiag.log import *
+from autodiag.log import *
 
 
 v = Vehicle()

@@ -1,6 +1,6 @@
 from ctypes import *
-from autodiag.libautodiag.libloader import load_lib
-from autodiag.libautodiag.buffer import Buffer, BufferList
+from autodiag.libloader import load_lib
+from autodiag.buffer import Buffer, BufferList
 
 lib = load_lib()
 

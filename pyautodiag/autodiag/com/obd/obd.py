@@ -1,8 +1,8 @@
 from ctypes import *
-from autodiag.libautodiag.libloader import load_lib
-from autodiag.libautodiag.buffer import Buffer
-from autodiag.libautodiag.com.obd.vehicle import Vehicle
-from autodiag.libautodiag.com.obd.device import Device
+from autodiag.libloader import load_lib
+from autodiag.buffer import Buffer
+from autodiag.com.obd.vehicle import Vehicle
+from autodiag.com.obd.device import Device
 
 lib = load_lib()
 
