@@ -1,11 +1,8 @@
 [tool.poetry]
-name = "pyautodiag"
+name = "autodiag"
 version = "0.1.0"
 description = "Simple library and command line to communicate through ECUs"
 authors = ["ffprivacy <ffprivacy@netcourrier.com>"]
-include = [
-  "pyautodiag/libautodiag.so"
-]
 readme = "README.md"
 
 [tool.poetry.dependencies]

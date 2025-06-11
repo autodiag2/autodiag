@@ -1,4 +1,4 @@
-from pyautodiag.libautodiag.buffer import Buffer
+from autodiag.libautodiag.buffer import Buffer
 
 b = Buffer()
 b.append_byte(0x01)

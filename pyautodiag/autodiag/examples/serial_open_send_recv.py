@@ -1,6 +1,6 @@
 import sys
-from pyautodiag.libautodiag.com.serial import Serial
-from pyautodiag.libautodiag.log import log_set_level, LOG_DEBUG, LOG_NONE
+from autodiag.libautodiag.com.serial import Serial
+from autodiag.libautodiag.log import log_set_level, LOG_DEBUG, LOG_NONE
 
 if len(sys.argv) < 2:
     print("Error: Please provide the port location as an argument.")

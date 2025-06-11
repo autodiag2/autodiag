@@ -1,11 +1,11 @@
 from ctypes import *
-from pyautodiag.libautodiag.libloader import load_lib
-from pyautodiag.libautodiag.buffer import Buffer
-from pyautodiag.libautodiag.com.serial.serial import Serial
-from pyautodiag.libautodiag.com.obd.device import Device
-from pyautodiag.libautodiag.com.obd.obd import OBDIFace
-from pyautodiag.libautodiag.com.obd.vehicle import Vehicle
-from pyautodiag.libautodiag.lib import addr
+from autodiag.libautodiag.libloader import load_lib
+from autodiag.libautodiag.buffer import Buffer
+from autodiag.libautodiag.com.serial.serial import Serial
+from autodiag.libautodiag.com.obd.device import Device
+from autodiag.libautodiag.com.obd.obd import OBDIFace
+from autodiag.libautodiag.com.obd.vehicle import Vehicle
+from autodiag.libautodiag.lib import addr
 
 lib = load_lib()
 

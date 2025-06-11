@@ -1,6 +1,6 @@
 import os
 from ctypes import *
-from pyautodiag.libautodiag.libloader import load_lib
+from autodiag.libautodiag.libloader import load_lib
 
 byte = c_ubyte
 bool = c_bool

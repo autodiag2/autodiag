@@ -3,23 +3,23 @@ It assume a predation based world.
 ### Install
 #### From source
 ```bash
-conda create -n pyautodiag python=3.11 && \
-    conda activate pyautodiag && \
-    pip install git+https://github.com/autodiag2/pyautodiag.git#egg=pyautodiag
+conda create -n autodiag python=3.11 && \
+    conda activate autodiag && \
+    pip install git+https://github.com/autodiag2/autodiag.git#egg=autodiag
 ```
 #### From GitHub
-Download a release from [releases](https://github.com/autodiag2/pyautodiag/releases), then
+Download a release from [releases](https://github.com/autodiag2/autodiag/releases), then
 ```bash
-conda create -n pyautodiag python=3.11 && \
-    conda activate pyautodiag && \
-    pip install pyautodiag-*.whl
+conda create -n autodiag python=3.11 && \
+    conda activate autodiag && \
+    pip install autodiag-*.whl
 ```
 
 ### Develop
 #### Install
 ```bash
-conda create -y -n pyautodiag python=3.11 ; \
-    conda activate pyautodiag && \
+conda create -y -n autodiag python=3.11 ; \
+    conda activate autodiag && \
     pip install poetry && \
     poetry install --no-root && \
     pip install -e .
