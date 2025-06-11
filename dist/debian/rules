@@ -8,8 +8,8 @@ PKG_SRC_DIR=$(SRC_ROOT)/dist/debian/
 BUILD_DIR=$(PKG_SRC_DIR)/$(APP_NAME)/
 BUILD_BIN=$(BUILD_DIR)/usr/bin/
 BUILD_SHARE=$(BUILD_DIR)/usr/share/$(APP_NAME)
-BUILDINFO_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(dpkg-architecture -qDEB_HOST_ARCH).buildinfo
-CHANGES_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(dpkg-architecture -qDEB_HOST_ARCH).changes
+BUILDINFO_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).buildinfo
+CHANGES_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).changes
 
 build:
 	cd $(SRC_ROOT) && make default
@@ -19,7 +19,7 @@ binary:
 
 	for f in $(SRC_ROOT)/bin/*; do \
 		case "$$f" in \
-			*.so|*.deb) continue ;; \
+			*.so|*.deb|*.changes|*.buildinfo) continue ;; \
 			*) install -m 755 "$$f" $(BUILD_BIN) ;; \
 		esac \
 	done
@@ -30,12 +30,13 @@ binary:
 	chmod 777 $(BUILD_SHARE)/*
 
 	dpkg-gencontrol -P$(BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" -DDescription="Car scantool`echo \"\\n$(APP_DESC)\" | sed 's/\\n/\n/g'`" -v$(APP_VERSION) -USource -O$(BUILD_DIR)/DEBIAN/control
+	ln -s $(SRC_ROOT)/$(BUILDINFO_FILENAME) $(SRC_ROOT)/bin/$(BUILDINFO_FILENAME)
 	dpkg-deb --build $(BUILD_DIR) $(SRC_ROOT)/bin/
 
 clean:
-
+	
 done:
 	rm -fr $(BUILD_DIR)
 	rm $(PKG_SRC_DIR)/files
 	rm -f $(SRC_ROOT)/bin/$(BUILDINFO_FILENAME)
-	rm -f $(SRC_ROOT)/bin/$(CHANGES_FILENAME)
+	rm -f $(SRC_ROOT)/$(BUILDINFO_FILENAME)
