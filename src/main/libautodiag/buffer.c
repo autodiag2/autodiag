@@ -274,29 +274,3 @@ bool buffer_equals(final Buffer * b1, final Buffer * b2) {
     }
     return true;
 }
-
-char *buffer_to_string(Buffer *buffer) {
-    int sz = buffer->size;
-    int terminal_null_byte_sz = 1;
-    int commas_sz = 0;
-    if ( 1 < sz ) {
-        commas_sz = sz - 1;
-    }
-    int bytes_sz = sz * 2;
-    char * res = (char*)malloc((bytes_sz + commas_sz + terminal_null_byte_sz) * sizeof(char));
-    *res = 0;
-    for(int i = 0; i < sz; i++) {
-        sprintf(res + i*3, "%02x%s", buffer->buffer[i], i + 1 < sz ? "," : "");
-    }
-    return res;
-}
-
-Buffer * buffer_from_string(char * str) {
-    Buffer * buffer = buffer_new();
-    int sz = strlen(str);
-    for(int i = 0; i < sz; i += 3) {
-        buffer_ensure_capacity(buffer,1);
-        sscanf(str + i,"%02hhx", &buffer->buffer[buffer->size++]);
-    }
-    return buffer;
-}
