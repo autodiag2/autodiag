@@ -37,11 +37,8 @@ int obd_recv(final OBDIFace* iface) {
                 iface->device->parse_data(iface->device,iface->vehicle);
             }
         } break;
-        case DEVICE_RECV_DATA_UNAVAILABLE: {
-            return OBD_RECV_NO_DATA;
-        } break;
-        default:
-            return OBD_RECV_ERROR;
+        case DEVICE_RECV_DATA_UNAVAILABLE: return OBD_RECV_NO_DATA;
+        default: return OBD_RECV_ERROR;
     } 
 
     log_msg(LOG_DEBUG, "Storing in the corresponding service");
@@ -49,6 +46,18 @@ int obd_recv(final OBDIFace* iface) {
     if ( 0 < v->ecus_len ) {
         for(int i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
+            BufferList_empty(ecu->obd_service.current_data);
+            BufferList_empty(ecu->obd_service.freeze_frame_data);
+            BufferList_empty(ecu->obd_service.tests_results);
+            BufferList_empty(ecu->obd_service.tests_results_other);
+            BufferList_empty(ecu->obd_service.control_operation);
+            BufferList_empty(ecu->obd_service.pending_dtc);
+            BufferList_empty(ecu->obd_service.none);
+            BufferList_empty(ecu->obd_service.current_dtc);
+            BufferList_empty(ecu->obd_service.clear_dtc);
+            BufferList_empty(ecu->obd_service.request_vehicle_information);
+            BufferList_empty(ecu->obd_service.permanent_dtc);
+
             for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
                 final Buffer * data = ecu->obd_data_buffer->list[j];
                 if ( 0 < data->size ) {
@@ -57,24 +66,24 @@ int obd_recv(final OBDIFace* iface) {
                         log_msg(LOG_DEBUG, "Diagnostic Service negative code found (cannot response to the request)");
                         continue;
                     } else {
-                        service_id &= ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
+                        byte sid = service_id & ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
                         final Buffer * data_copy = buffer_copy(data);
                         buffer_extract_0(data_copy);
-                        switch(service_id) {
-                            case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data,data_copy);break;
-                            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: BufferList_append(ecu->obd_service.freeze_frame_data,data_copy);break;                                
-                            case OBD_SERVICE_TESTS_RESULTS: BufferList_append(ecu->obd_service.tests_results,data_copy);break;
-                            case OBD_SERVICE_TESTS_RESULTS_OTHER: BufferList_append(ecu->obd_service.tests_results_other,data_copy);break;
-                            case OBD_SERVICE_CONTROL_OPERATION: BufferList_append(ecu->obd_service.control_operation,data_copy);break;
-                            case OBD_SERVICE_PENDING_DTC: BufferList_append(ecu->obd_service.pending_dtc,data_copy);break;
-                            case OBD_SERVICE_NONE: BufferList_append(ecu->obd_service.none,data_copy);break;
-                            case OBD_SERVICE_SHOW_DTC: BufferList_append(ecu->obd_service.current_dtc,data_copy);break;
-                            case OBD_SERVICE_CLEAR_DTC: BufferList_append(ecu->obd_service.clear_dtc,data_copy);break;
-                            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: BufferList_append(ecu->obd_service.request_vehicle_information,data_copy);break;
-                            case OBD_SERVICE_PERMANENT_DTC: BufferList_append(ecu->obd_service.permanent_dtc,data_copy);break;
+                        switch(sid) {
+                            case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data, data_copy); break;
+                            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: BufferList_append(ecu->obd_service.freeze_frame_data, data_copy); break;
+                            case OBD_SERVICE_TESTS_RESULTS: BufferList_append(ecu->obd_service.tests_results, data_copy); break;
+                            case OBD_SERVICE_TESTS_RESULTS_OTHER: BufferList_append(ecu->obd_service.tests_results_other, data_copy); break;
+                            case OBD_SERVICE_CONTROL_OPERATION: BufferList_append(ecu->obd_service.control_operation, data_copy); break;
+                            case OBD_SERVICE_PENDING_DTC: BufferList_append(ecu->obd_service.pending_dtc, data_copy); break;
+                            case OBD_SERVICE_NONE: BufferList_append(ecu->obd_service.none, data_copy); break;
+                            case OBD_SERVICE_SHOW_DTC: BufferList_append(ecu->obd_service.current_dtc, data_copy); break;
+                            case OBD_SERVICE_CLEAR_DTC: BufferList_append(ecu->obd_service.clear_dtc, data_copy); break;
+                            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: BufferList_append(ecu->obd_service.request_vehicle_information, data_copy); break;
+                            case OBD_SERVICE_PERMANENT_DTC: BufferList_append(ecu->obd_service.permanent_dtc, data_copy); break;
                         }
                     }
-                }  else {
+                } else {
                     BufferList_remove_at(ecu->obd_data_buffer,j);
                     j--;
                 }

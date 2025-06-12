@@ -72,9 +72,12 @@ typedef struct {
 
 Vehicle* vehicle_new();
 void vehicle_free(Vehicle* v);
-ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
-ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_fill_global_obd_data_from_ecus(Vehicle* v);
 void vehicle_dump(Vehicle* v);
+void vehicle_debug(Vehicle* v);
+
+ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
+void vehicle_ecu_debug(final ECU *ecu);
+ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 
 #endif
