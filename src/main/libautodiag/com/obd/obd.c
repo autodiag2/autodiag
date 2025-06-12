@@ -28,6 +28,7 @@ int obd_send(final OBDIFace* iface, const char *request) {
 }
 
 int obd_recv(final OBDIFace* iface) {
+    iface->device->clear_data(iface->device);
     final int initial_data_buffer_received = iface->vehicle->obd_data_buffer->size;
     switch(iface->device->recv(iface->device)) {
         case DEVICE_RECV_DATA: {
