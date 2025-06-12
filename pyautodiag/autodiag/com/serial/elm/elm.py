@@ -44,82 +44,6 @@ class ELMDevice(Structure):
     def standard_obd_message_parse_response(self, vehicle: Vehicle) -> bool:
         return lib.elm_standard_obd_message_parse_response(byref(self), byref(vehicle))
     
-    @staticmethod
-    def open_from_serial(serial: Serial) -> OBDIFace:
-        if not serial:
-            return None
-        if lib.serial_open(byref(serial)) == GENERIC_FUNCTION_ERROR:
-            log_msg(LOG_ERROR, "Error while opening OBD port")
-            return None
-
-        iface = ELMDevice.open_from_serial_internal(byref(serial))
-        if iface is None:
-            log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time")
-            lib.serial_query_at_command(byref(serial), b"d")
-            lib.serial_reset_to_default(byref(serial))
-            iface = ELMDevice.open_from_serial_internal(byref(serial))
-            if iface is None:
-                log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time")
-                lib.elm_echo(byref(serial), False)
-                serial.echo = False
-                lib.elm_linefeeds(byref(serial), False)
-                serial.eol = b"\r"
-                iface = ELMDevice.open_from_serial_internal2(byref(serial))
-        if iface is None:
-            log_msg(LOG_WARNING, "Everything has been tried but iface config has failed")
-        return iface
-
-
-    @staticmethod
-    def open_from_serial_internal2(port: POINTER(Serial)) -> OBDIFace:
-        iface = None
-        response = lib.elm_print_id(port)
-        interfaceConfigured = False
-        if not response:
-            interfaceConfigured = False
-        else:
-            resp_str = response.decode()
-
-            if resp_str.startswith("ELM329"):
-                iface = lib.obd_new_from_device(cast(lib.elm329_new_from_serial(port), POINTER(Device)))
-            elif resp_str.startswith("ELM327"):
-                iface = lib.obd_new_from_device(cast(lib.elm327_new_from_serial(port), POINTER(Device)))
-            elif resp_str.startswith("ELM323"):
-                iface = lib.obd_new_from_device(cast(lib.elm323_new_from_serial(port), POINTER(Device)))
-            elif resp_str.startswith("ELM322"):
-                iface = lib.obd_new_from_device(cast(lib.elm322_new_from_serial(port), POINTER(Device)))
-            elif resp_str.startswith("ELM320"):
-                iface = lib.obd_new_from_device(cast(lib.elm320_new_from_serial(port), POINTER(Device)))
-
-            if iface is None:
-                interfaceConfigured = False
-            else:
-                elm = cast(iface.contents.device, POINTER(ELMDevice)).contents
-                interfaceConfigured = elm.configure(byref(iface.contents.device.contents))
-                lib.free(port)
-
-        log_msg(LOG_WARNING, "No updates to the serial list made")
-
-        if interfaceConfigured:
-            return iface.contents
-        else:
-            if iface:
-                iface.contents.device = None
-                lib.obd_free(iface)
-            return None
-
-
-    @staticmethod
-    def open_from_serial_internal(port: POINTER(Serial)) -> OBDIFace:
-        if lib.elm_echo(port, False) == DEVICE_ERROR:
-            log_msg(LOG_ERROR, "Error while turn echo off")
-            return None
-        if lib.elm_linefeeds(port, False) == DEVICE_ERROR:
-            log_msg(LOG_ERROR, "Error while turn line feeds off")
-            return None
-
-        return ELMDevice.open_from_serial_internal2(port)
-
     def debug(self):
         lib.elm_debug.argtypes = [POINTER(ELMDevice)]
         lib.elm_debug.restype = None
@@ -131,29 +55,13 @@ class ELMDevice(Structure):
         print(f"  printing_of_spaces: {self.printing_of_spaces}")
         print(f"  configure: {addr(self.configure)}")
         print("}")
-
-class ELM320Device(ELMDevice):
-    _fields_ = [
-        ('inheritance', ELMDevice)
-    ]
-class ELM322Device(ELMDevice):
-    _fields_ = [
-        ('inheritance', ELMDevice)
-    ]
-class ELM323Device(ELMDevice):
-    _fields_ = [
-        ('inheritance', ELMDevice)
-    ]
-class ELM327Device(ELMDevice):
-    _fields_ = [
-        ('inheritance', ELMDevice),
-        ('protocol', c_int)
-    ]
-class ELM329Device(ELMDevice):
-    _fields_ = [
-        ('inheritance', ELMDevice),
-        ('protocol', c_int)
-    ]
+    
+    @staticmethod
+    def open_from_serial(serial: Serial) -> OBDIFace:
+        iface_ptr = lib.elm_open_from_serial(byref(serial))
+        if not iface_ptr:
+            return None
+        return iface_ptr.contents
 
 # function not bound to an instance
 lib.elm_guess_response.argtypes = [c_char_p]
@@ -167,21 +75,6 @@ lib.elm_echo.restype = c_int
 
 lib.elm_print_id.argtypes = [POINTER(Serial)]
 lib.elm_print_id.restype = c_char_p
-
-lib.elm329_new_from_serial.argtypes = [POINTER(Serial)]
-lib.elm329_new_from_serial.restype = POINTER(ELM329Device)
-
-lib.elm327_new_from_serial.argtypes = [POINTER(Serial)]
-lib.elm327_new_from_serial.restype = POINTER(ELM327Device)
-
-lib.elm323_new_from_serial.argtypes = [POINTER(Serial)]
-lib.elm323_new_from_serial.restype = POINTER(ELM323Device)
-
-lib.elm322_new_from_serial.argtypes = [POINTER(Serial)]
-lib.elm322_new_from_serial.restype = POINTER(ELM322Device)
-
-lib.elm320_new_from_serial.argtypes = [POINTER(Serial)]
-lib.elm320_new_from_serial.restype = POINTER(ELM320Device)
 
 lib.elm_open_from_serial.argtypes = [POINTER(Serial)]
 lib.elm_open_from_serial.restype = POINTER(OBDIFace)
