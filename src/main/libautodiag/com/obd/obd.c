@@ -46,17 +46,7 @@ int obd_recv(final OBDIFace* iface) {
     if ( 0 < v->ecus_len ) {
         for(int i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
-            BufferList_empty(ecu->obd_service.current_data);
-            BufferList_empty(ecu->obd_service.freeze_frame_data);
-            BufferList_empty(ecu->obd_service.tests_results);
-            BufferList_empty(ecu->obd_service.tests_results_other);
-            BufferList_empty(ecu->obd_service.control_operation);
-            BufferList_empty(ecu->obd_service.pending_dtc);
-            BufferList_empty(ecu->obd_service.none);
-            BufferList_empty(ecu->obd_service.current_dtc);
-            BufferList_empty(ecu->obd_service.clear_dtc);
-            BufferList_empty(ecu->obd_service.request_vehicle_information);
-            BufferList_empty(ecu->obd_service.permanent_dtc);
+            vehicle_ecu_empty_duplicated_info(ecu);
 
             for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
                 final Buffer * data = ecu->obd_data_buffer->list[j];

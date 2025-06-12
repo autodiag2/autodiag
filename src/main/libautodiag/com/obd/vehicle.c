@@ -42,6 +42,9 @@ ECU* vehicle_ecu_new() {
 
 void vehicle_ecu_empty(ECU* ecu) {
     BufferList_empty(ecu->obd_data_buffer);
+    vehicle_ecu_empty_duplicated_info(ecu);
+}
+void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
     BufferList_empty(ecu->obd_service.current_data);
     BufferList_empty(ecu->obd_service.freeze_frame_data);
     BufferList_empty(ecu->obd_service.tests_results);
