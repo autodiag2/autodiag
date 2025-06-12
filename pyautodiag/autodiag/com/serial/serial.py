@@ -103,6 +103,11 @@ class Serial(Structure):
             print(f"  recv_buffer: {self.recv_buffer.contents}")
         else:
             print("  recv_buffer: None")
+        print(f"  detected: {self.detected}")
+        if self.guess_response:
+            print(f"  guess_response: {addr(self.guess_response)}")
+        else:
+            print("  guess_response: None")
         print("}")
 
     def free(self):
