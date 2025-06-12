@@ -1,6 +1,7 @@
 from ctypes import *
 from autodiag.libloader import load_lib
 from autodiag.buffer import Buffer, BufferList
+from autodiag.lib import *
 
 lib = load_lib()
 
@@ -30,6 +31,17 @@ class ECU(Structure):
         ('name', c_char_p),
         ('obd_service', ECU_OBDService),
     ]
+    def debug_from_python(self):
+        print("ECU debug: {")
+        print(f"  address: {addr(self.address)}")
+        print(f"  name: {self.name.decode('utf-8') if self.name else 'None'}")
+        print(f"  obd_data_buffer: {addr(self.obd_data_buffer)}")
+        print("  obd_service: {")
+        for field_name, _ in ECU_OBDService._fields_:
+            field_value = getattr(self.obd_service, field_name)
+            print(f"    {field_name}: {addr(field_value) if field_value else 'None'}")
+        print("  }")
+        print("}")
 
 lib.vehicle_ecu_new.restype = POINTER(ECU)
 lib.vehicle_ecu_free.argtypes = [POINTER(ECU)]
@@ -52,6 +64,17 @@ class Vehicle(Structure):
         return obj
     
     def dump(self): lib.vehicle_dump(byref(self))
+    def debug(self): lib.vehicle_debug(byref(self))
+    def debug_from_python(self):
+        print("Vehicle debug: {")
+        print(f"  ecus: {addr(self.ecus)}")
+        print(f"  ecus_len: {self.ecus_len}")
+        for i in range(self.ecus_len):
+            ecu = self.ecus[i]
+            if ecu:
+                ecu.contents.debug_from_python()
+        print(f"  obd_data_buffer: {addr(self.obd_data_buffer)}")
+        print("}")
     def ecu_add(self, address_bytes: bytes):
         size = len(address_bytes)
         addr_array = (c_ubyte * size)(*address_bytes)
@@ -73,3 +96,4 @@ lib.vehicle_ecu_add_if_not_in.restype = POINTER(ECU)
 
 lib.vehicle_fill_global_obd_data_from_ecus.argtypes = [POINTER(Vehicle)]
 lib.vehicle_dump.argtypes = [POINTER(Vehicle)]
+lib.vehicle_debug.argtypes = [POINTER(Vehicle)]
