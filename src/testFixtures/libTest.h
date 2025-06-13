@@ -62,19 +62,19 @@ static FILE* tmpFile(char **name) {
     return fopen(*name,"w+");
 }
 
-static OBDIFace* port_open(char *port_location) {
-    printf("open port %s\n", port_location);
+static OBDIFace* port_open(char *device_location) {
+    printf("open port %s\n", device_location);
     final SERIAL serial = serial_new();
-    serial->name = strdup(port_location);
+    serial->location = strdup(device_location);
     return elm_open_from_serial(serial);
 }
 
 static OBDIFace* port_parse_open(int argc, char **argv) {
-    char * port_location = "/dev/pts/2";
+    char * device_location = "/dev/pts/2";
     if ( 1 < argc ) {
-        port_location = argv[1];
+        device_location = argv[1];
     }
-    return port_open(port_location);
+    return port_open(device_location);
 }
 
 static char* start_elm327_simulation() {
