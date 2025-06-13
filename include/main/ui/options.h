@@ -6,6 +6,7 @@
 #include "ui.h"
 #include <stdlib.h>
 #include "libautodiag/sim/elm327/sim.h"
+#include "libautodiag/com/obd/database.h"
 
 typedef struct {
     GtkWidget *window;
@@ -27,6 +28,10 @@ typedef struct {
         GtkLabel *launchDesc;
         pthread_t * launchThread;
     } simulator;
+    struct {
+        GtkComboBoxText *brand;
+        GtkComboBoxText *engine;
+    } vehicleInfos;
 } OptionsGui;
 
 extern OptionsGui *optionsGui;

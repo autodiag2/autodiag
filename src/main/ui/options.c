@@ -79,6 +79,34 @@ void options_serial_list_refresh() {
         }
     }
 }
+void options_fill_vehicle_infos() {
+    db_vehicle_load_in_memory();
+    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.brand);
+    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.engine);
+    OBDIFace * iface = config.ephemere.iface;
+    int brand_i = 0, engine_i = 0;
+    for(int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
+        final Vehicle * vehicle = database.list[vehicle_i];
+        if ( vehicle->brand != null ) {
+            gtk_combo_box_text_append(optionsGui->vehicleInfos.brand,NULL,vehicle->brand);
+            if ( iface != null && iface->vehicle->brand != null ) {
+                if ( strcmp(iface->vehicle->brand,vehicle->brand) == 0 ) {
+                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.brand,brand_i);
+                }
+            }
+            brand_i++;
+        }
+        if ( vehicle->engine != null ) {
+            gtk_combo_box_text_append(optionsGui->vehicleInfos.engine,NULL,vehicle->engine);
+            if ( iface != null && iface->vehicle->engine != null ) {
+                if ( strcmp(iface->vehicle->engine,vehicle->engine) == 0 ) {
+                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine,engine_i);
+                }
+            }
+            engine_i++;
+        }
+    }
+}
 
 gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
@@ -99,7 +127,7 @@ void options_set_serial_select_from_name(char * name) {
 void options_show_window() {
     gtk_widget_show_now (optionsGui->window);
     options_serial_list_refresh();
-    db_vehicle_load_in_memory();
+    options_fill_vehicle_infos();
     gtk_toggle_button_set_active(optionsGui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
@@ -190,6 +218,10 @@ void module_init_options(GtkBuilder *builder) {
                 .spinner = GTK_SPINNER(gtk_builder_get_object(builder,"window-simulation-spinner")),
                 .launchDesc = GTK_LABEL(gtk_builder_get_object(builder,"window-simulation-launch-description")),
                 .launchThread = null
+            },
+            .vehicleInfos = {
+                .brand = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-brand")),
+                .engine = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-engine"))
             }
         };
         *optionsGui = g;
