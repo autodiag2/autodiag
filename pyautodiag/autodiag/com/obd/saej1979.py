@@ -33,271 +33,96 @@ class SAEJ1979():
     def fuel_system_status(self, freezed=False):
         arr = lib.saej1979_data_fuel_system_status(byref(self.iface), freezed)
         return [arr[0].decode(), arr[1].decode()]
-    
-    def rpm(self, freezed=False):
-        return lib.saej1979_data_engine_speed(byref(self.iface), freezed)
-
-    def speed(self, freezed=False):
-        return lib.saej1979_data_vehicle_speed(byref(self.iface), freezed)
-
-    def timing_advance(self, freezed=False):
-        return lib.saej1979_data_timing_advance_cycle_1(byref(self.iface), freezed)
-    
-    def intake_air_temperature(self, freezed=False):
-        return lib.saej1979_data_intake_air_temperature(byref(self.iface), freezed)
-
-    def maf_air_flow_rate(self, freezed=False):
-        return lib.saej1979_data_maf_air_flow_rate(byref(self.iface), freezed)
-
-    def throttle_position(self, freezed=False):
-        return lib.saej1979_data_throttle_position(byref(self.iface), freezed)
-
-    def secondary_air_status(self, freezed=False):
-        return lib.saej1979_data_secondary_air_status(byref(self.iface), freezed)
-
-    def oxygen_sensors_present(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensors_present(byref(self.iface), freezed, sensor_i)
-
-    def oxygen_sensor_voltage(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensor_voltage(byref(self.iface), freezed, sensor_i)
-
-    def oxygen_sensor_trim(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensor_trim(byref(self.iface), freezed, sensor_i)
-    
-    def obd_standard(self, freezed=False):
-        return lib.saej1979_data_obd_standard(byref(self.iface), freezed)
-
-    def obd_standard_as_string(self, freezed=False):
-        return lib.saej1979_data_obd_standard_as_string(byref(self.iface), freezed).decode()
-
-    def oxygen_sensors_present_2(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensors_present_2(byref(self.iface), freezed, sensor_i)
-
-    def powertakeoff_status(self, freezed=False):
-        return lib.saej1979_data_powertakeoff_status(byref(self.iface), freezed)
-
-    def seconds_since_engine_start(self, freezed=False):
-        return lib.saej1979_data_seconds_since_engine_start(byref(self.iface), freezed)
-
+    def rpm(self, freezed=False): return lib.saej1979_data_engine_speed(byref(self.iface), freezed)
+    def speed(self, freezed=False): return lib.saej1979_data_vehicle_speed(byref(self.iface), freezed)
+    def timing_advance(self, freezed=False): return lib.saej1979_data_timing_advance_cycle_1(byref(self.iface), freezed)
+    def intake_air_temperature(self, freezed=False): return lib.saej1979_data_intake_air_temperature(byref(self.iface), freezed)
+    def maf_air_flow_rate(self, freezed=False): return lib.saej1979_data_maf_air_flow_rate(byref(self.iface), freezed)
+    def throttle_position(self, freezed=False): return lib.saej1979_data_throttle_position(byref(self.iface), freezed)
+    def secondary_air_status(self, freezed=False): return lib.saej1979_data_secondary_air_status(byref(self.iface), freezed)
+    def oxygen_sensors_present(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensors_present(byref(self.iface), freezed, sensor_i)
+    def oxygen_sensor_voltage(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensor_voltage(byref(self.iface), freezed, sensor_i)
+    def oxygen_sensor_trim(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensor_trim(byref(self.iface), freezed, sensor_i)
+    def obd_standard(self, freezed=False): return lib.saej1979_data_obd_standard(byref(self.iface), freezed)
+    def obd_standard_as_string(self, freezed=False): return lib.saej1979_data_obd_standard_as_string(byref(self.iface), freezed).decode()
+    def oxygen_sensors_present_2(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensors_present_2(byref(self.iface), freezed, sensor_i)
+    def powertakeoff_status(self, freezed=False): return lib.saej1979_data_powertakeoff_status(byref(self.iface), freezed)
+    def seconds_since_engine_start(self, freezed=False): return lib.saej1979_data_seconds_since_engine_start(byref(self.iface), freezed)
     def time_since_engine_start(self, freezed=False):
         res = lib.saej1979_data_time_since_engine_start(byref(self.iface), freezed)
         return res.decode() if res else None
-
-    def distance_since_mil_activated(self, freezed=False):
-        return lib.saej1979_data_distance_since_mil_activated(byref(self.iface), freezed)
-
-    def frp_relative(self, freezed=False):
-        return lib.saej1979_data_frp_relative(byref(self.iface), freezed)
-    
-    def frp_widerange(self, freezed=False):
-        return lib.saej1979_data_frp_widerange(byref(self.iface), freezed)
-
-    def oxygen_sensor_air_fuel_equiv_ratio(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(byref(self.iface), freezed, sensor_i)
-
-    def oxygen_sensor_voltage_ext_range_ratio(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensor_voltage_ext_range(byref(self.iface), freezed, sensor_i)
-
-    def commanded_egr(self, freezed=False):
-        return lib.saej1979_data_commanded_egr(byref(self.iface), freezed)
-
-    def egr_error(self, freezed=False):
-        return lib.saej1979_data_egr_error(byref(self.iface), freezed)
-
-    def commanded_evap_purge(self, freezed=False):
-        return lib.saej1979_data_commanded_evap_purge(byref(self.iface), freezed)
-
-    def fuel_tank_level_input(self, freezed=False):
-        return lib.saej1979_data_fuel_tank_level_input(byref(self.iface), freezed)
-
-    def warm_ups_since_ecu_reset(self, freezed=False):
-        return lib.saej1979_data_warm_ups_since_ecu_reset(byref(self.iface), freezed)
-
-    def distance_since_ecu_reset(self, freezed=False):
-        return lib.saej1979_data_distance_since_ecu_reset(byref(self.iface), freezed)
-
-    def evap_system_vapor_pressure(self, freezed=False):
-        return lib.saej1979_data_evap_system_vapor_pressure(byref(self.iface), freezed)
-    
-    def baro_pressure_absolute(self, freezed=False):
-        return lib.saej1979_data_baro_pressure_absolute(byref(self.iface), freezed)
-
-    def oxygen_sensor_current(self, sensor_i, freezed=False):
-        return lib.saej1979_data_oxygen_sensor_current(byref(self.iface), freezed, sensor_i)
-
-    def catalyst_temperature(self, sensor_i, freezed=False):
-        return lib.saej1979_data_catalyst_tempature(byref(self.iface), freezed, sensor_i)
-
-    def catalyst_temperature_with_bank(self, bank_i, sensor_i, freezed=False):
-        return lib.saej1979_data_catalyst_tempature_with_bank(byref(self.iface), freezed, bank_i, sensor_i)
-
-    def ecu_voltage(self, freezed=False):
-        return lib.saej1979_data_ecu_voltage(byref(self.iface), freezed)
-
-    def absolute_engine_load(self, freezed=False):
-        return lib.saej1979_data_absolute_engine_load(byref(self.iface), freezed)
-
-    def commanded_air_fuel_equivalence_ratio(self, freezed=False):
-        return lib.saej1979_data_commanded_air_fuel_equivalence_ratio(byref(self.iface), freezed)
-
-    def relative_throttle_position(self, freezed=False):
-        return lib.saej1979_data_relative_throttle_position(byref(self.iface), freezed)
-
-    def ambient_air_temperature(self, freezed=False):
-        return lib.saej1979_data_ambient_air_temperature(byref(self.iface), freezed)
-
-    def absolute_throttle_position_B(self, freezed=False):
-        return lib.saej1979_data_absolute_throttle_position_B(byref(self.iface), freezed)
-
-    def absolute_throttle_position_C(self, freezed=False):
-        return lib.saej1979_data_absolute_throttle_position_C(byref(self.iface), freezed)
-
-    def accelerator_pedal_position_D(self, freezed=False):
-        return lib.saej1979_data_accelerator_pedal_position_D(byref(self.iface), freezed)
-
-    def accelerator_pedal_position_E(self, freezed=False):
-        return lib.saej1979_data_accelerator_pedal_position_E(byref(self.iface), freezed)
-
-    def accelerator_pedal_position_F(self, freezed=False):
-        return lib.saej1979_data_accelerator_pedal_position_F(byref(self.iface), freezed)
-
-    def commanded_throttle_actuator(self, freezed=False):
-        return lib.saej1979_data_commanded_throttle_actuator(byref(self.iface), freezed)
-
-    def time_run_mil_on(self, freezed=False):
-        return lib.saej1979_data_time_run_mil_on(byref(self.iface), freezed)
-
-    def time_since_trouble_codes_cleared(self, freezed=False):
-        return lib.saej1979_data_time_since_trouble_codes_cleared(byref(self.iface), freezed)
-
-    def max_fuel_air_equiv_ratio(self, freezed=False):
-        return lib.saej1979_data_max_fuel_air_equiv_ratio(byref(self.iface), freezed)
-
-    def max_oxygen_sensor_voltage(self, freezed=False):
-        return lib.saej1979_data_max_oxygen_sensor_voltage(byref(self.iface), freezed)
-
-    def max_intake_manifold_absolute_pressure(self, freezed=False):
-        return lib.saej1979_data_max_intake_manifold_absolute_pressure(byref(self.iface), freezed)
-
-    def max_air_flow_rate_from_maf_sensor(self, freezed=False):
-        return lib.saej1979_data_max_air_flow_rate_from_maf_sensor(byref(self.iface), freezed)
-
-    def fuel_type_as_string(self, freezed=False):
-        return lib.saej1979_data_fuel_type_as_string(byref(self.iface), freezed).decode()
-
-    def fuel_type(self, freezed=False):
-        return lib.saej1979_data_fuel_type(byref(self.iface), freezed)
-
-    def ethanol_fuel_percent(self, freezed=False):
-        return lib.saej1979_data_ethanol_fuel_percent(byref(self.iface), freezed)
-
-    def absolute_evap_system_vapor_pressure(self, freezed=False):
-        return lib.saej1979_data_absolute_evap_system_vapor_pressure(byref(self.iface), freezed)
-    
-    def relative_evap_system_vapor_pressure(self, freezed=False):
-        return lib.saej1979_data_relative_evap_system_vapor_pressure(byref(self.iface), freezed)
-
-    def short_term_secondary_oxygen_sensor_trim(self, bank_i, freezed=False):
-        return lib.saej1979_data_short_term_secondary_oxygen_sensor_trim(byref(self.iface), freezed, bank_i)
-
-    def long_term_secondary_oxygen_sensor_trim(self, bank_i, freezed=False):
-        return lib.saej1979_data_long_term_secondary_oxygen_sensor_trim(byref(self.iface), freezed, bank_i)
-
-    def fuel_rail_absolute_pressure(self, freezed=False):
-        return lib.saej1979_data_fuel_rail_absolute_pressure(byref(self.iface), freezed)
-
-    def relative_accelerator_pedal_position(self, freezed=False):
-        return lib.saej1979_data_relative_accelerator_pedal_position(byref(self.iface), freezed)
-
-    def hybrid_battery_pack_remaining_life(self, freezed=False):
-        return lib.saej1979_data_hybrid_battery_pack_remaining_life(byref(self.iface), freezed)
-
-    def engine_oil_temperature(self, freezed=False):
-        return lib.saej1979_data_engine_oil_temperature(byref(self.iface), freezed)
-
-    def fuel_injection_timing(self, freezed=False):
-        return lib.saej1979_data_fuel_injection_timing(byref(self.iface), freezed)
-
-    def engine_fuel_rate(self, freezed=False):
-        return lib.saej1979_data_engine_fuel_rate(byref(self.iface), freezed)
-
-    def actual_engine_percent_torque(self, freezed=False):
-        return lib.saej1979_data_actual_engine_percent_torque(byref(self.iface), freezed)
-
-    def driver_demand_engine_percent_torque(self, freezed=False):
-        return lib.saej1979_data_driver_demand_engine_percent_torque(byref(self.iface), freezed)
-
-    def engine_reference_torque(self, freezed=False):
-        return lib.saej1979_data_engine_reference_torque(byref(self.iface), freezed)
-
-    def engine_percent_torque_data_idle(self, freezed=False):
-        return lib.saej1979_data_engine_percent_torque_data_idle(byref(self.iface), freezed)
-
-    def engine_percent_torque_data_point_1(self, freezed=False):
-        return lib.saej1979_data_engine_percent_torque_data_point_1(byref(self.iface), freezed)
-
-    def engine_percent_torque_data_point_2(self, freezed=False):
-        return lib.saej1979_data_engine_percent_torque_data_point_2(byref(self.iface), freezed)
-
-    def engine_percent_torque_data_point_3(self, freezed=False):
-        return lib.saej1979_data_engine_percent_torque_data_point_3(byref(self.iface), freezed)
-
-    def engine_percent_torque_data_point_4(self, freezed=False):
-        return lib.saej1979_data_engine_percent_torque_data_point_4(byref(self.iface), freezed)
-
-    def maf_sensor_present(self, sensor_i, freezed=False):
-        return lib.saej1979_data_maf_sensor_present(byref(self.iface), freezed, sensor_i)
-
-    def maf_sensor(self, sensor_i, freezed=False):
-        return lib.saej1979_data_maf_sensor(byref(self.iface), freezed, sensor_i)
-
-    def engine_coolant_temperature_sensor(self, sensor_i, freezed=False):
-        return lib.saej1979_data_engine_coolant_temperature_sensor(byref(self.iface), freezed, sensor_i)
-
-    def engine_coolant_temperature_sensor_present(self, sensor_i, freezed=False):
-        return lib.saej1979_data_engine_coolant_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
-    
-    def engine_intake_air_temperature_sensor(self, sensor_i, freezed=False):
-        return lib.saej1979_data_engine_intake_air_temperature_sensor(byref(self.iface), freezed, sensor_i)
-
-    def engine_intake_air_temperature_sensor_present(self, sensor_i, freezed=False):
-        return lib.saej1979_data_engine_intake_air_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
-
-    def egt_sensor_present(self, sensor_i, freezed=False):
-        return lib.saej1979_egt_sensor_present(byref(self.iface), freezed, sensor_i)
-
-    def egt_sensor_temperature(self, sensor_i, freezed=False):
-        return lib.saej1979_egt_sensor_temperature(byref(self.iface), freezed, sensor_i)
-
-    def diesel_particulate_filter_temperature(self, freezed=False):
-        return lib.saej1979_data_diesel_particulate_filter_temperature(byref(self.iface), freezed)
-    
-    def engine_friction_percent_torque(self, freezed=False):
-        return lib.saej1979_data_engine_friction_percent_torque(byref(self.iface), freezed)
-
-    def cylinder_fuel_rate(self, freezed=False):
-        return lib.saej1979_data_cylinder_fuel_rate(byref(self.iface), freezed)
-
-    def transmission_actual_gear_present(self, freezed=False):
-        return lib.saej1979_data_transmission_actual_gear_present(byref(self.iface), freezed)
-
-    def transmission_actual_gear(self, freezed=False):
-        return lib.saej1979_data_transmission_actual_gear(byref(self.iface), freezed)
-
-    def commanded_diesel_exhaust_fluid_dosing_present(self, freezed=False):
-        return lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing_present(byref(self.iface), freezed)
-
-    def commanded_diesel_exhaust_fluid_dosing(self, freezed=False):
-        return lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing(byref(self.iface), freezed)
-
-    def odometer(self, freezed=False):
-        return lib.saej1979_data_odometer(byref(self.iface), freezed)
-
-    def abs_switch_present(self, freezed=False):
-        return lib.saej1979_data_abs_switch_present(byref(self.iface), freezed)
-
-    def abs_switch(self, freezed=False):
-        return lib.saej1979_data_abs_switch(byref(self.iface), freezed)
+    def distance_since_mil_activated(self, freezed=False): return lib.saej1979_data_distance_since_mil_activated(byref(self.iface), freezed)
+    def frp_relative(self, freezed=False): return lib.saej1979_data_frp_relative(byref(self.iface), freezed)
+    def frp_widerange(self, freezed=False): return lib.saej1979_data_frp_widerange(byref(self.iface), freezed)
+    def oxygen_sensor_air_fuel_equiv_ratio(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(byref(self.iface), freezed, sensor_i)
+    def oxygen_sensor_voltage_ext_range_ratio(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensor_voltage_ext_range(byref(self.iface), freezed, sensor_i)
+    def commanded_egr(self, freezed=False): return lib.saej1979_data_commanded_egr(byref(self.iface), freezed)
+    def egr_error(self, freezed=False): return lib.saej1979_data_egr_error(byref(self.iface), freezed)
+    def commanded_evap_purge(self, freezed=False): return lib.saej1979_data_commanded_evap_purge(byref(self.iface), freezed)
+    def fuel_tank_level_input(self, freezed=False): return lib.saej1979_data_fuel_tank_level_input(byref(self.iface), freezed)
+    def warm_ups_since_ecu_reset(self, freezed=False): return lib.saej1979_data_warm_ups_since_ecu_reset(byref(self.iface), freezed)
+    def distance_since_ecu_reset(self, freezed=False): return lib.saej1979_data_distance_since_ecu_reset(byref(self.iface), freezed)
+    def evap_system_vapor_pressure(self, freezed=False): return lib.saej1979_data_evap_system_vapor_pressure(byref(self.iface), freezed)
+    def baro_pressure_absolute(self, freezed=False): return lib.saej1979_data_baro_pressure_absolute(byref(self.iface), freezed)
+    def oxygen_sensor_current(self, sensor_i, freezed=False): return lib.saej1979_data_oxygen_sensor_current(byref(self.iface), freezed, sensor_i)
+    def catalyst_temperature(self, sensor_i, freezed=False): return lib.saej1979_data_catalyst_tempature(byref(self.iface), freezed, sensor_i)
+    def catalyst_temperature_with_bank(self, bank_i, sensor_i, freezed=False): return lib.saej1979_data_catalyst_tempature_with_bank(byref(self.iface), freezed, bank_i, sensor_i)
+    def ecu_voltage(self, freezed=False): return lib.saej1979_data_ecu_voltage(byref(self.iface), freezed)
+    def absolute_engine_load(self, freezed=False): return lib.saej1979_data_absolute_engine_load(byref(self.iface), freezed)
+    def commanded_air_fuel_equivalence_ratio(self, freezed=False): return lib.saej1979_data_commanded_air_fuel_equivalence_ratio(byref(self.iface), freezed)
+    def relative_throttle_position(self, freezed=False): return lib.saej1979_data_relative_throttle_position(byref(self.iface), freezed)
+    def ambient_air_temperature(self, freezed=False): return lib.saej1979_data_ambient_air_temperature(byref(self.iface), freezed)
+    def absolute_throttle_position_B(self, freezed=False): return lib.saej1979_data_absolute_throttle_position_B(byref(self.iface), freezed)
+    def absolute_throttle_position_C(self, freezed=False): return lib.saej1979_data_absolute_throttle_position_C(byref(self.iface), freezed)
+    def accelerator_pedal_position_D(self, freezed=False): return lib.saej1979_data_accelerator_pedal_position_D(byref(self.iface), freezed)
+    def accelerator_pedal_position_E(self, freezed=False): return lib.saej1979_data_accelerator_pedal_position_E(byref(self.iface), freezed)
+    def accelerator_pedal_position_F(self, freezed=False): return lib.saej1979_data_accelerator_pedal_position_F(byref(self.iface), freezed)
+    def commanded_throttle_actuator(self, freezed=False): return lib.saej1979_data_commanded_throttle_actuator(byref(self.iface), freezed)
+    def time_run_mil_on(self, freezed=False): return lib.saej1979_data_time_run_mil_on(byref(self.iface), freezed)
+    def time_since_trouble_codes_cleared(self, freezed=False): return lib.saej1979_data_time_since_trouble_codes_cleared(byref(self.iface), freezed)
+    def max_fuel_air_equiv_ratio(self, freezed=False): return lib.saej1979_data_max_fuel_air_equiv_ratio(byref(self.iface), freezed)
+    def max_oxygen_sensor_voltage(self, freezed=False): return lib.saej1979_data_max_oxygen_sensor_voltage(byref(self.iface), freezed)
+    def max_intake_manifold_absolute_pressure(self, freezed=False): return lib.saej1979_data_max_intake_manifold_absolute_pressure(byref(self.iface), freezed)
+    def max_air_flow_rate_from_maf_sensor(self, freezed=False): return lib.saej1979_data_max_air_flow_rate_from_maf_sensor(byref(self.iface), freezed)
+    def fuel_type_as_string(self, freezed=False): return lib.saej1979_data_fuel_type_as_string(byref(self.iface), freezed).decode()
+    def fuel_type(self, freezed=False): return lib.saej1979_data_fuel_type(byref(self.iface), freezed)
+    def ethanol_fuel_percent(self, freezed=False): return lib.saej1979_data_ethanol_fuel_percent(byref(self.iface), freezed)
+    def absolute_evap_system_vapor_pressure(self, freezed=False): return lib.saej1979_data_absolute_evap_system_vapor_pressure(byref(self.iface), freezed)
+    def relative_evap_system_vapor_pressure(self, freezed=False): return lib.saej1979_data_relative_evap_system_vapor_pressure(byref(self.iface), freezed)
+    def short_term_secondary_oxygen_sensor_trim(self, bank_i, freezed=False): return lib.saej1979_data_short_term_secondary_oxygen_sensor_trim(byref(self.iface), freezed, bank_i)
+    def long_term_secondary_oxygen_sensor_trim(self, bank_i, freezed=False): return lib.saej1979_data_long_term_secondary_oxygen_sensor_trim(byref(self.iface), freezed, bank_i)
+    def fuel_rail_absolute_pressure(self, freezed=False): return lib.saej1979_data_fuel_rail_absolute_pressure(byref(self.iface), freezed)
+    def relative_accelerator_pedal_position(self, freezed=False): return lib.saej1979_data_relative_accelerator_pedal_position(byref(self.iface), freezed)
+    def hybrid_battery_pack_remaining_life(self, freezed=False): return lib.saej1979_data_hybrid_battery_pack_remaining_life(byref(self.iface), freezed)
+    def engine_oil_temperature(self, freezed=False): return lib.saej1979_data_engine_oil_temperature(byref(self.iface), freezed)
+    def fuel_injection_timing(self, freezed=False): return lib.saej1979_data_fuel_injection_timing(byref(self.iface), freezed)
+    def engine_fuel_rate(self, freezed=False): return lib.saej1979_data_engine_fuel_rate(byref(self.iface), freezed)
+    def actual_engine_percent_torque(self, freezed=False): return lib.saej1979_data_actual_engine_percent_torque(byref(self.iface), freezed)
+    def driver_demand_engine_percent_torque(self, freezed=False): return lib.saej1979_data_driver_demand_engine_percent_torque(byref(self.iface), freezed)
+    def engine_reference_torque(self, freezed=False): return lib.saej1979_data_engine_reference_torque(byref(self.iface), freezed)
+    def engine_percent_torque_data_idle(self, freezed=False): return lib.saej1979_data_engine_percent_torque_data_idle(byref(self.iface), freezed)
+    def engine_percent_torque_data_point_1(self, freezed=False): return lib.saej1979_data_engine_percent_torque_data_point_1(byref(self.iface), freezed)
+    def engine_percent_torque_data_point_2(self, freezed=False): return lib.saej1979_data_engine_percent_torque_data_point_2(byref(self.iface), freezed)
+    def engine_percent_torque_data_point_3(self, freezed=False): return lib.saej1979_data_engine_percent_torque_data_point_3(byref(self.iface), freezed)
+    def engine_percent_torque_data_point_4(self, freezed=False): return lib.saej1979_data_engine_percent_torque_data_point_4(byref(self.iface), freezed)
+    def maf_sensor_present(self, sensor_i, freezed=False): return lib.saej1979_data_maf_sensor_present(byref(self.iface), freezed, sensor_i)
+    def maf_sensor(self, sensor_i, freezed=False): return lib.saej1979_data_maf_sensor(byref(self.iface), freezed, sensor_i)
+    def engine_coolant_temperature_sensor(self, sensor_i, freezed=False): return lib.saej1979_data_engine_coolant_temperature_sensor(byref(self.iface), freezed, sensor_i)
+    def engine_coolant_temperature_sensor_present(self, sensor_i, freezed=False): return lib.saej1979_data_engine_coolant_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
+    def engine_intake_air_temperature_sensor(self, sensor_i, freezed=False): return lib.saej1979_data_engine_intake_air_temperature_sensor(byref(self.iface), freezed, sensor_i)
+    def engine_intake_air_temperature_sensor_present(self, sensor_i, freezed=False): return lib.saej1979_data_engine_intake_air_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
+    def egt_sensor_present(self, sensor_i, freezed=False): return lib.saej1979_egt_sensor_present(byref(self.iface), freezed, sensor_i)
+    def egt_sensor_temperature(self, sensor_i, freezed=False): return lib.saej1979_egt_sensor_temperature(byref(self.iface), freezed, sensor_i)
+    def diesel_particulate_filter_temperature(self, freezed=False): return lib.saej1979_data_diesel_particulate_filter_temperature(byref(self.iface), freezed)
+    def engine_friction_percent_torque(self, freezed=False): return lib.saej1979_data_engine_friction_percent_torque(byref(self.iface), freezed)
+    def cylinder_fuel_rate(self, freezed=False): return lib.saej1979_data_cylinder_fuel_rate(byref(self.iface), freezed)
+    def transmission_actual_gear_present(self, freezed=False): return lib.saej1979_data_transmission_actual_gear_present(byref(self.iface), freezed)
+    def transmission_actual_gear(self, freezed=False): return lib.saej1979_data_transmission_actual_gear(byref(self.iface), freezed)
+    def commanded_diesel_exhaust_fluid_dosing_present(self, freezed=False): return lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing_present(byref(self.iface), freezed)
+    def commanded_diesel_exhaust_fluid_dosing(self, freezed=False): return lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing(byref(self.iface), freezed)
+    def odometer(self, freezed=False): return lib.saej1979_data_odometer(byref(self.iface), freezed)
+    def abs_switch_present(self, freezed=False): return lib.saej1979_data_abs_switch_present(byref(self.iface), freezed)
+    def abs_switch(self, freezed=False): return lib.saej1979_data_abs_switch(byref(self.iface), freezed)
 
 lib.saej1979_data_number_of_dtc.restype = c_int
 lib.saej1979_data_mil_status.restype = c_bool
