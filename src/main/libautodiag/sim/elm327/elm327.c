@@ -358,7 +358,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     int secs = bitRetrieve(ELM327_SIM_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
-    elm327->port_name = null;
+    elm327->device_location = null;
     elm327->vehicle_response_timeout = ELM327_SIM_PP_GET(elm327,0x03) * 4;
     elm327->vehicle_response_timeout_adaptive = true;
     elm327->isMemoryEnabled = true;
@@ -413,7 +413,7 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     free(elm327->eol);
     free(elm327->dev_description);
     free(elm327->dev_identifier);
-    free(elm327->port_name);
+    free(elm327->device_location);
     free(elm327->receive_address);
     buffer_free(elm327->custom_header);
     buffer_free(elm327->obd_buffer);
@@ -1014,16 +1014,16 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
 
     #ifdef OS_WINDOWS
-        elm327->port_name = strdup(pipeName);
+        elm327->device_location = strdup(pipeName);
         elm327->implementation->pipe_handle = hPipe;
     #elif defined OS_POSIX
-        elm327->port_name = strdup(ptsname(fd));
+        elm327->device_location = strdup(ptsname(fd));
         elm327->implementation->fd = fd;
     #else
     #   warning OS unsupported
     #endif
 
-    log_msg(LOG_INFO, "sim running on %s", elm327->port_name);
+    log_msg(LOG_INFO, "sim running on %s", elm327->device_location);
 
     #ifdef OS_WINDOWS
     #elif defined OS_POSIX

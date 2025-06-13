@@ -21,7 +21,7 @@ typedef struct {
             // port speed codified as in options screen
             int baud_rate;
             // port name as showned in options screen
-            char *port_name;
+            char *device_location;
         } serial;
     } com;
     struct {

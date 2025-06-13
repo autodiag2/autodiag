@@ -9,7 +9,7 @@ if len(sys.argv) < 2:
 
 log_set_level(LOG_DEBUG)
 serial = Serial()
-serial.set_port_location(sys.argv[1])
+serial.set_location(sys.argv[1])
 iface = OBDIFace.open_from_device(serial)
 iface.send("0101")
 iface.recv()

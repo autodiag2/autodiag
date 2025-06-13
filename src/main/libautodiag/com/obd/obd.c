@@ -143,7 +143,7 @@ OBDIFace* obd_open_from_device(final Device* device) {
     Serial * serial = (Serial*)device;
     OBDIFace * result = elm_open_from_serial(serial);
     if ( result == null ) {
-        log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s", serial->name);
+        log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s", serial->location);
         return null;
     }
     obd_discover_vehicle(result);

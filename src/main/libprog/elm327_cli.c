@@ -109,10 +109,10 @@ void *elm327_sim_daemon(void *d) {
     ELM327SimData data = *da;
     elm327_sim_loop_as_daemon(data.sim);
     usleep(50e3);
-    if ( data.sim->port_name == null ) {
+    if ( data.sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {
-        printf("Simulation running on %s\n", data.sim->port_name);
+        printf("Simulation running on %s\n", data.sim->device_location);
         if ( data.proto != null ) {
             data.sim->protocolRunning = *data.proto;
         }

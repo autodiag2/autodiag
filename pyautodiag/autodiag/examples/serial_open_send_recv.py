@@ -7,7 +7,7 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 serial = Serial()
-serial.set_port_location(sys.argv[1])
+serial.set_location(sys.argv[1])
 log_set_level(LOG_DEBUG)
 serial.dump()
 log_set_level(LOG_NONE)

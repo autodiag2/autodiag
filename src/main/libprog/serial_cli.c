@@ -28,7 +28,7 @@ int serial_cli_main(int argc, char *argv[]) {
                 config.com.serial.baud_rate = atoi(optarg);
             } break;
             case 'n': {
-                config.com.serial.port_name = strdup(optarg);
+                config.com.serial.device_location = strdup(optarg);
             } break;
             case 'l': {
                 config.log.level = log_level_from_str(optarg);
@@ -40,7 +40,7 @@ int serial_cli_main(int argc, char *argv[]) {
                         printf("Ports available:\n");
                         for(int i = 0; i < serial_list.size; i++) {
                             Serial * port = serial_list.list[i];
-                            printf(" %s\n", port->name);
+                            printf(" %s\n", port->location);
                         }
                         return 0;
                     } break;

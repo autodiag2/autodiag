@@ -15,7 +15,7 @@ SERIAL serial_list_get_selected() {
 SERIAL serial_list_add_if_not_in(SERIAL element) {
     for(int i = 0; i < serial_list.size; i++) {
         SERIAL serial = serial_list.list[i];
-        if ( strcmp(serial->name,element->name) == 0 ) {
+        if ( strcmp(serial->location,element->location) == 0 ) {
             return serial;
         }
     }
@@ -44,7 +44,7 @@ void serial_list_set_selected_by_name(char *name) {
         Serial * port;
         for(int i = 0; i < serial_list.size; i++) {
             port = serial_list.list[i];
-            if ( port->name != null && strcmp(port->name,name) == 0 ) {
+            if ( port->location != null && strcmp(port->location,name) == 0 ) {
                 serial_list_selected = i;
                 return;
             }
@@ -59,7 +59,7 @@ Serial * serial_list_find_by_name(final char * name) {
         Serial * port;
         for(int i = 0; i < serial_list.size; i++) {
             port = serial_list.list[i];
-            if ( port->name != null && strcmp(port->name,name) == 0 ) {
+            if ( port->location != null && strcmp(port->location,name) == 0 ) {
                 return port;
             }
         }
@@ -255,7 +255,7 @@ void serial_list_fill() {
     int baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     final Serial * selected_serial = serial_list_get_selected();
     if ( selected_serial != null ) {
-        selected_serial_path = strdup(selected_serial->name);
+        selected_serial_path = strdup(selected_serial->location);
         baud_rate = selected_serial->baud_rate;
     }
     serial_list_set_to_undetected();

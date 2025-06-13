@@ -27,17 +27,17 @@ int ensure_serial_in_list(final Serial * port) {
 void* options_save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
-    final char *selected_port_name = gtk_combo_box_text_get_active_text(optionsGui->serialList);
-    if ( selected_port_name == null ) {
-        if ( config.com.serial.port_name != null ) {
-            free(config.com.serial.port_name);
-            config.com.serial.port_name = null;
+    final char *selected_device_location = gtk_combo_box_text_get_active_text(optionsGui->serialList);
+    if ( selected_device_location == null ) {
+        if ( config.com.serial.device_location != null ) {
+            free(config.com.serial.device_location);
+            config.com.serial.device_location = null;
         }
     } else {
         module_debug(MODULE_OPTIONS "Serial port selected:");
-        module_debug(MODULE_OPTIONS (char *)selected_port_name);
-        config.com.serial.port_name = strdup(selected_port_name);
-        g_free(selected_port_name);
+        module_debug(MODULE_OPTIONS (char *)selected_device_location);
+        config.com.serial.device_location = strdup(selected_device_location);
+        g_free(selected_device_location);
     }
     const char * activeBaudRateText = gtk_entry_get_text(optionsGui->baudRateSelection);
     int baud_rate = atoi(activeBaudRateText);
@@ -83,7 +83,7 @@ void options_serial_list_refresh() {
         gtk_combo_box_text_remove_all(optionsGui->serialList);
         for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
             final SERIAL port = serial_list.list[serial_i];
-            gtk_combo_box_text_append(optionsGui->serialList,NULL,port->name);
+            gtk_combo_box_text_append(optionsGui->serialList,NULL,port->location);
             if ( port == serial_list_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             }
@@ -138,7 +138,7 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
 void options_set_serial_select_from_name(char * name) {
     for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
         final SERIAL port = serial_list.list[serial_i];
-        if ( strcmp(name, port->name) == 0 ) {
+        if ( strcmp(name, port->location) == 0 ) {
             gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             break;
         }
@@ -157,8 +157,8 @@ void options_show_window() {
     asprintf(&txt,"%d", config.com.serial.baud_rate);
     gtk_entry_set_text(optionsGui->baudRateSelection,txt);
     free(txt);
-    if ( config.com.serial.port_name != null ) {
-        options_set_serial_select_from_name(config.com.serial.port_name);
+    if ( config.com.serial.device_location != null ) {
+        options_set_serial_select_from_name(config.com.serial.device_location);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
@@ -181,15 +181,15 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
 
     options_serial_list_refresh();
 
-    char * fmt = elm327->port_name == null ? 
+    char * fmt = elm327->device_location == null ? 
             "Simulation not started ..." 
             : "Simulation started at '%s'";
     char * simu_desc;
-    asprintf(&simu_desc,fmt,elm327->port_name);
+    asprintf(&simu_desc,fmt,elm327->device_location);
     gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
     free(simu_desc);
     
-    options_set_serial_select_from_name(elm327->port_name);
+    options_set_serial_select_from_name(elm327->device_location);
 
     return false;
 }

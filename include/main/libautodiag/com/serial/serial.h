@@ -52,14 +52,14 @@ typedef struct {
 typedef struct {
     Device;
     bool echo;
-    int baud_rate;          // speed in bauds
+    int baud_rate;              // speed in bauds
     SerialStatus status;
-    char *name;
+    char *location;             // location of the device accross OSs
     char *eol;
-    int timeout;             // timeout in ms before considering no reply from the remote
-    int timeout_seq;         // timeout in ms for burst reception
-    Buffer * recv_buffer;      // buffer for input data
-    bool detected;           // did the serial port has been detected during the previous scan
+    int timeout;                // timeout in ms before considering no reply from the remote
+    int timeout_seq;            // timeout in ms for burst reception
+    Buffer * recv_buffer;       // buffer for input data
+    bool detected;              // did the serial port has been detected during the previous scan
     /**
      * Guess error responses and specicial response sent back by
      * the adaptater

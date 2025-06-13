@@ -38,7 +38,7 @@ class ELM327emulation(Structure):
         ("printing_of_headers", c_int),
         ("dev_description", char_p),
         ("dev_identifier", char_p),
-        ("port_name", char_p),
+        ("device_location", char_p),
         ("voltage", c_double),
         ("voltageFactory", c_double),
         ("baud_rate", c_int),

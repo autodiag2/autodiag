@@ -42,7 +42,7 @@ int serial_send(final Serial * port, const char *command) {
         #elif defined OS_POSIX
             bytes_sent = write(port->implementation->fdtty,tx_buf,bytes_to_send);
 	        if ( bytes_sent != bytes_to_send ) {
-                perror(port->name);
+                perror(port->location);
                 log_msg(LOG_ERROR, "Error while writting to the serial");
                 serial_close(port);
                 return DEVICE_ERROR;
@@ -152,7 +152,7 @@ int serial_open(final Serial * port) {
         serial_close(port);
 
         // Do not open serial if it has not been configured.
-        if (port->name == null) {
+        if (port->location == null) {
             log_msg(LOG_DEBUG, "Open: Cannot open since no name on the serial");
             return GENERIC_FUNCTION_ERROR;
         }
@@ -167,20 +167,20 @@ int serial_open(final Serial * port) {
             DCB dcb;
             COMMTIMEOUTS timeouts;
             DWORD bytes_written;
-            port->connexion_handle = CreateFile(port->name, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            port->connexion_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             if (port->connexion_handle == INVALID_HANDLE_VALUE) {
-                log_msg(LOG_WARNING, "Cannot open the port %s", port->name);
+                log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
             } else {
-                log_msg(LOG_DEBUG, "Openning port: %s", port->name);
+                log_msg(LOG_DEBUG, "Openning port: %s", port->location);
             }
             
             if ( isComport(port->connexion_handle) ) {
                 ZeroMemory(&dcb, sizeof(DCB));
                 dcb.DCBlength = sizeof(DCB);
                 if (!GetCommState(port->connexion_handle, &dcb)) {
-                    log_msg(LOG_ERROR, "GetCommState failed for %s", port->name);
+                    log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
                     CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
@@ -199,7 +199,7 @@ int serial_open(final Serial * port) {
                 dcb.fErrorChar = FALSE;
                 dcb.fAbortOnError = FALSE;
                 if (!SetCommState(port->connexion_handle, &dcb)) {
-                    log_msg(LOG_ERROR, "SetCommState failed for %s", port->name);
+                    log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
                     CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
@@ -211,7 +211,7 @@ int serial_open(final Serial * port) {
                 timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
                 timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
                 if (!SetCommTimeouts(port->connexion_handle, &timeouts)) {
-                    log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->name);
+                    log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
                     CloseHandle(port->connexion_handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
@@ -231,7 +231,7 @@ int serial_open(final Serial * port) {
                 WriteFile(port->connexion_handle, "?\r", 2, &bytes_written, 0);
                 PurgeComm(port->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 if (bytes_written != 2) { // If Tx timeout occured
-                    log_msg(LOG_WARNING, "Inactive port detected %s", port->name);
+                    log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
                     CloseHandle(port->connexion_handle);
                     port->status = SERIAL_STATE_OPEN_ERROR;
                     return GENERIC_FUNCTION_ERROR;
@@ -239,9 +239,9 @@ int serial_open(final Serial * port) {
             }
 
         #elif defined OS_POSIX
-            port->implementation->fdtty = open(port->name, O_RDWR | O_NOCTTY);
+            port->implementation->fdtty = open(port->location, O_RDWR | O_NOCTTY);
             if (port->implementation->fdtty < 0) {
-                perror(port->name);
+                perror(port->location);
                 if ( errno == ENOENT ) {
                     port->status = SERIAL_STATE_DISCONNECTED;
                 } else if ( errno == EPERM ) {
@@ -371,7 +371,7 @@ void serial_reset_to_default(final Serial* serial) {
 
 void serial_init(final Serial* serial) {
     serial_reset_to_default(serial);
-    serial->name = null;
+    serial->location = null;
     serial->status = SERIAL_STATE_UNDEFINED;
     serial->recv_buffer = buffer_new();
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
@@ -410,9 +410,9 @@ void module_shutdown_serial() {
 
 void serial_free(final Serial * port) {
     if ( port != null ) {
-        if (port->name != null ) {
-            free(port->name);
-            port->name = null;
+        if (port->location != null ) {
+            free(port->location);
+            port->location = null;
         }
         if ( port->eol != null ) {
             free(port->eol);
@@ -439,7 +439,7 @@ void serial_dump(final Serial * port) {
         asprintf(&result, "%s NULL", title);
         module_debug(MODULE_SERIAL result);
     } else {
-        asprintf(&result, "%s %s/%d/%d/%s", title, port->name, port->baud_rate, port->status, port->eol);
+        asprintf(&result, "%s %s/%d/%d/%s", title, port->location, port->baud_rate, port->status, port->eol);
         module_debug(MODULE_SERIAL result);
     }
     free(result);
@@ -464,7 +464,7 @@ void serial_debug(final SERIAL port) {
         log_msg(LOG_DEBUG, "    echo: %s", port->echo ? "true" : "false");
         log_msg(LOG_DEBUG, "    baud_rate: %d", port->baud_rate);
         log_msg(LOG_DEBUG, "    status: %d", port->status);
-        log_msg(LOG_DEBUG, "    name: %s", port->name);
+        log_msg(LOG_DEBUG, "    name: %s", port->location);
         log_msg(LOG_DEBUG, "    eol: %s", port->eol);
         log_msg(LOG_DEBUG, "    timeout: %d ms", port->timeout);
         log_msg(LOG_DEBUG, "    timeout_seq: %d ms", port->timeout_seq);
@@ -476,11 +476,11 @@ void serial_debug(final SERIAL port) {
 }
 
 void serial_set_name(final Serial * port, final char *name) {
-    if ( port->name != NULL ) {
-        free(port->name);
+    if ( port->location != NULL ) {
+        free(port->location);
     }
-    port->name = (char *)malloc(sizeof(char) * (1 + strlen(name)));
-    strcpy(port->name, name);
+    port->location = (char *)malloc(sizeof(char) * (1 + strlen(name)));
+    strcpy(port->location, name);
 }
 
 char * serial_status_to_string(final SerialStatus status) {

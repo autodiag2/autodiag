@@ -81,7 +81,7 @@ static char* start_elm327_simulation() {
     ELM327emulation* elm327 = elm327_sim_new();
     elm327_sim_loop_as_daemon(elm327);
     usleep(200e3);
-    return strdup(elm327->port_name);
+    return strdup(elm327->device_location);
 }
 
 static OBDIFace* fake_can_iface() {

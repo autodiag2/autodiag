@@ -4,7 +4,7 @@
     .com = { \
         .serial = { \
             .baud_rate = SERIAL_DEFAULT_BAUD_RATE, \
-            .port_name = null \
+            .device_location = null \
         } \
     }, \
     .main = { \
@@ -36,7 +36,7 @@ void config_commandLine_showTimestamp_set(final bool state) {
 void config_dump(Config * config) {
     log_msg(LOG_DEBUG, "Config {");
     log_msg(LOG_DEBUG,"    com.serial {");
-    log_msg(LOG_DEBUG,"        baud_rate=%d, port_name=%s", config->com.serial.baud_rate, config->com.serial.port_name);
+    log_msg(LOG_DEBUG,"        baud_rate=%d, device_location=%s", config->com.serial.baud_rate, config->com.serial.device_location);
     log_msg(LOG_DEBUG,"    }");
     log_msg(LOG_DEBUG,"    main.adaptater_detailled_settings_showned=%d",config->main.adaptater_detailled_settings_showned);
     log_msg(LOG_DEBUG,"    commandLine {");
@@ -117,8 +117,8 @@ bool config_store() {
             log_msg(LOG_ERROR, "Config path is not built %s", configPath);
         } else {
             fprintf(file,"com.serial.baud_rate=%d" FILE_EOL, config.com.serial.baud_rate);
-            if ( config.com.serial.port_name != null && strcmp("",config.com.serial.port_name)!=0) {
-                fprintf(file,"com.serial.port_name=%s" FILE_EOL, config.com.serial.port_name);
+            if ( config.com.serial.device_location != null && strcmp("",config.com.serial.device_location)!=0) {
+                fprintf(file,"com.serial.device_location=%s" FILE_EOL, config.com.serial.device_location);
             }
             fprintf(file,"main.adaptater_detailled_settings_showned=%d" FILE_EOL, config.main.adaptater_detailled_settings_showned);
             fprintf(file,"commandLine.autoScrollEnabled=%d" FILE_EOL, config.commandLine.autoScrollEnabled);
@@ -138,8 +138,8 @@ bool config_load_parser(char * funcData, char *key, char *value) {
     if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
         config.com.serial.baud_rate = atoi(value);
         return true;
-    } else if ( strcasecmp(key,"com.serial.port_name") == 0 ) {
-        config.com.serial.port_name = strdup(value);
+    } else if ( strcasecmp(key,"com.serial.device_location") == 0 ) {
+        config.com.serial.device_location = strdup(value);
         return true;
     } else if ( strcasecmp(key,"main.adaptater_detailled_settings_showned") == 0 ) {
         config.main.adaptater_detailled_settings_showned = atoi(value);
@@ -175,7 +175,7 @@ bool config_load() {
     return res;
 }
 void config_onchange() {
-    serial_list_set_selected_by_name(config.com.serial.port_name);
+    serial_list_set_selected_by_name(config.com.serial.device_location);
     final SERIAL port = serial_list_get_selected();
     if ( port == null ) {
         serial_list_selected = SERIAL_LIST_NO_SELECTED;
