@@ -8,8 +8,10 @@ emulation = ELM327emulation()
 emulation.loop(daemon=True)
 
 import time
-time.sleep(5)
-print("Simulation started")
+time.sleep(2)
+
+print(f"Simulation started at: {emulation.device_location}")
+
 serial = Serial()
 serial.set_location(emulation.device_location)
 iface = OBDIFace.open_from_device(serial)

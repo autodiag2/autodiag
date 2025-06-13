@@ -36,7 +36,9 @@ class Serial(Structure):
         obj.__class__ = cls
         return obj
     
-    def set_location(self, location: str):
+    def set_location(self, location):
+        if isinstance(location, bytes):
+            location = location.decode()
         if not isinstance(location, str):
             raise TypeError("location must be a string")
         self.name = location.encode('utf-8')
