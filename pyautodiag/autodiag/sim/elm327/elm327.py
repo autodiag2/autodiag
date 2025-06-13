@@ -1,15 +1,6 @@
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.sim.elm327.sim import ECUEmulation_list
-
-byte = c_ubyte
-bool = c_bool
-char_p = c_char_p
-c_double = c_double
-c_int = c_int
-
-lib = load_lib()
 
 class ELM327emulationImplementation(Structure):
     pass
@@ -42,9 +33,9 @@ class ELM327emulation(Structure):
         ("eol", char_p),
         ("echo", bool),
         ("protocolRunning", c_int),
-        ("protocol_is_auto_running", bool),
-        ("printing_of_spaces", bool),
-        ("printing_of_headers", bool),
+        ("protocol_is_auto_running", c_int),
+        ("printing_of_spaces", c_int),
+        ("printing_of_headers", c_int),
         ("dev_description", char_p),
         ("dev_identifier", char_p),
         ("port_name", char_p),
@@ -76,8 +67,13 @@ class ELM327emulation(Structure):
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
+    
+    def loop(self, daemon=False):
+        if daemon:
+            lib.elm327_sim_loop_as_daemon(byref(self))
+        else:
+            lib.elm327_sim_loop(byref(self))
 
 lib.elm327_sim_new.restype = POINTER(ELM327emulation)
 lib.elm327_sim_loop.argtypes = [POINTER(ELM327emulation)]
 lib.elm327_sim_loop_as_daemon.argtypes = [POINTER(ELM327emulation)]
-lib.elm327_sim_destroy.argtypes = [POINTER(ELM327emulation)]

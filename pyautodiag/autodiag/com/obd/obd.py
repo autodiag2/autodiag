@@ -1,10 +1,7 @@
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.com.obd.vehicle import Vehicle
 from autodiag.com.obd.device import Device
-
-lib = load_lib()
 
 class OBDIFace(Structure):
     _fields_ = [

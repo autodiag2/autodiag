@@ -1,4 +1,4 @@
-from ctypes import *
+from autodiag.libloader import *
 
 DeviceSendFunc = CFUNCTYPE(c_int, c_void_p, c_char_p)
 DeviceRecvFunc = CFUNCTYPE(c_int, c_void_p)

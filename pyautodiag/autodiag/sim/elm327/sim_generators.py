@@ -1,10 +1,4 @@
-from ctypes import *
-from autodiag.libloader import load_lib
-
-char_p = c_char_p
-c_void_p = c_void_p
-
-lib = load_lib()
+from autodiag.libloader import *
 
 CALLBACK_TYPE = CFUNCTYPE(None, c_void_p, POINTER(char_p), c_void_p, c_void_p)
 

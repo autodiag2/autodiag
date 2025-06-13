@@ -1,13 +1,6 @@
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.buffer import Buffer, BufferList
 from autodiag.lib import *
-
-lib = load_lib()
-
-from ctypes import *
-
-byte = c_ubyte
 
 class ECU_OBDService(Structure):
     _fields_ = [

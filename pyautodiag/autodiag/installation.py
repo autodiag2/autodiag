@@ -1,7 +1,4 @@
-from ctypes import *
-from autodiag.libloader import load_lib
-
-lib = load_lib()
+from autodiag.libloader import *
 
 lib.installation_folder.argtypes = [c_char_p]
 lib.installation_folder.restype = c_char_p

@@ -1,7 +1,4 @@
-from ctypes import *
-from autodiag.libloader import load_lib
-
-lib = load_lib()
+from autodiag.libloader import *
 
 class Buffer(Structure):
     _fields_ = [
@@ -83,11 +80,11 @@ lib.buffer_new_cycle.restype = POINTER(Buffer)
 lib.buffer_extract_0.argtypes = [POINTER(Buffer)]
 lib.buffer_extract_0.restype = c_ubyte
 lib.buffer_cmp.argtypes = [POINTER(Buffer), POINTER(Buffer)]
-lib.buffer_cmp.restype = c_bool
+lib.buffer_cmp.restype = bool
 lib.buffer_equals.argtypes = [POINTER(Buffer), POINTER(Buffer)]
-lib.buffer_equals.restype = c_bool
+lib.buffer_equals.restype = bool
 lib.buffer_ensure_capacity.argtypes = [POINTER(Buffer), c_int]
-lib.buffer_ensure_capacity.restype = c_bool
+lib.buffer_ensure_capacity.restype = bool
 lib.buffer_get_free_space.argtypes = [POINTER(Buffer)]
 lib.buffer_get_free_space.restype = c_int
 lib.buffer_padding.argtypes = [POINTER(Buffer), c_int, c_ubyte]

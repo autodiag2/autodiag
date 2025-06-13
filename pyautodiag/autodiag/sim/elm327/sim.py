@@ -1,20 +1,11 @@
 import os
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.sim.elm327.sim_generators import ECUEmulationGenerator
-
-byte = c_ubyte
-bool = c_bool
-char_p = c_char_p
 
 class ELM327emulation(Structure):
     pass
 
 CALLBACK_TYPE = CFUNCTYPE(char_p, POINTER(c_void_p), POINTER(ELM327emulation), char_p, bool)
-
-lib = load_lib()
-lib.ecu_emulation_new.argtypes = [byte]
-lib.ecu_emulation_new.restype = POINTER(c_void_p)  # raw pointer
 
 class ECUEmulation(Structure):
     _fields_ = [
@@ -31,9 +22,12 @@ class ECUEmulation(Structure):
         obj.__class__ = cls
         return obj
     
+lib.ecu_emulation_new.argtypes = [byte]
+lib.ecu_emulation_new.restype = POINTER(ECUEmulation)  # raw pointer
 
 class ECUEmulation_list(Structure):
     _fields_ = [
         ("size", c_int),
         ("list", POINTER(ECUEmulation))
     ]
+

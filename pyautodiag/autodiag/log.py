@@ -1,7 +1,4 @@
-from ctypes import *
-from autodiag.libloader import load_lib
-
-lib = load_lib()
+from autodiag.libloader import *
 
 LogLevel = c_int
 LOG_NONE = 0
@@ -25,7 +22,7 @@ lib.log_set_level.restype = None
 lib.log_get_level.restype = LogLevel
 
 lib.log_has_level.argtypes = [LogLevel]
-lib.log_has_level.restype = c_bool
+lib.log_has_level.restype = bool
 
 lib.log_level_from_str.argtypes = [c_char_p]
 lib.log_level_from_str.restype = LogLevel
@@ -37,7 +34,7 @@ lib.log_get_current_time.restype = c_char_p
 
 lib.log_set_from_env.restype = None
 
-lib.log_is_env_set.restype = c_bool
+lib.log_is_env_set.restype = bool
 
 
 def log_msg(level: int, msg: str, *args):

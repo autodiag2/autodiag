@@ -1,15 +1,7 @@
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.com.obd.device import Device
 from autodiag.lib import addr
-
-lib = load_lib()
-
-byte = c_ubyte
-bool_ = c_bool
-char_p = c_char_p
-c_int_p = POINTER(c_int)
 
 GuessResponseFunc = CFUNCTYPE(c_int, char_p)
 
@@ -22,7 +14,7 @@ class SerialImplementation(Structure):
 class Serial(Structure):
     _fields_ = [
         ("device", Device),
-        ("echo", bool_),
+        ("echo", bool),
         ("baud_rate", c_int),
         ("status", SerialStatus),
         ("name", char_p),
@@ -30,7 +22,7 @@ class Serial(Structure):
         ("timeout", c_int),
         ("timeout_seq", c_int),
         ("recv_buffer", POINTER(Buffer)),
-        ("detected", bool_),
+        ("detected", bool),
         ("guess_response", GuessResponseFunc),
         ("implementation", POINTER(SerialImplementation))
     ]
@@ -148,7 +140,7 @@ class Serial(Structure):
 
     @staticmethod
     def strip_char_internal(buffer: Buffer, char_to_strip: str, start: bool, end: bool):
-        lib.serial_strip_char_internal.argtypes = [POINTER(Buffer), char_p, bool_, bool_]
+        lib.serial_strip_char_internal.argtypes = [POINTER(Buffer), char_p, bool, bool]
         lib.serial_strip_char_internal.restype = None
         lib.serial_strip_char_internal(pointer(buffer), char_to_strip.encode('utf-8'), start, end)
 
@@ -169,14 +161,14 @@ class Serial(Structure):
 
     @staticmethod
     def at_command_boolean(cmd: str, state: bool) -> bool:
-        lib.at_command_boolean.argtypes = [char_p, bool_]
-        lib.at_command_boolean.restype = bool_
+        lib.at_command_boolean.argtypes = [char_p, bool]
+        lib.at_command_boolean.restype = bool
         return lib.at_command_boolean(cmd.encode('utf-8'), state)
 
     @staticmethod
     def is_command(command: str) -> bool:
         lib.at_is_command.argtypes = [char_p]
-        lib.at_is_command.restype = bool_
+        lib.at_is_command.restype = bool
         return lib.at_is_command(command.encode('utf-8'))
 
     def describe_communication_layer(self) -> str:
@@ -187,13 +179,13 @@ class Serial(Structure):
 
     def query_at_command(self, cmd: str, *args) -> bool:
         lib.serial_query_at_command.argtypes = [POINTER(Serial), char_p]
-        lib.serial_query_at_command.restype = bool_
+        lib.serial_query_at_command.restype = bool
         command = cmd % args if args else cmd
         return lib.serial_query_at_command(pointer(self), command.encode('utf-8'))
 
     def send_at_command(self, cmd: str, *args) -> bool:
         lib.serial_send_at_command.argtypes = [POINTER(Serial), char_p]
-        lib.serial_send_at_command.restype = bool_
+        lib.serial_send_at_command.restype = bool
         command = cmd % args if args else cmd
         return lib.serial_send_at_command(pointer(self), command.encode('utf-8'))
 
@@ -205,7 +197,7 @@ class Serial(Structure):
     @staticmethod
     def at_command_search(string: str, atcmd: str) -> bool:
         lib.serial_at_command_search.argtypes = [char_p, char_p]
-        lib.serial_at_command_search.restype = bool_
+        lib.serial_at_command_search.restype = bool
         return lib.serial_at_command_search(string.encode('utf-8'), atcmd.encode('utf-8'))
 
     @staticmethod

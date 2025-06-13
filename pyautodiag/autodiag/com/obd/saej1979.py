@@ -1,8 +1,5 @@
-from ctypes import *
-from autodiag.libloader import load_lib
+from autodiag.libloader import *
 from autodiag.com.obd.obd import OBDIFace
-
-lib = load_lib()
 
 class SAEJ1979():
 

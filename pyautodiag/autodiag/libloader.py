@@ -1,6 +1,12 @@
 import os
 from ctypes import CDLL
 import platform
+from ctypes import *
+
+byte = c_ubyte
+char_p = c_char_p
+bool = c_int
+c_int_p = POINTER(c_int)
 
 def load_lib():
     def get_lib_path():
@@ -21,3 +27,4 @@ def load_lib():
     lib_path = get_lib_path()
     return CDLL(lib_path)
 
+lib = load_lib()
