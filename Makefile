@@ -11,7 +11,7 @@ BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
 BIN_LIB := $(BIN_LIB_NAME)
-LIB_PYTHON_INSTALL_FOLDER = pyautodiag/autodiag/libautodiag/libs/
+LIB_PYTHON_INSTALL_FOLDER = pyautodiag/autodiag/libs/
 
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
