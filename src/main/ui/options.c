@@ -83,37 +83,47 @@ void options_fill_vehicle_infos() {
     db_vehicle_load_in_memory();
     gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.brand);
     gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.engine);
-    OBDIFace * iface = config.ephemere.iface;
+
+    GHashTable *brands = g_hash_table_new(g_str_hash, g_str_equal);
+    GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
+
+    OBDIFace *iface = config.ephemere.iface;
     int brand_i = 0, engine_i = 0;
-    for(int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
-        final Vehicle * vehicle = database.list[vehicle_i];
-        if ( vehicle->brand != null ) {
-            gtk_combo_box_text_append(optionsGui->vehicleInfos.brand,NULL,vehicle->brand);
-            if ( iface != null && iface->vehicle->brand != null ) {
-                if ( strcmp(iface->vehicle->brand,vehicle->brand) == 0 ) {
-                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.brand,brand_i);
+
+    for (int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
+        final Vehicle *vehicle = database.list[vehicle_i];
+
+        if (vehicle->brand != null && !g_hash_table_contains(brands, vehicle->brand)) {
+            g_hash_table_add(brands, vehicle->brand);
+            gtk_combo_box_text_append(optionsGui->vehicleInfos.brand, NULL, vehicle->brand);
+            if (iface != null && iface->vehicle->brand != null) {
+                if (strcmp(iface->vehicle->brand, vehicle->brand) == 0) {
+                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.brand, brand_i);
                 }
             }
             brand_i++;
         }
-        if ( vehicle->engine != null ) {
-            gtk_combo_box_text_append(optionsGui->vehicleInfos.engine,NULL,vehicle->engine);
-            if ( iface != null && iface->vehicle->engine != null ) {
-                if ( strcmp(iface->vehicle->engine,vehicle->engine) == 0 ) {
-                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine,engine_i);
+
+        if (vehicle->engine != null && !g_hash_table_contains(engines, vehicle->engine)) {
+            g_hash_table_add(engines, vehicle->engine);
+            gtk_combo_box_text_append(optionsGui->vehicleInfos.engine, NULL, vehicle->engine);
+            if (iface != null && iface->vehicle->engine != null) {
+                if (strcmp(iface->vehicle->engine, vehicle->engine) == 0) {
+                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine, engine_i);
                 }
             }
             engine_i++;
         }
     }
-}
 
+    g_hash_table_destroy(brands);
+    g_hash_table_destroy(engines);
+}
 gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
     options_cancel();
     return TRUE;
 }
-
 void options_set_serial_select_from_name(char * name) {
     for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
         final SERIAL port = serial_list.list[serial_i];
