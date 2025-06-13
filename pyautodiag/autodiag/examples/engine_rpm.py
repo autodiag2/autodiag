@@ -1,6 +1,7 @@
 import sys
 from autodiag.com.serial import Serial
-from autodiag.com.obd.obd import OBDIFace, SAEJ1979
+from autodiag.com.obd.obd import OBDIFace
+from autodiag.com.obd.saej1979 import SAEJ1979
 from autodiag.log import log_set_level, LOG_DEBUG, LOG_NONE
 
 if len(sys.argv) < 2:

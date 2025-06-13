@@ -3,7 +3,6 @@ from autodiag.libloader import load_lib
 from autodiag.buffer import Buffer
 from autodiag.com.obd.vehicle import Vehicle
 from autodiag.com.obd.device import Device
-from autodiag.com.obd.saej1979 import *
 
 lib = load_lib()
 
