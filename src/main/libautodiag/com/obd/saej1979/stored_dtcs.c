@@ -75,7 +75,7 @@ void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_
     free(codesFile);
 }
 
-void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1979_DTC * dtc) {
+void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1979_DTC * dtc, final Vehicle* filter) {
     #if defined OS_POSIX
         DIRENT **namelist;   
         final int namelist_n = scandir(path, &namelist,NULL,&alphasort);
@@ -95,7 +95,7 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                             && strcmp(namelist[namelist_n]->d_name, "..") != 0 ) {
                                 char *nextPath;
                                 asprintf(&nextPath, "%s/%s", path, namelist[namelist_n]->d_name);
-                                saej1979_fetch_dtc_description_from_fs_recurse(nextPath,dtc);
+                                saej1979_fetch_dtc_description_from_fs_recurse(nextPath,dtc,filter);
                                 free(nextPath);
                             }
                             break;
@@ -104,11 +104,26 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                         case DT_BLK:
                         case DT_FIFO:
                         case DT_CHR: {
-                            final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
-                            dtc_desc->vehicle = db_vehicle_load_from_directory(path);
-                            saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
-                            SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
                             isPathCarDirectory = true;
+                            final Vehicle* compare_against = db_vehicle_load_from_directory(path);
+                            bool match = false;
+                            if ( filter->brand == null ) {
+                                match = true;
+                            } else if ( strcmp(compare_against->brand, filter->brand) == 0 || strcmp("Generic", compare_against->brand) == 0 ) {
+                                if ( filter->engine == null) {
+                                    match = true;
+                                } else if ( strcmp(compare_against->engine, filter->engine) == 0 ) {
+                                    match = true;
+                                }
+                            } 
+                            if ( match ) {
+                                final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
+                                dtc_desc->vehicle = compare_against;
+                                saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
+                                SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
+                            } else {
+                                vehicle_free(compare_against);
+                            }
                             break;
                         }
                         default: {
@@ -124,9 +139,9 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
     #endif
 }
 
-void saej1979_fetch_dtc_description_from_fs(final SAEJ1979_DTC * dtc) {
+void saej1979_fetch_dtc_description_from_fs(final SAEJ1979_DTC * dtc, final Vehicle* filter) {
     final char * basepath = installation_folder("data/car/");
-    saej1979_fetch_dtc_description_from_fs_recurse(basepath,dtc);
+    saej1979_fetch_dtc_description_from_fs_recurse(basepath,dtc, filter);
     free(basepath);
 }
 
@@ -151,7 +166,7 @@ void SAEJ1979_DTC_list_append_list(SAEJ1979_DTC_list * list, SAEJ1979_DTC_list *
             SAEJ1979_DTC * dtc = saej1979_dtc_new(); \
             dtc->type = (byte_0 & 0xC0) >> 6; \
             sprintf((char*)&(dtc->number),"%x%x%x%x", (byte_0 & 0x30) >> 4, byte_0 & 0xF, (byte_1 & 0xF0) >> 4, byte_1 & 0xF); \
-            saej1979_fetch_dtc_description_from_fs(dtc); \
+            saej1979_fetch_dtc_description_from_fs(dtc, filter); \
             SAEJ1979_DTC_list_append(result, dtc); \
         } \
     } \
@@ -160,17 +175,17 @@ void SAEJ1979_DTC_list_append_list(SAEJ1979_DTC_list * list, SAEJ1979_DTC_list *
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DTC_list *,saej1979_retrieve_stored_dtcs,
                         "03",saej1979_dtcs_iterator,null,
-                        ecu->obd_service.current_dtc
+                        ecu->obd_service.current_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DTC_list *,saej1979_retrieve_pending_dtcs,
                         "07",saej1979_dtcs_iterator,null,
-                        ecu->obd_service.pending_dtc
+                        ecu->obd_service.pending_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DTC_list *, saej1979_retrieve_permanent_dtcs,
                         "0A",saej1979_dtcs_iterator,null,
-                        ecu->obd_service.permanent_dtc
+                        ecu->obd_service.permanent_dtc, Vehicle *filter
                     )
 
 char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc) {

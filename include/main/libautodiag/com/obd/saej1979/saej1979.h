@@ -14,7 +14,7 @@
  * but passing parameters through the macro is a pain, for that writing custom data send function as
  * in saej1979_current_data_is_pid_supported is prefered.
  */
-#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,obd_data_buffer_accessor) type symbol(final OBDIFace* iface) { \
+#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,obd_data_buffer_accessor, ...) type symbol(final OBDIFace* iface, ##__VA_ARGS__) { \
     SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,obd_data_buffer_accessor) \
 }
 

@@ -140,13 +140,13 @@ void trouble_code_reader_read_codes_daemon_internal() {
                 }
                 final SAEJ1979_DTC_list * pending = SAEJ1979_DTC_list_new();
                 if ( gtk_toggle_button_get_active(tcgui->read.stored) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_stored_dtcs(iface));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_stored_dtcs(iface, iface->vehicle));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.pending) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_pending_dtcs(iface));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_pending_dtcs(iface, iface->vehicle));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.permanent) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_permanent_dtcs(iface));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, iface->vehicle));
                 }
                 if ( 0 < pending->size ) {
                     dtc_list = pending;
