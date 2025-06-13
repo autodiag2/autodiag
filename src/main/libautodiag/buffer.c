@@ -103,6 +103,7 @@ int buffer_get_free_space(nonnull Buffer * buffer) {
 
 bool buffer_ensure_capacity(nonnull Buffer * buffer, int size) {
     assert(buffer != null);
+    assert(0 <= size);
     final int remaining_space = buffer_get_free_space(buffer);
     if ( size <= remaining_space ) {
         return false;
@@ -231,13 +232,14 @@ Buffer * buffer_from_ascii_hex_n(char * ascii_hex, int size) {
     free(ascii_internal);
     return bin;
 }
-void buffer_padding(final Buffer * buffer, int until, final byte pad) {
-    final int toPadSz = until - buffer->size;
-    buffer_ensure_capacity(buffer, toPadSz);
-    for(int i = 0; i < toPadSz; i++) {
-        buffer->buffer[buffer->size + i] = pad;
+void buffer_padding(final Buffer * buffer, final int padding_until, final byte pad) {
+    assert(buffer != null);
+    final int remaining_size_to_pad = max(padding_until - buffer->size, 0);
+    buffer_ensure_capacity(buffer, remaining_size_to_pad);
+    for(int i = buffer->size; i < padding_until; i++) {
+        buffer->buffer[i] = pad;
     }
-    buffer->size += until;
+    buffer->size += remaining_size_to_pad;
 }
 Buffer* buffer_from_ascii(char *ascii) {
     Buffer * result = buffer_new();

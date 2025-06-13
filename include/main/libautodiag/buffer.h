@@ -7,6 +7,7 @@
 #include "list.h"
 #include "log.h"
 #include "byte.h"
+#include "math.h"
 
 typedef struct {
     int size_allocated;
