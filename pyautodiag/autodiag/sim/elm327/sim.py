@@ -6,10 +6,10 @@ byte = c_ubyte
 bool = c_bool
 char_p = c_char_p
 
-class _ELM327emulation(Structure):
+class ELM327emulation(Structure):
     pass
 
-CALLBACK_TYPE = CFUNCTYPE(char_p, POINTER(c_void_p), POINTER(_ELM327emulation), char_p, bool)
+CALLBACK_TYPE = CFUNCTYPE(char_p, POINTER(c_void_p), POINTER(ELM327emulation), char_p, bool)
 
 lib = load_lib()
 lib.ecu_emulation_new.argtypes = [byte]

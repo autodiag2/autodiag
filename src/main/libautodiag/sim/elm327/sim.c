@@ -1,8 +1,9 @@
 #include "libautodiag/sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/elm327.h"
 
 LIST_DEFINE_MEMBERS_SYM_AUTO(ECUEmulation)
 
-Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, byte can28bits_prio) {
+Buffer* ecu_sim_generate_header_bin(struct _ELM327emulation* elm327,ECUEmulation * ecu, byte can28bits_prio) {
     char *protocolSpecificHeader = null;
     Buffer * header = null;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -26,7 +27,7 @@ Buffer* ecu_sim_generate_header_bin(ELM327emulation* elm327,ECUEmulation * ecu, 
     }
     return header;     
 }
-char * ecu_sim_generate_obd_header(ELM327emulation* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
+char * ecu_sim_generate_obd_header(struct _ELM327emulation* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
     char * space = print_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -181,8 +182,8 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
 }
 
 ECUEmulation* ecu_emulation_new(byte address) {
-    ECUEmulation* emu = (ECUEmulation*)malloc(sizeof(ECUEmulation));
-    emu->saej1979_sim_response = (char * (*)(ECUEmulation *, _ELM327emulation *, char *,bool))ecu_saej1979_sim_response;
+    final ECUEmulation* emu = (ECUEmulation*)malloc(sizeof(ECUEmulation));
+    emu->saej1979_sim_response = (char *(*)(struct ECUEmulation *, struct _ELM327emulation *, char *, int))ecu_saej1979_sim_response;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;

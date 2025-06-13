@@ -1,4 +1,5 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
+#include "libautodiag/com/serial/elm/elm327/elm327.h"
 
 ECUEmulationGenerator * sim_ecu_generator_new() {
     ECUEmulationGenerator * generator = (ECUEmulationGenerator*)malloc(sizeof(ECUEmulationGenerator));

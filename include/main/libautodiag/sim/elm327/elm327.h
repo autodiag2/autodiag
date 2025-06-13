@@ -11,6 +11,7 @@
 #include <string.h>
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
+#include "libautodiag/sim/elm327/sim.h"
 
 #define ELM327_SIM_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
@@ -26,7 +27,7 @@ typedef struct {
     #endif
 } ELM327emulationImplementation;
 
-typedef struct {
+typedef struct _ELM327emulation {
     ELM327emulationImplementation* implementation;
 	char * eol;
 	bool echo;
@@ -120,34 +121,12 @@ typedef struct {
          */
     	Buffer* programmable_parameters_states;    	
     } nvm;
-} _ELM327emulation;
 
-/// TO BE DEPLACED TO SIM.h
-typedef struct ECUEmulationGenerator {
-    void *context;
-    char *type;
-    void * (*obd_sim_response)(struct ECUEmulationGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
-} ECUEmulationGenerator;
+    ECUEmulation_list * ecus;
 
-/**
- * Used to simulate an ECU on the bus
- */
-typedef struct ECUEmulation {
-    byte address;
-    ECUEmulationGenerator * generator;
-    /**
-     * Respond to an SAEJ1979 query
-     */
-    char * (*saej1979_sim_response)(struct ECUEmulation * ecu, _ELM327emulation * elm327, char * obd_query_str, bool hasSpaces);
-} ECUEmulation;
-LIST_DEFINE_WITH_MEMBERS_AUTO(ECUEmulation)
-///
+} ELM327emulation;
 
 #define ELM327_SIM_PPS_SZ 0x30
-typedef struct {
-    _ELM327emulation;
-    ECUEmulation_list * ecus;
-} ELM327emulation;
 
 ELM327emulation* elm327_sim_new();
 void elm327_sim_loop(ELM327emulation * elm327);
