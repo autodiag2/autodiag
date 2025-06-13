@@ -5,3 +5,5 @@ apt-get install -y glade
 
 xhost +
 docker start -i bash
+
+docker exec -ti glade bash
