@@ -1035,7 +1035,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DATA_MAX_OXYGEN_SENSOR_VOLTAGE_ERROR
                     )
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        int,saej1979_data_max_oxygen_sensor,
+                        int,saej1979_data_max_oxygen_sensor_current,
                         "4F",
                         saej1979_data_max_oxygen_sensor_current_iterator,
                         SAEJ1979_DATA_MAX_OXYGEN_SENSOR_CURRENT_ERROR

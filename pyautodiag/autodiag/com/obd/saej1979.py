@@ -23,6 +23,7 @@ class SAEJ1979():
     def fuel_trim_ltft_b2(self, freezed=False): return lib.saej1979_data_long_term_fuel_trim_bank_2(byref(self.iface), freezed)
     def fuel_pressure(self, freezed=False): return lib.saej1979_data_fuel_pressure(byref(self.iface), freezed)
     def intake_pressure(self, freezed=False): return lib.saej1979_data_intake_manifold_pressure(byref(self.iface), freezed)
+    def max_oxygen_sensor_current(self, freezed=False): return lib.saej1979_data_max_oxygen_sensor_current(byref(self.iface), freezed)
     def rpm(self, freezed=False): return lib.saej1979_data_engine_speed(byref(self.iface), freezed)
     def speed(self, freezed=False): return lib.saej1979_data_vehicle_speed(byref(self.iface), freezed)
     def timing_advance(self, freezed=False): return lib.saej1979_data_timing_advance_cycle_1(byref(self.iface), freezed)
@@ -341,6 +342,9 @@ lib.saej1979_data_oxygen_sensor_voltage_ext_range.restype = c_double
 lib.saej1979_data_oxygen_sensor_voltage_ext_range.argtypes = [POINTER(OBDIFace), c_bool, c_int]
 lib.saej1979_data_intake_manifold_pressure.restype = c_int
 lib.saej1979_data_intake_manifold_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+
+lib.saej1979_data_max_oxygen_sensor_current.restype = c_int
+lib.saej1979_data_max_oxygen_sensor_current.argtypes = [POINTER(OBDIFace), c_bool]
 
 lib.saej1979_data_engine_speed.restype = c_double
 lib.saej1979_data_engine_speed.argtypes = [POINTER(OBDIFace), c_bool]
