@@ -24,7 +24,7 @@ class ECUEmulationGeneratorRandom(_ECUEmulationGenerator):
         ptr = lib.sim_ecu_generator_new_random()
         if not ptr:
             raise MemoryError("Failed to create random generator")
-        obj = ptr.contents
+        obj = cast(ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
 
@@ -33,6 +33,6 @@ class ECUEmulationGeneratorCycle(_ECUEmulationGenerator):
         ptr = lib.sim_ecu_generator_new_cycle()
         if not ptr:
             raise MemoryError("Failed to create cycle generator")
-        obj = ptr.contents
+        obj = cast(ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj

@@ -31,11 +31,11 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
 
                     #if defined OS_WINDOWS
                         int bytes_written = 0;
-                        if (!WriteFile(elm327->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
+                        if (!WriteFile(elm327->implementation->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
                             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                         }
                     #elif defined OS_POSIX
-                        if ( write(elm327->fd,act_alert,strlen(act_alert)) == -1 ) {
+                        if ( write(elm327->implementation->fd,act_alert,strlen(act_alert)) == -1 ) {
                             perror("write");
                         }
                     #else
@@ -50,11 +50,11 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
 }
 
 void elm327_sim_start_activity_monitor(ELM327emulation * elm327) {
-    if ( elm327->activity_monitor_thread != null ) {
-        pthread_cancel(elm327->activity_monitor_thread);
-        elm327->activity_monitor_thread = null;
+    if ( elm327->implementation->activity_monitor_thread != null ) {
+        pthread_cancel(elm327->implementation->activity_monitor_thread);
+        elm327->implementation->activity_monitor_thread = null;
     }
-    if ( pthread_create(&elm327->activity_monitor_thread, NULL,
+    if ( pthread_create(&elm327->implementation->activity_monitor_thread, NULL,
                           (void *(*) (void *)) elm327_sim_activity_monitor_daemon,
                           (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
@@ -354,7 +354,7 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
     elm327->activity_monitor_count = 0x00;
-    elm327->activity_monitor_thread = null;
+    elm327->implementation->activity_monitor_thread = null;
     int secs = bitRetrieve(ELM327_SIM_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
@@ -392,22 +392,24 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
 
 ELM327emulation* elm327_sim_new() {
     ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
+    elm327->implementation = (ELM327emulationImplementation*)malloc(sizeof(ELM327emulationImplementation));
     elm327->ecus = ECUEmulation_list_new();
     ECUEmulation *ecu = ecu_emulation_new(0xE8);
     ECUEmulation_list_append(elm327->ecus,ecu);
-    elm327->loop_thread = null;
+    elm327->implementation->loop_thread = null;
     elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
     return elm327;
 }
 void elm327_sim_destroy(ELM327emulation * elm327) {
-    if ( elm327->activity_monitor_thread != null ) {
-        pthread_cancel(elm327->activity_monitor_thread);
-        elm327->activity_monitor_thread = null;
+    if ( elm327->implementation->activity_monitor_thread != null ) {
+        pthread_cancel(elm327->implementation->activity_monitor_thread);
+        elm327->implementation->activity_monitor_thread = null;
     }
-    if ( elm327->loop_thread != null ) {
-        pthread_cancel(elm327->loop_thread);
-        elm327->loop_thread = null;
+    if ( elm327->implementation->loop_thread != null ) {
+        pthread_cancel(elm327->implementation->loop_thread);
+        elm327->implementation->loop_thread = null;
     }
+    free(elm327->implementation);
     free(elm327->eol);
     free(elm327->dev_description);
     free(elm327->dev_identifier);
@@ -424,11 +426,11 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     free(elm327);
 }
 void elm327_sim_loop_start(ELM327emulation * elm327) {
-    if ( elm327->loop_thread != null ) {
-        pthread_cancel(elm327->loop_thread);
-        elm327->loop_thread = null;
+    if ( elm327->implementation->loop_thread != null ) {
+        pthread_cancel(elm327->implementation->loop_thread);
+        elm327->implementation->loop_thread = null;
     }
-    if ( pthread_create(&elm327->loop_thread, NULL,
+    if ( pthread_create(&elm327->implementation->loop_thread, NULL,
                           (void *(*) (void *)) elm327_sim_loop, (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
         exit(EXIT_FAILURE);
@@ -437,7 +439,7 @@ void elm327_sim_loop_start(ELM327emulation * elm327) {
 
 bool elm327_sim_receive(ELM327emulation * elm327, final Buffer * buffer, int timeout) {
     #ifdef OS_WINDOWS
-        if ( ! ConnectNamedPipe(elm327->pipe_handle, null) ) {
+        if ( ! ConnectNamedPipe(elm327->implementation->pipe_handle, null) ) {
             DWORD err = GetLastError();
             if ( err == ERROR_PIPE_CONNECTED ) {
                 log_msg(LOG_DEBUG, "pipe already connected");
@@ -446,20 +448,20 @@ bool elm327_sim_receive(ELM327emulation * elm327, final Buffer * buffer, int tim
                 return false;
             }
         }
-        if ( file_pool(&elm327->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
+        if ( file_pool(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
         }
-        if ( ! ReadFile(elm327->pipe_handle, buffer->buffer, buffer->size_allocated-1, &buffer->size, 0) ) {
+        if ( ! ReadFile(elm327->implementation->pipe_handle, buffer->buffer, buffer->size_allocated-1, &buffer->size, 0) ) {
             log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
             return false;
         }
     #elif defined OS_POSIX
-        int res = file_pool(&elm327->fd, null, SERIAL_DEFAULT_TIMEOUT);
+        int res = file_pool(&elm327->implementation->fd, null, SERIAL_DEFAULT_TIMEOUT);
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
             return false;
         }
-        int rv = read(elm327->fd,buffer->buffer,buffer->size_allocated-1);
+        int rv = read(elm327->implementation->fd,buffer->buffer,buffer->size_allocated-1);
         if ( rv == -1 ) {
             log_msg(LOG_ERROR, "read error: %s", strerror(errno));
             return false;
@@ -491,12 +493,12 @@ bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_res
 
     #ifdef OS_WINDOWS
         int bytes_written = 0;
-        if (!WriteFile(elm327->pipe_handle, response, strlen(response), &bytes_written, null)) {
+        if (!WriteFile(elm327->implementation->pipe_handle, response, strlen(response), &bytes_written, null)) {
             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
             return false;
         }
     #elif defined OS_POSIX
-        if ( write(elm327->fd,response,strlen(response)) == -1 ) {
+        if ( write(elm327->implementation->fd,response,strlen(response)) == -1 ) {
             perror("write");
             return false;
         }
@@ -1003,9 +1005,9 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     #endif
 
     #ifdef OS_WINDOWS
-        elm327->pipe_handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->pipe_handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
-        elm327->fd = -1;
+        elm327->implementation->fd = -1;
     #else
     #   warning OS unsupported
     #endif
@@ -1013,10 +1015,10 @@ void elm327_sim_loop(ELM327emulation * elm327) {
 
     #ifdef OS_WINDOWS
         elm327->port_name = strdup(pipeName);
-        elm327->pipe_handle = hPipe;
+        elm327->implementation->pipe_handle = hPipe;
     #elif defined OS_POSIX
         elm327->port_name = strdup(ptsname(fd));
-        elm327->fd = fd;
+        elm327->implementation->fd = fd;
     #else
     #   warning OS unsupported
     #endif
@@ -1026,7 +1028,7 @@ void elm327_sim_loop(ELM327emulation * elm327) {
     #ifdef OS_WINDOWS
     #elif defined OS_POSIX
         final POLLFD fileDescriptor = {
-            .fd = elm327->fd,
+            .fd = elm327->implementation->fd,
             .events = POLLIN
         };
     #else

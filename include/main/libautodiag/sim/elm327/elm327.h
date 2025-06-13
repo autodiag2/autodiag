@@ -15,6 +15,19 @@
 #define ELM327_SIM_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
 typedef struct {
+    pthread_t activity_monitor_thread;
+    pthread_t loop_thread;
+    #ifdef OS_WINDOWS
+        HANDLE pipe_handle;
+    #elif defined OS_POSIX
+        int fd;
+    #else
+    #   warning OS unsupported
+    #endif
+} ELM327emulationImplementation;
+
+typedef struct {
+    ELM327emulationImplementation* implementation;
 	char * eol;
 	bool echo;
 	ELM327_PROTO protocolRunning;
@@ -42,8 +55,6 @@ typedef struct {
     Buffer *custom_header;
     byte activity_monitor_count;
     int activity_monitor_timeout;
-    pthread_t activity_monitor_thread;
-    pthread_t loop_thread;
     
     /**
      * Time in ms to wait for a vehicle response
@@ -109,14 +120,6 @@ typedef struct {
          */
     	Buffer* programmable_parameters_states;    	
     } nvm;
-
-    #ifdef OS_WINDOWS
-        HANDLE pipe_handle;
-    #elif defined OS_POSIX
-        int fd;
-    #else
-    #   warning OS unsupported
-    #endif
 } _ELM327emulation;
 
 /// TO BE DEPLACED TO SIM.h

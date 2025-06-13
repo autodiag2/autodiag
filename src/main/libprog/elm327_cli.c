@@ -119,7 +119,7 @@ void *elm327_sim_daemon(void *d) {
         if ( data.proto_is_auto != null ) {
             data.sim->protocol_is_auto_running = *data.proto_is_auto;
         }
-        pthread_join(data.sim->loop_thread, NULL);
+        pthread_join(data.sim->implementation->loop_thread, NULL);
     }
 }
 gboolean elm327_sim_present_window(gpointer w) {
