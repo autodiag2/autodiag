@@ -8,7 +8,9 @@ void trouble_code_reader_clear_dtc_description() {
     gtk_text_buffer_set_text(tcgui->dtc.descriptionText, "", 0);
     gtk_text_buffer_set_text(tcgui->dtc.causeSolutionText, "", 0);
 }
-
+bool trouble_code_reader_filtered_dtc_state() {
+    return gtk_check_menu_item_get_active(tcgui->menuBar.filtered);    
+}
 void read_codes_hide_window() {
     gtk_widget_hide_on_main_thread(tcgui->window);
 }
@@ -139,14 +141,16 @@ void trouble_code_reader_read_codes_daemon_internal() {
                     dtc_list = null;
                 }
                 final SAEJ1979_DTC_list * pending = SAEJ1979_DTC_list_new();
+                bool state = trouble_code_reader_filtered_dtc_state();
+                final Vehicle* filter = state ? iface->vehicle : null;
                 if ( gtk_toggle_button_get_active(tcgui->read.stored) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_stored_dtcs(iface, iface->vehicle));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_stored_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.pending) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_pending_dtcs(iface, iface->vehicle));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_pending_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.permanent) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, iface->vehicle));
+                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, filter));
                 }
                 if ( 0 < pending->size ) {
                     dtc_list = pending;
@@ -237,7 +241,6 @@ void trouble_code_reader_dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpoin
         free(explanation);
     }
 }
-
 void module_init_read_codes(GtkBuilder *builder) {
     if ( tcgui == null ) {
         module_debug_init(MODULE_CODES_READER);
@@ -252,7 +255,9 @@ void module_init_read_codes(GtkBuilder *builder) {
                     .textView = (GtkTextView*) (gtk_builder_get_object (builder, "window-show-ecus-buffer-text")),
                     .text = gtk_text_buffer_new(null),
                     .thread = null
-                }
+                },
+                .filtered = (GtkCheckMenuItem*) (gtk_builder_get_object (builder, "window-read-codes-view-filtered"))
+
             },
             .mil = {
                 .text = (GtkLabel*)gtk_builder_get_object (builder, "window-read-codes-mil-text"),
@@ -286,6 +291,7 @@ void module_init_read_codes(GtkBuilder *builder) {
         gtk_text_view_set_buffer(g.dtc.explanation, g.dtc.explanationText);
         gtk_text_view_set_buffer(g.menuBar.showECUsBuffer.textView, g.menuBar.showECUsBuffer.text);
         *tcgui = g;
+        gtk_check_menu_item_set_active(tcgui->menuBar.filtered, true);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-go-back-main-menu",&read_codes_go_back_main_menu);
         g_signal_connect(G_OBJECT(tcgui->window),"delete-event",G_CALLBACK(read_codes_onclose),null);
         g_signal_connect(G_OBJECT(tcgui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);

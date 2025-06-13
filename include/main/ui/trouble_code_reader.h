@@ -44,6 +44,7 @@ typedef struct {
             GtkTextBuffer   *text;
             ThreadedAction;            
         } showECUsBuffer;
+        GtkCheckMenuItem *filtered;
     } menuBar;
 } TroubleCodeReaderGui;
 

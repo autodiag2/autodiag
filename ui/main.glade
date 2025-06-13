@@ -10967,6 +10967,14 @@ What can be done:
                             <signal name="activate" handler="window-read-codes-show-ecus-buffer" swapped="no"/>
                           </object>
                         </child>
+                        <child>
+                          <object class="GtkCheckMenuItem" id="window-read-codes-view-filtered">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">Refresh automatically the gui</property>
+                            <property name="label" translatable="yes">Filter DTC by vehicle infos</property>
+                          </object>
+                        </child>
                       </object>
                     </child>
                   </object>
