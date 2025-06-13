@@ -434,7 +434,7 @@ int saej1979_data_frp_widerange(final OBDIFace* iface, bool useFreezedData);
 #define SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_EXT_RANGE_MAX 8
 #define SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_EXT_RANGE_ERROR -1
 double saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(final OBDIFace* iface, bool useFreezedData, final int sensor_i);
-double saej1979_data_oxygen_sensor_voltage_ext_range_ratio(final OBDIFace* iface, bool useFreezedData, final int sensor_i);
+double saej1979_data_oxygen_sensor_voltage_ext_range(final OBDIFace* iface, bool useFreezedData, final int sensor_i);
 /**
  * Service 0*2C
  * Commanded EGR : percent of exhaust gas that is routed back in the intake

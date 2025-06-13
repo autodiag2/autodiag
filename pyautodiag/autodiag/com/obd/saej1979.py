@@ -94,6 +94,9 @@ class SAEJ1979():
     def oxygen_sensor_air_fuel_equiv_ratio(self, sensor_i, freezed=False):
         return lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(byref(self.iface), freezed, sensor_i)
 
+    def oxygen_sensor_voltage_ext_range_ratio(self, sensor_i, freezed=False):
+        return lib.saej1979_data_oxygen_sensor_voltage_ext_range(byref(self.iface), freezed, sensor_i)
+
     def commanded_egr(self, freezed=False):
         return lib.saej1979_data_commanded_egr(byref(self.iface), freezed)
 
@@ -334,6 +337,8 @@ lib.saej1979_data_long_term_fuel_trim_bank_2.argtypes = [POINTER(OBDIFace), c_bo
 lib.saej1979_data_fuel_pressure.restype = c_int
 lib.saej1979_data_fuel_pressure.argtypes = [POINTER(OBDIFace), c_bool]
 
+lib.saej1979_data_oxygen_sensor_voltage_ext_range.restype = c_double
+lib.saej1979_data_oxygen_sensor_voltage_ext_range.argtypes = [POINTER(OBDIFace), c_bool, c_int]
 lib.saej1979_data_intake_manifold_pressure.restype = c_int
 lib.saej1979_data_intake_manifold_pressure.argtypes = [POINTER(OBDIFace), c_bool]
 
