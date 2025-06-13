@@ -11,7 +11,13 @@ void ecu_saej1979_sim_generator_gui(ECUEmulationGenerator *generator, char ** re
                         gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
                         Buffer* status = buffer_new();
                         buffer_padding(status, 4, 0x00);
-                        status->buffer[0] |= is_checked << 7;
+                        if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
+                            GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+                            final int dtc_count = g_list_length(ptr);
+                            status->buffer[0] = dtc_count;
+                            g_list_free(ptr);
+                            status->buffer[0] |= is_checked << 7;
+                        }
                         buffer_append(responseOBDdataBin, status);
                     } break;
                     case 0x05: {
