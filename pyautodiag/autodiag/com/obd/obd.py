@@ -7,6 +7,54 @@ from autodiag.com.serial.serial import Serial
 
 lib = load_lib()
 
+class SAEJ1979():
+
+    def __init__(self, iface):
+        self.iface = iface
+
+        lib.saej1979_data_number_of_dtc.restype = c_int
+        lib.saej1979_data_mil_status.restype = c_bool
+        lib.saej1979_data_engine_type.restype = c_int
+        lib.saej1979_data_engine_type_as_string.restype = c_char_p
+        lib.saej1979_data_engine_load.restype = c_double
+        lib.saej1979_data_engine_coolant_temperature.restype = c_int
+        lib.saej1979_data_short_term_fuel_trim_bank_1.restype = c_int
+        lib.saej1979_data_long_term_fuel_trim_bank_1.restype = c_int
+        lib.saej1979_data_short_term_fuel_trim_bank_2.restype = c_int
+        lib.saej1979_data_long_term_fuel_trim_bank_2.restype = c_int
+        lib.saej1979_data_fuel_pressure.restype = c_int
+        lib.saej1979_data_intake_manifold_pressure.restype = c_int
+        lib.saej1979_data_engine_speed.restype = c_double
+        lib.saej1979_data_vehicle_speed.restype = c_int
+        lib.saej1979_data_timing_advance_cycle_1.restype = c_double
+        lib.saej1979_data_intake_air_temperature.restype = c_int
+        lib.saej1979_data_maf_air_flow_rate.restype = c_double
+        lib.saej1979_data_throttle_position.restype = c_double
+        lib.saej1979_data_fuel_system_status.restype = POINTER(c_char_p)
+
+    def number_of_dtc(self, freezed=False): return lib.saej1979_data_number_of_dtc(byref(self.iface), freezed)
+    def mil_status(self, freezed=False): return lib.saej1979_data_mil_status(byref(self.iface), freezed)
+    def engine_type(self, freezed=False): return lib.saej1979_data_engine_type(byref(self.iface), freezed)
+    def engine_type_str(self, freezed=False): return lib.saej1979_data_engine_type_as_string(byref(self.iface), freezed).decode()
+    def engine_load(self, freezed=False): return lib.saej1979_data_engine_load(byref(self.iface), freezed)
+    def coolant_temp(self, freezed=False): return lib.saej1979_data_engine_coolant_temperature(byref(self.iface), freezed)
+    def fuel_trim_stft_b1(self, freezed=False): return lib.saej1979_data_short_term_fuel_trim_bank_1(byref(self.iface), freezed)
+    def fuel_trim_ltft_b1(self, freezed=False): return lib.saej1979_data_long_term_fuel_trim_bank_1(byref(self.iface), freezed)
+    def fuel_trim_stft_b2(self, freezed=False): return lib.saej1979_data_short_term_fuel_trim_bank_2(byref(self.iface), freezed)
+    def fuel_trim_ltft_b2(self, freezed=False): return lib.saej1979_data_long_term_fuel_trim_bank_2(byref(self.iface), freezed)
+    def fuel_pressure(self, freezed=False): return lib.saej1979_data_fuel_pressure(byref(self.iface), freezed)
+    def intake_pressure(self, freezed=False): return lib.saej1979_data_intake_manifold_pressure(byref(self.iface), freezed)
+    def rpm(self, freezed=False): return lib.saej1979_data_engine_speed(byref(self.iface), freezed)
+    def speed(self, freezed=False): return lib.saej1979_data_vehicle_speed(byref(self.iface), freezed)
+    def timing_advance(self, freezed=False): return lib.saej1979_data_timing_advance_cycle_1(byref(self.iface), freezed)
+    def intake_air_temp(self, freezed=False): return lib.saej1979_data_intake_air_temperature(byref(self.iface), freezed)
+    def maf_air_flow(self, freezed=False): return lib.saej1979_data_maf_air_flow_rate(byref(self.iface), freezed)
+    def throttle_position(self, freezed=False): return lib.saej1979_data_throttle_position(byref(self.iface), freezed)
+    def fuel_system_status(self, freezed=False):
+        arr = lib.saej1979_data_fuel_system_status(byref(self.iface), freezed)
+        return [arr[0].decode(), arr[1].decode()]
+    
+
 class OBDIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
@@ -50,7 +98,8 @@ class OBDIFace(Structure):
         iface_ptr = lib.obd_open_from_device(cast(byref(device), POINTER(Device)))
         if not iface_ptr:
             return None
-        return iface_ptr.contents
+        iface = iface_ptr.contents
+        return iface
 
 lib.obd_new.argtypes = []
 lib.obd_new.restype = POINTER(OBDIFace)
