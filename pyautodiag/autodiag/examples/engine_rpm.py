@@ -15,8 +15,9 @@ serial = Serial()
 serial.name = port_location.encode('utf-8')
 iface = OBDIFace.open_from_device(serial)
 
-iface.clear_data()
+log_set_level(LOG_NONE)
 saej1979 = SAEJ1979(iface)
-print(saej1979.rpm())
+for i in range(10):
+    print(saej1979.rpm())
 
 iface.close()
