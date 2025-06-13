@@ -139,4 +139,13 @@ void obd_discover_vehicle(OBDIFace* iface) {
     saej1979_vehicle_info_discover_ecus_name(iface);
 }
 
-
+OBDIFace* obd_open_from_device(final Device* device) {
+    Serial * serial = (Serial*)device;
+    OBDIFace * result = elm_open_from_serial(serial);
+    if ( result == null ) {
+        log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s", serial->name);
+        return null;
+    }
+    obd_discover_vehicle(result);
+    return result;
+}

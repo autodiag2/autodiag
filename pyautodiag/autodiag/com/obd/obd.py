@@ -3,6 +3,7 @@ from autodiag.libloader import load_lib
 from autodiag.buffer import Buffer
 from autodiag.com.obd.vehicle import Vehicle
 from autodiag.com.obd.device import Device
+from autodiag.com.serial.serial import Serial
 
 lib = load_lib()
 
@@ -43,12 +44,22 @@ class OBDIFace(Structure):
 
     def discover_vehicle(self):
         lib.obd_discover_vehicle(byref(self))
+    
+    @staticmethod
+    def open_from_device(device: Device) -> 'OBDIFace':
+        iface_ptr = lib.obd_open_from_device(cast(byref(device), POINTER(Device)))
+        if not iface_ptr:
+            return None
+        return iface_ptr.contents
 
 lib.obd_new.argtypes = []
 lib.obd_new.restype = POINTER(OBDIFace)
 
 lib.obd_new_from_device.argtypes = [POINTER(Device)]
 lib.obd_new_from_device.restype = POINTER(OBDIFace)
+
+lib.obd_open_from_device.argtypes = [POINTER(Device)]
+lib.obd_open_from_device.restype = POINTER(OBDIFace)
 
 lib.obd_free.argtypes = [POINTER(OBDIFace)]
 lib.obd_lock.argtypes = [POINTER(OBDIFace)]

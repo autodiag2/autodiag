@@ -174,7 +174,6 @@ bool config_load() {
     }
     return res;
 }
-
 void config_onchange() {
     serial_list_set_selected_by_name(config.com.serial.port_name);
     final SERIAL port = serial_list_get_selected();
@@ -182,10 +181,7 @@ void config_onchange() {
         serial_list_selected = SERIAL_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
-        config.ephemere.iface = elm_open_from_serial(port);
-        if ( config.ephemere.iface != null ) {
-            obd_discover_vehicle(config.ephemere.iface);
-        }
+        config.ephemere.iface = obd_open_from_device(port);
     }
 }
 

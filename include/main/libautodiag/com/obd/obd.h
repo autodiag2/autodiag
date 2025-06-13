@@ -108,6 +108,10 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
  * A one time process to discover ECUs on the bus, and specific vehicle data
  */
 void obd_discover_vehicle(OBDIFace* iface);
+/**
+ * Discover the type of device, ecus present on the bus and vehicle information.
+ */
+OBDIFace* obd_open_from_device(final Device* device);
 
 #include "iso15031/iso15031.h"
 #include "libautodiag/com/can/can.h"
