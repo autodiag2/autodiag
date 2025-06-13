@@ -234,9 +234,9 @@ double saej1979_data_timing_advance_cycle_1(final OBDIFace* iface, bool useFreez
     if ( 0 < data->size ) \
         result = (unsigned char)data->buffer[0];
 
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_MIN -40
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_MAX 215
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_ERROR INT_MIN
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_MIN -40
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_MAX 215
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR INT_MIN
 int saej1979_data_intake_air_temperature(final OBDIFace* iface, bool useFreezedData);
 /**
  * Service 0*10
@@ -804,10 +804,10 @@ bool saej1979_data_engine_coolant_temperature_sensor_present(final OBDIFace* ifa
  * Service 0*67
  * @return °C
  */
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR       -41
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_MIN         -40
-#define SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_MAX         215
-int saej1979_data_intake_air_temperature_sensor(final OBDIFace* iface, bool useFreezedData, int sensor_i);
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR       -41
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_MIN         -40
+#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_MAX         215
+int saej1979_data_engine_intake_air_temperature_sensor(final OBDIFace* iface, bool useFreezedData, int sensor_i);
 bool saej1979_data_engine_intake_air_temperature_sensor_present(final OBDIFace* iface, bool useFreezedData, int sensor_i);
 /**
  * Service 0*68

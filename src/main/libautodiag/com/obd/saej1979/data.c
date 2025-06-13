@@ -405,7 +405,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_intake_air_temperature,
                         "0F",
                         saej1979_data_intake_air_temperature_iterator,
-                        SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_ERROR
+                        SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR
                     )
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
@@ -1379,53 +1379,53 @@ int saej1979_data_engine_coolant_temperature_sensor(final OBDIFace* iface, bool 
     return SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_SENSOR_ERROR;
 }
 
-#define saej1979_data_intake_air_temperature_sensor_present_1_iterator(data) \
+#define saej1979_data_engine_intake_air_temperature_sensor_present_1_iterator(data) \
     if ( 0 < data->size ) result = bitRetrieve(data->buffer[0], 0);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    bool,saej1979_data_intake_air_temperature_sensor_present_1,
+                    bool,saej1979_data_engine_intake_air_temperature_sensor_present_1,
                     "68",
-                    saej1979_data_intake_air_temperature_sensor_present_1_iterator,
+                    saej1979_data_engine_intake_air_temperature_sensor_present_1_iterator,
                     false
                 )
-#define saej1979_data_intake_air_temperature_sensor_present_2_iterator(data) \
+#define saej1979_data_engine_intake_air_temperature_sensor_present_2_iterator(data) \
     if ( 0 < data->size ) result = bitRetrieve(data->buffer[0], 1);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    bool,saej1979_data_intake_air_temperature_sensor_present_2,
+                    bool,saej1979_data_engine_intake_air_temperature_sensor_present_2,
                     "68",
-                    saej1979_data_intake_air_temperature_sensor_present_2_iterator,
+                    saej1979_data_engine_intake_air_temperature_sensor_present_2_iterator,
                     false
                 )                
-bool saej1979_data_intake_air_temperature_sensor_present(final OBDIFace* iface, bool useFreezedData, int sensor_i) {
+bool saej1979_data_engine_intake_air_temperature_sensor_present(final OBDIFace* iface, bool useFreezedData, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_intake_air_temperature_sensor_present_1(iface, useFreezedData);
-        case 2: return saej1979_data_intake_air_temperature_sensor_present_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_intake_air_temperature_sensor_present_1(iface, useFreezedData);
+        case 2: return saej1979_data_engine_intake_air_temperature_sensor_present_2(iface, useFreezedData);
     }
     return false;
 }
-#define saej1979_data_intake_air_temperature_sensor_1_iterator(data) \
+#define saej1979_data_engine_intake_air_temperature_sensor_1_iterator(data) \
     if ( 1 < data->size ) result = data->buffer[1] - 40;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_intake_air_temperature_sensor_1,
+                    int,saej1979_data_engine_intake_air_temperature_sensor_1,
                     "68",
-                    saej1979_data_intake_air_temperature_sensor_1_iterator,
-                    SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR
+                    saej1979_data_engine_intake_air_temperature_sensor_1_iterator,
+                    SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR
                 ) 
-#define saej1979_data_intake_air_temperature_sensor_2_iterator(data) \
+#define saej1979_data_engine_intake_air_temperature_sensor_2_iterator(data) \
     if ( 2 < data->size ) result = data->buffer[2] - 40;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_intake_air_temperature_sensor_2,
+                    int,saej1979_data_engine_intake_air_temperature_sensor_2,
                     "68",
-                    saej1979_data_intake_air_temperature_sensor_2_iterator,
-                    SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR
+                    saej1979_data_engine_intake_air_temperature_sensor_2_iterator,
+                    SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR
                 )                 
-int saej1979_data_intake_air_temperature_sensor(final OBDIFace* iface, bool useFreezedData, int sensor_i) {
+int saej1979_data_engine_intake_air_temperature_sensor(final OBDIFace* iface, bool useFreezedData, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_intake_air_temperature_sensor_1(iface, useFreezedData);
-        case 2: return saej1979_data_intake_air_temperature_sensor_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_intake_air_temperature_sensor_1(iface, useFreezedData);
+        case 2: return saej1979_data_engine_intake_air_temperature_sensor_2(iface, useFreezedData);
     }
-    return SAEJ1979_DATA_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR;
+    return SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR;
 }
 
 #define saej1979_egt_sensor_present_byte_iterator(data) \

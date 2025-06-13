@@ -257,8 +257,11 @@ class SAEJ1979():
     def engine_coolant_temperature_sensor_present(self, sensor_i, freezed=False):
         return lib.saej1979_data_engine_coolant_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
     
-    def intake_air_temperature_sensor(self, sensor_i, freezed=False):
-        return lib.saej1979_data_intake_air_temperature_sensor(byref(self.iface), freezed, sensor_i)
+    def engine_intake_air_temperature_sensor(self, sensor_i, freezed=False):
+        return lib.saej1979_data_engine_intake_air_temperature_sensor(byref(self.iface), freezed, sensor_i)
+
+    def engine_intake_air_temperature_sensor_present(self, sensor_i, freezed=False):
+        return lib.saej1979_data_engine_intake_air_temperature_sensor_present(byref(self.iface), freezed, sensor_i)
 
     def egt_sensor_present(self, sensor_i, freezed=False):
         return lib.saej1979_egt_sensor_present(byref(self.iface), freezed, sensor_i)
@@ -565,8 +568,11 @@ lib.saej1979_data_engine_coolant_temperature_sensor.argtypes = [POINTER(OBDIFace
 lib.saej1979_data_engine_coolant_temperature_sensor_present.restype = c_bool
 lib.saej1979_data_engine_coolant_temperature_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
 
-lib.saej1979_data_intake_air_temperature_sensor.restype = c_int
-lib.saej1979_data_intake_air_temperature_sensor.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_engine_intake_air_temperature_sensor.restype = c_int
+lib.saej1979_data_engine_intake_air_temperature_sensor.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+
+lib.saej1979_data_engine_intake_air_temperature_sensor_present.restype = c_bool
+lib.saej1979_data_engine_intake_air_temperature_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
 
 lib.saej1979_egt_sensor_present.restype = c_bool
 lib.saej1979_egt_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
