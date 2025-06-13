@@ -177,8 +177,12 @@ int elm327_sim_cli_main(int argc, char **argv) {
                     ELM327SimGui * context = elm327_sim_build_gui(generator);
                     generator->context = context;
                     ELM327SimGui_list_append(guis, context);
+                } else {
+                    log_msg(LOG_ERROR, "Unknown generator %s", optarg);
+                    return 1;
                 }
                 generator->type = strdup(optarg);
+                sim->ecus->list[sim->ecus->size - 1]->generator = generator;
             } break;
             case 'c': {
                 final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
