@@ -9,6 +9,10 @@ class SAEJ1979():
     def __init__(self, iface):
         self.iface = iface
 
+    def service_code_to_str(self, code):
+        res = lib.saej1979_service_code_to_str(code)
+        return res.decode() if res else None
+    def clear_dtc_and_stored_values(self): return lib.saej1979_clear_dtc_and_stored_values(byref(self.iface))
     def is_pid_supported(self, pid, freezed=False): return lib.saej1979_data_is_pid_supported(byref(self.iface), freezed, pid)
     def number_of_dtc(self, freezed=False): return lib.saej1979_data_number_of_dtc(byref(self.iface), freezed)
     def mil_status(self, freezed=False): return lib.saej1979_data_mil_status(byref(self.iface), freezed)
@@ -124,6 +128,10 @@ class SAEJ1979():
     def abs_switch_present(self, freezed=False): return lib.saej1979_data_abs_switch_present(byref(self.iface), freezed)
     def abs_switch(self, freezed=False): return lib.saej1979_data_abs_switch(byref(self.iface), freezed)
 
+lib.saej1979_clear_dtc_and_stored_values.restype = c_bool
+lib.saej1979_clear_dtc_and_stored_values.argtypes = [POINTER(OBDIFace)] 
+lib.saej1979_service_code_to_str.restype = c_char_p
+lib.saej1979_service_code_to_str.argtypes = [POINTER(OBDIFace),c_int]
 lib.saej1979_data_number_of_dtc.restype = c_int
 lib.saej1979_data_mil_status.restype = c_bool
 lib.saej1979_data_engine_type.restype = c_int
