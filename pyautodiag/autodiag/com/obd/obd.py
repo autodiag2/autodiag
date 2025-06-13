@@ -31,9 +31,31 @@ class SAEJ1979():
         lib.saej1979_data_maf_air_flow_rate.restype = c_double
         lib.saej1979_data_throttle_position.restype = c_double
         lib.saej1979_data_fuel_system_status.restype = POINTER(c_char_p)
+        lib.saej1979_data_is_pid_supported.restype = c_bool
+        lib.saej1979_data_is_pid_supported.argtypes = [POINTER(Device), c_bool, c_int]
+        lib.saej1979_data_freeze_frame.restype = c_bool
+        lib.saej1979_data_freeze_frame.argtypes = [POINTER(Device)]
+        lib.saej1979_data_fuel_system_status_code_to_str.restype = c_char_p
+        lib.saej1979_data_fuel_system_status_code_to_str.argtypes = [c_int]
+        lib.saej1979_data_fuel_system_status.restype = POINTER(c_char_p)
+        lib.saej1979_data_fuel_system_status.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_engine_load.restype = c_double
+        lib.saej1979_data_engine_load.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_engine_coolant_temperature.restype = c_int
+        lib.saej1979_data_engine_coolant_temperature.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_short_term_fuel_trim_bank_1.restype = c_int
+        lib.saej1979_data_short_term_fuel_trim_bank_1.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_long_term_fuel_trim_bank_1.restype = c_int
+        lib.saej1979_data_long_term_fuel_trim_bank_1.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_short_term_fuel_trim_bank_2.restype = c_int
+        lib.saej1979_data_short_term_fuel_trim_bank_2.argtypes = [POINTER(Device), c_bool]
+        lib.saej1979_data_long_term_fuel_trim_bank_2.restype = c_int
+        lib.saej1979_data_long_term_fuel_trim_bank_2.argtypes = [POINTER(Device), c_bool]
 
+    def is_pid_supported(self, pid, freezed=False): return lib.saej1979_data_is_pid_supported(byref(self.iface), freezed, pid)
     def number_of_dtc(self, freezed=False): return lib.saej1979_data_number_of_dtc(byref(self.iface), freezed)
     def mil_status(self, freezed=False): return lib.saej1979_data_mil_status(byref(self.iface), freezed)
+    def freeze_frame(self): return lib.saej1979_data_freeze_frame(byref(self.iface))
     def engine_type(self, freezed=False): return lib.saej1979_data_engine_type(byref(self.iface), freezed)
     def engine_type_str(self, freezed=False): return lib.saej1979_data_engine_type_as_string(byref(self.iface), freezed).decode()
     def engine_load(self, freezed=False): return lib.saej1979_data_engine_load(byref(self.iface), freezed)
