@@ -1,6 +1,7 @@
 import os
 from ctypes import *
 from autodiag.libloader import load_lib
+from autodiag.sim.elm327.sim_generators import ECUEmulationGenerator
 
 byte = c_ubyte
 bool = c_bool
@@ -18,7 +19,7 @@ lib.ecu_emulation_new.restype = POINTER(c_void_p)  # raw pointer
 class ECUEmulation(Structure):
     _fields_ = [
         ("address", byte),
-        ("generator", c_void_p),
+        ("generator", POINTER(ECUEmulationGenerator)),
         ("saej1979_sim_response", CALLBACK_TYPE)
     ]
 
@@ -29,3 +30,10 @@ class ECUEmulation(Structure):
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
+    
+
+class ECUEmulation_list(Structure):
+    _fields_ = [
+        ("size", c_int),
+        ("list", POINTER(ECUEmulation))
+    ]

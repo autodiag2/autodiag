@@ -425,7 +425,7 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     buffer_free(elm327->programmable_parameters_defaults);
     free(elm327);
 }
-void elm327_sim_loop_start(ELM327emulation * elm327) {
+void elm327_sim_loop_as_daemon(ELM327emulation * elm327) {
     if ( elm327->implementation->loop_thread != null ) {
         pthread_cancel(elm327->implementation->loop_thread);
         elm327->implementation->loop_thread = null;

@@ -6,7 +6,7 @@ void testSIM_1() {
     ELM327emulation* elm327 = elm327_sim_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0x1A));        
-    elm327_sim_loop_start(elm327);
+    elm327_sim_loop_as_daemon(elm327);
     usleep(SIM_START_WAIT_MS);
     final OBDIFace* iface = port_open(strdup(elm327->port_name));
 
@@ -114,7 +114,7 @@ bool testSIM() {
     {
         log_msg(LOG_INFO, "Random generate gives different values over two different runs");
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         final Serial* serial = (Serial*)iface->device;
@@ -129,7 +129,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         final Serial* serial = (Serial*)iface->device;
@@ -144,7 +144,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         final Serial* serial = (Serial*)iface->device;
@@ -156,7 +156,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);
@@ -174,7 +174,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);
@@ -193,7 +193,7 @@ bool testSIM() {
     testSIM_1();
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);
@@ -208,7 +208,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);
@@ -218,7 +218,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);
@@ -229,7 +229,7 @@ bool testSIM() {
     }
     {
         ELM327emulation* elm327 = elm327_sim_new();       
-        elm327_sim_loop_start(elm327);
+        elm327_sim_loop_as_daemon(elm327);
         usleep(SIM_START_WAIT_MS);
         final OBDIFace* iface = port_open(strdup(elm327->port_name));
         obd_clear_data(iface);

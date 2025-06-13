@@ -107,7 +107,7 @@ typedef struct {
 void *elm327_sim_daemon(void *d) {
     ELM327SimData* da = d;
     ELM327SimData data = *da;
-    elm327_sim_loop_start(data.sim);
+    elm327_sim_loop_as_daemon(data.sim);
     usleep(50e3);
     if ( data.sim->port_name == null ) {
         log_msg(LOG_WARNING, "Simulation not started");

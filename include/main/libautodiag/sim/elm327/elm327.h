@@ -130,7 +130,7 @@ typedef struct _ELM327emulation {
 
 ELM327emulation* elm327_sim_new();
 void elm327_sim_loop(ELM327emulation * elm327);
-void elm327_sim_loop_start(ELM327emulation * elm327);
+void elm327_sim_loop_as_daemon(ELM327emulation * elm327);
 void elm327_sim_destroy(ELM327emulation * elm327);
 
 #include "nvm.h"

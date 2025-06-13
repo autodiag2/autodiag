@@ -3,7 +3,7 @@
 int main(int argc, char **argv) {
     ELM327emulation* elm327 = elm327_sim_new();
     ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));        
-    elm327_sim_loop_start(elm327);
+    elm327_sim_loop_as_daemon(elm327);
     usleep(200e3);
     final OBDIFace* port = port_open(strdup(elm327->port_name));
 

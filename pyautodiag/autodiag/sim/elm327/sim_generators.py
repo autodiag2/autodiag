@@ -1,4 +1,3 @@
-import os
 from ctypes import *
 from autodiag.libloader import load_lib
 
@@ -9,17 +8,17 @@ lib = load_lib()
 
 CALLBACK_TYPE = CFUNCTYPE(None, c_void_p, POINTER(char_p), c_void_p, c_void_p)
 
-class _ECUEmulationGenerator(Structure):
+class ECUEmulationGenerator(Structure):
     _fields_ = [
         ("context", c_void_p),
         ("obd_sim_response", CALLBACK_TYPE),
         ("type", char_p)
     ]
 
-lib.sim_ecu_generator_new_random.restype = POINTER(_ECUEmulationGenerator)
-lib.sim_ecu_generator_new_cycle.restype = POINTER(_ECUEmulationGenerator)
+lib.sim_ecu_generator_new_random.restype = POINTER(ECUEmulationGenerator)
+lib.sim_ecu_generator_new_cycle.restype = POINTER(ECUEmulationGenerator)
 
-class ECUEmulationGeneratorRandom(_ECUEmulationGenerator):
+class ECUEmulationGeneratorRandom(ECUEmulationGenerator):
     def __new__(cls):
         ptr = lib.sim_ecu_generator_new_random()
         if not ptr:
@@ -28,7 +27,7 @@ class ECUEmulationGeneratorRandom(_ECUEmulationGenerator):
         obj.__class__ = cls
         return obj
 
-class ECUEmulationGeneratorCycle(_ECUEmulationGenerator):
+class ECUEmulationGeneratorCycle(ECUEmulationGenerator):
     def __new__(cls):
         ptr = lib.sim_ecu_generator_new_cycle()
         if not ptr:
