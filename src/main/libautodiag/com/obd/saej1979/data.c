@@ -1245,7 +1245,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
 #define saej1979_data_engine_reference_torque_iterator(data) \
     if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_engine_referance_torque,
+                    int,saej1979_data_engine_reference_torque,
                     "63",
                     saej1979_data_engine_reference_torque_iterator,
                     SAEJ1979_DATA_ENGINE_REFERENCE_TORQUE_ERROR
