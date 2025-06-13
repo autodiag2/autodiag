@@ -6,10 +6,8 @@ if len(sys.argv) < 2:
     print("Error: Please provide the port location as an argument.")
     sys.exit(1)
 
-port_location = sys.argv[1]
-
 serial = Serial()
-serial.name = port_location.encode('utf-8')
+serial.set_port_location(sys.argv[1])
 log_set_level(LOG_DEBUG)
 serial.dump()
 log_set_level(LOG_NONE)

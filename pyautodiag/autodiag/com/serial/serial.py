@@ -43,6 +43,11 @@ class Serial(Structure):
         obj = cast(ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
+    
+    def set_port_location(self, port_location: str):
+        if not isinstance(port_location, str):
+            raise TypeError("port_location must be a string")
+        self.name = port_location.encode('utf-8')
 
     def init(self):
         lib.serial_init.argtypes = [POINTER(Serial)]
