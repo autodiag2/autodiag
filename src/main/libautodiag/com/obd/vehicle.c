@@ -187,3 +187,16 @@ void vehicle_dump(Vehicle* v) {
 }
 
 LIST_DEFINE_MEMBERS_SYM(VehicleList,Vehicle)
+
+void VehicleList_empty(VehicleList * list) {
+    assert(list != null);
+    for(int i = 0; i < list->size; i ++) {
+        if ( list->list[i] != null ) {
+            vehicle_free(list->list[i]);
+            list->list[i] = null;
+        }
+    }
+    free(list->list);
+    list->list = null;
+    list->size = 0;
+}

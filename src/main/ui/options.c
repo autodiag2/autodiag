@@ -99,6 +99,7 @@ void options_set_serial_select_from_name(char * name) {
 void options_show_window() {
     gtk_widget_show_now (optionsGui->window);
     options_serial_list_refresh();
+    db_vehicle_load_in_memory();
     gtk_toggle_button_set_active(optionsGui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);

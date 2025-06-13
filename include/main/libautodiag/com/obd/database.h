@@ -11,7 +11,13 @@
 #include "libautodiag/installation.h"
 #include "libautodiag/com/obd/vehicle.h"
 
-Vehicle* db_vehicle_load_from_directory(char * directory);
 extern VehicleList database;
-
+/**
+ * Load a vehicle from the filesystem to the memory and return it.
+ */
+Vehicle* db_vehicle_load_from_directory(char * directory);
+/**
+ * Load all vehicles from file system.
+ */
+void db_vehicle_load_in_memory();
 #endif
