@@ -28,10 +28,13 @@ bool db_vehicle_description_parser(char * funcData, char *key, char *value) {
     return false;
 }
 Vehicle* db_vehicle_load_from_database(char * directory) {
+    assert(directory != null);
     for(int i = 0; i < database.size; i++) {
         Vehicle * vehicle = database.list[i];
-        if ( strcmp(vehicle->internal.directory, directory) == 0 ) {
-            return vehicle;
+        if ( vehicle->internal.directory != null ) {
+            if ( strcmp(vehicle->internal.directory, directory) == 0 ) {
+                return vehicle;
+            }
         }
     }
     return null;

@@ -109,11 +109,16 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                             bool match = false;
                             if ( filter->brand == null ) {
                                 match = true;
-                            } else if ( strcmp(compare_against->brand, filter->brand) == 0 || strcmp("Generic", compare_against->brand) == 0 ) {
-                                if ( filter->engine == null) {
+                            } else if ( strcmp(compare_against->brand, filter->brand) == 0 || strcmp(compare_against->brand, "Generic") == 0 ) {
+                                bool isGeneric = strcmp(compare_against->brand, "Generic") == 0;
+                                if ( isGeneric ) {
                                     match = true;
-                                } else if ( strcmp(compare_against->engine, filter->engine) == 0 ) {
-                                    match = true;
+                                } else {
+                                    if ( filter->engine == null) {
+                                        match = true;
+                                    } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
+                                        match = true;
+                                    }
                                 }
                             } 
                             if ( match ) {

@@ -56,6 +56,17 @@ void* options_save_internal(void *arg) {
     config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(optionsGui->vehicleExplorerGui.refreshRateS), null);
     config_store();
     config_onchange();
+    final OBDIFace * iface = config.ephemere.iface;
+    final char * brand = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.brand);
+    if ( iface->vehicle->brand != null ) {
+        free(iface->vehicle->brand);
+    }
+    iface->vehicle->brand = brand;
+    final char * engine = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.engine);
+    if ( iface->vehicle->engine != null ) {
+        free(iface->vehicle->engine);
+    }
+    iface->vehicle->engine = engine;
     refresh_usb_adaptater_state_internal(null);
 }
 
