@@ -20,7 +20,10 @@ typedef struct {
      * Name of this ECU.
      */
     char *name;
-
+   /**
+     * eg BOSCH MED 17.4
+     */
+    char *model;
     /**
      * Each ECU provide an obd service, each data recevied for
      * those services is divided and putted there
@@ -68,6 +71,20 @@ typedef struct {
      * When we do not use headers or when we use headers but want to use in a more concise way.
      */
     BufferList * obd_data_buffer;
+        /**
+     * eg Citroen
+     */
+    char *brand;
+    /**
+     * eg EP6DT
+     */
+    char *engine;
+    struct {
+        /**
+         * Directory containing meta datas for this car
+         */
+        char *directory;
+    } internal;
 } Vehicle;
 
 Vehicle* vehicle_new();
@@ -80,5 +97,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
 void vehicle_ecu_debug(final ECU *ecu);
 ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_ecu_empty_duplicated_info(ECU* ecu);
+
+LIST_DEFINE_WITH_MEMBERS(VehicleList,Vehicle)
 
 #endif

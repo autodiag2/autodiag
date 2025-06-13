@@ -1,13 +1,9 @@
 #include "libautodiag/model/database.h"
 
-CarECU* car_ecu_new() {
-    final CarECU * ce = (CarECU*)malloc(sizeof(CarECU));
-    ce->model = null;
-    return ce;
-}
+VehicleList database = { .list = null, .size = 0};
 
-bool ecu_description_parser(char * funcData, char *key, char *value) {
-    CarECU* ecu = (CarECU*)funcData;
+bool db_ecu_description_parser(char * funcData, char *key, char *value) {
+    ECU* ecu = (ECU*)funcData;
     if ( strcasecmp(key,"model") == 0 ) {
         ecu->model = strdup(value);
         return true;
@@ -17,91 +13,44 @@ bool ecu_description_parser(char * funcData, char *key, char *value) {
     return false;
 }
 
-bool car_description_parser(char * funcData, char *key, char *value) {
-    CarModel *car = (CarModel*)funcData;
+bool db_vehicle_description_parser(char * funcData, char *key, char *value) {
+    Vehicle *vehicle = (Vehicle*)funcData;
     if ( strcasecmp(key,"brand") == 0 ) {
-        car->brand = strdup(value);
+        vehicle->brand = strdup(value);
         return true;
     } else if ( strcasecmp(key,"engine") == 0 ) {
-        car->engine = strdup(value);
+        vehicle->engine = strdup(value);
         return true;
     } else if ( strcasecmp(key,"ecu") == 0 ) {
-        char * filename;
-        final char * path = installation_folder("data/ecu");
-        asprintf(&filename, "%s/%s", path, value);
-        free(path);
-        CarECU *ecu = car_ecu_new();
-        if ( parse_ini_file(filename,ecu_description_parser, ecu) ) {
-            car->ecu = ecu;
-        } else {
-            free(ecu);
-        }
-        free(filename);
+        log_msg(LOG_ERROR, "Need to set the ecu model to: %s", value);
         return true;
     }
     return false;
 }
-
-CarModel* car_model_load_from_directory(char * directory) {
+Vehicle* db_vehicle_load_from_database(char * directory) {
+    for(int i = 0; i < database.size; i++) {
+        Vehicle * vehicle = database.list[i];
+        if ( strcmp(vehicle->internal.directory, directory) == 0 ) {
+            return vehicle;
+        }
+    }
+    return null;
+}
+Vehicle* db_vehicle_load_from_directory(char * directory) {
+    Vehicle * vehicle = db_vehicle_load_from_database(directory);
+    if ( vehicle != null ) {
+        return vehicle;
+    }
     char *filename;
     asprintf(&filename, "%s/desc.ini", directory);
-    final CarModel *car = car_model_new();
-    if ( parse_ini_file(filename,car_description_parser, car) ) {
-        car->internal.directory = strdup(directory);
+    vehicle = vehicle_new();
+    if ( parse_ini_file(filename,db_vehicle_description_parser, vehicle) ) {
+        vehicle->internal.directory = strdup(directory);
+        VehicleList_append(&database, vehicle);
     } else {
-        free(car);
-        car = null;
+        free(vehicle);
+        vehicle = null;
     }
     free(filename);
-    return car;
-}
-
-void car_model_dump(CarModel* car) {
-    assert(car != null);
-    printf("car: {\n");
-    printf("    brand:  %s\n", car->brand);
-    printf("    ecu: %s\n", car->ecu == null ? "null" : car->ecu->model);
-    printf("    engine:  %s\n", car->engine);
-    printf("}\n");
-}
-
-CarModel* car_model_new() {
-    CarModel* car = (CarModel*)malloc(sizeof(CarModel));
-    car->brand = null;
-    car->ecu = null;
-    car->engine = null;
-    car->internal.directory = null;
-    return car;
-}
-
-void car_model_free(CarModel* car) {
-    if ( car->brand != null ) {
-        free(car->brand);
-        car->brand = null;
-    }
-    if ( car->ecu != null ) {
-        free(car->ecu);
-        car->ecu = null;
-    }
-    if ( car->engine != null ) {
-        free(car->engine);
-        car->engine = null;
-    }
-    if ( car->internal.directory != null ) {
-        free(car->internal.directory);
-        car->internal.directory = null;
-    }
-}
-
-CarECU* car_ecu_from_model(char *model) {
-    CarECU * ce = (CarECU*)malloc(sizeof(CarECU));
-    ce->model = strdup(model);
-    return ce;
-}
-
-void car_ecu_free(CarECU *engine) {
-    if ( engine != null ) {
-        free(engine);
-        engine = null;
-    }
+    return vehicle;
 }

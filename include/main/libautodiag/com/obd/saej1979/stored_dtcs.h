@@ -23,7 +23,7 @@ typedef struct {
     /**
      * A DTC is linked to a car model
      */
-    CarModel *car;
+    Vehicle *vehicle;
 } SAEJ1979_DTC_DESCRIPTION;
 
 SAEJ1979_DTC_DESCRIPTION * saej1979_dtc_description_new();

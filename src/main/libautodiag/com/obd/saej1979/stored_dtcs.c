@@ -67,7 +67,7 @@ bool saej1979_read_tsv(char *fileName, char * searched_dtc, SAEJ1979_DTC_DESCRIP
 
 void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_DTC_DESCRIPTION * dtc_desc) {
     char *codesFile;
-    asprintf(&codesFile, "%s/codes.tsv", dtc_desc->car->internal.directory);
+    asprintf(&codesFile, "%s/codes.tsv", dtc_desc->vehicle->internal.directory);
     final char * searched_dtc = saej1979_dtc_to_string(dtc);
     if ( ! saej1979_read_tsv(codesFile,searched_dtc,dtc_desc) ) {
         log_msg(LOG_ERROR, "error while parsing the codes file");
@@ -105,7 +105,7 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                         case DT_FIFO:
                         case DT_CHR: {
                             final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
-                            dtc_desc->car = car_model_load_from_directory(path);
+                            dtc_desc->vehicle = db_vehicle_load_from_directory(path);
                             saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
                             SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
                             isPathCarDirectory = true;
@@ -220,16 +220,14 @@ void SAEJ1979_DTC_DESCRIPTION_list_free(SAEJ1979_DTC_DESCRIPTION_list * list) {
 
 SAEJ1979_DTC_DESCRIPTION * saej1979_dtc_description_new() {
     SAEJ1979_DTC_DESCRIPTION * desc = (SAEJ1979_DTC_DESCRIPTION*)malloc(sizeof(SAEJ1979_DTC_DESCRIPTION));
-    desc->car = null;
+    desc->vehicle = null;
     desc->reason = null;
     desc->solution = null;
     return desc;
 }
 void saej1979_dtc_description_free(SAEJ1979_DTC_DESCRIPTION *desc) {
-    if ( desc->car != null ) {
-        car_model_free(desc->car);
-        free(desc->car);
-        desc->car = null;
+    if ( desc->vehicle != null ) {
+        desc->vehicle = null;
     }
     if ( desc->reason != null ) {
         free(desc->reason);
@@ -245,7 +243,7 @@ void saej1979_dtc_description_dump(SAEJ1979_DTC_DESCRIPTION *desc) {
     printf("SAEJ1979_DTC_DESCRIPTION {\n");
     printf("    reason: %s\n", desc->reason);
     printf("    solution: %s\n", desc->solution);
-    car_model_dump(desc->car);
+    vehicle_dump(desc->vehicle);
     printf("}\n");
 }
 

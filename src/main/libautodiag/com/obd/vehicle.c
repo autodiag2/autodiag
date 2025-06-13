@@ -94,6 +94,9 @@ Vehicle * vehicle_new() {
     v->ecus = null;
     v->ecus_len = 0;
     v->obd_data_buffer = BufferList_new();
+    v->brand = null;
+    v->engine = null;
+    v->internal.directory = null;
     return v;
 }
 
@@ -108,6 +111,18 @@ void vehicle_free(Vehicle * v) {
             v->ecus = null;
         }
         v->ecus_len = 0;
+        if ( v->brand != null ) {
+            free(v->brand);
+            v->brand = null;
+        }
+        if ( v->engine != null ) {
+            free(v->engine);
+            v->engine = null;
+        }
+        if ( v->internal.directory != null ) {
+            free(v->internal.directory);
+            v->internal.directory = null;
+        }
     }
 }
 
@@ -171,3 +186,4 @@ void vehicle_dump(Vehicle* v) {
     }
 }
 
+LIST_DEFINE_MEMBERS_SYM(VehicleList,Vehicle)
