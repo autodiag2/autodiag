@@ -1,6 +1,7 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.sim.elm327.sim import SimECU_list
+from autodiag.lib import *
 
 class SimELM327Implementation(Structure):
     pass
@@ -76,6 +77,33 @@ class SimELM327(Structure):
         
     def debug(self):
         lib.sim_elm327_debug(byref(self))
+
+    def debug_from_python(self):
+        print("SimELM327: {")
+        if not self.ecus:
+            print("    ecus: NULL")
+            print("}")
+            return
+        ecu_list = self.ecus.contents
+        print(f"    ecus {addr(self.ecus)} (list: {addr(ecu_list.list)}, size: {ecu_list.size}): {{")
+        for i in range(ecu_list.size):
+            sim_ecu = ecu_list.list[i]
+            print("        ecu: {")
+            print(f"            address: {sim_ecu.address:02X}")
+            generator = sim_ecu.generator.contents if sim_ecu.generator else None
+            print(f"            generator: {addr(sim_ecu.generator)} {{")
+            if generator:
+                print(f"                context: {addr(generator.context)}")
+                print(f"                type: {addr(generator.type)} {generator.type.decode() if generator.type else 'NULL'}")
+                print(f"                sim_ecu_generator_response: {addr(generator.sim_ecu_generator_response)}")
+            else:
+                print("                NULL")
+            print("            }")
+            print(f"            saej1979_sim_response: {addr(sim_ecu.saej1979_sim_response)}")
+            print("        }")
+        print("    }")
+        print("}")
+
 
 lib.sim_elm327_new.restype = POINTER(SimELM327)
 lib.sim_elm327_loop.argtypes = [POINTER(SimELM327)]

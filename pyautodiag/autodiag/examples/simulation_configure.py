@@ -20,6 +20,7 @@ class CustomECUGenerator(SimECUGenerator):
 
 emulation.ecus.contents.list[0].set_generator(CustomECUGenerator())
 emulation.debug()
+emulation.debug_from_python()
 
 emulation.loop(daemon=True)
 
