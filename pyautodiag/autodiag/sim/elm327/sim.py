@@ -35,10 +35,12 @@ SimECU._fields_ = [
 lib.sim_ecu_emulation_new.argtypes = [byte]
 lib.sim_ecu_emulation_new.restype = POINTER(SimECU)
 
+from autodiag.lib import *
+
 class SimECU_list(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(SimECU))
+        ("list", POINTER(POINTER(SimECU)))
     ]
 
     def __new__(cls):

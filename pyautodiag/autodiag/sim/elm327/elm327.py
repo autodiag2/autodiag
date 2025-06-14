@@ -87,8 +87,9 @@ class SimELM327(Structure):
         ecu_list = self.ecus.contents
         print(f"    ecus {addr(self.ecus)} (list: {addr(ecu_list.list)}, size: {ecu_list.size}): {{")
         for i in range(ecu_list.size):
-            sim_ecu = ecu_list.list[i]
-            print(f"        ecu: {addr(pointer(sim_ecu))} {{")
+            sim_ecu_ptr = ecu_list.list[i]
+            sim_ecu = sim_ecu_ptr.contents
+            print(f"        ecu: {addr(sim_ecu_ptr)} {{")
             print(f"            address: {sim_ecu.address:02X}")
             generator = sim_ecu.generator.contents if sim_ecu.generator else None
             print(f"            generator: {addr(sim_ecu.generator)} {{")
