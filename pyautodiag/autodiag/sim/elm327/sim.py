@@ -5,14 +5,7 @@ from autodiag.sim.elm327.sim_generators import ECUEmulationGenerator
 class ELM327emulation(Structure):
     pass
 
-CALLBACK_TYPE = CFUNCTYPE(char_p, POINTER(c_void_p), POINTER(ELM327emulation), char_p, bool)
-
 class ECUEmulation(Structure):
-    _fields_ = [
-        ("address", byte),
-        ("generator", POINTER(ECUEmulationGenerator)),
-        ("saej1979_sim_response", CALLBACK_TYPE)
-    ]
 
     def __new__(cls, address: int):
         obj_ptr = lib.ecu_emulation_new(byte(address))
@@ -21,7 +14,21 @@ class ECUEmulation(Structure):
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
-    
+
+ECUEmulation.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
+    char_p,
+    POINTER(ECUEmulation),
+    POINTER(ELM327emulation),
+    char_p,
+    bool
+)
+
+ECUEmulation._fields_ = [
+    ("address", byte),
+    ("generator", POINTER(ECUEmulationGenerator)),
+    ("saej1979_sim_response", ECUEmulation.CALLBACK_SAEJ1979_SIM_RESPONSE)
+]
+
 lib.ecu_emulation_new.argtypes = [byte]
 lib.ecu_emulation_new.restype = POINTER(ECUEmulation)
 
