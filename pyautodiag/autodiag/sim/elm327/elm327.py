@@ -74,7 +74,23 @@ class SimELM327(Structure):
             lib.sim_elm327_loop_as_daemon(byref(self))
         else:
             lib.sim_elm327_loop(byref(self))
-        
+    
+    def set_ecu(self, address, generator):
+        ecu = self.get_ecu(address)
+        if ecu is None:
+            from autodiag.sim.elm327.sim import SimECU
+            ecu = SimECU(address)
+            self.ecus.contents.append(ecu)
+        ecu.set_generator(generator)
+        return ecu 
+    
+    def get_ecu(self, address):
+        for i in range(self.ecus.contents.size):
+            ecu = self.ecus.contents.list[i].contents
+            if ecu.address == address:
+                return ecu
+        return None
+
     def debug(self):
         lib.sim_elm327_debug(byref(self))
 
