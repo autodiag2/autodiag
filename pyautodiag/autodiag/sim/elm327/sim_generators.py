@@ -1,13 +1,7 @@
 from autodiag.libloader import *
-
-CALLBACK_TYPE = CFUNCTYPE(None, c_void_p, POINTER(char_p), c_void_p, c_void_p)
+from autodiag.buffer import Buffer
 
 class ECUEmulationGenerator(Structure):
-    _fields_ = [
-        ("context", c_void_p),
-        ("obd_sim_response", CALLBACK_TYPE),
-        ("type", char_p)
-    ]
 
     def __new__(cls, gen_type="random"):
         ptr = lib.sim_ecu_generator_new()
@@ -19,6 +13,20 @@ class ECUEmulationGenerator(Structure):
 
     def __init__(self, gen_type="random"):
         self.type = gen_type.encode()
+
+ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
+    None,
+    POINTER(ECUEmulationGenerator),
+    POINTER(char_p),
+    POINTER(Buffer),
+    POINTER(Buffer)
+)
+
+ECUEmulationGenerator._fields_ = [
+    ("context", c_void_p),
+    ("obd_sim_response", ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE),
+    ("type", char_p)
+]
 
 lib.sim_ecu_generator_new.restype = POINTER(ECUEmulationGenerator)
 lib.sim_ecu_generator_new_random.restype = POINTER(ECUEmulationGenerator)

@@ -2,15 +2,18 @@ from autodiag.sim.elm327.elm327 import ELM327emulation
 from autodiag.com.serial import Serial
 from autodiag.com.obd.obd import OBDIFace
 from autodiag.log import *
-from autodiag.sim.elm327.sim_generators import ECUEmulationGenerator
+from autodiag.sim.elm327.sim_generators import *
 
 log_set_level(LOG_DEBUG)
 emulation = ELM327emulation()
 generator = ECUEmulationGenerator()
-print(generator.type)
-
-import sys
-sys.exit(1)
+cycleGen = ECUEmulationGeneratorCycle()
+assert emulation.ecus.contents.size == 1
+emulation.ecus.contents.remove_at(0)
+assert emulation.ecus.contents.size == 0
+emulation.ecus.contents.append(cycleGen)
+emulation.ecus.contents.append(generator)
+assert emulation.ecus.contents.size == 2
 emulation.loop(daemon=True)
 
 import time
