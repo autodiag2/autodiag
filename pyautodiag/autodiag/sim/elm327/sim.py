@@ -14,6 +14,9 @@ class SimECU(Structure):
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
+    
+    def set_generator(self, generator: SimECUGenerator):
+        self.generator = cast(pointer(generator), POINTER(SimECUGenerator))
 
 SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
     char_p,
