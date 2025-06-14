@@ -18,7 +18,14 @@ class CustomECUGenerator(SimECUGenerator):
         self.sim_ecu_generator_response = custom_sim_ecu_generator_response
         self.type = "custom".encode()
 
-emulation.ecus.contents.list[0].set_generator(CustomECUGenerator())
+from autodiag.lib import *
+callback = SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE(custom_sim_ecu_generator_response)
+from ctypes import cast, c_void_p
+print("Function address:", hex(cast(callback, c_void_p).value))
+print(addr(byref(emulation.ecus.contents.list[0])))
+emulation.debug()
+emulation.debug_from_python()
+emulation.ecus.contents.list[0].contents.set_generator(CustomECUGenerator())
 emulation.debug()
 emulation.debug_from_python()
 
