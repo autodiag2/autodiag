@@ -11,7 +11,7 @@ typedef struct SimECU {
     /**
      * Respond to an SAEJ1979 query
      */
-    char * (*saej1979_sim_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * obd_query_str, bool hasSpaces);
+    char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * obd_query_str, bool hasSpaces);
 } SimECU;
 LIST_DEFINE_WITH_MEMBERS_AUTO(SimECU)
 

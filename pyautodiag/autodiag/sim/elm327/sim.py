@@ -29,7 +29,7 @@ SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
 SimECU._fields_ = [
     ("address", byte),
     ("generator", POINTER(SimECUGenerator)),
-    ("saej1979_sim_response", SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE)
+    ("sim_ecu_response", SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE)
 ]
 
 lib.sim_ecu_emulation_new.argtypes = [byte]

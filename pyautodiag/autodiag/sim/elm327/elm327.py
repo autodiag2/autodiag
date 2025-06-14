@@ -99,7 +99,7 @@ class SimELM327(Structure):
             else:
                 print("                NULL")
             print("            }")
-            print(f"            saej1979_sim_response: {addr(sim_ecu.saej1979_sim_response)}")
+            print(f"            sim_ecu_response: {addr(sim_ecu.sim_ecu_response)}")
             print("        }")
         print("    }")
         print("}")

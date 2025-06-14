@@ -50,7 +50,7 @@ char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address
     return protocolSpecificHeader;     
 }
 
-char * sim_ecu_saej1979_response(SimECU * ecu, SimELM327 * elm327, char * obd_query_str, bool hasSpaces) {
+char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = null;
     Buffer* obd_query_bin = buffer_new();
     Buffer* responseOBDdataBin = buffer_new();
@@ -183,7 +183,7 @@ char * sim_ecu_saej1979_response(SimECU * ecu, SimELM327 * elm327, char * obd_qu
 
 SimECU* sim_ecu_emulation_new(byte address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
-    emu->saej1979_sim_response = (char *(*)(struct SimECU *, struct _SimELM327 *, char *, int))sim_ecu_saej1979_response;
+    emu->sim_ecu_response = (char *(*)(struct SimECU *, struct _SimELM327 *, char *, int))sim_ecu_response_generic;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;

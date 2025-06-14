@@ -128,7 +128,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
                 }
             }
 
-            char * tmpResponse = ecu->saej1979_sim_response(ecu,(SimELM327 *)elm327,obd_request,hasSpaces);
+            char * tmpResponse = ecu->sim_ecu_response(ecu,(SimELM327 *)elm327,obd_request,hasSpaces);
 
             Buffer * response_header_bin = sim_ecu_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -202,7 +202,7 @@ void sim_elm327_debug(final SimELM327 * elm327) {
         printf("                type: %p %s\n", generator->type, generator->type);
         printf("                sim_ecu_generator_response: %p\n", generator->sim_ecu_generator_response);
         printf("            }\n");
-        printf("            saej1979_sim_response: %p\n", sim_ecu->saej1979_sim_response);
+        printf("            sim_ecu_response: %p\n", sim_ecu->sim_ecu_response);
         printf("        }\n");
     }
     printf("    }\n");
