@@ -1,4 +1,4 @@
-#include "libautodiag/com/obd/database.h"
+#include "libautodiag/model/database.h"
 
 VehicleList database = { .list = null, .size = 0};
 

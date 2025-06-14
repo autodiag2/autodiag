@@ -4,8 +4,8 @@
 #ifndef __OBD_OBD_H
 #define __OBD_OBD_H
 
-#include "vehicle.h"
-#include "device.h"
+#include "libautodiag/com/device.h"
+#include "libautodiag/com/vehicle_interface.h"
 
 /**
  * Also referred as modes previously
@@ -24,14 +24,7 @@ typedef enum {
 #define OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE 0x40
 
 typedef struct {
-    /**
-     * Device onto which communication should start
-     */
-    Device* device;
-    /**
-     * Data structure representing the data received from the vehicle itself.
-     */
-    Vehicle * vehicle;
+    VehicleIFace;
 } OBDIFace;
 
 OBDIFace* obd_new();

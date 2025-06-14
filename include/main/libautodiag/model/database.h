@@ -9,7 +9,7 @@
 #include "libautodiag/log.h"
 #include "libautodiag/initools.h"
 #include "libautodiag/installation.h"
-#include "libautodiag/com/obd/vehicle.h"
+#include "libautodiag/model/vehicle.h"
 
 extern VehicleList database;
 /**

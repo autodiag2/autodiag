@@ -1,4 +1,4 @@
-#include "libautodiag/com/obd/vehicle.h"
+#include "libautodiag/model/vehicle.h"
 
 ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size) {
     for(int i = 0; i < v->ecus_len; i++) {

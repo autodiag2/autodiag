@@ -1,4 +1,4 @@
-from autodiag.com.obd.vehicle import Vehicle
+from autodiag.model.vehicle import Vehicle
 
 from autodiag.log import *
 

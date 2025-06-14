@@ -13,7 +13,7 @@
 #include "libautodiag/string.h"
 #include <unistd.h>
 #include <errno.h>
-#include "libautodiag/com/obd/device.h"
+#include "libautodiag/com/device.h"
 #include "libautodiag/lib.h"
 
 #if defined OS_WINDOWS

@@ -1,6 +1,6 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
-from autodiag.com.obd.device import Device
+from autodiag.com.device import Device
 from autodiag.lib import addr
 
 GuessResponseFunc = CFUNCTYPE(c_int, char_p)

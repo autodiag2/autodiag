@@ -1,10 +1,10 @@
 #ifndef __DEVICE_H
 #define __DEVICE_H
 
-#include "vehicle.h"
+#include "libautodiag/model/vehicle.h"
 
 /**
- * Define an OBD device
+ * Define a device that interface with the vehicle
  */
 #define CAST_DEVICE_SEND(var) ((int (*)(final Device*, const char*))var)
 #define CAST_DEVICE_RECV(var) ((int (*)(final Device*))var)

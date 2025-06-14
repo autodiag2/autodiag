@@ -8,7 +8,7 @@
 #include "can.h"
 #include "libautodiag/lib.h"
 #include "libautodiag/buffer.h"
-#include "libautodiag/com/obd/vehicle.h"
+#include "libautodiag/model/vehicle.h"
 
 typedef enum {
     Iso15765ControlFrameFlowStatus_ClearToSend,

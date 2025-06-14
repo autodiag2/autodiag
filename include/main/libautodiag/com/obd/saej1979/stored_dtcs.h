@@ -7,7 +7,7 @@
 #include "libautodiag/list.h"
 #include "saej1979.h"
 #include "libautodiag/installation.h"
-#include "libautodiag/com/obd/database.h"
+#include "libautodiag/model/database.h"
 #include "../iso15031/iso15031_6.h"
 #include "libautodiag/file.h"
 
