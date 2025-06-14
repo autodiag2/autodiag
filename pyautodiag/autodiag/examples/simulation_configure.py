@@ -14,6 +14,22 @@ assert emulation.ecus.contents.size == 0
 emulation.ecus.contents.append(cycleGen)
 emulation.ecus.contents.append(generator)
 assert emulation.ecus.contents.size == 2
+emulation.ecus.contents.remove_at(0)
+emulation.ecus.contents.remove_at(0)
+assert emulation.ecus.contents.size == 0
+
+@ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE
+def custom_obd_sim_response(generator_ptr, response_ptr, responseOBDdataBin, obd_query_bin):
+    print(obd_query_bin)
+    response_ptr[0] = c_char_p(b"OK")
+
+class CustomECUGenerator(ECUEmulationGenerator):
+    def __init__(self):
+        self.context = None
+        self.obd_sim_response = custom_obd_sim_response
+        self.type = "custom".encode()
+emulation.ecus.contents.append(CustomECUGenerator())
+
 emulation.loop(daemon=True)
 
 import time
