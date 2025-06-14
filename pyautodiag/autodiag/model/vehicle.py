@@ -52,6 +52,7 @@ class Vehicle(Structure):
         ('ecus_len', c_int),
         ('obd_data_buffer', POINTER(BufferList)),
         ('vin', POINTER(Buffer)),
+        ('country', c_char_p),
         ('manufacturer', c_char_p),
         ('engine', c_char_p),
         ('internal', VehicleInternal)

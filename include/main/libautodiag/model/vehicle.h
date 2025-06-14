@@ -72,6 +72,7 @@ typedef struct {
      */
     BufferList * obd_data_buffer;
     Buffer * vin;
+    char *country;
     /**
      * eg Citroen
      */
