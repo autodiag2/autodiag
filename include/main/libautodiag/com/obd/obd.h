@@ -6,6 +6,7 @@
 
 #include "libautodiag/com/device.h"
 #include "libautodiag/com/vehicle_interface.h"
+#include "libautodiag/model/iso3779.h"
 
 /**
  * Also referred as modes previously
