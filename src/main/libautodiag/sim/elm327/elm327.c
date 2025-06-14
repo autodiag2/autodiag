@@ -195,12 +195,12 @@ void sim_elm327_debug(final SimELM327 * elm327) {
     for(int i = 0; i < elm327->ecus->size; i++) {
         SimECU * sim_ecu = elm327->ecus->list[i];
         SimECUGenerator * generator = sim_ecu->generator;
-        printf("        ecu: {\n");
+        printf("        ecu: %p {\n", sim_ecu);
         printf("            address: %02hhX\n", sim_ecu->address);
         printf("            generator: %p {\n", sim_ecu->generator);
         printf("                context: %p\n", generator->context);
         printf("                type: %p %s\n", generator->type, generator->type);
-        printf("                context: %p\n", generator->sim_ecu_generator_response);
+        printf("                sim_ecu_generator_response: %p\n", generator->sim_ecu_generator_response);
         printf("            }\n");
         printf("            saej1979_sim_response: %p\n", sim_ecu->saej1979_sim_response);
         printf("        }\n");
