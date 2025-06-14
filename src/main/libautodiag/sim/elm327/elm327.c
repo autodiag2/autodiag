@@ -145,8 +145,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
                         }
                     }
                     if ( filtered ) {
-                        free(tmpResponse);
-                        tmpResponse = null;
+                        tmpResponse = null; // we do not free to compat with python
                     }
                 } else {
                     if ( 0 < elm327->can.mask->size ) {
@@ -164,8 +163,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
             if ( tmpResponse != null ) {
                 char * tmpResponseResult;
                 asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,tmpResponse,i+1<elm327->ecus->size ? elm327->eol : "");
-                free(tmpResponse);
-                free(response);
+                tmpResponse = null; // we do not free to compat with python
+                response = null;    // we do not free to compat with python
                 response = tmpResponseResult;
             }
         }

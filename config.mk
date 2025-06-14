@@ -30,7 +30,7 @@ endif
 
 CFLAGS_DEBUG    = -ggdb
 CGLAGS_GUI      = `pkg-config --cflags gtk+-3.0`
-CFLAGS          = -I include/main/ -fms-extensions -Wno-microsoft-anon-tag -fPIC
+CFLAGS          = -I include/main/ -fms-extensions -Wno-microsoft-anon-tag -fPIC $(CFLAGS_DEBUG)
 CFLAGS_LIBS     = -lpthread -lm
 CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
 
