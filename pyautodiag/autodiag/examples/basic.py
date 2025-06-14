@@ -1,10 +1,10 @@
-from autodiag.sim.elm327.sim import ECUEmulation
+from autodiag.sim.elm327.sim import SimECU
 
-ecuEmulation = ECUEmulation(0x70)
-print("ECUEmulation created with address:", hex(ecuEmulation.address))
+ecuEmulation = SimECU(0x70)
+print("SimECU created with address:", hex(ecuEmulation.address))
 
-ecuEmulation = ECUEmulation(0x71)
-print("ECUEmulation created with address:", hex(ecuEmulation.address))
+ecuEmulation = SimECU(0x71)
+print("SimECU created with address:", hex(ecuEmulation.address))
 
 from autodiag.installation import installation_folder
 print("Installation folder:", installation_folder("ui"))

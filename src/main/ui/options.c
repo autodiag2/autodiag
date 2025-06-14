@@ -172,12 +172,12 @@ void window_options_baud_rate_set_from_button(final GtkButton * button) {
 }
 
 gboolean options_launch_simulation_set_pending_text(gpointer data) {
-    ELM327emulation * elm327 = (ELM327emulation*)data;
+    SimELM327 * elm327 = (SimELM327*)data;
     gtk_label_set_text(optionsGui->simulator.launchDesc, "Starting simulation ...");
     return false;
 }
 gboolean options_launch_simulation_update_gui(gpointer data) {
-    ELM327emulation * elm327 = (ELM327emulation*)data;
+    SimELM327 * elm327 = (SimELM327*)data;
 
     options_serial_list_refresh();
 
@@ -196,7 +196,7 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
 
 void options_launch_simulation_internal() {
     gtk_spinner_start(optionsGui->simulator.spinner);
-    ELM327emulation * elm327 = elm327_sim_new();
+    SimELM327 * elm327 = elm327_sim_new();
     elm327_sim_loop_as_daemon(elm327);
     g_idle_add(options_launch_simulation_set_pending_text, elm327);
     usleep(500e3);

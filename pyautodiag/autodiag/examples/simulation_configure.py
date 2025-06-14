@@ -1,13 +1,13 @@
-from autodiag.sim.elm327.elm327 import ELM327emulation
+from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
 from autodiag.com.obd.obd import OBDIFace
 from autodiag.log import *
 from autodiag.sim.elm327.sim_generators import *
 
 log_set_level(LOG_DEBUG)
-emulation = ELM327emulation()
-generator = ECUEmulationGenerator()
-cycleGen = ECUEmulationGeneratorCycle()
+emulation = SimELM327()
+generator = SimECUGenerator()
+cycleGen = SimECUGeneratorCycle()
 assert emulation.ecus.contents.size == 1
 emulation.ecus.contents.remove_at(0)
 assert emulation.ecus.contents.size == 0
@@ -18,12 +18,12 @@ emulation.ecus.contents.remove_at(0)
 emulation.ecus.contents.remove_at(0)
 assert emulation.ecus.contents.size == 0
 
-@ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE
+@SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
 def custom_obd_sim_response(generator_ptr, response_ptr, responseOBDdataBin, obd_query_bin):
     print(obd_query_bin)
     response_ptr[0] = c_char_p(b"OK")
 
-class CustomECUGenerator(ECUEmulationGenerator):
+class CustomECUGenerator(SimECUGenerator):
     def __init__(self):
         self.context = None
         self.obd_sim_response = custom_obd_sim_response

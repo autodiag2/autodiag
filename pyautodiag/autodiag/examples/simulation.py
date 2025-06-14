@@ -1,10 +1,10 @@
-from autodiag.sim.elm327.elm327 import ELM327emulation
+from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
 from autodiag.com.obd.obd import OBDIFace
 from autodiag.log import *
 
 log_set_level(LOG_DEBUG)
-emulation = ELM327emulation()
+emulation = SimELM327()
 emulation.loop(daemon=True)
 
 import time

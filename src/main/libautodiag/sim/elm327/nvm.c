@@ -1,13 +1,13 @@
 #include "libautodiag/sim/elm327/nvm.h"
 
 typedef struct {
-    ELM327emulation * elm327;
+    SimELM327 * elm327;
     int load_mask;
 } ELM327_SIM_NVM_LOAD_DATA;
 
 bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *value) {
     ELM327_SIM_NVM_LOAD_DATA * data = (ELM327_SIM_NVM_LOAD_DATA*)funcData;
-    ELM327emulation * elm327 = (ELM327emulation*)data->elm327;
+    SimELM327 * elm327 = (SimELM327*)data->elm327;
     if ( strcasecmp(key,"nvm.protocol") == 0 ) {
         elm327->nvm.protocol = atoi(value);
         return true;
@@ -55,12 +55,12 @@ bool elm327_sim_non_volatile_wipe_out() {
     unlink(elm327_sim_non_volatile_get_filename());
     return true;
 }
-bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327, int load_mask) {
+bool elm327_sim_non_volatile_memory_load(SimELM327 * elm327, int load_mask) {
     ELM327_SIM_NVM_LOAD_DATA data = { elm327, load_mask };
     return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, &data);
 }
 
-bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327) {
+bool elm327_sim_non_volatile_memory_store(SimELM327 * elm327) {
     if ( elm327->isMemoryEnabled ) {
         final FILE * file = fopen(elm327_sim_non_volatile_get_filename(), "w");
         if ( file == null ) {

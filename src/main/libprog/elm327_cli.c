@@ -47,7 +47,7 @@ void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
         gtk_widget_show(label);
     }
 }
-ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
+ELM327SimGui * elm327_sim_build_gui(SimECUGenerator *generator) {
 
     gtk_init(0, NULL);
 
@@ -99,7 +99,7 @@ ELM327SimGui * elm327_sim_build_gui(ECUEmulationGenerator *generator) {
 LIST_DEFINE_WITH_MEMBERS_AUTO(ELM327SimGui)
 LIST_DEFINE_MEMBERS_SYM_AUTO(ELM327SimGui)
 typedef struct {
-    ELM327emulation* sim;
+    SimELM327* sim;
     ELM327_PROTO *proto;
     bool * proto_is_auto;
 } ELM327SimData;
@@ -128,7 +128,7 @@ gboolean elm327_sim_present_window(gpointer w) {
     return false;
 }
 int elm327_sim_cli_main(int argc, char **argv) {
-    ELM327emulation* sim = elm327_sim_new();
+    SimELM327* sim = elm327_sim_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
     ELM327SimGui_list * guis = ELM327SimGui_list_new();
@@ -144,7 +144,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
             case 'e': {
                 byte ecu_address;
                 if ( sscanf(optarg,"%02hhx", &ecu_address) == 1 ) {
-                    ECUEmulation_list_append(sim->ecus,ecu_emulation_new(ecu_address));                    
+                    SimECU_list_append(sim->ecus,sim_ecu_emulation_new(ecu_address));                    
                 } else {
                     elm327_sim_cli_display_help();
                     return 1;
@@ -167,7 +167,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
-                final ECUEmulationGenerator * generator;
+                final SimECUGenerator * generator;
                 if ( strcasecmp(optarg, "random") == 0 ) {
                     generator = sim_ecu_generator_new_random();
                 } else if ( strcasecmp(optarg, "cycle") == 0 ) {
@@ -185,7 +185,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 sim->ecus->list[sim->ecus->size - 1]->generator = generator;
             } break;
             case 'c': {
-                final ECUEmulationGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
+                final SimECUGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
                 if ( strcasecmp(generator->type, "random") == 0 ) {
                     unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                     generator->context = context; 

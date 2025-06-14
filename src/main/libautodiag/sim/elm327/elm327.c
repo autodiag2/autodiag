@@ -13,7 +13,7 @@ void elm327_sim_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
 }
 
-void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
+void elm327_sim_activity_monitor_daemon(SimELM327 * elm327) {
     elm327->activity_monitor_count = 0x00;
     while(elm327->activity_monitor_count != 0xFF) {
         elm327->activity_monitor_count++;
@@ -49,7 +49,7 @@ void elm327_sim_activity_monitor_daemon(ELM327emulation * elm327) {
     }
 }
 
-void elm327_sim_start_activity_monitor(ELM327emulation * elm327) {
+void elm327_sim_start_activity_monitor(SimELM327 * elm327) {
     if ( elm327->implementation->activity_monitor_thread != null ) {
         pthread_cancel(elm327->implementation->activity_monitor_thread);
         elm327->implementation->activity_monitor_thread = null;
@@ -62,7 +62,7 @@ void elm327_sim_start_activity_monitor(ELM327emulation * elm327) {
     }
 }
 
-char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
+char * elm327_sim_bus(SimELM327 * elm327, char * obd_request) {
     char *response = null;
     bool isOBD = true;
     int space_num = 0;
@@ -103,7 +103,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
                 }
             }
             if ( request_header == null ) {
-                request_header = ecu_sim_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
+                request_header = sim_ecu_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
             }
             if ( elm327->can.auto_format ) {
                 final int pci = strlen(obd_request) - space_num;
@@ -115,12 +115,12 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
             if ( elm327->custom_header->size == 3 ) {
                 asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),obd_request);
             } else {
-                asprintf(&requestStr,"%s%s%s",ecu_sim_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,obd_request);
+                asprintf(&requestStr,"%s%s%s",sim_ecu_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,obd_request);
             }
         }
         obd_request = requestStr;
         for(int i = 0; i < elm327->ecus->size; i++) {
-            ECUEmulation * ecu = elm327->ecus->list[i];
+            SimECU * ecu = elm327->ecus->list[i];
 
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
                 if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
@@ -128,9 +128,9 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
                 }
             }
 
-            char * tmpResponse = ecu->saej1979_sim_response(ecu,(ELM327emulation *)elm327,obd_request,hasSpaces);
+            char * tmpResponse = ecu->saej1979_sim_response(ecu,(SimELM327 *)elm327,obd_request,hasSpaces);
 
-            Buffer * response_header_bin = ecu_sim_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            Buffer * response_header_bin = sim_ecu_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 assert(elm327->can.mask->size == elm327->can.filter->size);
                 if ( response_header_bin->size == elm327->can.mask->size ) {
@@ -189,7 +189,7 @@ char * elm327_sim_bus(ELM327emulation * elm327, char * obd_request) {
     }
     return response;
 }
-void elm327_sim_set_baud_rate_divisor_timeout(final ELM327emulation * elm327, final int timeout) {
+void elm327_sim_set_baud_rate_divisor_timeout(final SimELM327 * elm327, final int timeout) {
     elm327->baud_rate_timeout_msec = timeout * 5;
     if ( timeout == 0 ) {
         elm327->baud_rate_timeout_msec = 256 * 5;
@@ -198,7 +198,7 @@ void elm327_sim_set_baud_rate_divisor_timeout(final ELM327emulation * elm327, fi
 /**
  * Init an emulation loading settings from nvm
  */
-void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYPE type) {
+void elm327_sim_init_from_nvm(SimELM327* elm327, final ELM327_SIM_INIT_TYPE type) {
     elm327->nvm.user_memory = 0;
 
     if ( type == ELM327_SIM_INIT_TYPE_POWER_OFF ) {
@@ -390,17 +390,17 @@ void elm327_sim_init_from_nvm(ELM327emulation* elm327, final ELM327_SIM_INIT_TYP
     elm327_sim_start_activity_monitor(elm327);
 }
 
-ELM327emulation* elm327_sim_new() {
-    ELM327emulation* elm327 = (ELM327emulation*)malloc(sizeof(ELM327emulation));
-    elm327->implementation = (ELM327emulationImplementation*)malloc(sizeof(ELM327emulationImplementation));
-    elm327->ecus = ECUEmulation_list_new();
-    ECUEmulation *ecu = ecu_emulation_new(0xE8);
-    ECUEmulation_list_append(elm327->ecus,ecu);
+SimELM327* elm327_sim_new() {
+    SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
+    elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
+    elm327->ecus = SimECU_list_new();
+    SimECU *ecu = sim_ecu_emulation_new(0xE8);
+    SimECU_list_append(elm327->ecus,ecu);
     elm327->implementation->loop_thread = null;
     elm327_sim_init_from_nvm(elm327, ELM327_SIM_INIT_TYPE_POWER_OFF);
     return elm327;
 }
-void elm327_sim_destroy(ELM327emulation * elm327) {
+void elm327_sim_destroy(SimELM327 * elm327) {
     if ( elm327->implementation->activity_monitor_thread != null ) {
         pthread_cancel(elm327->implementation->activity_monitor_thread);
         elm327->implementation->activity_monitor_thread = null;
@@ -425,7 +425,7 @@ void elm327_sim_destroy(ELM327emulation * elm327) {
     buffer_free(elm327->programmable_parameters_defaults);
     free(elm327);
 }
-void elm327_sim_loop_as_daemon(ELM327emulation * elm327) {
+void elm327_sim_loop_as_daemon(SimELM327 * elm327) {
     if ( elm327->implementation->loop_thread != null ) {
         pthread_cancel(elm327->implementation->loop_thread);
         elm327->implementation->loop_thread = null;
@@ -437,7 +437,7 @@ void elm327_sim_loop_as_daemon(ELM327emulation * elm327) {
     }
 }
 
-bool elm327_sim_receive(ELM327emulation * elm327, final Buffer * buffer, int timeout) {
+bool elm327_sim_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
     #ifdef OS_WINDOWS
         if ( ! ConnectNamedPipe(elm327->implementation->pipe_handle, null) ) {
             DWORD err = GetLastError();
@@ -474,7 +474,7 @@ bool elm327_sim_receive(ELM327emulation * elm327, final Buffer * buffer, int tim
     return true;
 }
 
-bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_response, final bool isGeneric) {
+bool elm327_sim_reply(SimELM327 * elm327, char * buffer, char * serial_response, final bool isGeneric) {
     char * response;
     if ( isGeneric ) {
         asprintf(&response,"%s%s%s%s%s",
@@ -509,7 +509,7 @@ bool elm327_sim_reply(ELM327emulation * elm327, char * buffer, char * serial_res
     return true;
 }
 
-bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char* buffer, bool preventWrite) {
+bool elm327_sim_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
     int last_index;
@@ -944,7 +944,7 @@ bool elm327_sim_command_and_protocol_interpreter(ELM327emulation * elm327, char*
     return commandReconized;
 }
 
-void elm327_sim_loop(ELM327emulation * elm327) {
+void elm327_sim_loop(SimELM327 * elm327) {
     #ifdef OS_WINDOWS
         #define MAX_ATTEMPTS 20
 

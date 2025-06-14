@@ -25,10 +25,10 @@ typedef struct {
     #else
     #   warning OS unsupported
     #endif
-} ELM327emulationImplementation;
+} SimELM327Implementation;
 
-typedef struct _ELM327emulation {
-    ELM327emulationImplementation* implementation;
+typedef struct _SimELM327 {
+    SimELM327Implementation* implementation;
 	char * eol;
 	bool echo;
 	ELM327_PROTO protocolRunning;
@@ -122,16 +122,16 @@ typedef struct _ELM327emulation {
     	Buffer* programmable_parameters_states;    	
     } nvm;
 
-    ECUEmulation_list * ecus;
+    SimECU_list * ecus;
 
-} ELM327emulation;
+} SimELM327;
 
 #define ELM327_SIM_PPS_SZ 0x30
 
-ELM327emulation* elm327_sim_new();
-void elm327_sim_loop(ELM327emulation * elm327);
-void elm327_sim_loop_as_daemon(ELM327emulation * elm327);
-void elm327_sim_destroy(ELM327emulation * elm327);
+SimELM327* elm327_sim_new();
+void elm327_sim_loop(SimELM327 * elm327);
+void elm327_sim_loop_as_daemon(SimELM327 * elm327);
+void elm327_sim_destroy(SimELM327 * elm327);
 
 #include "nvm.h"
 

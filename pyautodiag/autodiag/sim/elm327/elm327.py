@@ -1,8 +1,8 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
-from autodiag.sim.elm327.sim import ECUEmulation_list
+from autodiag.sim.elm327.sim import SimECU_list
 
-class ELM327emulationImplementation(Structure):
+class SimELM327Implementation(Structure):
     pass
 
 class CANSettings(Structure):
@@ -27,9 +27,9 @@ class NVMSettings(Structure):
         ("programmable_parameters_states", POINTER(Buffer)),
     ]
 
-class ELM327emulation(Structure):
+class SimELM327(Structure):
     _fields_ = [
-        ("implementation", POINTER(ELM327emulationImplementation)),
+        ("implementation", POINTER(SimELM327Implementation)),
         ("eol", char_p),
         ("echo", bool),
         ("protocolRunning", c_int),
@@ -57,7 +57,7 @@ class ELM327emulation(Structure):
         ("isMemoryEnabled", bool),
         ("testerAddress", byte),
         ("nvm", NVMSettings),
-        ("ecus", POINTER(ECUEmulation_list))
+        ("ecus", POINTER(SimECU_list))
     ]
 
     def __new__(cls):
@@ -74,6 +74,6 @@ class ELM327emulation(Structure):
         else:
             lib.elm327_sim_loop(byref(self))
 
-lib.elm327_sim_new.restype = POINTER(ELM327emulation)
-lib.elm327_sim_loop.argtypes = [POINTER(ELM327emulation)]
-lib.elm327_sim_loop_as_daemon.argtypes = [POINTER(ELM327emulation)]
+lib.elm327_sim_new.restype = POINTER(SimELM327)
+lib.elm327_sim_loop.argtypes = [POINTER(SimELM327)]
+lib.elm327_sim_loop_as_daemon.argtypes = [POINTER(SimELM327)]

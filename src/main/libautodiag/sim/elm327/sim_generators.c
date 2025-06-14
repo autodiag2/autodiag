@@ -1,8 +1,8 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
-ECUEmulationGenerator * sim_ecu_generator_new() {
-    ECUEmulationGenerator * generator = (ECUEmulationGenerator*)malloc(sizeof(ECUEmulationGenerator));
+SimECUGenerator * sim_ecu_generator_new() {
+    SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
     generator->obd_sim_response = null;
     generator->type = null;
@@ -14,7 +14,7 @@ void sim_ecu_generator_cycle_iterate(int service_id, int pid, unsigned gears) {
     sim_ecu_generator_cycle_percent[service_id][pid] += (100/gears);
     sim_ecu_generator_cycle_percent[service_id][pid] %= 100;
 }
-void sim_ecu_generator_cycle(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_cycle(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
@@ -91,14 +91,14 @@ void sim_ecu_generator_cycle(ECUEmulationGenerator *generator, char ** response,
     sim_ecu_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0, gears);
 }
 
-ECUEmulationGenerator* sim_ecu_generator_new_cycle() {
-    ECUEmulationGenerator * generator = sim_ecu_generator_new();
+SimECUGenerator* sim_ecu_generator_new_cycle() {
+    SimECUGenerator * generator = sim_ecu_generator_new();
     generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_cycle);
     generator->type = strdup("cycle");
     return generator;
 }
 
-void sim_ecu_generator_random(ECUEmulationGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_random(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -175,8 +175,8 @@ void sim_ecu_generator_random(ECUEmulationGenerator *generator, char ** response
         } break;
     }
 }
-ECUEmulationGenerator* sim_ecu_generator_new_random() {
-    ECUEmulationGenerator * generator = sim_ecu_generator_new();
+SimECUGenerator* sim_ecu_generator_new_random() {
+    SimECUGenerator * generator = sim_ecu_generator_new();
     generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_random);
     generator->type = strdup("random");
     return generator;

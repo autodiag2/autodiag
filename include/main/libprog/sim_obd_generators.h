@@ -24,6 +24,6 @@ typedef struct {
     } dtcs;
 } ELM327SimGui;
 
-ECUEmulationGenerator* sim_ecu_generator_new_gui();
+SimECUGenerator* sim_ecu_generator_new_gui();
 
 #endif

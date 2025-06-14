@@ -15,8 +15,8 @@ typedef enum {
     ELM327_SIM_INIT_TYPE_IMMEDIATE = ELM327_SIM_INIT_TYPE_DEFAULTS | ELM327_SIM_INIT_TYPE_RESET | ELM327_SIM_INIT_TYPE_POWER_OFF
 } ELM327_SIM_INIT_TYPE;
 
-bool elm327_sim_non_volatile_memory_load(ELM327emulation * elm327, final int load_mask);
-bool elm327_sim_non_volatile_memory_store(ELM327emulation * elm327);
+bool elm327_sim_non_volatile_memory_load(SimELM327 * elm327, final int load_mask);
+bool elm327_sim_non_volatile_memory_store(SimELM327 * elm327);
 bool elm327_sim_non_volatile_wipe_out();
 
 #endif

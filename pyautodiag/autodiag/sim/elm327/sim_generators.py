@@ -1,7 +1,7 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
 
-class ECUEmulationGenerator(Structure):
+class SimECUGenerator(Structure):
 
     def __new__(cls, gen_type="random"):
         ptr = lib.sim_ecu_generator_new()
@@ -14,25 +14,25 @@ class ECUEmulationGenerator(Structure):
     def __init__(self, gen_type="random"):
         self.type = gen_type.encode()
 
-ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
+SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
     None,
-    POINTER(ECUEmulationGenerator),
+    POINTER(SimECUGenerator),
     POINTER(char_p),
     POINTER(Buffer),
     POINTER(Buffer)
 )
 
-ECUEmulationGenerator._fields_ = [
+SimECUGenerator._fields_ = [
     ("context", c_void_p),
-    ("obd_sim_response", ECUEmulationGenerator.CALLBACK_OBD_SIM_RESPONSE),
+    ("obd_sim_response", SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE),
     ("type", char_p)
 ]
 
-lib.sim_ecu_generator_new.restype = POINTER(ECUEmulationGenerator)
-lib.sim_ecu_generator_new_random.restype = POINTER(ECUEmulationGenerator)
-lib.sim_ecu_generator_new_cycle.restype = POINTER(ECUEmulationGenerator)
+lib.sim_ecu_generator_new.restype = POINTER(SimECUGenerator)
+lib.sim_ecu_generator_new_random.restype = POINTER(SimECUGenerator)
+lib.sim_ecu_generator_new_cycle.restype = POINTER(SimECUGenerator)
 
-class ECUEmulationGeneratorRandom(ECUEmulationGenerator):
+class SimECUGeneratorRandom(SimECUGenerator):
     def __new__(cls):
         ptr = lib.sim_ecu_generator_new_random()
         if not ptr:
@@ -41,7 +41,7 @@ class ECUEmulationGeneratorRandom(ECUEmulationGenerator):
         obj.__class__ = cls
         return obj
 
-class ECUEmulationGeneratorCycle(ECUEmulationGenerator):
+class SimECUGeneratorCycle(SimECUGenerator):
     def __new__(cls):
         ptr = lib.sim_ecu_generator_new_cycle()
         if not ptr:

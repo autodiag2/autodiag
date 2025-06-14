@@ -1,65 +1,65 @@
 import os
 from autodiag.libloader import *
-from autodiag.sim.elm327.sim_generators import ECUEmulationGenerator
+from autodiag.sim.elm327.sim_generators import SimECUGenerator
 
-class ELM327emulation(Structure):
+class SimELM327(Structure):
     pass
 
-class ECUEmulation(Structure):
+class SimECU(Structure):
 
     def __new__(cls, address: int):
-        obj_ptr = lib.ecu_emulation_new(byte(address))
+        obj_ptr = lib.sim_ecu_emulation_new(byte(address))
         if not obj_ptr:
-            raise MemoryError("Failed to create ECUEmulation")
+            raise MemoryError("Failed to create SimECU")
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
 
-ECUEmulation.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
+SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
     char_p,
-    POINTER(ECUEmulation),
-    POINTER(ELM327emulation),
+    POINTER(SimECU),
+    POINTER(SimELM327),
     char_p,
     bool
 )
 
-ECUEmulation._fields_ = [
+SimECU._fields_ = [
     ("address", byte),
-    ("generator", POINTER(ECUEmulationGenerator)),
-    ("saej1979_sim_response", ECUEmulation.CALLBACK_SAEJ1979_SIM_RESPONSE)
+    ("generator", POINTER(SimECUGenerator)),
+    ("saej1979_sim_response", SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE)
 ]
 
-lib.ecu_emulation_new.argtypes = [byte]
-lib.ecu_emulation_new.restype = POINTER(ECUEmulation)
+lib.sim_ecu_emulation_new.argtypes = [byte]
+lib.sim_ecu_emulation_new.restype = POINTER(SimECU)
 
-class ECUEmulation_list(Structure):
+class SimECU_list(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(ECUEmulation))
+        ("list", POINTER(SimECU))
     ]
 
     def __new__(cls):
-        obj_ptr = lib.ECUEmulation_list_new()
+        obj_ptr = lib.SimECU_list_new()
         if not obj_ptr:
-            raise MemoryError("Failed to create ECUEmulation")
+            raise MemoryError("Failed to create SimECU")
         obj = cast(obj_ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
     
     def append(self, element):
-        lib.ECUEmulation_list_append(byref(self), cast(byref(element), POINTER(ECUEmulation)))
+        lib.SimECU_list_append(byref(self), cast(byref(element), POINTER(SimECU)))
     
     def remove(self, element):
-        lib.ECUEmulation_list_remove(byref(self), cast(byref(element), POINTER(ECUEmulation)))
+        lib.SimECU_list_remove(byref(self), cast(byref(element), POINTER(SimECU)))
 
     def remove_at(self, index):
-        return lib.ECUEmulation_list_remove_at(byref(self), index).contents
+        return lib.SimECU_list_remove_at(byref(self), index).contents
 
-lib.ECUEmulation_list_new.restype = POINTER(ECUEmulation_list)
-lib.ECUEmulation_list_free.argtypes = [POINTER(ECUEmulation_list)]
-lib.ECUEmulation_list_append.argtypes = [POINTER(ECUEmulation_list), POINTER(ECUEmulation)]
-lib.ECUEmulation_list_remove.argtypes = [POINTER(ECUEmulation_list), POINTER(ECUEmulation)]
-lib.ECUEmulation_list_remove.restype = bool
-lib.ECUEmulation_list_remove_at.argtypes = [POINTER(ECUEmulation_list), c_int]
-lib.ECUEmulation_list_remove_at.restype = POINTER(ECUEmulation)
+lib.SimECU_list_new.restype = POINTER(SimECU_list)
+lib.SimECU_list_free.argtypes = [POINTER(SimECU_list)]
+lib.SimECU_list_append.argtypes = [POINTER(SimECU_list), POINTER(SimECU)]
+lib.SimECU_list_remove.argtypes = [POINTER(SimECU_list), POINTER(SimECU)]
+lib.SimECU_list_remove.restype = bool
+lib.SimECU_list_remove_at.argtypes = [POINTER(SimECU_list), c_int]
+lib.SimECU_list_remove_at.restype = POINTER(SimECU)
 

@@ -1,8 +1,8 @@
 #include "libTest.h"
 
 int main(int argc, char **argv) {
-    ELM327emulation* elm327 = elm327_sim_new();
-    ECUEmulation_list_append(elm327->ecus,ecu_emulation_new(0xE9));        
+    SimELM327* elm327 = elm327_sim_new();
+    SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0xE9));        
     elm327_sim_loop_as_daemon(elm327);
     usleep(200e3);
     final OBDIFace* port = port_open(strdup(elm327->device_location));

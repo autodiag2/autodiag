@@ -3,15 +3,15 @@
 
 #include "libautodiag/lib.h"
 
-typedef struct ECUEmulationGenerator {
+typedef struct SimECUGenerator {
     void *context;
     char *type;
-    void * (*obd_sim_response)(struct ECUEmulationGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
-} ECUEmulationGenerator;
+    void * (*obd_sim_response)(struct SimECUGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
+} SimECUGenerator;
 
-ECUEmulationGenerator* sim_ecu_generator_new_cycle();
-ECUEmulationGenerator* sim_ecu_generator_new_random();
-ECUEmulationGenerator * sim_ecu_generator_new();
-#define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((void *(*)(ECUEmulationGenerator *, char **, Buffer *, Buffer *))f)
+SimECUGenerator* sim_ecu_generator_new_cycle();
+SimECUGenerator* sim_ecu_generator_new_random();
+SimECUGenerator * sim_ecu_generator_new();
+#define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((void *(*)(SimECUGenerator *, char **, Buffer *, Buffer *))f)
 
 #endif

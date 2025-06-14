@@ -1,9 +1,9 @@
 #include "libautodiag/sim/elm327/sim.h"
 #include "libautodiag/sim/elm327/elm327.h"
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(ECUEmulation)
+LIST_DEFINE_MEMBERS_SYM_AUTO(SimECU)
 
-Buffer* ecu_sim_generate_header_bin(struct _ELM327emulation* elm327,ECUEmulation * ecu, byte can28bits_prio) {
+Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
     char *protocolSpecificHeader = null;
     Buffer * header = null;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -27,7 +27,7 @@ Buffer* ecu_sim_generate_header_bin(struct _ELM327emulation* elm327,ECUEmulation
     }
     return header;     
 }
-char * ecu_sim_generate_obd_header(struct _ELM327emulation* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
+char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
     char * space = print_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -50,7 +50,7 @@ char * ecu_sim_generate_obd_header(struct _ELM327emulation* elm327,byte source_a
     return protocolSpecificHeader;     
 }
 
-char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, char * obd_query_str, bool hasSpaces) {
+char * sim_ecu_saej1979_response(SimECU * ecu, SimELM327 * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = null;
     Buffer* obd_query_bin = buffer_new();
     Buffer* responseOBDdataBin = buffer_new();
@@ -132,7 +132,7 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
             char *header = "";
             if ( elm327->printing_of_headers ) {
                 char *inBuildHeader = "";
-                header = ecu_sim_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+                header = sim_ecu_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
             } else {
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {
@@ -181,9 +181,9 @@ char * ecu_saej1979_sim_response(ECUEmulation * ecu, ELM327emulation * elm327, c
     return response;
 }
 
-ECUEmulation* ecu_emulation_new(byte address) {
-    final ECUEmulation* emu = (ECUEmulation*)malloc(sizeof(ECUEmulation));
-    emu->saej1979_sim_response = (char *(*)(struct ECUEmulation *, struct _ELM327emulation *, char *, int))ecu_saej1979_sim_response;
+SimECU* sim_ecu_emulation_new(byte address) {
+    final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
+    emu->saej1979_sim_response = (char *(*)(struct SimECU *, struct _SimELM327 *, char *, int))sim_ecu_saej1979_response;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;
