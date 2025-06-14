@@ -9,6 +9,18 @@ class ECUEmulationGenerator(Structure):
         ("type", char_p)
     ]
 
+    def __new__(cls, gen_type="random"):
+        ptr = lib.sim_ecu_generator_new()
+        if not ptr:
+            raise MemoryError("Failed to create random generator")
+        obj = cast(ptr, POINTER(cls)).contents
+        obj.__class__ = cls
+        return obj
+
+    def __init__(self, gen_type="random"):
+        self.type = gen_type.encode()
+
+lib.sim_ecu_generator_new.restype = POINTER(ECUEmulationGenerator)
 lib.sim_ecu_generator_new_random.restype = POINTER(ECUEmulationGenerator)
 lib.sim_ecu_generator_new_cycle.restype = POINTER(ECUEmulationGenerator)
 

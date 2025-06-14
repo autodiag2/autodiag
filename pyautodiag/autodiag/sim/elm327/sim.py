@@ -23,7 +23,7 @@ class ECUEmulation(Structure):
         return obj
     
 lib.ecu_emulation_new.argtypes = [byte]
-lib.ecu_emulation_new.restype = POINTER(ECUEmulation)  # raw pointer
+lib.ecu_emulation_new.restype = POINTER(ECUEmulation)
 
 class ECUEmulation_list(Structure):
     _fields_ = [

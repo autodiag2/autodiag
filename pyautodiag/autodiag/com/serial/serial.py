@@ -41,7 +41,7 @@ class Serial(Structure):
             location = location.decode()
         if not isinstance(location, str):
             raise TypeError("location must be a string")
-        self.name = location.encode('utf-8')
+        self.name = location.encode()
 
     def init(self):
         lib.serial_init.argtypes = [POINTER(Serial)]
