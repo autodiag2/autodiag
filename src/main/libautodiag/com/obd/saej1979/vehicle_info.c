@@ -17,7 +17,7 @@ bool saej1979_vehicle_info_is_pid_supported(final OBDIFace* iface, final int pid
             free(ecu->name); \
         } \
         ecu->name = (char*)malloc(sizeof(char) * (n + 1)); \
-        ecu->name[0] = 0; \
+        ecu->name[n] = 0; \
         strncat(ecu->name, data->buffer, n); \
     }
 
