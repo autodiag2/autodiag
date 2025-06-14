@@ -2,17 +2,7 @@ from autodiag.libloader import *
 from autodiag.buffer import Buffer
 
 class SimECUGenerator(Structure):
-
-    def __new__(cls, gen_type="random"):
-        ptr = lib.sim_ecu_generator_new()
-        if not ptr:
-            raise MemoryError("Failed to create random generator")
-        obj = cast(ptr, POINTER(cls)).contents
-        obj.__class__ = cls
-        return obj
-
-    def __init__(self, gen_type="random"):
-        self.type = gen_type.encode()
+    pass
 
 SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
     None,
@@ -28,12 +18,9 @@ SimECUGenerator._fields_ = [
     ("sim_ecu_generator_response", SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE)
 ]
 
-lib.sim_ecu_generator_new.restype = POINTER(SimECUGenerator)
-lib.sim_ecu_generator_new_random.restype = POINTER(SimECUGenerator)
-lib.sim_ecu_generator_new_cycle.restype = POINTER(SimECUGenerator)
-
 class SimECUGeneratorRandom(SimECUGenerator):
     def __new__(cls):
+        lib.sim_ecu_generator_new_random.restype = POINTER(SimECUGenerator)
         ptr = lib.sim_ecu_generator_new_random()
         if not ptr:
             raise MemoryError("Failed to create random generator")
@@ -43,7 +30,18 @@ class SimECUGeneratorRandom(SimECUGenerator):
 
 class SimECUGeneratorCycle(SimECUGenerator):
     def __new__(cls):
+        lib.sim_ecu_generator_new_cycle.restype = POINTER(SimECUGenerator)
         ptr = lib.sim_ecu_generator_new_cycle()
+        if not ptr:
+            raise MemoryError("Failed to create cycle generator")
+        obj = cast(ptr, POINTER(cls)).contents
+        obj.__class__ = cls
+        return obj
+
+class SimECUGeneratorCitroenC5X7(SimECUGenerator):
+    def __new__(cls):
+        lib.sim_ecu_generator_new_citroen_c5_x7.restype = POINTER(SimECUGenerator)
+        ptr = lib.sim_ecu_generator_new_citroen_c5_x7()
         if not ptr:
             raise MemoryError("Failed to create cycle generator")
         obj = cast(ptr, POINTER(cls)).contents

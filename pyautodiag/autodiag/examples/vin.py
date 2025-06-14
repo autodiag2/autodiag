@@ -2,8 +2,10 @@ from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
 from autodiag.com.obd.obd import OBDIFace
 from autodiag.log import *
+from autodiag.sim.elm327.sim_generators import SimECUGeneratorCitroenC5X7
 
 emulation = SimELM327()
+emulation.set_ecu_and_generator(0xE8, SimECUGeneratorCitroenC5X7())
 emulation.loop(daemon=True)
 
 import time
