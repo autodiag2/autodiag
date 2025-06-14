@@ -2,10 +2,18 @@
 
 char * bytes_to_ascii(final byte *buffer, final int size) {
     assert(buffer != null);
-    char * res = (char*) malloc(sizeof(char) * (size+1));
-    memcpy(res, buffer, size);
-    res[size] = 0;
-    return res;
+    char * collector = null;
+    for(int byte_i = 0; byte_i < size; byte_i++) {
+        char *collector_tmp;
+        if ( 0x20 <= buffer[byte_i] && buffer[byte_i] <= 0x7E ) {
+            asprintf(&collector_tmp,"%s%c",collector==null?"":collector,buffer[byte_i]);
+        } else {
+            asprintf(&collector_tmp,"%s.",collector==null?"":collector);
+        }
+        free(collector);
+        collector = collector_tmp;
+    }
+    return collector;
 }
 char * bytes_to_ascii_hex(final byte *buffer, final int size) {
     assert(buffer != null);
