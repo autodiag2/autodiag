@@ -6,17 +6,6 @@ from autodiag.sim.elm327.sim_generators import *
 
 log_set_level(LOG_DEBUG)
 emulation = SimELM327()
-generator = SimECUGenerator()
-cycleGen = SimECUGeneratorCycle()
-assert emulation.ecus.contents.size == 1
-emulation.ecus.contents.remove_at(0)
-assert emulation.ecus.contents.size == 0
-emulation.ecus.contents.append(cycleGen)
-emulation.ecus.contents.append(generator)
-assert emulation.ecus.contents.size == 2
-emulation.ecus.contents.remove_at(0)
-emulation.ecus.contents.remove_at(0)
-assert emulation.ecus.contents.size == 0
 
 @SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
 def custom_obd_sim_response(generator_ptr, response_ptr, responseOBDdataBin, obd_query_bin):
@@ -28,7 +17,8 @@ class CustomECUGenerator(SimECUGenerator):
         self.context = None
         self.obd_sim_response = custom_obd_sim_response
         self.type = "custom".encode()
-emulation.ecus.contents.append(CustomECUGenerator())
+
+emulation.ecus.contents.list[0].set_generator(CustomECUGenerator())
 
 emulation.loop(daemon=True)
 
