@@ -189,6 +189,25 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
     }
     return response;
 }
+void sim_elm327_debug(final SimELM327 * elm327) {
+    printf("SimELM327: {\n");
+    printf("    ecus %p (list: %p, size: %d): {\n", elm327->ecus, elm327->ecus->list, elm327->ecus->size);
+    for(int i = 0; i < elm327->ecus->size; i++) {
+        SimECU * sim_ecu = elm327->ecus->list[i];
+        SimECUGenerator * generator = sim_ecu->generator;
+        printf("        ecu: {\n");
+        printf("            address: %02hhX\n", sim_ecu->address);
+        printf("            generator: %p {\n", sim_ecu->generator);
+        printf("                context: %p\n", generator->context);
+        printf("                type: %p %s\n", generator->type, generator->type);
+        printf("                context: %p\n", generator->sim_ecu_generator_response);
+        printf("            }\n");
+        printf("            saej1979_sim_response: %p\n", sim_ecu->saej1979_sim_response);
+        printf("        }\n");
+    }
+    printf("    }\n");
+    printf("}\n");
+}
 void sim_elm327_set_baud_rate_divisor_timeout(final SimELM327 * elm327, final int timeout) {
     elm327->baud_rate_timeout_msec = timeout * 5;
     if ( timeout == 0 ) {

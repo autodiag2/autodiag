@@ -132,6 +132,7 @@ SimELM327* sim_elm327_new();
 void sim_elm327_loop(SimELM327 * elm327);
 void sim_elm327_loop_as_daemon(SimELM327 * elm327);
 void sim_elm327_destroy(SimELM327 * elm327);
+void sim_elm327_debug(final SimELM327 * elm327);
 
 #include "nvm.h"
 

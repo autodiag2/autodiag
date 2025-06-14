@@ -19,6 +19,7 @@ class CustomECUGenerator(SimECUGenerator):
         self.type = "custom".encode()
 
 emulation.ecus.contents.list[0].set_generator(CustomECUGenerator())
+emulation.debug()
 
 emulation.loop(daemon=True)
 

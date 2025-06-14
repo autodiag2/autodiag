@@ -73,7 +73,11 @@ class SimELM327(Structure):
             lib.sim_elm327_loop_as_daemon(byref(self))
         else:
             lib.sim_elm327_loop(byref(self))
+        
+    def debug(self):
+        lib.sim_elm327_debug(byref(self))
 
 lib.sim_elm327_new.restype = POINTER(SimELM327)
 lib.sim_elm327_loop.argtypes = [POINTER(SimELM327)]
 lib.sim_elm327_loop_as_daemon.argtypes = [POINTER(SimELM327)]
+lib.sim_elm327_debug.argtypes = [POINTER(SimELM327)]
