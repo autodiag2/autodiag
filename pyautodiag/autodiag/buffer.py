@@ -95,7 +95,7 @@ lib.buffer_recycle.argtypes = [POINTER(Buffer)]
 class BufferList(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(Buffer))
+        ("list", POINTER(POINTER(Buffer)))
     ]
 
     def empty(self): lib.BufferList_empty(byref(self))
