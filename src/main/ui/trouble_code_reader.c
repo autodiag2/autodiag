@@ -210,13 +210,13 @@ void trouble_code_reader_confirm_confirm() {
     thread_allocate_and_start(&tcgui->clear.thread,&trouble_code_reader_clear_codes_daemon);
 }
 
-void trouble_code_reader_append_multi_brand_explanation(GtkTextBuffer *buffer, SAEJ1979_DTC_DESCRIPTION *desc, char *part) {
+void trouble_code_reader_append_multi_manufacturer_explanation(GtkTextBuffer *buffer, SAEJ1979_DTC_DESCRIPTION *desc, char *part) {
     if ( part == null ) {
 
     } else {
         char *textECU = strdup("(ecu: TODO)");
         char *text;
-        asprintf(&text, " %s %s %s\n\t%s\n", desc->vehicle->brand, desc->vehicle->engine == null ? "" : desc->vehicle->engine, textECU, part);
+        asprintf(&text, " %s %s %s\n\t%s\n", desc->vehicle->manufacturer, desc->vehicle->engine == null ? "" : desc->vehicle->engine, textECU, part);
         free(textECU);
         GtkTextIter iter;
         gtk_text_buffer_get_iter_at_offset(buffer,&iter,-1);
@@ -233,8 +233,8 @@ void trouble_code_reader_dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpoin
 
         for(int i = 0; i < dtc->description->size; i++) {
             SAEJ1979_DTC_DESCRIPTION desc = dtc->description->list[i];
-            trouble_code_reader_append_multi_brand_explanation(tcgui->dtc.causeSolutionText,&desc,desc.solution);
-            trouble_code_reader_append_multi_brand_explanation(tcgui->dtc.descriptionText,&desc,desc.reason);
+            trouble_code_reader_append_multi_manufacturer_explanation(tcgui->dtc.causeSolutionText,&desc,desc.solution);
+            trouble_code_reader_append_multi_manufacturer_explanation(tcgui->dtc.descriptionText,&desc,desc.reason);
         }
         final char * explanation = saej1979_dtc_categorization_string(dtc);
         gtk_text_buffer_set_text(tcgui->dtc.explanationText,explanation,strlen(explanation));

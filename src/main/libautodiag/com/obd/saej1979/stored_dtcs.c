@@ -110,10 +110,10 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                             if ( filter == null ) {
                                 match = true;
                             } else {
-                                if ( filter->brand == null ) {
+                                if ( filter->manufacturer == null ) {
                                     match = true;
-                                } else if ( strcmp(compare_against->brand, filter->brand) == 0 || strcmp(compare_against->brand, "Generic") == 0 ) {
-                                    bool isGeneric = strcmp(compare_against->brand, "Generic") == 0;
+                                } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
+                                    bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
                                     if ( isGeneric ) {
                                         match = true;
                                     } else {

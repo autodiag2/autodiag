@@ -8213,7 +8213,7 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="label" translatable="yes">brand</property>
+                        <property name="label" translatable="yes">manufacturer</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8222,7 +8222,7 @@ What can be done:
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText" id="window-options-vehicle-brand">
+                      <object class="GtkComboBoxText" id="window-options-vehicle-manufacturer">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                       </object>

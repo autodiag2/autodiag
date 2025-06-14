@@ -29,7 +29,7 @@ typedef struct {
         pthread_t * launchThread;
     } simulator;
     struct {
-        GtkComboBoxText *brand;
+        GtkComboBoxText *manufacturer;
         GtkComboBoxText *engine;
     } vehicleInfos;
 } OptionsGui;

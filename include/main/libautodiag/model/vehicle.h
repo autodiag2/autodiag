@@ -75,7 +75,7 @@ typedef struct {
     /**
      * eg Citroen
      */
-    char *brand;
+    char *manufacturer;
     /**
      * eg EP6DT
      */

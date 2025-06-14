@@ -57,11 +57,11 @@ void* options_save_internal(void *arg) {
     config_store();
     config_onchange();
     final OBDIFace * iface = config.ephemere.iface;
-    final char * brand = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.brand);
-    if ( iface->vehicle->brand != null ) {
-        free(iface->vehicle->brand);
+    final char * manufacturer = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.manufacturer);
+    if ( iface->vehicle->manufacturer != null ) {
+        free(iface->vehicle->manufacturer);
     }
-    iface->vehicle->brand = brand;
+    iface->vehicle->manufacturer = manufacturer;
     final char * engine = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.engine);
     if ( iface->vehicle->engine != null ) {
         free(iface->vehicle->engine);
@@ -92,27 +92,27 @@ void options_serial_list_refresh() {
 }
 void options_fill_vehicle_infos() {
     db_vehicle_load_in_memory();
-    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.brand);
+    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.manufacturer);
     gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.engine);
 
-    GHashTable *brands = g_hash_table_new(g_str_hash, g_str_equal);
+    GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
     GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
 
     OBDIFace *iface = config.ephemere.iface;
-    int brand_i = 0, engine_i = 0;
+    int manufacturer_i = 0, engine_i = 0;
 
     for (int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
         final Vehicle *vehicle = database.list[vehicle_i];
 
-        if (vehicle->brand != null && !g_hash_table_contains(brands, vehicle->brand)) {
-            g_hash_table_add(brands, vehicle->brand);
-            gtk_combo_box_text_append(optionsGui->vehicleInfos.brand, NULL, vehicle->brand);
-            if (iface != null && iface->vehicle->brand != null) {
-                if (strcmp(iface->vehicle->brand, vehicle->brand) == 0) {
-                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.brand, brand_i);
+        if (vehicle->manufacturer != null && !g_hash_table_contains(manufacturers, vehicle->manufacturer)) {
+            g_hash_table_add(manufacturers, vehicle->manufacturer);
+            gtk_combo_box_text_append(optionsGui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
+            if (iface != null && iface->vehicle->manufacturer != null) {
+                if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
+                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.manufacturer, manufacturer_i);
                 }
             }
-            brand_i++;
+            manufacturer_i++;
         }
 
         if (vehicle->engine != null && !g_hash_table_contains(engines, vehicle->engine)) {
@@ -127,7 +127,7 @@ void options_fill_vehicle_infos() {
         }
     }
 
-    g_hash_table_destroy(brands);
+    g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
 }
 gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
@@ -241,7 +241,7 @@ void module_init_options(GtkBuilder *builder) {
                 .launchThread = null
             },
             .vehicleInfos = {
-                .brand = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-brand")),
+                .manufacturer = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
                 .engine = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-engine"))
             }
         };

@@ -94,7 +94,7 @@ Vehicle * vehicle_new() {
     v->ecus = null;
     v->ecus_len = 0;
     v->obd_data_buffer = BufferList_new();
-    v->brand = null;
+    v->manufacturer = null;
     v->engine = null;
     v->vin = null;
     v->internal.directory = null;
@@ -112,9 +112,9 @@ void vehicle_free(Vehicle * v) {
             v->ecus = null;
         }
         v->ecus_len = 0;
-        if ( v->brand != null ) {
-            free(v->brand);
-            v->brand = null;
+        if ( v->manufacturer != null ) {
+            free(v->manufacturer);
+            v->manufacturer = null;
         }
         if ( v->engine != null ) {
             free(v->engine);

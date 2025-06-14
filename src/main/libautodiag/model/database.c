@@ -7,7 +7,7 @@ bool db_ecu_description_parser(char * funcData, char *key, char *value) {
     if ( strcasecmp(key,"model") == 0 ) {
         ecu->model = strdup(value);
         return true;
-    } else if ( strcasecmp(key,"brand") == 0 ) {
+    } else if ( strcasecmp(key,"manufacturer") == 0 ) {
         return true;
     }
     return false;
@@ -15,8 +15,8 @@ bool db_ecu_description_parser(char * funcData, char *key, char *value) {
 
 bool db_vehicle_description_parser(char * funcData, char *key, char *value) {
     Vehicle *vehicle = (Vehicle*)funcData;
-    if ( strcasecmp(key,"brand") == 0 ) {
-        vehicle->brand = strdup(value);
+    if ( strcasecmp(key,"manufacturer") == 0 ) {
+        vehicle->manufacturer = strdup(value);
         return true;
     } else if ( strcasecmp(key,"engine") == 0 ) {
         vehicle->engine = strdup(value);

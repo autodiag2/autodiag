@@ -5,7 +5,7 @@ bool testCarDatabaseLoad(OBDIFace* iface) {
     Vehicle * vehicle = db_vehicle_load_from_directory(vehicleDirectory);
     vehicle_dump(vehicle);
     assert(vehicle != null);
-    assert(strcmp(vehicle->brand,"Citroen") == 0);
+    assert(strcmp(vehicle->manufacturer,"Citroen") == 0);
     
     final SAEJ1979_DTC * dtc = saej1979_dtc_new();
     final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
