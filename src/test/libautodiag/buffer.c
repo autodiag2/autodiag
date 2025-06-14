@@ -23,7 +23,7 @@ bool testBuffer() {
         buffer->buffer[1] = 0x01;
         buffer->buffer[2] = 0x02;
         buffer->size = 3;
-        char* ascii = buffer_to_ascii_hex(buffer);
+        char* ascii = buffer_to_hex_string(buffer);
         testOutput(ascii);
         assert(strcmp(ascii,"000102")==0);
     }

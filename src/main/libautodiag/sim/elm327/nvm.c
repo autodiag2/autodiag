@@ -70,8 +70,8 @@ bool sim_elm327_non_volatile_memory_store(SimELM327 * elm327) {
         fprintf(file,"nvm.user_memory=%d" FILE_EOL, elm327->nvm.user_memory);
         fprintf(file,"nvm.protocol=%d" FILE_EOL, elm327->nvm.protocol);
         fprintf(file,"nvm.protocolIsAuto=%d" FILE_EOL, elm327->nvm.protocol_is_auto);
-        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, buffer_to_ascii_hex(elm327->nvm.programmable_parameters_pending));
-        fprintf(file,"nvm.programmable_parameters_states=%s" FILE_EOL, buffer_to_ascii_hex(elm327->nvm.programmable_parameters_states));
+        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, buffer_to_hex_string(elm327->nvm.programmable_parameters_pending));
+        fprintf(file,"nvm.programmable_parameters_states=%s" FILE_EOL, buffer_to_hex_string(elm327->nvm.programmable_parameters_states));
         fclose(file);
         return true;
     } else {

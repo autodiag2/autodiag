@@ -299,7 +299,7 @@ ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
     ISO3779_decoded * vinDecoded = ISO3779_vin_new();
     vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
     vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
-    vinDecoded->vds.data = bytes_to_ascii_hex(vin->buffer + 3, 6);
+    vinDecoded->vds.data = bytes_to_hex_string(vin->buffer + 3, 6);
     vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
     vinDecoded->vis.serial_number = ISO3779_vis_serial_number_from(vin);
     return vinDecoded;

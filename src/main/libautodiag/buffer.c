@@ -254,8 +254,8 @@ Buffer* buffer_from_ascii_hex(char * ascii_hex) {
 char * buffer_to_ascii(final Buffer *buffer) {
     return bytes_to_ascii(buffer->buffer, buffer->size);
 }
-char* buffer_to_ascii_hex(Buffer *buffer) {
-    return bytes_to_ascii_hex(buffer->buffer, buffer->size);
+char* buffer_to_hex_string(Buffer *buffer) {
+    return bytes_to_hex_string(buffer->buffer, buffer->size);
 }
 void BufferList_dump(final BufferList* list) {
     assert(list != null);

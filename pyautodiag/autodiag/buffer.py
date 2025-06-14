@@ -31,7 +31,7 @@ class Buffer(Structure):
     def equals(self, other): return lib.buffer_equals(byref(self), byref(other))
     def cmp(self, other): return lib.buffer_cmp(byref(self), byref(other))
     def padding(self, until, pad): lib.buffer_padding(byref(self), until, pad)
-    def to_ascii_hex(self): return lib.buffer_to_ascii_hex(byref(self)).decode()
+    def to_hex_string(self): return lib.buffer_to_hex_string(byref(self)).decode()
     def to_ascii(self): return lib.buffer_to_ascii(byref(self)).decode()
     def get_free_space(self): return lib.buffer_get_free_space(byref(self))
     def extract_first(self): return lib.buffer_extract_0(byref(self))
@@ -67,8 +67,8 @@ lib.buffer_from_ascii_hex.argtypes = [c_char_p]
 lib.buffer_from_ascii_hex.restype = POINTER(Buffer)
 lib.buffer_from_ascii.argtypes = [c_char_p]
 lib.buffer_from_ascii.restype = POINTER(Buffer)
-lib.buffer_to_ascii_hex.argtypes = [POINTER(Buffer)]
-lib.buffer_to_ascii_hex.restype = c_char_p
+lib.buffer_to_hex_string.argtypes = [POINTER(Buffer)]
+lib.buffer_to_hex_string.restype = c_char_p
 lib.buffer_to_ascii.argtypes = [POINTER(Buffer)]
 lib.buffer_to_ascii.restype = c_char_p
 lib.buffer_new_random.argtypes = [c_int]

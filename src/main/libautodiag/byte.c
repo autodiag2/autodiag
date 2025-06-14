@@ -15,7 +15,7 @@ char * bytes_to_ascii(final byte *buffer, final int size) {
     }
     return collector;
 }
-char * bytes_to_ascii_hex(final byte *buffer, final int size) {
+char * bytes_to_hex_string(final byte *buffer, final int size) {
     assert(buffer != null);
     char *hex = (char*)malloc(sizeof(char) * (size*2 + 1));
     hex[0] = 0;
