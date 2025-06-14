@@ -1,6 +1,6 @@
 #include "libprog/elm327_cli.h"
 
-PRINT_MODULAR(elm327_sim_cli_help,
+PRINT_MODULAR(sim_elm327_cli_help,
     "\n"
     "ELM327 simulator\n"
     "\n"
@@ -24,18 +24,18 @@ PRINT_MODULAR(elm327_sim_cli_help,
 )
 
 
-void elm327_sim_cli_display_protocols() {
+void sim_elm327_cli_display_protocols() {
     printf("Supported protocols:\n");
     for(int p = 0x1; p <= 0xC; p += 1) {
         printf("%1x : %s\n", p, elm327_protocol_to_string(p));
     }
 }
 
-void elm327_sim_cli_display_help() {
-    elm327_sim_cli_help("");
+void sim_elm327_cli_display_help() {
+    sim_elm327_cli_help("");
 }
 
-void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
+void sim_elm327_add_dtc(GtkButton *button, gpointer user_data) {
     ELM327SimGui* simGui = (ELM327SimGui*)user_data;
     char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
     if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
@@ -47,7 +47,7 @@ void elm327_sim_add_dtc(GtkButton *button, gpointer user_data) {
         gtk_widget_show(label);
     }
 }
-ELM327SimGui * elm327_sim_build_gui(SimECUGenerator *generator) {
+ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
 
     gtk_init(0, NULL);
 
@@ -82,7 +82,7 @@ ELM327SimGui * elm327_sim_build_gui(SimECUGenerator *generator) {
 
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
-    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(elm327_sim_add_dtc), simGui);
+    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(sim_elm327_add_dtc), simGui);
 
     counter_init_modifiable(simGui->data.vehicleSpeed,"counter_85_2_255_0_0_255.png", true);
     counter_init_modifiable(simGui->data.coolantTemperature,"gaugehalf_225_5_255_0_0_255.png", true);
@@ -104,10 +104,10 @@ typedef struct {
     bool * proto_is_auto;
 } ELM327SimData;
 
-void *elm327_sim_daemon(void *d) {
+void *sim_elm327_daemon(void *d) {
     ELM327SimData* da = d;
     ELM327SimData data = *da;
-    elm327_sim_loop_as_daemon(data.sim);
+    sim_elm327_loop_as_daemon(data.sim);
     usleep(50e3);
     if ( data.sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
@@ -122,13 +122,13 @@ void *elm327_sim_daemon(void *d) {
         pthread_join(data.sim->implementation->loop_thread, NULL);
     }
 }
-gboolean elm327_sim_present_window(gpointer w) {
+gboolean sim_elm327_present_window(gpointer w) {
     sleep(1);
     gtk_window_set_keep_above(GTK_WINDOW(w), false);
     return false;
 }
-int elm327_sim_cli_main(int argc, char **argv) {
-    SimELM327* sim = elm327_sim_new();
+int sim_elm327_cli_main(int argc, char **argv) {
+    SimELM327* sim = sim_elm327_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
     ELM327SimGui_list * guis = ELM327SimGui_list_new();
@@ -138,7 +138,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
     while ((opt = getopt(argc, argv, "he:l:p:g:c:")) != -1) {
         switch (opt) {
             case 'h': {
-                elm327_sim_cli_display_help();
+                sim_elm327_cli_display_help();
                 return 0;
             }
             case 'e': {
@@ -146,7 +146,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                 if ( sscanf(optarg,"%02hhx", &ecu_address) == 1 ) {
                     SimECU_list_append(sim->ecus,sim_ecu_emulation_new(ecu_address));                    
                 } else {
-                    elm327_sim_cli_display_help();
+                    sim_elm327_cli_display_help();
                     return 1;
                 }
             } break;
@@ -159,7 +159,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                     proto = (ELM327_PROTO *)intdup(p);
                     proto_is_auto = intdup(false);
                 } else {
-                    elm327_sim_cli_display_help();
+                    sim_elm327_cli_display_help();
                     return 1;
                 }
             } break;
@@ -174,7 +174,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
                     generator = sim_ecu_generator_new_cycle();
                 } else if ( strcasecmp(optarg,"gui") == 0 ) {
                     generator = sim_ecu_generator_new_gui();
-                    ELM327SimGui * context = elm327_sim_build_gui(generator);
+                    ELM327SimGui * context = sim_elm327_build_gui(generator);
                     generator->context = context;
                     ELM327SimGui_list_append(guis, context);
                 } else {
@@ -208,7 +208,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
             case '?': {
                 switch ( optopt ) {
                     case 'p':
-                        elm327_sim_cli_display_protocols();
+                        sim_elm327_cli_display_protocols();
                         break;
                     case 'l':
                         printf("log levels:\n");
@@ -239,7 +239,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
         ELM327SimGui *simGui = guis->list[i];
         gtk_widget_show(simGui->window);
         gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
-        g_idle_add(elm327_sim_present_window, (gpointer)simGui->window);
+        g_idle_add(sim_elm327_present_window, (gpointer)simGui->window);
         gtk_window_present(GTK_WINDOW(simGui->window));
     }
 
@@ -249,7 +249,7 @@ int elm327_sim_cli_main(int argc, char **argv) {
         .proto_is_auto = proto_is_auto
     };
     pthread_t simThread;
-    pthread_create(&simThread, null, &elm327_sim_daemon, &data);
+    pthread_create(&simThread, null, &sim_elm327_daemon, &data);
 
     if ( 0 < guis->size ) {
         gtk_main();

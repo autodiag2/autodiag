@@ -1,9 +1,9 @@
 #include "libTest.h"
 
 int main(int argc, char **argv) {
-    SimELM327* elm327 = elm327_sim_new();
+    SimELM327* elm327 = sim_elm327_new();
     SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0xE9));        
-    elm327_sim_loop_as_daemon(elm327);
+    sim_elm327_loop_as_daemon(elm327);
     usleep(200e3);
     final OBDIFace* port = port_open(strdup(elm327->device_location));
 
@@ -17,6 +17,6 @@ int main(int argc, char **argv) {
         }
     }
     printf("%s\n", res);
-    elm327_sim_destroy(elm327);
+    sim_elm327_destroy(elm327);
     return 0;
 }

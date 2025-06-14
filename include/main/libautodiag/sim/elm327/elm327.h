@@ -1,5 +1,5 @@
-#ifndef __ELM327_SIM_H
-#define __ELM327_SIM_H
+#ifndef __SIM_ELM327_H
+#define __SIM_ELM327_H
 
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
@@ -13,7 +13,7 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 #include "libautodiag/sim/elm327/sim.h"
 
-#define ELM327_SIM_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
+#define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
 typedef struct {
     pthread_t activity_monitor_thread;
@@ -126,12 +126,12 @@ typedef struct _SimELM327 {
 
 } SimELM327;
 
-#define ELM327_SIM_PPS_SZ 0x30
+#define SIM_ELM327_PPS_SZ 0x30
 
-SimELM327* elm327_sim_new();
-void elm327_sim_loop(SimELM327 * elm327);
-void elm327_sim_loop_as_daemon(SimELM327 * elm327);
-void elm327_sim_destroy(SimELM327 * elm327);
+SimELM327* sim_elm327_new();
+void sim_elm327_loop(SimELM327 * elm327);
+void sim_elm327_loop_as_daemon(SimELM327 * elm327);
+void sim_elm327_destroy(SimELM327 * elm327);
 
 #include "nvm.h"
 

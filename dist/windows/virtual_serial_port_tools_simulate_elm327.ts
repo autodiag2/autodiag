@@ -30,7 +30,7 @@ enum ELM327_PROTO {
 	ELM327_PROTO_SAEJ1939,ELM327_PROTO_USER1_CAN,
 	ELM327_PROTO_USER2_CAN
 }
-const ELM327_SIM_DEFAULT_PROTO = ELM327_PROTO.ELM327_PROTO_ISO_15765_4_CAN_1;
+const SIM_ELM327_DEFAULT_PROTO = ELM327_PROTO.ELM327_PROTO_ISO_15765_4_CAN_1;
 
 function elm327_protocol_to_string(proto) {
     switch(proto) {
@@ -69,7 +69,7 @@ class ELM327Sim implements Port.IScriptDevice {
 			eol: "\r\n", // PP
 			baud_rate: 38400,
 			protocol_is_auto_running: true, // TODO nvm
-			protocolRunning: ELM327_SIM_DEFAULT_PROTO, // TODO nvm
+			protocolRunning: SIM_ELM327_DEFAULT_PROTO, // TODO nvm
     		voltage: voltageFactory,
 			voltageFactory: voltageFactory,
 			receive_addresse: null,

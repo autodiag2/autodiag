@@ -61,7 +61,7 @@ class SimELM327(Structure):
     ]
 
     def __new__(cls):
-        obj_ptr = lib.elm327_sim_new()
+        obj_ptr = lib.sim_elm327_new()
         if not obj_ptr:
             raise MemoryError("Failed to create ELM327 Emulation")
         obj = cast(obj_ptr, POINTER(cls)).contents
@@ -70,10 +70,10 @@ class SimELM327(Structure):
     
     def loop(self, daemon=False):
         if daemon:
-            lib.elm327_sim_loop_as_daemon(byref(self))
+            lib.sim_elm327_loop_as_daemon(byref(self))
         else:
-            lib.elm327_sim_loop(byref(self))
+            lib.sim_elm327_loop(byref(self))
 
-lib.elm327_sim_new.restype = POINTER(SimELM327)
-lib.elm327_sim_loop.argtypes = [POINTER(SimELM327)]
-lib.elm327_sim_loop_as_daemon.argtypes = [POINTER(SimELM327)]
+lib.sim_elm327_new.restype = POINTER(SimELM327)
+lib.sim_elm327_loop.argtypes = [POINTER(SimELM327)]
+lib.sim_elm327_loop_as_daemon.argtypes = [POINTER(SimELM327)]

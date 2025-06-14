@@ -196,8 +196,8 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
 
 void options_launch_simulation_internal() {
     gtk_spinner_start(optionsGui->simulator.spinner);
-    SimELM327 * elm327 = elm327_sim_new();
-    elm327_sim_loop_as_daemon(elm327);
+    SimELM327 * elm327 = sim_elm327_new();
+    sim_elm327_loop_as_daemon(elm327);
     g_idle_add(options_launch_simulation_set_pending_text, elm327);
     usleep(500e3);
     g_idle_add(options_launch_simulation_update_gui, elm327);

@@ -64,7 +64,7 @@ int main (int argc, char *argv[]) {
         } else if argIs("sim") {
             argNext()
             if argIs("elm327") {
-                return elm327_sim_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
+                return sim_elm327_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
             }
            ABORT_WITH_HELP()
         } else if argIs("gui") {

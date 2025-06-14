@@ -3,10 +3,10 @@
 typedef struct {
     SimELM327 * elm327;
     int load_mask;
-} ELM327_SIM_NVM_LOAD_DATA;
+} SIM_ELM327_NVM_LOAD_DATA;
 
-bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *value) {
-    ELM327_SIM_NVM_LOAD_DATA * data = (ELM327_SIM_NVM_LOAD_DATA*)funcData;
+bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *value) {
+    SIM_ELM327_NVM_LOAD_DATA * data = (SIM_ELM327_NVM_LOAD_DATA*)funcData;
     SimELM327 * elm327 = (SimELM327*)data->elm327;
     if ( strcasecmp(key,"nvm.protocol") == 0 ) {
         elm327->nvm.protocol = atoi(value);
@@ -35,7 +35,7 @@ bool elm327_sim_non_volatile_memory_parse(char * funcData, char *key, char *valu
     }    
     return false;
 }
-char * elm327_sim_non_volatile_get_filename() {
+char * sim_elm327_non_volatile_get_filename() {
     #ifdef OS_WINDOWS
     #   include <windows.h>
         char tempPath[MAX_PATH];
@@ -51,18 +51,18 @@ char * elm327_sim_non_volatile_get_filename() {
     #   warning OS unsupported
     #endif
 }
-bool elm327_sim_non_volatile_wipe_out() {
-    unlink(elm327_sim_non_volatile_get_filename());
+bool sim_elm327_non_volatile_wipe_out() {
+    unlink(sim_elm327_non_volatile_get_filename());
     return true;
 }
-bool elm327_sim_non_volatile_memory_load(SimELM327 * elm327, int load_mask) {
-    ELM327_SIM_NVM_LOAD_DATA data = { elm327, load_mask };
-    return parse_ini_file(elm327_sim_non_volatile_get_filename(), elm327_sim_non_volatile_memory_parse, &data);
+bool sim_elm327_non_volatile_memory_load(SimELM327 * elm327, int load_mask) {
+    SIM_ELM327_NVM_LOAD_DATA data = { elm327, load_mask };
+    return parse_ini_file(sim_elm327_non_volatile_get_filename(), sim_elm327_non_volatile_memory_parse, &data);
 }
 
-bool elm327_sim_non_volatile_memory_store(SimELM327 * elm327) {
+bool sim_elm327_non_volatile_memory_store(SimELM327 * elm327) {
     if ( elm327->isMemoryEnabled ) {
-        final FILE * file = fopen(elm327_sim_non_volatile_get_filename(), "w");
+        final FILE * file = fopen(sim_elm327_non_volatile_get_filename(), "w");
         if ( file == null ) {
             perror("fopen");
             return false;

@@ -1,5 +1,5 @@
-#ifndef __SIM_ELM327_SIM_GENERATORS_H
-#define __SIM_ELM327_SIM_GENERATORS_H
+#ifndef __SIM_SIM_ELM327_GENERATORS_H
+#define __SIM_SIM_ELM327_GENERATORS_H
 
 #include "libautodiag/lib.h"
 

@@ -9,7 +9,7 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libprog/sim_obd_generators.h"
 
-void elm327_sim_cli_display_help();
-int elm327_sim_cli_main(int argc, char **argv);
+void sim_elm327_cli_display_help();
+int sim_elm327_cli_main(int argc, char **argv);
 
 #endif
