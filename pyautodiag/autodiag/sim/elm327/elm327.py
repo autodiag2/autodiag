@@ -1,7 +1,9 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.sim.elm327.sim import SimECU_list
+from autodiag.sim.elm327.sim_generators import SimECUGenerator
 from autodiag.lib import *
+from autodiag.sim.elm327.sim import SimECU
 
 class SimELM327Implementation(Structure):
     pass
@@ -74,17 +76,41 @@ class SimELM327(Structure):
             lib.sim_elm327_loop_as_daemon(byref(self))
         else:
             lib.sim_elm327_loop(byref(self))
-    
-    def set_ecu(self, address, generator):
+
+    def set_ecu_and_generator(self, address: int, generator: SimECUGenerator) -> SimECU:
+        """
+        Set the generator for the ECU at the specified address.
+
+        If an ECU with the given address does not exist, it is created and added to the ECUs list.
+        The provided generator is then assigned to the ECU.
+
+        Args:
+            address (int): The address of the ECU to configure.
+            generator (SimECUGenerator): The generator instance to assign to the ECU.
+
+        Returns:
+            SimECU: The ECU instance with the assigned generator.
+        """
         ecu = self.get_ecu(address)
         if ecu is None:
-            from autodiag.sim.elm327.sim import SimECU
             ecu = SimECU(address)
             self.ecus.contents.append(ecu)
         ecu.set_generator(generator)
         return ecu 
     
-    def get_ecu(self, address):
+    def get_ecu(self, address: int) -> SimECU:
+        """
+        Retrieve the ECU instance with the specified address.
+
+        Iterates through the list of ECUs and returns the one matching the given address.
+        Returns `None` if no matching ECU is found.
+
+        Args:
+            address (int): The address of the ECU to find.
+
+        Returns:
+            SimECU | None: The ECU instance if found, otherwise None.
+        """
         for i in range(self.ecus.contents.size):
             ecu = self.ecus.contents.list[i].contents
             if ecu.address == address:

@@ -19,8 +19,8 @@ class CustomECUGenerator(SimECUGenerator):
 
 assert emulation.get_ecu(0xE8) is not None
 assert emulation.get_ecu(0xE9) is None
-emulation.set_ecu(address=0xE8,generator=CustomECUGenerator())
-emulation.set_ecu(address=0xE9,generator=CustomECUGenerator())
+emulation.set_ecu_and_generator(address=0xE8,generator=CustomECUGenerator())
+emulation.set_ecu_and_generator(address=0xE9,generator=CustomECUGenerator())
 assert emulation.get_ecu(0xE8) is not None
 assert emulation.get_ecu(0xE9) is not None
 
