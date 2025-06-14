@@ -4,7 +4,7 @@
 SimECUGenerator * sim_ecu_generator_new() {
     SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
-    generator->obd_sim_response = null;
+    generator->sim_ecu_generator_response = null;
     generator->type = null;
     return generator;
 }
@@ -93,7 +93,7 @@ void sim_ecu_generator_cycle(SimECUGenerator *generator, char ** response, final
 
 SimECUGenerator* sim_ecu_generator_new_cycle() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_cycle);
+    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_cycle);
     generator->type = strdup("cycle");
     return generator;
 }
@@ -177,7 +177,7 @@ void sim_ecu_generator_random(SimECUGenerator *generator, char ** response, fina
 }
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->obd_sim_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_random);
+    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_random);
     generator->type = strdup("random");
     return generator;
 }

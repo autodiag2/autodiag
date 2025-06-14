@@ -24,7 +24,7 @@ SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
 
 SimECUGenerator._fields_ = [
     ("context", c_void_p),
-    ("obd_sim_response", SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE),
+    ("sim_ecu_generator_response", SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE),
     ("type", char_p)
 ]
 
