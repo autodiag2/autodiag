@@ -1,4 +1,4 @@
-#include "libautodiag/standards/iso3779.h"
+#include "libautodiag/model/iso3779.h"
 
 ISO3779_decoded * ISO3779_vin_new() {
     ISO3779_decoded * vinDecoded = (ISO3779_decoded*)malloc(sizeof(ISO3779_decoded));

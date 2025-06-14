@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "libautodiag/standards/iso3779.h"
+#include "libautodiag/model/iso3779.h"
 
 bool testISO3779() {
     {
