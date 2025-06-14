@@ -22,6 +22,7 @@ class ECU(Structure):
         ('obd_data_buffer', POINTER(BufferList)),
         ('address', POINTER(Buffer)),
         ('name', c_char_p),
+        ('model', c_char_p),
         ('obd_service', ECU_OBDService),
     ]
     def debug_from_python(self):
@@ -40,11 +41,20 @@ lib.vehicle_ecu_new.restype = POINTER(ECU)
 lib.vehicle_ecu_free.argtypes = [POINTER(ECU)]
 lib.vehicle_ecu_empty.argtypes = [POINTER(ECU)]
 
+class VehicleInternal(Structure):
+    _fields_ = [
+        ('directory', c_char_p)
+    ]
+
 class Vehicle(Structure):
     _fields_ = [
         ('ecus', POINTER(POINTER(ECU))),
         ('ecus_len', c_int),
         ('obd_data_buffer', POINTER(BufferList)),
+        ('vin', POINTER(Buffer)),
+        ('brand', c_char_p),
+        ('engine', c_char_p),
+        ('internal', VehicleInternal)
     ]
     
     def __new__(cls):

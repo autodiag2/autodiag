@@ -15,5 +15,6 @@
 
 bool saej1979_vehicle_info_is_pid_supported(final OBDIFace* iface, final int pid);
 void* saej1979_vehicle_info_discover_ecus_name(final OBDIFace* iface);
+void* saej1979_vehicle_info_discover_vin(final OBDIFace* iface);
 
 #endif

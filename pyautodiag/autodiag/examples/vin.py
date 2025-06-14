@@ -1,0 +1,15 @@
+from autodiag.sim.elm327.elm327 import SimELM327
+from autodiag.com.serial import Serial
+from autodiag.com.obd.obd import OBDIFace
+from autodiag.log import *
+
+emulation = SimELM327()
+emulation.loop(daemon=True)
+
+import time
+time.sleep(2)
+
+serial = Serial()
+serial.set_location(emulation.device_location)
+iface = OBDIFace.open_from_device(serial)
+print(f"vin={iface.vehicle.contents.vin.contents.to_ascii_hex()}")

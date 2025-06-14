@@ -137,6 +137,7 @@ void obd_discover_vehicle(OBDIFace* iface) {
         }
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
+    saej1979_vehicle_info_discover_vin(iface);
 }
 
 OBDIFace* obd_open_from_device(final Device* device) {

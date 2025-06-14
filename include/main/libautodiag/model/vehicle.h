@@ -71,6 +71,7 @@ typedef struct {
      * When we do not use headers or when we use headers but want to use in a more concise way.
      */
     BufferList * obd_data_buffer;
+    Buffer * vin;
     /**
      * eg Citroen
      */
