@@ -54,110 +54,37 @@ char * ISO3779_decode_region_from(final Buffer *vin_raw) {
     return strdup("Unknown");
 }
 
-typedef struct {
-    char start[3];
-    char end[3];
-    char country[100];
-} ISO3779_WmiCountry;
-
-ISO3779_WmiCountry ISO3779_wmi_countries[] = {
-    {"AA", "AH", "South Africa"},
-    {"AJ", "AN", "Ivory Coast"},
-    {"AP", "A0", "Unassigned"},
-    {"BA", "BE", "Angola"},
-    {"BF", "BK", "Kenya"},
-    {"BL", "BR", "Tanzania"},
-    {"BS", "B0", "Unassigned"},
-    {"CA", "CE", "Benin"},
-    {"CF", "CK", "Madagascar"},
-    {"CL", "CR", "Tunisia"},
-    {"CS", "C0", "Unassigned"},
-    {"DA", "DE", "Egypt"},
-    {"DF", "DK", "Morocco"},
-    {"DL", "DR", "Zambia"},
-    {"DS", "D0", "Unassigned"},
-    {"EA", "EE", "Ethiopia"},
-    {"EF", "EK", "Mozambique"},
-    {"EL", "E0", "Unassigned"},
-    {"FA", "FE", "Ghana"},
-    {"FF", "FK", "Nigeria"},
-    {"FL", "F0", "Unassigned"},
-    {"GA", "G0", "Unassigned"},
-    {"HA", "H0", "Unassigned"},
-    {"JA", "J0", "Japan"},
-    {"KA", "KE", "Sri Lanka"},
-    {"KF", "KK", "Israel"},
-    {"KL", "KR", "South Korea"},
-    {"KS", "K0", "Unassigned"},
-    {"LA", "L0", "China"},
-    {"MA", "ME", "India"},
-    {"MF", "MK", "Indonesia"},
-    {"ML", "MR", "Thailand"},
-    {"MS", "M0", "Unassigned"},
-    {"NF", "NK", "Pakistan"},
-    {"NL", "NR", "Turkey"},
-    {"NS", "N0", "Unassigned"},
-    {"PA", "PE", "Philippines"},
-    {"PF", "PK", "Singapore"},
-    {"PL", "PR", "Malaysia"},
-    {"PS", "P0", "Unassigned"},
-    {"RA", "RE", "United Arab Emirates"},
-    {"RF", "RK", "Taiwan"},
-    {"RL", "RR", "Vietnam"},
-    {"RS", "R0", "Unassigned"},
-    {"SA", "SM", "Great Britain"},
-    {"SN", "ST", "Germany"},
-    {"SU", "SZ", "Poland"},
-    {"S1", "S0", "Unassigned"},
-    {"TA", "TH", "Switzerland"},
-    {"TJ", "TP", "Czech Republic"},
-    {"TR", "TV", "Hungary"},
-    {"TW", "T1", "Portugal"},
-    {"T2", "T0", "Unassigned"},
-    {"UA", "UG", "Unassigned"},
-    {"UH", "UM", "Denmark"},
-    {"UN", "UT", "Ireland"},
-    {"UU", "UZ", "Romania"},
-    {"U1", "U4", "Unassigned"},
-    {"U5", "U7", "Slovakia"},
-    {"U8", "U0", "Unassigned"},
-    {"VA", "VE", "Austria"},
-    {"VF", "VR", "France"},
-    {"VS", "VW", "Spain"},
-    {"VX", "V2", "Yugoslavia"},
-    {"V3", "V5", "Croatia"},
-    {"V6", "V0", "Estonia"},
-    {"WA", "W0", "Germany"},
-    {"XA", "XE", "Bulgaria"},
-    {"XF", "XK", "Greece"},
-    {"XL", "XR", "Netherlands"},
-    {"XS", "XW", "Russia"},
-    {"XX", "X2", "Luxembourg"},
-    {"X3", "X0", "Russia"},
-    {"YA", "YE", "Belgium"},
-    {"YF", "YK", "Finland"},
-    {"YL", "YR", "Malta"},
-    {"YS", "YW", "Sweden"},
-    {"YX", "Y2", "Norway"},
-    {"Y3", "Y5", "Belarus"},
-    {"Y6", "Y0", "Ukraine"},
-    {"ZA", "ZR", "Italy"},
-    {"ZS", "ZW", "Unassigned"},
-    {"ZX", "Z2", "Slovenia"},
-    {"Z3", "Z5", "Lithuania"},
-    {"Z6", "Z0", "Unassigned"},
-    {"", "", ""} // Marqueur de fin
-};
-
-char * ISO3779_decode_country_from(final Buffer *vin_raw) {
-    final char * vin = buffer_to_ascii(vin_raw);
-    for (int i = 0; ISO3779_wmi_countries[i].start[0] != '\0'; i++) {
-        if (buffer_alphabet_compare(vin, ISO3779_wmi_countries[i].start, ISO3779_wmi_countries[i].end)) {
-            return strdup(ISO3779_wmi_countries[i].country);
-        }
+bool ISO3779_decode_country_from_read_tsv_line(Buffer * line, void*data) {
+    void** ptrs = (void**)data; 
+    char *vin_prefix = (char *)ptrs[0];
+    char **result = (char**)ptrs[1];
+    char *start = strtok(line->buffer, "\t");
+    char *end = strtok(NULL, "\t");
+    char *country = strtok(NULL, "\t");
+    if (!start || !end || !country) return true;
+    if (buffer_alphabet_compare(vin_prefix, start, end)) {
+        *result = strdup(country);
+        return false;
     }
-    return strdup("Unassigned");
+    return true;
 }
+char * ISO3779_decode_country_from(final Buffer *vin_raw) {
+    final char *vin = buffer_to_ascii(vin_raw);
+    char *result = NULL;
+
+    char *countries_file = installation_folder("data/vehicle/countries.tsv");
+    if (countries_file == NULL) {
+        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
+        return null;
+    }
+
+    char vin_prefix[3] = { vin[0], vin[1], '\0' };
+    void* parameters[2] = {vin_prefix, &result};
+    file_read_lines(countries_file, ISO3779_decode_country_from_read_tsv_line, parameters);
+
+    return result ? result : strdup("Unassigned");
+}
+
 bool ISO3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
     return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }
@@ -169,27 +96,23 @@ bool ISO3779_wmi_manufacturers_read_tsv_line(Buffer * line, void*data) {
     char *searched_manufacturer_code = (char *)ptrs[2];
 
     if ( 0 < line->size ) {
-        if ( line->buffer[0] == '#' ) {
-
-        } else {
-            char * firstTab = strchr(line->buffer,'\t');
-            char * secondTab = null;
-            if ( firstTab != null ) {
-                *firstTab = 0;
-                secondTab = strchr(firstTab+1,'\t');
-                if ( secondTab != null ) {
-                    *secondTab = 0;
-                }
+        char * firstTab = strchr(line->buffer,'\t');
+        char * secondTab = null;
+        if ( firstTab != null ) {
+            *firstTab = 0;
+            secondTab = strchr(firstTab+1,'\t');
+            if ( secondTab != null ) {
+                *secondTab = 0;
             }
-            if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
-                if ( firstTab != null ) {
-                    if ( searched_manufacturer_code == null ) {
-                        *manufacturer = strdup(firstTab + 1);
-                    } else {
-                        if ( secondTab != null ) {
-                            if ( strncasecmp(searched_manufacturer_code,secondTab+1, strlen(secondTab+1)) == 0 ) {
-                                *manufacturer = strdup(firstTab + 1);
-                            }
+        }
+        if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
+            if ( firstTab != null ) {
+                if ( searched_manufacturer_code == null ) {
+                    *manufacturer = strdup(firstTab + 1);
+                } else {
+                    if ( secondTab != null ) {
+                        if ( strncasecmp(searched_manufacturer_code,secondTab+1, strlen(secondTab+1)) == 0 ) {
+                            *manufacturer = strdup(firstTab + 1);
                         }
                     }
                 }

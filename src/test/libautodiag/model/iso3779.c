@@ -6,7 +6,7 @@ bool testISO3779() {
         final Buffer * vin = buffer_from_ascii("VF1BB05CF26010203");
         {
             char *country = ISO3779_decode_country_from(vin);
-            assert(strcmp(country, "France") == 0);
+            assert(strcmp(country, "france") == 0);
         }
         {
             char *country = ISO3779_decode_region_from(vin);
