@@ -8414,6 +8414,7 @@ What can be done:
                       <object class="GtkLabel" id="window-root-vehicle-manufacturer">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="selectable">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8448,6 +8449,7 @@ What can be done:
                       <object class="GtkLabel" id="window-root-vehicle-country">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="selectable">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8482,6 +8484,7 @@ What can be done:
                       <object class="GtkLabel" id="window-root-vehicle-year">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="selectable">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8516,6 +8519,7 @@ What can be done:
                       <object class="GtkLabel" id="window-root-vehicle-vin">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="selectable">True</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8619,6 +8623,7 @@ What can be done:
                           <object class="GtkLabel" id="window-root-adaptater-state-more-interface">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="selectable">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -8654,6 +8659,7 @@ What can be done:
                           <object class="GtkLabel" id="window-root-adaptater-state-more-protocol">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="selectable">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
