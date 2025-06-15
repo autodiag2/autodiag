@@ -111,14 +111,14 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                                 if ( filter == null ) {
                                     match = true;
                                 } else {
-                                    if ( filter->manufacturer == null ) {
+                                    if ( filter->manufacturer == null || strlen(filter->manufacturer) == 0 ) {
                                         match = true;
                                     } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
                                         bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
                                         if ( isGeneric ) {
                                             match = true;
                                         } else {
-                                            if ( filter->engine == null) {
+                                            if ( filter->engine == null || strlen(filter->engine) == 0 ) {
                                                 match = true;
                                             } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
                                                 match = true;

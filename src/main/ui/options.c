@@ -91,15 +91,18 @@ void options_serial_list_refresh() {
     }
 }
 void options_fill_vehicle_infos() {
-    db_vehicle_load_in_memory();
     gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.manufacturer);
     gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.engine);
+
+    gtk_combo_box_text_append(optionsGui->vehicleInfos.manufacturer, NULL, "");
+    gtk_combo_box_text_append(optionsGui->vehicleInfos.engine, NULL, "");
 
     GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
     GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
 
     OBDIFace *iface = config.ephemere.iface;
-    int manufacturer_i = 0, engine_i = 0;
+    int manufacturer_i = 1, engine_i = 1;
+    int manufacturer_active_i = -1, engine_active_i = -1;
 
     for (int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
         final Vehicle *vehicle = database.list[vehicle_i];
@@ -109,7 +112,7 @@ void options_fill_vehicle_infos() {
             gtk_combo_box_text_append(optionsGui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
             if (iface != null && iface->vehicle->manufacturer != null) {
                 if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
-                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.manufacturer, manufacturer_i);
+                    manufacturer_active_i = manufacturer_i;
                 }
             }
             manufacturer_i++;
@@ -120,13 +123,18 @@ void options_fill_vehicle_infos() {
             gtk_combo_box_text_append(optionsGui->vehicleInfos.engine, NULL, vehicle->engine);
             if (iface != null && iface->vehicle->engine != null) {
                 if (strcmp(iface->vehicle->engine, vehicle->engine) == 0) {
-                    gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine, engine_i);
+                    engine_active_i = engine_i;
                 }
             }
             engine_i++;
         }
     }
-
+    if ( manufacturer_active_i != -1 ) {
+        gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.manufacturer, manufacturer_active_i);
+    }
+    if ( engine_active_i != -1 ) {
+        gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine, engine_active_i);
+    }
     g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
 }
@@ -246,6 +254,8 @@ void module_init_options(GtkBuilder *builder) {
             }
         };
         *optionsGui = g;
+
+        db_vehicle_load_in_memory();
 
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
