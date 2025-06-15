@@ -7,6 +7,7 @@ byte = c_ubyte
 char_p = c_char_p
 bool = c_int
 c_int_p = POINTER(c_int)
+c_byte_p = c_char_p
 
 def load_lib():
     def get_lib_path():
