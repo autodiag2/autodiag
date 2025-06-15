@@ -192,7 +192,8 @@ void config_onchange() {
         port->baud_rate = config.com.serial.baud_rate;
         config.ephemere.iface = obd_open_from_device(port);
         if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
-            config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);;
+            config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
+            obd_fill_infos_from_vin(config.ephemere.iface);
         }
     }
 }
