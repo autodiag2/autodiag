@@ -22,7 +22,9 @@ class ISO3779(Structure):
         obj.__class__ = cls
         return obj
     
-    def decode(self, vin: Buffer, year=None):
+    def decode(self, vin, year=None):
+        if isinstance(vin, str):
+            vin = Buffer.from_ascii(vin)
         if year is None:
             lib.ISO3779_decode.argtypes = [POINTER(ISO3779), POINTER(Buffer)]
             lib.ISO3779_decode(byref(self), pointer(vin))
