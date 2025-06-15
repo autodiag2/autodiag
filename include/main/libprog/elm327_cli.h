@@ -8,6 +8,7 @@
 #include "libautodiag/sim/elm327/sim.h"
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libprog/sim_obd_generators.h"
+#include "libautodiag/sim/elm327/sim_generator_citroen_c5_x7.h"
 
 void sim_elm327_cli_display_help();
 int sim_elm327_cli_main(int argc, char **argv);

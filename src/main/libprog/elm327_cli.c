@@ -172,6 +172,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
                     generator = sim_ecu_generator_new_random();
                 } else if ( strcasecmp(optarg, "cycle") == 0 ) {
                     generator = sim_ecu_generator_new_cycle();
+                } else if ( strcasecmp(optarg,"citroen_c5_x7") == 0 ) {
+                    generator = sim_ecu_generator_new_citroen_c5_x7();
                 } else if ( strcasecmp(optarg,"gui") == 0 ) {
                     generator = sim_ecu_generator_new_gui();
                     ELM327SimGui * context = sim_elm327_build_gui(generator);
@@ -225,6 +227,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                         printf("Available generators:\n");
                         printf("random\n");
                         printf("cycle\n");
+                        printf("citroen_c5_x7\n");
                         printf("gui\n");
                         break;
                     case 'c': {
