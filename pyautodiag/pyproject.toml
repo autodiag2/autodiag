@@ -9,6 +9,9 @@ readme = "README.md"
 python = "^3.11"
 toml = "^0.10.2"
 
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
