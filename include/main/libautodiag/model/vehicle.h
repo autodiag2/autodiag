@@ -59,6 +59,7 @@ void vehicle_ecu_free(ECU* ecu);
  * Do not destruct the address and so on, only empty.
  */
 void vehicle_ecu_empty(ECU* ecu);
+#define VEHICLE_YEAR_EMPTY -1
 
 typedef struct {
     /**
@@ -77,6 +78,10 @@ typedef struct {
      * eg Citroen
      */
     char *manufacturer;
+    /**
+     * Make year of the car
+     */
+    int year;
     /**
      * eg EP6DT
      */

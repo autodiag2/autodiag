@@ -141,6 +141,7 @@ void obd_discover_vehicle(OBDIFace* iface) {
     final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
     iface->vehicle->country = strdup(decoded->wmi.country);
     iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
+    iface->vehicle->year = decoded->vis.year;
     ISO3779_vin_free(decoded);
 }
 

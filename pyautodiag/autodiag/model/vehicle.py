@@ -54,6 +54,7 @@ class Vehicle(Structure):
         ('vin', POINTER(Buffer)),
         ('country', c_char_p),
         ('manufacturer', c_char_p),
+        ('year', c_int),
         ('engine', c_char_p),
         ('internal', VehicleInternal)
     ]
