@@ -41,6 +41,9 @@ typedef struct {
         double refreshRateS;
         bool autoRefresh;
     } vehicleExplorer;
+    struct {
+        char *vin;
+    } vehicleInfos;
 } Config;
 
 #define CONFIG_DEFAULT_FILENAME "config.ini"

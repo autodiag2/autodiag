@@ -23,6 +23,9 @@
     }, \
     .log = { \
         .level = LOG_DEFAULT_LEVEL \
+    }, \
+    .vehicleInfos = { \
+        .vin = null \
     } \
 };
 const Config DEFAULT_CONFIG = _DEFAULT_CONFIG; 
@@ -125,6 +128,9 @@ bool config_store() {
             fprintf(file,"commandLine.showTimestamp=%d" FILE_EOL, config.commandLine.showTimestamp);
             fprintf(file,"vehicleExplorer.refreshRateS=%f" FILE_EOL, config.vehicleExplorer.refreshRateS);
             fprintf(file,"vehicleExplorer.autoRefresh=%d" FILE_EOL, config.vehicleExplorer.autoRefresh);
+            if ( config.vehicleInfos.vin != null && strcmp("",config.vehicleInfos.vin)!=0) {
+                fprintf(file,"vehicleInfos.vin=%s" FILE_EOL, config.vehicleInfos.vin);
+            }
             fprintf(file,"log.level=%d" FILE_EOL, config.log.level);
             fclose(file);
             res = true;
@@ -156,8 +162,11 @@ bool config_load_parser(char * funcData, char *key, char *value) {
     } else if ( strcasecmp(key,"vehicleExplorer.autoRefresh") == 0 ) {
         config.vehicleExplorer.autoRefresh = strtod(value,null);        
         return true;
-    } else if ( strcasecmp(key,"log.level") == 0 ) {
+    } else if ( strcasecmp(key, "log.level") == 0 ) {
         config.log.level = strtod(value,null);        
+        return true;
+    } else if ( strcasecmp(key, "vehicleInfos.vin") == 0 ) {
+        config.vehicleInfos.vin = strdup(value);
         return true;
     }
     return false;
@@ -182,6 +191,9 @@ void config_onchange() {
     } else {
         port->baud_rate = config.com.serial.baud_rate;
         config.ephemere.iface = obd_open_from_device(port);
+        if ( 17 <= strlen(config.vehicleInfos.vin) ) {
+            config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);;
+        }
     }
 }
 

@@ -31,6 +31,7 @@ typedef struct {
     struct {
         GtkComboBoxText *manufacturer;
         GtkComboBoxText *engine;
+        GtkEntry *vin;
     } vehicleInfos;
 } OptionsGui;
 

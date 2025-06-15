@@ -54,15 +54,10 @@ void* options_save_internal(void *arg) {
     config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(optionsGui->commandLineGui.outputAutoScroll);
     config_commandLine_showTimestamp_set(gtk_toggle_button_get_active(optionsGui->commandLineGui.showTimestamp));
     config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(optionsGui->vehicleExplorerGui.refreshRateS), null);
+    config.vehicleInfos.vin = strdup(gtk_entry_get_text(optionsGui->vehicleInfos.vin));
     config_store();
     config_onchange();
     final OBDIFace * iface = config.ephemere.iface;
-    final Buffer * vin = buffer_from_ascii("VF1BB05CF26010203");
-    if ( 17 <= vin->size ) {
-        iface->vehicle->vin = vin;
-    } else {
-        buffer_free(vin);
-    }
     obd_fill_infos_from_vin(iface);
     final char * manufacturer = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.manufacturer);
     if ( manufacturer != null ) {
@@ -149,6 +144,8 @@ void options_fill_vehicle_infos() {
     }
     g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
+
+    gtk_entry_set_text(optionsGui->vehicleInfos.vin, config.vehicleInfos.vin);
 }
 gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
@@ -262,7 +259,8 @@ void module_init_options(GtkBuilder *builder) {
             },
             .vehicleInfos = {
                 .manufacturer = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
-                .engine = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-engine"))
+                .engine = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-engine")),
+                .vin = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-vehicle-vin"))
             }
         };
         *optionsGui = g;
