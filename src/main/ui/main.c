@@ -92,6 +92,10 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             adaptater_interface_set_text((char*)response);
             adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
             free(response);
+            gtk_label_printf(mainGui->vehicle.manufacturer, "%s", iface->vehicle->manufacturer);
+            gtk_label_printf(mainGui->vehicle.country, "%s", iface->vehicle->country);
+            gtk_label_printf(mainGui->vehicle.year, "%d", iface->vehicle->year);
+            gtk_label_printf(mainGui->vehicle.vin, "%s", buffer_to_ascii(iface->vehicle->vin));
         }
     }
     gtk_widget_set_visible(GTK_WIDGET(mainGui->adaptater.state.more.container), config.main.adaptater_detailled_settings_showned);
@@ -145,6 +149,12 @@ void module_init_main() {
                         .container = (GtkBox*)gtk_builder_get_object(builder,"window-root-adaptater-state-more")
                     }
                 }
+            },
+            .vehicle = {
+                .manufacturer = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-manufacturer")),
+                .country = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-country")),
+                .year = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-year")),
+                .vin = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-vin"))
             }
         };
                             

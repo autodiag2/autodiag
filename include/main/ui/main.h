@@ -32,6 +32,12 @@ typedef struct {
             } more;
         } state;
     } adaptater;
+    struct {
+        GtkLabel *manufacturer;
+        GtkLabel *country;
+        GtkLabel *year;
+        GtkLabel *vin;
+    } vehicle;
 } MainGui;
 
 extern MainGui *mainGui;
