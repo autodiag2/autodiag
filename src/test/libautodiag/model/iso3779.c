@@ -38,5 +38,11 @@ bool testISO3779() {
         printf("manufaturer=%s\n", manufaturer);
         assert(strncasecmp("morgan",manufaturer,6) == 0);
     }
+    {
+        final Buffer * vin = buffer_from_ascii("SA9BB05CF26202010");
+        char *manufaturer = ISO3779_decode_manufacturer_from(vin);
+        printf("manufaturer=%s\n", manufaturer);
+        assert(strncasecmp("morgan",manufaturer,6) == 0);
+    }
     return true;
 }
