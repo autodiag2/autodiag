@@ -86,8 +86,10 @@ void db_vehicle_load_in_memory_fs_recurse(final char*path) {
                         case DT_BLK:
                         case DT_FIFO:
                         case DT_CHR: {
-                            isPathCarDirectory = true;
-                            db_vehicle_load_from_directory(path);
+                            if ( strcmp(namelist[namelist_n]->d_name, "desc.ini") == 0 ) {
+                                isPathCarDirectory = true;
+                                db_vehicle_load_from_directory(path);
+                            }
                             break;
                         }
                         default: {

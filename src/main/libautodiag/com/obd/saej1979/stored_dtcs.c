@@ -104,34 +104,36 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                         case DT_BLK:
                         case DT_FIFO:
                         case DT_CHR: {
-                            isPathCarDirectory = true;
-                            final Vehicle* compare_against = db_vehicle_load_from_directory(path);
-                            bool match = false;
-                            if ( filter == null ) {
-                                match = true;
-                            } else {
-                                if ( filter->manufacturer == null ) {
+                            if ( strcmp(namelist[namelist_n]->d_name, "desc.ini") == 0 ) {
+                                isPathCarDirectory = true;
+                                final Vehicle* compare_against = db_vehicle_load_from_directory(path);
+                                bool match = false;
+                                if ( filter == null ) {
                                     match = true;
-                                } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
-                                    bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
-                                    if ( isGeneric ) {
+                                } else {
+                                    if ( filter->manufacturer == null ) {
                                         match = true;
-                                    } else {
-                                        if ( filter->engine == null) {
+                                    } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
+                                        bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
+                                        if ( isGeneric ) {
                                             match = true;
-                                        } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
-                                            match = true;
+                                        } else {
+                                            if ( filter->engine == null) {
+                                                match = true;
+                                            } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
+                                                match = true;
+                                            }
                                         }
-                                    }
-                                } 
-                            }
-                            if ( match ) {
-                                final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
-                                dtc_desc->vehicle = compare_against;
-                                saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
-                                SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
-                            } else {
-                                vehicle_free(compare_against);
+                                    } 
+                                }
+                                if ( match ) {
+                                    final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
+                                    dtc_desc->vehicle = compare_against;
+                                    saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
+                                    SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
+                                } else {
+                                    vehicle_free(compare_against);
+                                }
                             }
                             break;
                         }
