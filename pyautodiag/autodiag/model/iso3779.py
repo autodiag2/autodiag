@@ -13,27 +13,22 @@ class ISO3779(Structure):
         ("vin", POINTER(Buffer))
     ]
 
-    def __new__(cls, vin: Buffer):
-        lib.ISO3779_new.argtypes = [POINTER(Buffer)]
+    def __new__(cls):
         lib.ISO3779_new.restype = POINTER(ISO3779)
-        ptr = lib.ISO3779_new(pointer(vin))
+        ptr = lib.ISO3779_new()
         if not ptr:
             raise MemoryError("Failed to create ISO3779 instance")
         obj = ptr.contents
         obj.__class__ = cls
         return obj
     
-    def set(self, vin: Buffer):
-        lib.ISO3779_set.argtypes = [POINTER(ISO3779), POINTER(Buffer)]
-        lib.ISO3779_set(byref(self), byref(vin))
-    
-    def decode(self, year=None):
+    def decode(self, vin: Buffer, year=None):
         if year is None:
-            lib.ISO3779_decode.argtypes = [POINTER(ISO3779)]
-            lib.ISO3779_decode(byref(self))
+            lib.ISO3779_decode.argtypes = [POINTER(ISO3779), POINTER(Buffer)]
+            lib.ISO3779_decode(byref(self), pointer(vin))
         else:
-            lib.ISO3779_decode_at_year.argtypes = [POINTER(ISO3779), c_int]
-            lib.ISO3779_decode_at_year(byref(self), year)
+            lib.ISO3779_decode_at_year.argtypes = [POINTER(ISO3779), POINTER(Buffer), c_int]
+            lib.ISO3779_decode_at_year(byref(self), pointer(vin), year)
     
     def manufacturer_is_less_500(self):
         lib.ISO3779_manufacturer_is_less_500.argtypes = [POINTER(ISO3779)]

@@ -23,9 +23,15 @@ char * ISO3779_region(final ISO3779 *decoder) {
     return strdup("Unknown");
 }
 
-ISO3779 * ISO3779_new(final Buffer * vin) {
+ISO3779 * ISO3779_new() {
     final ISO3779 * decoder = (ISO3779*)malloc(sizeof(ISO3779));
-    ISO3779_set(decoder, vin);
+    decoder->vin = null;
+    decoder->country = null;
+    decoder->manufacturer = null;
+    decoder->year = -1;
+    decoder->wmi = null;
+    decoder->vds = null;
+    decoder->vis = null;
     return decoder;
 }
 void ISO3779_dump(final ISO3779 *decoder) {
@@ -38,16 +44,6 @@ void ISO3779_dump(final ISO3779 *decoder) {
     printf("    vis: %s\n", decoder->vis);
     printf("    vin: %s\n", buffer_to_ascii(decoder->vin));
     printf("}\n");
-}
-void ISO3779_set(ISO3779 *decoder, final Buffer * vin) {
-    assert(17 <= vin->size);
-    decoder->vin = buffer_copy(vin);
-    decoder->country = null;
-    decoder->manufacturer = null;
-    decoder->year = -1;
-    decoder->wmi = decoder->vin->buffer;
-    decoder->vds = decoder->vin->buffer + 3;
-    decoder->vis = decoder->vin->buffer + 3 + 6;
 }
 void ISO3779_free(ISO3779 *decoder) {
     buffer_free(decoder->vin);
@@ -165,18 +161,26 @@ int ISO3779_year_recent(final ISO3779 *decoder) {
     return ISO3779_year(decoder, current_year);
 }
 
-void ISO3779_decode_internal(final ISO3779 *decoder) {
+void ISO3779_decode_internal(final ISO3779 *decoder, final Buffer *vin) {
+    assert(17 <= vin->size);
+    decoder->vin = buffer_copy(vin);
+    decoder->country = null;
+    decoder->manufacturer = null;
+    decoder->year = -1;
+    decoder->wmi = decoder->vin->buffer;
+    decoder->vds = decoder->vin->buffer + 3;
+    decoder->vis = decoder->vin->buffer + 3 + 6;
     decoder->country = ISO3779_country(decoder);
     decoder->manufacturer = ISO3779_manufacturer(decoder);
 }
 
-void ISO3779_decode_at_year(final ISO3779 *decoder, final int year) {
-    ISO3779_decode_internal(decoder);
+void ISO3779_decode_at_year(final ISO3779 *decoder, final Buffer *vin, final int year) {
+    ISO3779_decode_internal(decoder, vin);
     decoder->year = ISO3779_year(decoder, year);
 }
 
-void ISO3779_decode(final ISO3779 *decoder) {
-    ISO3779_decode_internal(decoder);
+void ISO3779_decode(final ISO3779 *decoder, final Buffer *vin) {
+    ISO3779_decode_internal(decoder, vin);
     decoder->year = ISO3779_year_recent(decoder);
 }
 

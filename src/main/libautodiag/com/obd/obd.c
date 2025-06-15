@@ -127,8 +127,8 @@ OBDIFace* obd_new_from_device(final nonnull Device* device) {
 }
 void obd_fill_infos_from_vin(final OBDIFace * iface) {
     if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
-        final ISO3779 * decoder = ISO3779_new(iface->vehicle->vin);
-        ISO3779_decode(decoder);
+        final ISO3779 * decoder = ISO3779_new();
+        ISO3779_decode(decoder, iface->vehicle->vin);
         if ( decoder->country != null ) {
             iface->vehicle->country = strdup(decoder->country);
         }
