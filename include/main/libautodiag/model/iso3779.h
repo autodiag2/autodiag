@@ -11,40 +11,33 @@
 #include <time.h>
 #include "libautodiag/installation.h"
 #include "libautodiag/file.h"
+#include "libautodiag/lib.h"
 
 #define ISO3779_WMI_MANUFACTURER_LESS_500 '9'
+
+/**
+ * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
+ * WMI-----   VDS------          VIS-----------
+ */
 typedef struct {
-    struct {
-        char * country;
-        char * manufacturer;
-    } wmi;
-    struct {
-        char *data;
-    } vds;
-    struct {
-        int year;
-        char *data;
-    } vis;
+    char * country;
+    char * manufacturer;
+    int year;
+    byte * wmi;
+    byte * vds;
+    byte * vis;
+    Buffer * vin;
+} ISO3779;
 
-} ISO3779_decoded;
-
-ISO3779_decoded * ISO3779_vin_new();
-void ISO3779_vin_free(ISO3779_decoded *vin);
-/**
- * Decode fields from the vin number.
- */
-ISO3779_decoded* ISO3779_decode_from(final Buffer *vin);
-/**
- * Get the country associated with the VIN.
- */
-char * ISO3779_decode_country_from(final Buffer *vin_raw);
+ISO3779 * ISO3779_new(final Buffer * vin);
+void ISO3779_free(ISO3779 *decoder);
+void ISO3779_set(ISO3779 *decoder, final Buffer * vin);
+void ISO3779_decode(final ISO3779 *decoder);
+void ISO3779_decode_at_year(final ISO3779 *decoder, final int year);
+bool ISO3779_manufacturer_is_less_500(final ISO3779 *decoder);
 /**
  * Get the geographical region associated with VIN.
  */
-char * ISO3779_decode_region_from(final Buffer *vin_raw);
-char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw);
-char* ISO3779_vis_get_year_from(final Buffer *vin_raw);
-char* ISO3779_vis_serial_number_from(final Buffer *vin_raw);
-void ISO3779_dump(final Buffer *vin);
-
+char * ISO3779_region(final ISO3779 *decoder);
+void ISO3779_dump(final ISO3779 *decoder);
 #endif

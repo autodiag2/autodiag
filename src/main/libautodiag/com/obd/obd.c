@@ -127,15 +127,16 @@ OBDIFace* obd_new_from_device(final nonnull Device* device) {
 }
 void obd_fill_infos_from_vin(final OBDIFace * iface) {
     if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
-        final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
-        if ( decoded->wmi.country != null ) {
-            iface->vehicle->country = strdup(decoded->wmi.country);
+        final ISO3779 * decoder = ISO3779_new(iface->vehicle->vin);
+        ISO3779_decode(decoder);
+        if ( decoder->country != null ) {
+            iface->vehicle->country = strdup(decoder->country);
         }
-        if ( decoded->wmi.manufacturer != null ) {
-            iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
+        if ( decoder->manufacturer != null ) {
+            iface->vehicle->manufacturer = strdup(decoder->manufacturer);
         }
-        iface->vehicle->year = decoded->vis.year;
-        ISO3779_vin_free(decoded);
+        iface->vehicle->year = decoder->year;
+        ISO3779_free(decoder);
     }
 }
 void obd_discover_vehicle(OBDIFace* iface) {

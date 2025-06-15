@@ -1,38 +1,7 @@
 #include "libautodiag/model/iso3779.h"
 
-ISO3779_decoded * ISO3779_vin_new() {
-    ISO3779_decoded * vinDecoded = (ISO3779_decoded*)malloc(sizeof(ISO3779_decoded));
-    vinDecoded->wmi.country = null;
-    vinDecoded->wmi.manufacturer = null;
-    vinDecoded->vds.data = null;
-    vinDecoded->vis.data = null;
-    vinDecoded->vis.year = -1;
-    return vinDecoded;
-}
-void ISO3779_vin_free(ISO3779_decoded *vin) {
-    if ( vin->wmi.country != null ) {
-        free(vin->wmi.country);
-        vin->wmi.country = null;
-    }
-    if ( vin->wmi.manufacturer != null ) {
-        free(vin->wmi.manufacturer);
-        vin->wmi.manufacturer = null;
-    }
-    if ( vin->vds.data != null ) {
-        free(vin->vds.data);
-        vin->vds.data = null;
-    }
-    if ( vin->vis.data != null ) {
-        free(vin->vis.data);
-        vin->vis.data = null;
-    }
-    if ( vin->vis.year == - 1 ) {
-        vin->vis.year = -1;
-    }
-    free(vin);
-}
-char * ISO3779_decode_region_from(final Buffer *vin_raw) {
-    final char * vin = buffer_to_ascii(vin_raw);
+char * ISO3779_region(final ISO3779 *decoder) {
+    final char * vin = buffer_to_ascii(decoder->vin);
     if ( buffer_alphabet_compare(vin,"A","H") ) {
         return strdup("Africa");
     }
@@ -54,7 +23,45 @@ char * ISO3779_decode_region_from(final Buffer *vin_raw) {
     return strdup("Unknown");
 }
 
-bool ISO3779_decode_country_from_read_tsv_line(Buffer * line, void*data) {
+ISO3779 * ISO3779_new(final Buffer * vin) {
+    final ISO3779 * decoder = (ISO3779*)malloc(sizeof(ISO3779));
+    ISO3779_set(decoder, vin);
+    return decoder;
+}
+void ISO3779_dump(final ISO3779 *decoder) {
+    printf("ISO3779: {\n");
+    printf("    country: %s\n", decoder->country);
+    printf("    manufacturer: %s\n", decoder->manufacturer);
+    printf("    year: %d\n", decoder->year);
+    printf("    wmi: %s\n", decoder->wmi);
+    printf("    vds: %s\n", decoder->vds);
+    printf("    vis: %s\n", decoder->vis);
+    printf("    vin: %s\n", buffer_to_ascii(decoder->vin));
+    printf("}\n");
+}
+void ISO3779_set(ISO3779 *decoder, final Buffer * vin) {
+    assert(17 <= vin->size);
+    decoder->vin = buffer_copy(vin);
+    decoder->country = null;
+    decoder->manufacturer = null;
+    decoder->year = -1;
+    decoder->wmi = decoder->vin->buffer;
+    decoder->vds = decoder->vin->buffer + 3;
+    decoder->vis = decoder->vin->buffer + 3 + 6;
+}
+void ISO3779_free(ISO3779 *decoder) {
+    buffer_free(decoder->vin);
+    decoder->vin = null;
+    MEMORY_FREE_POINTER(decoder->country)
+    MEMORY_FREE_POINTER(decoder->manufacturer)
+    decoder->year = -1;
+    decoder->wmi = null;
+    decoder->vds = null;
+    decoder->vis = null;
+    free(decoder);
+}
+
+bool ISO3779_country_read_tsv_line(Buffer * line, void*data) {
     void** ptrs = (void**)data; 
     char *vin_prefix = (char *)ptrs[0];
     char **result = (char**)ptrs[1];
@@ -68,8 +75,8 @@ bool ISO3779_decode_country_from_read_tsv_line(Buffer * line, void*data) {
     }
     return true;
 }
-char * ISO3779_decode_country_from(final Buffer *vin_raw) {
-    final char *vin = buffer_to_ascii(vin_raw);
+char * ISO3779_country(final ISO3779 *decoder) {
+    final char *wmi = decoder->wmi;
     char *result = NULL;
 
     char *countries_file = installation_folder("data/vehicle/countries.tsv");
@@ -78,18 +85,13 @@ char * ISO3779_decode_country_from(final Buffer *vin_raw) {
         return null;
     }
 
-    char vin_prefix[3] = { vin[0], vin[1], '\0' };
-    void* parameters[2] = {vin_prefix, &result};
-    file_read_lines(countries_file, ISO3779_decode_country_from_read_tsv_line, parameters);
-
+    char vin_prefix[] = { wmi[0], wmi[1], '\0' };
+    void* parameters[] = {vin_prefix, &result};
+    file_read_lines(countries_file, ISO3779_country_read_tsv_line, parameters);
     return result ? result : strdup("Unassigned");
 }
 
-bool ISO3779_wmi_manufacturer_is_less_500(final Buffer* vin) {
-    return vin->buffer[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
-}
-
-bool ISO3779_wmi_manufacturers_read_tsv_line(Buffer * line, void*data) {
+bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
     void **ptrs = data;
     char * searched_wmi = (char*)ptrs[0];
     char **manufacturer = (char **)ptrs[1];
@@ -123,18 +125,8 @@ bool ISO3779_wmi_manufacturers_read_tsv_line(Buffer * line, void*data) {
     return true;
 }
 
-bool ISO3779_wmi_manufacturers_read_tsv(char *fileName, char * searched_wmi, char **manufacturer, char *manufacturer_code) {
-    void ** ptrs = (void**)malloc(sizeof(void*)*3);
-    ptrs[0] = searched_wmi;
-    ptrs[1] = manufacturer;
-    ptrs[2] = manufacturer_code;
-    final bool res = file_read_lines(fileName,ISO3779_wmi_manufacturers_read_tsv_line,ptrs);
-    free(ptrs);
-    return res;
-}
-
-char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
-    final char * vin = buffer_to_ascii(vin_raw);
+char * ISO3779_manufacturer(final ISO3779 *decoder) {
+    final char * vin = buffer_to_ascii(decoder->vin);
     char *manufacturers_file = installation_folder("data/vehicle/manufacturers.tsv");
     if (manufacturers_file == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
@@ -142,11 +134,12 @@ char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
     }
     char *manufacturer = null;
     char *manufacturer_code = null;
-    if ( ISO3779_wmi_manufacturer_is_less_500(vin_raw) ) {
+    if ( ISO3779_manufacturer_is_less_500(decoder) ) {
         manufacturer_code = (char*)malloc(sizeof(char) * 4);
-        strncpy(manufacturer_code,&vin_raw->buffer[11],3);
+        strncpy(manufacturer_code,&decoder->vis[2],3);
     }
-    if ( ISO3779_wmi_manufacturers_read_tsv(manufacturers_file, vin, &manufacturer, manufacturer_code) ) {
+    void* parameters[] = {vin, &manufacturer, manufacturer_code};
+    if ( file_read_lines(manufacturers_file,ISO3779_manufacturers_read_tsv_line,parameters) ) {
         return manufacturer;
     } else {
         return strdup("Unknown manufacturer");
@@ -156,49 +149,37 @@ char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
 const char YEAR_MAPPING[] = "123456789ABCDEFGHJKLMNPRSTVWXY";
 #define YEAR_MAPPING_LENGTH (sizeof(YEAR_MAPPING) - 1)
 
-int ISO3779_vis_get_year(char year_char, int current_year) {
+int ISO3779_year(final ISO3779 *decoder, final int current_year) {
+    final int year_char = decoder->vis[0];
     char *pos = strchr(YEAR_MAPPING, year_char);
     if (!pos) return -1;
     int period_offset = pos - YEAR_MAPPING;
     int offset_to_start = (current_year - 1971) % YEAR_MAPPING_LENGTH;
-    int period_year = current_year - offset_to_start + period_offset;
+    final int period_year = current_year - offset_to_start + period_offset;
     return period_year;
 }
-
-void ISO3779_dump(final Buffer *vin) {
-    ISO3779_decoded * vinDecoded = ISO3779_decode_from(vin);
-    char * region = ISO3779_decode_region_from(vin);
-    printf("dump {\n");
-    printf("    wmi {\n");
-    printf("        region:         %s\n", region);
-    printf("        country:        %s\n", vinDecoded->wmi.country);
-    printf("        manufacturer:   %s\n", vinDecoded->wmi.manufacturer);
-    printf("    }\n");
-    printf("    vds: %s\n", vinDecoded->vds.data);
-    printf("    vis: {\n");
-    printf("        year: %d\n", vinDecoded->vis.year);
-    printf("        data: %s\n", vinDecoded->vis.data);
-    printf("    }\n");
-    printf("}\n");
-}
-
-int get_current_year() {
+int ISO3779_year_recent(final ISO3779 *decoder) {
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
-    return tm_info->tm_year + 1900;
+    final int current_year = tm_info->tm_year + 1900;
+    return ISO3779_year(decoder, current_year);
 }
-/**
- * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
- * WMI-----   VDS------          VIS-----------
- */
-ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
-    assert(vin != null);
-    assert(17 <= vin->size);
-    ISO3779_decoded * vinDecoded = ISO3779_vin_new();
-    vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
-    vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
-    vinDecoded->vds.data = bytes_to_hex_string(vin->buffer + 3, 6);
-    vinDecoded->vis.year = ISO3779_vis_get_year(vin->buffer[3 + 6], get_current_year());
-    vinDecoded->vis.data = bytes_to_hex_string(vin->buffer + 3 + 6 + 1, 7);
-    return vinDecoded;
+
+void ISO3779_decode_internal(final ISO3779 *decoder) {
+    decoder->country = ISO3779_country(decoder);
+    decoder->manufacturer = ISO3779_manufacturer(decoder);
+}
+
+void ISO3779_decode_at_year(final ISO3779 *decoder, final int year) {
+    ISO3779_decode_internal(decoder);
+    decoder->year = ISO3779_year(decoder, year);
+}
+
+void ISO3779_decode(final ISO3779 *decoder) {
+    ISO3779_decode_internal(decoder);
+    decoder->year = ISO3779_year_recent(decoder);
+}
+
+bool ISO3779_manufacturer_is_less_500(final ISO3779 *decoder) {
+    return decoder->wmi[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }
