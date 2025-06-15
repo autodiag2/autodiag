@@ -33,6 +33,7 @@ OBDIFace* obd_new_from_device(final nonnull Device* device);
 void obd_free(final OBDIFace* iface);
 void obd_lock(final OBDIFace *iface);
 void obd_unlock(final OBDIFace *iface);
+void obd_fill_infos_from_vin(final OBDIFace * iface);
 
 /**
  * Send an OBD query

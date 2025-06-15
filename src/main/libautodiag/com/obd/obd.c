@@ -125,7 +125,19 @@ OBDIFace* obd_new_from_device(final nonnull Device* device) {
     iface->device = device;
     return iface;
 }
-
+void obd_fill_infos_from_vin(final OBDIFace * iface) {
+    if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
+        final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
+        if ( decoded->wmi.country != null ) {
+            iface->vehicle->country = strdup(decoded->wmi.country);
+        }
+        if ( decoded->wmi.manufacturer != null ) {
+            iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
+        }
+        iface->vehicle->year = decoded->vis.year;
+        ISO3779_vin_free(decoded);
+    }
+}
 void obd_discover_vehicle(OBDIFace* iface) {
     saej1979_data_is_pid_supported(iface, false, 0x01);
 
@@ -138,17 +150,7 @@ void obd_discover_vehicle(OBDIFace* iface) {
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
     saej1979_vehicle_info_discover_vin(iface);
-    if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
-        final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
-        if ( decoded->wmi.country != null ) {
-            iface->vehicle->country = strdup(decoded->wmi.country);
-        }
-        if ( decoded->wmi.manufacturer != null ) {
-            iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
-        }
-        iface->vehicle->year = decoded->vis.year;
-        ISO3779_vin_free(decoded);
-    }
+    obd_fill_infos_from_vin(iface);
 }
 
 OBDIFace* obd_open_from_device(final Device* device) {
