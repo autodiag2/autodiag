@@ -8,6 +8,7 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/byte.h"
 #include <string.h>
+#include <time.h>
 #include "libautodiag/installation.h"
 #include "libautodiag/file.h"
 
@@ -21,8 +22,8 @@ typedef struct {
         char *data;
     } vds;
     struct {
-        char *year;
-        char *serial_number;
+        int year;
+        char *data;
     } vis;
 
 } ISO3779_decoded;

@@ -5,8 +5,8 @@ ISO3779_decoded * ISO3779_vin_new() {
     vinDecoded->wmi.country = null;
     vinDecoded->wmi.manufacturer = null;
     vinDecoded->vds.data = null;
-    vinDecoded->vis.serial_number = null;
-    vinDecoded->vis.year = null;
+    vinDecoded->vis.data = null;
+    vinDecoded->vis.year = -1;
     return vinDecoded;
 }
 void ISO3779_vin_free(ISO3779_decoded *vin) {
@@ -22,13 +22,12 @@ void ISO3779_vin_free(ISO3779_decoded *vin) {
         free(vin->vds.data);
         vin->vds.data = null;
     }
-    if ( vin->vis.serial_number != null ) {
-        free(vin->vis.serial_number);
-        vin->vis.serial_number = null;
+    if ( vin->vis.data != null ) {
+        free(vin->vis.data);
+        vin->vis.data = null;
     }
-    if ( vin->vis.year != null ) {
-        free(vin->vis.year);
-        vin->vis.year = null;
+    if ( vin->vis.year == - 1 ) {
+        vin->vis.year = -1;
     }
     free(vin);
 }
@@ -230,50 +229,17 @@ char * ISO3779_decode_manufacturer_from(final Buffer *vin_raw) {
         return strdup("Unknown manufacturer");
     }
 }
-char* ISO3779_vis_get_year_from(final Buffer *vin_raw) {
-    switch (vin_raw->buffer[9]) {
-        case 'M': return strdup("1991 or 2021");
-        case 'N': return strdup("1992 or 2022");
-        case 'P': return strdup("1993 or 2023");
-        case 'R': return strdup("1994 or 2024");
-        case 'S': return strdup("1995 or 2025");
-        case 'T': return strdup("1996 or 2026");
-        case 'V': return strdup("1997 or 2027");
-        case 'W': return strdup("1998 or 2028");
-        case 'X': return strdup("1999 or 2029");
-        case 'Y': return strdup("2000 or 2030");
-        case '1': return strdup("2001");
-        case '2': return strdup("2002");
-        case '3': return strdup("2003");
-        case '4': return strdup("2004");
-        case '5': return strdup("2005");
-        case '6': return strdup("2006");
-        case '7': return strdup("2007");
-        case '8': return strdup("2008");
-        case '9': return strdup("2009");
-        case 'A': return strdup("2010");
-        case 'B': return strdup("2011");
-        case 'C': return strdup("2012");
-        case 'D': return strdup("2013");
-        case 'E': return strdup("2014");
-        case 'F': return strdup("2015");
-        case 'G': return strdup("2016");
-        case 'H': return strdup("2017");
-        case 'J': return strdup("2018");
-        case 'K': return strdup("2019");
-        case 'L': return strdup("2020");
-        default: return strdup("Unknown year");
-    }
-}
 
-char* ISO3779_vis_serial_number_from(final Buffer *vin_raw) {
-    char * sn = null;
-    if ( ISO3779_wmi_manufacturer_is_less_500(vin_raw) ) {
-        sn = strdup(&vin_raw->buffer[14]);
-    } else {
-        sn = strdup(&vin_raw->buffer[11]);
-    }
-    return sn;
+const char YEAR_MAPPING[] = "123456789ABCDEFGHJKLMNPRSTVWXY";
+#define YEAR_MAPPING_LENGTH (sizeof(YEAR_MAPPING) - 1)
+
+int ISO3779_vis_get_year(char year_char, int current_year) {
+    char *pos = strchr(YEAR_MAPPING, year_char);
+    if (!pos) return -1;
+    int period_offset = pos - YEAR_MAPPING;
+    int offset_to_start = (current_year - 1971) % YEAR_MAPPING_LENGTH;
+    int period_year = current_year - offset_to_start + period_offset;
+    return period_year;
 }
 
 void ISO3779_dump(final Buffer *vin) {
@@ -285,11 +251,18 @@ void ISO3779_dump(final Buffer *vin) {
     printf("        country:        %s\n", vinDecoded->wmi.country);
     printf("        manufacturer:   %s\n", vinDecoded->wmi.manufacturer);
     printf("    }\n");
-    printf("    vis {\n");
-    printf("        year:           %s\n", vinDecoded->vis.year);
-    printf("        serial number:  %s\n", vinDecoded->vis.serial_number);
+    printf("    vds: %s\n", vinDecoded->vds.data);
+    printf("    vis: {\n");
+    printf("        year: %d\n", vinDecoded->vis.year);
+    printf("        data: %s\n", vinDecoded->vis.data);
     printf("    }\n");
     printf("}\n");
+}
+
+int get_current_year() {
+    time_t t = time(NULL);
+    struct tm *tm_info = localtime(&t);
+    return tm_info->tm_year + 1900;
 }
 /**
  * 1  2  3    4  5  6  7  8  9   10 11 12 13 14 15 16 17
@@ -300,7 +273,7 @@ ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
     vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
     vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
     vinDecoded->vds.data = bytes_to_hex_string(vin->buffer + 3, 6);
-    vinDecoded->vis.year = ISO3779_vis_get_year_from(vin);
-    vinDecoded->vis.serial_number = ISO3779_vis_serial_number_from(vin);
+    vinDecoded->vis.year = ISO3779_vis_get_year(vin->buffer[3 + 6], get_current_year());
+    vinDecoded->vis.data = bytes_to_hex_string(vin->buffer + 3 + 6 + 1, 8);
     return vinDecoded;
 }

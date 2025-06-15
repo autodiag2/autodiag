@@ -17,12 +17,8 @@ bool testISO3779() {
             assert(strncasecmp(manufaturer, "RENAULT", strlen("RENAULT")) == 0);
         }
         {
-            char *year = ISO3779_vis_get_year_from(vin);
-            assert(strcmp(year,"2002") == 0);
-        }
-        {
-            char *serial_number = ISO3779_vis_serial_number_from(vin);
-            assert(strcmp(serial_number, "010203") == 0);  
+            ISO3779_decoded* decoded = ISO3779_decode_from(vin);
+            assert(decoded->vis.year == 2002);
         }
     }
     {
