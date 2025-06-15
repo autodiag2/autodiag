@@ -138,15 +138,17 @@ void obd_discover_vehicle(OBDIFace* iface) {
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
     saej1979_vehicle_info_discover_vin(iface);
-    final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
-    if ( decoded->wmi.country != null ) {
-        iface->vehicle->country = strdup(decoded->wmi.country);
+    if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
+        final ISO3779_decoded* decoded = ISO3779_decode_from(iface->vehicle->vin);
+        if ( decoded->wmi.country != null ) {
+            iface->vehicle->country = strdup(decoded->wmi.country);
+        }
+        if ( decoded->wmi.manufacturer != null ) {
+            iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
+        }
+        iface->vehicle->year = decoded->vis.year;
+        ISO3779_vin_free(decoded);
     }
-    if ( decoded->wmi.manufacturer != null ) {
-        iface->vehicle->manufacturer = strdup(decoded->wmi.manufacturer);
-    }
-    iface->vehicle->year = decoded->vis.year;
-    ISO3779_vin_free(decoded);
 }
 
 OBDIFace* obd_open_from_device(final Device* device) {

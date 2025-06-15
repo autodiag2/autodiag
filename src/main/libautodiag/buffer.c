@@ -252,10 +252,18 @@ Buffer* buffer_from_ascii_hex(char * ascii_hex) {
     return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
 char * buffer_to_ascii(final Buffer *buffer) {
-    return bytes_to_ascii(buffer->buffer, buffer->size);
+    if ( buffer == null ) {
+        return strdup("");
+    } else {
+        return bytes_to_ascii(buffer->buffer, buffer->size);
+    }
 }
 char* buffer_to_hex_string(Buffer *buffer) {
-    return bytes_to_hex_string(buffer->buffer, buffer->size);
+    if ( buffer == null ) {
+        return strdup("");
+    } else {
+        return bytes_to_hex_string(buffer->buffer, buffer->size);
+    }
 }
 void BufferList_dump(final BufferList* list) {
     assert(list != null);

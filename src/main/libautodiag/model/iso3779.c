@@ -269,11 +269,13 @@ int get_current_year() {
  * WMI-----   VDS------          VIS-----------
  */
 ISO3779_decoded* ISO3779_decode_from(final Buffer *vin) {
+    assert(vin != null);
+    assert(17 <= vin->size);
     ISO3779_decoded * vinDecoded = ISO3779_vin_new();
     vinDecoded->wmi.country = ISO3779_decode_country_from(vin);
     vinDecoded->wmi.manufacturer = ISO3779_decode_manufacturer_from(vin);
     vinDecoded->vds.data = bytes_to_hex_string(vin->buffer + 3, 6);
     vinDecoded->vis.year = ISO3779_vis_get_year(vin->buffer[3 + 6], get_current_year());
-    vinDecoded->vis.data = bytes_to_hex_string(vin->buffer + 3 + 6 + 1, 8);
+    vinDecoded->vis.data = bytes_to_hex_string(vin->buffer + 3 + 6 + 1, 7);
     return vinDecoded;
 }
