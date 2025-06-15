@@ -114,26 +114,14 @@ void vehicle_free(Vehicle * v) {
             v->ecus = null;
         }
         v->ecus_len = 0;
-        if ( v->country != null ) {
-            free(v->country);
-            v->country = null;
-        }
-        if ( v->manufacturer != null ) {
-            free(v->manufacturer);
-            v->manufacturer = null;
-        }
+        MEMORY_FREE_POINTER(v->country)
+        MEMORY_FREE_POINTER(v->manufacturer)
         v->year = VEHICLE_YEAR_EMPTY;
-        if ( v->engine != null ) {
-            free(v->engine);
-            v->engine = null;
-        }
+        MEMORY_FREE_POINTER(v->engine)
+        MEMORY_FREE_POINTER(v->internal.directory)
         if ( v->vin != null ) {
-            free(v->vin);
+            buffer_free(v->vin);
             v->vin = null;
-        }
-        if ( v->internal.directory != null ) {
-            free(v->internal.directory);
-            v->internal.directory = null;
         }
     }
 }
