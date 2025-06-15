@@ -1,6 +1,9 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
+int dtc_count = 2;
+bool mil_on = true;
+
 void sim_ecu_generator_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
@@ -8,14 +11,39 @@ void sim_ecu_generator_citroen_c5_x7(SimECUGenerator *generator, char ** respons
         *seed = 1;
         generator->context = seed;
     }
+
     switch(obd_query_bin->buffer[0]) {
-        case 0x02: case 0x01: {
+        case 0x01: {
+            bool generic_behaviour = true;
+            switch(obd_query_bin->buffer[1]) {
+                case 0x01: {
+                    Buffer* status = buffer_new();
+                    buffer_padding(status, 4, 0x00);
+                    status->buffer[0] = dtc_count;
+                    status->buffer[0] |= mil_on << 7;
+                    buffer_append(responseOBDdataBin, status);
+                    generic_behaviour = false;
+                }
+            }
+            if ( generic_behaviour ) {
+                buffer_append(responseOBDdataBin,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+            }
+        } break;
+        case 0x02: {
             buffer_append(responseOBDdataBin,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
-        case 0x07: case 0x0A: case 0x03: {
+        case 0x03: {
+            for(int i = 0; i < dtc_count; i++) {
+                Buffer *dtc_bin = saej1979_dtc_bin_from_string("P0103");
+                buffer_append(responseOBDdataBin, dtc_bin);
+            }
+        } break;
+        case 0x07: case 0x0A: {
             buffer_append(responseOBDdataBin,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case 0x04: {
+            mil_on = false;
+            dtc_count = 0;
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case 0x09: {
