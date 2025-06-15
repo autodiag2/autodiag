@@ -104,7 +104,7 @@ void db_vehicle_load_in_memory_fs_recurse(final char*path) {
 }
 void db_vehicle_load_in_memory() {
     VehicleList_empty(&database);
-    final char * basepath = installation_folder("data/car/");
+    final char * basepath = installation_folder("data/vehicle/");
     db_vehicle_load_in_memory_fs_recurse(basepath);
     free(basepath);
 }

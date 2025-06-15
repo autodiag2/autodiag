@@ -149,7 +149,7 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
 }
 
 void saej1979_fetch_dtc_description_from_fs(final SAEJ1979_DTC * dtc, final Vehicle* filter) {
-    final char * basepath = installation_folder("data/car/");
+    final char * basepath = installation_folder("data/vehicle/");
     saej1979_fetch_dtc_description_from_fs_recurse(basepath,dtc, filter);
     free(basepath);
 }
