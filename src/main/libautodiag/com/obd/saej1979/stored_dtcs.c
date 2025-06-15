@@ -131,8 +131,6 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                                     dtc_desc->vehicle = compare_against;
                                     saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
                                     SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
-                                } else {
-                                    vehicle_free(compare_against);
                                 }
                             }
                             break;
