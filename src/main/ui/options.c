@@ -145,7 +145,7 @@ void options_fill_vehicle_infos() {
     g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
 
-    gtk_entry_set_text(optionsGui->vehicleInfos.vin, config.vehicleInfos.vin);
+    gtk_entry_set_text(optionsGui->vehicleInfos.vin, config.vehicleInfos.vin == null ? "" : config.vehicleInfos.vin);
 }
 gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
