@@ -25,7 +25,7 @@ print("Function address:", hex(cast(callback, c_void_p).value))
 print(addr(byref(emulation.ecus.contents.list[0])))
 emulation.debug()
 emulation.debug_from_python()
-emulation.ecus.contents.list[0].contents.set_generator(CustomECUGenerator())
+emulation.set_ecu_and_generator(0xE8, CustomECUGenerator())
 emulation.debug()
 emulation.debug_from_python()
 

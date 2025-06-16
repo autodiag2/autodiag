@@ -11,7 +11,7 @@ print("Installation folder:", installation_folder("ui"))
 
 from autodiag.log import *
 log_set_level(LOG_DEBUG)
-log_msg(LOG_INFO, "This is an info message")
-log_msg(LOG_WARNING, "This is a warning message")
-log_msg(LOG_ERROR, "This is an error message")
-log_msg(LOG_DEBUG, "This is a debug message")
+log_msg("This is an info message", LOG_INFO)
+log_msg("This is a warning message", LOG_WARNING)
+log_msg("This is an error message", LOG_ERROR)
+log_msg("This is a debug message", LOG_DEBUG)
