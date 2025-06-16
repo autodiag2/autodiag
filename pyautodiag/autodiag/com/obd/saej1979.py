@@ -1,6 +1,21 @@
 from autodiag.libloader import *
 from autodiag.com.obd.obd import OBDIFace
 
+class SAEJ1979_Test(Structure):
+    _fields_ = [
+        ("name", c_char_p),
+        ("completed", bool)
+    ]
+
+class SAEJ1979_Test_list(Structure):
+    _fields_ = [
+        ("size", c_int),
+        ("list", POINTER(POINTER(SAEJ1979_Test)))
+    ]
+
+lib.saej1979_data_tests.argtypes = [POINTER(OBDIFace), bool, bool]
+lib.saej1979_data_tests.restype = POINTER(SAEJ1979_Test_list)
+
 class SAEJ1979():
 
     def __init__(self, iface):
@@ -10,6 +25,7 @@ class SAEJ1979():
         res = lib.saej1979_service_code_to_str(code)
         return res.decode() if res else None
     def clear_dtc_and_stored_values(self): return lib.saej1979_clear_dtc_and_stored_values(byref(self.iface))
+    def tests(self, freezed=False, thisDriveCycle=False): return lib.saej1979_data_tests(byref(self.iface), freezed, thisDriveCycle)
     def is_pid_supported(self, pid, freezed=False): return lib.saej1979_data_is_pid_supported(byref(self.iface), freezed, pid)
     def number_of_dtc(self, freezed=False): return lib.saej1979_data_number_of_dtc(byref(self.iface), freezed)
     def mil_status(self, freezed=False): return lib.saej1979_data_mil_status(byref(self.iface), freezed)

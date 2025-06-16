@@ -266,7 +266,7 @@ SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool
             if ( bitRetrieve(B, i) ) {
                 SAEJ1979_DATA_Test * data = (SAEJ1979_DATA_Test*)malloc(sizeof(SAEJ1979_DATA_Test));
                 data->name = strdup(names1[i]);
-                data->completed = ! bitRetrieve(B, 3 + i);
+                data->completed = ! bitRetrieve(B, 4 + i);
                 SAEJ1979_DATA_Test_list_append(list, data);
             }
         }
@@ -275,14 +275,14 @@ SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool
         byte D = buffer[3];
         char ** names;
         char * namesCompressionIgnition[100] = {
-        "EGR and/or VVT System","PM filter monitoring",
-        "Exhaust Gas Sensor","- Reserved -","Boost Pressure","- Reserved -",
-        "NOx/SCR Monitor","NMHC Catalyst"
+            "EGR and/or VVT System","PM filter monitoring",
+            "Exhaust Gas Sensor","- Reserved -","Boost Pressure","- Reserved -",
+            "NOx/SCR Monitor","NMHC Catalyst"
         }, * namesSparkIgnition[100] = {
-        "EGR System","Oxygen Sensor Heater",
-        "Oxygen Sensor", "A/C Refrigerant",
-        "Secondary Air System", "Evaporative System",
-        "Heated Catalyst", "Catalyst"
+            "EGR System","Oxygen Sensor Heater",
+            "Oxygen Sensor", "A/C Refrigerant",
+            "Secondary Air System", "Evaporative System",
+            "Heated Catalyst", "Catalyst"
         };
         names = isCompressionIgnition ? namesCompressionIgnition : namesSparkIgnition;
         for(int i = 0; i < 8; i++ ) {

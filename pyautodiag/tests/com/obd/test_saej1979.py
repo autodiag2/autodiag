@@ -12,8 +12,21 @@ def test_saej1979():
     @SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
     def custom_sim_ecu_generator_response(generator_ptr, response_ptr, responseOBDdataBin, obd_query_bin):
         hexString = obd_query_bin.contents.to_hex_string()
+        print(hexString)
         if hexString == "0105":
             responseOBDdataBin.contents.append_byte(temperature + 40)
+        elif hexString == "0101":
+            # mil on, 2 dtcs
+            A = 0b10000010
+            responseOBDdataBin.contents.append_byte(A)
+            # Compression ingnition, first and last test present but only the first is complete
+            B = 0b01001101
+            responseOBDdataBin.contents.append_byte(B)
+            # No engine specific tests
+            C = 0b00000000
+            responseOBDdataBin.contents.append_byte(C)
+            D = 0b00000000
+            responseOBDdataBin.contents.append_byte(D)
         else:
             response_ptr[0] = c_char_p(b"OK")
 
@@ -41,3 +54,15 @@ def test_saej1979():
     assert saej1979.coolant_temp() == 2
     temperature = 50
     assert saej1979.coolant_temp() == 50
+
+    assert saej1979.number_of_dtc() == 2
+    assert saej1979.mil_status() == True
+    assert "ompression" in saej1979.engine_type_str()
+
+    tests = saej1979.tests()
+    test = tests.contents.list[0].contents
+    print(f"test {test.name.decode()} is {test.completed}")
+    assert test.completed == 1
+    test = tests.contents.list[1].contents
+    print(f"test {test.name.decode()} is {test.completed}")
+    assert test.completed == 0
