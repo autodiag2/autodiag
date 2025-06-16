@@ -30,43 +30,9 @@ Scantool to read diagnostic codes with OBD2
 
 - Read codes
 
-# Develop
-## Prerequisite
-#### Windows
- - Install [MSYS2](https://www.msys2.org/)
- - Open MSYS2 MINGW64 shell
- - Install Dependencies
- ```bash
- pacman -S mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3 && \
-  echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc && \
-  echo "export PKG_CONFIG_PATH=/mingw64/libautodiag/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc && \
-  source ~/.bashrc
- ```
-#### MacOS
-```bash
-brew install gtk+3
-```
-#### Debian based
-```bash
-sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
-```
-## Build
-```bash
-git clone https://github.com/autodiag2/autodiag && \
- cd autodiag && \
- git submodule update --init --recursive && \
- make && \
- make install
-```
-## Run
-```bash
-./bin/autodiag
-./bin/elm327sim
-```
-#### Simulation for windows
-- Download [Virtual Serial Port Tools](https://freevirtualserialports.com/)
-- Setup a script port
-- Add the script [virtual_serial_port_tools_simulate_elm327.ts](https://raw.githubusercontent.com/autodiag2/autodiag/refs/heads/main/dist/windows/virtual_serial_port_tools_simulate_elm327.ts)
+# Developer documentation
+[See](/DEV.md)
+
 #### MacOS troubleshoot
 ```
 (autodiag:5985): GLib-GIO-ERROR **: 23:33:55.223: No GSettings schemas are installed on the system
