@@ -37,7 +37,7 @@ lib.log_set_from_env.restype = None
 lib.log_is_env_set.restype = bool
 
 
-def log_msg(level: int, msg: str, *args):
+def log_msg(msg: str, level=LOG_DEBUG, *args):
     formatted_msg = msg % args if args else msg
     lib.log_msg(level, formatted_msg.encode())
 
