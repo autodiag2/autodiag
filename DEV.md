@@ -34,16 +34,10 @@ git clone https://github.com/autodiag2/autodiag && \
 ```
 
 # Python package
-## Build
-For n architecture, on each run
+See [here](/pyautodiag/README.md)
+
+# Alternative simulator
 ```bash
-make veryclean
-make -j 8 installPython
+python3 -m pip install ELM327-emulator
+python3 -m elm
 ```
-Take the resulting lib (.so, .dylib, .dll) and paste it to pyautodiag/autodiag/libs/
-Then
-```bash
-cd pyautodiag/
-python setup.py sdist bdist_wheel
-```
-The package is ready

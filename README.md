@@ -15,40 +15,6 @@ Scantool to read diagnostic codes with OBD2
   </tr>
 </table>
 
-
-# Quick guide to read codes
-- Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
-- Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
-- Start the car and plug adaptater
-- Launch autodiag
-#### Debian based
-- Select /dev/ttyUSB0 device
-#### Windows
-- Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
-- Select the right COM port
-<br /><br />
-
-- Read codes
-
-# Developer documentation
-[See](/DEV.md)
-
-#### MacOS troubleshoot
-```
-(autodiag:5985): GLib-GIO-ERROR **: 23:33:55.223: No GSettings schemas are installed on the system
-```
-Specify the correct location of gsettings schemas
-```bash
-echo "export GSETTINGS_SCHEMA_DIR=/opt/homebrew/share/glib-2.0/schemas/" >> ~/.bashrc && \
- source ~/.bashrc
-```
-#### Alternative simulator
-##### ELM327 simulator
-```bash
-python3 -m pip install ELM327-emulator
-python3 -m elm
-```
-
 # Why
 Repairing modern car is not always easy due to lake of free tools. The need for expensive hardware block us from repairing cars and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to fix small issues with car onboard computer.<br />
 This is a light approach to fix car computer because it reduce the amount of hardware required to work on it, only have to buy a small elm adaptater.
@@ -69,12 +35,30 @@ With open source everyone will benefit from the effort<br />
 In first time autodiag will focus on UNIX platform and ELM based devices.<br />
 GPL licence will allow both buisnesses and individual to use the software<br />
 
+# Quick guide to read codes
+- Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
+- Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
+- Start the car and plug adaptater
+- Launch autodiag
+#### Debian based
+- Select /dev/ttyUSB0 device
+#### Windows
+- Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
+- Select the right COM port
+<br /><br />
+
+- Read codes
+
+## Installation errors
+See [here](/install-errors.md)
+
 # Compatibility
 OSs:<br />
- - debian based 64 bits <br />
- - windows 64 bits<br />
+ - debian based<br />
+ - windows<br />
  - macOS<br />
 <br />
 Devices: ELM320 ELM322 ELM323 ELM327 ELM329
 
-
+# Developer documentation
+See [here](/DEV.md)
