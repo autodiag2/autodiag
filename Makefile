@@ -66,7 +66,8 @@ $(BIN_LIB): $(OBJS_LIB)
 	cp "$@" bin/
 
 uninstallPython:
-	-rm -fr $(PYTHON_INSTALL_FOLDER_LIB) $(PYTHON_INSTALL_FOLDER_DATA)
+	-rm -f $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
+	-rm -fr $(PYTHON_INSTALL_FOLDER_DATA)
 
 _installPython: compile_lib uninstallPython
 	@-echo "Installing library in the python package"
