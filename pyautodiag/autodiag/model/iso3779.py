@@ -40,7 +40,14 @@ class ISO3779(Structure):
     def region(self):
         lib.ISO3779_region.argtypes = [POINTER(ISO3779)]
         lib.ISO3779_region.restype = c_char_p
-        return lib.ISO3779_region(byref(self))
+        result = lib.ISO3779_region(byref(self))
+        return None if result is None else result.decode()
+    
+    def get_manufacturer(self):
+        return None if self.manufacturer is None else self.manufacturer.decode()
+    
+    def get_country(self):
+        return None if self.country is None else self.country.decode()
 
     def dump(self):
         lib.ISO3779_dump.argtypes = [POINTER(ISO3779)]
