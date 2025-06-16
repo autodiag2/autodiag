@@ -88,7 +88,7 @@ char *installation_folder(char *relative_path) {
         #   warning Unsupported OS
         #endif
     } else {
-        asprintf(&path_in_installation_folder, "%s\\%s", _installation_folder_override, relative_path);
+        asprintf(&path_in_installation_folder, "%s" PATH_FOLDER_DELIM "%s", _installation_folder_override, relative_path);
     }
     return path_in_installation_folder;
 }

@@ -12,6 +12,7 @@
 #include <errno.h>
 #include "lang.h"
 #include "compile_target.h"
+#include "file.h"
 
 static char *_installation_folder_override;
 /**
