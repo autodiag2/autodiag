@@ -11,7 +11,9 @@ BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,
 # Library shared object
 OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
 BIN_LIB := $(BIN_LIB_NAME)
-LIB_PYTHON_INSTALL_FOLDER = pyautodiag/autodiag/libs/
+PYTHON_INSTALL_FOLDER_ROOT = pyautodiag/autodiag
+PYTHON_INSTALL_FOLDER_LIB = $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
+PYTHON_INSTALL_FOLDER_DATA = $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
@@ -63,16 +65,20 @@ $(BIN_LIB): $(OBJS_LIB)
 	mkdir -p bin/
 	cp "$@" bin/
 
-_installPython: compile_lib
+uninstallPython:
+	-rm -fr $(PYTHON_INSTALL_FOLDER_LIB) $(PYTHON_INSTALL_FOLDER_DATA)
+
+_installPython: compile_lib uninstallPython
 	@-echo "Installing library in the python package"
-	mkdir -p "$(LIB_PYTHON_INSTALL_FOLDER)"
-	-rm -f $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
+	mkdir -p "$(PYTHON_INSTALL_FOLDER_LIB)" "$(PYTHON_INSTALL_FOLDER_DATA)"
 
 installPython: _installPython
-	cp -f $(BIN_LIB) $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
+	cp -f $(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
+	cp -rf data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
 installPythonDev: _installPython
-	ln -s $(PWD)/$(BIN_LIB) $(LIB_PYTHON_INSTALL_FOLDER)/$(BIN_LIB_NAME)
+	ln -s $(PWD)/$(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
+	ln -s $(PWD)/data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
 bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
@@ -99,7 +105,10 @@ dependencies: $(SOURCES)
 
 clean:
 	rm -rf obj/
-	rm -f $(BIN_LIB)
+	rm -fr pyautodiag/build
+	rm -fr pyautodiag/dist
+	rm -fr pyautodiag/*.egg-info
+
 veryclean: clean
 	rm -rf bin/
 
@@ -182,25 +191,26 @@ uninstall:
 	done
 help:
 	@-echo "Development setup"
-	@-echo " install      	- copy files"
-	@-echo " installDev 	- using symlinks"
-	@-echo " uninstall    	- delete previous installation"
-	@-echo " run          	- run the software"
-	@-echo " runDebug     	- run with debug flags"
-	@-echo " runTest      	- run regression test"
-	@-echo " compile_progs  - compile progs"
-	@-echo " release_progs  - compile progs with debugging info removed"
-	@-echo " compile_tests 	- compile tests"
-	@-echo " compile_lib  	- compile the library"
-	@-echo " installPython	- install lib in the python package"
+	@-echo " install      		- copy files"
+	@-echo " installDev 		- using symlinks"
+	@-echo " uninstall    		- delete previous installation"
+	@-echo " run          		- run the software"
+	@-echo " runDebug     		- run with debug flags"
+	@-echo " runTest      		- run regression test"
+	@-echo " compile_progs  	- compile progs"
+	@-echo " release_progs  	- compile progs with debugging info removed"
+	@-echo " compile_tests 		- compile tests"
+	@-echo " compile_lib  		- compile the library"
+	@-echo " installPython		- install data in the python package"
 	@-echo " installPythonDev	- same but using symlinks"
-	@-echo " coverage     	- recompile project with coverage information included"
-	@-echo " dependencies 	- update project files dependencies"
+	@-echo " uninstallPython	- uninstall data from the python package"
+	@-echo " coverage     		- recompile project with coverage information included"
+	@-echo " dependencies 		- update project files dependencies"
 	@-echo "Software management"
-	@-echo " distDebian   	- package for debian"
-	@-echo " distWindows  	- package in an installer for windows"
-	@-echo " distMacOS    	- package as DMG for macOS"
-	@-echo " newVersion   	- create a new version"
+	@-echo " distDebian   		- package for debian"
+	@-echo " distWindows  		- package in an installer for windows"
+	@-echo " distMacOS    		- package as DMG for macOS"
+	@-echo " newVersion   		- create a new version"
 	@-echo "Configuration variables"
 	@-echo " TOOLCHAIN           - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
 	@-echo " INSTALL_DATA_FOLDER - where to install application data"
