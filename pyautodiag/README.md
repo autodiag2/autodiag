@@ -20,11 +20,14 @@ conda create -n autodiag python=3.11 && \
 ```bash
 conda create -y -n autodiag python=3.11 ; \
     conda activate autodiag && \
-    pip install poetry && \
-    poetry install --no-root && \
+    pip install pytest && \
     pip install -e .
 ```
 #### Build
 ```bash
-poetry build
+python setup.py sdist bdist_wheel
+```
+#### Test
+```bash
+pytest
 ```
