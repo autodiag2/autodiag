@@ -421,9 +421,15 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_show_text(cr, graph->title);
 
     if (graph->data->size == 0) {
-        cairo_set_font_size(cr, 10.0);
-        cairo_move_to(cr, margin_left + 10, height / 2);
-        cairo_show_text(cr, "(no data)");
+        cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+        cairo_set_font_size(cr, 14.0);
+        cairo_set_source_rgb(cr, 0.5, 0.5, 0.5);
+        const char *msg = "No data";
+        cairo_text_extents_t ext;
+        cairo_text_extents(cr, msg, &ext);
+        cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing,
+                        (height + ext.height) / 2 - ext.y_bearing);
+        cairo_show_text(cr, msg);
         return FALSE;
     }
 
