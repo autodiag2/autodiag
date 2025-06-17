@@ -444,15 +444,24 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         if (data->time > max_time) max_time = data->time;
     }
 
-    if (min_val == max_val) max_val += 1;
-    if (min_time == max_time) max_time += 1;
-    
-    int tick_count = 10;
-    double y_tick_step = (max_val - min_val) / tick_count;
-    double x_tick_step = (max_time - min_time) / tick_count;
+    gboolean y_centered = FALSE;
+    if (min_val == max_val) {
+        y_centered = TRUE;
+        min_val -= 0.5;
+        max_val += 0.5;
+    }
 
     double y_scale = (height - margin_top - margin_bottom) / (max_val - min_val);
     double x_scale = (width - margin_left - 10) / (max_time - min_time);
+    double x_offset = margin_left;
+    if (min_time == max_time) {
+        x_scale = 0;
+        x_offset = (width + margin_left) / 2.0;
+    }
+
+    int tick_count = 10;
+    double y_tick_step = (max_val - min_val) / tick_count;
+    double x_tick_step = (max_time - min_time) / tick_count;
 
     // Background grid lines for both axes
     cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
@@ -470,20 +479,9 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     // X grid lines
     for (int i = 0; i <= tick_count; i++) {
         double t = min_time + i * x_tick_step;
-        double x = margin_left + (t - min_time) * x_scale;
+        double x = x_offset + (t - min_time) * x_scale;
         cairo_move_to(cr, x, margin_top);
         cairo_line_to(cr, x, height - margin_bottom);
-        cairo_stroke(cr);
-    }
-
-    // Y-axis grid lines (light full-width)
-    cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
-    cairo_set_line_width(cr, 0.5);
-    for (int i = 0; i <= tick_count; i++) {
-        double val = min_val + i * y_tick_step;
-        double y = height - margin_bottom - (val - min_val) * y_scale;
-        cairo_move_to(cr, margin_left, y);
-        cairo_line_to(cr, width, y);
         cairo_stroke(cr);
     }
 
@@ -501,14 +499,12 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     for (int i = 0; i <= tick_count; i++) {
         double val = min_val + i * y_tick_step;
         double y = height - margin_bottom - (val - min_val) * y_scale;
-
         cairo_move_to(cr, margin_left - 5, y);
         cairo_line_to(cr, margin_left, y);
         cairo_stroke(cr);
-
         char label[16];
         snprintf(label, sizeof(label), "%.1f", val);
-        cairo_move_to(cr, margin_left - 40, y + 3);
+        cairo_move_to(cr, margin_left - 45, y + 3);
         cairo_show_text(cr, label);
     }
 
@@ -525,11 +521,10 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_set_line_width(cr, 0.8);
     for (int i = 0; i <= tick_count; i++) {
         double t = min_time + i * x_tick_step;
-        double x = margin_left + (t - min_time) * x_scale;
+        double x = x_offset + (t - min_time) * x_scale;
         cairo_move_to(cr, x, base_y);
         cairo_line_to(cr, x, base_y + 5);
         cairo_stroke(cr);
-
         char label[16];
         snprintf(label, sizeof(label), "%.0f", t);
         cairo_move_to(cr, x - 10, base_y + 15);
@@ -537,21 +532,23 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     }
 
     // Axis labels
-    cairo_move_to(cr, 5, margin_top);
+    cairo_move_to(cr, 5, margin_top - 5);
     cairo_show_text(cr, graph->unit);
-    cairo_move_to(cr, width - 35, height - 5);
-    cairo_show_text(cr, "time (ms since clear)");
+    cairo_move_to(cr, width - 60, height - 5);
+    cairo_show_text(cr, "time (ms)");
 
     // Curve
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.2);
-    double x = margin_left + (data_0->time - min_time) * x_scale;
-    double y = height - margin_bottom - (data_0->data - min_val) * y_scale;
+    double x = x_offset + (data_0->time - min_time) * x_scale;
+    double y = y_centered ? margin_top + (height - margin_top - margin_bottom) / 2.0
+                          : height - margin_bottom - (data_0->data - min_val) * y_scale;
     cairo_move_to(cr, x, y);
     for (int i = 1; i < graph->data->size; i++) {
         final GraphData * data = graph->data->list[i];
-        x = margin_left + (data->time - min_time) * x_scale;
-        y = height - margin_bottom - (data->data - min_val) * y_scale;
+        x = x_offset + (data->time - min_time) * x_scale;
+        y = y_centered ? margin_top + (height - margin_top - margin_bottom) / 2.0
+                       : height - margin_bottom - (data->data - min_val) * y_scale;
         cairo_line_to(cr, x, y);
     }
     cairo_stroke(cr);
