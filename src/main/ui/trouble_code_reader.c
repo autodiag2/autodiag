@@ -291,7 +291,7 @@ void module_init_read_codes(GtkBuilder *builder) {
         gtk_text_view_set_buffer(g.dtc.explanation, g.dtc.explanationText);
         gtk_text_view_set_buffer(g.menuBar.showECUsBuffer.textView, g.menuBar.showECUsBuffer.text);
         *tcgui = g;
-        gtk_check_menu_item_set_active(tcgui->menuBar.filtered, true);
+        gtk_check_menu_item_set_active(tcgui->menuBar.filtered, false);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-go-back-main-menu",&read_codes_go_back_main_menu);
         g_signal_connect(G_OBJECT(tcgui->window),"delete-event",G_CALLBACK(read_codes_onclose),null);
         g_signal_connect(G_OBJECT(tcgui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
