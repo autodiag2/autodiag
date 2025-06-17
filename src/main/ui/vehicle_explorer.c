@@ -389,25 +389,123 @@ void vehicle_explorer_refresh_one_time_with_spinner() {
 }
 gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     OBDIFace* iface = config.ephemere.iface;
+
+    GtkAllocation allocation;
+    gtk_widget_get_allocation(widget, &allocation);
+    int width = allocation.width;
+    int height = allocation.height;
+
+    const int margin_left = 50;
+    const int margin_bottom = 30;
+    const int margin_top = 10;
+
+    cairo_set_source_rgb(cr, 1, 1, 1);
+    cairo_paint(cr);
+
+    // draw title
+    const char *title = "Speed";
+    cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+    cairo_set_font_size(cr, 14.0);
     cairo_set_source_rgb(cr, 0, 0, 0);
-    cairo_move_to(cr, 0, 100);
-    for (int x = 0; x < 400; x++) {
-        double y = 100 - sin(x * 0.05) * 50;
+
+    cairo_text_extents_t ext;
+    cairo_text_extents(cr, title, &ext);
+    cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing, margin_top + ext.height);
+    cairo_show_text(cr, title);
+
+    double data[width];
+    int count = width - margin_left;
+    for (int i = 0; i < count; i++) {
+        double t = i * 0.05;
+        data[i] = sin(t) * 80;
+    }
+
+    double min_val = data[0], max_val = data[0];
+    for (int i = 1; i < count; i++) {
+        if (data[i] < min_val) min_val = data[i];
+        if (data[i] > max_val) max_val = data[i];
+    }
+
+    if (min_val == max_val) max_val += 1;
+    double y_scale = (height - margin_top - margin_bottom) / (max_val - min_val);
+
+    // Y-axis
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_line_width(cr, 1.0);
+    cairo_move_to(cr, margin_left, margin_top);
+    cairo_line_to(cr, margin_left, height - margin_bottom);
+    cairo_stroke(cr);
+
+    // graduation ticks + labels
+    cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
+    cairo_set_font_size(cr, 9.0);
+    cairo_set_line_width(cr, 0.8);
+
+    for (int i = -100; i <= 100; i += 20) {
+        if (i < min_val || i > max_val) continue;
+        double y = height - margin_bottom - (i - min_val) * y_scale;
+
+        // graduation tick
+        cairo_move_to(cr, margin_left - 5, y);
+        cairo_line_to(cr, margin_left, y);
+        cairo_stroke(cr);
+
+        // text label
+        char label[16];
+        snprintf(label, sizeof(label), "%d", i);
+        cairo_move_to(cr, margin_left - 40, y + 3);
+        cairo_show_text(cr, label);
+    }
+
+    // X-axis
+    double zero_y = height - margin_bottom - (-min_val * y_scale);
+    if (zero_y >= margin_top && zero_y <= height - margin_bottom) {
+        cairo_move_to(cr, margin_left, zero_y);
+        cairo_line_to(cr, width, zero_y);
+    } else {
+        cairo_move_to(cr, margin_left, height - margin_bottom);
+        cairo_line_to(cr, width, height - margin_bottom);
+    }
+    cairo_stroke(cr);
+
+    // labels
+    cairo_move_to(cr, 5, margin_top + 10);
+    cairo_show_text(cr, "km/h");
+    cairo_move_to(cr, width - 35, height - 5);
+    cairo_show_text(cr, "time");
+
+    // curve
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_line_width(cr, 1.2);
+    cairo_move_to(cr, margin_left, height - margin_bottom - (data[0] - min_val) * y_scale);
+    for (int i = 1; i < count; i++) {
+        double x = margin_left + i;
+        double y = height - margin_bottom - (data[i] - min_val) * y_scale;
         cairo_line_to(cr, x, y);
     }
     cairo_stroke(cr);
+
     return FALSE;
 }
 void* vehicle_explorer_graphs_add_daemon(void *arg) {
+    static int graph_count = 0;
     OBDIFace* iface = config.ephemere.iface;
 
     GtkWidget *drawing_area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(drawing_area, 400, 200);
+    gtk_widget_set_size_request(drawing_area, 200, 200);
 
-    g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), null);
+    gtk_widget_set_hexpand(drawing_area, TRUE);
+    gtk_widget_set_vexpand(drawing_area, TRUE);
 
-    gtk_container_add(GTK_CONTAINER(vdgui->graphs.container), drawing_area);
+    g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), NULL);
+
+    int col = graph_count % 2;
+    int row = graph_count / 2;
+
+    gtk_grid_attach(GTK_GRID(vdgui->graphs.container), drawing_area, col, row, 1, 1);
     gtk_widget_show_all(vdgui->graphs.container);
+
+    graph_count++;
 
     return NULL;
 }

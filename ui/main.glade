@@ -11222,6 +11222,8 @@ What can be done:
                                   <object class="GtkGrid" id="vehicle-explorer-graphs-container">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="row-spacing">5</property>
+                                    <property name="column-spacing">5</property>
                                     <child>
                                       <placeholder/>
                                     </child>
