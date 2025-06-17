@@ -413,7 +413,7 @@ gboolean vehicle_explorer_set_widget_visible_true_callback(gpointer data) {
 }
 void vehicle_explorer_mapped_true_one_level_callback(GtkWidget *widget, gpointer data) {
     final const char * name = gtk_widget_get_name(widget);
-    if ( strcmp(name,"GtkBox") == 0 ) {
+    if ( strcmp(name,"GtkBox") == 0 || strcmp(name,"GtkGrid") == 0 ) {
         gtk_container_foreach((GtkContainer*)widget,
             vehicle_explorer_mapped_true_one_level_callback,
             null);
@@ -439,7 +439,7 @@ void vehicle_explorer_mapped_false(GtkWidget *widget, gpointer data) {
             GTK_CONTAINER(gtk_bin_get_child(GTK_BIN(widget))),
             vehicle_explorer_mapped_false,&mapped
             );
-    } else if ( strcmp(name,"GtkBox") == 0 ) {
+    } else if ( strcmp(name,"GtkBox") == 0 || strcmp(name, "GtkGrid") == 0 ) {
         gtk_container_foreach(GTK_CONTAINER(widget),
             vehicle_explorer_mapped_false, &mapped);
     } else {
@@ -468,8 +468,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .showFreezeFrame = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"vehicle-explorer-menubar-show-freezeframe"))
             },
             .engine = {
-                .load = GTK_PROGRESS_BAR(gtk_builder_get_object(builder,"vehicle-explorer-engine-load")),
                 .expandableSection = (GtkBox *)gtk_builder_get_object(builder,"vehicle-explorer-expandable-section"),
+                .load = GTK_PROGRESS_BAR(gtk_builder_get_object(builder,"vehicle-explorer-engine-load")),
                 .speed = (GtkProgressBar *)gtk_builder_get_object (builder, "vehicle-explorer-engine-speed-graph"),
                 .type = (GtkLabel*)gtk_builder_get_object (builder, "vehicle-explorer-engine-type"),
                 .vehicleSpeed = GTK_PROGRESS_BAR(gtk_builder_get_object(builder,"vehicle-explorer-vehicle-speed")),
