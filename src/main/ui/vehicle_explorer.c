@@ -191,6 +191,21 @@ gboolean vehicle_explorer_saej1979_data_seconds_since_engine_start_gsource(gpoin
         g_idle_add(vehicle_explorer_##data_gen##_gsource,type##dup(data_gen(iface, vehicle_explorer_show_freeze_frame_get_state()))); \
     }
 
+#define VH_REFRESH_GRAPH_GSOURCE_SYM(data_gen) gboolean vehicle_explorer_graph_##data_gen##_gsource(gpointer data)
+VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
+    final Graph * graph = (Graph*)data;
+    gtk_widget_queue_draw(graph->widget);
+    return false;
+}
+#define VH_REFRESH_GRAPH(data_gen,graphType) \
+    Graph * graph = Graph_list_get_by_title(graphs, graphType); \
+    if ( graph != null ) { \
+        if ( VH_SHOULD_REFRESH_WIDGET(graph->widget) ) { \
+            Graph_list_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state())); \
+            g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
+        } \
+    } 
+
 gboolean vehicle_explorer_saej1979_data_fuel_system_status_gsource(gpointer data) {
     char *status = data;
     if ( status != null ) {
@@ -298,12 +313,8 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
-        char graphType[] = "Speed";
-        Graph * graph = Graph_list_get_by_title(graphs, graphType);
-        if ( graph != null ) {
-            Graph_list_append_data(graphs, graphType, saej1979_data_vehicle_speed(iface, useFreezeFrame));
-            gtk_widget_queue_draw(graph->widget);
-        } 
+        VH_REFRESH_GRAPH(saej1979_data_vehicle_speed, "Speed")
+
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
             if ( testsList != null ) {
