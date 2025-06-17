@@ -1,10 +1,4 @@
 ### Install
-#### From source
-```bash
-conda create -n autodiag python=3.11 && \
-    conda activate autodiag && \
-    pip install git+https://github.com/autodiag2/autodiag.git#egg=autodiag&subdirectory=pyautodiag
-```
 #### From GitHub
 Download a release from [releases](https://github.com/autodiag2/autodiag/releases), then
 ```bash
