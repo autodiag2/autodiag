@@ -715,16 +715,17 @@ void vehicle_explorer_show_window() {
 
 gboolean vehicle_explorer_set_widget_visible_true_callback(gpointer data) {
     GtkWidget *widget = (GtkWidget *)data;
-    gtk_widget_set_mapped(widget, true);
+    if (!gtk_widget_get_realized(widget))
+        gtk_widget_realize(widget);
     gtk_widget_set_visible(widget, true);
-    gtk_widget_realize(widget);
+    gtk_widget_queue_draw(widget);
     return false;
 }
-void vehicle_explorer_mapped_true_one_level_callback(GtkWidget *widget, gpointer data) {
+void vehicle_explorer_mapped_true_recurse_except_expanders(GtkWidget *widget, gpointer data) {
     final const char * name = gtk_widget_get_name(widget);
     if ( strcmp(name,"GtkBox") == 0 || strcmp(name,"GtkGrid") == 0 ) {
         gtk_container_foreach((GtkContainer*)widget,
-            vehicle_explorer_mapped_true_one_level_callback,
+            vehicle_explorer_mapped_true_recurse_except_expanders,
             null);
     } else {
         g_idle_add(vehicle_explorer_set_widget_visible_true_callback, widget);
@@ -734,7 +735,7 @@ void vehicle_explorer_mapped_true_one_level(GtkExpander* expander, gpointer data
     final bool state = gtk_expander_get_expanded(expander);
     if ( ! state ) {
         gtk_container_foreach((GtkContainer*)expander,
-            vehicle_explorer_mapped_true_one_level_callback,
+            vehicle_explorer_mapped_true_recurse_except_expanders,
             null);
     }
 }
