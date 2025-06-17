@@ -7,7 +7,7 @@
 
 typedef struct {
     double data;
-    time_t time;
+    int time;
 } GraphData;
 
 LIST_DEFINE_WITH_MEMBERS_AUTO(GraphData)
