@@ -19,6 +19,7 @@ typedef struct {
     GtkWidget * widget;
 } Graph;
 LIST_DEFINE_WITH_MEMBERS_AUTO(Graph)
+extern double graph_time_start_ms;
 
 GraphData * graph_data_new(final double data);
 Graph * graph_new(GtkWidget * widget, char *title, char *unit);

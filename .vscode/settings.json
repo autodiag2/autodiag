@@ -52,6 +52,7 @@
         "mutex": "c",
         "streambuf": "c",
         "sim.h": "c",
-        "iso3779.h": "c"
+        "iso3779.h": "c",
+        "graph_data.h": "c"
     }
 }

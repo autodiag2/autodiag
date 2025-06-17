@@ -1,14 +1,14 @@
 #include "libprog/graph_data.h"
 
-static double time_start_ms = 0;
+double graph_time_start_ms = 0;
 
 GraphData * graph_data_new(final double data) {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     double now_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
 
-    if (time_start_ms == 0) time_start_ms = now_ms;
-    int time_ms = now_ms - time_start_ms;
+    if (graph_time_start_ms == 0) graph_time_start_ms = now_ms;
+    int time_ms = now_ms - graph_time_start_ms;
 
     GraphData * graph_data = (GraphData*)malloc(sizeof(GraphData));
     graph_data->time = time_ms;

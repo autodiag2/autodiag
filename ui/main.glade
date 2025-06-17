@@ -11203,6 +11203,20 @@ What can be done:
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
+                                        <child>
+                                          <object class="GtkButton" id="vehicle-explorer-graphs-reset-data">
+                                            <property name="label" translatable="yes">Reset graph data</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="receives-default">True</property>
+                                            <signal name="clicked" handler="vehicle-explorer-graphs-reset-data" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>

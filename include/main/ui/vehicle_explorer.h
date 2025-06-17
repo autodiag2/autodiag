@@ -87,6 +87,7 @@ typedef struct {
         GtkButton * add;
         GtkComboBoxText *list;
         GtkGrid * container;
+        GtkButton * resetData;
     } graphs;
 } vehicleExplorerGui;
 

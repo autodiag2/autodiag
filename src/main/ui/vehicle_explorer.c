@@ -3,6 +3,7 @@
 vehicleExplorerGui *vdgui = null;
 pthread_t *vehicle_explorer_refresh_dynamic_thread = null;
 Graph_list *graphs = null;
+pthread_mutex_t graphs_mutex;
 
 static void vehicle_explorer_button_click_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
@@ -326,6 +327,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
+        pthread_mutex_lock(&graphs_mutex);
         VH_REFRESH_GRAPH(saej1979_data_engine_coolant_temperature, "Coolant Temperature")
         VH_REFRESH_GRAPH(saej1979_data_intake_air_temperature, "Intake Air Temperature")
         VH_REFRESH_GRAPH(saej1979_data_intake_manifold_pressure, "Intake Air Manifold Pressure")
@@ -344,6 +346,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_GRAPH(saej1979_data_fuel_injection_timing, "Injection timing")
         VH_REFRESH_GRAPH(saej1979_data_timing_advance_cycle_1, "Injection timing advance before TDC")
         VH_REFRESH_GRAPH_OX_SENSORS()
+        pthread_mutex_unlock(&graphs_mutex);
 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
@@ -436,6 +439,7 @@ void vehicle_explorer_refresh_one_time_with_spinner() {
     pthread_create(&t1, null, &vehicle_explorer_refresh_one_time_with_spinner_daemon, t);
 }
 gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
+    pthread_mutex_lock(&graphs_mutex);
     OBDIFace* iface = config.ephemere.iface;
     char * graph_title = (char*)user_data;
     final Graph * graph = Graph_list_get_by_title(graphs, graph_title);
@@ -593,7 +597,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         cairo_line_to(cr, x, y);
     }
     cairo_stroke(cr);
-
+    pthread_mutex_unlock(&graphs_mutex);
     return FALSE;
 }
 
@@ -603,6 +607,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     }
 
 void* vehicle_explorer_graphs_add_daemon(void *arg) {
+    pthread_mutex_lock(&graphs_mutex);
     static int graph_count = 0;
     OBDIFace* iface = config.ephemere.iface;
 
@@ -653,6 +658,7 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
             } 
             if ( ! sensor_found ) {
                 log_msg(LOG_ERROR, "Unsupported type of graph '%'", activeGraph);
+                pthread_mutex_unlock(&graphs_mutex);
                 return null;
             }
         }
@@ -669,11 +675,26 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
     } else {
         log_msg(LOG_ERROR, "Should raise a popup 'Please select the type of metric to display'");
     }
+    pthread_mutex_unlock(&graphs_mutex);
     return null;
 }
 void vehicle_explorer_graphs_add() {
     pthread_t t;
     pthread_create(&t, null, &vehicle_explorer_graphs_add_daemon, null);
+}
+void* vehicle_explorer_graphs_reset_data_daemon(void *arg) {
+    pthread_mutex_lock(&graphs_mutex);
+    for(int i = 0; i < graphs->size; i++) {
+        GraphData_list_free(graphs->list[i]->data);
+        graphs->list[i]->data = GraphData_list_new();
+    }
+    graph_time_start_ms = 0;
+    pthread_mutex_unlock(&graphs_mutex);
+    return null;
+}
+void vehicle_explorer_graphs_reset_data() {
+    pthread_t t;
+    pthread_create(&t, null, &vehicle_explorer_graphs_reset_data_daemon, null);
 }
 void vehicle_explorer_refresh_changed (GtkCheckMenuItem *checkmenuitem, gpointer user_data) {
     bool state = gtk_check_menu_item_get_active(checkmenuitem);
@@ -809,7 +830,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
             .graphs = {
                 .add = GTK_BUTTON(gtk_builder_get_object(builder,"vehicle-explorer-graphs-add")),
                 .list = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder,"vehicle-explorer-graphs-list")),
-                .container = GTK_GRID(gtk_builder_get_object(builder,"vehicle-explorer-graphs-container"))
+                .container = GTK_GRID(gtk_builder_get_object(builder,"vehicle-explorer-graphs-container")),
+                .resetData = GTK_BUTTON(gtk_builder_get_object(builder,"vehicle-explorer-graphs-reset-data"))
             }
         };
 
@@ -850,6 +872,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         g_signal_connect(G_OBJECT(vdgui->window),"delete-event",G_CALLBACK(vehicle_explorer_onclose),NULL);
         g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         error_feedback_windows_init(vdgui->errorFeedback);
+        gtk_builder_add_callback_symbol(builder, "vehicle-explorer-graphs-reset-data", &vehicle_explorer_graphs_reset_data);
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-graphs-add",&vehicle_explorer_graphs_add);
         gtk_builder_add_callback_symbol(builder,"show-window-vehicle-explorer",&vehicle_explorer_show_window);
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-click",&vehicle_explorer_refresh_one_time_with_spinner);
