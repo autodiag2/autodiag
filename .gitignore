@@ -15,3 +15,4 @@ autodiag
 *.so
 *.dylib
 *.dll
+doc
