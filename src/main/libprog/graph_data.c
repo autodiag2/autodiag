@@ -16,7 +16,7 @@ Graph * graph_new(char *title, char *unit) {
     graph->unit = strdup(unit);
     return graph;
 }
-void graph_append(Graph *graph, double data) {
+void graph_append_data(Graph *graph, double data) {
     assert(graph != null);
     GraphData_list_append(graph->data, graph_data_new(data));
 }
@@ -35,4 +35,14 @@ Graph * Graph_list_get_by_title(Graph_list * list, char * title) {
         }
     }
     return null;
+}
+
+bool Graph_list_append_data(Graph_list * list, char * title, double data) {
+    Graph * graph = Graph_list_get_by_title(list, title);
+    if ( graph == null ) {
+        return false;
+    } else {
+        GraphData_list_append(graph->data, graph_data_new(data));
+        return true;
+    }
 }

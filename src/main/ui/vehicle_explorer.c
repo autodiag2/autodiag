@@ -298,6 +298,10 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
+        char graphType[] = "Speed";
+        if ( Graph_list_get_by_title(graphs, graphType) != null ) {
+            Graph_list_append_data(graphs, graphType, 50);
+        } 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
             if ( testsList != null ) {

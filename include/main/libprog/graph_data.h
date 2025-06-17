@@ -20,7 +20,8 @@ LIST_DEFINE_WITH_MEMBERS_AUTO(Graph)
 
 GraphData * graph_data_new(final double data);
 Graph * graph_new(char *title, char *unit);
-void graph_append(Graph *graph, double data);
+void graph_append_data(Graph *graph, double data);
 Graph * Graph_list_get_by_title(Graph_list * list, char * title);
+bool Graph_list_append_data(Graph_list * list, char * title, double data);
 
 #endif
