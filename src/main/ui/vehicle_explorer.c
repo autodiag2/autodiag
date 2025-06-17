@@ -391,7 +391,7 @@ void vehicle_explorer_refresh_one_time_with_spinner() {
 gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     OBDIFace* iface = config.ephemere.iface;
     char * graph_title = (char*)user_data;
-    final Graph * graph = Graph_list_get_by_title(graph_title, "km/h");
+    final Graph * graph = Graph_list_get_by_title(graphs, graph_title);
     assert(graph != null);
 
     GtkAllocation allocation;
