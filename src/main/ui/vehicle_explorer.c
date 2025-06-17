@@ -446,32 +446,35 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
 
     if (min_val == max_val) max_val += 1;
     if (min_time == max_time) max_time += 1;
+    
+    int tick_count = 10;
+    double y_tick_step = (max_val - min_val) / tick_count;
+    double x_tick_step = (max_time - min_time) / tick_count;
 
     double y_scale = (height - margin_top - margin_bottom) / (max_val - min_val);
     double x_scale = (width - margin_left - 10) / (max_time - min_time);
 
-    // Draw background grid lines (Y-axis graduations)
+    // Background grid lines for both axes
     cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
     cairo_set_line_width(cr, 0.5);
-    for (int i = -100; i <= 200; i += 20) {
-        if (i < min_val || i > max_val) continue;
-        double y = height - margin_bottom - (i - min_val) * y_scale;
+
+    // Y grid lines
+    for (int i = 0; i <= tick_count; i++) {
+        double val = min_val + i * y_tick_step;
+        double y = height - margin_bottom - (val - min_val) * y_scale;
         cairo_move_to(cr, margin_left, y);
         cairo_line_to(cr, width, y);
         cairo_stroke(cr);
     }
 
-    // Draw background grid lines (X-axis graduations)
-    for (int t = (int)min_time; t <= (int)max_time; t++) {
+    // X grid lines
+    for (int i = 0; i <= tick_count; i++) {
+        double t = min_time + i * x_tick_step;
         double x = margin_left + (t - min_time) * x_scale;
         cairo_move_to(cr, x, margin_top);
         cairo_line_to(cr, x, height - margin_bottom);
         cairo_stroke(cr);
     }
-
-    int tick_count = 10;
-    double y_tick_step = (max_val - min_val) / tick_count;
-    double x_tick_step = (max_time - min_time) / tick_count;
 
     // Y-axis grid lines (light full-width)
     cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
