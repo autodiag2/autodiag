@@ -301,7 +301,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         char graphType[] = "Speed";
         Graph * graph = Graph_list_get_by_title(graphs, graphType);
         if ( graph != null ) {
-            Graph_list_append_data(graphs, graphType, rand() % 100);
+            Graph_list_append_data(graphs, graphType, saej1979_data_vehicle_speed(iface, useFreezeFrame));
             gtk_widget_queue_draw(graph->widget);
         } 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
@@ -540,7 +540,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_move_to(cr, 5, margin_top);
     cairo_show_text(cr, graph->unit);
     cairo_move_to(cr, width - 35, height - 5);
-    cairo_show_text(cr, "time");
+    cairo_show_text(cr, "time (ms since clear)");
 
     // Curve
     cairo_set_source_rgb(cr, 0, 0, 0);
