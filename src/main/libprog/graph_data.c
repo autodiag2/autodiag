@@ -24,9 +24,14 @@ void graph_append(Graph *graph, double data) {
 LIST_DEFINE_MEMBERS_SYM_AUTO(Graph)
 
 Graph * Graph_list_get_by_title(Graph_list * list, char * title) {
+    assert(list != null);
+    assert(title != null);
     for(int i = 0; i < list->size; i++) {
-        if ( strcmp(list->list[i]->title, title) == 0 ) {
-            return list->list[i];
+        Graph * graph = list->list[i];
+        assert(graph != null);
+        assert(graph->title != null);
+        if ( strcmp(graph->title, title) == 0 ) {
+            return graph;
         }
     }
     return null;

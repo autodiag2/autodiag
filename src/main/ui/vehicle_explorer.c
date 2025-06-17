@@ -392,6 +392,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     OBDIFace* iface = config.ephemere.iface;
     char * graph_title = (char*)user_data;
     final Graph * graph = Graph_list_get_by_title(graph_title, "km/h");
+    assert(graph != null);
 
     GtkAllocation allocation;
     gtk_widget_get_allocation(widget, &allocation);
@@ -405,14 +406,20 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_paint(cr);
 
-    const char *title = strdup(graph->title);
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 14.0);
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_text_extents_t ext;
-    cairo_text_extents(cr, title, &ext);
+    cairo_text_extents(cr, graph->title, &ext);
     cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing, margin_top - 10);
-    cairo_show_text(cr, title);
+    cairo_show_text(cr, graph->title);
+
+    if (graph->data->size == 0) {
+        cairo_set_font_size(cr, 10.0);
+        cairo_move_to(cr, margin_left + 10, height / 2);
+        cairo_show_text(cr, "(no data)");
+        return FALSE;
+    }
 
     GraphData * data_0 = graph->data->list[0];
     double min_val = data_0->data, max_val = data_0->data;

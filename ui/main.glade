@@ -11183,7 +11183,7 @@ What can be done:
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <items>
-                                              <item translatable="yes">speed</item>
+                                              <item translatable="yes">Speed</item>
                                             </items>
                                           </object>
                                           <packing>
