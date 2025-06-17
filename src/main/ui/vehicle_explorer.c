@@ -299,8 +299,10 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
         char graphType[] = "Speed";
-        if ( Graph_list_get_by_title(graphs, graphType) != null ) {
-            Graph_list_append_data(graphs, graphType, 50);
+        Graph * graph = Graph_list_get_by_title(graphs, graphType);
+        if ( graph != null ) {
+            Graph_list_append_data(graphs, graphType, rand() % 100);
+            gtk_widget_queue_draw(graph->widget);
         } 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
@@ -535,7 +537,7 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(vdgui->graphs.list));
     if ( 0 <= active_index ) {
         if ( strcmp(activeGraph, "Speed") == 0 ) {
-            Graph_list_append(graphs, graph_new(activeGraph, "km/h"));
+            Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "km/h"));
         } else {
             log_msg(LOG_ERROR, "Unsupported type of graph");
             return null;

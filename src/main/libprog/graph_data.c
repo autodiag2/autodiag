@@ -9,10 +9,11 @@ GraphData * graph_data_new(final double data) {
 
 LIST_DEFINE_MEMBERS_SYM_AUTO(GraphData)
 
-Graph * graph_new(char *title, char *unit) {
+Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
     Graph * graph = (Graph*)malloc(sizeof(Graph));
     graph->data = GraphData_list_new();
     graph->title = strdup(title);
+    graph->widget = widget;
     graph->unit = strdup(unit);
     return graph;
 }
