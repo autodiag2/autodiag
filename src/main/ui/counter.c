@@ -68,7 +68,7 @@ gboolean counter_draw_callback (GtkWidget *widget, cairo_t *cr, gpointer data) {
     cairo_translate(cr,0,text_height);
 
     char * img_path;
-    final char * data_dir = installation_folder("media");
+    final char * data_dir = installation_folder_resolve("media");
     asprintf(&img_path, "%s" PATH_FOLDER_DELIM "%s", data_dir, (char*)g_object_get_data(G_OBJECT(widget),COUNTER_REL_FILE_PATH_KEY));
     cairo_surface_t * surface = cairo_image_surface_create_from_png(img_path);
     free(data_dir);

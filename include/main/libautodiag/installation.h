@@ -14,11 +14,11 @@
 #include "compile_target.h"
 #include "file.h"
 
-static char *_installation_folder_override;
+static char *_installation_folder_resolve_override;
 /**
  * Get the storage directory
  */
-char *installation_folder(char *relative_path);
-void installation_folder_override(char *path);
+char *installation_folder_resolve(char *relative_path);
+void installation_folder_resolve_override(char *path);
 
 #endif

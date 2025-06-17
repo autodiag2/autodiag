@@ -51,7 +51,7 @@ ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
 
     gtk_init(0, NULL);
 
-    char *ui_dir = installation_folder("ui"), *elm327simUiPath;
+    char *ui_dir = installation_folder_resolve("ui"), *elm327simUiPath;
     if (ui_dir == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
         return NULL;

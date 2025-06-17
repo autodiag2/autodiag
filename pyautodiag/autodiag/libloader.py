@@ -29,9 +29,9 @@ def load_lib():
     lib_path = get_lib_path()
     lib = CDLL(lib_path)
 
-    installation_folder = os.path.join(os.path.dirname(__file__), "data")
-    lib.installation_folder_override.argtypes = [c_char_p]
-    lib.installation_folder_override(installation_folder.encode())
+    installation_folder_resolve = os.path.join(os.path.dirname(__file__), "data")
+    lib.installation_folder_resolve_override.argtypes = [c_char_p]
+    lib.installation_folder_resolve_override(installation_folder_resolve.encode())
 
     return lib
 

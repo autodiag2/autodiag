@@ -75,7 +75,7 @@ char * ISO3779_country(final ISO3779 *decoder) {
     final char *wmi = decoder->wmi;
     char *result = NULL;
 
-    char *countries_file = installation_folder("data/vehicle/countries.tsv");
+    char *countries_file = installation_folder_resolve("data/vehicle/countries.tsv");
     if (countries_file == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
         return null;
@@ -123,7 +123,7 @@ bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
 
 char * ISO3779_manufacturer(final ISO3779 *decoder) {
     final char * vin = buffer_to_ascii(decoder->vin);
-    char *manufacturers_file = installation_folder("data/vehicle/manufacturers.tsv");
+    char *manufacturers_file = installation_folder_resolve("data/vehicle/manufacturers.tsv");
     if (manufacturers_file == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
         return null;

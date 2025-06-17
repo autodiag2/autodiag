@@ -57,7 +57,7 @@ int main (int argc, char *argv[]) {
         } else if argIs("data") {
             argNext()
             if argIs("path") {
-                printf("data path: %s\n", installation_folder(""));
+                printf("data path: %s\n", installation_folder_resolve(""));
                 return 0;
             }
             ABORT_WITH_HELP()
