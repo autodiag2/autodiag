@@ -24,7 +24,7 @@ Some scantools are already avaliable on the market:
 Autodiag will be a simple scantool for desktop computer that allow to:
   - read DTCs: with both manufacturer specific definition and generic one
   - clear MIL: this clear the malfunction lamp on the car
-  - read sensors data: real time data retrieving and maybe graphing
+  - read sensors data: real time data retrieving and graphing
 
 It is mostly inspired from scantool.net but with a revisited GUI written in GTK, possibility to add DTC manufacturer specific after compilation.
 
