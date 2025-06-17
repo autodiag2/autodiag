@@ -11182,9 +11182,6 @@ What can be done:
                                           <object class="GtkComboBoxText" id="vehicle-explorer-graphs-list">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <items>
-                                              <item translatable="yes">Speed</item>
-                                            </items>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>

@@ -197,14 +197,15 @@ VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
     gtk_widget_queue_draw(graph->widget);
     return false;
 }
-#define VH_REFRESH_GRAPH(data_gen,graphType) \
+#define VH_REFRESH_GRAPH(data_gen,graphType) { \
     Graph * graph = Graph_list_get_by_title(graphs, graphType); \
     if ( graph != null ) { \
         if ( VH_SHOULD_REFRESH_WIDGET(graph->widget) ) { \
             Graph_list_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state())); \
             g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
         } \
-    } 
+    } \
+}
 
 gboolean vehicle_explorer_saej1979_data_fuel_system_status_gsource(gpointer data) {
     char *status = data;
@@ -313,7 +314,23 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
+        VH_REFRESH_GRAPH(saej1979_data_engine_coolant_temperature, "Coolant Temperature")
+        VH_REFRESH_GRAPH(saej1979_data_intake_air_temperature, "Intake Air Temperature")
+        VH_REFRESH_GRAPH(saej1979_data_intake_manifold_pressure, "Intake Air Manifold Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_maf_air_flow_rate, "Intake Air MAF Rate")
+        VH_REFRESH_GRAPH(saej1979_data_engine_speed, "Engine Speed")
         VH_REFRESH_GRAPH(saej1979_data_vehicle_speed, "Speed")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_pressure, "Fuel Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_tank_level_input, "Fuel Level")
+        VH_REFRESH_GRAPH(saej1979_data_ethanol_fuel_percent, "Fuel ethanol")
+        VH_REFRESH_GRAPH(saej1979_data_frp_relative, "Fuel Rail Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_engine_fuel_rate, "Fuel rate")
+        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_1, "Fuel trim long term bank1")
+        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_2, "Fuel trim long term bank2")
+        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_1, "Fuel trim short term bank1")
+        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_2, "Fuel trim short term bank2")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_injection_timing, "Injection timing")
+        VH_REFRESH_GRAPH(saej1979_data_timing_advance_cycle_1, "Injection timing advance before TDC")
 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
@@ -582,6 +599,22 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(vdgui->graphs.list));
     if ( 0 <= active_index ) {
         if VH_GRAPHS_IS_ACTIVE_SET("Speed", "km/h") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Coolant Temperature", "°C") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Intake Air Temperature", "°C") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Intake Air Manifold Pressure", "kPa") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Intake Air MAF Rate", "g/s") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Engine Speed", "r/min") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel Pressure", "kPa") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel Level", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel ethanol", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel Rail Pressure", "kPa") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel rate", "L/h") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel trim long term bank1", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel trim long term bank2", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel trim short term bank1", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Fuel trim short term bank2", "%") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Injection timing", "°") 
+        else if VH_GRAPHS_IS_ACTIVE_SET("Injection timing advance before TDC", "°") 
         else {
             log_msg(LOG_ERROR, "Unsupported type of graph");
             return null;
@@ -742,7 +775,25 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .container = GTK_GRID(gtk_builder_get_object(builder,"vehicle-explorer-graphs-container"))
             }
         };
-        
+
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Speed");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Coolant Temperature");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air Temperature");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air Manifold Pressure");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air MAF Rate");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Engine Speed");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Pressure");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Level");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel ethanol");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Rail Pressure");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel rate");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim long term bank1");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim long term bank2");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim short term bank1");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim short term bank2");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing");
+        gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing advance before TDC");
+
         vdgui = (vehicleExplorerGui*)malloc(sizeof(vehicleExplorerGui));
         (*vdgui) = g;
         counter_init_with(g.engine.vehicleSpeed,"counter_85_2_255_0_0_255.png");
