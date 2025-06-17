@@ -12,6 +12,7 @@ Scantool to read diagnostic codes with OBD2
   </tr>
   <tr>
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors-graph.png"></td>
   </tr>
 </table>
 
