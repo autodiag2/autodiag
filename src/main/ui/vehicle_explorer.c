@@ -430,6 +430,25 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     double y_scale = (height - margin_top - margin_bottom) / (max_val - min_val);
     double x_scale = (width - margin_left - 10) / (max_time - min_time);
 
+    // Draw background grid lines (Y-axis graduations)
+    cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
+    cairo_set_line_width(cr, 0.5);
+    for (int i = -100; i <= 200; i += 20) {
+        if (i < min_val || i > max_val) continue;
+        double y = height - margin_bottom - (i - min_val) * y_scale;
+        cairo_move_to(cr, margin_left, y);
+        cairo_line_to(cr, width, y);
+        cairo_stroke(cr);
+    }
+
+    // Draw background grid lines (X-axis graduations)
+    for (int t = (int)min_time; t <= (int)max_time; t++) {
+        double x = margin_left + (t - min_time) * x_scale;
+        cairo_move_to(cr, x, margin_top);
+        cairo_line_to(cr, x, height - margin_bottom);
+        cairo_stroke(cr);
+    }
+
     // Y-axis
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.0);
@@ -437,10 +456,10 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_line_to(cr, margin_left, height - margin_bottom);
     cairo_stroke(cr);
 
+    // Y-axis ticks and labels
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 9.0);
     cairo_set_line_width(cr, 0.8);
-
     for (int i = -100; i <= 200; i += 20) {
         if (i < min_val || i > max_val) continue;
         double y = height - margin_bottom - (i - min_val) * y_scale;
@@ -453,12 +472,13 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         cairo_show_text(cr, label);
     }
 
-    // X-axis
+    // X-axis line
     double base_y = height - margin_bottom;
     cairo_move_to(cr, margin_left, base_y);
     cairo_line_to(cr, width, base_y);
     cairo_stroke(cr);
 
+    // X-axis ticks and labels
     for (int t = (int)min_time; t <= (int)max_time; t++) {
         double x = margin_left + (t - min_time) * x_scale;
         cairo_move_to(cr, x, base_y);
@@ -470,12 +490,13 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         cairo_show_text(cr, label);
     }
 
+    // Axis labels
     cairo_move_to(cr, 5, margin_top);
     cairo_show_text(cr, "km/h");
     cairo_move_to(cr, width - 35, height - 5);
     cairo_show_text(cr, "time");
 
-    // curve
+    // Curve
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.2);
     double x = margin_left + (time_array[0] - min_time) * x_scale;
@@ -490,6 +511,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
 
     return FALSE;
 }
+
 void* vehicle_explorer_graphs_add_daemon(void *arg) {
     static int graph_count = 0;
     OBDIFace* iface = config.ephemere.iface;
