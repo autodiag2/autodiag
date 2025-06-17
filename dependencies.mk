@@ -57,6 +57,7 @@ obj/main/libautodiag/com/obd/obd.o: src/main/libautodiag/com/obd/obd.c \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -100,6 +101,7 @@ obj/main/libautodiag/com/obd/saej1979/data.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -144,6 +146,7 @@ obj/main/libautodiag/com/obd/saej1979/saej1979.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
@@ -188,6 +191,7 @@ obj/main/libautodiag/com/obd/saej1979/stored_dtcs.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
@@ -230,6 +234,7 @@ obj/main/libautodiag/com/obd/saej1979/vehicle_info.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -290,6 +295,7 @@ obj/main/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/com/serial/serial_list.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -332,6 +338,7 @@ obj/main/libautodiag/com/serial/elm/elm320.o: \
   include/main/libautodiag/com/serial/serial_list.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -373,6 +380,7 @@ obj/main/libautodiag/com/serial/elm/elm322.o: \
   include/main/libautodiag/com/serial/serial_list.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -414,6 +422,7 @@ obj/main/libautodiag/com/serial/elm/elm323/elm323.o: \
   include/main/libautodiag/com/serial/serial_list.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -454,6 +463,7 @@ obj/main/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -497,6 +507,7 @@ obj/main/libautodiag/com/serial/elm/elm327/iso15765.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -538,6 +549,7 @@ obj/main/libautodiag/com/serial/elm/elm329/elm329.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -581,6 +593,7 @@ obj/main/libautodiag/com/serial/elm/elm329/iso15765.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -686,7 +699,11 @@ obj/main/libautodiag/initools.o: src/main/libautodiag/initools.c \
 obj/main/libautodiag/installation.o: src/main/libautodiag/installation.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/lang.h \
-  include/main/libautodiag/compile_target.h
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/file.h include/main/libautodiag/string.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/list.h \
+  include/main/libautodiag/log.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/math.h
 obj/main/libautodiag/lang.o: src/main/libautodiag/lang.c \
   include/main/libautodiag/lang.h
 obj/main/libautodiag/lib.o: src/main/libautodiag/lib.c \
@@ -730,7 +747,12 @@ obj/main/libautodiag/model/iso3779.o: \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/byte.h include/main/libautodiag/math.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/file.h
+  include/main/libautodiag/file.h include/main/libautodiag/lib.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h \
+  include/main/libautodiag/stringlist.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h
 obj/main/libautodiag/model/vehicle.o: \
   src/main/libautodiag/model/vehicle.c \
   include/main/libautodiag/model/vehicle.h \
@@ -770,6 +792,7 @@ obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -816,6 +839,7 @@ obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -862,6 +886,7 @@ obj/main/libautodiag/sim/elm327/sim_generator_citroen_c5_x7.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -905,6 +930,7 @@ obj/main/libautodiag/sim/elm327/sim_generators.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -950,6 +976,7 @@ obj/main/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1001,6 +1028,7 @@ obj/main/libprog/config.o: src/main/libprog/config.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1046,6 +1074,7 @@ obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1071,7 +1100,21 @@ obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/sim_obd_generators.h include/main/ui/gtk.h \
-  include/main/ui/counter.h include/main/libprog/config.h
+  include/main/ui/counter.h include/main/libprog/config.h \
+  include/main/libautodiag/sim/elm327/sim_generator_citroen_c5_x7.h
+obj/main/libprog/graph_data.o: src/main/libprog/graph_data.c \
+  include/main/libprog/graph_data.h include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang.h include/main/libautodiag/list.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/string.h \
+  include/main/libautodiag/log.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h \
+  include/main/libautodiag/stringlist.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h
 obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libprog/serial_cli.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -1089,6 +1132,7 @@ obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1134,6 +1178,7 @@ obj/main/libprog/sim_obd_generators.o: \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1179,6 +1224,7 @@ obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1210,9 +1256,11 @@ obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/ui/documentation.h \
-  include/main/libprog/serial_cli.h include/main/libprog/elm327_cli.h \
-  include/main/libprog/sim_obd_generators.h
+  include/main/ui/counter.h include/main/libprog/graph_data.h \
+  include/main/ui/documentation.h include/main/libprog/serial_cli.h \
+  include/main/libprog/elm327_cli.h \
+  include/main/libprog/sim_obd_generators.h \
+  include/main/libautodiag/sim/elm327/sim_generator_citroen_c5_x7.h
 obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libprog/elm327_cli.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -1234,6 +1282,7 @@ obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1259,7 +1308,8 @@ obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/sim_obd_generators.h include/main/ui/gtk.h \
-  include/main/ui/counter.h include/main/libprog/config.h
+  include/main/ui/counter.h include/main/libprog/config.h \
+  include/main/libautodiag/sim/elm327/sim_generator_citroen_c5_x7.h
 obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/ui/CommandLine.h include/main/ui/ui.h \
   include/main/ui/gtk.h \
@@ -1279,6 +1329,7 @@ obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1322,6 +1373,7 @@ obj/main/ui/counter.o: src/main/ui/counter.c include/main/ui/counter.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1365,6 +1417,7 @@ obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1408,6 +1461,7 @@ obj/main/ui/error_feedback.o: src/main/ui/error_feedback.c \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1462,6 +1516,7 @@ obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1493,7 +1548,8 @@ obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/ui/documentation.h
+  include/main/ui/counter.h include/main/libprog/graph_data.h \
+  include/main/ui/documentation.h
 obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/ui/ui.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
@@ -1512,6 +1568,7 @@ obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1543,7 +1600,7 @@ obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/libautodiag/sim/elm327/nvm.h include/main/ui/main.h \
   include/main/ui/trouble_code_reader.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h include/main/ui/counter.h \
-  include/main/ui/documentation.h
+  include/main/libprog/graph_data.h include/main/ui/documentation.h
 obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/ui/trouble_code_reader.h include/main/ui/main.h \
   include/main/ui/ui.h include/main/ui/gtk.h \
@@ -1563,6 +1620,7 @@ obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1593,7 +1651,8 @@ obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/ui/documentation.h
+  include/main/ui/counter.h include/main/libprog/graph_data.h \
+  include/main/ui/documentation.h
 obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/ui/vehicle_explorer.h include/main/ui/ui.h \
   include/main/ui/gtk.h \
@@ -1613,6 +1672,7 @@ obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1638,7 +1698,7 @@ obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/counter.h
+  include/main/ui/counter.h include/main/libprog/graph_data.h
 obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   src/testFixtures/libTest.h \
   include/main/libautodiag/com/serial/serial.h \
@@ -1657,6 +1717,7 @@ obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1702,6 +1763,7 @@ obj/test/libautodiag/com/obd/obd.o: src/test/libautodiag/com/obd/obd.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1747,6 +1809,7 @@ obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1793,6 +1856,7 @@ obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1839,6 +1903,7 @@ obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1885,6 +1950,7 @@ obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1930,6 +1996,7 @@ obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -1975,6 +2042,7 @@ obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2020,6 +2088,7 @@ obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2065,6 +2134,7 @@ obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2091,8 +2161,7 @@ obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/sim/elm327/sim.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/sim/elm327/nvm.h \
-  include/main/libautodiag/model/iso3779.h
+  include/main/libautodiag/sim/elm327/nvm.h
 obj/test/libautodiag/sim/elm327/sim.o: \
   src/test/libautodiag/sim/elm327/sim.c src/testFixtures/libTest.h \
   include/main/libautodiag/com/serial/serial.h \
@@ -2111,6 +2180,7 @@ obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2156,6 +2226,7 @@ obj/test/libautodiag/stringlist.o: src/test/libautodiag/stringlist.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2201,6 +2272,7 @@ obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2246,6 +2318,7 @@ obj/test/obd_get_pid_supported.o: src/test/obd_get_pid_supported.c \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
@@ -2290,6 +2363,7 @@ obj/test/regression.o: src/test/regression.c src/testFixtures/libTest.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
   include/main/libautodiag/com/obd/iso15031/iso15031.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
   include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \

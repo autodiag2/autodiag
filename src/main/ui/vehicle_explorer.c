@@ -2,6 +2,7 @@
 
 vehicleExplorerGui *vdgui = null;
 pthread_t *vehicle_explorer_refresh_dynamic_thread = null;
+Graph_list *graphs = null;
 
 static void vehicle_explorer_button_click_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
@@ -389,6 +390,8 @@ void vehicle_explorer_refresh_one_time_with_spinner() {
 }
 gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     OBDIFace* iface = config.ephemere.iface;
+    char * graph_title = (char*)user_data;
+    final Graph * graph = Graph_list_get_by_title(graph_title, "km/h");
 
     GtkAllocation allocation;
     gtk_widget_get_allocation(widget, &allocation);
@@ -402,7 +405,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_paint(cr);
 
-    const char *title = "Speed";
+    const char *title = strdup(graph->title);
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 14.0);
     cairo_set_source_rgb(cr, 0, 0, 0);
@@ -411,17 +414,15 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing, margin_top - 10);
     cairo_show_text(cr, title);
 
-    int count = 10;
-    double data[] = {0, 10, 15, 20, 22, 25, 30, 60, 90, 93};
-    double time_array[] = {0, 1, 2, 3, 4, 5, 6, 8, 10, 12};
-
-    double min_val = data[0], max_val = data[0];
-    double min_time = time_array[0], max_time = time_array[0];
-    for (int i = 1; i < count; i++) {
-        if (data[i] < min_val) min_val = data[i];
-        if (data[i] > max_val) max_val = data[i];
-        if (time_array[i] < min_time) min_time = time_array[i];
-        if (time_array[i] > max_time) max_time = time_array[i];
+    GraphData * data_0 = graph->data->list[0];
+    double min_val = data_0->data, max_val = data_0->data;
+    double min_time = data_0->time, max_time = data_0->time;
+    for (int i = 1; i < graph->data->size; i++) {
+        GraphData * data = graph->data->list[i];
+        if (data->data < min_val) min_val = data->data;
+        if (data->data > max_val) max_val = data->data;
+        if (data->time < min_time) min_time = data->time;
+        if (data->time > max_time) max_time = data->time;
     }
 
     if (min_val == max_val) max_val += 1;
@@ -492,19 +493,20 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
 
     // Axis labels
     cairo_move_to(cr, 5, margin_top);
-    cairo_show_text(cr, "km/h");
+    cairo_show_text(cr, graph->unit);
     cairo_move_to(cr, width - 35, height - 5);
     cairo_show_text(cr, "time");
 
     // Curve
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.2);
-    double x = margin_left + (time_array[0] - min_time) * x_scale;
-    double y = height - margin_bottom - (data[0] - min_val) * y_scale;
+    double x = margin_left + (data_0->time - min_time) * x_scale;
+    double y = height - margin_bottom - (data_0->data - min_val) * y_scale;
     cairo_move_to(cr, x, y);
-    for (int i = 1; i < count; i++) {
-        x = margin_left + (time_array[i] - min_time) * x_scale;
-        y = height - margin_bottom - (data[i] - min_val) * y_scale;
+    for (int i = 1; i < graph->data->size; i++) {
+        final GraphData * data = graph->data->list[i];
+        x = margin_left + (data->time - min_time) * x_scale;
+        y = height - margin_bottom - (data->data - min_val) * y_scale;
         cairo_line_to(cr, x, y);
     }
     cairo_stroke(cr);
@@ -518,18 +520,29 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
 
     GtkWidget *drawing_area = gtk_drawing_area_new();
     gtk_widget_set_size_request(drawing_area, 300, 300);
+    final char * activeGraph = gtk_combo_box_text_get_active_text(vdgui->graphs.list);
+    int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(vdgui->graphs.list));
+    if ( 0 <= active_index ) {
+        if ( strcmp(activeGraph, "Speed") == 0 ) {
+            Graph_list_append(graphs, graph_new(activeGraph, "km/h"));
+        } else {
+            log_msg(LOG_ERROR, "Unsupported type of graph");
+            return null;
+        }
+        g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), strdup(activeGraph));
+        gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(vdgui->graphs.list), active_index);
 
-    g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), NULL);
+        final int col = graph_count % 2;
+        final int row = graph_count / 2;
 
-    int col = graph_count % 2;
-    int row = graph_count / 2;
+        gtk_grid_attach(GTK_GRID(vdgui->graphs.container), drawing_area, col, row, 1, 1);
+        gtk_widget_show_all(vdgui->graphs.container);
 
-    gtk_grid_attach(GTK_GRID(vdgui->graphs.container), drawing_area, col, row, 1, 1);
-    gtk_widget_show_all(vdgui->graphs.container);
-
-    graph_count++;
-
-    return NULL;
+        graph_count++;
+    } else {
+        log_msg(LOG_ERROR, "Should raise a popup 'Please select the type of metric to display'");
+    }
+    return null;
 }
 void vehicle_explorer_graphs_add() {
     pthread_t t;
@@ -605,6 +618,7 @@ void vehicle_explorer_mapped_false(GtkWidget *widget, gpointer data) {
 
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( vdgui == null ) {
+        graphs = Graph_list_new();
         vehicleExplorerGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-vehicle-explorer")),
             .refreshIcon = (GtkSpinner*)gtk_builder_get_object (builder, "window-vehicle-explorer-global-refresh"),

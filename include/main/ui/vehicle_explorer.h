@@ -7,6 +7,7 @@
 #include "libautodiag/com/obd/obd.h"
 #include "libprog/config.h"
 #include "counter.h"
+#include "libprog/graph_data.h"
 
 #define VH_GEN_OX_SENSOR_STRUCT(i) \
     struct { \
