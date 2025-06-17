@@ -397,37 +397,38 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
 
     const int margin_left = 50;
     const int margin_bottom = 30;
-    const int margin_top = 10;
+    const int margin_top = 30;
 
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_paint(cr);
 
-    // draw title
     const char *title = "Speed";
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cr, 14.0);
     cairo_set_source_rgb(cr, 0, 0, 0);
-
     cairo_text_extents_t ext;
     cairo_text_extents(cr, title, &ext);
-    cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing, margin_top + ext.height);
+    cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing, margin_top - 10);
     cairo_show_text(cr, title);
 
-    double data[width];
-    int count = width - margin_left;
-    for (int i = 0; i < count; i++) {
-        double t = i * 0.05;
-        data[i] = sin(t) * 80;
-    }
+    int count = 10;
+    double data[] = {0, 10, 15, 20, 22, 25, 30, 60, 90, 93};
+    double time_array[] = {0, 1, 2, 3, 4, 5, 6, 8, 10, 12};
 
     double min_val = data[0], max_val = data[0];
+    double min_time = time_array[0], max_time = time_array[0];
     for (int i = 1; i < count; i++) {
         if (data[i] < min_val) min_val = data[i];
         if (data[i] > max_val) max_val = data[i];
+        if (time_array[i] < min_time) min_time = time_array[i];
+        if (time_array[i] > max_time) max_time = time_array[i];
     }
 
     if (min_val == max_val) max_val += 1;
+    if (min_time == max_time) max_time += 1;
+
     double y_scale = (height - margin_top - margin_bottom) / (max_val - min_val);
+    double x_scale = (width - margin_left - 10) / (max_time - min_time);
 
     // Y-axis
     cairo_set_source_rgb(cr, 0, 0, 0);
@@ -436,21 +437,16 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     cairo_line_to(cr, margin_left, height - margin_bottom);
     cairo_stroke(cr);
 
-    // graduation ticks + labels
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 9.0);
     cairo_set_line_width(cr, 0.8);
 
-    for (int i = -100; i <= 100; i += 20) {
+    for (int i = -100; i <= 200; i += 20) {
         if (i < min_val || i > max_val) continue;
         double y = height - margin_bottom - (i - min_val) * y_scale;
-
-        // graduation tick
         cairo_move_to(cr, margin_left - 5, y);
         cairo_line_to(cr, margin_left, y);
         cairo_stroke(cr);
-
-        // text label
         char label[16];
         snprintf(label, sizeof(label), "%d", i);
         cairo_move_to(cr, margin_left - 40, y + 3);
@@ -458,18 +454,23 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     }
 
     // X-axis
-    double zero_y = height - margin_bottom - (-min_val * y_scale);
-    if (zero_y >= margin_top && zero_y <= height - margin_bottom) {
-        cairo_move_to(cr, margin_left, zero_y);
-        cairo_line_to(cr, width, zero_y);
-    } else {
-        cairo_move_to(cr, margin_left, height - margin_bottom);
-        cairo_line_to(cr, width, height - margin_bottom);
-    }
+    double base_y = height - margin_bottom;
+    cairo_move_to(cr, margin_left, base_y);
+    cairo_line_to(cr, width, base_y);
     cairo_stroke(cr);
 
-    // labels
-    cairo_move_to(cr, 5, margin_top + 10);
+    for (int t = (int)min_time; t <= (int)max_time; t++) {
+        double x = margin_left + (t - min_time) * x_scale;
+        cairo_move_to(cr, x, base_y);
+        cairo_line_to(cr, x, base_y + 5);
+        cairo_stroke(cr);
+        char label[16];
+        snprintf(label, sizeof(label), "%d", t);
+        cairo_move_to(cr, x - 5, base_y + 15);
+        cairo_show_text(cr, label);
+    }
+
+    cairo_move_to(cr, 5, margin_top);
     cairo_show_text(cr, "km/h");
     cairo_move_to(cr, width - 35, height - 5);
     cairo_show_text(cr, "time");
@@ -477,10 +478,12 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     // curve
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.2);
-    cairo_move_to(cr, margin_left, height - margin_bottom - (data[0] - min_val) * y_scale);
+    double x = margin_left + (time_array[0] - min_time) * x_scale;
+    double y = height - margin_bottom - (data[0] - min_val) * y_scale;
+    cairo_move_to(cr, x, y);
     for (int i = 1; i < count; i++) {
-        double x = margin_left + i;
-        double y = height - margin_bottom - (data[i] - min_val) * y_scale;
+        x = margin_left + (time_array[i] - min_time) * x_scale;
+        y = height - margin_bottom - (data[i] - min_val) * y_scale;
         cairo_line_to(cr, x, y);
     }
     cairo_stroke(cr);
