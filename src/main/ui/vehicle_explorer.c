@@ -197,11 +197,11 @@ VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
     gtk_widget_queue_draw(graph->widget);
     return false;
 }
-#define VH_REFRESH_GRAPH(data_gen,graphType) { \
+#define VH_REFRESH_GRAPH(data_gen,graphType, ...) { \
     Graph * graph = Graph_list_get_by_title(graphs, graphType); \
     if ( graph != null ) { \
         if ( VH_SHOULD_REFRESH_WIDGET(graph->widget) ) { \
-            Graph_list_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state())); \
+            Graph_list_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state(), ##__VA_ARGS__)); \
             g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
         } \
     } \
@@ -264,6 +264,18 @@ VH_OX_SENSOR_GSOURCE_SYM(7) VH_OX_SENSOR_GSOURCE_SYM(8)
     if ( VH_SHOULD_REFRESH_WIDGET(vdgui->engine.oxSensors.sensor_##sensor_i.ratio) ) { \
         g_idle_add(vehicle_explorer_saej1979_data_oxygen_sensor_air_fuel_equiv_ratio_##sensor_i##_gsource,doubledup(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, vehicle_explorer_show_freeze_frame_get_state(), sensor_i))); \
     }
+
+#define VH_REFRESH_GRAPH_OX_SENSORS() { \
+    for(int sensor_i = 1; sensor_i <= 8; sensor_i++) { \
+        char graphTitle[64]; \
+        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i); \
+        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_voltage, graphTitle, sensor_i) \
+        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i); \
+        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_current, graphTitle, sensor_i) \
+        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); \
+        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio, graphTitle, sensor_i) \
+    } \
+}
 
 gboolean vehicle_explorer_saej1979_data_tests_gsource(gpointer data) {
     GList* glist = gtk_container_get_children(vdgui->engine.tests);
@@ -331,6 +343,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_2, "Fuel trim short term bank2")
         VH_REFRESH_GRAPH(saej1979_data_fuel_injection_timing, "Injection timing")
         VH_REFRESH_GRAPH(saej1979_data_timing_advance_cycle_1, "Injection timing advance before TDC")
+        VH_REFRESH_GRAPH_OX_SENSORS()
 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
             SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
@@ -616,8 +629,32 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
         else if VH_GRAPHS_IS_ACTIVE_SET("Injection timing", "°") 
         else if VH_GRAPHS_IS_ACTIVE_SET("Injection timing advance before TDC", "°") 
         else {
-            log_msg(LOG_ERROR, "Unsupported type of graph");
-            return null;
+            bool sensor_found = false;
+            for(int sensor_i = 1; sensor_i <= 8; sensor_i++) { 
+                char graphTitle[64]; 
+                snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i); 
+                if ( strcmp(activeGraph, graphTitle) == 0 ) { 
+                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "V")); 
+                    sensor_found = true;
+                    break;
+                }
+                snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i); 
+                if ( strcmp(activeGraph, graphTitle) == 0 ) { 
+                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "mA")); 
+                    sensor_found = true;
+                    break;
+                }
+                snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); 
+                if ( strcmp(activeGraph, graphTitle) == 0 ) { 
+                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "ratio")); 
+                    sensor_found = true;
+                    break;
+                }
+            } 
+            if ( ! sensor_found ) {
+                log_msg(LOG_ERROR, "Unsupported type of graph '%'", activeGraph);
+                return null;
+            }
         }
         g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), strdup(activeGraph));
         gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(vdgui->graphs.list), active_index);
@@ -793,6 +830,15 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim short term bank2");
         gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing");
         gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing advance before TDC");
+        for(int sensor_i = 1; sensor_i <= 8; sensor_i++) { 
+            char graphTitle[64]; 
+            snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i); 
+            gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
+            snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i); 
+            gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
+            snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); 
+            gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
+        } 
 
         vdgui = (vehicleExplorerGui*)malloc(sizeof(vehicleExplorerGui));
         (*vdgui) = g;
