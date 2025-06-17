@@ -387,6 +387,34 @@ void vehicle_explorer_refresh_one_time_with_spinner() {
     pthread_create(t, null, &vehicle_explorer_refresh_one_time_daemon, null);
     pthread_create(&t1, null, &vehicle_explorer_refresh_one_time_with_spinner_daemon, t);
 }
+gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
+    OBDIFace* iface = config.ephemere.iface;
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_move_to(cr, 0, 100);
+    for (int x = 0; x < 400; x++) {
+        double y = 100 - sin(x * 0.05) * 50;
+        cairo_line_to(cr, x, y);
+    }
+    cairo_stroke(cr);
+    return FALSE;
+}
+void* vehicle_explorer_graphs_add_daemon(void *arg) {
+    OBDIFace* iface = config.ephemere.iface;
+
+    GtkWidget *drawing_area = gtk_drawing_area_new();
+    gtk_widget_set_size_request(drawing_area, 400, 200);
+
+    g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), null);
+
+    gtk_container_add(GTK_CONTAINER(vdgui->graphs.container), drawing_area);
+    gtk_widget_show_all(vdgui->graphs.container);
+
+    return NULL;
+}
+void vehicle_explorer_graphs_add() {
+    pthread_t t;
+    pthread_create(&t, null, &vehicle_explorer_graphs_add_daemon, null);
+}
 void vehicle_explorer_refresh_changed (GtkCheckMenuItem *checkmenuitem, gpointer user_data) {
     bool state = gtk_check_menu_item_get_active(checkmenuitem);
     config.vehicleExplorer.autoRefresh = state;
@@ -516,6 +544,11 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                     VH_RETRIEVE_OX_SENSOR(5),VH_RETRIEVE_OX_SENSOR(6),VH_RETRIEVE_OX_SENSOR(7),VH_RETRIEVE_OX_SENSOR(8)
                 },
                 .tests = GTK_CONTAINER(gtk_builder_get_object (builder,"vehicle-explorer-engine-tests"))
+            },
+            .graphs = {
+                .add = GTK_BUTTON(gtk_builder_get_object(builder,"vehicle-explorer-graphs-add")),
+                .list = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder,"vehicle-explorer-graphs-list")),
+                .container = GTK_GRID(gtk_builder_get_object(builder,"vehicle-explorer-graphs-container"))
             }
         };
         
@@ -529,6 +562,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         g_signal_connect(G_OBJECT(vdgui->window),"delete-event",G_CALLBACK(vehicle_explorer_onclose),NULL);
         g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         error_feedback_windows_init(vdgui->errorFeedback);
+        gtk_builder_add_callback_symbol(builder,"vehicle-explorer-graphs-add",&vehicle_explorer_graphs_add);
         gtk_builder_add_callback_symbol(builder,"show-window-vehicle-explorer",&vehicle_explorer_show_window);
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-click",&vehicle_explorer_refresh_one_time_with_spinner);
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-changed",G_CALLBACK(&vehicle_explorer_refresh_changed));

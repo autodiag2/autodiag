@@ -82,6 +82,11 @@ typedef struct {
         } oxSensors;
         GtkContainer* tests;
     } engine;
+    struct {
+        GtkButton * add;
+        GtkComboBoxText *list;
+        GtkGrid * container;
+    } graphs;
 } vehicleExplorerGui;
 
 void module_init_vehicle_explorer(final GtkBuilder *builder);
