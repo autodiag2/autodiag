@@ -469,44 +469,67 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         cairo_stroke(cr);
     }
 
-    // Y-axis
+    int tick_count = 10;
+    double y_tick_step = (max_val - min_val) / tick_count;
+    double x_tick_step = (max_time - min_time) / tick_count;
+
+    // Y-axis grid lines (light full-width)
+    cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
+    cairo_set_line_width(cr, 0.5);
+    for (int i = 0; i <= tick_count; i++) {
+        double val = min_val + i * y_tick_step;
+        double y = height - margin_bottom - (val - min_val) * y_scale;
+        cairo_move_to(cr, margin_left, y);
+        cairo_line_to(cr, width, y);
+        cairo_stroke(cr);
+    }
+
+    // Y-axis line
     cairo_set_source_rgb(cr, 0, 0, 0);
     cairo_set_line_width(cr, 1.0);
     cairo_move_to(cr, margin_left, margin_top);
     cairo_line_to(cr, margin_left, height - margin_bottom);
     cairo_stroke(cr);
 
-    // Y-axis ticks and labels
+    // Y-axis ticks and labels (short on axis only)
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 9.0);
     cairo_set_line_width(cr, 0.8);
-    for (int i = -100; i <= 200; i += 20) {
-        if (i < min_val || i > max_val) continue;
-        double y = height - margin_bottom - (i - min_val) * y_scale;
+    for (int i = 0; i <= tick_count; i++) {
+        double val = min_val + i * y_tick_step;
+        double y = height - margin_bottom - (val - min_val) * y_scale;
+
         cairo_move_to(cr, margin_left - 5, y);
         cairo_line_to(cr, margin_left, y);
         cairo_stroke(cr);
+
         char label[16];
-        snprintf(label, sizeof(label), "%d", i);
+        snprintf(label, sizeof(label), "%.1f", val);
         cairo_move_to(cr, margin_left - 40, y + 3);
         cairo_show_text(cr, label);
     }
 
-    // X-axis line
+    // Draw X-axis line
     double base_y = height - margin_bottom;
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_set_line_width(cr, 1.0);
     cairo_move_to(cr, margin_left, base_y);
     cairo_line_to(cr, width, base_y);
     cairo_stroke(cr);
 
-    // X-axis ticks and labels
-    for (int t = (int)min_time; t <= (int)max_time; t++) {
+    // Draw X-axis ticks and labels
+    cairo_set_font_size(cr, 9.0);
+    cairo_set_line_width(cr, 0.8);
+    for (int i = 0; i <= tick_count; i++) {
+        double t = min_time + i * x_tick_step;
         double x = margin_left + (t - min_time) * x_scale;
         cairo_move_to(cr, x, base_y);
         cairo_line_to(cr, x, base_y + 5);
         cairo_stroke(cr);
+
         char label[16];
-        snprintf(label, sizeof(label), "%d", t);
-        cairo_move_to(cr, x - 5, base_y + 15);
+        snprintf(label, sizeof(label), "%.0f", t);
+        cairo_move_to(cr, x - 10, base_y + 15);
         cairo_show_text(cr, label);
     }
 
