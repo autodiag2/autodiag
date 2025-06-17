@@ -50,7 +50,7 @@ GPL licence will allow both buisnesses and individual to use the software<br />
 - Read codes
 
 ## Installation errors
-See [here](/install-errors.md)
+See [here](/documentation/install-errors.md)
 
 # Compatibility
 OSs:<br />
@@ -63,4 +63,4 @@ Standards:  ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765
             Hayes command set 
 
 # Developer documentation
-See [here](/DEV.md)
+See [here](/documentation/DEV.md)
