@@ -517,10 +517,7 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
     OBDIFace* iface = config.ephemere.iface;
 
     GtkWidget *drawing_area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(drawing_area, 200, 200);
-
-    gtk_widget_set_hexpand(drawing_area, TRUE);
-    gtk_widget_set_vexpand(drawing_area, TRUE);
+    gtk_widget_set_size_request(drawing_area, 300, 300);
 
     g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(vehicle_explorer_graphs_on_draw), NULL);
 
