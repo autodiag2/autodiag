@@ -236,7 +236,7 @@ bool testSIM() {
         obd_send(iface, "0902");
         obd_clear_data(iface);
         obd_recv(iface);
-        BufferList_dump(iface->vehicle->obd_data_buffer);
+        Buffer_list_dump(iface->vehicle->obd_data_buffer);
         assert(17 < iface->vehicle->obd_data_buffer->list[0]->size);
     }
     return true;

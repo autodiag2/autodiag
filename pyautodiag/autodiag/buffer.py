@@ -92,14 +92,14 @@ lib.buffer_free.argtypes = [POINTER(Buffer)]
 lib.buffer_dump.argtypes = [POINTER(Buffer)]
 lib.buffer_recycle.argtypes = [POINTER(Buffer)]
 
-class BufferList(Structure):
+class Buffer_list(Structure):
     _fields_ = [
         ("size", c_int),
         ("list", POINTER(POINTER(Buffer)))
     ]
 
-    def empty(self): lib.BufferList_empty(byref(self))
-    def dump(self): lib.BufferList_dump(byref(self))
+    def empty(self): lib.Buffer_list_empty(byref(self))
+    def dump(self): lib.Buffer_list_dump(byref(self))
 
-lib.BufferList_empty.argtypes = [POINTER(BufferList)]
-lib.BufferList_dump.argtypes = [POINTER(BufferList)]
+lib.Buffer_list_empty.argtypes = [POINTER(Buffer_list)]
+lib.Buffer_list_dump.argtypes = [POINTER(Buffer_list)]

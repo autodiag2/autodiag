@@ -67,9 +67,9 @@ char* buffer_to_hex_string(Buffer *buffer);
  */
 char * buffer_to_ascii(final Buffer *buffer);
 
-LIST_DEFINE_WITH_MEMBERS(BufferList,Buffer)
-void BufferList_empty(BufferList* list);
-void BufferList_dump(final BufferList* list);
+LIST_DEFINE_WITH_MEMBERS_AUTO(Buffer)
+void Buffer_list_empty(Buffer_list* list);
+void Buffer_list_dump(final Buffer_list* list);
 /**
  * Obtain a new buffer with bytes initialized to random value
  */

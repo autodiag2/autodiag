@@ -186,8 +186,8 @@ void buffer_recycle(Buffer * buffer) {
     buffer->size = 0;
 }
 
-LIST_DEFINE_MEMBERS_SYM(BufferList,Buffer)
-LIST_EMPTY_SYM(BufferList, buffer_free)
+LIST_DEFINE_MEMBERS_SYM_AUTO(Buffer)
+LIST_EMPTY_SYM(Buffer_list, buffer_free)
 
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, int size) {
     assert(ascii_hex != null);
@@ -254,7 +254,7 @@ char* buffer_to_hex_string(Buffer *buffer) {
         return bytes_to_hex_string(buffer->buffer, buffer->size);
     }
 }
-void BufferList_dump(final BufferList* list) {
+void Buffer_list_dump(final Buffer_list* list) {
     assert(list != null);
     LIST_FOREACH(list,Buffer,buffer,
         buffer_dump(buffer);

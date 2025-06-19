@@ -60,11 +60,11 @@ bool testSAEJ1979(OBDIFace* iface) {
                             final Buffer * data_copy = buffer_copy(data);
                             buffer_extract_0(data_copy);
                             switch(service_id) {
-                                case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data,data_copy);break;
+                                case OBD_SERVICE_SHOW_CURRENT_DATA: Buffer_list_append(ecu->obd_service.current_data,data_copy);break;
                             }
                         }
                     }  else {
-                        BufferList_remove_at(ecu->obd_data_buffer,j);
+                        Buffer_list_remove_at(ecu->obd_data_buffer,j);
                         j--;
                     }
                 }

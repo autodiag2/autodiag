@@ -11,7 +11,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
         buffer_free(address); 
         
-        BufferList_append(ecu->obd_data_buffer,buffer_copy(bin_buffer)); 
+        Buffer_list_append(ecu->obd_data_buffer,buffer_copy(bin_buffer)); 
         return true;
     } else { 
         log_msg(LOG_DEBUG, "Not enough data received"); 
@@ -61,21 +61,21 @@ int obd_recv(final OBDIFace* iface) {
                         final Buffer * data_copy = buffer_copy(data);
                         buffer_extract_0(data_copy);
                         switch(sid) {
-                            case OBD_SERVICE_SHOW_CURRENT_DATA: BufferList_append(ecu->obd_service.current_data, data_copy); break;
-                            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: BufferList_append(ecu->obd_service.freeze_frame_data, data_copy); break;
-                            case OBD_SERVICE_TESTS_RESULTS: BufferList_append(ecu->obd_service.tests_results, data_copy); break;
-                            case OBD_SERVICE_TESTS_RESULTS_OTHER: BufferList_append(ecu->obd_service.tests_results_other, data_copy); break;
-                            case OBD_SERVICE_CONTROL_OPERATION: BufferList_append(ecu->obd_service.control_operation, data_copy); break;
-                            case OBD_SERVICE_PENDING_DTC: BufferList_append(ecu->obd_service.pending_dtc, data_copy); break;
-                            case OBD_SERVICE_NONE: BufferList_append(ecu->obd_service.none, data_copy); break;
-                            case OBD_SERVICE_SHOW_DTC: BufferList_append(ecu->obd_service.current_dtc, data_copy); break;
-                            case OBD_SERVICE_CLEAR_DTC: BufferList_append(ecu->obd_service.clear_dtc, data_copy); break;
-                            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: BufferList_append(ecu->obd_service.request_vehicle_information, data_copy); break;
-                            case OBD_SERVICE_PERMANENT_DTC: BufferList_append(ecu->obd_service.permanent_dtc, data_copy); break;
+                            case OBD_SERVICE_SHOW_CURRENT_DATA: Buffer_list_append(ecu->obd_service.current_data, data_copy); break;
+                            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: Buffer_list_append(ecu->obd_service.freeze_frame_data, data_copy); break;
+                            case OBD_SERVICE_TESTS_RESULTS: Buffer_list_append(ecu->obd_service.tests_results, data_copy); break;
+                            case OBD_SERVICE_TESTS_RESULTS_OTHER: Buffer_list_append(ecu->obd_service.tests_results_other, data_copy); break;
+                            case OBD_SERVICE_CONTROL_OPERATION: Buffer_list_append(ecu->obd_service.control_operation, data_copy); break;
+                            case OBD_SERVICE_PENDING_DTC: Buffer_list_append(ecu->obd_service.pending_dtc, data_copy); break;
+                            case OBD_SERVICE_NONE: Buffer_list_append(ecu->obd_service.none, data_copy); break;
+                            case OBD_SERVICE_SHOW_DTC: Buffer_list_append(ecu->obd_service.current_dtc, data_copy); break;
+                            case OBD_SERVICE_CLEAR_DTC: Buffer_list_append(ecu->obd_service.clear_dtc, data_copy); break;
+                            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: Buffer_list_append(ecu->obd_service.request_vehicle_information, data_copy); break;
+                            case OBD_SERVICE_PERMANENT_DTC: Buffer_list_append(ecu->obd_service.permanent_dtc, data_copy); break;
                         }
                     }
                 } else {
-                    BufferList_remove_at(ecu->obd_data_buffer,j);
+                    Buffer_list_remove_at(ecu->obd_data_buffer,j);
                     j--;
                 }
             }
@@ -98,7 +98,7 @@ void obd_clear_data(final OBDIFace* iface) {
     for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
         vehicle_ecu_empty(iface->vehicle->ecus[i]);
     }
-    BufferList_empty(iface->vehicle->obd_data_buffer);
+    Buffer_list_empty(iface->vehicle->obd_data_buffer);
 }
 
 void obd_free(final OBDIFace* iface) {

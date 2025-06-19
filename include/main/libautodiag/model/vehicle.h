@@ -11,7 +11,7 @@ typedef struct {
     /**
      * Data buffer that has been sent by this ECU.
      */
-    BufferList * obd_data_buffer;
+    Buffer_list * obd_data_buffer;
     /**
      * The source address of the message.
      */
@@ -32,23 +32,23 @@ typedef struct {
         /**
          * DTC reported by this ECU
          */
-        BufferList * current_dtc;
-        BufferList * pending_dtc;
-        BufferList * permanent_dtc;
+        Buffer_list * current_dtc;
+        Buffer_list * pending_dtc;
+        Buffer_list * permanent_dtc;
         /**
          * Data reported by the ECU
          */
-        BufferList * current_data;
-        BufferList * freeze_frame_data;
-        BufferList * tests_results;        
-        BufferList * tests_results_other;
+        Buffer_list * current_data;
+        Buffer_list * freeze_frame_data;
+        Buffer_list * tests_results;        
+        Buffer_list * tests_results_other;
         /**
          * Response trames to the clear request
          */
-        BufferList * clear_dtc;
-        BufferList * request_vehicle_information;
-        BufferList * control_operation;
-        BufferList * none;
+        Buffer_list * clear_dtc;
+        Buffer_list * request_vehicle_information;
+        Buffer_list * control_operation;
+        Buffer_list * none;
     } obd_service;
 
 } ECU;
@@ -71,7 +71,7 @@ typedef struct {
      * Contains the OBD data without taking care of which ecu has responded.
      * When we do not use headers or when we use headers but want to use in a more concise way.
      */
-    BufferList * obd_data_buffer;
+    Buffer_list * obd_data_buffer;
     Buffer * vin;
     char *country;
     /**
