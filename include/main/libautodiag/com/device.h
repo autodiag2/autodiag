@@ -61,7 +61,8 @@ typedef struct Device {
 
 #define DEVICE_ERROR -1
 /**
- * OBD data received by the device
+ * Binary data received by the device
+ * eg OBD Data hex string on the serial device
  */
 #define DEVICE_RECV_DATA -2
 /**
@@ -70,7 +71,7 @@ typedef struct Device {
 #define DEVICE_RECV_NULL -3
 /**
  * When the request information is no available on the corresponding vehicle
- * The wanted OBD data is not available
+ * eg The wanted OBD data is not available
  */
 #define DEVICE_RECV_DATA_UNAVAILABLE -4
 
