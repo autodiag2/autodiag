@@ -84,7 +84,8 @@
  * Where comparator has the shape bool sym(type_value* element, searched)
  * the type of searched depends of what the comparator decide to define
  */
-#define LIST_SRC_FIND(type,type_value,searched_type,comparator) type_value* type##_find(type* list, searched_type searched) { \
+#define LIST_H_FIND(element_type, searched_type) element_type* element_type##_list_find(element_type##_list* list, searched_type searched)
+#define LIST_SRC_FIND(element_type,searched_type,comparator) LIST_H_FIND(element_type, searched_type) { \
     for(int i = 0; i < list->size; i++) {\
         if ( comparator(list->list[i],searched) ) { \
             return list->list[i]; \
