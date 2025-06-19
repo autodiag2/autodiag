@@ -526,7 +526,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
     free(response);
     return true;
 }
-
+char *lastBinCommand = null;
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
@@ -552,6 +552,9 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     #define SIM_ELM327_REPLY_ATI() \
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
 
+    if ( lastBinCommand != null && strlen(buffer) == 1 && buffer[0] == '\r' ) {
+        buffer = lastBinCommand;
+    }
     if AT_PARSE("al") {
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("amc") {
@@ -937,6 +940,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             } else {
                 char * response = sim_elm327_bus(elm327,buffer);
                 if ( response != null ) {
+                    lastBinCommand = strdup(buffer);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }
@@ -949,11 +953,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
                 } else {
                     char * response = sim_elm327_bus(elm327,buffer);
                     if ( response != null ) {
+                        lastBinCommand = strdup(buffer);
                         SIM_ELM327_REPLY_GENERIC("%s", response);
-                    }                }
+                    }                
+                }
             } else {
                 char * response = sim_elm327_bus(elm327,buffer);
                 if ( response != null ) {
+                    lastBinCommand = strdup(buffer);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }

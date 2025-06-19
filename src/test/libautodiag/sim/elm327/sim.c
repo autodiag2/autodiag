@@ -118,7 +118,7 @@ void ensureReplayCommands() {
     obd_send(iface, "0101");
     obd_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
-    obd_send(iface, "");
+    obd_send(iface, ""); // does it works when changing the pp value of carriage return ? for the emulator point of view not (to test on the real device)
     obd_recv(iface);
     assert(iface->vehicle->data_buffer->size == 2);
 }
