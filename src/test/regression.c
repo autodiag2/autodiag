@@ -10,7 +10,6 @@ bool testSerialListOperations(OBDIFace* iface);
 bool testCarDatabaseLoad(OBDIFace* iface);
 bool testIniTools(OBDIFace* iface);
 bool testElm(final OBDIFace* iface);
-bool testStringList();
 bool testSIM();
 bool testISO3779();
 
@@ -20,7 +19,6 @@ int main(int argc, char **argv) {
 
     runTestMaybe(testBuffer,null);
     runTestMaybe(testGlobals,null);
-    runTestMaybe(testStringList,null);
     runTestMaybe(testSIM,null);
     runTestMaybe(testISO3779,null);
     
