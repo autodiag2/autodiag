@@ -47,7 +47,7 @@ void sim_elm327_add_dtc(GtkButton *button, gpointer user_data) {
         gtk_widget_show(label);
     }
 }
-ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
+ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator, char * ecuDesignation) {
 
     gtk_init(0, NULL);
 
@@ -61,6 +61,11 @@ ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
     GtkBuilder *builder = gtk_builder_new_from_file(elm327simUiPath);
     free(ui_dir);
     free(elm327simUiPath);
+    GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window-root"));
+    char * title;
+    asprintf(&title, "ECU %s generator", ecuDesignation);
+    gtk_window_set_title(GTK_WINDOW(window), title);
+    free(title);
 
     ELM327SimGui *simGui = (ELM327SimGui *)malloc(sizeof(ELM327SimGui));
     *simGui = (ELM327SimGui){
@@ -168,6 +173,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
+                final SimECU * target_ecu = sim->ecus->list[sim->ecus->size - 1];
                 final SimECUGenerator * generator;
                 if ( strcasecmp(optarg, "random") == 0 ) {
                     generator = sim_ecu_generator_new_random();
@@ -177,7 +183,9 @@ int sim_elm327_cli_main(int argc, char **argv) {
                     generator = sim_ecu_generator_new_citroen_c5_x7();
                 } else if ( strcasecmp(optarg,"gui") == 0 ) {
                     generator = sim_ecu_generator_new_gui();
-                    ELM327SimGui * context = sim_elm327_build_gui(generator);
+                    char address[3];
+                    sprintf(address, "%02hhX", target_ecu->address);
+                    ELM327SimGui * context = sim_elm327_build_gui(generator, address);
                     generator->context = context;
                     ELM327SimGui_list_append(guis, context);
                 } else {
@@ -185,7 +193,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                     return 1;
                 }
                 generator->type = strdup(optarg);
-                sim->ecus->list[sim->ecus->size - 1]->generator = generator;
+                target_ecu->generator = generator;
             } break;
             case 'c': {
                 final SimECUGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
