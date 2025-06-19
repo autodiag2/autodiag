@@ -713,7 +713,7 @@ void vehicle_explorer_show_window() {
     vehicle_explorer_refresh_changed(vdgui->menuBar.autoRefresh,null);
 }
 
-gboolean vehicle_explorer_set_widget_visible_true_callback(gpointer data) {
+gboolean vehicle_explorer_expander_show_child(gpointer data) {
     GtkWidget *widget = (GtkWidget *)data;
     if (!gtk_widget_get_realized(widget))
         gtk_widget_realize(widget);
@@ -721,40 +721,38 @@ gboolean vehicle_explorer_set_widget_visible_true_callback(gpointer data) {
     gtk_widget_queue_draw(widget);
     return false;
 }
-void vehicle_explorer_mapped_true_recurse_except_expanders(GtkWidget *widget, gpointer data) {
+void vehicle_explorer_expander_show_childs(GtkWidget *widget, gpointer data) {
     final const char * name = gtk_widget_get_name(widget);
     if ( strcmp(name,"GtkBox") == 0 || strcmp(name,"GtkGrid") == 0 ) {
         gtk_container_foreach((GtkContainer*)widget,
-            vehicle_explorer_mapped_true_recurse_except_expanders,
+            vehicle_explorer_expander_show_childs,
             null);
     } else {
-        g_idle_add(vehicle_explorer_set_widget_visible_true_callback, widget);
+        g_idle_add(vehicle_explorer_expander_show_child, widget);
     }
 }
-void vehicle_explorer_mapped_true_one_level(GtkExpander* expander, gpointer data) {
+void vehicle_explorer_expander_activate(GtkExpander* expander, gpointer data) {
     final bool state = gtk_expander_get_expanded(expander);
     if ( ! state ) {
         gtk_container_foreach((GtkContainer*)expander,
-            vehicle_explorer_mapped_true_recurse_except_expanders,
+            vehicle_explorer_expander_show_childs,
             null);
     }
 }
 
-void vehicle_explorer_mapped_false(GtkWidget *widget, gpointer data) {
-    final bool mapped = false;
+void vehicle_explorer_expanders_default_state(GtkWidget *widget, gpointer data) {
     final const char * name = gtk_widget_get_name(widget);
     if ( strcmp(name,"GtkExpander") == 0 ) {
-        g_signal_connect(G_OBJECT(widget),"activate",G_CALLBACK(vehicle_explorer_mapped_true_one_level),NULL);
+        g_signal_connect(G_OBJECT(widget),"activate",G_CALLBACK(vehicle_explorer_expander_activate),NULL);
         gtk_container_foreach(
             GTK_CONTAINER(gtk_bin_get_child(GTK_BIN(widget))),
-            vehicle_explorer_mapped_false,&mapped
+            vehicle_explorer_expanders_default_state, null
             );
     } else if ( strcmp(name,"GtkBox") == 0 || strcmp(name, "GtkGrid") == 0 ) {
         gtk_container_foreach(GTK_CONTAINER(widget),
-            vehicle_explorer_mapped_false, &mapped);
+            vehicle_explorer_expanders_default_state, null);
     } else {
-        gtk_widget_set_mapped(widget,mapped);
-        gtk_widget_set_visible(widget,mapped);        
+        gtk_widget_set_visible(widget, false);        
     }
 }
 
@@ -869,7 +867,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         counter_init_with(g.engine.speed,"counter_85_2_255_0_0_255.png");
         counter_init_with(g.engine.fuel.pressure,"gaugehalf_225_5_255_0_0_255.png");
         counter_init_with(g.engine.fuel.rail.pressure,"gaugehalf_225_5_255_0_0_255.png");        
-        vehicle_explorer_mapped_false((GtkWidget*)vdgui->engine.expandableSection,null);
+        vehicle_explorer_expanders_default_state((GtkWidget*)vdgui->engine.expandableSection,null);
         g_signal_connect(G_OBJECT(vdgui->window),"delete-event",G_CALLBACK(vehicle_explorer_onclose),NULL);
         g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         error_feedback_windows_init(vdgui->errorFeedback);
