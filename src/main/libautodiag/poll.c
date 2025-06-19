@@ -39,10 +39,23 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
         }
         return 0;
     #elif defined OS_POSIX
-        final POLLFD fileDescriptor = {
+        struct pollfd fileDescriptor = {
             .fd = *((int*)handle),
             .events = POLLIN
         };
-        return poll(&fileDescriptor,1,timeout_ms);
+        int ret = poll(&fileDescriptor, 1, timeout_ms);
+        if (ret > 0 && (fileDescriptor.revents & POLLIN)) {
+            if (readLen_rv != null) {
+                int available = 0;
+                if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
+                    *readLen_rv = available;
+                } else {
+                    *readLen_rv = 0;
+                }
+            }
+        } else if (readLen_rv != null) {
+            *readLen_rv = 0;
+        }
+        return ret;
     #endif
 }

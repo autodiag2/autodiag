@@ -3,6 +3,10 @@
 
 #include "compile_target.h"
 #include "lang.h"
+#include <unistd.h>
+#include <poll.h>
+#include <sys/ioctl.h>
+#include <errno.h>
 
 #ifdef OS_WINDOWS
 #   include <windows.h>
