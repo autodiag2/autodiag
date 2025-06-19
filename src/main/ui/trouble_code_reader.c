@@ -64,7 +64,7 @@ void trouble_code_reader_read_codes_show_ecus_buffer_internal() {
                 free(ascii_dump);
             }
             
-            LIST_FOREACH(ecu->obd_data_buffer,Buffer,buffer,
+            LIST_FOREACH(ecu->data_buffer,Buffer,buffer,
                 char * dump = bytes_to_hexdump(buffer->buffer, buffer->size);
                 char *tmp;
                 asprintf(&tmp, "%sdata#%d:\n%s",result,list_element_index+1,dump);

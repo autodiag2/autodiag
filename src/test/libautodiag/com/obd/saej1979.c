@@ -48,8 +48,8 @@ bool testSAEJ1979(OBDIFace* iface) {
         if ( 0 < v->ecus_len ) {
             for(int i = 0; i < v->ecus_len; i++) {
                 ECU * ecu = v->ecus[i];
-                for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                    final Buffer * data = ecu->obd_data_buffer->list[j];
+                for(int j = 0; j < ecu->data_buffer->size; j++) {
+                    final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {
                         final byte service_id = data->buffer[0];
                         if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
@@ -64,7 +64,7 @@ bool testSAEJ1979(OBDIFace* iface) {
                             }
                         }
                     }  else {
-                        Buffer_list_remove_at(ecu->obd_data_buffer,j);
+                        Buffer_list_remove_at(ecu->data_buffer,j);
                         j--;
                     }
                 }

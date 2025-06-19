@@ -19,7 +19,7 @@ class ECU_OBDService(Structure):
 
 class ECU(Structure):
     _fields_ = [
-        ('obd_data_buffer', POINTER(Buffer_list)),
+        ('data_buffer', POINTER(Buffer_list)),
         ('address', POINTER(Buffer)),
         ('name', c_char_p),
         ('model', c_char_p),
@@ -29,7 +29,7 @@ class ECU(Structure):
         print("ECU debug: {")
         print(f"  address: {addr(self.address)}")
         print(f"  name: {self.name.decode('utf-8') if self.name else 'None'}")
-        print(f"  obd_data_buffer: {addr(self.obd_data_buffer)}")
+        print(f"  data_buffer: {addr(self.data_buffer)}")
         print("  obd_service: {")
         for field_name, _ in ECU_OBDService._fields_:
             field_value = getattr(self.obd_service, field_name)
@@ -50,7 +50,7 @@ class Vehicle(Structure):
     _fields_ = [
         ('ecus', POINTER(POINTER(ECU))),
         ('ecus_len', c_int),
-        ('obd_data_buffer', POINTER(Buffer_list)),
+        ('data_buffer', POINTER(Buffer_list)),
         ('vin', POINTER(Buffer)),
         ('country', c_char_p),
         ('manufacturer', c_char_p),
@@ -78,7 +78,7 @@ class Vehicle(Structure):
             ecu = self.ecus[i]
             if ecu:
                 ecu.contents.debug_from_python()
-        print(f"  obd_data_buffer: {addr(self.obd_data_buffer)}")
+        print(f"  data_buffer: {addr(self.data_buffer)}")
         print("}")
     def ecu_add(self, address_bytes: bytes):
         size = len(address_bytes)

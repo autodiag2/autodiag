@@ -9,9 +9,10 @@
 
 typedef struct {
     /**
-     * Data buffer that has been sent by this ECU.
+     * Binary data (as hex string when on the interecting 
+     * through serial devices) received from this ECU.
      */
-    Buffer_list * obd_data_buffer;
+    Buffer_list * data_buffer;
     /**
      * The source address of the message.
      */
@@ -68,10 +69,10 @@ typedef struct {
     ECU ** ecus;
     int ecus_len;
     /**
-     * Contains the OBD data without taking care of which ecu has responded.
-     * When we do not use headers or when we use headers but want to use in a more concise way.
+     * Binary data (as hex string when on the interecting 
+     * through serial devices) received from this vehicle (any ECU).
      */
-    Buffer_list * obd_data_buffer;
+    Buffer_list * data_buffer;
     Buffer * vin;
     char *country;
     /**

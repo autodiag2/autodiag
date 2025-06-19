@@ -14,11 +14,11 @@
  * but passing parameters through the macro is a pain, for that writing custom data send function as
  * in saej1979_current_data_is_pid_supported is prefered.
  */
-#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,obd_data_buffer_accessor, ...) type symbol(final OBDIFace* iface, ##__VA_ARGS__) { \
-    SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,obd_data_buffer_accessor) \
+#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,data_buffer_accessor, ...) type symbol(final OBDIFace* iface, ##__VA_ARGS__) { \
+    SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,data_buffer_accessor) \
 }
 
-#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,obd_data_buffer_accessor) \
+#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,data_buffer_accessor) \
     obd_lock(iface); \
     int response = 0; \
     type result = errorValue; \
@@ -33,9 +33,9 @@
     response = obd_recv(iface); \
     if ( 0 < response ) { \
         if ( hasPid ) { \
-            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(obd_data_buffer_accessor,iterator,pid); \
+            OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(data_buffer_accessor,iterator,pid); \
         } else { \
-            OBD_ITERATE_ECUS_DATA_BUFFER(obd_data_buffer_accessor,iterator); \
+            OBD_ITERATE_ECUS_DATA_BUFFER(data_buffer_accessor,iterator); \
         } \
     } \
     obd_unlock(iface); \

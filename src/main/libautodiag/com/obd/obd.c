@@ -11,7 +11,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
         buffer_free(address); 
         
-        Buffer_list_append(ecu->obd_data_buffer,buffer_copy(bin_buffer)); 
+        Buffer_list_append(ecu->data_buffer,buffer_copy(bin_buffer)); 
         return true;
     } else { 
         log_msg(LOG_DEBUG, "Not enough data received"); 
@@ -29,7 +29,7 @@ int obd_send(final OBDIFace* iface, const char *request) {
 
 int obd_recv(final OBDIFace* iface) {
     iface->device->clear_data(iface->device);
-    final int initial_data_buffer_received = iface->vehicle->obd_data_buffer->size;
+    final int initial_data_buffer_received = iface->vehicle->data_buffer->size;
     switch(iface->device->recv(iface->device)) {
         case DEVICE_RECV_DATA: {
             if ( iface->device->parse_data == null ) {
@@ -49,8 +49,8 @@ int obd_recv(final OBDIFace* iface) {
             ECU * ecu = v->ecus[i];
             vehicle_ecu_empty_duplicated_info(ecu);
 
-            for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                final Buffer * data = ecu->obd_data_buffer->list[j];
+            for(int j = 0; j < ecu->data_buffer->size; j++) {
+                final Buffer * data = ecu->data_buffer->list[j];
                 if ( 0 < data->size ) {
                     final byte service_id = data->buffer[0];
                     if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
@@ -75,14 +75,14 @@ int obd_recv(final OBDIFace* iface) {
                         }
                     }
                 } else {
-                    Buffer_list_remove_at(ecu->obd_data_buffer,j);
+                    Buffer_list_remove_at(ecu->data_buffer,j);
                     j--;
                 }
             }
         }
     }
     vehicle_fill_global_obd_data_from_ecus(v);
-    return iface->vehicle->obd_data_buffer->size - initial_data_buffer_received;
+    return iface->vehicle->data_buffer->size - initial_data_buffer_received;
 }
 
 void obd_lock(final nonnull OBDIFace* iface) {
@@ -98,7 +98,7 @@ void obd_clear_data(final OBDIFace* iface) {
     for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
         vehicle_ecu_empty(iface->vehicle->ecus[i]);
     }
-    Buffer_list_empty(iface->vehicle->obd_data_buffer);
+    Buffer_list_empty(iface->vehicle->data_buffer);
 }
 
 void obd_free(final OBDIFace* iface) {

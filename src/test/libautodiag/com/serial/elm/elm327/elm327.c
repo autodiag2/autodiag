@@ -39,8 +39,8 @@ bool testELM327(OBDIFace* iface) {
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
             final ECU* ecu = tmp->vehicle->ecus[i];
-            for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                Buffer * data = ecu->obd_data_buffer->list[j];
+            for(int j = 0; j < ecu->data_buffer->size; j++) {
+                Buffer * data = ecu->data_buffer->list[j];
                 if ( 14 == data->size ) {
                     found = true;
                     assert(buffer_equals(buffer_from_ascii_hex("4306133613401338008713371339"),data));
@@ -65,8 +65,8 @@ bool testELM327(OBDIFace* iface) {
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
             final ECU* ecu = tmp->vehicle->ecus[i];
-            for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                Buffer * data = ecu->obd_data_buffer->list[j];
+            for(int j = 0; j < ecu->data_buffer->size; j++) {
+                Buffer * data = ecu->data_buffer->list[j];
                 assert( 14 == data->size );
                 assert(buffer_equals(should_obtain,data));
                 found = true;
@@ -87,8 +87,8 @@ bool testELM327(OBDIFace* iface) {
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
             final ECU* ecu = tmp->vehicle->ecus[i];
-            for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-                Buffer * data = ecu->obd_data_buffer->list[j];
+            for(int j = 0; j < ecu->data_buffer->size; j++) {
+                Buffer * data = ecu->data_buffer->list[j];
                 assert(buffer_equals(should_obtain,data));
                 found = true;
             }
@@ -106,8 +106,8 @@ bool testELM327(OBDIFace* iface) {
         vehicle_dump(tmp->vehicle);
         assert(tmp->vehicle->ecus_len == 1);
 
-        assert(buffer_equals(buffer_from_ascii_hex("43010301040105"),tmp->vehicle->ecus[0]->obd_data_buffer->list[0]));
-        assert(buffer_equals(buffer_from_ascii_hex("43010601070108"),tmp->vehicle->ecus[0]->obd_data_buffer->list[1]));
+        assert(buffer_equals(buffer_from_ascii_hex("43010301040105"),tmp->vehicle->ecus[0]->data_buffer->list[0]));
+        assert(buffer_equals(buffer_from_ascii_hex("43010601070108"),tmp->vehicle->ecus[0]->data_buffer->list[1]));
     }
     return true;
 }

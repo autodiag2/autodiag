@@ -99,7 +99,7 @@ int oneHex(char c);
                             if ( conversation->remaining_data_bytes_to_receive == 0 ) { \
                                 assert(conversation->ecu != null); \
                                 if ( bin_buffer != null ) { \
-                                    Buffer_list_append(conversation->ecu->obd_data_buffer,buffer_copy(conversation->data)); \
+                                    Buffer_list_append(conversation->ecu->data_buffer,buffer_copy(conversation->data)); \
                                 } \
                                 if ( Iso15765Conversation_list_remove(conversations, conversation) ) { \
                                     log_msg(LOG_DEBUG, "Conversation removed"); \

@@ -25,7 +25,7 @@ ECU* vehicle_ecu_new() {
     ECU* ecu = (ECU*)malloc(sizeof(ECU));
     ecu->address = buffer_new();
     ecu->name = null;
-    ecu->obd_data_buffer = Buffer_list_new();
+    ecu->data_buffer = Buffer_list_new();
     ecu->obd_service.current_data = Buffer_list_new();
     ecu->obd_service.freeze_frame_data = Buffer_list_new();
     ecu->obd_service.tests_results = Buffer_list_new();
@@ -41,7 +41,7 @@ ECU* vehicle_ecu_new() {
 }
 
 void vehicle_ecu_empty(ECU* ecu) {
-    Buffer_list_empty(ecu->obd_data_buffer);
+    Buffer_list_empty(ecu->data_buffer);
     vehicle_ecu_empty_duplicated_info(ecu);
 }
 void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
@@ -58,7 +58,7 @@ void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
     Buffer_list_empty(ecu->obd_service.permanent_dtc);
 }
 void vehicle_ecu_free(ECU* ecu) {
-    Buffer_list_free(ecu->obd_data_buffer);
+    Buffer_list_free(ecu->data_buffer);
     if ( ecu->address != null ) {
         free(ecu->address);
         ecu->address = null;
@@ -72,7 +72,7 @@ void vehicle_ecu_debug(final ECU *ecu) {
     printf("ECU debug: {\n");
     printf("  address: %p\n", ecu->address);
     printf("  name: %s\n", ecu->name ? ecu->name : "null");
-    printf("  obd_data_buffer: %p\n", ecu->obd_data_buffer);
+    printf("  data_buffer: %p\n", ecu->data_buffer);
     printf("  obd_service: {\n");
     printf("    current_data: %p\n", ecu->obd_service.current_data);
     printf("    freeze_frame_data: %p\n", ecu->obd_service.freeze_frame_data);
@@ -93,7 +93,7 @@ Vehicle * vehicle_new() {
     Vehicle * v = (Vehicle *)malloc(sizeof(Vehicle));
     v->ecus = null;
     v->ecus_len = 0;
-    v->obd_data_buffer = Buffer_list_new();
+    v->data_buffer = Buffer_list_new();
     v->country = null;
     v->manufacturer = null;
     v->year = VEHICLE_YEAR_EMPTY;
@@ -105,7 +105,7 @@ Vehicle * vehicle_new() {
 
 void vehicle_free(Vehicle * v) {
     if ( v != null ) {
-        Buffer_list_free(v->obd_data_buffer);
+        Buffer_list_free(v->data_buffer);
         if ( v->ecus != null ) {
             for(int i = 0; i < v->ecus_len; i++) {
                 vehicle_ecu_free(v->ecus[i]);
@@ -127,11 +127,11 @@ void vehicle_free(Vehicle * v) {
 }
 
 void vehicle_fill_global_obd_data_from_ecus(Vehicle* v) {
-    Buffer_list_empty(v->obd_data_buffer);
+    Buffer_list_empty(v->data_buffer);
     for ( int i = 0; i < v->ecus_len; i++) {
         ECU* ecu = v->ecus[i];
-        for(int j = 0; j < ecu->obd_data_buffer->size; j++) {
-            Buffer_list_append(v->obd_data_buffer,buffer_copy(ecu->obd_data_buffer->list[j]));
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            Buffer_list_append(v->data_buffer,buffer_copy(ecu->data_buffer->list[j]));
         }
     }
 }
@@ -143,14 +143,14 @@ void vehicle_debug(Vehicle* v) {
         ECU * ecu = v->ecus[i];
         vehicle_ecu_debug(ecu);
     }
-    printf("  obd_data_buffer: %p\n", v->obd_data_buffer);
+    printf("  data_buffer: %p\n", v->data_buffer);
     printf("}\n");
 }
 
 void vehicle_dump(Vehicle* v) {
     log_msg(LOG_DEBUG, "Vehicle dump");
     log_msg(LOG_DEBUG, "Global data");
-    Buffer_list_dump(v->obd_data_buffer);
+    Buffer_list_dump(v->data_buffer);
     for(int i = 0; i < v->ecus_len; i++) {
         log_msg(LOG_DEBUG, "Dump of one ECU");
         ECU * ecu = v->ecus[i];
@@ -158,7 +158,7 @@ void vehicle_dump(Vehicle* v) {
         Buffer * address = ecu->address;
         buffer_dump(address);
         log_msg(LOG_DEBUG, "content");
-        Buffer_list_dump(ecu->obd_data_buffer);
+        Buffer_list_dump(ecu->data_buffer);
 
         log_msg(LOG_DEBUG, "in current_data");
         Buffer_list_dump(ecu->obd_service.current_data);

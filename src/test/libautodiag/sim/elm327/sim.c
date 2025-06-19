@@ -33,7 +33,7 @@ void testSIM_1() {
                 obd_send(iface,"0101");
                 obd_clear_data(iface);
                 obd_recv(iface);
-                assert(iface->vehicle->obd_data_buffer->size == 3);
+                assert(iface->vehicle->data_buffer->size == 3);
 
                 obd_clear_data(iface);
                 iface->device->send(iface->device,"atsr E9");
@@ -41,7 +41,7 @@ void testSIM_1() {
                 obd_send(iface,"0101");
                 obd_clear_data(iface);
                 obd_recv(iface);
-                assert(iface->vehicle->obd_data_buffer->size == 1);        
+                assert(iface->vehicle->data_buffer->size == 1);        
 
                 obd_clear_data(iface);
                 iface->device->send(iface->device,"atar");
@@ -49,7 +49,7 @@ void testSIM_1() {
                 obd_send(iface,"0101");
                 obd_clear_data(iface);
                 obd_recv(iface);
-                assert(iface->vehicle->obd_data_buffer->size == 3);
+                assert(iface->vehicle->data_buffer->size == 3);
             }
         }
         
@@ -61,7 +61,7 @@ void testSIM_1() {
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 3);
+            assert(iface->vehicle->data_buffer->size == 3);
             
             obd_clear_data(iface);
             iface->device->send(iface->device,"atsr E9");
@@ -69,7 +69,7 @@ void testSIM_1() {
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 3);        
+            assert(iface->vehicle->data_buffer->size == 3);        
 
             obd_clear_data(iface);
             iface->device->send(iface->device,"atar");
@@ -77,7 +77,7 @@ void testSIM_1() {
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 3);
+            assert(iface->vehicle->data_buffer->size == 3);
         }   
         {
             obd_clear_data(iface);    
@@ -89,7 +89,7 @@ void testSIM_1() {
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 1);  
+            assert(iface->vehicle->data_buffer->size == 1);  
         }
         {
             obd_clear_data(iface);    
@@ -98,14 +98,14 @@ void testSIM_1() {
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 3);
+            assert(iface->vehicle->data_buffer->size == 3);
             obd_clear_data(iface);    
             iface->device->send(iface->device,"atcra 7EX");
             iface->device->recv(iface->device);
             obd_send(iface,"0101");
             obd_clear_data(iface);
             obd_recv(iface);
-            assert(iface->vehicle->obd_data_buffer->size == 2);
+            assert(iface->vehicle->data_buffer->size == 2);
         }        
     }
 }
@@ -225,7 +225,7 @@ bool testSIM() {
         obd_send(iface, "0900");
         obd_clear_data(iface);
         obd_recv(iface);
-        assert(buffer_cmp(iface->vehicle->obd_data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
+        assert(buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
     }
     {
         SimELM327* elm327 = sim_elm327_new();       
@@ -236,8 +236,8 @@ bool testSIM() {
         obd_send(iface, "0902");
         obd_clear_data(iface);
         obd_recv(iface);
-        Buffer_list_dump(iface->vehicle->obd_data_buffer);
-        assert(17 < iface->vehicle->obd_data_buffer->list[0]->size);
+        Buffer_list_dump(iface->vehicle->data_buffer);
+        assert(17 < iface->vehicle->data_buffer->list[0]->size);
     }
     return true;
 }
