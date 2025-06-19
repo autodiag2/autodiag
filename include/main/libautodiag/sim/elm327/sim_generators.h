@@ -12,6 +12,7 @@ typedef struct SimECUGenerator {
 SimECUGenerator* sim_ecu_generator_new_cycle();
 SimECUGenerator* sim_ecu_generator_new_random();
 SimECUGenerator * sim_ecu_generator_new();
+SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7();
 #define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((void *(*)(SimECUGenerator *, char **, Buffer *, Buffer *))f)
 
 #endif

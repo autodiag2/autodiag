@@ -4,7 +4,7 @@
 int dtc_count = 2;
 bool mil_on = true;
 
-void sim_ecu_generator_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -108,7 +108,7 @@ void sim_ecu_generator_citroen_c5_x7(SimECUGenerator *generator, char ** respons
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_citroen_c5_x7);
+    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_citroen_c5_x7);
     generator->type = strdup("Citroen C5 X7");
     return generator;
 }

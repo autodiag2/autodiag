@@ -54,6 +54,7 @@
         "sim.h": "c",
         "iso3779.h": "c",
         "graph_data.h": "c",
-        "vehicle.h": "c"
+        "vehicle.h": "c",
+        "sim_obd_generators.h": "c"
     }
 }

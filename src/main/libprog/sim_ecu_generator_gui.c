@@ -1,6 +1,6 @@
-#include "libprog/sim_obd_generators.h"
+#include "libprog/sim_ecu_generator_gui.h"
 
-void ecu_saej1979_sim_generator_gui(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
     ELM327SimGui *gui = (ELM327SimGui *)generator->context;
     
     switch(obd_query_bin->buffer[0]) {
@@ -93,7 +93,7 @@ void ecu_saej1979_sim_generator_gui(SimECUGenerator *generator, char ** response
 
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(ecu_saej1979_sim_generator_gui);
+    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_gui);
     generator->type = strdup("gui");
     return generator;
 }
