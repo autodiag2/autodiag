@@ -1,6 +1,6 @@
 #include "libautodiag/model/database.h"
 
-VehicleList database = { .list = null, .size = 0};
+Vehicle_list database = { .list = null, .size = 0};
 
 bool db_ecu_description_parser(char * funcData, char *key, char *value) {
     ECU* ecu = (ECU*)funcData;
@@ -49,7 +49,7 @@ Vehicle* db_vehicle_load_from_directory(char * directory) {
     vehicle = vehicle_new();
     if ( parse_ini_file(filename,db_vehicle_description_parser, vehicle) ) {
         vehicle->internal.directory = strdup(directory);
-        VehicleList_append(&database, vehicle);
+        Vehicle_list_append(&database, vehicle);
     } else {
         free(vehicle);
         vehicle = null;
@@ -105,7 +105,7 @@ void db_vehicle_load_in_memory_fs_recurse(final char*path) {
     #endif
 }
 void db_vehicle_load_in_memory() {
-    VehicleList_empty(&database);
+    Vehicle_list_empty(&database);
     final char * basepath = installation_folder_resolve("data/vehicle/");
     db_vehicle_load_in_memory_fs_recurse(basepath);
     free(basepath);
