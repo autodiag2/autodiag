@@ -43,7 +43,7 @@ Buffer * buffer_new_random_with_seed(int sz, unsigned * seed) {
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);
     for(int i = 0; i < sz; i++) {
-        buffer->buffer[i] = (char)rand_r(seed);
+        buffer->buffer[i] = (byte)rand_r(seed);
     }
     buffer->size = sz;
     return buffer;
