@@ -187,19 +187,8 @@ void buffer_recycle(Buffer * buffer) {
 }
 
 LIST_DEFINE_MEMBERS_SYM(BufferList,Buffer)
+LIST_EMPTY_SYM(BufferList, buffer_free)
 
-void BufferList_empty(BufferList * list) {
-    assert(list != null);
-    for(int i = 0; i < list->size; i ++) {
-        if ( list->list[i] != null ) {
-            buffer_free(list->list[i]);
-            list->list[i] = null;
-        }
-    }
-    free(list->list);
-    list->list = null;
-    list->size = 0;
-}
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, int size) {
     assert(ascii_hex != null);
     Buffer * bin = buffer_new();

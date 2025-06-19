@@ -70,6 +70,20 @@
     list->list[list->size-1] = value; \
 }
 
+#define LIST_EMPTY_H(type) void type##_empty(type * list)
+#define LIST_EMPTY_SYM(type, element_free) LIST_EMPTY_H(type) { \
+    assert(list != null); \
+    for(int i = 0; i < list->size; i ++) { \
+        if ( list->list[i] != null ) { \
+            element_free(list->list[i]); \
+            list->list[i] = null; \
+        } \
+    } \
+    free(list->list); \
+    list->list = null; \
+    list->size = 0; \
+}
+
 /**
  * Where comparator has the shape bool sym(type_value* element, searched)
  * the type of searched depends of what the comparator decide to define
