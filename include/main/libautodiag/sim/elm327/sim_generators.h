@@ -6,7 +6,7 @@
 typedef struct SimECUGenerator {
     void *context;
     char *type;
-    void * (*sim_ecu_generator_response)(struct SimECUGenerator * this, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin);
+    void * (*sim_ecu_generator_response)(struct SimECUGenerator * this, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin);
 } SimECUGenerator;
 
 SimECUGenerator* sim_ecu_generator_new_cycle();

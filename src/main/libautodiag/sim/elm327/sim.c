@@ -53,7 +53,7 @@ char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address
 char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_query_str, bool hasSpaces) {
     char * response = null;
     Buffer* obd_query_bin = buffer_new();
-    Buffer* responseOBDdataBin = buffer_new();
+    Buffer* binResponse = buffer_new();
     char * end_ptr = strstr(obd_query_str,elm327->eol);
 
     int szToRemove = 0;
@@ -91,13 +91,13 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    ecu->generator->sim_ecu_generator_response(ecu->generator, &response, responseOBDdataBin, obd_query_bin);
-    if ( 0 < responseOBDdataBin->size ) {
+    ecu->generator->sim_ecu_generator_response(ecu->generator, &response, binResponse, obd_query_bin);
+    if ( 0 < binResponse->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;
         int iso_15765_multi_message_sn = 0;
         int obdMessageDataBytes = 0;
-        for(int responseBodyIndex = 0; responseBodyIndex < responseOBDdataBin->size; responseBodyIndex += obdMessageDataBytes, iso_15765_multi_message_sn += 1) {
+        for(int responseBodyIndex = 0; responseBodyIndex < binResponse->size; responseBodyIndex += obdMessageDataBytes, iso_15765_multi_message_sn += 1) {
             
             final Buffer * responseBodyChunk = buffer_new();
             bool iso_15765_is_multi_message_ff = false;
@@ -111,7 +111,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
                 if ( hasPid ) {
                     buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[1]);
                 }
-                iso_15765_is_multi_message = 7 < responseOBDdataBin->size;
+                iso_15765_is_multi_message = 7 < binResponse->size;
                 if ( iso_15765_is_multi_message ) {
                     iso_15765_is_multi_message_ff = true;
                 }
@@ -125,8 +125,8 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
                     }
                 }
             }
-            obdMessageDataBytes = min(obdMessageDataBytesMax - responseBodyChunk->size, responseOBDdataBin->size - responseBodyIndex);
-            buffer_slice(responseBodyChunk, responseOBDdataBin, responseBodyIndex, obdMessageDataBytes);
+            obdMessageDataBytes = min(obdMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
+            buffer_slice(responseBodyChunk, binResponse, responseBodyIndex, obdMessageDataBytes);
 
             char * space = elm327->printing_of_spaces ? " " : "";
             char *header = "";
@@ -137,7 +137,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {
                         int extra_size = 1 + hasPid;
-                        asprintf(&response, "%03d%s", extra_size + responseOBDdataBin->size, elm327->eol);
+                        asprintf(&response, "%03d%s", extra_size + binResponse->size, elm327->eol);
                     }
                     asprintf(&header,"%d:", iso_15765_multi_message_sn);
                 }
@@ -148,7 +148,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
                     if ( iso_15765_is_multi_message ) {
                         if ( iso_15765_is_multi_message_ff ) {
                             log_msg(LOG_DEBUG, "reply first frame");
-                            int bytesSent = responseOBDdataBin->size + 1 + hasPid;
+                            int bytesSent = binResponse->size + 1 + hasPid;
                             int dl11_8 = (bytesSent & 0x0F00) >> 8;
                             final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                             final byte dl7_0 = bytesSent & 0xFF;
@@ -176,7 +176,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
             response = tmpResponse;
         }
     }
-    buffer_free(responseOBDdataBin);
+    buffer_free(binResponse);
     buffer_free(obd_query_bin);
     return response;
 }

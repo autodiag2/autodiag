@@ -1,6 +1,6 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
-void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *responseOBDdataBin, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin) {
     ELM327SimGui *gui = (ELM327SimGui *)generator->context;
     
     switch(obd_query_bin->buffer[0]) {
@@ -18,13 +18,13 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                             g_list_free(ptr);
                             status->buffer[0] |= is_checked << 7;
                         }
-                        buffer_append(responseOBDdataBin, status);
+                        buffer_append(binResponse, status);
                     } break;
                     case 0x05: {
                         gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                         int value = percent * span;
-                        buffer_append_byte(responseOBDdataBin, (byte)(value));
+                        buffer_append_byte(binResponse, (byte)(value));
                         char *res;
                         asprintf(&res, "%d °C", value - 40);
                         counter_set_label(gui->data.coolantTemperature, res);
@@ -36,8 +36,8 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
                         byte bA = (0xFF00 & value) >> 8;
                         byte bB = 0xFF & value;
-                        buffer_append_byte(responseOBDdataBin, bA);
-                        buffer_append_byte(responseOBDdataBin, bB);
+                        buffer_append_byte(binResponse, bA);
+                        buffer_append_byte(binResponse, bB);
                         char *res;
                         asprintf(&res, "%.2f r/min", value/4.0);
                         counter_set_label(gui->data.engineSpeed, res);
@@ -47,7 +47,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICULE_SPEED_MAX - SAEJ1979_DATA_VEHICULE_SPEED_MIN;
                         int value = percent * span;
-                        buffer_append_byte(responseOBDdataBin, (byte)value);
+                        buffer_append_byte(binResponse, (byte)value);
                         char *res;
                         asprintf(&res, "%d km/h", value);
                         counter_set_label(gui->data.vehicleSpeed, res);
@@ -71,7 +71,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
-                                buffer_append(responseOBDdataBin, dtc_bin);
+                                buffer_append(binResponse, dtc_bin);
                             }
                         } else {
                             g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
