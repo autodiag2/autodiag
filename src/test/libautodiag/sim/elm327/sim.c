@@ -109,8 +109,45 @@ void testSIM_1() {
         }        
     }
 }
-
+void ensureReplayCommands() {
+    SimELM327* elm327 = sim_elm327_new();       
+    sim_elm327_loop_as_daemon(elm327);
+    usleep(SIM_START_WAIT_MS);
+    final OBDIFace* iface = port_open(strdup(elm327->device_location));
+    obd_clear_data(iface);
+    obd_send(iface, "0101");
+    obd_recv(iface);
+    assert(iface->vehicle->data_buffer->size == 1);
+    obd_send(iface, "");
+    obd_recv(iface);
+    assert(iface->vehicle->data_buffer->size == 2);
+}
+void anyCommandShouldReplyUnknown() {
+    SimELM327* elm327 = sim_elm327_new();       
+    sim_elm327_loop_as_daemon(elm327);
+    usleep(SIM_START_WAIT_MS);
+    final OBDIFace* iface = port_open(strdup(elm327->device_location));
+    obd_clear_data(iface);
+    obd_send(iface, "azrer");
+    obd_recv(iface);
+    Serial * serial = (Serial*)iface->device;
+    buffer_ensure_termination(serial->recv_buffer);
+    assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
+}
+void emptyOrTooShortCommandShouldNotTriggerSegFault() {
+    SimELM327* elm327 = sim_elm327_new();       
+    sim_elm327_loop_as_daemon(elm327);
+    usleep(SIM_START_WAIT_MS);
+    final OBDIFace* iface = port_open(strdup(elm327->device_location));
+    final Serial * port = (Serial*)iface->device;
+    char buffer[] = "a";
+    int bytes_sent = write(port->implementation->fdtty,buffer,strlen(buffer));
+    obd_recv(iface);
+}
 bool testSIM() {
+    emptyOrTooShortCommandShouldNotTriggerSegFault();
+    anyCommandShouldReplyUnknown();
+    ensureReplayCommands();
     {
         log_msg(LOG_INFO, "Random generate gives different values over two different runs");
         SimELM327* elm327 = sim_elm327_new();       
