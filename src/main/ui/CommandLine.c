@@ -29,34 +29,30 @@ void command_line_append_text_to_output(final char *text) {
 
 void * command_line_send_command_wait_response_internal(final void * arg) {
     final char * command = (char*)arg;
-    if ( 0 < strlen(command) ) {
-        final SERIAL port = serial_list_get_selected();
-        if ( ! error_feedback_serial(cmdGui->errorFeedback,port) ) {
-            buffer_recycle(port->recv_buffer);
+    final SERIAL port = serial_list_get_selected();
+    if ( ! error_feedback_serial(cmdGui->errorFeedback,port) ) {
+        buffer_recycle(port->recv_buffer);
+        {
+            char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
+            char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
+            sprintf(msg, "%s> %s\n", ctime, command);
+            command_line_append_text_to_output(msg);
+            free(ctime);
+        }
+        if ( port->send(port, command) == DEVICE_ERROR ) {
+            error_feedback_serial(cmdGui->errorFeedback,port);                
+        } else {
+            port->recv(port);
             {
-                char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
-                char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
-                sprintf(msg, "%s> %s\n", ctime, command);
-                command_line_append_text_to_output(msg);
-                free(ctime);
-            }
-            if ( port->send(port, command) == DEVICE_ERROR ) {
-                error_feedback_serial(cmdGui->errorFeedback,port);                
-            } else {
-                port->recv(port);
-                {
-                    final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
-                    if ( result == null ) {
-                        command_line_append_text_to_output("No data received from the device\n");
-                    } else {
-                        command_line_append_text_to_output(result);
-                        free(result);
-                    }
+                final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
+                if ( result == null ) {
+                    command_line_append_text_to_output("No data received from the device\n");
+                } else {
+                    command_line_append_text_to_output(result);
+                    free(result);
                 }
             }
         }
-    } else {
-        module_debug(MODULE_COMMAND_LINE "void command detected");
     }
     pthread_exit(0);
 }
