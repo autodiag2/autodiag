@@ -16,7 +16,7 @@ GraphData * graph_data_new(final double data) {
     return graph_data;
 }
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(GraphData)
+LIST_SRC(GraphData)
 
 Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
     Graph * graph = (Graph*)malloc(sizeof(Graph));
@@ -31,7 +31,7 @@ void graph_append_data(Graph *graph, double data) {
     GraphData_list_append(graph->data, graph_data_new(data));
 }
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(Graph)
+LIST_SRC(Graph)
 
 Graph * Graph_list_get_by_title(Graph_list * list, char * title) {
     assert(list != null);

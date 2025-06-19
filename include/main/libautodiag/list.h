@@ -20,30 +20,26 @@
 /**
  * Used to define generic list - each new value is a pointer
  */
-#define LIST_DEFINE(type,element_type) \
+#define LIST_INCLUDE_STRUCT(element_type) \
     typedef struct { \
         int size; \
         element_type **list; \
-    } type;
+    } element_type##_list;
 
-#define LIST_DEFINE_WITH_MEMBERS_AUTO(element_type) \
-    LIST_DEFINE_WITH_MEMBERS(element_type##_list, element_type)
-#define LIST_DEFINE_WITH_MEMBERS(type,element_type) \
-    LIST_DEFINE(type,element_type) \
-    LIST_NEW_H(type); \
-    LIST_FREE_H(type); \
-    LIST_APPEND_H(type,element_type); \
-    LIST_REMOVE_H(type,element_type); \
-    LIST_REMOVE_AT_H(type,element_type);
+#define LIST_H(element_type) \
+    LIST_INCLUDE_STRUCT(element_type) \
+    LIST_NEW_H(element_type##_list); \
+    LIST_FREE_H(element_type##_list); \
+    LIST_APPEND_H(element_type##_list,element_type); \
+    LIST_REMOVE_H(element_type##_list,element_type); \
+    LIST_REMOVE_AT_H(element_type##_list,element_type);
 
-#define LIST_DEFINE_MEMBERS_SYM_AUTO(element_type) \
-    LIST_DEFINE_MEMBERS_SYM(element_type##_list, element_type)
-#define LIST_DEFINE_MEMBERS_SYM(type,element_type) \
-    LIST_NEW_SYM(type) \
-    LIST_FREE_SYM(type) \
-    LIST_APPEND_SYM(type,element_type) \
-    LIST_REMOVE_SYM(type,element_type) \
-    LIST_REMOVE_AT_SYM(type,element_type)
+#define LIST_SRC(element_type) \
+    LIST_NEW_SYM(element_type##_list) \
+    LIST_FREE_SYM(element_type##_list) \
+    LIST_APPEND_SYM(element_type##_list,element_type) \
+    LIST_REMOVE_SYM(element_type##_list,element_type) \
+    LIST_REMOVE_AT_SYM(element_type##_list,element_type)
 
 #define LIST_NEW_H(type) type* type##_new()
 #define LIST_NEW_SYM(type) LIST_NEW_H(type) { \

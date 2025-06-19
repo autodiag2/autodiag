@@ -1,7 +1,7 @@
 #include "libautodiag/sim/elm327/sim.h"
 #include "libautodiag/sim/elm327/elm327.h"
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(SimECU)
+LIST_SRC(SimECU)
 
 Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
     char *protocolSpecificHeader = null;

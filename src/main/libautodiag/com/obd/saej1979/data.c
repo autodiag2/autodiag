@@ -253,7 +253,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(SAEJ1979_DATA_Test)
+LIST_SRC(SAEJ1979_DATA_Test)
 
 SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool useFreezedData, byte* (*data_accessor)(final OBDIFace* iface, bool useFreezedData)) {
     SAEJ1979_DATA_Test_list *list = SAEJ1979_DATA_Test_list_new();

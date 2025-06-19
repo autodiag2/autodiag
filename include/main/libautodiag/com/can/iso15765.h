@@ -55,7 +55,7 @@ typedef struct {
 Iso15765Conversation* iso15765_init_conversation(int expected_bytes);
 void iso15765_conversation_free(Iso15765Conversation *conv);
 
-LIST_DEFINE_WITH_MEMBERS_AUTO(Iso15765Conversation)
+LIST_H(Iso15765Conversation)
 Iso15765Conversation* Iso15765Conversation_list_find(Iso15765Conversation_list* list, ECU* ecu);
 
 #endif

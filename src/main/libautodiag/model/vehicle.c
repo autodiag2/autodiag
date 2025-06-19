@@ -186,7 +186,7 @@ void vehicle_dump(Vehicle* v) {
     }
 }
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(Vehicle)
+LIST_SRC(Vehicle)
 
 void Vehicle_list_empty(Vehicle_list * list) {
     assert(list != null);

@@ -67,7 +67,7 @@ char* buffer_to_hex_string(Buffer *buffer);
  */
 char * buffer_to_ascii(final Buffer *buffer);
 
-LIST_DEFINE_WITH_MEMBERS_AUTO(Buffer)
+LIST_H(Buffer)
 void Buffer_list_empty(Buffer_list* list);
 void Buffer_list_dump(final Buffer_list* list);
 /**

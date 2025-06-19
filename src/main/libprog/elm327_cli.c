@@ -96,8 +96,8 @@ ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
     return simGui;
 }
 
-LIST_DEFINE_WITH_MEMBERS_AUTO(ELM327SimGui)
-LIST_DEFINE_MEMBERS_SYM_AUTO(ELM327SimGui)
+LIST_H(ELM327SimGui)
+LIST_SRC(ELM327SimGui)
 typedef struct {
     SimELM327* sim;
     ELM327_PROTO *proto;

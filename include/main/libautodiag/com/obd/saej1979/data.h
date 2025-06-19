@@ -35,7 +35,7 @@ typedef struct {
     char * name;
     bool completed;
 } SAEJ1979_DATA_Test;
-LIST_DEFINE_WITH_MEMBERS_AUTO(SAEJ1979_DATA_Test)
+LIST_H(SAEJ1979_DATA_Test)
 /**
  * Get a list of avaliable tests on the car and the completeness of those
  * @param thisDriveCycleOnly use result of tests occurred this drive cycle

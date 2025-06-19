@@ -13,7 +13,7 @@ typedef struct SimECU {
      */
     char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * obd_query_str, bool hasSpaces);
 } SimECU;
-LIST_DEFINE_WITH_MEMBERS_AUTO(SimECU)
+LIST_H(SimECU)
 
 #define ELM327_CAN_28_BITS_DEFAULT_PRIO 0x18
 

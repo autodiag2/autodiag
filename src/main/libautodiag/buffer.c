@@ -186,7 +186,7 @@ void buffer_recycle(Buffer * buffer) {
     buffer->size = 0;
 }
 
-LIST_DEFINE_MEMBERS_SYM_AUTO(Buffer)
+LIST_SRC(Buffer)
 LIST_EMPTY_SYM(Buffer_list, buffer_free)
 
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, int size) {

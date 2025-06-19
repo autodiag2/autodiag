@@ -10,7 +10,7 @@ typedef struct {
     int time;
 } GraphData;
 
-LIST_DEFINE_WITH_MEMBERS_AUTO(GraphData)
+LIST_H(GraphData)
 
 typedef struct {
     char *title;
@@ -18,7 +18,7 @@ typedef struct {
     char *unit;
     GtkWidget * widget;
 } Graph;
-LIST_DEFINE_WITH_MEMBERS_AUTO(Graph)
+LIST_H(Graph)
 extern double graph_time_start_ms;
 
 GraphData * graph_data_new(final double data);
