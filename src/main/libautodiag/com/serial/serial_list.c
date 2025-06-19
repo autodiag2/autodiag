@@ -35,7 +35,7 @@ SERIAL serial_list_add_if_not_in_by_name(char * name) {
     }
 }
 
-LIST_APPEND_SYM(Serial_list,Serial)
+LIST_SRC_APPEND(Serial_list,Serial)
 
 void serial_list_set_selected_by_name(char *name) {
     if ( name == null ) {

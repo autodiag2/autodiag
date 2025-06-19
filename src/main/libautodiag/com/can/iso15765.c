@@ -24,7 +24,7 @@ void iso15765_conversation_free(Iso15765Conversation *conv) {
 bool Iso15765Conversation_list_find_comparator(Iso15765Conversation *conv, ECU* ecu) {
     return conv->ecu == ecu;
 }
-LIST_FIND_SYM(Iso15765Conversation_list,Iso15765Conversation,
+LIST_SRC_FIND(Iso15765Conversation_list,Iso15765Conversation,
                 ECU*,Iso15765Conversation_list_find_comparator
 )
 LIST_SRC(Iso15765Conversation)

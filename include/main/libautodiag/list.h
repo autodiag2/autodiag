@@ -20,37 +20,37 @@
 /**
  * Used to define generic list - each new value is a pointer
  */
-#define LIST_INCLUDE_STRUCT(element_type) \
+#define LIST_H_STRUCT(element_type) \
     typedef struct { \
         int size; \
         element_type **list; \
     } element_type##_list;
 
 #define LIST_H(element_type) \
-    LIST_INCLUDE_STRUCT(element_type) \
-    LIST_NEW_H(element_type##_list); \
-    LIST_FREE_H(element_type##_list); \
-    LIST_APPEND_H(element_type##_list,element_type); \
-    LIST_REMOVE_H(element_type##_list,element_type); \
-    LIST_REMOVE_AT_H(element_type##_list,element_type);
+    LIST_H_STRUCT(element_type) \
+    LIST_H_NEW(element_type##_list); \
+    LIST_H_FREE(element_type##_list); \
+    LIST_H_APPEND(element_type##_list,element_type); \
+    LIST_H_REMOVE(element_type##_list,element_type); \
+    LIST_H_REMOVE_AT(element_type##_list,element_type);
 
 #define LIST_SRC(element_type) \
-    LIST_NEW_SYM(element_type##_list) \
-    LIST_FREE_SYM(element_type##_list) \
-    LIST_APPEND_SYM(element_type##_list,element_type) \
-    LIST_REMOVE_SYM(element_type##_list,element_type) \
-    LIST_REMOVE_AT_SYM(element_type##_list,element_type)
+    LIST_SRC_NEW(element_type##_list) \
+    LIST_SRC_FREE(element_type##_list) \
+    LIST_SRC_APPEND(element_type##_list,element_type) \
+    LIST_SRC_REMOVE(element_type##_list,element_type) \
+    LIST_SRC_REMOVE_AT(element_type##_list,element_type)
 
-#define LIST_NEW_H(type) type* type##_new()
-#define LIST_NEW_SYM(type) LIST_NEW_H(type) { \
+#define LIST_H_NEW(type) type* type##_new()
+#define LIST_SRC_NEW(type) LIST_H_NEW(type) { \
     type* list = (type*) malloc(sizeof(type)); \
     list->size = 0; \
     list->list = null; \
     return list; \
 }
 
-#define LIST_FREE_H(type) void type##_free(type* list)
-#define LIST_FREE_SYM(type) LIST_FREE_H(type) { \
+#define LIST_H_FREE(type) void type##_free(type* list)
+#define LIST_SRC_FREE(type) LIST_H_FREE(type) { \
    if (list->list != null ) {\
         for(int i = 0; i < list->size; i ++) {\
             free(list->list[i]);\
@@ -60,14 +60,14 @@
     } \
 }
 
-#define LIST_APPEND_H(type,type_value) void type##_append(type * list, type_value* value) 
-#define LIST_APPEND_SYM(type,type_value) LIST_APPEND_H(type,type_value) { \
+#define LIST_H_APPEND(type,type_value) void type##_append(type * list, type_value* value) 
+#define LIST_SRC_APPEND(type,type_value) LIST_H_APPEND(type,type_value) { \
     list->list = (type_value**)realloc(list->list, sizeof(type_value*) * (++list->size)); \
     list->list[list->size-1] = value; \
 }
 
-#define LIST_EMPTY_H(type) void type##_empty(type * list)
-#define LIST_EMPTY_SYM(type, element_free) LIST_EMPTY_H(type) { \
+#define LIST_H_EMPTY(type) void type##_empty(type * list)
+#define LIST_SRC_EMPTY(type, element_free) LIST_H_EMPTY(type) { \
     assert(list != null); \
     for(int i = 0; i < list->size; i ++) { \
         if ( list->list[i] != null ) { \
@@ -84,7 +84,7 @@
  * Where comparator has the shape bool sym(type_value* element, searched)
  * the type of searched depends of what the comparator decide to define
  */
-#define LIST_FIND_SYM(type,type_value,searched_type,comparator) type_value* type##_find(type* list, searched_type searched) { \
+#define LIST_SRC_FIND(type,type_value,searched_type,comparator) type_value* type##_find(type* list, searched_type searched) { \
     for(int i = 0; i < list->size; i++) {\
         if ( comparator(list->list[i],searched) ) { \
             return list->list[i]; \
@@ -96,8 +96,8 @@
 /**
  * Remove an element given as a pointer from the given list using address based comparision
  */
-#define LIST_REMOVE_H(type,type_value) bool type##_remove(type* list, type_value* element)
-#define LIST_REMOVE_SYM(type,type_value) LIST_REMOVE_H(type,type_value) { \
+#define LIST_H_REMOVE(type,type_value) bool type##_remove(type* list, type_value* element)
+#define LIST_SRC_REMOVE(type,type_value) LIST_H_REMOVE(type,type_value) { \
     int index = -1; \
     for(int i = 0; i < list->size; i++) {\
         if ( 0 <= index ) { \
@@ -118,8 +118,8 @@
     return 0 <= index; \
 }
 
-#define LIST_REMOVE_AT_H(type, type_value) type_value* type##_remove_at(type* list, int i)
-#define LIST_REMOVE_AT_SYM(type, type_value) LIST_REMOVE_AT_H(type,type_value) { \
+#define LIST_H_REMOVE_AT(type, type_value) type_value* type##_remove_at(type* list, int i)
+#define LIST_SRC_REMOVE_AT(type, type_value) LIST_H_REMOVE_AT(type,type_value) { \
     assert(list != null); \
     assert(i < list->size); \
     final type_value * res = list->list[i]; \

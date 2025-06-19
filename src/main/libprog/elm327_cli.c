@@ -98,6 +98,7 @@ ELM327SimGui * sim_elm327_build_gui(SimECUGenerator *generator) {
 
 LIST_H(ELM327SimGui)
 LIST_SRC(ELM327SimGui)
+
 typedef struct {
     SimELM327* sim;
     ELM327_PROTO *proto;

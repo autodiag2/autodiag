@@ -15,8 +15,8 @@
 #   define SERIAL_LIST_PIPE_PREFIX "elm327sim_"
 #endif
 
-LIST_INCLUDE_STRUCT(Serial)
-LIST_APPEND_H(Serial_list,Serial);
+LIST_H_STRUCT(Serial)
+LIST_H_APPEND(Serial_list,Serial);
 
 extern Serial_list serial_list;
 extern int serial_list_selected;

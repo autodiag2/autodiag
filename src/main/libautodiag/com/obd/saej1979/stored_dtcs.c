@@ -233,7 +233,7 @@ char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {
 
 LIST_SRC(SAEJ1979_DTC)
 
-LIST_NEW_SYM(SAEJ1979_DTC_DESCRIPTION_list)
+LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION_list)
 void SAEJ1979_DTC_DESCRIPTION_list_append(SAEJ1979_DTC_DESCRIPTION_list * list, SAEJ1979_DTC_DESCRIPTION *desc) {
     list->list = (SAEJ1979_DTC_DESCRIPTION*)realloc(list->list, sizeof(SAEJ1979_DTC_DESCRIPTION) * ++list->size);
     list->list[list->size-1] = *desc;
