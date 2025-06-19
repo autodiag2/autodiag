@@ -6,24 +6,24 @@ void sim_ecu_generator_cycle_iterate(int service_id, int pid, unsigned gears) {
     sim_ecu_generator_cycle_percent[service_id][pid] += (100/gears);
     sim_ecu_generator_cycle_percent[service_id][pid] %= 100;
 }
-void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
     }
-    switch(obd_query_bin->buffer[0]) {
+    switch(binRequest->buffer[0]) {
         case 0x02: case 0x01: {
-            buffer_append(binResponse,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+            buffer_append(binResponse,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
         } break;
         case 0x07: case 0x0A: case 0x03: {
-            buffer_append(binResponse,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][0]));                
+            buffer_append(binResponse,buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][0]));                
         } break;
         case 0x04: {
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case 0x09: {
-            if ( 1 < obd_query_bin->size ) {            
-                switch(obd_query_bin->buffer[1]) {
+            if ( 1 < binRequest->size ) {            
+                switch(binRequest->buffer[1]) {
                     case 0x00: {
                         buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
                         break;
@@ -33,7 +33,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
                         break;
                     }
                     case 0x02: {
-                        buffer_append(binResponse,buffer_new_cycle(17, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
+                        buffer_append(binResponse,buffer_new_cycle(17, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));                
                         break;
                     }
                     case 0x03: {
@@ -41,7 +41,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
                         break;
                     }
                     case 0x04: {
-                        buffer_append(binResponse,buffer_new_cycle(16, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));                
+                        buffer_append(binResponse,buffer_new_cycle(16, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));                
                         break;
                     }
                     case 0x05: {
@@ -49,7 +49,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
                         break;
                     }
                     case 0x06: {
-                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x07: {
@@ -57,7 +57,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
                         break;
                     }
                     case 0x08: {
-                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x09: {
@@ -71,7 +71,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[obd_query_bin->buffer[0]][obd_query_bin->buffer[1]]));
+                        buffer_append(binResponse,buffer_new_cycle(4, sim_ecu_generator_cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                 }
@@ -80,7 +80,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
             }
         } break;
     }
-    sim_ecu_generator_cycle_iterate(obd_query_bin->buffer[0], 1 < obd_query_bin->size ? obd_query_bin->buffer[1] : 0, gears);
+    sim_ecu_generator_cycle_iterate(binRequest->buffer[0], 1 < binRequest->size ? binRequest->buffer[1] : 0, gears);
 }
 
 SimECUGenerator* sim_ecu_generator_new_cycle() {

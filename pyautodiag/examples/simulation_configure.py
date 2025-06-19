@@ -8,8 +8,8 @@ log_set_level(LOG_DEBUG)
 emulation = SimELM327()
 
 @SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
-def custom_sim_ecu_generator_response(generator_ptr, response_ptr, binResponse, obd_query_bin):
-    print(obd_query_bin)
+def custom_sim_ecu_generator_response(generator_ptr, response_ptr, binResponse, binRequest):
+    print(binRequest)
     response_ptr[0] = c_char_p(b"OK")
 
 class CustomECUGenerator(SimECUGenerator):

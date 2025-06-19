@@ -50,11 +50,11 @@ char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address
     return protocolSpecificHeader;     
 }
 
-char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_query_str, bool hasSpaces) {
+char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request, bool hasSpaces) {
     char * response = null;
-    Buffer* obd_query_bin = buffer_new();
+    Buffer* binRequest = buffer_new();
     Buffer* binResponse = buffer_new();
-    char * end_ptr = strstr(obd_query_str,elm327->eol);
+    char * end_ptr = strstr(request,elm327->eol);
 
     int szToRemove = 0;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -68,30 +68,30 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
         if ( elm327->can.extended_addressing ) {
             szToRemove += 2 + hasSpaces;
         }
-        if ( strlen(obd_query_str) <= szToRemove ) {
+        if ( strlen(request) <= szToRemove ) {
             log_msg(LOG_ERROR, "Can auto formatting is disabled, but seem header not provided");
             return null;
         }
     } else {
         szToRemove = 3 * (2 + hasSpaces);
     }
-    obd_query_str = obd_query_str + szToRemove;
+    request = request + szToRemove;
 
-    elm_ascii_to_bin_internal(hasSpaces, obd_query_bin, obd_query_str, end_ptr == null ? obd_query_str + strlen(obd_query_str): end_ptr);
+    elm_ascii_to_bin_internal(hasSpaces, binRequest, request, end_ptr == null ? request + strlen(request): end_ptr);
     if ( ! elm327->can.auto_format ) {
-        byte pci = obd_query_bin->buffer[0];
+        byte pci = binRequest->buffer[0];
         assert((pci & 0xF0) == Iso15765SingleFrame);
         int sz = pci & 0x0F;
-        if ( obd_query_bin->size != (sz + 1) ) {
+        if ( binRequest->size != (sz + 1) ) {
             log_msg(LOG_WARNING, "Single frame pci size does not match");
             return strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
         }
     }
-    if ( 0 == obd_query_bin->size ) {
+    if ( 0 == binRequest->size ) {
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    ecu->generator->sim_ecu_generator_response(ecu->generator, &response, binResponse, obd_query_bin);
+    ecu->generator->sim_ecu_generator_response(ecu->generator, &response, binResponse, binRequest);
     if ( 0 < binResponse->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;
@@ -102,14 +102,14 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
             final Buffer * responseBodyChunk = buffer_new();
             bool iso_15765_is_multi_message_ff = false;
             bool hasPid = false;
-            switch(obd_query_bin->buffer[0]) {
+            switch(binRequest->buffer[0]) {
                 case 0x01: case 0x02: case 0x09: hasPid = true; break;
             }
 
             if ( responseBodyIndex == 0 ) {
-                buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+                buffer_append_byte(responseBodyChunk, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
                 if ( hasPid ) {
-                    buffer_append_byte(responseBodyChunk, obd_query_bin->buffer[1]);
+                    buffer_append_byte(responseBodyChunk, binRequest->buffer[1]);
                 }
                 iso_15765_is_multi_message = 7 < binResponse->size;
                 if ( iso_15765_is_multi_message ) {
@@ -177,7 +177,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * obd_que
         }
     }
     buffer_free(binResponse);
-    buffer_free(obd_query_bin);
+    buffer_free(binRequest);
     return response;
 }
 

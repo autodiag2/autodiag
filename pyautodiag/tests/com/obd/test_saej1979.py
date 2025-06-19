@@ -10,8 +10,8 @@ def test_saej1979():
 
     temperature = 0
     @SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
-    def custom_sim_ecu_generator_response(generator_ptr, response_ptr, binResponse, obd_query_bin):
-        hexString = obd_query_bin.contents.to_hex_string()
+    def custom_sim_ecu_generator_response(generator_ptr, response_ptr, binResponse, binRequest):
+        hexString = binRequest.contents.to_hex_string()
         print(hexString)
         if hexString == "0105":
             binResponse.contents.append_byte(temperature + 40)

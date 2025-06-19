@@ -1,14 +1,14 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
-void sim_ecu_generator_response_random(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_random(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
         *seed = 1;
         generator->context = seed;
     }
-    switch(obd_query_bin->buffer[0]) {
+    switch(binRequest->buffer[0]) {
         case 0x02: case 0x01: {
             buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
@@ -19,8 +19,8 @@ void sim_ecu_generator_response_random(SimECUGenerator *generator, char ** respo
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case 0x09: {
-            if ( 1 < obd_query_bin->size ) {            
-                switch(obd_query_bin->buffer[1]) {
+            if ( 1 < binRequest->size ) {            
+                switch(binRequest->buffer[1]) {
                     case 0x00: {
                         buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
                         break;

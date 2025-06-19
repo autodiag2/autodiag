@@ -1,12 +1,12 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
-void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     ELM327SimGui *gui = (ELM327SimGui *)generator->context;
     
-    switch(obd_query_bin->buffer[0]) {
+    switch(binRequest->buffer[0]) {
         case 0x01: {
-            if ( 1 < obd_query_bin->size ) {            
-                switch(obd_query_bin->buffer[1]) {
+            if ( 1 < binRequest->size ) {            
+                switch(binRequest->buffer[1]) {
                     case 0x01: {
                         gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
                         Buffer* status = buffer_new();

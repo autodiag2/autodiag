@@ -4,7 +4,7 @@
 int dtc_count = 2;
 bool mil_on = true;
 
-void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *obd_query_bin) {
+void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -12,10 +12,10 @@ void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char *
         generator->context = seed;
     }
 
-    switch(obd_query_bin->buffer[0]) {
+    switch(binRequest->buffer[0]) {
         case 0x01: {
             bool generic_behaviour = true;
-            switch(obd_query_bin->buffer[1]) {
+            switch(binRequest->buffer[1]) {
                 case 0x01: {
                     Buffer* status = buffer_new();
                     buffer_padding(status, 4, 0x00);
@@ -47,8 +47,8 @@ void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char *
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case 0x09: {
-            if ( 1 < obd_query_bin->size ) {            
-                switch(obd_query_bin->buffer[1]) {
+            if ( 1 < binRequest->size ) {            
+                switch(binRequest->buffer[1]) {
                     case 0x00: {
                         buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
                         break;

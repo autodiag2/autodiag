@@ -9,9 +9,9 @@ typedef struct SimECU {
     byte address;
     SimECUGenerator * generator;
     /**
-     * Respond to an SAEJ1979 query
+     * Respond to use request (at commands, OBD, UDS)
      */
-    char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * obd_query_str, bool hasSpaces);
+    char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * request, bool hasSpaces);
 } SimECU;
 LIST_H(SimECU)
 
