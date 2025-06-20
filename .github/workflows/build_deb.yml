@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    continue-on-error: false
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
@@ -45,7 +46,7 @@ jobs:
           if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
             make distDebian
           else
-            make release
+            make release_progs
           fi
       
       - name: Find tag name
