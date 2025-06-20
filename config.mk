@@ -47,16 +47,16 @@ else ifneq (,$(findstring MINGW64_NT,$(UNAME_S)))
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
     CFLAGS_LIBS += -lsetupapi
+else ifeq ($(UNAME_S),Darwin)
+    SYSTEM := darwin
+    EXT := dylib
+    CFLAGS_LIB_COMPILE := -dynamiclib
+else ifeq ($(UNAME_S), Linux)
+    SYSTEM := linux
+    EXT := so
+    CFLAGS_LIB_COMPILE := -shared
 else
-    ifeq ($(UNAME_S),Darwin)
-        SYSTEM := darwin
-        EXT := dylib
-        CFLAGS_LIB_COMPILE := -dynamiclib
-    else
-        SYSTEM := linux
-        EXT := so
-        CFLAGS_LIB_COMPILE := -shared
-    endif
+    $(error OS unsupported)
 endif
 
 MACHINE := $(UNAME_M)
