@@ -61,6 +61,7 @@ bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI) -o '$@' $^
 
 $(BIN_LIB): $(OBJS_LIB)
+	which gcc
 	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) $(CFLAGS_LIBS) -fPIC -o '$@' $^
 	mkdir -p bin/
 	cp "$@" bin/
