@@ -104,7 +104,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: compiled-libs-*
-          path: pyautodiag/autodiag/libs
+          path: autodiag/libs
+          merge-multiple: true
 
       - name: Clone database
         run: git clone https://github.com/autodiag2/database pyautodiag/autodiag/data
