@@ -37,7 +37,9 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-release_progs: compile_progs
+release_progs:
+	ls /mingw64/bin
+	which gcc
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
@@ -61,7 +63,6 @@ bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI) -o '$@' $^
 
 $(BIN_LIB): $(OBJS_LIB)
-	which gcc
 	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) $(CFLAGS_LIBS) -fPIC -o '$@' $^
 	mkdir -p bin/
 	cp "$@" bin/
