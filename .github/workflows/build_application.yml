@@ -69,10 +69,6 @@ jobs:
             make release_progs
           fi
 
-      - name: Find tag name
-        id: find_tag_name
-        run: echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
