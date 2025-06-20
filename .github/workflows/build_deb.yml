@@ -10,7 +10,7 @@ jobs:
     continue-on-error: false
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [windows-latest]
         arch: [amd64, arm64]
     runs-on: ${{ matrix.os }}
     steps:
@@ -32,13 +32,13 @@ jobs:
             brew install gtk+3
           elif [ "${{ matrix.os }}" = "windows-latest" ]; then
             choco install msys2 -y
-            C:/tools/msys64/usr/bin/bash.exe -c "pacman -Syu --noconfirm && \
-              pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3 && \
-              echo 'export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH' >> ~/.bashrc && \
-              echo 'export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig' >> ~/.bashrc && \
-              source ~/.bashrc"
+            export PATH="$PATH:/c/tools/msys64/usr/bin:/c/tools/msys64/mingw64/bin"
+            pacman -Syu --noconfirm
+            pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3
+            echo 'export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH' >> ~/.bashrc
+            echo 'export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig' >> ~/.bashrc
+            source ~/.bashrc
           fi
-
 
       - name: Clone external database
         run: git clone https://github.com/autodiag2/database data || true
