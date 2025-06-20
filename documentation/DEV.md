@@ -24,7 +24,7 @@ sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgt
 ## Build
 ### Retrieving the repo
 ```bash
-git clone https://github.com/autodiag2/autodiag && \
+git clone --depth=1 https://github.com/autodiag2/autodiag && \
  cd autodiag && \
  git submodule update --init --recursive
 ```
