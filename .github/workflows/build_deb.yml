@@ -28,7 +28,6 @@ jobs:
           git submodule update --init --recursive
       - name: Build pkg
         run: |
-          make dependencies
           make distDebian
       - name: find package
         id: find_pkg
