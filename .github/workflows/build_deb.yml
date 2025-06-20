@@ -11,6 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        #    amd64                              arm64
         os: [ubuntu-latest, ubuntu-22.04-arm64, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
