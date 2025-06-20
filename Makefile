@@ -37,8 +37,7 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-release_progs:
-	which gcc
+release_progs: compile_progs
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
