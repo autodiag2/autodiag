@@ -108,7 +108,11 @@ jobs:
           merge-multiple: true
 
       - name: Clone database
-        run: git clone https://github.com/autodiag2/database pyautodiag/autodiag/data
+        run: |
+          git clone --depth 1 https://github.com/autodiag2/database temp-db
+          mkdir -p pyautodiag/autodiag
+          mv temp-db/data pyautodiag/autodiag/data
+          rm -rf temp-db
 
       - name: Build Python package
         working-directory: pyautodiag
