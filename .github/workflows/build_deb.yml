@@ -45,7 +45,9 @@ jobs:
         id: upload-artifact
         uses: softprops/action-gh-release@v1
         with:
-          files: ${{ steps.find_pkg.outputs.package_file }}
+          files: |
+            ${{ steps.find_pkg.outputs.package_file }}
+            bin/*.so
           tag_name: ${{ steps.find_pkg.outputs.tag_name }}
           name: Release ${{ steps.find_pkg.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}
