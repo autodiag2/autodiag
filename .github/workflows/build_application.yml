@@ -6,13 +6,24 @@ on:
       - '**'
 
 jobs:
+
+  tag:
+    runs-on: ubuntu-latest
+    outputs:
+      tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
+    steps:
+      - name: Extract tag name
+        id: find_tag_name
+        run: echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
+
   build:
-    continue-on-error: false
+    needs: tag
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        #    amd64                              arm64
-        os: [ubuntu-latest, ubuntu-22.04-arm64, macos-latest]
+        #    amd64          arm64
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -62,39 +73,56 @@ jobs:
         id: find_tag_name
         run: echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
 
-      - name: Release (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             bin/*.deb
             bin/*.so
-          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
-          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
-          token: ${{ secrets.TOKEN }}
-          draft: false
-          prerelease: false
-
-      - name: Release (macOS)
-        if: startsWith(matrix.os, 'macos')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
             bin/*.dylib
+            bin/*.dll
             bin/*.dmg
-          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
-          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
+            bin/*.exe
+          tag_name: ${{ needs.tag.outputs.tag_name }}
+          name: Release ${{ needs.tag.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}
           draft: false
           prerelease: false
 
-      - name: Release (Windows)
-        if: startsWith(matrix.os, 'windows')
+      - name: Upload compiled libs
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-libs
+          path: |
+            bin/*.dll
+            bin/*.dylib
+            bin/*.so
+
+  package-python:
+    needs: [tag, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download compiled libs
+        uses: actions/download-artifact@v4
+        with:
+          name: compiled-libs
+          path: pyautodiag/libs
+
+      - name: Clone database
+        run: git clone https://github.com/autodiag2/database pyautodiag/data
+
+      - name: Build Python package
+        working-directory: pyautodiag
+        run: python3 setup.py sdist bdist_wheel
+
+      - name: Upload Python wheel to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: bin/*.dll
-          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
-          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
+          files: pyautodiag/dist/*.whl
+          tag_name: ${{ needs.tag.outputs.tag_name }}
+          name: Release ${{ needs.tag.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}
           draft: false
           prerelease: false
