@@ -42,7 +42,7 @@ ifeq ($(OS),Windows_NT)
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
     CFLAGS_LIBS += -lsetupapi
-else ifneq (,$(findstring MINGW,$(UNAME_S)))
+else ifneq (,$(findstring MINGW64_NT,$(UNAME_S)))
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
