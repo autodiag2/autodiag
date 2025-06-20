@@ -22,8 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #    amd64          arm64
-        os: [ubuntu-latest, macos-latest]
+        #    amd64          arm64         amd64
+        os: [windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
