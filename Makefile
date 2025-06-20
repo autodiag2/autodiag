@@ -38,10 +38,6 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
-	which gcc
-	echo $$PATH
-	ls /mingw64/bin
-	ls /ucrt64/bin
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
