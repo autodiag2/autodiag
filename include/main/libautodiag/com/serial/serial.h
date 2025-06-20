@@ -52,7 +52,7 @@ typedef struct {
 typedef struct {
     Device;
     bool echo;
-    int baud_rate;              // speed in bauds
+    int baud_rate;              // RS232 speed in bauds
     SerialStatus status;
     char *location;             // location of the device accross OSs
     char *eol;
