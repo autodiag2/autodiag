@@ -92,7 +92,7 @@ jobs:
       - name: Upload compiled libs
         uses: actions/upload-artifact@v4
         with:
-          name: compiled-libs
+          name: compiled-libs-${{ matrix.os }}
           path: |
             bin/*.dll
             bin/*.dylib
@@ -107,7 +107,7 @@ jobs:
       - name: Download compiled libs
         uses: actions/download-artifact@v4
         with:
-          name: compiled-libs
+          pattern: compiled-libs-*
           path: pyautodiag/libs
 
       - name: Clone database
