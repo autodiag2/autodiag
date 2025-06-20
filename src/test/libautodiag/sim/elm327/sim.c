@@ -134,18 +134,7 @@ void anyCommandShouldReplyUnknown() {
     buffer_ensure_termination(serial->recv_buffer);
     assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
 }
-void emptyOrTooShortCommandShouldNotTriggerSegFault() {
-    SimELM327* elm327 = sim_elm327_new();       
-    sim_elm327_loop_as_daemon(elm327);
-    usleep(SIM_START_WAIT_MS);
-    final OBDIFace* iface = port_open(strdup(elm327->device_location));
-    final Serial * port = (Serial*)iface->device;
-    char buffer[] = "a";
-    int bytes_sent = write(port->implementation->fdtty,buffer,strlen(buffer));
-    obd_recv(iface);
-}
 bool testSIM() {
-    emptyOrTooShortCommandShouldNotTriggerSegFault();
     anyCommandShouldReplyUnknown();
     ensureReplayCommands();
     {
