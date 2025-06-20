@@ -21,6 +21,7 @@ jobs:
         uses: docker/setup-qemu-action@v3
 
       - name: Install dependencies
+        shell: bash
         run: |
           if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
             sudo apt-get update
