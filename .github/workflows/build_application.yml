@@ -45,11 +45,10 @@ jobs:
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             choco install msys2 -y
             export PATH="$PATH:/c/tools/msys64/usr/bin:/c/tools/msys64/mingw64/bin"
-            pacman -Syu --noconfirm
-            pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3
-            echo 'export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH' >> ~/.bashrc
-            echo 'export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig' >> ~/.bashrc
-            source ~/.bashrc
+            /c/tools/msys64/usr/bin/bash -lc "pacman -Syu --noconfirm"
+            /c/tools/msys64/usr/bin/bash -lc "pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-perl mingw-w64-x86_64-perl-podlators"
+            /c/tools/msys64/usr/bin/bash -lc "echo 'export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH' >> ~/.bashrc"
+            /c/tools/msys64/usr/bin/bash -lc "echo 'export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig' >> ~/.bashrc"
           fi
 
       - name: Clone external database
@@ -66,7 +65,7 @@ jobs:
           elif [[ "${{ matrix.os }}" == macos* ]]; then
             make distMacOS
           else
-            make release_progs
+            /c/tools/msys64/usr/bin/bash -lc "make release_progs"
           fi
 
       - name: Release
