@@ -49,7 +49,6 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'pacman -S --noconfirm mingw-w64-x86_64-toolchain base-devel mingw-w64-x86_64-gtk3 gcc pkg-config '
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "export PATH=\"/ucrt64/bin:\$PATH\"" >> ~/.bashrc'
           fi
 
       - name: Clone external database
@@ -67,7 +66,7 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            /c/tools/msys64/usr/bin/bash -lc "cd $location && PATH=\"/ucrt64/bin:\$PATH\" make release_progs"
+            /c/tools/msys64/usr/bin/bash -lc "cd $location && make release_progs"
           else
             echo "unsupported OS"
             exit 1
