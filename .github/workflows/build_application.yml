@@ -66,10 +66,7 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            echo "$location"
             /c/tools/msys64/usr/bin/bash -lc "cd $location && make release_progs"
-            ls ./*
-            ls bin/
           else
             echo "unsupported OS"
             exit 1

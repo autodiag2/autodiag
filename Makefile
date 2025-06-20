@@ -38,7 +38,10 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
-	@-$(TOOLCHAIN)strip $(BINS_PROGS)
+#	@-$(TOOLCHAIN)strip $(BINS_PROGS)
+	echo "UNAME_S=$(UNAME_S)"
+	echo "UNAME_M=$(UNAME_M)"
+	echo "OS=$(OS)"
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
