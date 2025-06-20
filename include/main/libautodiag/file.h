@@ -9,6 +9,7 @@
 #   include <unistd.h>
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "\\"
+#   include <windows.h>
 #elif defined OS_UNIX || defined OS_POSIX
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "/"
