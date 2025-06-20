@@ -37,12 +37,7 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-some:
-	echo "$(UNAME_S)"
-	echo "$(UNAME_M)"
-	echo "$(OS)"
-
-release_progs: some
+release_progs: compile_progs
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
