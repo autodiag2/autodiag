@@ -41,6 +41,7 @@ ifeq ($(OS),Windows_NT)
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
+    CFLAGS_LIBS += -lsetupapi
 else
     ifeq ($(UNAME_S),Darwin)
         SYSTEM := darwin
