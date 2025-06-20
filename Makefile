@@ -38,10 +38,7 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
-#	@-$(TOOLCHAIN)strip $(BINS_PROGS)
-	echo "UNAME_S=$(UNAME_S)"
-	echo "UNAME_M=$(UNAME_M)"
-	echo "OS=$(OS)"
+	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
@@ -61,10 +58,10 @@ coverage: veryclean compile_tests
 
 bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI) -o '$@' $^
 
 $(BIN_LIB): $(OBJS_LIB)
-	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) $(CFLAGS_LIBS) -fPIC -o '$@' $^
 	mkdir -p bin/
 	cp "$@" bin/
 
