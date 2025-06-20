@@ -37,7 +37,7 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-release_progs:
+release_progs: compile_progs
 	which gcc
 	echo $$PATH
 	ls /mingw64/bin
