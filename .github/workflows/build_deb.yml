@@ -9,28 +9,28 @@ jobs:
   build:
     continue-on-error: false
     strategy:
+      fail-fast: false
       matrix:
-        os: [windows-latest]
-        arch: [amd64, arm64]
+        os: [ubuntu-latest, ubuntu-22.04-arm64, macos-13-arm64, macos-14, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Set up QEMU (Linux only)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu-')
         uses: docker/setup-qemu-action@v3
 
       - name: Install dependencies
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          if [[ "${{ matrix.os }}" == ubuntu* ]]; then
             sudo apt-get update
             sudo DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
             sudo apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
-          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          elif [[ "${{ matrix.os }}" == macos-* ]]; then
             brew install gtk+3
-          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+          elif [[ "${{ matrix.os }}" == windows-latest ]]; then
             choco install msys2 -y
             export PATH="$PATH:/c/tools/msys64/usr/bin:/c/tools/msys64/mingw64/bin"
             pacman -Syu --noconfirm
@@ -47,19 +47,20 @@ jobs:
         run: git submodule update --init --recursive || true
 
       - name: Build
+        shell: bash
         run: |
-          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          if [[ "${{ matrix.os }}" == ubuntu* ]]; then
             make distDebian
           else
             make release_progs
           fi
-      
+
       - name: Find tag name
         id: find_tag_name
         run: echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
 
       - name: Release (Linux)
-        if: matrix.os == 'ubuntu-latest'
+        if: startsWith(matrix.os, 'ubuntu-')
         uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -72,7 +73,7 @@ jobs:
           prerelease: false
 
       - name: Release (macOS)
-        if: matrix.os == 'macos-latest'
+        if: startsWith(matrix.os, 'macos-')
         uses: softprops/action-gh-release@v1
         with:
           files: bin/*.dylib
@@ -83,7 +84,7 @@ jobs:
           prerelease: false
 
       - name: Release (Windows)
-        if: matrix.os == 'windows-latest'
+        if: startsWith(matrix.os, 'windows-')
         uses: softprops/action-gh-release@v1
         with:
           files: bin/*.dll
