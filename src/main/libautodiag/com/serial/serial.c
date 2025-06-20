@@ -390,7 +390,7 @@ void serial_init(final Serial* serial) {
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     #if defined OS_WINDOWS
-        serial->implementation.connexion_handle = INVALID_HANDLE_VALUE;
+        serial->implementation->connexion_handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
         serial->implementation->fdtty = -1;
     #else
