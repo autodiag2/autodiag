@@ -1,4 +1,4 @@
-name: build deb
+name: build-multi-platform
 
 on:
   push:
@@ -7,49 +7,81 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-    container:
-      image: ubuntu:focal-20210723
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        arch: [amd64, arm64]
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Check
+      - name: Checkout
         uses: actions/checkout@v2
-      - name: Install build
+
+      - name: Set up QEMU (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        uses: docker/setup-qemu-action@v3
+
+      - name: Install dependencies
         run: |
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
-          apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
-      - name: Forced fetch
-        continue-on-error: true
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            sudo apt-get update
+            sudo DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+            sudo apt-get install -y build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            brew install gtk+3
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            choco install msys2
+            msys2 -c "pacman -Syu --noconfirm && pacman -S --noconfirm base-devel git"
+          fi
+
+      - name: Clone external database
+        run: git clone https://github.com/autodiag2/database data || true
+
+      - name: Submodule update
+        run: git submodule update --init --recursive || true
+
+      - name: Build
         run: |
-          git clone https://github.com/autodiag2/database data
-      - name: Submodule fetch
-        continue-on-error: true
-        run: |
-          git submodule update --init --recursive
-      - name: Build pkg
-        run: |
-          make distDebian
-      - name: find package
-        id: find_pkg
-        run: |
-          package_file=$(readlink -f "./bin/*.deb")
-          echo "package_file=${package_file}" >> $GITHUB_OUTPUT
-          echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
-      - name: upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: debian-package
-          path: ${{ steps.find_pkg.outputs.package_file }}
-          retention-days: 1
-      - name: Move to release
-        id: upload-artifact
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            make distDebian
+          else
+            make release
+          fi
+      
+      - name: Find tag name
+        id: find_tag_name
+        run: echo "tag_name=$(echo $GITHUB_REF | sed 's|refs/tags/||')" >> $GITHUB_OUTPUT
+
+      - name: Release (Linux)
+        if: matrix.os == 'ubuntu-latest'
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ${{ steps.find_pkg.outputs.package_file }}
+            bin/*.deb
             bin/*.so
-          tag_name: ${{ steps.find_pkg.outputs.tag_name }}
-          name: Release ${{ steps.find_pkg.outputs.tag_name }}
+          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
+          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
+          token: ${{ secrets.TOKEN }}
+          draft: false
+          prerelease: false
+
+      - name: Release (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.dylib
+          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
+          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
+          token: ${{ secrets.TOKEN }}
+          draft: false
+          prerelease: false
+
+      - name: Release (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: bin/*.dll
+          tag_name: ${{ steps.find_tag_name.outputs.tag_name }}
+          name: Release ${{ steps.find_tag_name.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}
           draft: false
           prerelease: false
