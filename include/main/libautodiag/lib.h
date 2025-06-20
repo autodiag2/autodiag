@@ -40,7 +40,6 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "poll.h"
 #include "dirent.h"
 #include "thread.h"
-#include "stringlist.h"
 #include "initools.h"
 #include "log.h"
 #include "cli_tools.h"
