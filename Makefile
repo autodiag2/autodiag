@@ -40,6 +40,7 @@ default: compile_progs
 release_progs:
 	ls /mingw64/bin
 	which gcc
+	ls /ucrt64/bin
 	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
