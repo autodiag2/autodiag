@@ -46,7 +46,7 @@ jobs:
             choco install msys2 -y
             /c/tools/msys64/usr/bin/bash -lc 'export PATH="$PATH:/c/tools/msys64/usr/bin:/c/tools/msys64/mingw64/bin" >> ~/.bashrc'
             /c/tools/msys64/usr/bin/bash -lc 'pacman -Syu --noconfirm'
-            /c/tools/msys64/usr/bin/bash -lc 'yes "" | pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-perl mingw-w64-x86_64-perl-podlators'
+            /c/tools/msys64/usr/bin/bash -lc 'yes "all" | pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-perl mingw-w64-x86_64-perl-podlators'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc'
           fi
@@ -65,6 +65,8 @@ jobs:
           elif [[ "${{ matrix.os }}" == macos* ]]; then
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
+            /c/tools/msys64/usr/bin/bash -lc "pwd"
+            /c/tools/msys64/usr/bin/bash -lc "ls"
             /c/tools/msys64/usr/bin/bash -lc "make release_progs"
           else
             echo "unsupported OS"
