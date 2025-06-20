@@ -58,10 +58,10 @@ coverage: veryclean compile_tests
 
 bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI) -o '$@' $^
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 $(BIN_LIB): $(OBJS_LIB)
-	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) $(CFLAGS_LIBS) -fPIC -o '$@' $^
+	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
 	mkdir -p bin/
 	cp "$@" bin/
 
