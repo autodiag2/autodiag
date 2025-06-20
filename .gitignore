@@ -16,3 +16,4 @@ autodiag
 *.dylib
 *.dll
 private-doc
+releases
