@@ -53,7 +53,7 @@ jobs:
           fi
 
       - name: Clone external database
-        run: git clone https://github.com/autodiag2/database data || true
+        run: git clone --depth=1 https://github.com/autodiag2/database data || true
 
       - name: Submodule update
         run: git submodule update --init --recursive || true
@@ -109,10 +109,7 @@ jobs:
 
       - name: Clone database
         run: |
-          git clone --depth 1 https://github.com/autodiag2/database temp-db
-          mkdir -p pyautodiag/autodiag
-          mv temp-db/data pyautodiag/autodiag/data
-          rm -rf temp-db
+          git clone --depth 1 https://github.com/autodiag2/database pyautodiag/autodiag/data
 
       - name: Build Python package
         working-directory: pyautodiag
