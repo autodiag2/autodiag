@@ -49,7 +49,7 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "export PATH=/mingw64/bin:$PATH" >> ~/.bashrc'
+            /c/tools/msys64/usr/bin/bash -lc 'echo "export PATH=\"\$PATH:/tmp/a a/\"" >> ~/.bashrc'
           fi
 
       - name: Clone external database
