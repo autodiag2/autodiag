@@ -32,7 +32,7 @@ int elm_guess_response(final char * buffer) {
     return res;
 }
 
-int elm_linefeeds(final nonnull SERIAL port, final bool state) {
+int elm_linefeeds(final SERIAL port, final bool state) {
     assert(port != null);
 
     char *original_eol = port->eol;
@@ -49,7 +49,7 @@ int elm_linefeeds(final nonnull SERIAL port, final bool state) {
     return DEVICE_ERROR;
 }
 
-int elm_echo(final nonnull SERIAL port, final bool state) {
+int elm_echo(final SERIAL port, final bool state) {
     assert(port != null); 
     if ( serial_query_at_command(port,"e%d",state) ) {
         port->echo = state;
@@ -71,7 +71,7 @@ int elm_echo(final nonnull SERIAL port, final bool state) {
         } \
     }
 
-char * elm_print_id(final nonnull SERIAL port) {
+char * elm_print_id(final SERIAL port) {
     assert(port != null);
     
     serial_query_at_command(port,"i");

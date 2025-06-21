@@ -77,7 +77,7 @@ Buffer * buffer_new() {
     return buffer;
 }
 
-Buffer * buffer_copy(nonnull Buffer* buffer) {
+Buffer * buffer_copy(Buffer* buffer) {
     assert(buffer != null);
     Buffer * b = buffer_new();
     buffer_ensure_capacity(b,buffer->size);
@@ -86,7 +86,7 @@ Buffer * buffer_copy(nonnull Buffer* buffer) {
     return b;
 }
 
-void buffer_free(nonnull Buffer * buffer) {
+void buffer_free(Buffer * buffer) {
     assert(buffer != null);
     if ( buffer->buffer != null ) {
         free(buffer->buffer);
@@ -97,12 +97,12 @@ void buffer_free(nonnull Buffer * buffer) {
     free(buffer);
 }
 
-int buffer_get_free_space(nonnull Buffer * buffer) {
+int buffer_get_free_space(Buffer * buffer) {
     assert(buffer != null);
     return buffer->size_allocated - buffer->size;
 }
 
-bool buffer_ensure_capacity(nonnull Buffer * buffer, unsigned int size) {
+bool buffer_ensure_capacity(Buffer * buffer, unsigned int size) {
     assert(buffer != null);
     assert(0 <= size);
     final unsigned int remaining_space = buffer_get_free_space(buffer);
@@ -159,7 +159,7 @@ void buffer_append_str(final Buffer * dest, final char *data) {
     buffer_append_bytes(dest,data,strlen(data));
 }
 
-void buffer_ensure_termination(nonnull Buffer * buffer) {
+void buffer_ensure_termination(Buffer * buffer) {
     assert(buffer != null);
     if ( 0 < buffer->size ) {
         if ( buffer->buffer[buffer->size-1] == 0 ) {

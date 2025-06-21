@@ -32,9 +32,9 @@ static char * ELMResponseStr[] = {
 };
 
 int elm_guess_response(final char * buffer);
-int elm_linefeeds(final nonnull SERIAL port, final bool state);
-int elm_echo(final nonnull SERIAL port, final bool state);
-char * elm_print_id(final nonnull SERIAL port);
+int elm_linefeeds(final SERIAL port, final bool state);
+int elm_echo(final SERIAL port, final bool state);
+char * elm_print_id(final SERIAL port);
 /**
  * Try to open an elm device from the provided serial
  */

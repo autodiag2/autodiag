@@ -3,7 +3,6 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <stdio.h>
 #include "libautodiag/string.h"
 #include <assert.h>
 #include <time.h>

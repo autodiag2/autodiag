@@ -21,12 +21,6 @@
 #ifndef bool
  #define bool int
 #endif
-#ifndef nonnull
- #define nonnull
-#endif
-#ifndef nulleable
- #define nulleable
-#endif
 
 typedef unsigned char byte;
 

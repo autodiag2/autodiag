@@ -16,16 +16,16 @@ typedef struct {
 } Buffer;
 
 Buffer * buffer_new();
-void buffer_free(nonnull Buffer * buffer);
-Buffer * buffer_copy(nonnull Buffer* buffer);
+void buffer_free(Buffer * buffer);
+Buffer * buffer_copy(Buffer* buffer);
 /**
  * Ensure that there is at least size space in the buffer free space
  */
-bool buffer_ensure_capacity(nonnull Buffer * buffer, unsigned int size);
+bool buffer_ensure_capacity(Buffer * buffer, unsigned int size);
 /**
  * Append 0x00 to the buffer if not in
  */
-void buffer_ensure_termination(nonnull Buffer * buffer);
+void buffer_ensure_termination(Buffer * buffer);
 void buffer_dump(Buffer * buffer);
 /**
  * More details than buffer dump but may "conditionnal jump or move depends on uninitialized value(s)" in valgrind
@@ -87,7 +87,7 @@ byte buffer_extract_0(final Buffer* buffer);
 /**
  * Get free space in the buffer.
  */
-int buffer_get_free_space(nonnull Buffer * buffer);
+int buffer_get_free_space(Buffer * buffer);
 /**
  * Compare two buffers
  */

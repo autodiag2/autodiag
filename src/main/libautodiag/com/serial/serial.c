@@ -314,10 +314,10 @@ char * serial_describe_communication_layer(final SERIAL serial) {
 void serial_clear_data(final Serial* serial) {
     buffer_recycle(serial->recv_buffer);
 }
-void serial_lock(final nonnull SERIAL port) {
+void serial_lock(final SERIAL port) {
     pthread_mutex_lock(&port->implementation->lock_mutex);
 }
-void serial_unlock(final nonnull SERIAL port) {
+void serial_unlock(final SERIAL port) {
     pthread_mutex_unlock(&port->implementation->lock_mutex);
 }
 

@@ -85,11 +85,11 @@ int obd_recv(final OBDIFace* iface) {
     return iface->vehicle->data_buffer->size - initial_data_buffer_received;
 }
 
-void obd_lock(final nonnull OBDIFace* iface) {
+void obd_lock(final OBDIFace* iface) {
     iface->device->lock(iface->device);
 }
 
-void obd_unlock(final nonnull OBDIFace* iface) {
+void obd_unlock(final OBDIFace* iface) {
     iface->device->unlock(iface->device);
 }
 
@@ -119,9 +119,9 @@ OBDIFace* obd_new() {
     return iface;
 }
 
-OBDIFace* obd_new_from_device(final nonnull Device* device) {
+OBDIFace* obd_new_from_device(final Device* device) {
     assert(device != null);
-    final nonnull OBDIFace* iface = obd_new();
+    final OBDIFace* iface = obd_new();
     iface->device = device;
     return iface;
 }
