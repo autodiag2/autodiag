@@ -30,7 +30,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
                     #if defined OS_WINDOWS
-                        int bytes_written = 0;
+                        DWORD bytes_written = 0;
                         if (!WriteFile(elm327->implementation->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
                             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                         }
@@ -471,10 +471,17 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
         if ( file_pool(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
         }
-        if ( ! ReadFile(elm327->implementation->pipe_handle, buffer->buffer, buffer->size_allocated-1, &buffer->size, 0) ) {
+        DWORD readedBytes = 0;
+        final int success = ReadFile(elm327->implementation->pipe_handle, buffer->buffer, buffer->size_allocated-1, &readedBytes, 0);
+        if ( ! success ) {
             log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
             return false;
         }
+        if ( UINT_MAX < readedBytes ) {
+            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", buffer->size);
+            return false;
+        }
+        buffer->size = readedBytes;
     #elif defined OS_POSIX
         int res = file_pool(&elm327->implementation->fd, null, SERIAL_DEFAULT_TIMEOUT);
         if ( res == -1 ) {
@@ -512,7 +519,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
     log_msg(LOG_DEBUG, "sending back %s", response);
 
     #ifdef OS_WINDOWS
-        int bytes_written = 0;
+        DWORD bytes_written = 0;
         if (!WriteFile(elm327->implementation->pipe_handle, response, strlen(response), &bytes_written, null)) {
             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
             return false;
