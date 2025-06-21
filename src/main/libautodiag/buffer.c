@@ -50,7 +50,7 @@ Buffer * buffer_new_random_with_seed(unsigned int sz, unsigned int * seed) {
     return buffer;
 }
 Buffer * buffer_new_random(unsigned int sz) {
-    unsigned int seed = 1;
+    unsigned int seed = rand();
     return buffer_new_random_with_seed(sz, &seed);
 }
 
