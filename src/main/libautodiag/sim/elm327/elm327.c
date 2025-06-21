@@ -233,10 +233,10 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
         buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters_states->size = SIM_ELM327_PPS_SZ;
         SIM_ELM327_PPS_STATE(elm327,false)  
-        elm327->nvm.programmable_parameters->size = SIM_ELM327_PPS_SZ;
         buffer_ensure_capacity(elm327->nvm.programmable_parameters, SIM_ELM327_PPS_SZ);
-        elm327->nvm.programmable_parameters_pending->size = SIM_ELM327_PPS_SZ;
+        elm327->nvm.programmable_parameters->size = SIM_ELM327_PPS_SZ;
         buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, SIM_ELM327_PPS_SZ);
+        elm327->nvm.programmable_parameters_pending->size = SIM_ELM327_PPS_SZ;
 
         // Perform an AT MA command after powerup or reset
         elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;
