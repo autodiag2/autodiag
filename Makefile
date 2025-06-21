@@ -170,24 +170,27 @@ newVersion:
 	git tag "v$${version}"
 
 _install: uninstall
-	mkdir -p "$(INSTALL_DATA_FOLDER_APP)" "$(INSTALL_BIN_FOLDER)"
+	mkdir -p "$(INSTALL_DATA_FOLDER_APP)" "$(INSTALL_BIN_FOLDER)" "$(INSTALL_LIB_FOLDER)"
 
 # Manual installation
 install: _install
 	cp -fr ui "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr data/data "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr media "$(INSTALL_DATA_FOLDER_APP)"
-	cp ./bin/* "$(INSTALL_BIN_FOLDER)"
+	-cp ./bin/* "$(INSTALL_BIN_FOLDER)"
+	cp ./bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
 installDev: _install
 	ln -s "$${PWD}/data/data" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/ui" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/media" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}"/bin/* "$(INSTALL_BIN_FOLDER)"
+	ln -s "$${PWD}"/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
 uninstall:
 	rm -fr "$(INSTALL_DATA_FOLDER_APP)"
 	for bin in "$${PWD}"/bin/*; do \
 		if [ -f "$${bin}" ]; then \
 			rm -f "$(INSTALL_BIN_FOLDER)/$$(basename "$${bin}")"; \
+			rm -f "$(INSTALL_LIB_FOLDER)/$$(basename "$${bin}")"; \
 		fi; \
 	done
 help:

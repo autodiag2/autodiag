@@ -20,12 +20,18 @@ ifdef INSTALL_BIN_FOLDER
 
 else ifdef LOCALAPPDATA
     INSTALL_BIN_FOLDER = .
+    INSTALL_LIB_FOLDER = .
 else ifdef APPDATA
     INSTALL_BIN_FOLDER = .
+    INSTALL_LIB_FOLDER = .
 else ifdef XDG_DATA_DIRS
-    INSTALL_BIN_FOLDER = $(HOME)/.local/bin/
+    ROOT = $(HOME)/.local/
+    INSTALL_BIN_FOLDER = $(ROOT)/bin/
+    INSTALL_LIB_FOLDER = $(ROOT)/lib/
 else
-    INSTALL_BIN_FOLDER = /usr/bin/
+    ROOT = /usr/
+    INSTALL_BIN_FOLDER = $(ROOT)/bin/
+    INSTALL_LIB_FOLDER = $(ROOT)/lib/
 endif
 
 CFLAGS_DEBUG    = -ggdb
