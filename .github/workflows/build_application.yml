@@ -88,27 +88,20 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Upload compiled libs
-        uses: actions/upload-artifact@v4
-        with:
-          name: compiled-libs-${{ matrix.os }}
-          path: |
-            bin/*.dll
-            bin/*.dylib
-            bin/*.so
-
   package-python:
-    needs: build
+    needs: [tag, build]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Download compiled libs
-        uses: actions/download-artifact@v4
-        with:
-          pattern: compiled-libs-*
-          path: pyautodiag/autodiag/libs
-          merge-multiple: true
+      - name: Download compiled libs from GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          tag="${{ needs.tag.outputs.tag_name }}"
+          mkdir -p pyautodiag/autodiag/libs
+          cd pyautodiag/autodiag/libs
+          gh release download "$tag" --pattern "*.so" --pattern "*.dylib" --pattern "*.dll" --repo "$GITHUB_REPOSITORY"
 
       - name: Clone database
         run: |
