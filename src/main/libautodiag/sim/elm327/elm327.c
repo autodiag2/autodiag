@@ -425,7 +425,7 @@ void sim_elm327_destroy(SimELM327 * elm327) {
         elm327->implementation->activity_monitor_thread = null;
     }
     if ( elm327->implementation->loop_thread != null ) {
-        pthread_cancel(elm327->implementation->loop_thread);
+        pthread_cancel(*elm327->implementation->loop_thread);
         elm327->implementation->loop_thread = null;
     }
     free(elm327->implementation);
