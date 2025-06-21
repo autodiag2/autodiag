@@ -89,6 +89,7 @@ typedef struct {
         GtkGrid * container;
         GtkButton * resetData;
     } graphs;
+    GtkMessageDialog * genericErrorFeedback;
 } vehicleExplorerGui;
 
 void module_init_vehicle_explorer(final GtkBuilder *builder);

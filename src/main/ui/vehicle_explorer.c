@@ -17,7 +17,21 @@ bool vehicle_explorer_show_freeze_frame_get_state() {
 void vehicle_explorer_freeze_frame_error_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(vdgui->menuBar.freeze_frame_error_popup));
 }
-
+bool vehicle_explorer_error_feedback(GtkMessageDialog * widget, char * title, char *msg) {
+    if ( msg == null && title == null ) {
+        return false;
+    } else {
+        if ( msg == null ) {
+            msg = strdup(" ");
+        }
+        if ( title != null ) {
+            gtk_window_set_title(GTK_WINDOW(widget), title);
+        }
+        gtk_message_dialog_set_markup(widget, msg);
+        gtk_widget_show_on_main_thread(GTK_WIDGET(widget));
+        return true;
+    }
+}
 void vehicle_explorer_data_freeze_frame_internal() {
     final OBDIFace* iface = config.ephemere.iface;
     if ( vehicle_explorer_error_feedback_obd(iface) ) {
@@ -674,7 +688,7 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
 
         graph_count++;
     } else {
-        log_msg(LOG_ERROR, "Should raise a popup 'Please select the type of metric to display'");
+        vehicle_explorer_error_feedback(vdgui->genericErrorFeedback, "Input error", "Please select the type of metric to display");
     }
     pthread_mutex_unlock(&graphs_mutex);
     return null;
@@ -756,14 +770,15 @@ void vehicle_explorer_expanders_default_state(GtkWidget *widget, gpointer data) 
         gtk_widget_set_visible(widget, false);        
     }
 }
-
 #define VH_RETRIEVE_OX_SENSOR(i) \
     .sensor_##i = { \
         .voltage = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-sensors-"#i"-voltage")), \
         .current = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-sensors-"#i"-current")), \
         .ratio = GTK_LABEL(gtk_builder_get_object (builder, "vehicle-explorer-engine-sensors-"#i"-ratio")), \
     }
-
+void vehicle_explorer_generic_error_feedback_ok() {
+    gtk_widget_hide_on_main_thread(GTK_WIDGET(vdgui->genericErrorFeedback));
+}
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( vdgui == null ) {
         graphs = Graph_list_new();
@@ -832,9 +847,9 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .list = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder,"vehicle-explorer-graphs-list")),
                 .container = GTK_GRID(gtk_builder_get_object(builder,"vehicle-explorer-graphs-container")),
                 .resetData = GTK_BUTTON(gtk_builder_get_object(builder,"vehicle-explorer-graphs-reset-data"))
-            }
+            },
+            .genericErrorFeedback = GTK_MESSAGE_DIALOG(gtk_builder_get_object (builder, "vehicle-explorer-feedback-info"))
         };
-
         gtk_combo_box_text_append(g.graphs.list, NULL, "Speed");
         gtk_combo_box_text_append(g.graphs.list, NULL, "Coolant Temperature");
         gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air Temperature");
@@ -872,6 +887,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         g_signal_connect(G_OBJECT(vdgui->window),"delete-event",G_CALLBACK(vehicle_explorer_onclose),NULL);
         g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         error_feedback_windows_init(vdgui->errorFeedback);
+        g_signal_connect(G_OBJECT(vdgui->genericErrorFeedback),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        gtk_builder_add_callback_symbol(builder,"vehicle-explorer-generic-error-feedback-ok",&vehicle_explorer_generic_error_feedback_ok);
         gtk_builder_add_callback_symbol(builder, "vehicle-explorer-graphs-reset-data", &vehicle_explorer_graphs_reset_data);
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-graphs-add",&vehicle_explorer_graphs_add);
         gtk_builder_add_callback_symbol(builder,"show-window-vehicle-explorer",&vehicle_explorer_show_window);
