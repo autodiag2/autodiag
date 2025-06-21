@@ -125,7 +125,9 @@ void *sim_elm327_daemon(void *d) {
         if ( data.proto_is_auto != null ) {
             data.sim->protocol_is_auto_running = *data.proto_is_auto;
         }
-        pthread_join(data.sim->implementation->loop_thread, NULL);
+        if ( data.sim->implementation->loop_thread != null ) {
+            pthread_join(*data.sim->implementation->loop_thread, NULL);
+        }
     }
     return null;
 }

@@ -51,13 +51,14 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
 
 void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
     if ( elm327->implementation->activity_monitor_thread != null ) {
-        pthread_cancel(elm327->implementation->activity_monitor_thread);
-        elm327->implementation->activity_monitor_thread = null;
+        pthread_cancel(*elm327->implementation->activity_monitor_thread);
     }
-    if ( pthread_create(&elm327->implementation->activity_monitor_thread, NULL,
+    elm327->implementation->activity_monitor_thread = (pthread_t*)malloc(sizeof(pthread_t));
+    if ( pthread_create(elm327->implementation->activity_monitor_thread, NULL,
                           (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
                           (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
+        elm327->implementation->activity_monitor_thread = null;
         exit(EXIT_FAILURE);
     }
 }
@@ -420,7 +421,7 @@ SimELM327* sim_elm327_new() {
 }
 void sim_elm327_destroy(SimELM327 * elm327) {
     if ( elm327->implementation->activity_monitor_thread != null ) {
-        pthread_cancel(elm327->implementation->activity_monitor_thread);
+        pthread_cancel(*elm327->implementation->activity_monitor_thread);
         elm327->implementation->activity_monitor_thread = null;
     }
     if ( elm327->implementation->loop_thread != null ) {
@@ -445,12 +446,13 @@ void sim_elm327_destroy(SimELM327 * elm327) {
 }
 void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
     if ( elm327->implementation->loop_thread != null ) {
-        pthread_cancel(elm327->implementation->loop_thread);
-        elm327->implementation->loop_thread = null;
+        pthread_cancel(*elm327->implementation->loop_thread);
     }
-    if ( pthread_create(&elm327->implementation->loop_thread, NULL,
+    elm327->implementation->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
+    if ( pthread_create(elm327->implementation->loop_thread, NULL,
                           (void *(*) (void *)) sim_elm327_loop, (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
+        elm327->implementation->loop_thread = null;
         exit(EXIT_FAILURE);
     }
 }
