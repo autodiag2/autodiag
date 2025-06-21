@@ -687,6 +687,8 @@ obj/main/libautodiag/log.o: src/main/libautodiag/log.c \
   include/main/libautodiag/log.h include/main/libautodiag/string.h \
   include/main/libautodiag/lang.h \
   include/main/libautodiag/compile_target.h
+obj/main/libautodiag/math.o: src/main/libautodiag/math.c \
+  include/main/libautodiag/math.h
 obj/main/libautodiag/model/database.o: \
   src/main/libautodiag/model/database.c \
   include/main/libautodiag/model/database.h \
