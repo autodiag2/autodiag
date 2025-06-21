@@ -88,8 +88,58 @@ jobs:
           draft: false
           prerelease: false
 
+  cross-compile-windows-dlls:
+    runs-on: macos-latest
+    needs: tag
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install mingw-w64
+        run: brew install mingw-w64
+
+      - name: Clone external database
+        run: git clone --depth=1 https://github.com/autodiag2/database data || true
+
+      - name: Submodule update
+        run: git submodule update --init --recursive || true
+
+      - name: Cross-compile for x86_64
+        run: |
+          make veryclean
+          export TOOLCHAIN=x86_64-w64-mingw32-
+          make compile_lib
+
+      - name: Upload DLL x86_64 to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/*.dll
+          tag_name: ${{ needs.tag.outputs.tag_name }}
+          name: Release ${{ needs.tag.outputs.tag_name }}
+          token: ${{ secrets.TOKEN }}
+          draft: false
+          prerelease: false
+
+      - name: Cross-compile for i686
+        run: |
+          make veryclean
+          export TOOLCHAIN=i686-w64-mingw32-
+          make compile_lib
+
+      - name: Upload DLL i686 to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            bin/*.dll
+          tag_name: ${{ needs.tag.outputs.tag_name }}
+          name: Release ${{ needs.tag.outputs.tag_name }}
+          token: ${{ secrets.TOKEN }}
+          draft: false
+          prerelease: false
+
   package-python:
-    needs: [tag, build]
+    needs: [tag, build, cross-compile-windows-dlls]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
