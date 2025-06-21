@@ -4,14 +4,13 @@
 #include "compile_target.h"
 #include "lang.h"
 #include <unistd.h>
-#include <poll.h>
-#include <sys/ioctl.h>
 #include <errno.h>
 
 #ifdef OS_WINDOWS
 #   include <windows.h>
-    bool isComport(HANDLE file);
+bool isComport(HANDLE file);
 #elif defined OS_POSIX
+#   include <sys/ioctl.h>
 #   include <poll.h>
     typedef struct pollfd POLLFD;
 #endif

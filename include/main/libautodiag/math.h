@@ -15,4 +15,6 @@
  */
 #define compute_normalized_of(value,min,max) ((value - min) / (max - min * 1.0))
 
+int math_rand_r(unsigned int *seed);
+
 #endif
