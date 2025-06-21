@@ -99,6 +99,7 @@ void buffer_free(Buffer * buffer) {
 
 int buffer_get_free_space(Buffer * buffer) {
     assert(buffer != null);
+    assert(buffer->size <= buffer->size_allocated);
     return buffer->size_allocated - buffer->size;
 }
 
