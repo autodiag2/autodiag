@@ -1073,7 +1073,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         }
 
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, recv_buffer->buffer, false) ) {
-            if ( ! sim_elm327_reply(elm327, recv_buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
+            if ( ! sim_elm327_reply(elm327, recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 exit(1);
             }
         }
