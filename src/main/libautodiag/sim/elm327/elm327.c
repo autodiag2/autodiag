@@ -547,7 +547,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     #define SIM_ELM327_REPLY_GENERIC(...) \
         SIM_ELM327_REPLY(true, __VA_ARGS__)
     #define SIM_ELM327_REPLY_OK() \
-        SIM_ELM327_REPLY_GENERIC(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+        SIM_ELM327_REPLY_GENERIC("%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
     #define SIM_ELM327_ATI "ELM327 v2.1"
     #define SIM_ELM327_REPLY_ATI() \
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
@@ -726,14 +726,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         if ( 0 < baud_rate_divisor ) {
             final int previous_baud_rate = elm327->baud_rate;
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
-            SIM_ELM327_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            SIM_ELM327_REPLY(false, "%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
             usleep(elm327->baud_rate_timeout_msec * 1000);
-            SIM_ELM327_REPLY(false, SIM_ELM327_ATI);
+            SIM_ELM327_REPLY(false, "%s", SIM_ELM327_ATI);
             final Buffer * recv = buffer_new();
             buffer_ensure_capacity(recv, 50);
             if ( sim_elm327_receive(elm327, recv, elm327->baud_rate_timeout_msec) ) {
                 if ( recv->buffer[0] == '\r' ) {
-                    SIM_ELM327_REPLY(false, SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+                    SIM_ELM327_REPLY(false, "%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
                 } else {
                     elm327->baud_rate = previous_baud_rate;
                 }
