@@ -36,6 +36,7 @@ CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
+MACHINE := $(UNAME_M)
 
 ifeq ($(OS),Windows_NT)
     SYSTEM := windows
@@ -44,6 +45,18 @@ ifeq ($(OS),Windows_NT)
     CFLAGS_LIBS += -lsetupapi
 else ifneq (,$(findstring MINGW64_NT,$(UNAME_S)))
     SYSTEM := windows
+    EXT := dll
+    CFLAGS_LIB_COMPILE := -shared
+    CFLAGS_LIBS += -lsetupapi
+else ifneq (,$(findstring x86_64-w64-mingw32-,$(TOOLCHAIN)))
+    SYSTEM := windows
+    MACHINE := x86_64
+    EXT := dll
+    CFLAGS_LIB_COMPILE := -shared
+    CFLAGS_LIBS += -lsetupapi
+else ifneq (,$(findstring i686-w64-mingw32-,$(TOOLCHAIN)))
+    SYSTEM := windows
+    MACHINE := i686
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
     CFLAGS_LIBS += -lsetupapi
@@ -59,7 +72,6 @@ else
     $(error OS unsupported)
 endif
 
-MACHINE := $(UNAME_M)
 BIN_LIB_NAME := libautodiag-$(SYSTEM)-$(MACHINE).$(EXT)
 
 define rwildcard
