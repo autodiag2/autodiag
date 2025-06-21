@@ -4,13 +4,13 @@
 #include "compile_target.h"
 #define _GNU_SOURCE
 #include <stdio.h>
-#   include <sys/stat.h>
+#include <sys/stat.h>
 #if defined OS_WINDOWS
 #   include <unistd.h>
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "\\"
+#   include <windows.h>
 #   ifndef OS_UNIX
-#       include <windows.h>
 #       include <direct.h>
 #       include <io.h>
 #       define access _access
