@@ -76,76 +76,72 @@ void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_
 }
 
 void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1979_DTC * dtc, final Vehicle* filter) {
-    #if defined OS_POSIX
-        DIRENT **namelist;   
-        final int namelist_n = scandir(path, &namelist,NULL,&alphasort);
+    DIRENT **namelist;   
+    final int namelist_n = scandir(path, &namelist,NULL,&alphasort);
 
-        if ( namelist_n == -1 ) {
-            char *path_str;
-            asprintf(&path_str,"scandir error for %s\n", path);
-            perror(path_str);
-            free(path_str);
-        } else {
-            bool isPathCarDirectory = false;
-            while (namelist_n--) {
-                if ( ! isPathCarDirectory ) {
-                    switch(namelist[namelist_n]->d_type) {
-                        case DT_DIR: {
-                            if ( strcmp(namelist[namelist_n]->d_name, ".") != 0 
-                            && strcmp(namelist[namelist_n]->d_name, "..") != 0 ) {
-                                char *nextPath;
-                                asprintf(&nextPath, "%s/%s", path, namelist[namelist_n]->d_name);
-                                saej1979_fetch_dtc_description_from_fs_recurse(nextPath,dtc,filter);
-                                free(nextPath);
-                            }
-                            break;
+    if ( namelist_n == -1 ) {
+        char *path_str;
+        asprintf(&path_str,"scandir error for %s\n", path);
+        perror(path_str);
+        free(path_str);
+    } else {
+        bool isPathCarDirectory = false;
+        while (namelist_n--) {
+            if ( ! isPathCarDirectory ) {
+                switch(namelist[namelist_n]->d_type) {
+                    case DT_DIR: {
+                        if ( strcmp(namelist[namelist_n]->d_name, ".") != 0 
+                        && strcmp(namelist[namelist_n]->d_name, "..") != 0 ) {
+                            char *nextPath;
+                            asprintf(&nextPath, "%s/%s", path, namelist[namelist_n]->d_name);
+                            saej1979_fetch_dtc_description_from_fs_recurse(nextPath,dtc,filter);
+                            free(nextPath);
                         }
-                        case DT_REG:
-                        case DT_BLK:
-                        case DT_FIFO:
-                        case DT_CHR: {
-                            if ( strcmp(namelist[namelist_n]->d_name, "desc.ini") == 0 ) {
-                                isPathCarDirectory = true;
-                                final Vehicle* compare_against = db_vehicle_load_from_directory(path);
-                                bool match = false;
-                                if ( filter == null ) {
-                                    match = true;
-                                } else {
-                                    if ( filter->manufacturer == null || strlen(filter->manufacturer) == 0 ) {
-                                        match = true;
-                                    } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
-                                        bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
-                                        if ( isGeneric ) {
-                                            match = true;
-                                        } else {
-                                            if ( filter->engine == null || strlen(filter->engine) == 0 ) {
-                                                match = true;
-                                            } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
-                                                match = true;
-                                            }
-                                        }
-                                    } 
-                                }
-                                if ( match ) {
-                                    final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
-                                    dtc_desc->vehicle = compare_against;
-                                    saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
-                                    SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
-                                }
-                            }
-                            break;
-                        }
-                        default: {
-                            log_msg(LOG_DEBUG, "Unknown file type=%d(%s)", namelist[namelist_n]->d_type, namelist[namelist_n]->d_name);
-                        }   
+                        break;
                     }
+                    case DT_REG:
+                    case DT_BLK:
+                    case DT_FIFO:
+                    case DT_CHR: {
+                        if ( strcmp(namelist[namelist_n]->d_name, "desc.ini") == 0 ) {
+                            isPathCarDirectory = true;
+                            final Vehicle* compare_against = db_vehicle_load_from_directory(path);
+                            bool match = false;
+                            if ( filter == null ) {
+                                match = true;
+                            } else {
+                                if ( filter->manufacturer == null || strlen(filter->manufacturer) == 0 ) {
+                                    match = true;
+                                } else if ( strcmp(compare_against->manufacturer, filter->manufacturer) == 0 || strcmp(compare_against->manufacturer, "Generic") == 0 ) {
+                                    bool isGeneric = strcmp(compare_against->manufacturer, "Generic") == 0;
+                                    if ( isGeneric ) {
+                                        match = true;
+                                    } else {
+                                        if ( filter->engine == null || strlen(filter->engine) == 0 ) {
+                                            match = true;
+                                        } else if ( compare_against->engine != null && strcmp(compare_against->engine, filter->engine) == 0 ) {
+                                            match = true;
+                                        }
+                                    }
+                                } 
+                            }
+                            if ( match ) {
+                                final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
+                                dtc_desc->vehicle = compare_against;
+                                saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
+                                SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
+                            }
+                        }
+                        break;
+                    }
+                    default: {
+                        log_msg(LOG_DEBUG, "Unknown file type=%d(%s)", namelist[namelist_n]->d_type, namelist[namelist_n]->d_name);
+                    }   
                 }
-                free(namelist[namelist_n]);
             }
+            free(namelist[namelist_n]);
         }
-    #else
-    #   warning Unsupported OS        
-    #endif
+    }
 }
 
 void saej1979_fetch_dtc_description_from_fs(final SAEJ1979_DTC * dtc, final Vehicle* filter) {
