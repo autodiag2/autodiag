@@ -37,6 +37,13 @@ bool mkdir_p(char *_path) {
                         }
                     }
                 }
+            #elif defined OS_WINDOWS
+                if ( access(path, R_OK) != 0 ) {
+                    if ( mkdir(path) != 0 ) {
+                        rv = false;
+                        break;
+                    }
+                }
             #else
             #   warning Unsupported OS        
             #endif

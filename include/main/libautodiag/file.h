@@ -10,6 +10,11 @@
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "\\"
 #   include <windows.h>
+#   include <direct.h>
+#   include <io.h>
+#   define access _access
+#   define R_OK 4
+#   define X_OK 1
 #elif defined OS_UNIX || defined OS_POSIX
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "/"
