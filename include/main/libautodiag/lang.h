@@ -37,6 +37,6 @@ byte byte_reverse(byte b);
 /**
  * bitN : 0..n-1
  */
-#define bitRetrieve(value,bitN) ((value & (1 << bitN)) != 0)
+#define bitRetrieve(value,bitN) (((value) & (1 << (bitN))) != 0)
 
 #endif

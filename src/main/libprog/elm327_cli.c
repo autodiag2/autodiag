@@ -37,7 +37,7 @@ void sim_elm327_cli_display_help() {
 
 void sim_elm327_add_dtc(GtkButton *button, gpointer user_data) {
     ELM327SimGui* simGui = (ELM327SimGui*)user_data;
-    char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
+    const char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
     if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
         gtk_message_dialog_format_secondary_text(simGui->dtcs.invalidDtc,"%s: expected LXXXX where L is P,C,B,U",dtc_string);
         gtk_widget_show_on_main_thread(simGui->dtcs.invalidDtc);
@@ -127,6 +127,7 @@ void *sim_elm327_daemon(void *d) {
         }
         pthread_join(data.sim->implementation->loop_thread, NULL);
     }
+    return null;
 }
 gboolean sim_elm327_present_window(gpointer w) {
     sleep(1);
@@ -196,7 +197,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 target_ecu->generator = generator;
             } break;
             case 'c': {
-                final SimECUGenerator *generator = &(sim->ecus->list[sim->ecus->size - 1]->generator);
+                final SimECUGenerator *generator = sim->ecus->list[sim->ecus->size - 1]->generator;
                 if ( strcasecmp(generator->type, "random") == 0 ) {
                     unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                     generator->context = context; 
@@ -270,5 +271,6 @@ int sim_elm327_cli_main(int argc, char **argv) {
     }
 
     ELM327SimGui_list_free(guis);
+    return 0;
 }
 

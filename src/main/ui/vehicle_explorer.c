@@ -391,6 +391,7 @@ void* vehicle_explorer_refresh_dynamic_daemon(void *arg) {
         }
     }
     pthread_cleanup_pop(1);
+    return null;
 }
 
 void vehicle_explorer_refresh_dynamic() {
@@ -432,6 +433,7 @@ void vehicle_explorer_refresh_one_time_internal() {
 void* vehicle_explorer_refresh_one_time_daemon(void *arg) {
     vehicle_explorer_refresh_dynamic_internal(); 
     vehicle_explorer_refresh_one_time_internal(); 
+    return null;
 }
 
 void vehicle_explorer_refresh_one_time() {
@@ -445,6 +447,7 @@ void* vehicle_explorer_refresh_one_time_with_spinner_daemon(final void *arg) {
     pthread_join(*t, NULL);
     gtk_spinner_stop(vdgui->refreshIcon);
     free(t);
+    return null;
 }
 void vehicle_explorer_refresh_one_time_with_spinner() {
     pthread_t *t,t1;
@@ -684,7 +687,7 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
         final int row = graph_count / 2;
 
         gtk_grid_attach(GTK_GRID(vdgui->graphs.container), drawing_area, col, row, 1, 1);
-        gtk_widget_show_all(vdgui->graphs.container);
+        gtk_widget_show_all(GTK_WIDGET(vdgui->graphs.container));
 
         graph_count++;
     } else {

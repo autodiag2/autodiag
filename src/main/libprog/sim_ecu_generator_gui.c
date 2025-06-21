@@ -66,7 +66,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                     if (GTK_IS_LIST_BOX_ROW(row)) {
                         GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
                         if (GTK_IS_LABEL(child)) {
-                            char *dtc = gtk_label_get_text(GTK_LABEL(child));
+                            const char *dtc = gtk_label_get_text(GTK_LABEL(child));
                             Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");

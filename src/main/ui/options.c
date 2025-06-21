@@ -75,6 +75,7 @@ void* options_save_internal(void *arg) {
     }
     iface->vehicle->engine = engine;
     refresh_usb_adaptater_state_internal(null);
+    return null;
 }
 
 void options_save() {

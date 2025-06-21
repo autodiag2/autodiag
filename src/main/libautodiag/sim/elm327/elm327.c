@@ -905,15 +905,18 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         }        
     } else if AT_PARSE("cm") {
         char mask[9];
+        bool parsed = false;
         if ( sscanf(AT_DATA_START, " %3s", mask) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", mask);
             strcpy(mask,tmp);free(tmp);
-            SIM_ELM327_REPLY_OK();                
+            SIM_ELM327_REPLY_OK();  
+            parsed = true;              
         } else if ( sscanf(AT_DATA_START, " %8s", mask) == 1 ) {
-            SIM_ELM327_REPLY_OK();                    
+            SIM_ELM327_REPLY_OK();   
+            parsed = true;                 
         }
-        if ( mask != null ) {
+        if ( parsed ) {
             elm327->can.mask = buffer_from_ascii_hex(mask);
         }
     } else if AT_PARSE("csm") {
@@ -922,15 +925,18 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();                    
     } else if AT_PARSE("cf") {
         char filter[9];
+        bool parsed = false;
         if ( sscanf(AT_DATA_START, " %3s", filter) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", filter);
             strcpy(filter,tmp);free(tmp);
-            SIM_ELM327_REPLY_OK();                
+            SIM_ELM327_REPLY_OK();       
+            parsed = true;         
         } else if ( sscanf(AT_DATA_START, " %8s", filter) == 1 ) {
-            SIM_ELM327_REPLY_OK();                    
+            SIM_ELM327_REPLY_OK();    
+            parsed = true;                
         }
-        if ( filter != null ) {
+        if ( parsed) {
             elm327->can.filter = buffer_from_ascii_hex(filter);
         }                    
     } else {

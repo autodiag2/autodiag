@@ -12,6 +12,7 @@ void thread_allocate_and_start(pthread_t** t, void*ptr);
     free(thread); \
     thread = null; \
     pthread_cleanup_pop(1); \
+    return null; \
 }
 
 #define THREAD_CANCEL(thread) \

@@ -190,7 +190,7 @@ void config_onchange() {
         serial_list_selected = SERIAL_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
-        config.ephemere.iface = obd_open_from_device(port);
+        config.ephemere.iface = obd_open_from_device(CAST_DEVICE(port));
         if ( config.ephemere.iface != null ) {
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
                 config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);

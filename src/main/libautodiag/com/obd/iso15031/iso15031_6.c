@@ -2,6 +2,7 @@
 
 char * iso15031_dtc_type_to_string(final ISO15031_DTC_TYPE type) {
     switch(type) {
+        case ISO15031_DTC_TYPE_UNKNOWN:     break;
         case ISO15031_DTC_TYPE_POWERTRAIN:  return strdup("power train");
         case ISO15031_DTC_TYPE_CHASSIS:     return strdup("chassis");
         case ISO15031_DTC_TYPE_BODY:        return strdup("body");
@@ -39,6 +40,7 @@ ISO15031_DTC_TYPE iso15031_dtc_first_letter_to_type(final char letter) {
 
 char iso15031_dtc_type_first_letter(final ISO15031_DTC_TYPE type) {
     switch(type) {
+        case ISO15031_DTC_TYPE_UNKNOWN:     return '?';
         case ISO15031_DTC_TYPE_POWERTRAIN:  return 'P';
         case ISO15031_DTC_TYPE_CHASSIS:     return 'C';
         case ISO15031_DTC_TYPE_BODY:        return 'B';
