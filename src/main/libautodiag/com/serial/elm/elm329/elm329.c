@@ -54,9 +54,9 @@ int elm329_guess_response(final char * buffer) {
 
 ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     final char * command = at_command("dpn");
-    final bool result = (3 <= elm329->send(elm329, command));
+    final bool result = (3 <= elm329->send(CAST_DEVICE(elm329), command));
     buffer_recycle(elm329->recv_buffer);
-    elm329->recv(elm329);
+    elm329->recv(CAST_DEVICE(elm329));
 
     ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
     SERIAL_BUFFER_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)

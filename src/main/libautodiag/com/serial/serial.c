@@ -541,7 +541,7 @@ bool serial_send_at_command_internal(final Serial* serial, char *cmd, va_list ap
 
     va_end(ap);
 
-    if ( serial->send(serial, cmdAt) == DEVICE_ERROR ) {
+    if ( serial->send(CAST_DEVICE(serial), cmdAt) == DEVICE_ERROR ) {
         return false;
     }
     free(cmdAt);
@@ -561,7 +561,7 @@ bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
     }
 
     buffer_recycle(serial->recv_buffer);
-    bool result = serial->recv(serial) == SERIAL_RESPONSE_OK;
+    bool result = serial->recv(CAST_DEVICE(serial)) == SERIAL_RESPONSE_OK;
     
     return result;
 }

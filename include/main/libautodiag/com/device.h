@@ -15,6 +15,7 @@
 #define CAST_DEVICE_CLEAR_DATA(var) ((void (*)(final Device*))var)
 #define CAST_DEVICE_LOCK(var) ((void (*)(final Device*))var)
 #define CAST_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
+#define CAST_DEVICE(arg) ((struct Device*)arg)
 typedef struct Device {
     /**
      * Send a string with the device

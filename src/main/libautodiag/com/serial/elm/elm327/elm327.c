@@ -161,9 +161,9 @@ bool elm327_printing_of_spaces(final ELM327Device* elm327, bool state) {
 
 ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
     final char * command = at_command("dpn");
-    final bool result = (3 <= elm327->send(elm327, command));
+    final bool result = (3 <= elm327->send(CAST_DEVICE(elm327), command));
     buffer_recycle(elm327->recv_buffer);
-    elm327->recv(elm327);
+    elm327->recv(CAST_DEVICE(elm327));
 
     ELM327_PROTO current_protocol = ELM327_PROTO_NONE;
     SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_PROTOCOL_ITERATOR)
@@ -186,9 +186,9 @@ bool elm327_calibrate_battery_voltage(final ELM327Device* elm327, double voltage
 
 double elm327_get_current_battery_voltage(final ELM327Device* elm327) {
     final char * command = at_command("rv");
-    elm327->send(elm327, command);
+    elm327->send(CAST_DEVICE(elm327), command);
     buffer_recycle(elm327->recv_buffer);
-    elm327->recv(elm327);
+    elm327->recv(CAST_DEVICE(elm327));
 
     final double result = -1;
     SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_BATTERY_VOLTAGE_ITERATOR)
