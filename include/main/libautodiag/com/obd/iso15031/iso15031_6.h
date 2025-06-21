@@ -2,7 +2,6 @@
 #define __ISO15031_6_H
 
 #include "libautodiag/lib.h"
-#include "libautodiag/string.h"
 
 /**
  * ISO 15031-6

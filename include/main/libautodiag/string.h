@@ -7,9 +7,9 @@
 #include "compile_target.h"
 
 #ifndef OS_POSIX
-#include <stdlib.h>
-char *strdup(const char *s);
-char *strndup(const char *s, size_t n);
+#   include <stdlib.h>
+    char *strdup(const char *s);
+    char *strndup(const char *s, size_t n);
 #endif
 
 bool strbeginwith(char *str, char *begin);

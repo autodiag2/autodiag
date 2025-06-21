@@ -56,5 +56,8 @@
         "graph_data.h": "c",
         "vehicle.h": "c",
         "sim_obd_generators.h": "c"
+        "buffer.h": "c",
+        "math.h": "c",
+        "string.h": "c"
     }
 }
