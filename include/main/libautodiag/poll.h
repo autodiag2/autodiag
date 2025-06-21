@@ -18,7 +18,6 @@
 
 /**
  * All is a file implementation of the pool, support both windows and unix.
- * no readLen support on unix.
  * @return -1 on error, positive value depends on the implementation
  */
 int file_pool(void *handle, int *readLen, int timeout_ms);
