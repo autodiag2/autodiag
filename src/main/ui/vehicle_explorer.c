@@ -626,11 +626,11 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
     static int graph_count = 0;
     OBDIFace* iface = config.ephemere.iface;
 
-    GtkWidget *drawing_area = gtk_drawing_area_new();
-    gtk_widget_set_size_request(drawing_area, 300, 300);
-    final char * activeGraph = gtk_combo_box_text_get_active_text(vdgui->graphs.list);
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(vdgui->graphs.list));
     if ( 0 <= active_index ) {
+        GtkWidget *drawing_area = gtk_drawing_area_new();
+        gtk_widget_set_size_request(drawing_area, 300, 300);
+        final char * activeGraph = gtk_combo_box_text_get_active_text(vdgui->graphs.list);
         if VH_GRAPHS_IS_ACTIVE_SET("Speed", "km/h") 
         else if VH_GRAPHS_IS_ACTIVE_SET("Coolant Temperature", "°C") 
         else if VH_GRAPHS_IS_ACTIVE_SET("Intake Air Temperature", "°C") 
