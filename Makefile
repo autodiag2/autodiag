@@ -1,7 +1,7 @@
 include config.mk
 include app.mk
 
-INSTALL_FOLDER = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
+INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 # Programs
 SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
@@ -170,21 +170,21 @@ newVersion:
 	git tag "v$${version}"
 
 _install: uninstall
-	mkdir -p "$(INSTALL_FOLDER)" "$(INSTALL_BIN_FOLDER)"
+	mkdir -p "$(INSTALL_DATA_FOLDER_APP)" "$(INSTALL_BIN_FOLDER)"
 
 # Manual installation
 install: _install
-	cp -fr ui "$(INSTALL_FOLDER)"
-	cp -fr data/data "$(INSTALL_FOLDER)"
-	cp -fr media "$(INSTALL_FOLDER)"
+	cp -fr ui "$(INSTALL_DATA_FOLDER_APP)"
+	cp -fr data/data "$(INSTALL_DATA_FOLDER_APP)"
+	cp -fr media "$(INSTALL_DATA_FOLDER_APP)"
 	cp ./bin/* "$(INSTALL_BIN_FOLDER)"
 installDev: _install
-	ln -s "$${PWD}/data/data" "$(INSTALL_FOLDER)"
-	ln -s "$${PWD}/ui" "$(INSTALL_FOLDER)"
-	ln -s "$${PWD}/media" "$(INSTALL_FOLDER)"
+	ln -s "$${PWD}/data/data" "$(INSTALL_DATA_FOLDER_APP)"
+	ln -s "$${PWD}/ui" "$(INSTALL_DATA_FOLDER_APP)"
+	ln -s "$${PWD}/media" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}"/bin/* "$(INSTALL_BIN_FOLDER)"
 uninstall:
-	rm -fr "$(INSTALL_FOLDER)"
+	rm -fr "$(INSTALL_DATA_FOLDER_APP)"
 	for bin in "$${PWD}"/bin/*; do \
 		if [ -f "$${bin}" ]; then \
 			rm -f "$(INSTALL_BIN_FOLDER)/$$(basename "$${bin}")"; \
