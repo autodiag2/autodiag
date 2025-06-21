@@ -475,6 +475,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
         cairo_move_to(cr, (width - ext.width) / 2 - ext.x_bearing,
                         (height + ext.height) / 2 - ext.y_bearing);
         cairo_show_text(cr, msg);
+        pthread_mutex_unlock(&graphs_mutex);
         return FALSE;
     }
 
