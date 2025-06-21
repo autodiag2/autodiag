@@ -9,7 +9,7 @@
 
 int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
     #if defined OS_WINDOWS
-        int readLen = 0;
+        DWORD readLen = 0;
         HANDLE connection_handle = (HANDLE)*((HANDLE*)handle);
         if (connection_handle == INVALID_HANDLE_VALUE) {
             return -1;
@@ -35,7 +35,12 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
             }
         }
         if ( readLen_rv != null ) {
-            *readLen_rv = readLen;
+            if ( INT_MAX < readLen ) {
+                log_msg(LOG_WARNING, "The size readed is more than the capacity of implementation, restricting to ");
+                *readLen_rv = INT_MAX;
+            } else {
+                *readLen_rv = readLen;
+            }
         }
         return 0;
     #elif defined OS_POSIX

@@ -1,8 +1,9 @@
 #ifndef __CUSTOM_POLL_H
 #define __CUSTOM_POLL_H
 
-#include "compile_target.h"
-#include "lang.h"
+#include "libautodiag/compile_target.h"
+#include "libautodiag/lang.h"
+#include "libautodiag/log.h"
 #include <unistd.h>
 #include <errno.h>
 
