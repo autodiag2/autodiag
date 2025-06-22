@@ -12,7 +12,12 @@
   source ~/.bashrc
  ```
 For the make target `distWindows`:
- - Install [InnoSetup](https://jrsoftware.org/isdl.php#stable)
+ - Install [InnoSetup](https://jrsoftware.org/isdl.php#stable)  
+
+or:
+```bash
+choco install innosetup
+```
 #### MacOS
 ```bash
 brew install gtk+3
