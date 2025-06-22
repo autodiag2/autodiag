@@ -146,7 +146,8 @@ distDebianBin: release_progs
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
 distWindows: release_progs
-	powershell.exe -Command "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dist\windows\package.iss' ; echo 'ISCC exited with code: \$LASTEXITCODE'"
+	-'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dist\windows\package.iss'
+	-powershell.exe -Command "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dist\windows\package.iss'"
 
 distMacOS: release_progs
 	./dist/macos/package.sh
