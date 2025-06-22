@@ -7,7 +7,7 @@
  - Install Dependencies
  ```bash
  pacman -S mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3 && \
-  echo "export LIBRARY_PATH=/mingw64/lib:$LIBRARY_PATH" >> ~/.bashrc && \
+  echo "export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH" >> ~/.bashrc && \
   echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.bashrc && \
   source ~/.bashrc
  ```
