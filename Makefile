@@ -149,7 +149,7 @@ distWindows: release_progs
 	location="$(pwd)"
 	powershell.exe -Command "& pwd"
 	powershell.exe -Command "& dir"
-	powershell.exe -Command "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dis\windows\package.iss'"
+	powershell.exe -Command "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dist\windows\package.iss'"
 
 distMacOS: release_progs
 	./dist/macos/package.sh
