@@ -146,9 +146,10 @@ distDebianBin: release_progs
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
 distWindows: release_progs
-	location="$(pwd)"
-	powershell.exe -Command "& pwd"
-	powershell.exe -Command "& dir"
+	-iscc
+	-owsdof
+	-powershell.exe -Command "& iscc .\dist\windows\package.iss"
+	-powershell.exe -Command "iscc .\dist\windows\package.iss"
 	powershell.exe -Command "& 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe' '.\dist\windows\package.iss'"
 
 distMacOS: release_progs
