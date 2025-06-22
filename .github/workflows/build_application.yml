@@ -77,7 +77,7 @@ jobs:
             bin/*.dylib
             bin/*.dll
             bin/*.dmg
-            bin/*.exe
+            bin/*Setup.exe
           tag_name: ${{ needs.tag.outputs.tag_name }}
           name: Release ${{ needs.tag.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}
