@@ -163,6 +163,7 @@ void serial_list_set_selected_by_name(char *name);
  * @return number of bytes sent or DEVICE_ERROR on error
  */
 int serial_send(final SERIAL port, const char *command);
+int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
 
 #define GEN_SERIAL_RECV(sym,type,ITERATOR) int sym(final type* serial) { \
     if ( serial == null || serial->recv_buffer == null ) { \

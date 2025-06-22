@@ -140,7 +140,8 @@ void incomplete_string_return_after_20_secs() {
     usleep(SIM_START_WAIT_MS);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
     final Serial* serial = (Serial*)iface->device;
-    serial_send(serial, "ati");
+    buffer_recycle(serial->recv_buffer);
+    serial_send_internal(serial, "ati", 3);
     assert(serial_recv(serial) == DEVICE_RECV_NULL);
     usleep(20 + 3);
     assert(serial_recv_internal(serial) > 0);

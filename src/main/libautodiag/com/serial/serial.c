@@ -10,6 +10,44 @@ int serial_guess_response(final char * buffer) {
     }
     return DEVICE_RECV_DATA;
 }
+int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) {
+    if ( log_has_level(LOG_DEBUG) ) {
+        module_debug(MODULE_SERIAL "Sending");
+        bytes_dump(tx_buf,bytes_to_send);
+    }
+    int bytes_sent = 0;
+    #if defined OS_WINDOWS
+        DWORD bytes_written;
+
+        PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+        if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
+            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+            serial_close(port);
+            return DEVICE_ERROR;
+        }            
+        bytes_sent = (int) bytes_written;
+        if (bytes_sent != bytes_to_send) {
+            log_msg(LOG_ERROR, "Error while writting to the serial");
+            serial_close(port);
+            return DEVICE_ERROR;
+        }
+    #elif defined OS_POSIX
+        bytes_sent = write(port->implementation->fdtty,tx_buf,bytes_to_send);
+        if ( bytes_sent != bytes_to_send ) {
+            perror(port->location);
+            log_msg(LOG_ERROR, "Error while writting to the serial");
+            serial_close(port);
+            return DEVICE_ERROR;
+        } else {
+            tcflush(port->implementation->fdtty, TCIFLUSH);
+        }
+    
+    #else
+    #   warning Unsupported OS
+    #endif
+    return bytes_sent;
+}
+
 int serial_send(final Serial * port, const char *command) {
     if ( port == null || command == null ) {
         return DEVICE_ERROR;
@@ -18,42 +56,7 @@ int serial_send(final Serial * port, const char *command) {
         final int bytes_to_send = strlen(command) + strlen(port->eol);
         char tx_buf[bytes_to_send + useless_termination];
         sprintf(tx_buf, "%s%s", command, port->eol);
-        int bytes_sent = 0;
-
-        if ( log_has_level(LOG_DEBUG) ) {
-            module_debug(MODULE_SERIAL "Sending");
-            bytes_dump(tx_buf,bytes_to_send);
-        }
-        #if defined OS_WINDOWS
-            DWORD bytes_written;
-
-            PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
-                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-                serial_close(port);
-                return DEVICE_ERROR;
-            }            
-            bytes_sent = (int) bytes_written;
-            if (bytes_sent != bytes_to_send) {
-                log_msg(LOG_ERROR, "Error while writting to the serial");
-                serial_close(port);
-                return DEVICE_ERROR;
-            }
-        #elif defined OS_POSIX
-            bytes_sent = write(port->implementation->fdtty,tx_buf,bytes_to_send);
-	        if ( bytes_sent != bytes_to_send ) {
-                perror(port->location);
-                log_msg(LOG_ERROR, "Error while writting to the serial");
-                serial_close(port);
-                return DEVICE_ERROR;
-	        } else {
-                tcflush(port->implementation->fdtty, TCIFLUSH);
-	        }
-        
-        #else
-        #   warning Unsupported OS
-        #endif
-        return bytes_sent;
+        return serial_send_internal(port, tx_buf, bytes_to_send);
     }
 }
 int serial_recv_internal(final SERIAL port) {
