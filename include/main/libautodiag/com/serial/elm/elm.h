@@ -22,7 +22,6 @@ typedef struct {
 
 #define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
 
-// Standard RS232 response
 #define ELM_RESPONSE_UNKNOWN                 0xF00
 
 static int ELMResponseOffset = 0xF00;
