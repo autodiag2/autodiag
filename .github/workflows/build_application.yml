@@ -40,6 +40,7 @@ jobs:
             brew install gtk+3
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             choco install msys2 -y
+            choco install innosetup -y
             /c/tools/msys64/usr/bin/bash -lc 'pacman -Syu --noconfirm'
             /c/tools/msys64/usr/bin/bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH" >> ~/.bashrc'
@@ -61,7 +62,7 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib:\"\$LIBRARY_PATH\" make release_progs"
+            /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib:\"\$LIBRARY_PATH\" make distWindows"
           else
             echo "unsupported OS"
             exit 1
