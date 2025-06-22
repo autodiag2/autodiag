@@ -215,6 +215,21 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
 void options_launch_simulation_internal() {
     gtk_spinner_start(optionsGui->simulator.spinner);
     SimELM327 * elm327 = sim_elm327_new();
+    char * type = gtk_combo_box_text_get_active_text(optionsGui->simulator.type);
+    if ( type == null ) {
+        type = strdup("random");
+    }
+    assert(0 < elm327->ecus->size);
+    SimECU * ecu = elm327->ecus->list[0];
+    if ( strcasecmp(type, "random") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_random();
+    } else if ( strcasecmp(type, "cycle") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_cycle();
+    } else if ( strcasecmp(type, "citroen_c5_x7") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+    } else {
+        log_msg(LOG_ERROR, "Uknown generator type: '%s'", type);
+    }
     sim_elm327_loop_as_daemon(elm327);
     g_idle_add(options_launch_simulation_set_pending_text, elm327);
     usleep(500e3);
@@ -256,7 +271,8 @@ void module_init_options(GtkBuilder *builder) {
             .simulator = {
                 .spinner = GTK_SPINNER(gtk_builder_get_object(builder,"window-simulation-spinner")),
                 .launchDesc = GTK_LABEL(gtk_builder_get_object(builder,"window-simulation-launch-description")),
-                .launchThread = null
+                .launchThread = null,
+                .type = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "options-sim-chooser"))
             },
             .vehicleInfos = {
                 .manufacturer = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),

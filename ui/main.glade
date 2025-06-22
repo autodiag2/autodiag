@@ -8143,6 +8143,22 @@ What can be done:
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <child>
+                  <object class="GtkComboBoxText" id="options-sim-chooser">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <items>
+                      <item translatable="yes">citroen_c5_x7</item>
+                      <item translatable="yes">random</item>
+                      <item translatable="yes">cycle</item>
+                    </items>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton">
                     <property name="label" translatable="yes">Start an elm327  simulation</property>
                     <property name="visible">True</property>
@@ -8153,7 +8169,7 @@ What can be done:
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">0</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
@@ -8164,7 +8180,7 @@ What can be done:
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -8175,7 +8191,7 @@ What can be done:
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
               </object>
