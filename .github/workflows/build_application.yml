@@ -51,6 +51,9 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'env'
             /c/tools/msys64/usr/bin/bash -lc 'ls /'
             /c/tools/msys64/usr/bin/bash -lc 'which gcc'
+            /c/tools/msys64/usr/bin/bash -lc 'which ld'
+            /c/tools/msys64/usr/bin/bash -lc 'echo $PATH'
+            /c/tools/msys64/usr/bin/bash -lc 'IFS=:; for p in $PATH; do if [[ -d "$p" ]]; then echo "$p"; ls -la "$p"; fi; done'
           fi
 
       - name: Clone external database
