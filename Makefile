@@ -146,9 +146,12 @@ distDebianBin: release_progs
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
 distWindows: release_progs
-	-ls *
-	-ls bin/*
-	-pwd
+	-ls /c/tools/msys64/
+	-ls /c/msys64/
+	-ls /c/msys64/mingw64/bin
+	-ls "C:\\msys64\\usr\\bin"
+	-ls "C:\\tools\\msys64\\usr\\bin"
+	-ls "C:\\tools\\msys64\\"
 	"/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ./dist/windows/package.iss
 
 distMacOS: release_progs
