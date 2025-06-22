@@ -60,7 +60,7 @@ int serial_recv_internal(final SERIAL port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     } else {
-        final int initial_buffer_sz = port->recv_buffer->size;
+        final unsigned int initial_buffer_sz = port->recv_buffer->size;
         #if defined OS_WINDOWS
             if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
                port->status = SERIAL_STATE_NOT_OPEN;

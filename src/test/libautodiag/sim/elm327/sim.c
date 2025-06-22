@@ -134,7 +134,20 @@ void anyCommandShouldReplyUnknown() {
     buffer_ensure_termination(serial->recv_buffer);
     assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
 }
+void incomplete_string_return_after_20_secs() {
+    SimELM327* elm327 = sim_elm327_new();       
+    sim_elm327_loop_as_daemon(elm327);
+    usleep(SIM_START_WAIT_MS);
+    final OBDIFace* iface = port_open(strdup(elm327->device_location));
+    final Serial* serial = (Serial*)iface->device;
+    serial_send(serial, "ati");
+    assert(serial_recv(serial) == DEVICE_RECV_NULL);
+    usleep(20 + 3);
+    assert(serial_recv_internal(serial) > 0);
+    assert(strncmp(serial->recv_buffer, "?", 1) == 0);
+}
 bool testSIM() {
+    incomplete_string_return_after_20_secs();
     anyCommandShouldReplyUnknown();
     ensureReplayCommands();
     {
