@@ -146,6 +146,8 @@ distDebianBin: release_progs
 	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
 distWindows: release_progs
+	ls "/c/Program Files (x86)/"
+	ls "/c/Program Files/"
 	"/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ./dist/windows/package.iss
 
 distMacOS: release_progs
