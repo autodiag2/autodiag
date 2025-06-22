@@ -53,6 +53,7 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'which gcc'
             /c/tools/msys64/usr/bin/bash -lc 'which ld'
             /c/tools/msys64/usr/bin/bash -lc 'echo $PATH'
+            /c/tools/msys64/usr/bin/bash -lc 'echo $LIBRARY_PATH'
             /c/tools/msys64/usr/bin/bash -lc 'IFS=:; for p in $PATH; do if [[ -d "$p" ]]; then echo "$p"; ls -la "$p"; fi; done'
           fi
 
@@ -71,7 +72,7 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            /c/tools/msys64/usr/bin/bash -lc "cd $location && make release_progs"
+            /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib:\"\$LIBRARY_PATH\" make release_progs"
           else
             echo "unsupported OS"
             exit 1
