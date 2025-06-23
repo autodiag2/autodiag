@@ -14,15 +14,13 @@ void options_simutation_add_ecu(char *address, char *generator) {
     gtk_widget_set_halign(label_addr, GTK_ALIGN_START);
 
     GtkWidget *combo_gen = gtk_combo_box_text_new();
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), "random");
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), "cycle");
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), "citroen_c5_x7");
-    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), "gui");
-
-    if (generator && strlen(generator) > 0) {
-        gtk_combo_box_set_active_id(GTK_COMBO_BOX(combo_gen), generator);
-    } else {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(combo_gen), 0);
+    char generators[][50] = {"random", "cycle", "citroen_c5_x7", "gui"};
+    int generators_len = 4;
+    for(int i = 0; i < generators_len; i ++) {
+        gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), generators[i]);
+        if ( strcmp(generator, generators[i]) == 0 ) {
+            gtk_combo_box_set_active(GTK_COMBO_BOX(combo_gen), i);
+        }
     }
 
     GtkWidget *del_button = gtk_button_new_with_label("Delete");
