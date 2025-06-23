@@ -59,7 +59,7 @@ char *ascii_interpret_escape_sequences(const char *input) {
 }
 void * command_line_send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
-    final SERIAL port = serial_list_get_selected();
+    final Serial * port = serial_list_get_selected();
     if ( ! error_feedback_serial(cmdGui->errorFeedback,port) ) {
         buffer_recycle(port->recv_buffer);
         {

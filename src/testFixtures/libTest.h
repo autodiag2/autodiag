@@ -64,7 +64,7 @@ static FILE* tmpFile(char **name) {
 
 static OBDIFace* port_open(char *device_location) {
     printf("open port %s\n", device_location);
-    final SERIAL serial = serial_new();
+    final Serial * serial = serial_new();
     serial->location = strdup(device_location);
     return elm_open_from_serial(serial);
 }

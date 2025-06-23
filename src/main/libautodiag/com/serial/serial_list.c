@@ -3,7 +3,7 @@
 Serial_list serial_list = { .list = null, .size = 0};
 int serial_list_selected = SERIAL_LIST_NO_SELECTED;
 
-SERIAL serial_list_get_selected() {
+Serial * serial_list_get_selected() {
     if ( SERIAL_LIST_NO_SELECTED == serial_list_selected ) {
         return null;
     } else {
@@ -12,9 +12,9 @@ SERIAL serial_list_get_selected() {
     }
 }
 
-SERIAL serial_list_add_if_not_in(SERIAL element) {
+Serial * serial_list_add_if_not_in(Serial * element) {
     for(int i = 0; i < serial_list.size; i++) {
-        SERIAL serial = serial_list.list[i];
+        Serial * serial = serial_list.list[i];
         if ( strcmp(serial->location,element->location) == 0 ) {
             return serial;
         }
@@ -23,11 +23,11 @@ SERIAL serial_list_add_if_not_in(SERIAL element) {
     return element;
 }
 
-SERIAL serial_list_add_if_not_in_by_location(char * location) {
-    SERIAL serial = serial_list_find_by_name(location);
+Serial * serial_list_add_if_not_in_by_location(char * location) {
+    Serial * serial = serial_list_find_by_name(location);
     if ( serial == null ) {
         Serial_list_append(&serial_list, serial_new());
-        final SERIAL newOne = serial_list.list[serial_list.size-1];
+        final Serial * newOne = serial_list.list[serial_list.size-1];
         serial_set_location(newOne,location);
         return newOne;
     } else {
@@ -107,7 +107,7 @@ void serial_list_free() {
                 sscanf(portName, "%*[^(](%[^)])", formattedPortName);
                 snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
 
-                final SERIAL serial = serial_list_add_if_not_in_by_location(formattedPortNameFullPath);
+                final Serial * serial = serial_list_add_if_not_in_by_location(formattedPortNameFullPath);
                 serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
@@ -139,7 +139,7 @@ void serial_list_free() {
             if (strncmp(findFileData.cFileName, SERIAL_LIST_PIPE_PREFIX, strlen(SERIAL_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
-                final SERIAL serial = serial_list_add_if_not_in_by_location(pipeFullPath);
+                final Serial * serial = serial_list_add_if_not_in_by_location(pipeFullPath);
                 serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,pipeFullPath) == 0 ) {
@@ -178,7 +178,7 @@ void serial_list_free() {
                                 char *serial_path ;
                                 assert(0 < strlen(dir));
                                 asprintf(&serial_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
-                                final SERIAL serial = serial_list_add_if_not_in_by_location(serial_path);
+                                final Serial * serial = serial_list_add_if_not_in_by_location(serial_path);
                                 serial->detected = true;
                                 if ( access(serial_path,R_OK|W_OK) == 0 ) {
                                     module_debug(MODULE_SERIAL "    All permissions granted");
@@ -210,11 +210,11 @@ void serial_list_free() {
 
 void serial_list_set_to_undetected() {
     for(int i = 0; i < serial_list.size; i++) {
-        SERIAL serial = serial_list.list[i];
+        Serial * serial = serial_list.list[i];
         serial->detected = false;
     }
 }
-bool serial_list_remove(final SERIAL element) {
+bool serial_list_remove(final Serial * element) {
     int index = -1;
     for(int i = 0; i < serial_list.size; i++) {
         if ( serial_list.list[i] == element ) {
@@ -238,7 +238,7 @@ bool serial_list_remove(final SERIAL element) {
 }
 void serial_list_remove_undetected() {
     for(int i = 0; i < serial_list.size; i++) {
-        SERIAL serial = serial_list.list[i];
+        Serial * serial = serial_list.list[i];
         if ( ! serial->detected ) {
             if ( i == serial_list_selected ) {
                 serial_list_selected = SERIAL_LIST_NO_SELECTED;

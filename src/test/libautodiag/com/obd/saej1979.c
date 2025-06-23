@@ -39,7 +39,7 @@ bool testSAEJ1979(OBDIFace* iface) {
             result = false;
 
         obd_clear_data(iface);
-        buffer_append_str(((SERIAL)iface->device)->recv_buffer,"\r7E804410C59C019\r>");
+        buffer_append_str(((Serial *)iface->device)->recv_buffer,"\r7E804410C59C019\r>");
         
         iface->device->parse_data(iface->device,iface->vehicle);
 

@@ -40,14 +40,14 @@ int elm327_send(final ELM327Device* elm327, const char *command) {
                 case 0x02: {
                     char *commandLine;
                     asprintf(&commandLine,"%s%d",command,1);
-                    int bytes = serial_send((SERIAL)elm327,commandLine);
+                    int bytes = serial_send((Serial *)elm327,commandLine);
                     free(commandLine);
                     return bytes;
                 }
             }
         }
     }
-    return serial_send((SERIAL)elm327,command);
+    return serial_send((Serial *)elm327,command);
 }
 
 #define ELM327_RECV_ITERATOR(ptr,end_ptr) \
@@ -104,7 +104,7 @@ char* elm327_protocol_to_string(final ELM327_PROTO proto) {
 char* elm327_describe_communication_layer(final ELM327Device* elm327) {
     char * res = elm327_protocol_to_string(elm327->protocol);
     if ( res == null ) {
-        return serial_describe_communication_layer((SERIAL)elm327);
+        return serial_describe_communication_layer((Serial *)elm327);
     } else {
         return res;
     }

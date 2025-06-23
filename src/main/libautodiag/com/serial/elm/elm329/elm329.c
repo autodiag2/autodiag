@@ -86,14 +86,14 @@ int elm329_send(final ELM329Device* elm329, const char *command) {
                 case 0x02: {
                     char *commandLine;
                     asprintf(&commandLine,"%s%d",command,1);
-                    int bytes = serial_send((SERIAL)elm329,commandLine);
+                    int bytes = serial_send((Serial *)elm329,commandLine);
                     free(commandLine);
                     return bytes;
                 }
             }
         }
     }
-    return serial_send((SERIAL)elm329,command);
+    return serial_send((Serial *)elm329,command);
 }
 
 #define ELM329_RECV_ITERATOR(ptr,end_ptr) \
@@ -129,7 +129,7 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
         case ELM329_PROTO_USER4_CAN:               return strdup("USER4 CAN (11* bit ID, 95.2* kbaud)");
         case ELM329_PROTO_USER5_CAN:               return strdup("USER5 CAN (11* bit ID, 33.3* kbaud)");         
     }
-    return serial_describe_communication_layer((SERIAL)elm329);
+    return serial_describe_communication_layer((Serial *)elm329);
 }
 
 bool elm329_configure(final ELM329Device* elm329) {

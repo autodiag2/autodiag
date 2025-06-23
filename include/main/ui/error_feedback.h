@@ -20,10 +20,10 @@ void error_feedback_windows_init(final ErrorFeedbackWindows ws);
 /**
  * @return true if a feedback has been returned else false
  */
-bool error_feedback_serial(final ErrorFeedbackWindows ws, final SERIAL serial);
+bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial);
 /**
  * Same but at a different level
  */
-bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final SERIAL serial);
+bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final Serial * serial);
 
 #endif

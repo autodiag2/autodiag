@@ -127,7 +127,7 @@ void options_serial_list_refresh() {
     } else {
         gtk_combo_box_text_remove_all(optionsGui->serialList);
         for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
-            final SERIAL port = serial_list.list[serial_i];
+            final Serial * port = serial_list.list[serial_i];
             gtk_combo_box_text_append(optionsGui->serialList,NULL,port->location);
             if ( port == serial_list_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
@@ -192,7 +192,7 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
 }
 void options_set_serial_select_from_name(char * name) {
     for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
-        final SERIAL port = serial_list.list[serial_i];
+        final Serial * port = serial_list.list[serial_i];
         if ( strcmp(name, port->location) == 0 ) {
             gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             break;

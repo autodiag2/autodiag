@@ -1,6 +1,6 @@
 #include "ui/error_feedback.h"
 
-bool error_feedback_serial(final ErrorFeedbackWindows ws, final SERIAL serial) {
+bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial) {
     char *msg = null;
     if ( serial == null ) {
         msg = strdup("No serial selected");
@@ -18,7 +18,7 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final SERIAL serial) {
     return msg != null;
 }
 
-bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final SERIAL serial) {
+bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final Serial * serial) {
     if ( iface == null ) {
         if ( ! error_feedback_serial(ws,serial) ) {
             log_msg(LOG_INFO, "Cannot read codes : no obd interface openned");
@@ -26,7 +26,7 @@ bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, fi
         }
         return true;
     } else {
-        return error_feedback_serial(ws,(SERIAL)iface->device);
+        return error_feedback_serial(ws,(Serial *)iface->device);
     }
 }
 

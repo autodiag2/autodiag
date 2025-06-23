@@ -32,7 +32,7 @@ int elm_guess_response(final char * buffer) {
     return res;
 }
 
-int elm_linefeeds(final SERIAL port, final bool state) {
+int elm_linefeeds(final Serial * port, final bool state) {
     assert(port != null);
 
     char *original_eol = port->eol;
@@ -49,7 +49,7 @@ int elm_linefeeds(final SERIAL port, final bool state) {
     return DEVICE_ERROR;
 }
 
-int elm_echo(final SERIAL port, final bool state) {
+int elm_echo(final Serial * port, final bool state) {
     assert(port != null); 
     if ( serial_query_at_command(port,"e%d",state) ) {
         port->echo = state;
@@ -71,7 +71,7 @@ int elm_echo(final SERIAL port, final bool state) {
         } \
     }
 
-char * elm_print_id(final SERIAL port) {
+char * elm_print_id(final Serial * port) {
     assert(port != null);
     
     serial_query_at_command(port,"i");
@@ -84,7 +84,7 @@ char * elm_print_id(final SERIAL port) {
     return id;
 }
 
-OBDIFace* elm_open_from_serial_internal2(final SERIAL* port) {
+OBDIFace* elm_open_from_serial_internal2(final Serial ** port) {
     OBDIFace* iface = null;
     final char * response = elm_print_id(*port);
     final bool interfaceConfigured;
@@ -117,7 +117,7 @@ OBDIFace* elm_open_from_serial_internal2(final SERIAL* port) {
         for(int i = 0;i < serial_list.size; i++) {
             if ( serial_list.list[i] == *port ) {
                 log_msg(LOG_DEBUG, "Serial port changed to the real device");
-                serial_list.list[i] = (SERIAL)iface->device;
+                serial_list.list[i] = (Serial *)iface->device;
                 *port = serial_list.list[i];
                 break;
             }
@@ -134,7 +134,7 @@ OBDIFace* elm_open_from_serial_internal2(final SERIAL* port) {
     }
     return iface;
 }
-OBDIFace* elm_open_from_serial_internal(final SERIAL * port) {
+OBDIFace* elm_open_from_serial_internal(final Serial * * port) {
     if ( elm_echo(*port,false) == DEVICE_ERROR ) {
         log_msg(LOG_ERROR, "Error while turn echo off");
         return null;
@@ -155,7 +155,7 @@ void elm_debug(final ELMDevice * elm) {
     printf("}\n");
 }
 
-OBDIFace* elm_open_from_serial(final SERIAL port) {
+OBDIFace* elm_open_from_serial(final Serial * port) {
     if ( port == null ) {
         return null;
     } else {

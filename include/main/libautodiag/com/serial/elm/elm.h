@@ -31,13 +31,13 @@ static char * ELMResponseStr[] = {
 };
 
 int elm_guess_response(final char * buffer);
-int elm_linefeeds(final SERIAL port, final bool state);
-int elm_echo(final SERIAL port, final bool state);
-char * elm_print_id(final SERIAL port);
+int elm_linefeeds(final Serial * port, final bool state);
+int elm_echo(final Serial * port, final bool state);
+char * elm_print_id(final Serial * port);
 /**
  * Try to open an elm device from the provided serial
  */
-OBDIFace* elm_open_from_serial(final SERIAL port);
+OBDIFace* elm_open_from_serial(final Serial * port);
 
 Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii);
 Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr);

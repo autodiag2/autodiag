@@ -68,7 +68,7 @@ typedef struct {
     int (*guess_response)(char *ptr);
     SerialImplementation* implementation;
 } Serial;
-#define SERIAL Serial*
+#define CAST_SERIAL(var) ((Serial*)var)
 #define CAST_SERIAL_GUESS_RESPONSE(var) ((int (*)(char* ptr))var)
 
 /**
@@ -127,32 +127,32 @@ int serial_guess_response(final char * buffer);
 
 void module_init_serial();
 void module_shutdown_serial();
-void serial_init(final SERIAL serial);
+void serial_init(final Serial * serial);
 /**
  * Open currently selected serial or reopen if it is already openned. 
  */
-int serial_open(final SERIAL port);
+int serial_open(final Serial * port);
 /**
  * Close currently openned serial.
  */
-void serial_close(final SERIAL port);
-SERIAL serial_new();
+void serial_close(final Serial * port);
+Serial * serial_new();
 
 /**
  * Acquire and release exclusive lock over the serial port (no operation can be performed on the port while it is under lock)
  */
-void serial_lock(final SERIAL port);
-void serial_unlock(final SERIAL port);
+void serial_lock(final Serial * port);
+void serial_unlock(final Serial * port);
 /**
  * Debug information on a Serial
  */
-void serial_dump(final SERIAL port);
-void serial_debug(final SERIAL port);
-void serial_free(final SERIAL port);
+void serial_dump(final Serial * port);
+void serial_debug(final Serial * port);
+void serial_free(final Serial * port);
 /**
  * Get the selected Serial (port on which we are currently working) or NULL if no port currently selected.
  */
-SERIAL serial_list_get_selected();
+Serial * serial_list_get_selected();
 void serial_list_set_selected_by_name(char *name);
 
 /**
@@ -163,7 +163,7 @@ void serial_list_set_selected_by_name(char *name);
  * Send commands over the serial link at the specified speed (baud rate).
  * @return number of bytes sent or DEVICE_ERROR on error
  */
-int serial_send(final SERIAL port, const char *command);
+int serial_send(final Serial * port, const char *command);
 int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
 
 #define GEN_SERIAL_RECV(sym,type,ITERATOR) int sym(final type* serial) { \
@@ -173,14 +173,14 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
         int deduced_response = DEVICE_RECV_NULL; \
         bool continue_reception = true; \
         while(continue_reception) { \
-            final int bytes_received = serial_recv_internal((SERIAL)serial); \
+            final int bytes_received = serial_recv_internal((Serial *)serial); \
             if ( bytes_received == DEVICE_ERROR ) { \
                 return DEVICE_ERROR; \
             } else { \
                 if ( bytes_received == 0 ) { \
                     return DEVICE_RECV_NULL; \
                 } else { \
-                    SERIAL_BUFFER_ITERATE(((SERIAL)serial),ITERATOR) \
+                    SERIAL_BUFFER_ITERATE(((Serial *)serial),ITERATOR) \
                 } \
             } \
         } \
@@ -193,11 +193,11 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
  * and wait for the prompt char to be sent back back the serial terminal to which we connect to
  * @return SerialResponse(s)
  */
-int serial_recv(final SERIAL port);
+int serial_recv(final Serial * port);
 /**
  * @return number of bytes received or DEVICE_ERROR on error
  */
-int serial_recv_internal(final SERIAL port);
+int serial_recv_internal(final Serial * port);
 /**
  * Remove eol from start/end of the buffer
  */
@@ -213,7 +213,7 @@ char * at_command(char * at_command, ...);
 char * at_command_va(char * at_command, va_list ap);
 char * at_command_boolean(char *cmd, final bool state);
 bool at_is_command(char * command);
-char * serial_describe_communication_layer(final SERIAL serial);
+char * serial_describe_communication_layer(final Serial * serial);
 bool serial_query_at_command(final Serial* serial, char *cmd, ...);
 bool serial_send_at_command(final Serial* serial, char *cmd, ...);
 void serial_reset_to_default(final Serial* serial);

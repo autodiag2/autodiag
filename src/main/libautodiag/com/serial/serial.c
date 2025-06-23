@@ -59,7 +59,7 @@ int serial_send(final Serial * port, const char *command) {
         return serial_send_internal(port, tx_buf, bytes_to_send);
     }
 }
-int serial_recv_internal(final SERIAL port) {
+int serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     } else {
@@ -309,7 +309,7 @@ void serial_close(final Serial * port) {
         port->status = SERIAL_STATE_NOT_OPEN;
     }
 }
-char * serial_describe_communication_layer(final SERIAL serial) {
+char * serial_describe_communication_layer(final Serial * serial) {
     char * res;
     asprintf(&res,"Serial (%d bauds)", serial->baud_rate);
     return res;
@@ -317,10 +317,10 @@ char * serial_describe_communication_layer(final SERIAL serial) {
 void serial_clear_data(final Serial* serial) {
     buffer_recycle(serial->recv_buffer);
 }
-void serial_lock(final SERIAL port) {
+void serial_lock(final Serial * port) {
     pthread_mutex_lock(&port->implementation->lock_mutex);
 }
-void serial_unlock(final SERIAL port) {
+void serial_unlock(final Serial * port) {
     pthread_mutex_unlock(&port->implementation->lock_mutex);
 }
 
@@ -361,8 +361,8 @@ void serial_strip_char_internal(final Buffer * buffer, final char * char_to_stri
         }
     }    
 }
-SERIAL serial_new() {
-    final SERIAL port = (SERIAL)malloc(sizeof(Serial));
+Serial * serial_new() {
+    final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
     serial_init(port);
     return port;
@@ -448,7 +448,7 @@ void serial_dump(final Serial * port) {
     free(result);
 }
 
-void serial_debug(final SERIAL port) {
+void serial_debug(final Serial * port) {
     if ( port == null ) {
         log_msg(LOG_DEBUG, "Serial debug: NULL");
     } else {

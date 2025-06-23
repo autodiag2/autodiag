@@ -59,7 +59,7 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
 }
 
 void* refresh_usb_adaptater_state_internal(void *arg) {
-    final SERIAL port = serial_list_get_selected();
+    final Serial * port = serial_list_get_selected();
     if ( port == null ) {
         adaptater_state_set_text("No serial port selected", "orange");
     } else {
@@ -88,7 +88,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             adaptater_protocol_set_text(port->describe_communication_layer(CAST_DEVICE(port)));
             adaptater_interface_set_text("Not an OBD interface");
         } else {
-            final char * response = elm_print_id((SERIAL)iface->device);
+            final char * response = elm_print_id((Serial *)iface->device);
             adaptater_interface_set_text((char*)response);
             adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
             free(response);
