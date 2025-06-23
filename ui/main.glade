@@ -7561,6 +7561,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Global</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -7668,6 +7671,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Main Screen</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -7759,6 +7765,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Command Line</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -7870,6 +7879,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Vehicle explorer</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -7999,6 +8011,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Serial port</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8229,6 +8244,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Simulation</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -8268,6 +8286,7 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">center</property>
                         <property name="margin-start">5</property>
                         <property name="margin-end">5</property>
                         <property name="margin-top">5</property>
@@ -8472,6 +8491,9 @@ What can be done:
                         <property name="margin-top">5</property>
                         <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Vehicle infos setup</property>
+                        <style>
+                          <class name="options-title"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
