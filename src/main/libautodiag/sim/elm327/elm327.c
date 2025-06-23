@@ -133,6 +133,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
 
             Buffer * response_header_bin = sim_ecu_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+                assert(elm327->can.mask != null);
+                assert(elm327->can.filter != null);
                 assert(elm327->can.mask->size == elm327->can.filter->size);
                 if ( response_header_bin->size == elm327->can.mask->size ) {
                     bool filtered = false;
@@ -537,7 +539,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
 }
 char *lastBinCommand = null;
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
-    log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
+    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", buffer, strlen(buffer));
 
     char * command_reduced = serial_at_reduce(buffer);
     int last_index;
@@ -570,11 +572,11 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("amc") {
         SIM_ELM327_REPLY_GENERIC("%02x", elm327->activity_monitor_count);
     } else if AT_PARSE("amt") {
-        if ( sscanf(AT_DATA_START, " %02x", &elm327->activity_monitor_timeout) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%02x", &elm327->activity_monitor_timeout) == 1 ) {
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("cea") {
-        if ( sscanf(AT_DATA_START," %02hhx", &elm327->can.extended_addressing_target_address) == 1 ) {
+        if ( sscanf(AT_DATA_START,"%02hhx", &elm327->can.extended_addressing_target_address) == 1 ) {
             elm327->can.extended_addressing = true;
         } else {
             elm327->can.extended_addressing = false;
@@ -626,7 +628,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_GENERIC(rand()%2?"ON":"OFF");
     } else if AT_PARSE("iia") {
         byte value;
-        if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%02hhX", &value) == 1 ) {
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("i") {
@@ -675,7 +677,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("cv") {
         int value;
-        if ( sscanf(AT_DATA_START," %d", &value) == 1 ) {
+        if ( sscanf(AT_DATA_START,"%d", &value) == 1 ) {
             elm327->voltage = value / 100.0;
             SIM_ELM327_REPLY_OK();                    
         }
@@ -700,7 +702,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("pp") {
         int parameter, value;
         char state[4];
-        if ( sscanf(AT_DATA_START," %02xsv%02x", &parameter,&value) == 2 ) {
+        if ( sscanf(AT_DATA_START,"%02xsv%02x", &parameter,&value) == 2 ) {
             if ( parameter < elm327->nvm.programmable_parameters_pending->size ) {                        
                 elm327->nvm.programmable_parameters_pending->buffer[parameter] = value;
                 if ( elm327->programmable_parameters_pending_load_type->buffer[parameter] == SIM_ELM327_INIT_TYPE_IMMEDIATE ) {
@@ -754,7 +756,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("brt") {
         int value;
-        sscanf(AT_DATA_START," %02hhx", (unsigned char*)&value);
+        sscanf(AT_DATA_START,"%02hhx", (unsigned char*)&value);
         sim_elm327_set_baud_rate_divisor_timeout(elm327, value);
         SIM_ELM327_REPLY_OK();                    
     } else if AT_PARSE("ar") {
@@ -762,11 +764,11 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         elm327->receive_address = null;
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("cp") {
-        sscanf(AT_DATA_START," %02hhx",&elm327->can.priority_29bits);
+        sscanf(AT_DATA_START,"%02hhx",&elm327->can.priority_29bits);
         SIM_ELM327_REPLY_OK();        
     } else if AT_PARSE("st") {
         byte tm;
-        if ( sscanf(AT_DATA_START," %02hhx",&tm) == 1 ) {
+        if ( sscanf(AT_DATA_START,"%02hhx",&tm) == 1 ) {
             elm327->vehicle_response_timeout = (tm == 0 ? SIM_ELM327_PP_GET(elm327,0x03) : tm) * 4;
             SIM_ELM327_REPLY_OK();
         }
@@ -822,7 +824,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("sp") {
         short unsigned int p;
         bool success = true;
-        if ( sscanf(AT_DATA_START, "A%01hX", &p) == 1 ) {
+        if ( sscanf(AT_DATA_START, "a%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
             elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
         } else if ( sscanf(AT_DATA_START, "%01hX", &p) == 1 ) {
@@ -839,7 +841,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("tp") {
         short unsigned int p;
         bool success = true;
-        if ( sscanf(AT_DATA_START, "A%01hX", &p) == 1 ) {
+        if ( sscanf(AT_DATA_START, "a%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
         } else if ( sscanf(AT_DATA_START, "%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = false;
@@ -892,7 +894,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             char mask[9];
             mask[strlen(received_address)] = 0;
             for(int i = 0; i < strlen(received_address); i++) {
-                mask[i] = received_address[i] == 'X' ? '0' : 'F';
+                mask[i] = received_address[i] == 'x' ? '0' : 'F';
             }
             char *maskCmd;
             asprintf(&maskCmd,"atcm %s", mask);
@@ -902,7 +904,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             char filter[9];
             filter[strlen(received_address)] = 0;
             for(int i = 0; i < strlen(received_address); i++) {
-                filter[i] = received_address[i] == 'X' ? '0' : received_address[i];
+                filter[i] = received_address[i] == 'x' ? '0' : received_address[i];
             }
             char *filterCmd;
             asprintf(&filterCmd,"atcf %s", filter);            
@@ -919,7 +921,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         if ( sscanf(AT_DATA_START, "%3s", mask) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", mask);
-            strcpy(mask,tmp);free(tmp);
+            strcpy(mask,tmp);
+            free(tmp);
             SIM_ELM327_REPLY_OK();  
             parsed = true;              
         } else if ( sscanf(AT_DATA_START, "%8s", mask) == 1 ) {
@@ -1087,6 +1090,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( recv_buffer->size <= 1 ) {
             continue;
         }
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", recv_buffer->buffer, recv_buffer->size);
 
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, recv_buffer->buffer, false) ) {
             if ( ! sim_elm327_reply(elm327, recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
