@@ -20,6 +20,10 @@ typedef struct {
         GtkTextView *frame;
         GtkTextBuffer *text;
     } output;
+    struct {
+        GtkCheckButton * interpretEscapes;
+        GtkCheckButton * raw;
+    } send;
 } CommandLineGui;
 
 extern CommandLineGui *cmdGui;

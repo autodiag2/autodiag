@@ -26,9 +26,39 @@ gboolean command_line_append_text_to_output_gsource(gpointer data) {
 void command_line_append_text_to_output(final char *text) {
     g_idle_add(command_line_append_text_to_output_gsource, (gpointer)strdup(text));
 }
-
+#include <ctype.h>
+char *ascii_interpret_escape_sequences(const char *input) {
+    const char *src = input;
+    char *parsed = malloc(strlen(input) + 1);
+    char *dst = parsed;
+    while (*src) {
+        if (*src == '\\') {
+            src++;
+            if (*src == 'x' && isxdigit(src[1]) && isxdigit(src[2])) {
+                char hex[3] = { src[1], src[2], 0 };
+                *dst++ = strtol(hex, NULL, 16);
+                src += 3;
+            } else if (*src == 'r') {
+                *dst++ = '\r';
+                src++;
+            } else if (*src == 'n') {
+                *dst++ = '\n';
+                src++;
+            } else if (*src == 't') {
+                *dst++ = '\t';
+                src++;
+            } else {
+                *dst++ = *src++;
+            }
+        } else {
+            *dst++ = *src++;
+        }
+    }
+    *dst = '\0';
+    return parsed;
+}
 void * command_line_send_command_wait_response_internal(final void * arg) {
-    final char * command = (char*)arg;
+    char * command = (char*)arg;
     final SERIAL port = serial_list_get_selected();
     if ( ! error_feedback_serial(cmdGui->errorFeedback,port) ) {
         buffer_recycle(port->recv_buffer);
@@ -39,7 +69,17 @@ void * command_line_send_command_wait_response_internal(final void * arg) {
             command_line_append_text_to_output(msg);
             free(ctime);
         }
-        if ( port->send(CAST_DEVICE(port), command) == DEVICE_ERROR ) {
+        if (gtk_toggle_button_get_active(cmdGui->send.interpretEscapes)) {
+            char *tmp = ascii_interpret_escape_sequences(command);
+            command = tmp;
+        }
+        final int result;
+        if ( gtk_toggle_button_get_active(cmdGui->send.raw) ) {
+            result = serial_send_internal(port, command, strlen(command));
+        } else {
+            result = port->send(CAST_DEVICE(port), command);
+        }
+        if ( result == DEVICE_ERROR ) {
             error_feedback_serial(cmdGui->errorFeedback,port);                
         } else {
             port->recv(CAST_DEVICE(port));
@@ -168,7 +208,11 @@ void module_init_command_line(final GtkBuilder *builder) {
                 .text = gtk_text_buffer_new(null)
             },
             .tooltip = (GtkLabel*)gtk_builder_get_object(builder,"window-command-line-tooltip"),
-            .vehicleOBDCodes = (GtkGrid*)gtk_builder_get_object(builder,"window-command-line-vehicle-obd-codes")
+            .vehicleOBDCodes = (GtkGrid*)gtk_builder_get_object(builder,"window-command-line-vehicle-obd-codes"),
+            .send = {
+                .interpretEscapes = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "command-line-interpret-escapes")),
+                .raw = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "command-line-raw"))
+            }
         };
         *cmdGui = g;
         command_line_vehicle_add_pid_buttons();
