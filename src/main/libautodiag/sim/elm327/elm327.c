@@ -680,11 +680,11 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         }
     } else if AT_PARSE("pps") {
         char *totalRes = strdup("");
-        for(int i = 0, j = 0; i < elm327->nvm.programmable_parameters->size; i++, j=(j+1)%4) {
+        for(int i = 0, j = 0; i < elm327->nvm.programmable_parameters_pending->size; i++, j=(j+1)%4) {
             char * res;
             asprintf(&res,"%02X:%02X %s%s",
                     i, 
-                    elm327->nvm.programmable_parameters->buffer[i],
+                    elm327->nvm.programmable_parameters_pending->buffer[i],
                     elm327->nvm.programmable_parameters_states->buffer[i] ? "N" : "F",
                     j==3 ? "\n" : "    "
                 );
