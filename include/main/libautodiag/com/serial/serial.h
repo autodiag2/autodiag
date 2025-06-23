@@ -15,6 +15,7 @@
 #include <errno.h>
 #include "libautodiag/com/device.h"
 #include "libautodiag/lib.h"
+#include <ctype.h>
 
 #if defined OS_WINDOWS
 #   include <windows.h>
@@ -220,7 +221,7 @@ void serial_reset_to_default(final Serial* serial);
 /**
  * Scan the str for AT .*, at.*, AT.*, at .*
  */
-bool serial_at_command_search(char *str, char *atcmd);
-int serial_at_index_end(char *str, char *atcmd);
+char *serial_at_reduce(char *str);
+int serial_at_parse_reduced(char *reduced, char *atcmd);
 
 #endif

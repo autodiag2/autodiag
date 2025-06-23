@@ -539,11 +539,12 @@ char *lastBinCommand = null;
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "received %d bytes: '%s'", strlen(buffer), buffer);
 
+    char * command_reduced = serial_at_reduce(buffer);
     int last_index;
     bool commandReconized = false;
     
-    #define AT_PARSE(atpart) ((last_index = serial_at_index_end(buffer,(atpart))) > -1)
-    #define AT_DATA_START buffer+last_index
+    #define AT_PARSE(atpart) (command_reduced != null && strcasebeginwith(command_reduced, atpart) && ((last_index = strlen(atpart)) >= 0))
+    #define AT_DATA_START command_reduced+last_index
     #define SIM_ELM327_REPLY(isGeneric, ...) \
         if ( ! preventWrite ) { \
             char *serial_response; \
@@ -610,13 +611,13 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("fc") {
         SIM_ELM327_REPLY_OK();                         
-    } else if AT_PARSE("ib 10") {
+    } else if AT_PARSE("ib10") {
         elm327->baud_rate = 10400;
         SIM_ELM327_REPLY_OK();                            
-    } else if AT_PARSE("ib 48") {
+    } else if AT_PARSE("ib48") {
         elm327->baud_rate = 4800;
         SIM_ELM327_REPLY_OK();                            
-    } else if AT_PARSE("ib 96") {
+    } else if AT_PARSE("ib96") {
         elm327->baud_rate = 9600;
         SIM_ELM327_REPLY_OK(); 
     } else if AT_PARSE("ifr") {
@@ -647,7 +648,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("sw") {
         byte value;
-        if ( sscanf(AT_DATA_START, " %02hhX", &value) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%02hhX", &value) == 1 ) {
             SIM_ELM327_REPLY_OK();
         }
     } else if ( AT_PARSE("v0") || AT_PARSE("v1") ) {
@@ -669,7 +670,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             elm327->responses = value;
             SIM_ELM327_REPLY_OK();                                            
         }   
-    } else if AT_PARSE("cv 0000") {
+    } else if AT_PARSE("cv0000") {
         elm327->voltage = elm327->voltageFactory;
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("cv") {
@@ -699,7 +700,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("pp") {
         int parameter, value;
         char state[4];
-        if ( sscanf(AT_DATA_START," %02x sv %02x", &parameter,&value) == 2 ) {
+        if ( sscanf(AT_DATA_START," %02xsv%02x", &parameter,&value) == 2 ) {
             if ( parameter < elm327->nvm.programmable_parameters_pending->size ) {                        
                 elm327->nvm.programmable_parameters_pending->buffer[parameter] = value;
                 if ( elm327->programmable_parameters_pending_load_type->buffer[parameter] == SIM_ELM327_INIT_TYPE_IMMEDIATE ) {
@@ -707,7 +708,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
                 }
                 SIM_ELM327_REPLY_OK();                    
             }
-        } else if ( sscanf(AT_DATA_START," %02x %3s", &parameter, state) == 2 ) {
+        } else if ( sscanf(AT_DATA_START,"%02x%3s", &parameter, state) == 2 ) {
             bool stateBool = strcasecmp(state,"on") == 0;
             if ( parameter == 0xFF ) {
                 SIM_ELM327_PPS_STATE(elm327,stateBool)
@@ -731,7 +732,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         elm327->obd_buffer->size = sz;
     } else if AT_PARSE("brd") {
         int baud_rate_divisor = 0;
-        sscanf(AT_DATA_START," %02hhx", (unsigned char*)&baud_rate_divisor);
+        sscanf(AT_DATA_START,"%02hhx", (unsigned char*)&baud_rate_divisor);
         if ( 0 < baud_rate_divisor ) {
             final int previous_baud_rate = elm327->baud_rate;
             elm327->baud_rate = (4000.0 / baud_rate_divisor) * 1000;
@@ -781,9 +782,9 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         SIM_ELM327_REPLY_OK();            
     } else if AT_PARSE("sh") {
         char header[9];
-        if ( sscanf(AT_DATA_START," %8s",header) == 1 ||
-             sscanf(AT_DATA_START," %6s",header) == 1 ||
-             sscanf(AT_DATA_START," %3s",header) == 1
+        if ( sscanf(AT_DATA_START,"%8s",header) == 1 ||
+             sscanf(AT_DATA_START,"%6s",header) == 1 ||
+             sscanf(AT_DATA_START,"%3s",header) == 1
              ) {
             if ( strlen(header) == 3 ) {
                 char *tmp;
@@ -798,33 +799,33 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         }
     } else if ( AT_PARSE("sr") || AT_PARSE("ra") ) {
         byte * b = (byte*)malloc(sizeof(byte));
-        if ( sscanf(AT_DATA_START," %02hhX", b) == 1 ) {
+        if ( sscanf(AT_DATA_START,"%02hhX", b) == 1 ) {
             elm327->receive_address = b;
             SIM_ELM327_REPLY_OK();
         } else {
             free(b);
         }
     } else if AT_PARSE("sd") {
-        if ( sscanf(AT_DATA_START, " %02hhX", &elm327->nvm.user_memory) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%02hhX", &elm327->nvm.user_memory) == 1 ) {
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("m") {
-        if ( sscanf(AT_DATA_START," %d", &elm327->isMemoryEnabled) == 1 ) {
+        if ( sscanf(AT_DATA_START,"%d", &elm327->isMemoryEnabled) == 1 ) {
             if ( ! elm327->isMemoryEnabled ) {
                 sim_elm327_non_volatile_wipe_out();
             }
             SIM_ELM327_REPLY_OK();                    
         }
     } else if AT_PARSE("ta") {
-        sscanf(AT_DATA_START, " %02hhX", &elm327->testerAddress);
+        sscanf(AT_DATA_START, "%02hhX", &elm327->testerAddress);
         SIM_ELM327_REPLY_OK();                    
     } else if AT_PARSE("sp") {
         short unsigned int p;
         bool success = true;
-        if ( sscanf(AT_DATA_START, " A%01hX", &p) == 1 ) {
+        if ( sscanf(AT_DATA_START, "A%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
             elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
-        } else if ( sscanf(AT_DATA_START, " %01hX", &p) == 1 ) {
+        } else if ( sscanf(AT_DATA_START, "%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = false;
             elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
         } else {
@@ -838,9 +839,9 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("tp") {
         short unsigned int p;
         bool success = true;
-        if ( sscanf(AT_DATA_START, " A%01hX", &p) == 1 ) {
+        if ( sscanf(AT_DATA_START, "A%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
-        } else if ( sscanf(AT_DATA_START, " %01hX", &p) == 1 ) {
+        } else if ( sscanf(AT_DATA_START, "%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = false;
         } else {
             success = false;
@@ -885,8 +886,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         }
     } else if AT_PARSE("cra") {
         char received_address[9];
-        if ( sscanf(AT_DATA_START, " %3s", received_address) == 1 || 
-             sscanf(AT_DATA_START, " %8s", received_address) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%3s", received_address) == 1 || 
+             sscanf(AT_DATA_START, "%8s", received_address) == 1 ) {
 
             char mask[9];
             mask[strlen(received_address)] = 0;
@@ -915,13 +916,13 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("cm") {
         char mask[9];
         bool parsed = false;
-        if ( sscanf(AT_DATA_START, " %3s", mask) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%3s", mask) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", mask);
             strcpy(mask,tmp);free(tmp);
             SIM_ELM327_REPLY_OK();  
             parsed = true;              
-        } else if ( sscanf(AT_DATA_START, " %8s", mask) == 1 ) {
+        } else if ( sscanf(AT_DATA_START, "%8s", mask) == 1 ) {
             SIM_ELM327_REPLY_OK();   
             parsed = true;                 
         }
@@ -935,13 +936,13 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     } else if AT_PARSE("cf") {
         char filter[9];
         bool parsed = false;
-        if ( sscanf(AT_DATA_START, " %3s", filter) == 1 ) {
+        if ( sscanf(AT_DATA_START, "%3s", filter) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", filter);
             strcpy(filter,tmp);free(tmp);
             SIM_ELM327_REPLY_OK();       
             parsed = true;         
-        } else if ( sscanf(AT_DATA_START, " %8s", filter) == 1 ) {
+        } else if ( sscanf(AT_DATA_START, "%8s", filter) == 1 ) {
             SIM_ELM327_REPLY_OK();    
             parsed = true;                
         }

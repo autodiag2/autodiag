@@ -568,23 +568,55 @@ bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
     
     return result;
 }
-bool serial_at_command_search(char *str, char *atcmd) {
-    return serial_at_index_end(str,atcmd) != -1;
+bool ascii_is_control_char(char c) {
+    return (c >= 0 && c <= 31) || (c == 127);
 }
-int serial_at_index_end(char *str, char *atcmd) {
+
+char *serial_at_reduce(char *str) {
+    bool a_detected = false, t_detected = false;
+    size_t len = strlen(str);
+    char *result = malloc(len + 1);
+    if (!result) return NULL;
+    int ri = 0;
+
+    for (size_t i = 0; i < len; i++) {
+        if (ascii_is_control_char(str[i]) || str[i] == ' ') continue;
+
+        char c = tolower(str[i]);
+
+        if (!a_detected && c == 'a') {
+            a_detected = true;
+            continue;
+        }
+        if (a_detected && !t_detected && c == 't') {
+            t_detected = true;
+            continue;
+        }
+
+        if (a_detected && t_detected) {
+            result[ri++] = c;
+        } else {
+            free(result);
+            return NULL;
+        }
+    }
+
+    if (!a_detected || !t_detected) {
+        free(result);
+        return NULL;
+    }
+
+    result[ri] = '\0';
+    return result;
+}
+
+int serial_at_parse_reduced(char *reduced, char *atcmd) {
     int idx = -1;
     char * cmdFull;
     asprintf(&cmdFull,"at%s",atcmd);
-    if ( strcasebeginwith(str,cmdFull) ) {
+    if ( strcasebeginwith(reduced, cmdFull) ) {
         idx = strlen(cmdFull);
-    } else {
-        free(cmdFull);    
-        asprintf(&cmdFull,"at %s",atcmd);
-        if ( strcasebeginwith(str,cmdFull) ) {
-            idx = strlen(cmdFull);
-        }
     }
     free(cmdFull);
     return idx;
 }
-
