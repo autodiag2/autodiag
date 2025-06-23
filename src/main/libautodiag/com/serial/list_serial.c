@@ -38,12 +38,13 @@ Serial * list_serial_add_if_not_in_by_location(char * location) {
 LIST_SRC_APPEND(Serial)
 
 int list_Serial_index_from_location(char *location) {
-    assert(location != null);
-    Serial * port;
-    for(int i = 0; i < list_serial.size; i++) {
-        port = list_serial.list[i];
-        if ( port->location != null && strcmp(port->location,location) == 0 ) {
-            return i;
+    if ( location != null ) {
+        Serial * port;
+        for(int i = 0; i < list_serial.size; i++) {
+            port = list_serial.list[i];
+            if ( port->location != null && strcmp(port->location,location) == 0 ) {
+                return i;
+            }
         }
     }
     return -1;

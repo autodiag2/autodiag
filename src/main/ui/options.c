@@ -95,22 +95,24 @@ void* options_save_internal(void *arg) {
     config_store();
     config_onchange();
     final OBDIFace * iface = config.ephemere.iface;
-    obd_fill_infos_from_vin(iface);
-    final char * manufacturer = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.manufacturer);
-    if ( manufacturer != null ) {
-        if ( iface->vehicle->manufacturer != null ) {
-            free(iface->vehicle->manufacturer);
+    if ( iface != null ) {
+        obd_fill_infos_from_vin(iface);
+        final char * manufacturer = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.manufacturer);
+        if ( manufacturer != null ) {
+            if ( iface->vehicle->manufacturer != null ) {
+                free(iface->vehicle->manufacturer);
+            }
+            iface->vehicle->manufacturer = manufacturer;
         }
-        iface->vehicle->manufacturer = manufacturer;
-    }
-    final char * engine = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.engine);
-    if ( engine != null ) {
-        if ( iface->vehicle->engine != null ) {
-            free(iface->vehicle->engine);
+        final char * engine = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.engine);
+        if ( engine != null ) {
+            if ( iface->vehicle->engine != null ) {
+                free(iface->vehicle->engine);
+            }
+            iface->vehicle->engine = engine;
         }
         iface->vehicle->engine = engine;
     }
-    iface->vehicle->engine = engine;
     refresh_usb_adaptater_state_internal(null);
     return null;
 }
