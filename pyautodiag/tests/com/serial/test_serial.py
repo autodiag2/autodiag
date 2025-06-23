@@ -1,5 +1,6 @@
 from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
+from autodiag.com.device import *
 
 def test_serial():
     emulation = SimELM327()
@@ -18,7 +19,7 @@ def test_serial():
 
     eol = 2
     assert serial.send("ok") == 2 + eol
-    assert 0 <= serial.recv()
+    assert serial.recv() == DEVICE_RECV_DATA
 
     assert serial.describe_status() != ""
 

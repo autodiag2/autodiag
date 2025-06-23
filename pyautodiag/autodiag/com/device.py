@@ -22,3 +22,8 @@ class Device(Structure):
         ("lock", DeviceLockFunc),
         ("unlock", DeviceUnlockFunc),
     ]
+
+DEVICE_ERROR = -1
+DEVICE_RECV_DATA = -2
+DEVICE_RECV_NULL = -3
+DEVICE_RECV_DATA_UNAVAILABLE = -4
