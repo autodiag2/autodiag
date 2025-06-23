@@ -8,6 +8,15 @@ void options_simutation_add_ecu(char *address, char *generator) {
     GtkBox * container = optionsGui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 
+    int index = get_container_child_count(GTK_CONTAINER(container));
+    gtk_style_context_add_class(gtk_widget_get_style_context(row),
+        (index % 2 == 0) ? "row-grey" : "row-white"
+    );
+    gtk_widget_set_margin_top(row, 5);
+    gtk_widget_set_margin_bottom(row, 5);
+    gtk_widget_set_margin_start(row, 5);
+    gtk_widget_set_margin_end(row, 5);
+
     char addr_text[16];
     snprintf(addr_text, sizeof(addr_text), "%02X", (unsigned char)strtoul(address, NULL, 16));
     GtkWidget *label_addr = gtk_label_new(addr_text);

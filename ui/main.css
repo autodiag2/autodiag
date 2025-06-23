@@ -4,3 +4,13 @@
 .button-hover-react:hover {
 	opacity: 1;
 }
+.row-grey {
+	background-color: #eeeeee;
+	border-radius: 5px;
+	padding: 5px;
+}
+.row-white {
+	background-color: #dddddd;
+	border-radius: 5px;
+	padding: 5px;
+}

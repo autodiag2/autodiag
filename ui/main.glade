@@ -7529,9 +7529,11 @@ What can be done:
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <child>
-              <object class="GtkBox" id="window-options-container">
+              <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
@@ -7553,6 +7555,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Global</property>
                       </object>
                       <packing>
@@ -7581,6 +7588,9 @@ What can be done:
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-start">5</property>
+                            <property name="margin-top">5</property>
+                            <property name="margin-bottom">5</property>
                             <child>
                               <object class="GtkLabel">
                                 <property name="visible">True</property>
@@ -7652,6 +7662,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Main Screen</property>
                       </object>
                       <packing>
@@ -7675,6 +7690,9 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox">
@@ -7735,6 +7753,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Command Line</property>
                       </object>
                       <packing>
@@ -7758,6 +7781,10 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox">
@@ -7837,6 +7864,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Vehicle explorer</property>
                       </object>
                       <packing>
@@ -7860,6 +7892,11 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
+                        <property name="spacing">4</property>
                         <child>
                           <object class="GtkLabel">
                             <property name="visible">True</property>
@@ -7914,6 +7951,7 @@ What can be done:
                 </child>
               </object>
               <packing>
+                <property name="tab-expand">True</property>
                 <property name="reorderable">True</property>
               </packing>
             </child>
@@ -7931,6 +7969,8 @@ What can be done:
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
@@ -7953,6 +7993,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Serial port</property>
                       </object>
                       <packing>
@@ -7976,6 +8021,10 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox">
@@ -8174,6 +8223,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Simulation</property>
                       </object>
                       <packing>
@@ -8197,6 +8251,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">ECUs in the simulation:</property>
                       </object>
                       <packing>
@@ -8209,11 +8268,17 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkBox" id="options-simulation-ecus-container">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-start">5</property>
+                            <property name="margin-end">5</property>
                             <property name="orientation">vertical</property>
                             <child>
                               <placeholder/>
@@ -8235,6 +8300,11 @@ What can be done:
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="margin-start">5</property>
+                            <property name="margin-end">5</property>
+                            <property name="margin-top">5</property>
+                            <property name="margin-bottom">5</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkEntry" id="options-simulation-ecus-address">
                                 <property name="visible">True</property>
@@ -8296,6 +8366,10 @@ What can be done:
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="halign">center</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <child>
                           <object class="GtkButton">
                             <property name="label" translatable="yes">Start an elm327  simulation</property>
@@ -8349,6 +8423,8 @@ What can be done:
               </object>
               <packing>
                 <property name="position">1</property>
+                <property name="tab-expand">True</property>
+                <property name="reorderable">True</property>
               </packing>
             </child>
             <child type="tab">
@@ -8366,6 +8442,8 @@ What can be done:
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkBox">
@@ -8388,6 +8466,11 @@ What can be done:
                       <object class="GtkLabel">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="halign">start</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="label" translatable="yes">Vehicle infos setup</property>
                       </object>
                       <packing>
@@ -8411,6 +8494,10 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
+                        <property name="margin-start">5</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-top">5</property>
+                        <property name="margin-bottom">5</property>
                         <property name="hexpand">True</property>
                         <child>
                           <object class="GtkBox">
@@ -8418,10 +8505,12 @@ What can be done:
                             <property name="can-focus">False</property>
                             <property name="hexpand">True</property>
                             <property name="orientation">vertical</property>
+                            <property name="spacing">5</property>
                             <child>
                               <object class="GtkBox">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
@@ -8521,6 +8610,7 @@ What can be done:
                                   <object class="GtkEntry" id="window-options-vehicle-vin">
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
+                                    <property name="hexpand">True</property>
                                     <property name="placeholder-text" translatable="yes">Enter the VIN (17 chars)</property>
                                   </object>
                                   <packing>
@@ -8560,6 +8650,8 @@ What can be done:
               </object>
               <packing>
                 <property name="position">2</property>
+                <property name="tab-expand">True</property>
+                <property name="reorderable">True</property>
               </packing>
             </child>
             <child type="tab">
