@@ -14,7 +14,7 @@
 #include "compile_target.h"
 #include "file.h"
 
-static char *_installation_folder_resolve_override;
+static char *installation_folder_overrider;
 /**
  * Get the storage directory
  */

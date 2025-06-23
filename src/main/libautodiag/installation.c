@@ -1,22 +1,22 @@
 #include "libautodiag/installation.h"
 
-static char *_installation_folder_resolve_override = null;
+static char *installation_folder_overrider = null;
 
 void installation_folder_resolve_override(char *path) {
-    if ( _installation_folder_resolve_override != null ) {
-        free(_installation_folder_resolve_override);
+    if ( installation_folder_overrider != null ) {
+        free(installation_folder_overrider);
     }
     if ( path == null ) {
-        _installation_folder_resolve_override = null;
+        installation_folder_overrider = null;
     } else {
-        _installation_folder_resolve_override = strdup(path);
+        installation_folder_overrider = strdup(path);
     }
 }
 
 char *installation_folder_resolve(char *relative_path) {
 
     char *path_in_installation_folder_resolve = null;
-    if ( _installation_folder_resolve_override == null ) {
+    if ( installation_folder_overrider == null ) {
         #if defined OS_WINDOWS
             int mode = R_OK;
 
@@ -88,7 +88,7 @@ char *installation_folder_resolve(char *relative_path) {
         #   warning Unsupported OS
         #endif
     } else {
-        asprintf(&path_in_installation_folder_resolve, "%s" PATH_FOLDER_DELIM "%s", _installation_folder_resolve_override, relative_path);
+        asprintf(&path_in_installation_folder_resolve, "%s" PATH_FOLDER_DELIM "%s", installation_folder_overrider, relative_path);
     }
     return path_in_installation_folder_resolve;
 }
