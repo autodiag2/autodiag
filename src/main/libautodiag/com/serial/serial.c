@@ -508,7 +508,7 @@ char * serial_describe_status(final Serial * port) {
 }
 
 bool at_is_command(char * command) {
-    return strncmp(command,"at",2) == 0;
+    return strncasecmp(command,"at",2) == 0;
 }
 
 char * at_command_va(char * at_command, va_list ap) {
