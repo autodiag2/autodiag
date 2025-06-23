@@ -190,10 +190,10 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     options_cancel();
     return TRUE;
 }
-void options_set_serial_select_from_name(char * name) {
+void options_set_serial_select_from_location(char * location) {
     for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
         final Serial * port = serial_list.list[serial_i];
-        if ( strcmp(name, port->location) == 0 ) {
+        if ( strcmp(location, port->location) == 0 ) {
             gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             break;
         }
@@ -213,7 +213,7 @@ void options_show_window() {
     gtk_entry_set_text(optionsGui->baudRateSelection,txt);
     free(txt);
     if ( config.com.serial.device_location != null ) {
-        options_set_serial_select_from_name(config.com.serial.device_location);
+        options_set_serial_select_from_location(config.com.serial.device_location);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
@@ -251,7 +251,7 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
     gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
     free(simu_desc);
     
-    options_set_serial_select_from_name(elm327->device_location);
+    options_set_serial_select_from_location(elm327->device_location);
 
     return false;
 }
