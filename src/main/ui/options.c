@@ -3,7 +3,10 @@
 
 OptionsGui *optionsGui = null;
 
-
+gboolean gtk_combo_box_text_prevent_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data) {
+    gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)event);
+    return TRUE;
+}
 void options_simutation_add_ecu(char *address, char *generator) {
     GtkBox * container = optionsGui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
@@ -23,6 +26,7 @@ void options_simutation_add_ecu(char *address, char *generator) {
     gtk_widget_set_halign(label_addr, GTK_ALIGN_START);
 
     GtkWidget *combo_gen = gtk_combo_box_text_new();
+    g_signal_connect(combo_gen, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
     char generators[][50] = {"random", "cycle", "citroen_c5_x7", "gui"};
     int generators_len = 4;
     for(int i = 0; i < generators_len; i ++) {
@@ -370,15 +374,15 @@ void module_init_options(GtkBuilder *builder) {
         optionsGui = (OptionsGui*)malloc(sizeof(OptionsGui));
         OptionsGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
-            .logLevel = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-log-level")),
-            .serialList = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-serial-list")),
+            .logLevel = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-log-level")),
+            .serialList = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-serial-list")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
             .mainGui = {
-                .advancedLinkDetails = (GtkToggleButton*)gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details")
+                .advancedLinkDetails = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details"))
             },
             .commandLineGui = {
-                .outputAutoScroll = (GtkToggleButton*)gtk_builder_get_object(builder,"window-options-commandLine-autoscrollOnOutput"),
-                .showTimestamp = (GtkToggleButton*)gtk_builder_get_object(builder,"window-options-commandLine-showTimestamp")
+                .outputAutoScroll = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-commandLine-autoscrollOnOutput")),
+                .showTimestamp = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-commandLine-showTimestamp"))
             },
             .vehicleExplorerGui = {
                 .refreshRateS = GTK_ENTRY(gtk_builder_get_object(builder,"window-options-refresh-rate-s"))
@@ -395,15 +399,19 @@ void module_init_options(GtkBuilder *builder) {
                 }
             },
             .vehicleInfos = {
-                .manufacturer = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
-                .engine = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-engine")),
+                .manufacturer = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
+                .engine = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-vehicle-engine")),
                 .vin = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-vehicle-vin"))
             }
         };
         *optionsGui = g;
 
         db_vehicle_load_in_memory();
-
+        g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
+        g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
+        g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
+        g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
+        g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(options_simutation_add_clicked), builder);
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
