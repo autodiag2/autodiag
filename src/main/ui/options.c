@@ -45,8 +45,32 @@ void options_simutation_add_ecu(char *address, char *generator) {
 
 void options_simutation_add_clicked(GtkButton *button, gpointer user_data) {
     const char *addr_text = gtk_entry_get_text(optionsGui->simulator.ecus.address);
-    const char *gen_text = gtk_combo_box_text_get_active_text(optionsGui->simulator.ecus.generator);
-    options_simutation_add_ecu(addr_text, gen_text);
+    char *gen_text = gtk_combo_box_text_get_active_text(optionsGui->simulator.ecus.generator);
+    if (gen_text == NULL) {
+        gen_text = strdup("random");
+    }
+
+    if (addr_text == NULL || strcmp(addr_text, "") == 0) {
+        GtkBox *container = optionsGui->simulator.ecus.container;
+        GList *children = gtk_container_get_children(GTK_CONTAINER(container));
+        GtkWidget *last = g_list_last(children) ? g_list_last(children)->data : NULL;
+        char new_addr[16] = "E8";
+        if (last) {
+            GList *last_row_children = gtk_container_get_children(GTK_CONTAINER(last));
+            GtkWidget *label = last_row_children ? last_row_children->data : NULL;
+            if (GTK_IS_LABEL(label)) {
+                const char *label_text = gtk_label_get_text(GTK_LABEL(label));
+                unsigned long val = strtoul(label_text, NULL, 16);
+                snprintf(new_addr, sizeof(new_addr), "%02lX", (val + 1) & 0xFF);
+            }
+            g_list_free(last_row_children);
+        }
+        g_list_free(children);
+        addr_text = strdup(new_addr);
+    }
+
+    options_simutation_add_ecu((char *)addr_text, gen_text);
+    free(gen_text);
 }
 
 void options_hide_window() {
