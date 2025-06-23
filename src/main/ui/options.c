@@ -13,7 +13,7 @@ void options_simutation_add_ecu(char *address, char *generator) {
 
     int index = get_container_child_count(GTK_CONTAINER(container));
     gtk_style_context_add_class(gtk_widget_get_style_context(row),
-        (index % 2 == 0) ? "row-grey" : "row-white"
+        (index % 2 == 0) ? "row-grey" : "row-grey-dark"
     );
     gtk_widget_set_margin_top(row, 5);
     gtk_widget_set_margin_bottom(row, 5);

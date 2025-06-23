@@ -8389,7 +8389,7 @@ What can be done:
                                       </packing>
                                     </child>
                                     <style>
-                                      <class name="row-white"/>
+                                      <class name="row-grey-dark"/>
                                     </style>
                                   </object>
                                   <packing>
@@ -8478,7 +8478,7 @@ What can be done:
                                       </packing>
                                     </child>
                                     <style>
-                                      <class name="row-white"/>
+                                      <class name="row-grey-dark"/>
                                     </style>
                                   </object>
                                   <packing>
