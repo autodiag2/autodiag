@@ -7,9 +7,6 @@ log_set_level(LOG_DEBUG)
 emulation = SimELM327()
 emulation.loop(daemon=True)
 
-import time
-time.sleep(2)
-
 print(f"Simulation started at: {emulation.device_location}")
 
 serial = Serial()

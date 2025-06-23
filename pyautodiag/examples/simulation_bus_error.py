@@ -12,9 +12,6 @@ emulation.ecus.contents.list[0].contents.set_generator(cycleGen)
 
 emulation.loop(daemon=True)
 
-import time
-time.sleep(2)
-
 serial = Serial()
 serial.set_location(emulation.device_location)
 iface = OBDIFace.open_from_device(serial)

@@ -41,9 +41,6 @@ def test_saej1979():
     emulation.set_ecu_and_generator(0xE8, CustomECUGenerator())
     emulation.loop(daemon=True)
 
-    import time
-    time.sleep(2)
-
     serial = Serial()
     serial.set_location(emulation.device_location)
     iface = OBDIFace.open_from_device(serial)

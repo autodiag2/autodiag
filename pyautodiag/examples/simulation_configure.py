@@ -31,9 +31,6 @@ emulation.debug_from_python()
 
 emulation.loop(daemon=True)
 
-import time
-time.sleep(2)
-
 print(f"Simulation started at: {emulation.device_location}")
 
 serial = Serial()

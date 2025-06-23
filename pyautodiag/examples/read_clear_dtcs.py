@@ -4,13 +4,14 @@ from autodiag.com.obd.obd import OBDIFace
 from autodiag.com.obd.saej1979 import SAEJ1979
 from autodiag.log import log_set_level, LOG_DEBUG, LOG_NONE
 
-if len(sys.argv) < 2:
-    print("Error: Please provide the port location as an argument.")
-    sys.exit(1)
+from autodiag.sim.elm327.elm327 import SimELM327
+
+emulation = SimELM327()
+emulation.loop(daemon=True)
 
 log_set_level(LOG_DEBUG)
 serial = Serial()
-serial.set_location(sys.argv[1])
+serial.set_location(emulation.device_location)
 iface = OBDIFace.open_from_device(serial)
 
 log_set_level(LOG_NONE)

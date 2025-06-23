@@ -74,8 +74,10 @@ class SimELM327(Structure):
     def loop(self, daemon=False):
         if daemon:
             lib.sim_elm327_loop_as_daemon(byref(self))
+            return lib.sim_elm327_loop_daemon_wait_ready(byref(self))
         else:
             lib.sim_elm327_loop(byref(self))
+            return True
 
     def set_ecu_and_generator(self, address: int, generator: SimECUGenerator) -> SimECU:
         """
@@ -152,3 +154,5 @@ lib.sim_elm327_new.restype = POINTER(SimELM327)
 lib.sim_elm327_loop.argtypes = [POINTER(SimELM327)]
 lib.sim_elm327_loop_as_daemon.argtypes = [POINTER(SimELM327)]
 lib.sim_elm327_debug.argtypes = [POINTER(SimELM327)]
+lib.sim_elm327_loop_daemon_wait_ready.restype = bool
+lib.sim_elm327_loop_daemon_wait_ready.argtypes = [POINTER(SimELM327)]

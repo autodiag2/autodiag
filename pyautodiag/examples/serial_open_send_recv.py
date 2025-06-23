@@ -1,13 +1,13 @@
 import sys
 from autodiag.com.serial import Serial
 from autodiag.log import log_set_level, LOG_DEBUG, LOG_NONE
+from autodiag.sim.elm327.elm327 import SimELM327
 
-if len(sys.argv) < 2:
-    print("Error: Please provide the port location as an argument.")
-    sys.exit(1)
+emulation = SimELM327()
+emulation.loop(daemon=True)
 
 serial = Serial()
-serial.set_location(sys.argv[1])
+serial.set_location(emulation.device_location)
 log_set_level(LOG_DEBUG)
 serial.dump()
 log_set_level(LOG_NONE)

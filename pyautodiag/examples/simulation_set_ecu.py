@@ -26,9 +26,6 @@ assert emulation.get_ecu(0xE9) is not None
 
 emulation.loop(daemon=True)
 
-import time
-time.sleep(2)
-
 print(f"Simulation started at: {emulation.device_location}")
 
 serial = Serial()
