@@ -153,7 +153,7 @@ void serial_free(final Serial * port);
  * Get the selected Serial (port on which we are currently working) or NULL if no port currently selected.
  */
 Serial * serial_list_get_selected();
-void serial_list_set_selected_by_name(char *name);
+void serial_list_set_selected_by_location(char *location);
 
 /**
  * Timeout before considering remote has not alive (ms)

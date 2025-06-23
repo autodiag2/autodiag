@@ -24,7 +24,7 @@ Serial * serial_list_add_if_not_in(Serial * element) {
 }
 
 Serial * serial_list_add_if_not_in_by_location(char * location) {
-    Serial * serial = serial_list_find_by_name(location);
+    Serial * serial = serial_list_find_by_location(location);
     if ( serial == null ) {
         Serial_list_append(&serial_list, serial_new());
         final Serial * newOne = serial_list.list[serial_list.size-1];
@@ -37,33 +37,32 @@ Serial * serial_list_add_if_not_in_by_location(char * location) {
 
 LIST_SRC_APPEND(Serial_list,Serial)
 
-void serial_list_set_selected_by_name(char *name) {
-    if ( name == null ) {
-        return;
-    } else {
-        Serial * port;
-        for(int i = 0; i < serial_list.size; i++) {
-            port = serial_list.list[i];
-            if ( port->location != null && strcmp(port->location,name) == 0 ) {
-                serial_list_selected = i;
-                return;
-            }
+int Serial_list_index_from_location(char *location) {
+    assert(location != null);
+    Serial * port;
+    for(int i = 0; i < serial_list.size; i++) {
+        port = serial_list.list[i];
+        if ( port->location != null && strcmp(port->location,location) == 0 ) {
+            return i;
         }
+    }
+    return -1;
+}
+void serial_list_set_selected_by_location(char *location) {
+    final int index = Serial_list_index_from_location(location);
+    if ( index == -1 ) {
+        serial_list_selected = SERIAL_LIST_NO_SELECTED;
+    } else {
+        serial_list_selected = index;
     }
 }
 
-Serial * serial_list_find_by_name(final char * name) {
-    if ( name == null ) {
+Serial * serial_list_find_by_location(final char * location) {
+    final int index = Serial_list_index_from_location(location);
+    if ( index == -1 ) {
         return null;
     } else {
-        Serial * port;
-        for(int i = 0; i < serial_list.size; i++) {
-            port = serial_list.list[i];
-            if ( port->location != null && strcmp(port->location,name) == 0 ) {
-                return port;
-            }
-        }
-        return null;
+        return serial_list.list[index];
     }
 }
 

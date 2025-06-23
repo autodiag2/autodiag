@@ -184,7 +184,7 @@ bool config_load() {
     return res;
 }
 void config_onchange() {
-    serial_list_set_selected_by_name(config.com.serial.device_location);
+    serial_list_set_selected_by_location(config.com.serial.device_location);
     final Serial * port = serial_list_get_selected();
     if ( port == null ) {
         serial_list_selected = SERIAL_LIST_NO_SELECTED;
