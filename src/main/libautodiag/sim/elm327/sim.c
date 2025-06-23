@@ -3,6 +3,13 @@
 
 LIST_SRC(SimECU)
 
+void SimECU_list_empty(SimECU_list * list) {
+    while(0 < list->size) {
+        log_msg(LOG_DEBUG, "should free ecu here");
+        SimECU_list_remove_at(list, 0);
+    }
+}
+
 Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
     char *protocolSpecificHeader = null;
     Buffer * header = null;
