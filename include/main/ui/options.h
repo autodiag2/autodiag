@@ -28,7 +28,12 @@ typedef struct {
         GtkSpinner * spinner;
         GtkLabel *launchDesc;
         pthread_t * launchThread;
-        GtkComboBoxText *type;
+        struct {
+            GtkBox * container;
+            GtkButton * add;
+            GtkEntry * address;
+            GtkEntry * generator;
+        } ecus;
     } simulator;
     struct {
         GtkComboBoxText *manufacturer;

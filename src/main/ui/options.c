@@ -182,6 +182,13 @@ void options_show_window() {
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
     gtk_entry_set_text(optionsGui->vehicleExplorerGui.refreshRateS, text);
     free(text);
+
+    GList *children = gtk_container_get_children(GTK_CONTAINER(optionsGui->simulator.ecus.container));
+    for (GList *iter = children; iter != NULL; iter = iter->next) {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    }
+    g_list_free(children);
+    options_simutation_add_ecu(optionsGui->simulator.ecus.container, "E8", "random");
 }
 
 void window_options_baud_rate_set_from_button(final GtkButton * button) {
@@ -252,6 +259,44 @@ THREAD_WRITE_DAEMON(
         options_launch_simulation_clean_up_routine, optionsGui->simulator.launchThread
 )
 
+void options_simutation_add_ecu(GtkBox *container, char * address, char *generator) {
+    GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+
+    char addr_text[16];
+    snprintf(addr_text, sizeof(addr_text), "%02X", address);
+    GtkWidget *label_addr = gtk_label_new(addr_text);
+    gtk_widget_set_halign(label_addr, GTK_ALIGN_START);
+
+    GtkWidget *label_gen = gtk_label_new(generator);
+    gtk_widget_set_halign(label_gen, GTK_ALIGN_START);
+
+    GtkWidget *del_button = gtk_button_new_with_label("Delete");
+    g_signal_connect_swapped(del_button, "clicked", G_CALLBACK(gtk_widget_destroy), row);
+
+    gtk_box_pack_start(GTK_BOX(row), label_addr, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(row), label_gen, TRUE, TRUE, 0);
+    gtk_box_pack_end(GTK_BOX(row), del_button, FALSE, FALSE, 0);
+
+    gtk_box_pack_start(container, row, FALSE, FALSE, 2);
+    gtk_widget_show_all(row);
+}
+
+void options_simutation_add_clicked(GtkButton *button, gpointer user_data) {
+    GtkBuilder *builder = GTK_BUILDER(user_data);
+    GtkBox *container = GTK_BOX(gtk_builder_get_object(builder, "options-simulation-ecus-container"));
+    GtkEntry *entry_addr = GTK_ENTRY(gtk_builder_get_object(builder, "ecu-address-entry"));
+    GtkEntry *entry_gen  = GTK_ENTRY(gtk_builder_get_object(builder, "ecu-generator-entry"));
+
+    const char *addr_text = gtk_entry_get_text(entry_addr);
+    const char *gen_text = gtk_entry_get_text(entry_gen);
+
+    if (!addr_text || !gen_text || strlen(gen_text) == 0) return;
+
+    uint8_t address = (uint8_t)strtoul(addr_text, NULL, 0);
+    options_simutation_add_ecu(container, address, gen_text);
+}
+
+
 void options_launch_simulation() {
     thread_allocate_and_start(&optionsGui->simulator.launchThread,&options_launch_simulation_daemon);
 }
@@ -278,7 +323,12 @@ void module_init_options(GtkBuilder *builder) {
                 .spinner = GTK_SPINNER(gtk_builder_get_object(builder,"window-simulation-spinner")),
                 .launchDesc = GTK_LABEL(gtk_builder_get_object(builder,"window-simulation-launch-description")),
                 .launchThread = null,
-                .type = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "options-sim-chooser"))
+                .ecus = {
+                    .container = GTK_BOX(gtk_builder_get_object(builder, "options-simulation-ecus-container")),
+                    .add = GTK_BUTTON(gtk_builder_get_object(builder, "options-simulation-ecus-add")),
+                    .address = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-ecus-address")),
+                    .generator = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-ecus-generator")),
+                }
             },
             .vehicleInfos = {
                 .manufacturer = (GtkComboBoxText*) (gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
@@ -290,6 +340,7 @@ void module_init_options(GtkBuilder *builder) {
 
         db_vehicle_load_in_memory();
 
+        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(options_simutation_add_clicked), builder);
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&options_launch_simulation);
