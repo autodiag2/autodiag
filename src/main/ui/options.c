@@ -232,7 +232,7 @@ void options_launch_simulation_internal() {
     }
     sim_elm327_loop_as_daemon(elm327);
     g_idle_add(options_launch_simulation_set_pending_text, elm327);
-    usleep(500e3);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     g_idle_add(options_launch_simulation_update_gui, elm327);
 }
 static void options_launch_simulation_clean_up_routine(void *arg) {

@@ -418,6 +418,7 @@ SimELM327* sim_elm327_new() {
     final SimECU *ecu = sim_ecu_emulation_new(0xE8);
     SimECU_list_append(elm327->ecus,ecu);
     elm327->implementation->loop_thread = null;
+    elm327->implementation->loop_ready = false;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
     return elm327;
 }
@@ -430,6 +431,7 @@ void sim_elm327_destroy(SimELM327 * elm327) {
         pthread_cancel(*elm327->implementation->loop_thread);
         elm327->implementation->loop_thread = null;
     }
+    elm327->implementation->loop_ready = false;
     free(elm327->implementation);
     free(elm327->eol);
     free(elm327->dev_description);
@@ -456,6 +458,22 @@ void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
         log_msg(LOG_ERROR, "thread creation error");
         elm327->implementation->loop_thread = null;
         exit(EXIT_FAILURE);
+    }
+}
+bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327) {
+    final int timeout_ms = 10000;
+    final int step_ms = 20;
+    final int step_n = timeout_ms / step_ms;
+    int i = 0;
+    for(; i < step_n && elm327->implementation->loop_ready == false; i++) {
+        usleep(step_ms * 1e3);
+    }
+    if ( i == step_n ) {
+        log_msg(LOG_ERROR, "timeout while waiting for sim to be ready");
+        return false;
+    } else {
+        usleep(step_ms * 1e3);
+        return true;
     }
 }
 
@@ -1082,7 +1100,9 @@ void sim_elm327_loop(SimELM327 * elm327) {
     buffer_ensure_capacity(recv_buffer, 100);
     while(true) {
         buffer_recycle(recv_buffer);
-        
+        if ( elm327->implementation->loop_ready == false ) {
+            elm327->implementation->loop_ready = true;
+        }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
             exit(1);
         }

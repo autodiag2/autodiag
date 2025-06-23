@@ -18,6 +18,7 @@
 typedef struct {
     pthread_t * activity_monitor_thread;
     pthread_t * loop_thread;
+    bool loop_ready;
     #ifdef OS_WINDOWS
         HANDLE pipe_handle;
     #elif defined OS_POSIX
@@ -131,6 +132,10 @@ typedef struct _SimELM327 {
 SimELM327* sim_elm327_new();
 void sim_elm327_loop(SimELM327 * elm327);
 void sim_elm327_loop_as_daemon(SimELM327 * elm327);
+/**
+ * Use this to wait for the daemon to be ready to receive some data.
+ */
+bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327);
 void sim_elm327_destroy(SimELM327 * elm327);
 void sim_elm327_debug(final SimELM327 * elm327);
 

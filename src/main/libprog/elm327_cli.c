@@ -114,7 +114,7 @@ void *sim_elm327_daemon(void *d) {
     ELM327SimData* da = d;
     ELM327SimData data = *da;
     sim_elm327_loop_as_daemon(data.sim);
-    usleep(50e3);
+    sim_elm327_loop_daemon_wait_ready(data.sim);
     if ( data.sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {

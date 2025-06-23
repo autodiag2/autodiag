@@ -80,7 +80,7 @@ static OBDIFace* port_parse_open(int argc, char **argv) {
 static char* start_elm327_simulation() {
     SimELM327* elm327 = sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
-    usleep(200e3);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     return strdup(elm327->device_location);
 }
 

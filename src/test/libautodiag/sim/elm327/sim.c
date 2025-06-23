@@ -1,13 +1,12 @@
 #include "libTest.h"
 
-#define SIM_START_WAIT_MS 100e3
 void testSIM_1() {
 
     SimELM327* elm327 = sim_elm327_new();
     SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0xE9));
     SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
-    usleep(SIM_START_WAIT_MS);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
 
     {
@@ -112,7 +111,7 @@ void testSIM_1() {
 void ensureReplayCommands() {
     SimELM327* elm327 = sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
-    usleep(SIM_START_WAIT_MS);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
     obd_clear_data(iface);
     obd_send(iface, "0101");
@@ -125,7 +124,7 @@ void ensureReplayCommands() {
 void anyCommandShouldReplyUnknown() {
     SimELM327* elm327 = sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
-    usleep(SIM_START_WAIT_MS);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
     obd_clear_data(iface);
     obd_send(iface, "azrer");
@@ -137,7 +136,7 @@ void anyCommandShouldReplyUnknown() {
 void incomplete_string_return_after_20_secs() {
     SimELM327* elm327 = sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
-    usleep(SIM_START_WAIT_MS);
+    sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
     final Serial* serial = (Serial*)iface->device;
     buffer_recycle(serial->recv_buffer);
@@ -155,7 +154,7 @@ bool testSIM() {
         log_msg(LOG_INFO, "Random generate gives different values over two different runs");
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->device->send(iface->device,"0104");
@@ -170,7 +169,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->device->send(iface->device,"atcaf0");
@@ -185,7 +184,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         obd_clear_data(iface);
@@ -197,7 +196,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         iface->device->send(iface->device,"ath0");
@@ -215,7 +214,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         iface->device->send(iface->device,"atbrd 12");
@@ -234,7 +233,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         iface->device->send(iface->device,"atcea 12");
@@ -249,7 +248,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         iface->device->send(iface->device,"atd");
@@ -259,7 +258,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         obd_send(iface, "0900");
@@ -270,7 +269,7 @@ bool testSIM() {
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
-        usleep(SIM_START_WAIT_MS);
+        sim_elm327_loop_daemon_wait_ready(elm327);
         final OBDIFace* iface = port_open(strdup(elm327->device_location));
         obd_clear_data(iface);
         obd_send(iface, "0902");
