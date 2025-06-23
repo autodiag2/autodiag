@@ -1015,6 +1015,9 @@ obj/main/libautodiag/thread.o: src/main/libautodiag/thread.c \
   include/main/libautodiag/thread.h include/main/libautodiag/log.h \
   include/main/libautodiag/string.h include/main/libautodiag/lang.h \
   include/main/libautodiag/compile_target.h
+obj/main/libautodiag/windows.o: src/main/libautodiag/windows.c \
+  include/main/libautodiag/windows.h \
+  include/main/libautodiag/compile_target.h
 obj/main/libprog/config.o: src/main/libprog/config.c \
   include/main/libprog/config.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
