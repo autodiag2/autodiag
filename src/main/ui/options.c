@@ -4,7 +4,8 @@
 OptionsGui *optionsGui = null;
 
 
-void options_simutation_add_ecu(GtkBox *container, char *address, char *generator) {
+void options_simutation_add_ecu(char *address, char *generator) {
+    GtkBox * container = optionsGui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 
     char addr_text[16];
@@ -36,15 +37,9 @@ void options_simutation_add_ecu(GtkBox *container, char *address, char *generato
 }
 
 void options_simutation_add_clicked(GtkButton *button, gpointer user_data) {
-    GtkBuilder *builder = GTK_BUILDER(user_data);
-    GtkBox *container = GTK_BOX(gtk_builder_get_object(builder, "options-simulation-ecus-container"));
-    GtkEntry *entry_addr = GTK_ENTRY(gtk_builder_get_object(builder, "ecu-address-entry"));
-    GtkEntry *entry_gen  = GTK_ENTRY(gtk_builder_get_object(builder, "ecu-generator-entry"));
-
-    const char *addr_text = gtk_entry_get_text(entry_addr);
-    const char *gen_text = gtk_entry_get_text(entry_gen);
-
-    options_simutation_add_ecu(container, addr_text, gen_text);
+    const char *addr_text = gtk_entry_get_text(optionsGui->simulator.ecus.address);
+    const char *gen_text = gtk_combo_box_text_get_active_text(optionsGui->simulator.ecus.generator);
+    options_simutation_add_ecu(addr_text, gen_text);
 }
 
 void options_hide_window() {
@@ -232,7 +227,7 @@ void options_show_window() {
         gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
     g_list_free(children);
-    options_simutation_add_ecu(optionsGui->simulator.ecus.container, "E8", "random");
+    options_simutation_add_ecu("E8", "random");
 }
 
 void window_options_baud_rate_set_from_button(final GtkButton * button) {
@@ -363,7 +358,7 @@ void module_init_options(GtkBuilder *builder) {
                     .container = GTK_BOX(gtk_builder_get_object(builder, "options-simulation-ecus-container")),
                     .add = GTK_BUTTON(gtk_builder_get_object(builder, "options-simulation-ecus-add")),
                     .address = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-ecus-address")),
-                    .generator = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-ecus-generator")),
+                    .generator = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "options-simulation-ecus-generator")),
                 }
             },
             .vehicleInfos = {

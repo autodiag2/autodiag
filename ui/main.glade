@@ -8224,10 +8224,15 @@ What can be done:
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEntry" id="options-simulation-ecus-generator">
+                      <object class="GtkComboBoxText" id="options-simulation-ecus-generator">
                         <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="placeholder-text" translatable="yes">random</property>
+                        <property name="can-focus">False</property>
+                        <items>
+                          <item translatable="yes">random</item>
+                          <item translatable="yes">cycle</item>
+                          <item translatable="yes">citroen_c5_x7</item>
+                          <item translatable="yes">gui</item>
+                        </items>
                       </object>
                       <packing>
                         <property name="expand">False</property>

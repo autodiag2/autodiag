@@ -32,7 +32,7 @@ typedef struct {
             GtkBox * container;
             GtkButton * add;
             GtkEntry * address;
-            GtkEntry * generator;
+            GtkComboBoxText * generator;
         } ecus;
     } simulator;
     struct {
