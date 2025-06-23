@@ -484,7 +484,11 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
             if ( err == ERROR_PIPE_CONNECTED ) {
                 log_msg(LOG_DEBUG, "pipe already connected");
             } else {
-                log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                if ( err == ERROR_NO_DATA ) {
+                    log_msg(LOG_ERROR, "pipe closed");
+                } else {
+                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                }
                 return false;
             }
         }
@@ -1104,7 +1108,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
             elm327->implementation->loop_ready = true;
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
-            exit(1);
+            log_msg(LOG_ERROR, "Error during reception, exiting the loop");
+            return;
         }
 
         if ( recv_buffer->size <= 1 ) {
@@ -1114,7 +1119,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, recv_buffer->buffer, false) ) {
             if ( ! sim_elm327_reply(elm327, recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
-                exit(1);
+                log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
+                return;
             }
         }
         

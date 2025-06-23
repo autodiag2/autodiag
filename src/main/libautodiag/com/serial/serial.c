@@ -19,7 +19,9 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+        if ( isComPort(port->implementation->connexion_handle) ) {
+            PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+        }
         if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
             serial_close(port);
@@ -164,12 +166,6 @@ int serial_open(final Serial * port) {
 
         #if defined OS_WINDOWS
 
-            #define TX_TIMEOUT_MULTIPLIER    0
-            #define TX_TIMEOUT_CONSTANT      1000
-
-            DCB dcb;
-            COMMTIMEOUTS timeouts;
-            DWORD bytes_written;
             port->implementation->connexion_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
@@ -179,7 +175,14 @@ int serial_open(final Serial * port) {
                 log_msg(LOG_DEBUG, "Openning port: %s", port->location);
             }
             
-            if ( isComport(port->implementation->connexion_handle) ) {
+            if ( isComPort(port->implementation->connexion_handle) ) {
+                #define TX_TIMEOUT_MULTIPLIER    0
+                #define TX_TIMEOUT_CONSTANT      1000
+
+                DCB dcb;
+                COMMTIMEOUTS timeouts;
+                DWORD bytes_written;
+    
                 ZeroMemory(&dcb, sizeof(DCB));
                 dcb.DCBlength = sizeof(DCB);
                 if (!GetCommState(port->implementation->connexion_handle, &dcb)) {
@@ -295,7 +298,9 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                if ( isComPort(port->implementation->connexion_handle) ) {
+                    PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                }
                 CloseHandle(port->implementation->connexion_handle);
                 port->implementation->connexion_handle = INVALID_HANDLE_VALUE;
             #elif defined OS_POSIX

@@ -5,7 +5,7 @@
 
 #ifdef OS_WINDOWS
 #   include <windows.h>
-    bool isComport(HANDLE file);
+    bool isComPort(HANDLE file);
 #endif
 
 #endif

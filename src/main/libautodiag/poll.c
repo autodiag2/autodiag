@@ -8,7 +8,7 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
             return -1;
         } else {
             int sleep_length_ms = 20;
-            if ( isComport(connection_handle) ) {
+            if ( isComPort(connection_handle) ) {
                 for(int i = 0; i < timeout_ms / sleep_length_ms && readLen == 0; i++) {
                     DWORD errors;
                     COMSTAT stat = {0};

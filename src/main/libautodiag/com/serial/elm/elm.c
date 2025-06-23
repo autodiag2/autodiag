@@ -160,7 +160,7 @@ OBDIFace* elm_open_from_serial(final Serial * port) {
         return null;
     } else {
         if ( serial_open(port) == GENERIC_FUNCTION_ERROR ) {
-            log_msg(LOG_ERROR, "Error while openning OBD port");
+            log_msg(LOG_ERROR, "Error while openning serial port");
             return null;
         } else {
             OBDIFace* iface = elm_open_from_serial_internal(&port);
