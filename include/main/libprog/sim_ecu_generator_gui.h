@@ -22,8 +22,10 @@ typedef struct {
         GtkCheckButton* dtcCleared;
         GtkWidget *invalidDtc;
     } dtcs;
-} ELM327SimGui;
+} SimECUGeneratorGui;
 
 SimECUGenerator* sim_ecu_generator_new_gui();
+SimECUGeneratorGui * sim_ecu_generator_gui_show(SimECUGeneratorGui *simGui);
+SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generator, char * ecuDesignation);
 
 #endif

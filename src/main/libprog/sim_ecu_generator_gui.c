@@ -1,7 +1,7 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
 void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
-    ELM327SimGui *gui = (ELM327SimGui *)generator->context;
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
     switch(binRequest->buffer[0]) {
         case 0x01: {
@@ -96,4 +96,83 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_gui);
     generator->type = strdup("gui");
     return generator;
+}
+
+void sim_ecu_generator_gui_add_dtc(GtkButton *button, gpointer user_data) {
+    SimECUGeneratorGui* simGui = (SimECUGeneratorGui*)user_data;
+    const char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
+    if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
+        gtk_message_dialog_format_secondary_text(simGui->dtcs.invalidDtc,"%s: expected LXXXX where L is P,C,B,U",dtc_string);
+        gtk_widget_show_on_main_thread(simGui->dtcs.invalidDtc);
+    } else {
+        GtkWidget *label = gtk_label_new(dtc_string);
+        gtk_container_add((GtkContainer*)simGui->dtcs.listView,label);
+        gtk_widget_show(label);
+    }
+}
+
+SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generator, char * ecuDesignation) {
+
+    gtk_init(0, NULL);
+
+    char *ui_dir = installation_folder_resolve("ui"), *elm327simUiPath;
+    if (ui_dir == NULL) {
+        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
+        return NULL;
+    }
+    asprintf(&elm327simUiPath, "%s" PATH_FOLDER_DELIM "sim_ecu_generator_gui.glade", ui_dir);
+    
+    GtkBuilder *builder = gtk_builder_new_from_file(elm327simUiPath);
+    free(ui_dir);
+    free(elm327simUiPath);
+    GtkWidget *window = GTK_WIDGET(gtk_builder_get_object(builder, "window-root"));
+    char * title;
+    asprintf(&title, "ECU %s generator", ecuDesignation);
+    gtk_window_set_title(GTK_WINDOW(window), title);
+    free(title);
+
+    SimECUGeneratorGui *simGui = (SimECUGeneratorGui *)malloc(sizeof(SimECUGeneratorGui));
+    *simGui = (SimECUGeneratorGui){
+        .window = GTK_WIDGET(gtk_builder_get_object(builder, "window-root")),
+        .dtcs = {
+            .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
+            .input = GTK_ENTRY(gtk_builder_get_object(builder, "dtc-list-input")),
+            .inputButton = GTK_BUTTON(gtk_builder_get_object(builder, "dtc-list-input-button")),
+            .milOn = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-mil")),
+            .dtcCleared = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "dtc-list-dtc-cleared")),
+            .invalidDtc = GTK_WIDGET(gtk_builder_get_object(builder, "window-invalid-dtc"))
+        },
+        .data = {
+            .vehicleSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "data-vehicle-speed")),
+            .coolantTemperature = GTK_WIDGET(gtk_builder_get_object(builder, "data-coolant-temperature")),
+            .engineSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "data-engine-speed"))
+        }
+    };
+
+    g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
+    g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
+    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(sim_ecu_generator_gui_add_dtc), simGui);
+
+    counter_init_modifiable(simGui->data.vehicleSpeed,"counter_85_2_255_0_0_255.png", true);
+    counter_init_modifiable(simGui->data.coolantTemperature,"gaugehalf_225_5_255_0_0_255.png", true);
+    counter_init_modifiable(simGui->data.engineSpeed,"counter_85_2_255_0_0_255.png", true);
+
+    gtk_builder_connect_signals(builder, NULL);
+    g_object_unref(G_OBJECT(builder));
+
+    generator->context = (void *)simGui;
+
+    return simGui;
+}
+gboolean sim_ecu_generator_gui_present_window_false(gpointer w) {
+    sleep(1);
+    gtk_window_set_keep_above(GTK_WINDOW(w), false);
+    return false;
+}
+
+SimECUGeneratorGui * sim_ecu_generator_gui_show(SimECUGeneratorGui *simGui) {
+    gtk_widget_show(simGui->window);
+    gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
+    g_idle_add(sim_ecu_generator_gui_present_window_false, (gpointer)simGui->window);
+    gtk_window_present(GTK_WINDOW(simGui->window));
 }
