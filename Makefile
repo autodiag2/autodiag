@@ -27,9 +27,7 @@ CFLAGS_TESTS = -I src/testFixtures/
 CFLAGS_COVERAGE = 
 CFLAGS_LIBS_TESTS = 
 
-ifeq ($(filter release_progs, $(MAKECMDGOALS)),)
-    CFLAGS += $(DEBUG_CFLAGS)
-endif
+CFLAGS += $(DEBUG_CFLAGS)
 
 CFLAGS += -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\""
 CFLAGS += -DAPP_MAINTAINER="\"$(APP_MAINTAINER)\"" -DAPP_DESC="\"$(APP_DESC)\""
@@ -38,7 +36,6 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
-	@-$(TOOLCHAIN)strip $(BINS_PROGS)
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
