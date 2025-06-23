@@ -2,7 +2,7 @@
 
 int main(int argc, char **argv) {
     SimELM327* elm327 = sim_elm327_new();
-    SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0xE9));        
+    list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0xE9));        
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* port = port_open(strdup(elm327->device_location));

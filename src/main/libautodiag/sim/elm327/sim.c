@@ -3,10 +3,10 @@
 
 LIST_SRC(SimECU)
 
-void SimECU_list_empty(SimECU_list * list) {
+void list_SimECU_empty(list_SimECU * list) {
     while(0 < list->size) {
         log_msg(LOG_DEBUG, "should free ecu here");
-        SimECU_list_remove_at(list, 0);
+        list_SimECU_remove_at(list, 0);
     }
 }
 

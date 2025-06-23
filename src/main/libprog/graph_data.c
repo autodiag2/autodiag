@@ -20,7 +20,7 @@ LIST_SRC(GraphData)
 
 Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
     Graph * graph = (Graph*)malloc(sizeof(Graph));
-    graph->data = GraphData_list_new();
+    graph->data = list_GraphData_new();
     graph->title = strdup(title);
     graph->widget = widget;
     graph->unit = strdup(unit);
@@ -28,12 +28,12 @@ Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
 }
 void graph_append_data(Graph *graph, double data) {
     assert(graph != null);
-    GraphData_list_append(graph->data, graph_data_new(data));
+    list_GraphData_append(graph->data, graph_data_new(data));
 }
 
 LIST_SRC(Graph)
 
-Graph * Graph_list_get_by_title(Graph_list * list, char * title) {
+Graph * list_Graph_get_by_title(list_Graph * list, char * title) {
     assert(list != null);
     assert(title != null);
     for(int i = 0; i < list->size; i++) {
@@ -47,12 +47,12 @@ Graph * Graph_list_get_by_title(Graph_list * list, char * title) {
     return null;
 }
 
-bool Graph_list_append_data(Graph_list * list, char * title, double data) {
-    Graph * graph = Graph_list_get_by_title(list, title);
+bool list_Graph_append_data(list_Graph * list, char * title, double data) {
+    Graph * graph = list_Graph_get_by_title(list, title);
     if ( graph == null ) {
         return false;
     } else {
-        GraphData_list_append(graph->data, graph_data_new(data));
+        list_GraphData_append(graph->data, graph_data_new(data));
         return true;
     }
 }

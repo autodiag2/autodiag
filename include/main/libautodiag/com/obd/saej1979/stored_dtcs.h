@@ -33,11 +33,11 @@ void saej1979_dtc_description_dump(SAEJ1979_DTC_DESCRIPTION *desc);
 typedef struct {
     int size;
     SAEJ1979_DTC_DESCRIPTION *list;
-} SAEJ1979_DTC_DESCRIPTION_list;
+} list_SAEJ1979_DTC_DESCRIPTION;
 
-SAEJ1979_DTC_DESCRIPTION_list * SAEJ1979_DTC_DESCRIPTION_list_new();
-void SAEJ1979_DTC_DESCRIPTION_list_free(SAEJ1979_DTC_DESCRIPTION_list * list);
-void SAEJ1979_DTC_DESCRIPTION_list_append(SAEJ1979_DTC_DESCRIPTION_list * list, SAEJ1979_DTC_DESCRIPTION *desc);
+list_SAEJ1979_DTC_DESCRIPTION * list_SAEJ1979_DTC_DESCRIPTION_new();
+void list_SAEJ1979_DTC_DESCRIPTION_free(list_SAEJ1979_DTC_DESCRIPTION * list);
+void list_SAEJ1979_DTC_DESCRIPTION_append(list_SAEJ1979_DTC_DESCRIPTION * list, SAEJ1979_DTC_DESCRIPTION *desc);
 
 typedef struct {
     ISO15031_DTC_TYPE type;
@@ -48,7 +48,7 @@ typedef struct {
     /**
      * Error corresponding to the DTC
      */
-    SAEJ1979_DTC_DESCRIPTION_list * description;
+    list_SAEJ1979_DTC_DESCRIPTION * description;
 } SAEJ1979_DTC;
 
 SAEJ1979_DTC * saej1979_dtc_new();
@@ -56,15 +56,15 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc);
 char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc);
 
 LIST_H(SAEJ1979_DTC)
-void SAEJ1979_DTC_list_append_list(SAEJ1979_DTC_list * list, SAEJ1979_DTC_list * another);
-SAEJ1979_DTC * SAEJ1979_DTC_list_get(SAEJ1979_DTC_list * list, char *dtc);
+void list_SAEJ1979_DTC_append_list(list_SAEJ1979_DTC * list, list_SAEJ1979_DTC * another);
+SAEJ1979_DTC * list_SAEJ1979_DTC_get(list_SAEJ1979_DTC * list, char *dtc);
 
 /**
  * Service 03 retrieve stored DTCs
  */
-SAEJ1979_DTC_list * saej1979_retrieve_stored_dtcs(final OBDIFace* iface, final Vehicle *filter);
-SAEJ1979_DTC_list * saej1979_retrieve_pending_dtcs(final OBDIFace* iface, final Vehicle *filter);
-SAEJ1979_DTC_list * saej1979_retrieve_permanent_dtcs(final OBDIFace* iface, final Vehicle *filter);
+list_SAEJ1979_DTC * saej1979_retrieve_stored_dtcs(final OBDIFace* iface, final Vehicle *filter);
+list_SAEJ1979_DTC * saej1979_retrieve_pending_dtcs(final OBDIFace* iface, final Vehicle *filter);
+list_SAEJ1979_DTC * saej1979_retrieve_permanent_dtcs(final OBDIFace* iface, final Vehicle *filter);
 /**
  * eg. P1122
  * @return dtc as string, result must be then cleared

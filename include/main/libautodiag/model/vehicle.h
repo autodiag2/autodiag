@@ -12,7 +12,7 @@ typedef struct {
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this ECU.
      */
-    Buffer_list * data_buffer;
+    list_Buffer * data_buffer;
     /**
      * The source address of the message.
      */
@@ -33,23 +33,23 @@ typedef struct {
         /**
          * DTC reported by this ECU
          */
-        Buffer_list * current_dtc;
-        Buffer_list * pending_dtc;
-        Buffer_list * permanent_dtc;
+        list_Buffer * current_dtc;
+        list_Buffer * pending_dtc;
+        list_Buffer * permanent_dtc;
         /**
          * Data reported by the ECU
          */
-        Buffer_list * current_data;
-        Buffer_list * freeze_frame_data;
-        Buffer_list * tests_results;        
-        Buffer_list * tests_results_other;
+        list_Buffer * current_data;
+        list_Buffer * freeze_frame_data;
+        list_Buffer * tests_results;        
+        list_Buffer * tests_results_other;
         /**
          * Response trames to the clear request
          */
-        Buffer_list * clear_dtc;
-        Buffer_list * request_vehicle_information;
-        Buffer_list * control_operation;
-        Buffer_list * none;
+        list_Buffer * clear_dtc;
+        list_Buffer * request_vehicle_information;
+        list_Buffer * control_operation;
+        list_Buffer * none;
     } obd_service;
 
 } ECU;
@@ -72,7 +72,7 @@ typedef struct {
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this vehicle (any ECU).
      */
-    Buffer_list * data_buffer;
+    list_Buffer * data_buffer;
     Buffer * vin;
     char *country;
     /**
@@ -107,6 +107,6 @@ ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_ecu_empty_duplicated_info(ECU* ecu);
 
 LIST_H(Vehicle)
-void Vehicle_list_empty(Vehicle_list * list);
+void list_Vehicle_empty(list_Vehicle * list);
 
 #endif

@@ -20,7 +20,7 @@ int oneHex(char c);
             } \
             final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
             buffer_free(address); \
-            Iso15765Conversation *conversation = Iso15765Conversation_list_find(conversations, current_ecu); \
+            Iso15765Conversation *conversation = list_Iso15765Conversation_find(conversations, current_ecu); \
             \
             final Iso15765FrameType frame_type = oneHex(*ptr); \
             ptr ++; \
@@ -39,7 +39,7 @@ int oneHex(char c);
                     ptr += 1 + elm->printing_of_spaces; \
                     conversation = iso15765_init_conversation(data_bytes); \
                     conversation->current_data_length = conversation->remaining_data_bytes_to_receive; \
-                    Iso15765Conversation_list_append(conversations,conversation); \
+                    list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765FirstFrame: { \
                     log_msg(LOG_DEBUG, "first frame"); \
@@ -47,7 +47,7 @@ int oneHex(char c);
                     ptr += 3 + elm->printing_of_spaces * 2; \
                     conversation = iso15765_init_conversation(data_bytes); \
                     conversation->current_data_length = min(CAN_MAX_BYTES_PER_MESSAGE-2,conversation->remaining_data_bytes_to_receive); \
-                    Iso15765Conversation_list_append(conversations,conversation); \
+                    list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765ConsecutiveFrame: { \
                     if ( conversation == null ) { \
@@ -99,9 +99,9 @@ int oneHex(char c);
                             if ( conversation->remaining_data_bytes_to_receive == 0 ) { \
                                 assert(conversation->ecu != null); \
                                 if ( bin_buffer != null ) { \
-                                    Buffer_list_append(conversation->ecu->data_buffer,buffer_copy(conversation->data)); \
+                                    list_Buffer_append(conversation->ecu->data_buffer,buffer_copy(conversation->data)); \
                                 } \
-                                if ( Iso15765Conversation_list_remove(conversations, conversation) ) { \
+                                if ( list_Iso15765Conversation_remove(conversations, conversation) ) { \
                                     log_msg(LOG_DEBUG, "Conversation removed"); \
                                     iso15765_conversation_free(conversation); \
                                 } \

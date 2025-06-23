@@ -123,7 +123,7 @@ typedef struct _SimELM327 {
     	Buffer* programmable_parameters_states;    	
     } nvm;
 
-    SimECU_list * ecus;
+    list_SimECU * ecus;
 
 } SimELM327;
 

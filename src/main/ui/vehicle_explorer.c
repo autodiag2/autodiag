@@ -2,7 +2,7 @@
 
 vehicleExplorerGui *vdgui = null;
 pthread_t *vehicle_explorer_refresh_dynamic_thread = null;
-Graph_list *graphs = null;
+list_Graph *graphs = null;
 pthread_mutex_t graphs_mutex;
 
 static void vehicle_explorer_button_click_clean_up_routine(void *arg) {
@@ -213,10 +213,10 @@ VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
     return false;
 }
 #define VH_REFRESH_GRAPH(data_gen,graphType, ...) { \
-    Graph * graph = Graph_list_get_by_title(graphs, graphType); \
+    Graph * graph = list_Graph_get_by_title(graphs, graphType); \
     if ( graph != null ) { \
         if ( VH_SHOULD_REFRESH_WIDGET(graph->widget) ) { \
-            Graph_list_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state(), ##__VA_ARGS__)); \
+            list_Graph_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state(), ##__VA_ARGS__)); \
             g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
         } \
     } \
@@ -298,7 +298,7 @@ gboolean vehicle_explorer_saej1979_data_tests_gsource(gpointer data) {
         gtk_container_remove(vdgui->engine.tests, glist->data);
         glist = glist->next;
     }
-    SAEJ1979_DATA_Test_list *testsList = data;
+    list_SAEJ1979_DATA_Test *testsList = data;
     for(int i = 0; i < testsList->size; i ++) {
         SAEJ1979_DATA_Test * test = testsList->list[i];
         GtkBox * box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
@@ -308,7 +308,7 @@ gboolean vehicle_explorer_saej1979_data_tests_gsource(gpointer data) {
         gtk_widget_show_all(GTK_WIDGET(box));
         free(test->name);
     }    
-    SAEJ1979_DATA_Test_list_free(data);
+    list_SAEJ1979_DATA_Test_free(data);
     return false;        
 }
 
@@ -363,7 +363,7 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         pthread_mutex_unlock(&graphs_mutex);
 
         if ( VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(vdgui->engine.tests))) ) {
-            SAEJ1979_DATA_Test_list *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
+            list_SAEJ1979_DATA_Test *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
             if ( testsList != null ) {
                 g_idle_add(vehicle_explorer_saej1979_data_tests_gsource,testsList);
             }
@@ -459,7 +459,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
     pthread_mutex_lock(&graphs_mutex);
     OBDIFace* iface = config.ephemere.iface;
     char * graph_title = (char*)user_data;
-    final Graph * graph = Graph_list_get_by_title(graphs, graph_title);
+    final Graph * graph = list_Graph_get_by_title(graphs, graph_title);
     assert(graph != null);
 
     GtkAllocation allocation;
@@ -621,7 +621,7 @@ gboolean vehicle_explorer_graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointe
 
 #define VH_GRAPHS_IS_ACTIVE_SET(title, unit) \
     ( strcmp(activeGraph, title) == 0 ) { \
-        Graph_list_append(graphs, graph_new(drawing_area, activeGraph, unit)); \
+        list_Graph_append(graphs, graph_new(drawing_area, activeGraph, unit)); \
     }
 
 void* vehicle_explorer_graphs_add_daemon(void *arg) {
@@ -657,19 +657,19 @@ void* vehicle_explorer_graphs_add_daemon(void *arg) {
                 char graphTitle[64]; 
                 snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i); 
                 if ( strcmp(activeGraph, graphTitle) == 0 ) { 
-                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "V")); 
+                    list_Graph_append(graphs, graph_new(drawing_area, activeGraph, "V")); 
                     sensor_found = true;
                     break;
                 }
                 snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i); 
                 if ( strcmp(activeGraph, graphTitle) == 0 ) { 
-                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "mA")); 
+                    list_Graph_append(graphs, graph_new(drawing_area, activeGraph, "mA")); 
                     sensor_found = true;
                     break;
                 }
                 snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); 
                 if ( strcmp(activeGraph, graphTitle) == 0 ) { 
-                    Graph_list_append(graphs, graph_new(drawing_area, activeGraph, "ratio")); 
+                    list_Graph_append(graphs, graph_new(drawing_area, activeGraph, "ratio")); 
                     sensor_found = true;
                     break;
                 }
@@ -703,8 +703,8 @@ void vehicle_explorer_graphs_add() {
 void* vehicle_explorer_graphs_reset_data_daemon(void *arg) {
     pthread_mutex_lock(&graphs_mutex);
     for(int i = 0; i < graphs->size; i++) {
-        GraphData_list_free(graphs->list[i]->data);
-        graphs->list[i]->data = GraphData_list_new();
+        list_GraphData_free(graphs->list[i]->data);
+        graphs->list[i]->data = list_GraphData_new();
     }
     graph_time_start_ms = 0;
     pthread_mutex_unlock(&graphs_mutex);
@@ -784,7 +784,7 @@ void vehicle_explorer_generic_error_feedback_ok() {
 }
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( vdgui == null ) {
-        graphs = Graph_list_new();
+        graphs = list_Graph_new();
         vehicleExplorerGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-vehicle-explorer")),
             .refreshIcon = (GtkSpinner*)gtk_builder_get_object (builder, "window-vehicle-explorer-global-refresh"),

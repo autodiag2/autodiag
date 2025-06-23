@@ -255,8 +255,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
 
 LIST_SRC(SAEJ1979_DATA_Test)
 
-SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool useFreezedData, byte* (*data_accessor)(final OBDIFace* iface, bool useFreezedData)) {
-    SAEJ1979_DATA_Test_list *list = SAEJ1979_DATA_Test_list_new();
+list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final OBDIFace* iface, bool useFreezedData, byte* (*data_accessor)(final OBDIFace* iface, bool useFreezedData)) {
+    list_SAEJ1979_DATA_Test *list = list_SAEJ1979_DATA_Test_new();
 
     byte * buffer = data_accessor(iface,useFreezedData);
     if ( buffer != null ) {
@@ -267,7 +267,7 @@ SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool
                 SAEJ1979_DATA_Test * data = (SAEJ1979_DATA_Test*)malloc(sizeof(SAEJ1979_DATA_Test));
                 data->name = strdup(names1[i]);
                 data->completed = ! bitRetrieve(B, 4 + i);
-                SAEJ1979_DATA_Test_list_append(list, data);
+                list_SAEJ1979_DATA_Test_append(list, data);
             }
         }
         bool isCompressionIgnition = bitRetrieve(B, 3);
@@ -290,7 +290,7 @@ SAEJ1979_DATA_Test_list *saej1979_data_tests_generic(final OBDIFace* iface, bool
                 SAEJ1979_DATA_Test * data = (SAEJ1979_DATA_Test*)malloc(sizeof(SAEJ1979_DATA_Test));
                 data->name = strdup(names[i]);
                 data->completed = ! bitRetrieve(D, i);
-                SAEJ1979_DATA_Test_list_append(list, data);
+                list_SAEJ1979_DATA_Test_append(list, data);
             }
         }
     }
@@ -306,7 +306,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-SAEJ1979_DATA_Test_list *saej1979_data_tests(final OBDIFace* iface, bool useFreezedData, bool thisDriveCycleOnly) {
+list_SAEJ1979_DATA_Test *saej1979_data_tests(final OBDIFace* iface, bool useFreezedData, bool thisDriveCycleOnly) {
     if ( thisDriveCycleOnly ) {
         return saej1979_data_tests_generic(iface, useFreezedData, saej1979_data_status_this_cycle);
     } else {

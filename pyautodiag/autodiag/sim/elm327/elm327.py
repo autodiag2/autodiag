@@ -1,6 +1,6 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
-from autodiag.sim.elm327.sim import SimECU_list
+from autodiag.sim.elm327.sim import list_SimECU
 from autodiag.sim.elm327.sim_generators import SimECUGenerator
 from autodiag.lib import *
 from autodiag.sim.elm327.sim import SimECU
@@ -60,7 +60,7 @@ class SimELM327(Structure):
         ("isMemoryEnabled", bool),
         ("testerAddress", byte),
         ("nvm", NVMSettings),
-        ("ecus", POINTER(SimECU_list))
+        ("ecus", POINTER(list_SimECU))
     ]
 
     def __new__(cls):

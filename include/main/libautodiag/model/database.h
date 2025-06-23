@@ -11,7 +11,7 @@
 #include "libautodiag/installation.h"
 #include "libautodiag/model/vehicle.h"
 
-extern Vehicle_list database;
+extern list_Vehicle database;
 /**
  * Load a vehicle from the filesystem to the memory and return it.
  */

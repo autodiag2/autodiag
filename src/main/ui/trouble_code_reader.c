@@ -1,7 +1,7 @@
 #include "ui/trouble_code_reader.h"
 
 TroubleCodeReaderGui * tcgui = null;
-SAEJ1979_DTC_list * dtc_list = null;
+list_SAEJ1979_DTC * list_dtc = null;
 
 void trouble_code_reader_clear_dtc_description() {
     gtk_text_buffer_set_text(tcgui->dtc.explanationText, "", 0);
@@ -103,16 +103,16 @@ gboolean trouble_code_reader_read_codes_set_dtc_count_gsource(gpointer data) {
     free(dtcStr);
     return false;
 }
-gboolean trouble_code_reader_read_codes_set_dtc_list_gsource(gpointer data) {
-    SAEJ1979_DTC_list *dtc_list = (SAEJ1979_DTC_list *)data;
+gboolean trouble_code_reader_read_codes_set_list_dtc_gsource(gpointer data) {
+    list_SAEJ1979_DTC *list_dtc = (list_SAEJ1979_DTC *)data;
     GList *ptr = gtk_container_get_children((GtkContainer*)tcgui->dtc.list);
     while(ptr != null) {
         final GList *ptr_next = ptr->next;
         gtk_widget_destroy(ptr->data);
         ptr = ptr_next;
     }
-    if ( dtc_list != null ) {
-        LIST_FOREACH(dtc_list,SAEJ1979_DTC,dtc,
+    if ( list_dtc != null ) {
+        LIST_FOREACH(list_dtc,SAEJ1979_DTC,dtc,
             char * dtc_string = saej1979_dtc_to_string(dtc);
             GtkWidget *label = gtk_label_new(dtc_string);
             gtk_container_add((GtkContainer*)tcgui->dtc.list,label);
@@ -136,31 +136,31 @@ void trouble_code_reader_read_codes_daemon_internal() {
                 g_idle_add(trouble_code_reader_read_codes_set_mil_gsource, (gpointer)mil_ptr);
             }
             {
-                if ( dtc_list != null ) {
-                    SAEJ1979_DTC_list_free(dtc_list);
-                    dtc_list = null;
+                if ( list_dtc != null ) {
+                    list_SAEJ1979_DTC_free(list_dtc);
+                    list_dtc = null;
                 }
-                final SAEJ1979_DTC_list * pending = SAEJ1979_DTC_list_new();
+                final list_SAEJ1979_DTC * pending = list_SAEJ1979_DTC_new();
                 bool state = trouble_code_reader_filtered_dtc_state();
                 final Vehicle* filter = state ? iface->vehicle : null;
                 if ( gtk_toggle_button_get_active(tcgui->read.stored) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_stored_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_stored_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.pending) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_pending_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_pending_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(tcgui->read.permanent) ) {
-                    SAEJ1979_DTC_list_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, filter));
                 }
                 if ( 0 < pending->size ) {
-                    dtc_list = pending;
+                    list_dtc = pending;
                 }
-                g_idle_add(trouble_code_reader_read_codes_set_dtc_list_gsource, (gpointer)dtc_list);
+                g_idle_add(trouble_code_reader_read_codes_set_list_dtc_gsource, (gpointer)list_dtc);
             }
             {
                 int dtcCount = 0;
-                if ( dtc_list != null ) {
-                    dtcCount = dtc_list->size;
+                if ( list_dtc != null ) {
+                    dtcCount = list_dtc->size;
                 }
                 char *dtcStr;
                 asprintf(&dtcStr,"%d DTC%s", dtcCount, 1 < dtcCount ? "s" : "" );
@@ -229,7 +229,7 @@ void trouble_code_reader_dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpoin
     trouble_code_reader_clear_dtc_description();
     if ( row != null ) {
         const char * selectedDTC = gtk_label_get_text((GtkLabel*)gtk_bin_get_child((GtkBin*)row));
-        SAEJ1979_DTC *dtc = SAEJ1979_DTC_list_get(dtc_list,(char*)selectedDTC);
+        SAEJ1979_DTC *dtc = list_SAEJ1979_DTC_get(list_dtc,(char*)selectedDTC);
 
         for(int i = 0; i < dtc->description->size; i++) {
             SAEJ1979_DTC_DESCRIPTION desc = dtc->description->list[i];

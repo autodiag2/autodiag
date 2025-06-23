@@ -7,14 +7,14 @@ class SAEJ1979_Test(Structure):
         ("completed", bool)
     ]
 
-class SAEJ1979_Test_list(Structure):
+class list_SAEJ1979_Test(Structure):
     _fields_ = [
         ("size", c_int),
         ("list", POINTER(POINTER(SAEJ1979_Test)))
     ]
 
 lib.saej1979_data_tests.argtypes = [POINTER(OBDIFace), bool, bool]
-lib.saej1979_data_tests.restype = POINTER(SAEJ1979_Test_list)
+lib.saej1979_data_tests.restype = POINTER(list_SAEJ1979_Test)
 
 class SAEJ1979():
 

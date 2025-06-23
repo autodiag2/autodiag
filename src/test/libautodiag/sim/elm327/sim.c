@@ -3,8 +3,8 @@
 void testSIM_1() {
 
     SimELM327* elm327 = sim_elm327_new();
-    SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0xE9));
-    SimECU_list_append(elm327->ecus,sim_ecu_emulation_new(0x1A));        
+    list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0xE9));
+    list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final OBDIFace* iface = port_open(strdup(elm327->device_location));
@@ -275,7 +275,7 @@ bool testSIM() {
         obd_send(iface, "0902");
         obd_clear_data(iface);
         obd_recv(iface);
-        Buffer_list_dump(iface->vehicle->data_buffer);
+        list_Buffer_dump(iface->vehicle->data_buffer);
         assert(17 < iface->vehicle->data_buffer->list[0]->size);
     }
     return true;

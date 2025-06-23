@@ -114,11 +114,11 @@ OBDIFace* elm_open_from_serial_internal2(final Serial ** port) {
     log_msg(LOG_DEBUG, "Info fetch done");
 
     if ( iface != null ) {
-        for(int i = 0;i < serial_list.size; i++) {
-            if ( serial_list.list[i] == *port ) {
+        for(int i = 0;i < list_serial.size; i++) {
+            if ( list_serial.list[i] == *port ) {
                 log_msg(LOG_DEBUG, "Serial port changed to the real device");
-                serial_list.list[i] = (Serial *)iface->device;
-                *port = serial_list.list[i];
+                list_serial.list[i] = (Serial *)iface->device;
+                *port = list_serial.list[i];
                 break;
             }
         }

@@ -38,8 +38,8 @@ int serial_cli_main(int argc, char *argv[]) {
                 switch(optopt) {
                     case 'n': {
                         printf("Ports available:\n");
-                        for(int i = 0; i < serial_list.size; i++) {
-                            Serial * port = serial_list.list[i];
+                        for(int i = 0; i < list_serial.size; i++) {
+                            Serial * port = list_serial.list[i];
                             printf(" %s\n", port->location);
                         }
                         return 0;
@@ -64,7 +64,7 @@ int serial_cli_main(int argc, char *argv[]) {
 
     config_onchange();
 
-    Serial * serial = serial_list_get_selected();
+    Serial * serial = list_serial_get_selected();
     if ( serial == null || serial->status != SERIAL_STATE_READY ) {
         printf("Serial port seem not open\n");
         return 1;

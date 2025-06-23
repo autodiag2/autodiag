@@ -4,7 +4,7 @@
  * An ELM device provides at least the following commands
  */
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/serial_list.h"
+#include "libautodiag/com/serial/list_serial.h"
 #include "libautodiag/com/obd/obd.h"
 #include "elm_iso15765.h"
 

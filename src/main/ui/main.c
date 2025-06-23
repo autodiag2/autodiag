@@ -59,7 +59,7 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
 }
 
 void* refresh_usb_adaptater_state_internal(void *arg) {
-    final Serial * port = serial_list_get_selected();
+    final Serial * port = list_serial_get_selected();
     if ( port == null ) {
         adaptater_state_set_text("No serial port selected", "orange");
     } else {

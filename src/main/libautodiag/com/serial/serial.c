@@ -1,5 +1,5 @@
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/serial_list.h"
+#include "libautodiag/com/serial/list_serial.h"
 
 int serial_guess_response(final char * buffer) {
     for(int i = 0; i < SerialResponseStrNumber; i++) {
@@ -403,12 +403,12 @@ void serial_init(final Serial* serial) {
 
 void module_init_serial() {
     module_debug_init(_MODULE_SERIAL);
-    serial_list_fill();
+    list_serial_fill();
 }
 
 void module_shutdown_serial() {
    serial_close_selected();
-   serial_list_free();
+   list_serial_free();
 }
 
 void serial_free(final Serial * port) {

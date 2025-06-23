@@ -184,10 +184,10 @@ bool config_load() {
     return res;
 }
 void config_onchange() {
-    serial_list_set_selected_by_location(config.com.serial.device_location);
-    final Serial * port = serial_list_get_selected();
+    list_serial_set_selected_by_location(config.com.serial.device_location);
+    final Serial * port = list_serial_get_selected();
     if ( port == null ) {
-        serial_list_selected = SERIAL_LIST_NO_SELECTED;
+        list_serial_selected = SERIAL_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
         config.ephemere.iface = obd_open_from_device(CAST_DEVICE(port));

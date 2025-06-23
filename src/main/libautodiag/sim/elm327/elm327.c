@@ -414,9 +414,9 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
-    elm327->ecus = SimECU_list_new();
+    elm327->ecus = list_SimECU_new();
     final SimECU *ecu = sim_ecu_emulation_new(0xE8);
-    SimECU_list_append(elm327->ecus,ecu);
+    list_SimECU_append(elm327->ecus,ecu);
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);

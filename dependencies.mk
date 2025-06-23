@@ -64,7 +64,7 @@ obj/main/libautodiag/com/obd/obd.o: src/main/libautodiag/com/obd/obd.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -106,7 +106,7 @@ obj/main/libautodiag/com/obd/saej1979/data.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -144,7 +144,7 @@ obj/main/libautodiag/com/obd/saej1979/saej1979.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -187,7 +187,7 @@ obj/main/libautodiag/com/obd/saej1979/stored_dtcs.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -233,7 +233,7 @@ obj/main/libautodiag/com/obd/saej1979/vehicle_info.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -275,7 +275,7 @@ obj/main/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/model/iso3779.h \
@@ -317,7 +317,7 @@ obj/main/libautodiag/com/serial/elm/elm320.o: \
   include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/model/iso3779.h \
@@ -358,7 +358,7 @@ obj/main/libautodiag/com/serial/elm/elm322.o: \
   include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/model/iso3779.h \
@@ -399,7 +399,7 @@ obj/main/libautodiag/com/serial/elm/elm323/elm323.o: \
   include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/model/iso3779.h \
@@ -454,7 +454,7 @@ obj/main/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -496,7 +496,7 @@ obj/main/libautodiag/com/serial/elm/elm327/iso15765.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -536,7 +536,7 @@ obj/main/libautodiag/com/serial/elm/elm329/elm329.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/serial/elm/elm327/../elm.h \
@@ -578,7 +578,7 @@ obj/main/libautodiag/com/serial/elm/elm329/iso15765.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/serial/elm/elm327/../elm.h \
@@ -588,9 +588,9 @@ obj/main/libautodiag/com/serial/elm/elm329/iso15765.o: \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h
-obj/main/libautodiag/com/serial/serial_list.o: \
-  src/main/libautodiag/com/serial/serial_list.c \
-  include/main/libautodiag/com/serial/serial_list.h \
+obj/main/libautodiag/com/serial/list_serial.o: \
+  src/main/libautodiag/com/serial/list_serial.c \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/dirent.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/log.h include/main/libautodiag/string.h \
@@ -620,7 +620,7 @@ obj/main/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
-  include/main/libautodiag/com/serial/serial_list.h
+  include/main/libautodiag/com/serial/list_serial.h
 obj/main/libautodiag/com/uds/uds_frame_buffer.o: \
   src/main/libautodiag/com/uds/uds_frame_buffer.c \
   include/main/libautodiag/com/uds/uds_frame_buffer.h \
@@ -732,7 +732,8 @@ obj/main/libautodiag/model/vehicle.o: \
 obj/main/libautodiag/poll.o: src/main/libautodiag/poll.c \
   include/main/libautodiag/poll.h \
   include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lang.h
+  include/main/libautodiag/lang.h include/main/libautodiag/log.h \
+  include/main/libautodiag/string.h
 obj/main/libautodiag/sim/elm327/ecu_generator_citroen_c5_x7.o: \
   src/main/libautodiag/sim/elm327/ecu_generator_citroen_c5_x7.c \
   include/main/libautodiag/sim/elm327/sim_generators.h \
@@ -764,7 +765,7 @@ obj/main/libautodiag/sim/elm327/ecu_generator_citroen_c5_x7.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -806,7 +807,7 @@ obj/main/libautodiag/sim/elm327/ecu_generator_cycle.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -848,7 +849,7 @@ obj/main/libautodiag/sim/elm327/ecu_generator_random.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -903,7 +904,7 @@ obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -948,7 +949,7 @@ obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -995,7 +996,7 @@ obj/main/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1042,7 +1043,7 @@ obj/main/libprog/config.o: src/main/libprog/config.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1086,7 +1087,7 @@ obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1140,7 +1141,7 @@ obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1184,7 +1185,7 @@ obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1228,7 +1229,7 @@ obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1246,11 +1247,10 @@ obj/main/prog/autodiag.o: src/main/prog/autodiag.c include/main/ui/main.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libprog/sim_ecu_generator_gui.h include/main/ui/counter.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/libprog/graph_data.h \
-  include/main/ui/documentation.h include/main/libprog/serial_cli.h \
-  include/main/libprog/elm327_cli.h \
-  include/main/libprog/sim_ecu_generator_gui.h
+  include/main/libprog/graph_data.h include/main/ui/documentation.h \
+  include/main/libprog/serial_cli.h include/main/libprog/elm327_cli.h
 obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libprog/elm327_cli.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -1283,7 +1283,7 @@ obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1327,7 +1327,7 @@ obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1369,7 +1369,7 @@ obj/main/ui/counter.o: src/main/ui/counter.c include/main/ui/counter.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1411,7 +1411,7 @@ obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1452,7 +1452,7 @@ obj/main/ui/error_feedback.o: src/main/ui/error_feedback.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1504,7 +1504,7 @@ obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1522,9 +1522,9 @@ obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libprog/sim_ecu_generator_gui.h include/main/ui/counter.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/libprog/graph_data.h \
-  include/main/ui/documentation.h
+  include/main/libprog/graph_data.h include/main/ui/documentation.h
 obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/ui/ui.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
@@ -1554,7 +1554,7 @@ obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1570,9 +1570,10 @@ obj/main/ui/options.o: src/main/ui/options.c include/main/ui/options.h \
   include/main/libautodiag/sim/elm327/sim.h \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/sim/elm327/nvm.h include/main/ui/main.h \
-  include/main/ui/trouble_code_reader.h include/main/ui/CommandLine.h \
-  include/main/ui/vehicle_explorer.h include/main/ui/counter.h \
+  include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libprog/sim_ecu_generator_gui.h include/main/ui/counter.h \
+  include/main/ui/main.h include/main/ui/trouble_code_reader.h \
+  include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
   include/main/libprog/graph_data.h include/main/ui/documentation.h
 obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/ui/trouble_code_reader.h include/main/ui/main.h \
@@ -1604,7 +1605,7 @@ obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1621,9 +1622,9 @@ obj/main/ui/trouble_code_reader.o: src/main/ui/trouble_code_reader.c \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libprog/sim_ecu_generator_gui.h include/main/ui/counter.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
-  include/main/ui/counter.h include/main/libprog/graph_data.h \
-  include/main/ui/documentation.h
+  include/main/libprog/graph_data.h include/main/ui/documentation.h
 obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/ui/vehicle_explorer.h include/main/ui/ui.h \
   include/main/ui/gtk.h \
@@ -1654,7 +1655,7 @@ obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1697,7 +1698,7 @@ obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1742,7 +1743,7 @@ obj/test/libautodiag/com/obd/obd.o: src/test/libautodiag/com/obd/obd.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1787,7 +1788,7 @@ obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1833,7 +1834,7 @@ obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1879,7 +1880,7 @@ obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1925,7 +1926,7 @@ obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -1970,7 +1971,7 @@ obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2015,7 +2016,7 @@ obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2060,7 +2061,7 @@ obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2105,7 +2106,7 @@ obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2150,7 +2151,7 @@ obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2195,7 +2196,7 @@ obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2240,7 +2241,7 @@ obj/test/obd_get_pid_supported.o: src/test/obd_get_pid_supported.c \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \
@@ -2284,7 +2285,7 @@ obj/test/regression.o: src/test/regression.c src/testFixtures/libTest.h \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/serial/elm/elm.h \
-  include/main/libautodiag/com/serial/serial_list.h \
+  include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/serial/elm/elm329/elm329.h \
   include/main/libautodiag/com/serial/elm/elm329/../elm.h \

@@ -189,7 +189,7 @@ void buffer_recycle(Buffer * buffer) {
 }
 
 LIST_SRC(Buffer)
-LIST_SRC_EMPTY(Buffer_list, buffer_free)
+LIST_SRC_EMPTY(list_Buffer, buffer_free)
 
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size) {
     assert(ascii_hex != null);
@@ -256,7 +256,7 @@ char* buffer_to_hex_string(Buffer *buffer) {
         return bytes_to_hex_string(buffer->buffer, buffer->size);
     }
 }
-void Buffer_list_dump(final Buffer_list* list) {
+void list_Buffer_dump(final list_Buffer* list) {
     assert(list != null);
     LIST_FOREACH(list,Buffer,buffer,
         buffer_dump(buffer);

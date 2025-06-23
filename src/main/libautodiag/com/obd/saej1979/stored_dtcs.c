@@ -2,17 +2,17 @@
 
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
-    dtc->description = SAEJ1979_DTC_DESCRIPTION_list_new();
+    dtc->description = list_SAEJ1979_DTC_DESCRIPTION_new();
     return dtc;
 }
 void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
     if ( dtc->description != null ) {
-        SAEJ1979_DTC_DESCRIPTION_list_free(dtc->description);
+        list_SAEJ1979_DTC_DESCRIPTION_free(dtc->description);
         dtc->description = null;
     }
 }
 
-SAEJ1979_DTC * SAEJ1979_DTC_list_get(SAEJ1979_DTC_list * list, char *dtcStr) {
+SAEJ1979_DTC * list_SAEJ1979_DTC_get(list_SAEJ1979_DTC * list, char *dtcStr) {
     LIST_FOREACH(list, SAEJ1979_DTC, dtc, 
 
         final char * searched_dtc = saej1979_dtc_to_string(dtc);
@@ -129,7 +129,7 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                                 final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
                                 dtc_desc->vehicle = compare_against;
                                 saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
-                                SAEJ1979_DTC_DESCRIPTION_list_append(dtc->description,dtc_desc);
+                                list_SAEJ1979_DTC_DESCRIPTION_append(dtc->description,dtc_desc);
                             }
                         }
                         break;
@@ -150,17 +150,17 @@ void saej1979_fetch_dtc_description_from_fs(final SAEJ1979_DTC * dtc, final Vehi
     free(basepath);
 }
 
-void SAEJ1979_DTC_list_append_list(SAEJ1979_DTC_list * list, SAEJ1979_DTC_list * another) {
+void list_SAEJ1979_DTC_append_list(list_SAEJ1979_DTC * list, list_SAEJ1979_DTC * another) {
     if ( another != null ) {
         for(int i = 0; i < another->size; i++) {
-            SAEJ1979_DTC_list_append(list,another->list[i]);
+            list_SAEJ1979_DTC_append(list,another->list[i]);
         }
     }
 }
 
 #define saej1979_dtcs_iterator(data) { \
     if ( result == null ) { \
-        result = SAEJ1979_DTC_list_new(); \
+        result = list_SAEJ1979_DTC_new(); \
     } \
     for(int byte = 0; byte < data->size-1; byte += 2) { \
         unsigned char byte_0 = data->buffer[byte]; \
@@ -172,23 +172,23 @@ void SAEJ1979_DTC_list_append_list(SAEJ1979_DTC_list * list, SAEJ1979_DTC_list *
             dtc->type = (byte_0 & 0xC0) >> 6; \
             sprintf((char*)&(dtc->number),"%x%x%x%x", (byte_0 & 0x30) >> 4, byte_0 & 0xF, (byte_1 & 0xF0) >> 4, byte_1 & 0xF); \
             saej1979_fetch_dtc_description_from_fs(dtc, filter); \
-            SAEJ1979_DTC_list_append(result, dtc); \
+            list_SAEJ1979_DTC_append(result, dtc); \
         } \
     } \
 }
 
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        SAEJ1979_DTC_list *,saej1979_retrieve_stored_dtcs,
+                        list_SAEJ1979_DTC *,saej1979_retrieve_stored_dtcs,
                         "03",saej1979_dtcs_iterator,null,
                         ecu->obd_service.current_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        SAEJ1979_DTC_list *,saej1979_retrieve_pending_dtcs,
+                        list_SAEJ1979_DTC *,saej1979_retrieve_pending_dtcs,
                         "07",saej1979_dtcs_iterator,null,
                         ecu->obd_service.pending_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        SAEJ1979_DTC_list *, saej1979_retrieve_permanent_dtcs,
+                        list_SAEJ1979_DTC *, saej1979_retrieve_permanent_dtcs,
                         "0A",saej1979_dtcs_iterator,null,
                         ecu->obd_service.permanent_dtc, Vehicle *filter
                     )
@@ -229,12 +229,12 @@ char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {
 
 LIST_SRC(SAEJ1979_DTC)
 
-LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION_list)
-void SAEJ1979_DTC_DESCRIPTION_list_append(SAEJ1979_DTC_DESCRIPTION_list * list, SAEJ1979_DTC_DESCRIPTION *desc) {
+LIST_SRC_NEW(list_SAEJ1979_DTC_DESCRIPTION)
+void list_SAEJ1979_DTC_DESCRIPTION_append(list_SAEJ1979_DTC_DESCRIPTION * list, SAEJ1979_DTC_DESCRIPTION *desc) {
     list->list = (SAEJ1979_DTC_DESCRIPTION*)realloc(list->list, sizeof(SAEJ1979_DTC_DESCRIPTION) * ++list->size);
     list->list[list->size-1] = *desc;
 }
-void SAEJ1979_DTC_DESCRIPTION_list_free(SAEJ1979_DTC_DESCRIPTION_list * list) {
+void list_SAEJ1979_DTC_DESCRIPTION_free(list_SAEJ1979_DTC_DESCRIPTION * list) {
     LIST_FREE_CONTIGUOUS(list);
 }
 

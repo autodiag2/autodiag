@@ -69,7 +69,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
     SimELM327* sim = sim_elm327_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
-    SimECUGeneratorGui_list * guis = SimECUGeneratorGui_list_new();
+    list_SimECUGeneratorGui * guis = list_SimECUGeneratorGui_new();
     
     int opt;
     optind = 1;
@@ -82,7 +82,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             case 'e': {
                 byte ecu_address;
                 if ( sscanf(optarg,"%02hhx", &ecu_address) == 1 ) {
-                    SimECU_list_append(sim->ecus,sim_ecu_emulation_new(ecu_address));                    
+                    list_SimECU_append(sim->ecus,sim_ecu_emulation_new(ecu_address));                    
                 } else {
                     sim_elm327_cli_display_help();
                     return 1;
@@ -117,7 +117,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                     generator = sim_ecu_generator_new_gui();
                     char address[3];
                     sprintf(address, "%02hhX", target_ecu->address);
-                    SimECUGeneratorGui_list_append(guis, 
+                    list_SimECUGeneratorGui_append(guis, 
                         sim_ecu_generator_gui_set_context(generator, address)
                     );
                 } else {
@@ -198,7 +198,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
         pthread_join(simThread, null);
     }
 
-    SimECUGeneratorGui_list_free(guis);
+    list_SimECUGeneratorGui_free(guis);
     return 0;
 }
 

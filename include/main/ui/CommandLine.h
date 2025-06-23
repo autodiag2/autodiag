@@ -5,7 +5,7 @@
 
 #include "ui.h"
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/serial_list.h"
+#include "libautodiag/com/serial/list_serial.h"
 #include "libautodiag/buffer.h"
 #include "libprog/config.h"
 

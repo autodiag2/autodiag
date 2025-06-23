@@ -25,40 +25,40 @@ ECU* vehicle_ecu_new() {
     ECU* ecu = (ECU*)malloc(sizeof(ECU));
     ecu->address = buffer_new();
     ecu->name = null;
-    ecu->data_buffer = Buffer_list_new();
-    ecu->obd_service.current_data = Buffer_list_new();
-    ecu->obd_service.freeze_frame_data = Buffer_list_new();
-    ecu->obd_service.tests_results = Buffer_list_new();
-    ecu->obd_service.tests_results_other = Buffer_list_new();
-    ecu->obd_service.control_operation = Buffer_list_new();
-    ecu->obd_service.pending_dtc = Buffer_list_new();
-    ecu->obd_service.none = Buffer_list_new();
-    ecu->obd_service.current_dtc = Buffer_list_new();
-    ecu->obd_service.clear_dtc = Buffer_list_new();
-    ecu->obd_service.request_vehicle_information = Buffer_list_new();
-    ecu->obd_service.permanent_dtc = Buffer_list_new();
+    ecu->data_buffer = list_Buffer_new();
+    ecu->obd_service.current_data = list_Buffer_new();
+    ecu->obd_service.freeze_frame_data = list_Buffer_new();
+    ecu->obd_service.tests_results = list_Buffer_new();
+    ecu->obd_service.tests_results_other = list_Buffer_new();
+    ecu->obd_service.control_operation = list_Buffer_new();
+    ecu->obd_service.pending_dtc = list_Buffer_new();
+    ecu->obd_service.none = list_Buffer_new();
+    ecu->obd_service.current_dtc = list_Buffer_new();
+    ecu->obd_service.clear_dtc = list_Buffer_new();
+    ecu->obd_service.request_vehicle_information = list_Buffer_new();
+    ecu->obd_service.permanent_dtc = list_Buffer_new();
     return ecu;
 }
 
 void vehicle_ecu_empty(ECU* ecu) {
-    Buffer_list_empty(ecu->data_buffer);
+    list_Buffer_empty(ecu->data_buffer);
     vehicle_ecu_empty_duplicated_info(ecu);
 }
 void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
-    Buffer_list_empty(ecu->obd_service.current_data);
-    Buffer_list_empty(ecu->obd_service.freeze_frame_data);
-    Buffer_list_empty(ecu->obd_service.tests_results);
-    Buffer_list_empty(ecu->obd_service.tests_results_other);
-    Buffer_list_empty(ecu->obd_service.control_operation);
-    Buffer_list_empty(ecu->obd_service.pending_dtc);
-    Buffer_list_empty(ecu->obd_service.none);
-    Buffer_list_empty(ecu->obd_service.current_dtc);
-    Buffer_list_empty(ecu->obd_service.clear_dtc);
-    Buffer_list_empty(ecu->obd_service.request_vehicle_information);
-    Buffer_list_empty(ecu->obd_service.permanent_dtc);
+    list_Buffer_empty(ecu->obd_service.current_data);
+    list_Buffer_empty(ecu->obd_service.freeze_frame_data);
+    list_Buffer_empty(ecu->obd_service.tests_results);
+    list_Buffer_empty(ecu->obd_service.tests_results_other);
+    list_Buffer_empty(ecu->obd_service.control_operation);
+    list_Buffer_empty(ecu->obd_service.pending_dtc);
+    list_Buffer_empty(ecu->obd_service.none);
+    list_Buffer_empty(ecu->obd_service.current_dtc);
+    list_Buffer_empty(ecu->obd_service.clear_dtc);
+    list_Buffer_empty(ecu->obd_service.request_vehicle_information);
+    list_Buffer_empty(ecu->obd_service.permanent_dtc);
 }
 void vehicle_ecu_free(ECU* ecu) {
-    Buffer_list_free(ecu->data_buffer);
+    list_Buffer_free(ecu->data_buffer);
     if ( ecu->address != null ) {
         free(ecu->address);
         ecu->address = null;
@@ -93,7 +93,7 @@ Vehicle * vehicle_new() {
     Vehicle * v = (Vehicle *)malloc(sizeof(Vehicle));
     v->ecus = null;
     v->ecus_len = 0;
-    v->data_buffer = Buffer_list_new();
+    v->data_buffer = list_Buffer_new();
     v->country = null;
     v->manufacturer = null;
     v->year = VEHICLE_YEAR_EMPTY;
@@ -105,7 +105,7 @@ Vehicle * vehicle_new() {
 
 void vehicle_free(Vehicle * v) {
     if ( v != null ) {
-        Buffer_list_free(v->data_buffer);
+        list_Buffer_free(v->data_buffer);
         if ( v->ecus != null ) {
             for(int i = 0; i < v->ecus_len; i++) {
                 vehicle_ecu_free(v->ecus[i]);
@@ -127,11 +127,11 @@ void vehicle_free(Vehicle * v) {
 }
 
 void vehicle_fill_global_obd_data_from_ecus(Vehicle* v) {
-    Buffer_list_empty(v->data_buffer);
+    list_Buffer_empty(v->data_buffer);
     for ( int i = 0; i < v->ecus_len; i++) {
         ECU* ecu = v->ecus[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
-            Buffer_list_append(v->data_buffer,buffer_copy(ecu->data_buffer->list[j]));
+            list_Buffer_append(v->data_buffer,buffer_copy(ecu->data_buffer->list[j]));
         }
     }
 }
@@ -150,7 +150,7 @@ void vehicle_debug(Vehicle* v) {
 void vehicle_dump(Vehicle* v) {
     log_msg(LOG_DEBUG, "Vehicle dump");
     log_msg(LOG_DEBUG, "Global data");
-    Buffer_list_dump(v->data_buffer);
+    list_Buffer_dump(v->data_buffer);
     for(int i = 0; i < v->ecus_len; i++) {
         log_msg(LOG_DEBUG, "Dump of one ECU");
         ECU * ecu = v->ecus[i];
@@ -158,37 +158,37 @@ void vehicle_dump(Vehicle* v) {
         Buffer * address = ecu->address;
         buffer_dump(address);
         log_msg(LOG_DEBUG, "content");
-        Buffer_list_dump(ecu->data_buffer);
+        list_Buffer_dump(ecu->data_buffer);
 
         log_msg(LOG_DEBUG, "in current_data");
-        Buffer_list_dump(ecu->obd_service.current_data);
+        list_Buffer_dump(ecu->obd_service.current_data);
         log_msg(LOG_DEBUG, "in freeze_frame_data");
-        Buffer_list_dump(ecu->obd_service.freeze_frame_data);
+        list_Buffer_dump(ecu->obd_service.freeze_frame_data);
         log_msg(LOG_DEBUG, "in tests_results");
-        Buffer_list_dump(ecu->obd_service.tests_results);
+        list_Buffer_dump(ecu->obd_service.tests_results);
         log_msg(LOG_DEBUG, "in tests_results_other");
-        Buffer_list_dump(ecu->obd_service.tests_results_other);
+        list_Buffer_dump(ecu->obd_service.tests_results_other);
         log_msg(LOG_DEBUG, "in control_operation");
-        Buffer_list_dump(ecu->obd_service.control_operation);
+        list_Buffer_dump(ecu->obd_service.control_operation);
         log_msg(LOG_DEBUG, "in pending_dtc");
-        Buffer_list_dump(ecu->obd_service.pending_dtc);
+        list_Buffer_dump(ecu->obd_service.pending_dtc);
         log_msg(LOG_DEBUG, "in none");
-        Buffer_list_dump(ecu->obd_service.none);
+        list_Buffer_dump(ecu->obd_service.none);
         log_msg(LOG_DEBUG, "in current_dtc");
-        Buffer_list_dump(ecu->obd_service.current_dtc);
+        list_Buffer_dump(ecu->obd_service.current_dtc);
         log_msg(LOG_DEBUG, "in clear_dtc");
-        Buffer_list_dump(ecu->obd_service.clear_dtc);
+        list_Buffer_dump(ecu->obd_service.clear_dtc);
         log_msg(LOG_DEBUG, "in request_vehicle_information");
-        Buffer_list_dump(ecu->obd_service.request_vehicle_information);
+        list_Buffer_dump(ecu->obd_service.request_vehicle_information);
         log_msg(LOG_DEBUG, "in permanent_dtc");
-        Buffer_list_dump(ecu->obd_service.permanent_dtc);
+        list_Buffer_dump(ecu->obd_service.permanent_dtc);
     
     }
 }
 
 LIST_SRC(Vehicle)
 
-void Vehicle_list_empty(Vehicle_list * list) {
+void list_Vehicle_empty(list_Vehicle * list) {
     assert(list != null);
     for(int i = 0; i < list->size; i ++) {
         if ( list->list[i] != null ) {

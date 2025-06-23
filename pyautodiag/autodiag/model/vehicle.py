@@ -1,25 +1,25 @@
 from autodiag.libloader import *
-from autodiag.buffer import Buffer, Buffer_list
+from autodiag.buffer import Buffer, list_Buffer
 from autodiag.lib import *
 
 class ECU_OBDService(Structure):
     _fields_ = [
-        ('current_dtc', POINTER(Buffer_list)),
-        ('pending_dtc', POINTER(Buffer_list)),
-        ('permanent_dtc', POINTER(Buffer_list)),
-        ('current_data', POINTER(Buffer_list)),
-        ('freeze_frame_data', POINTER(Buffer_list)),
-        ('tests_results', POINTER(Buffer_list)),
-        ('tests_results_other', POINTER(Buffer_list)),
-        ('clear_dtc', POINTER(Buffer_list)),
-        ('request_vehicle_information', POINTER(Buffer_list)),
-        ('control_operation', POINTER(Buffer_list)),
-        ('none', POINTER(Buffer_list)),
+        ('current_dtc', POINTER(list_Buffer)),
+        ('pending_dtc', POINTER(list_Buffer)),
+        ('permanent_dtc', POINTER(list_Buffer)),
+        ('current_data', POINTER(list_Buffer)),
+        ('freeze_frame_data', POINTER(list_Buffer)),
+        ('tests_results', POINTER(list_Buffer)),
+        ('tests_results_other', POINTER(list_Buffer)),
+        ('clear_dtc', POINTER(list_Buffer)),
+        ('request_vehicle_information', POINTER(list_Buffer)),
+        ('control_operation', POINTER(list_Buffer)),
+        ('none', POINTER(list_Buffer)),
     ]
 
 class ECU(Structure):
     _fields_ = [
-        ('data_buffer', POINTER(Buffer_list)),
+        ('data_buffer', POINTER(list_Buffer)),
         ('address', POINTER(Buffer)),
         ('name', c_char_p),
         ('model', c_char_p),
@@ -50,7 +50,7 @@ class Vehicle(Structure):
     _fields_ = [
         ('ecus', POINTER(POINTER(ECU))),
         ('ecus_len', c_int),
-        ('data_buffer', POINTER(Buffer_list)),
+        ('data_buffer', POINTER(list_Buffer)),
         ('vin', POINTER(Buffer)),
         ('country', c_char_p),
         ('manufacturer', c_char_p),

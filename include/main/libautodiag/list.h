@@ -24,22 +24,22 @@
     typedef struct { \
         int size; \
         element_type **list; \
-    } element_type##_list;
+    } list_##element_type;
 
 #define LIST_H(element_type) \
     LIST_H_STRUCT(element_type) \
-    LIST_H_NEW(element_type##_list); \
-    LIST_H_FREE(element_type##_list); \
-    LIST_H_APPEND(element_type##_list,element_type); \
-    LIST_H_REMOVE(element_type##_list,element_type); \
-    LIST_H_REMOVE_AT(element_type##_list,element_type);
+    LIST_H_NEW(list_##element_type); \
+    LIST_H_FREE(list_##element_type); \
+    LIST_H_APPEND(list_##element_type,element_type); \
+    LIST_H_REMOVE(list_##element_type,element_type); \
+    LIST_H_REMOVE_AT(list_##element_type,element_type);
 
 #define LIST_SRC(element_type) \
-    LIST_SRC_NEW(element_type##_list) \
-    LIST_SRC_FREE(element_type##_list) \
-    LIST_SRC_APPEND(element_type##_list,element_type) \
-    LIST_SRC_REMOVE(element_type##_list,element_type) \
-    LIST_SRC_REMOVE_AT(element_type##_list,element_type)
+    LIST_SRC_NEW(list_##element_type) \
+    LIST_SRC_FREE(list_##element_type) \
+    LIST_SRC_APPEND(list_##element_type,element_type) \
+    LIST_SRC_REMOVE(list_##element_type,element_type) \
+    LIST_SRC_REMOVE_AT(list_##element_type,element_type)
 
 #define LIST_H_NEW(type) type* type##_new()
 #define LIST_SRC_NEW(type) LIST_H_NEW(type) { \
@@ -84,7 +84,7 @@
  * Where comparator has the shape bool sym(type_value* element, searched)
  * the type of searched depends of what the comparator decide to define
  */
-#define LIST_H_FIND(element_type, searched_type) element_type* element_type##_list_find(element_type##_list* list, searched_type searched)
+#define LIST_H_FIND(element_type, searched_type) element_type* list_##element_type##_find(list_##element_type* list, searched_type searched)
 #define LIST_SRC_FIND(element_type,searched_type,comparator) LIST_H_FIND(element_type, searched_type) { \
     for(int i = 0; i < list->size; i++) {\
         if ( comparator(list->list[i],searched) ) { \

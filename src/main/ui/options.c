@@ -53,8 +53,8 @@ int ensure_serial_in_list(final Serial * port) {
     if ( port == null ) {
         return 1;
     }
-    for(int i = 0;i < serial_list.size; i++) {
-        if ( serial_list.list[i] == port ) {
+    for(int i = 0;i < list_serial.size; i++) {
+        if ( list_serial.list[i] == port ) {
             return 1;
         }
     }
@@ -120,16 +120,16 @@ void options_save() {
     options_hide_window();
 }
 
-void options_serial_list_refresh() {
-    serial_list_fill();
+void options_list_serial_refresh() {
+    list_serial_fill();
     if ( optionsGui->serialList == null ) {
         module_debug(MODULE_OPTIONS "Cannot process with gui attached");
     } else {
         gtk_combo_box_text_remove_all(optionsGui->serialList);
-        for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
-            final Serial * port = serial_list.list[serial_i];
+        for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
+            final Serial * port = list_serial.list[serial_i];
             gtk_combo_box_text_append(optionsGui->serialList,NULL,port->location);
-            if ( port == serial_list_get_selected() ) {
+            if ( port == list_serial_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             }
         }
@@ -191,8 +191,8 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     return TRUE;
 }
 void options_set_serial_select_from_location(char * location) {
-    for(int serial_i = 0; serial_i < serial_list.size; serial_i++) {
-        final Serial * port = serial_list.list[serial_i];
+    for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
+        final Serial * port = list_serial.list[serial_i];
         if ( strcmp(location, port->location) == 0 ) {
             gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
             break;
@@ -202,7 +202,7 @@ void options_set_serial_select_from_location(char * location) {
 
 void options_show_window() {
     gtk_widget_show_now (optionsGui->window);
-    options_serial_list_refresh();
+    options_list_serial_refresh();
     options_fill_vehicle_infos();
     gtk_toggle_button_set_active(optionsGui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(optionsGui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
@@ -241,7 +241,7 @@ gboolean options_launch_simulation_set_pending_text(gpointer data) {
 gboolean options_launch_simulation_update_gui(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
-    options_serial_list_refresh();
+    options_list_serial_refresh();
 
     char * fmt = elm327->device_location == null ? 
             "Simulation not started ..." 
@@ -266,7 +266,7 @@ void options_launch_simulation_internal() {
 
     for (GList *iter = rows; iter != NULL; iter = iter->next) {
         if ( firstPass ) {
-            SimECU_list_empty(elm327->ecus);
+            list_SimECU_empty(elm327->ecus);
             firstPass = false;
         }
         GtkWidget *row = GTK_WIDGET(iter->data);
@@ -304,7 +304,7 @@ void options_launch_simulation_internal() {
         }
 
         g_list_free(children);
-        SimECU_list_append(elm327->ecus,ecu);
+        list_SimECU_append(elm327->ecus,ecu);
     }
     g_list_free(rows);
 
@@ -376,7 +376,7 @@ void module_init_options(GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&options_cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&options_save);
         gtk_builder_add_callback_symbol(builder,"show-window-options",&options_show_window);
-        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&options_serial_list_refresh);
+        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&options_list_serial_refresh);
     } else {
     
     }
