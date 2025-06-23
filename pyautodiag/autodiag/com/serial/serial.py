@@ -17,7 +17,7 @@ class Serial(Structure):
         ("echo", bool),
         ("baud_rate", c_int),
         ("status", SerialStatus),
-        ("name", char_p),
+        ("location", char_p),
         ("eol", char_p),
         ("timeout", c_int),
         ("timeout_seq", c_int),
@@ -41,7 +41,7 @@ class Serial(Structure):
             location = location.decode()
         if not isinstance(location, str):
             raise TypeError("location must be a string")
-        self.name = location.encode()
+        self.location = location.encode()
 
     def init(self):
         lib.serial_init.argtypes = [POINTER(Serial)]
@@ -94,7 +94,7 @@ class Serial(Structure):
         print(f"  echo: {self.echo}")
         print(f"  baud_rate: {self.baud_rate}")
         print(f"  status: {self.status}")
-        print(f"  name: {self.name.decode('utf-8') if self.name else None}")
+        print(f"  location: {self.location.decode('utf-8') if self.location else None}")
         print(f"  eol: {self.eol.decode('utf-8') if self.eol else None}")
         print(f"  timeout: {self.timeout}")
         print(f"  timeout_seq: {self.timeout_seq}")
@@ -134,45 +134,6 @@ class Serial(Structure):
         lib.serial_describe_status.restype = char_p
         return lib.serial_describe_status(pointer(self)).decode('utf-8')
 
-    @staticmethod
-    def strip_char(buffer: Buffer, char_to_strip: str):
-        lib.serial_strip_char.argtypes = [POINTER(Buffer), char_p]
-        lib.serial_strip_char.restype = None
-        lib.serial_strip_char(pointer(buffer), char_to_strip.encode('utf-8'))
-
-    @staticmethod
-    def strip_char_internal(buffer: Buffer, char_to_strip: str, start: bool, end: bool):
-        lib.serial_strip_char_internal.argtypes = [POINTER(Buffer), char_p, bool, bool]
-        lib.serial_strip_char_internal.restype = None
-        lib.serial_strip_char_internal(pointer(buffer), char_to_strip.encode('utf-8'), start, end)
-
-    @staticmethod
-    def status_to_string(status: SerialStatus) -> str:
-        lib.serial_status_to_string.argtypes = [SerialStatus]
-        lib.serial_status_to_string.restype = char_p
-        res = lib.serial_status_to_string(status)
-        return res.decode('utf-8') if res else None
-
-    @staticmethod
-    def at_command(fmt: str, *args) -> str:
-        lib.at_command.argtypes = [char_p]
-        lib.at_command.restype = char_p
-        cmd = fmt % args
-        res = lib.at_command(cmd.encode('utf-8'))
-        return res.decode('utf-8') if res else None
-
-    @staticmethod
-    def at_command_boolean(cmd: str, state: bool) -> bool:
-        lib.at_command_boolean.argtypes = [char_p, bool]
-        lib.at_command_boolean.restype = bool
-        return lib.at_command_boolean(cmd.encode('utf-8'), state)
-
-    @staticmethod
-    def is_command(command: str) -> bool:
-        lib.at_is_command.argtypes = [char_p]
-        lib.at_is_command.restype = bool
-        return lib.at_is_command(command.encode('utf-8'))
-
     def describe_communication_layer(self) -> str:
         lib.serial_describe_communication_layer.argtypes = [POINTER(Serial)]
         lib.serial_describe_communication_layer.restype = char_p
@@ -195,15 +156,3 @@ class Serial(Structure):
         lib.serial_reset_to_default.argtypes = [POINTER(Serial)]
         lib.serial_reset_to_default.restype = None
         lib.serial_reset_to_default(pointer(self))
-
-    @staticmethod
-    def at_command_search(string: str, atcmd: str) -> bool:
-        lib.serial_at_command_search.argtypes = [char_p, char_p]
-        lib.serial_at_command_search.restype = bool
-        return lib.serial_at_command_search(string.encode('utf-8'), atcmd.encode('utf-8'))
-
-    @staticmethod
-    def at_index_end(string: str, atcmd: str) -> int:
-        lib.serial_at_index_end.argtypes = [char_p, char_p]
-        lib.serial_at_index_end.restype = c_int
-        return lib.serial_at_index_end(string.encode('utf-8'), atcmd.encode('utf-8'))
