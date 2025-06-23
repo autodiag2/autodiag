@@ -8286,7 +8286,6 @@ What can be done:
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
                         <property name="margin-start">5</property>
                         <property name="margin-end">5</property>
                         <property name="margin-top">5</property>
@@ -8319,6 +8318,7 @@ What can be done:
                           <object class="GtkBox">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
+                            <property name="halign">center</property>
                             <property name="margin-start">5</property>
                             <property name="margin-end">5</property>
                             <property name="margin-top">5</property>
