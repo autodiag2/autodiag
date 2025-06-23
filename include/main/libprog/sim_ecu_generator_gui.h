@@ -27,5 +27,6 @@ typedef struct {
 SimECUGenerator* sim_ecu_generator_new_gui();
 SimECUGeneratorGui * sim_ecu_generator_gui_show(SimECUGeneratorGui *simGui);
 SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generator, char * ecuDesignation);
+gboolean sim_ecu_generator_gui_show_gsource(gpointer data);
 
 #endif

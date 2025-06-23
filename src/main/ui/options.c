@@ -227,6 +227,12 @@ void options_launch_simulation_internal() {
         ecu->generator = sim_ecu_generator_new_cycle();
     } else if ( strcasecmp(type, "citroen_c5_x7") == 0 ) {
         ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+    } else if ( strcasecmp(type, "gui") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_gui();
+        char address[3];
+        sprintf(address, "%02hhX", ecu->address);
+        sim_ecu_generator_gui_set_context(ecu->generator, address);
+        g_idle_add(sim_ecu_generator_gui_show_gsource, ecu->generator->context);
     } else {
         log_msg(LOG_ERROR, "Uknown generator type: '%s'", type);
     }

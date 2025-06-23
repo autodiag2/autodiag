@@ -8181,6 +8181,7 @@ What can be done:
                       <item translatable="yes">citroen_c5_x7</item>
                       <item translatable="yes">random</item>
                       <item translatable="yes">cycle</item>
+                      <item translatable="yes">gui</item>
                     </items>
                   </object>
                   <packing>

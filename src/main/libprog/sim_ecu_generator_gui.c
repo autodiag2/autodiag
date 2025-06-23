@@ -111,6 +111,12 @@ void sim_ecu_generator_gui_add_dtc(GtkButton *button, gpointer user_data) {
     }
 }
 
+gboolean sim_ecu_generator_gui_show_gsource(gpointer data) {
+    SimECUGeneratorGui * gui = (SimECUGeneratorGui*)data;
+    sim_ecu_generator_gui_show(gui);
+    return false;
+}
+
 SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generator, char * ecuDesignation) {
 
     gtk_init(0, NULL);
