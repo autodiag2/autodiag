@@ -16,7 +16,7 @@
 #endif
 
 LIST_H_STRUCT(Serial)
-LIST_H_APPEND(list_Serial,Serial);
+LIST_H_APPEND(Serial);
 
 extern list_Serial list_serial;
 extern int list_serial_selected;

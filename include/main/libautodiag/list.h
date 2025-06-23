@@ -28,29 +28,29 @@
 
 #define LIST_H(element_type) \
     LIST_H_STRUCT(element_type) \
-    LIST_H_NEW(list_##element_type); \
-    LIST_H_FREE(list_##element_type); \
-    LIST_H_APPEND(list_##element_type,element_type); \
-    LIST_H_REMOVE(list_##element_type,element_type); \
-    LIST_H_REMOVE_AT(list_##element_type,element_type);
+    LIST_H_NEW(element_type); \
+    LIST_H_FREE(element_type); \
+    LIST_H_APPEND(element_type); \
+    LIST_H_REMOVE(element_type); \
+    LIST_H_REMOVE_AT(element_type);
 
 #define LIST_SRC(element_type) \
-    LIST_SRC_NEW(list_##element_type) \
-    LIST_SRC_FREE(list_##element_type) \
-    LIST_SRC_APPEND(list_##element_type,element_type) \
-    LIST_SRC_REMOVE(list_##element_type,element_type) \
-    LIST_SRC_REMOVE_AT(list_##element_type,element_type)
+    LIST_SRC_NEW(element_type) \
+    LIST_SRC_FREE(element_type) \
+    LIST_SRC_APPEND(element_type) \
+    LIST_SRC_REMOVE(element_type) \
+    LIST_SRC_REMOVE_AT(element_type)
 
-#define LIST_H_NEW(type) type* type##_new()
-#define LIST_SRC_NEW(type) LIST_H_NEW(type) { \
-    type* list = (type*) malloc(sizeof(type)); \
+#define LIST_H_NEW(element_type) list_##element_type* list_##element_type##_new()
+#define LIST_SRC_NEW(element_type) LIST_H_NEW(element_type) { \
+    list_##element_type* list = (list_##element_type*) malloc(sizeof(list_##element_type)); \
     list->size = 0; \
     list->list = null; \
     return list; \
 }
 
-#define LIST_H_FREE(type) void type##_free(type* list)
-#define LIST_SRC_FREE(type) LIST_H_FREE(type) { \
+#define LIST_H_FREE(element_type) void list_##element_type##_free(list_##element_type* list)
+#define LIST_SRC_FREE(element_type) LIST_H_FREE(element_type) { \
    if (list->list != null ) {\
         for(int i = 0; i < list->size; i ++) {\
             free(list->list[i]);\
@@ -60,14 +60,14 @@
     } \
 }
 
-#define LIST_H_APPEND(type,type_value) void type##_append(type * list, type_value* value) 
-#define LIST_SRC_APPEND(type,type_value) LIST_H_APPEND(type,type_value) { \
-    list->list = (type_value**)realloc(list->list, sizeof(type_value*) * (++list->size)); \
+#define LIST_H_APPEND(element_type) void list_##element_type##_append(list_##element_type * list, element_type* value) 
+#define LIST_SRC_APPEND(element_type) LIST_H_APPEND(element_type) { \
+    list->list = (element_type**)realloc(list->list, sizeof(element_type*) * (++list->size)); \
     list->list[list->size-1] = value; \
 }
 
-#define LIST_H_EMPTY(type) void type##_empty(type * list)
-#define LIST_SRC_EMPTY(type, element_free) LIST_H_EMPTY(type) { \
+#define LIST_H_EMPTY(element_type) void list_##element_type##_empty(list_##element_type * list)
+#define LIST_SRC_EMPTY(element_type, element_free) LIST_H_EMPTY(element_type) { \
     assert(list != null); \
     for(int i = 0; i < list->size; i ++) { \
         if ( list->list[i] != null ) { \
@@ -81,7 +81,7 @@
 }
 
 /**
- * Where comparator has the shape bool sym(type_value* element, searched)
+ * Where comparator has the shape bool sym(element_type* element, searched)
  * the type of searched depends of what the comparator decide to define
  */
 #define LIST_H_FIND(element_type, searched_type) element_type* list_##element_type##_find(list_##element_type* list, searched_type searched)
@@ -97,8 +97,8 @@
 /**
  * Remove an element given as a pointer from the given list using address based comparision
  */
-#define LIST_H_REMOVE(type,type_value) bool type##_remove(type* list, type_value* element)
-#define LIST_SRC_REMOVE(type,type_value) LIST_H_REMOVE(type,type_value) { \
+#define LIST_H_REMOVE(element_type) bool list_##element_type##_remove(list_##element_type* list, element_type* element)
+#define LIST_SRC_REMOVE(element_type) LIST_H_REMOVE(element_type) { \
     int index = -1; \
     for(int i = 0; i < list->size; i++) {\
         if ( 0 <= index ) { \
@@ -113,17 +113,17 @@
             free(list->list); \
             list->list = null; \
         } else { \
-            list->list = (type_value**)realloc(list->list, sizeof(type_value*) * (list->size)); \
+            list->list = (element_type**)realloc(list->list, sizeof(element_type*) * (list->size)); \
         } \
     } \
     return 0 <= index; \
 }
 
-#define LIST_H_REMOVE_AT(type, type_value) type_value* type##_remove_at(type* list, int i)
-#define LIST_SRC_REMOVE_AT(type, type_value) LIST_H_REMOVE_AT(type,type_value) { \
+#define LIST_H_REMOVE_AT(element_type) element_type* list_##element_type##_remove_at(list_##element_type* list, int i)
+#define LIST_SRC_REMOVE_AT(element_type) LIST_H_REMOVE_AT(element_type) { \
     assert(list != null); \
     assert(i < list->size); \
-    final type_value * res = list->list[i]; \
+    final element_type * res = list->list[i]; \
     for(int j = i; j < (list->size-1); j++) { \
         list->list[j] = list->list[j+1]; \
     } \

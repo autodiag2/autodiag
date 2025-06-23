@@ -35,7 +35,7 @@ Serial * list_serial_add_if_not_in_by_location(char * location) {
     }
 }
 
-LIST_SRC_APPEND(list_Serial,Serial)
+LIST_SRC_APPEND(Serial)
 
 int list_Serial_index_from_location(char *location) {
     assert(location != null);
