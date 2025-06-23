@@ -54,7 +54,7 @@ void vehicle_explorer_data_freeze_frame() {
 }
 
 gboolean vehicle_explorer_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-   module_debug(MODULE_VEHICULE_DIAGNOSTIC "Close event received");
+   module_debug(MODULE_VEHICLE_DIAGNOSTIC "Close event received");
    THREAD_CANCEL(vehicle_explorer_refresh_dynamic_thread);
    gtk_widget_hide(vdgui->window);
    return true;
@@ -110,7 +110,7 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_intake_manifold_pressure,
 )
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_maf_air_flow_rate,
     double,
-    SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MIN,SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MAX,SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_ERROR,
+    SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MIN,SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MAX,SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR,
     "%.2f g/s", vdgui->engine.intakeAir.mafRate
 )
 
@@ -146,7 +146,7 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_load,
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_vehicle_speed,
     int,
-    SAEJ1979_DATA_VEHICULE_SPEED_MIN,SAEJ1979_DATA_VEHICULE_SPEED_MAX,SAEJ1979_DATA_VEHICULE_SPEED_ERROR,"%d km/h", 
+    SAEJ1979_DATA_VEHICLE_SPEED_MIN,SAEJ1979_DATA_VEHICLE_SPEED_MAX,SAEJ1979_DATA_VEHICLE_SPEED_ERROR,"%d km/h", 
     vdgui->engine.vehicleSpeed
 )
 
@@ -398,9 +398,9 @@ void vehicle_explorer_refresh_dynamic() {
     if ( vehicle_explorer_refresh_dynamic_thread == null ) {
         vehicle_explorer_refresh_dynamic_thread = (pthread_t*)malloc(sizeof(pthread_t));
         if ( pthread_create(vehicle_explorer_refresh_dynamic_thread, null, &vehicle_explorer_refresh_dynamic_daemon, null) == 0 ) {
-            module_debug(MODULE_VEHICULE_DIAGNOSTIC "Checker thread created");
+            module_debug(MODULE_VEHICLE_DIAGNOSTIC "Checker thread created");
         } else {
-            module_debug(MODULE_VEHICULE_DIAGNOSTIC "Fatal erro during thead creation");
+            module_debug(MODULE_VEHICLE_DIAGNOSTIC "Fatal erro during thead creation");
         }
     }
 }
@@ -900,7 +900,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&vehicle_explorer_freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&vehicle_explorer_data_freeze_frame);
     } else {
-        module_debug(MODULE_VEHICULE_DIAGNOSTIC "module already initialized");
+        module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
     }
 }
 

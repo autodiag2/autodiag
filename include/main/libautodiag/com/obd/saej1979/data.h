@@ -209,9 +209,9 @@ double saej1979_data_engine_speed(final OBDIFace* iface, bool useFreezedData);
     if ( 0 < data->size ) \
         result = (int)((unsigned char)data->buffer[0]); 
 
-#define SAEJ1979_DATA_VEHICULE_SPEED_MIN 0
-#define SAEJ1979_DATA_VEHICULE_SPEED_MAX 255
-#define SAEJ1979_DATA_VEHICULE_SPEED_ERROR -1
+#define SAEJ1979_DATA_VEHICLE_SPEED_MIN 0
+#define SAEJ1979_DATA_VEHICLE_SPEED_MAX 255
+#define SAEJ1979_DATA_VEHICLE_SPEED_ERROR -1
 int saej1979_data_vehicle_speed(final OBDIFace* iface, bool useFreezedData);
 /**
  * Service 0*0E
@@ -246,9 +246,9 @@ int saej1979_data_intake_air_temperature(final OBDIFace* iface, bool useFreezedD
     if ( 1 < data->size ) \
         result = saej1979_data_buffer_get_short(data) / 100.0;
 
-#define SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MIN 0
-#define SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_MAX 655.35
-#define SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_ERROR -1
+#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MIN 0
+#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MAX 655.35
+#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR -1
 double saej1979_data_maf_air_flow_rate(final OBDIFace* iface, bool useFreezedData);
 /**
  * Service 0*11

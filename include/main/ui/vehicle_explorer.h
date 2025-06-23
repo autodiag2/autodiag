@@ -1,7 +1,7 @@
-#ifndef __VEHICULE_DIAGNOSTIC_H
-#define __VEHICULE_DIAGNOSTIC_H
+#ifndef __VEHICLE_DIAGNOSTIC_H
+#define __VEHICLE_DIAGNOSTIC_H
 
-#define MODULE_VEHICULE_DIAGNOSTIC "Vehicle Diagnostic",
+#define MODULE_VEHICLE_DIAGNOSTIC "Vehicle Diagnostic",
 
 #include "ui.h"
 #include "libautodiag/com/obd/obd.h"

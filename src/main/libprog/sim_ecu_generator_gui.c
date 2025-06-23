@@ -1,5 +1,23 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
+void sim_ecu_generator_gui_data_coolant_temperature_set(SimECUGeneratorGui *gui, int temperature) {
+    char *res;
+    asprintf(&res, "%d °C", temperature);
+    counter_set_label(gui->data.coolantTemperature, res);
+    free(res);
+}
+void sim_ecu_generator_gui_data_engine_speed_set(SimECUGeneratorGui *gui, double speed) {
+    char *res;
+    asprintf(&res, "%.2f r/min", speed);
+    counter_set_label(gui->data.engineSpeed, res);
+    free(res);
+}
+void sim_ecu_generator_gui_data_vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
+    char *res;
+    asprintf(&res, "%d km/h", speed);
+    counter_set_label(gui->data.vehicleSpeed, res);
+    free(res);
+}
 void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
@@ -25,10 +43,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                         int value = percent * span;
                         buffer_append_byte(binResponse, (byte)(value));
-                        char *res;
-                        asprintf(&res, "%d °C", value - 40);
-                        counter_set_label(gui->data.coolantTemperature, res);
-                        free(res);
+                        sim_ecu_generator_gui_data_coolant_temperature_set(gui, value + SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
                     } break;
                     case 0x0C: {
                         gdouble percent = counter_get_fraction(gui->data.engineSpeed);
@@ -38,20 +53,14 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         byte bB = 0xFF & value;
                         buffer_append_byte(binResponse, bA);
                         buffer_append_byte(binResponse, bB);
-                        char *res;
-                        asprintf(&res, "%.2f r/min", value/4.0);
-                        counter_set_label(gui->data.engineSpeed, res);
-                        free(res);
+                        sim_ecu_generator_gui_data_engine_speed_set(gui, value/4.0 + SAEJ1979_DATA_ENGINE_SPEED_MIN);
                     } break;
                     case 0x0D: {
                         gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
-                        byte span = SAEJ1979_DATA_VEHICULE_SPEED_MAX - SAEJ1979_DATA_VEHICULE_SPEED_MIN;
+                        byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
                         int value = percent * span;
                         buffer_append_byte(binResponse, (byte)value);
-                        char *res;
-                        asprintf(&res, "%d km/h", value);
-                        counter_set_label(gui->data.vehicleSpeed, res);
-                        free(res);
+                        sim_ecu_generator_gui_data_vehicle_speed_set(gui, value + SAEJ1979_DATA_VEHICLE_SPEED_MIN);
                     } break;
                 }
             }
@@ -165,6 +174,10 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
 
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
+
+    sim_ecu_generator_gui_data_coolant_temperature_set(simGui, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
+    sim_ecu_generator_gui_data_engine_speed_set(simGui, SAEJ1979_DATA_ENGINE_SPEED_MIN);
+    sim_ecu_generator_gui_data_vehicle_speed_set(simGui, SAEJ1979_DATA_VEHICLE_SPEED_MIN);
 
     generator->context = (void *)simGui;
 

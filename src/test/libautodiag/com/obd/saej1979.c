@@ -10,7 +10,7 @@ bool testSAEJ1979(OBDIFace* iface) {
         for(int i = 0; i < 5; i++) {
             int result = saej1979_data_vehicle_speed(iface, false);
             testOutput("current vehicle speed: %d km/h", result);
-            assert(SAEJ1979_DATA_VEHICULE_SPEED_ERROR != result);
+            assert(SAEJ1979_DATA_VEHICLE_SPEED_ERROR != result);
         }
     }
     {
@@ -21,7 +21,7 @@ bool testSAEJ1979(OBDIFace* iface) {
     {
         double result = saej1979_data_maf_air_flow_rate(iface, false);
         testOutput("current maf air flow rate: %.2f g/s", result);
-        assert(SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_ERROR != result);
+        assert(SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR != result);
     }
     {
         double result = saej1979_data_throttle_position(iface, false);

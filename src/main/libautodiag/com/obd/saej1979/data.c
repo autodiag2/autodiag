@@ -389,7 +389,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_vehicle_speed,
                         "0D",
                         saej1979_data_vehicle_speed_iterator,
-                        SAEJ1979_DATA_VEHICULE_SPEED_ERROR
+                        SAEJ1979_DATA_VEHICLE_SPEED_ERROR
                     )
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
@@ -413,7 +413,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_maf_air_flow_rate,
                         "10",
                         saej1979_data_maf_air_flow_rate_iterator,
-                        SAEJ1979_DATA_VEHICULE_MAF_AIR_FLOW_RATE_ERROR
+                        SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR
                     )
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
