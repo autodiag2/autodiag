@@ -23,12 +23,12 @@ SERIAL serial_list_add_if_not_in(SERIAL element) {
     return element;
 }
 
-SERIAL serial_list_add_if_not_in_by_name(char * name) {
-    SERIAL serial = serial_list_find_by_name(name);
+SERIAL serial_list_add_if_not_in_by_location(char * location) {
+    SERIAL serial = serial_list_find_by_name(location);
     if ( serial == null ) {
         Serial_list_append(&serial_list, serial_new());
         final SERIAL newOne = serial_list.list[serial_list.size-1];
-        serial_set_name(newOne,name);
+        serial_set_location(newOne,location);
         return newOne;
     } else {
         return serial;
@@ -107,7 +107,7 @@ void serial_list_free() {
                 sscanf(portName, "%*[^(](%[^)])", formattedPortName);
                 snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
 
-                final SERIAL serial = serial_list_add_if_not_in_by_name(formattedPortNameFullPath);
+                final SERIAL serial = serial_list_add_if_not_in_by_location(formattedPortNameFullPath);
                 serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
@@ -139,7 +139,7 @@ void serial_list_free() {
             if (strncmp(findFileData.cFileName, SERIAL_LIST_PIPE_PREFIX, strlen(SERIAL_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
-                final SERIAL serial = serial_list_add_if_not_in_by_name(pipeFullPath);
+                final SERIAL serial = serial_list_add_if_not_in_by_location(pipeFullPath);
                 serial->detected = true;
                 if ( serial_list_selected == SERIAL_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,pipeFullPath) == 0 ) {
@@ -178,7 +178,7 @@ void serial_list_free() {
                                 char *serial_path ;
                                 assert(0 < strlen(dir));
                                 asprintf(&serial_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
-                                final SERIAL serial = serial_list_add_if_not_in_by_name(serial_path);
+                                final SERIAL serial = serial_list_add_if_not_in_by_location(serial_path);
                                 serial->detected = true;
                                 if ( access(serial_path,R_OK|W_OK) == 0 ) {
                                     module_debug(MODULE_SERIAL "    All permissions granted");

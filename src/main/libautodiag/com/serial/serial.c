@@ -478,12 +478,12 @@ void serial_debug(final SERIAL port) {
     }
 }
 
-void serial_set_name(final Serial * port, final char *name) {
+void serial_set_location(final Serial * port, final char *location) {
     if ( port->location != NULL ) {
         free(port->location);
     }
-    port->location = (char *)malloc(sizeof(char) * (1 + strlen(name)));
-    strcpy(port->location, name);
+    port->location = (char *)malloc(sizeof(char) * (strlen(location) + 1));
+    strcpy(port->location, location);
 }
 
 char * serial_status_to_string(final SerialStatus status) {
