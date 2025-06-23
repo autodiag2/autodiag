@@ -7,7 +7,7 @@
 #   include <dirent.h>
 #elif defined OS_WINDOWS
 
-#   include <windows.h>
+#   include "libautodiag/windows.h"
 #   include <stdlib.h>
 #   include <string.h>
 #   include <stdio.h>

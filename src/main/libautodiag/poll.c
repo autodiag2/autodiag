@@ -1,12 +1,5 @@
 #include "libautodiag/poll.h"
 
-#if defined OS_WINDOWS
-    bool isComport(HANDLE file) {
-        DCB dcb;
-        return GetCommState(file,&dcb);
-    }
-#endif
-
 int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
     #if defined OS_WINDOWS
         DWORD readLen = 0;

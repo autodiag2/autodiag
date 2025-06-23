@@ -6,7 +6,7 @@
 #include "libautodiag/com/serial/serial.h"
 
 #ifdef OS_WINDOWS
-#   include <windows.h>
+#   include "libautodiag/windows.h"
 #   include <setupapi.h>
 #   include <initguid.h>
 #   include <devguid.h>

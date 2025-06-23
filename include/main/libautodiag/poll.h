@@ -8,8 +8,7 @@
 #include <errno.h>
 
 #ifdef OS_WINDOWS
-#   include <windows.h>
-bool isComport(HANDLE file);
+#   include "libautodiag/windows.h"
 #elif defined OS_POSIX
 #   include <sys/ioctl.h>
 #   include <poll.h>

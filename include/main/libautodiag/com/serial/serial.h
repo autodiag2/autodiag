@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined OS_WINDOWS
-#   include <windows.h>
+#   include "libautodiag/windows.h"
 #elif defined OS_POSIX
 #   include <termios.h>
 #else

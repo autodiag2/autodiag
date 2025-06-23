@@ -37,7 +37,7 @@ bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *valu
 }
 char * sim_elm327_non_volatile_get_filename() {
     #ifdef OS_WINDOWS
-    #   include <windows.h>
+    #   include "libautodiag/windows.h"
         char tempPath[MAX_PATH];
         if ( ! GetTempPath(MAX_PATH, tempPath) ) {
             log_msg(LOG_ERROR, "failed to get the temp path");

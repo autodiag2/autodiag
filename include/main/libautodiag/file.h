@@ -9,7 +9,7 @@
 #   include <unistd.h>
 #   define FILE_EOL "\n"
 #   define PATH_FOLDER_DELIM "\\"
-#   include <windows.h>
+#   include "libautodiag/windows.h"
 #   ifndef OS_UNIX
 #       include <direct.h>
 #       include <io.h>
