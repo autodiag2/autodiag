@@ -69,12 +69,12 @@ void * command_line_send_command_wait_response_internal(final void * arg) {
             command_line_append_text_to_output(msg);
             free(ctime);
         }
-        if (gtk_toggle_button_get_active(cmdGui->send.interpretEscapes)) {
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cmdGui->send.interpretEscapes))) {
             char *tmp = ascii_interpret_escape_sequences(command);
             command = tmp;
         }
         final int result;
-        if ( gtk_toggle_button_get_active(cmdGui->send.raw) ) {
+        if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cmdGui->send.raw)) ) {
             result = serial_send_internal(port, command, strlen(command));
         } else {
             result = port->send(CAST_DEVICE(port), command);
