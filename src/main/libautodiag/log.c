@@ -18,18 +18,6 @@ void log_set_from_env() {
     }
 }
 
-void log_set_level(LogLevel level) {
-    logger.current_level = level;
-}
-
-bool log_has_level(final LogLevel level) {
-    return level <= logger.current_level;
-}
-
-LogLevel log_get_level() {
-    return logger.current_level;
-}
-
 char* log_level_to_str(LogLevel level) {
     switch(level) {
         case LOG_DEBUG: return strdup("debug");
