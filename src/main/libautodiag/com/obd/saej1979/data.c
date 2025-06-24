@@ -213,7 +213,7 @@ unsigned int saej1979_data_buffer_get_uint(final Buffer* buffer) {
 }
 
 bool saej1979_data_is_pid_supported(final OBDIFace* iface, bool useFreezedData, int pid) {
-    return saej1979_is_pid_supported(iface,1 + useFreezedData, 0x20, pid);
+    return saej1979_is_pid_supported(iface,1 + useFreezedData, pid);
 }
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(

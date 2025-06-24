@@ -8,6 +8,8 @@
 
 #include "libautodiag/com/obd/obd.h"
 
+LIST_H(int)
+
 /**
  * Just iterate accross ecus received data until at least one valid found (validated by iterator setting the result value).
  * it works well for defining function of the shape eg saej1979_get_current_fuel_system_status(iface)
@@ -45,7 +47,7 @@
  * Returned strings are malloc'ed
  */
 char *saej1979_service_code_to_str(final unsigned char code);
-bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, final int pid_set_inc, int pid);
+bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, int pid);
 
 /**
  * Service 01 02

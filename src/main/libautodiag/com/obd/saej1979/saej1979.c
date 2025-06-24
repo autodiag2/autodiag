@@ -43,10 +43,24 @@ bool saej1979_clear_dtc_and_stored_values(final OBDIFace* iface) {
     } \
     result |= (pid_as_bitmask&buffer_as_32bits) != 0;
 
-bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, final int pid_set_inc, int pid) {
+LIST_SRC(int)
+
+list_int * saej1979_is_pids_supported(final OBDIFace* iface, final int service_id, int pid) {
     assert(0 <= pid);
+    final int pid_set_inc;
+    if ( service_id == 0x01 ) {
+        pid_set_inc = 0x20;
+    } else if ( service_id == 0x02 ) {
+        pid_set_inc = 0x20;
+    } else if ( service_id == 0x09 ) {
+        pid_set_inc = 0x20;
+    } else {
+        log_msg(LOG_ERROR, "called with the wrong service id : %d", service_id);
+        exit(1);
+    }
+    int * pids_status = list_int_new();
     if ( 0 == pid ) {
-        return true;
+        list_int_append(pids_status, intdup(true));
     } else {
         pid -= 1;
         final int current_set = pid - (pid % pid_set_inc);
@@ -69,9 +83,15 @@ bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, fina
             OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.request_vehicle_information,saej1979_is_pid_supported_iterator,current_set)
         }
         obd_unlock(iface);
-    
+        list_int_append(pids_status, intdup(result));
 
         free(request);
-        return result;
     }
+    return pids_status;
+}
+bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, int pid) {
+    list_int * pids_status = saej1979_is_pids_supported(iface, service_id, pid);
+    final bool result = *pids_status->list[0];
+    list_int_free(pids_status);
+    return result;
 }
