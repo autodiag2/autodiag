@@ -115,26 +115,26 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_maf_air_flow_rate,
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_1,
-    int,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%d %%", 
+    double,
+    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%", 
     vdgui->engine.fuel.trim.longTerm.bank1
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_2,
-    int,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%d %%", 
+    double,
+    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%", 
     vdgui->engine.fuel.trim.longTerm.bank2
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_short_term_fuel_trim_bank_1,
-    int,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%d %%", 
+    double,
+    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%", 
     vdgui->engine.fuel.trim.shortTerm.bank1
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_short_term_fuel_trim_bank_2,
-    int,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%d %%", 
+    double,
+    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%", 
     vdgui->engine.fuel.trim.shortTerm.bank2
 )
 
@@ -212,12 +212,15 @@ VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
     gtk_widget_queue_draw(graph->widget);
     return false;
 }
-#define VH_REFRESH_GRAPH(data_gen,graphType, ...) { \
+#define VH_REFRESH_GRAPH(data_gen, data_gen_error, graphType, ...) { \
     Graph * graph = list_Graph_get_by_title(graphs, graphType); \
     if ( graph != null ) { \
         if ( VH_SHOULD_REFRESH_WIDGET(graph->widget) ) { \
-            list_Graph_append_data(graphs, graphType, data_gen(iface, vehicle_explorer_show_freeze_frame_get_state(), ##__VA_ARGS__)); \
-            g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
+            double value = data_gen(iface, vehicle_explorer_show_freeze_frame_get_state(), ##__VA_ARGS__); \
+            if ( value != data_gen_error ) { \
+                list_Graph_append_data(graphs, graphType, value); \
+                g_idle_add(vehicle_explorer_graph_refresh_gsource,graph); \
+            } \
         } \
     } \
 }
@@ -284,11 +287,23 @@ VH_OX_SENSOR_GSOURCE_SYM(7) VH_OX_SENSOR_GSOURCE_SYM(8)
     for(int sensor_i = 1; sensor_i <= 8; sensor_i++) { \
         char graphTitle[64]; \
         snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i); \
-        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_voltage, graphTitle, sensor_i) \
+        VH_REFRESH_GRAPH( \
+            saej1979_data_oxygen_sensor_voltage, \
+            SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_ERROR, \
+            graphTitle, sensor_i \
+        ) \
         snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i); \
-        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_current, graphTitle, sensor_i) \
+        VH_REFRESH_GRAPH( \
+            saej1979_data_oxygen_sensor_current, \
+            SAEJ1979_DATA_OXYGEN_SENSOR_CURRENT_ERROR, \
+            graphTitle, sensor_i \
+        ) \
         snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); \
-        VH_REFRESH_GRAPH(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio, graphTitle, sensor_i) \
+        VH_REFRESH_GRAPH( \
+            saej1979_data_oxygen_sensor_air_fuel_equiv_ratio, \
+            SAEJ1979_DATA_OXYGEN_SENSOR_AIR_FUEL_EQUIV_RATIO_ERROR, \
+            graphTitle, sensor_i \
+        ) \
     } \
 }
 
@@ -332,33 +347,33 @@ bool vehicle_explorer_refresh_dynamic_internal() {
         VH_REFRESH_WIDGET(vdgui->engine.fuel.ethanol,                               saej1979_data_ethanol_fuel_percent,         int);
         VH_REFRESH_WIDGET(vdgui->engine.fuel.rail.pressure,                         saej1979_data_frp_relative,                 double);
         VH_REFRESH_WIDGET(vdgui->engine.fuel.rate,                                  saej1979_data_engine_fuel_rate,             double);        
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank1,                   saej1979_data_long_term_fuel_trim_bank_1,   int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank2,                   saej1979_data_long_term_fuel_trim_bank_2,   int);  
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank1,                  saej1979_data_short_term_fuel_trim_bank_1,  int);
-        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank2,                  saej1979_data_short_term_fuel_trim_bank_2,  int);               
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank1,                   saej1979_data_long_term_fuel_trim_bank_1,   double);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.longTerm.bank2,                   saej1979_data_long_term_fuel_trim_bank_2,   double);  
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank1,                  saej1979_data_short_term_fuel_trim_bank_1,  double);
+        VH_REFRESH_WIDGET(vdgui->engine.fuel.trim.shortTerm.bank2,                  saej1979_data_short_term_fuel_trim_bank_2,  double);               
         VH_REFRESH_WIDGET(vdgui->engine.injectionSystem.injectionTiming,            saej1979_data_fuel_injection_timing,        double);        
         VH_REFRESH_WIDGET(vdgui->engine.injectionSystem.timingAdvance,              saej1979_data_timing_advance_cycle_1,       double);        
         VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
         VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
         pthread_mutex_lock(&graphs_mutex);
-        VH_REFRESH_GRAPH(saej1979_data_engine_coolant_temperature, "Coolant Temperature")
-        VH_REFRESH_GRAPH(saej1979_data_intake_air_temperature, "Intake Air Temperature")
-        VH_REFRESH_GRAPH(saej1979_data_intake_manifold_pressure, "Intake Air Manifold Pressure")
-        VH_REFRESH_GRAPH(saej1979_data_maf_air_flow_rate, "Intake Air MAF Rate")
-        VH_REFRESH_GRAPH(saej1979_data_engine_speed, "Engine Speed")
-        VH_REFRESH_GRAPH(saej1979_data_vehicle_speed, "Speed")
-        VH_REFRESH_GRAPH(saej1979_data_fuel_pressure, "Fuel Pressure")
-        VH_REFRESH_GRAPH(saej1979_data_fuel_tank_level_input, "Fuel Level")
-        VH_REFRESH_GRAPH(saej1979_data_ethanol_fuel_percent, "Fuel ethanol")
-        VH_REFRESH_GRAPH(saej1979_data_frp_relative, "Fuel Rail Pressure")
-        VH_REFRESH_GRAPH(saej1979_data_engine_fuel_rate, "Fuel rate")
-        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_1, "Fuel trim long term bank1")
-        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_2, "Fuel trim long term bank2")
-        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_1, "Fuel trim short term bank1")
-        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_2, "Fuel trim short term bank2")
-        VH_REFRESH_GRAPH(saej1979_data_fuel_injection_timing, "Injection timing")
-        VH_REFRESH_GRAPH(saej1979_data_timing_advance_cycle_1, "Injection timing advance before TDC")
+        VH_REFRESH_GRAPH(saej1979_data_engine_coolant_temperature, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR, "Coolant Temperature")
+        VH_REFRESH_GRAPH(saej1979_data_intake_air_temperature, SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR, "Intake Air Temperature")
+        VH_REFRESH_GRAPH(saej1979_data_intake_manifold_pressure, SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR, "Intake Air Manifold Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_maf_air_flow_rate, SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR, "Intake Air MAF Rate")
+        VH_REFRESH_GRAPH(saej1979_data_engine_speed, SAEJ1979_DATA_ENGINE_SPEED_ERROR, "Engine Speed")
+        VH_REFRESH_GRAPH(saej1979_data_vehicle_speed, SAEJ1979_DATA_VEHICLE_SPEED_ERROR, "Speed")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_pressure, SAEJ1979_DATA_FUEL_PRESSURE_ERROR, "Fuel Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_tank_level_input, SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_ERROR, "Fuel Level")
+        VH_REFRESH_GRAPH(saej1979_data_ethanol_fuel_percent, SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR, "Fuel ethanol")
+        VH_REFRESH_GRAPH(saej1979_data_frp_relative, SAEJ1979_DATA_FRP_RELATIVE_ERROR, "Fuel Rail Pressure")
+        VH_REFRESH_GRAPH(saej1979_data_engine_fuel_rate, SAEJ1979_DATA_ENGINE_FUEL_RATE_ERROR, "Fuel rate")
+        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_1, SAEJ1979_DATA_FUEL_TRIM_ERROR, "Fuel trim long term bank1")
+        VH_REFRESH_GRAPH(saej1979_data_long_term_fuel_trim_bank_2, SAEJ1979_DATA_FUEL_TRIM_ERROR, "Fuel trim long term bank2")
+        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_1, SAEJ1979_DATA_FUEL_TRIM_ERROR, "Fuel trim short term bank1")
+        VH_REFRESH_GRAPH(saej1979_data_short_term_fuel_trim_bank_2, SAEJ1979_DATA_FUEL_TRIM_ERROR, "Fuel trim short term bank2")
+        VH_REFRESH_GRAPH(saej1979_data_fuel_injection_timing, SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR, "Injection timing")
+        VH_REFRESH_GRAPH(saej1979_data_timing_advance_cycle_1, SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_ERROR, "Injection timing advance before TDC")
         VH_REFRESH_GRAPH_OX_SENSORS()
         pthread_mutex_unlock(&graphs_mutex);
 

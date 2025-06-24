@@ -348,7 +348,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
 
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(sym,obd_request) \
     SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE( \
-                        int, sym, obd_request, \
+                        double, sym, obd_request, \
                         saej1979_data_get_fuel_trim_bank_generic_iterator, SAEJ1979_DATA_FUEL_TRIM_ERROR \
                     )
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(

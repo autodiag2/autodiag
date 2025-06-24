@@ -160,11 +160,11 @@ int saej1979_data_engine_coolant_temperature(final OBDIFace* iface, bool useFree
 
 #define SAEJ1979_DATA_FUEL_TRIM_MIN -100
 #define SAEJ1979_DATA_FUEL_TRIM_MAX 99.2
-#define SAEJ1979_DATA_FUEL_TRIM_ERROR INT_MIN
-int saej1979_data_short_term_fuel_trim_bank_1(final OBDIFace* iface, bool useFreezedData);
-int saej1979_data_long_term_fuel_trim_bank_1(final OBDIFace* iface, bool useFreezedData);
-int saej1979_data_short_term_fuel_trim_bank_2(final OBDIFace* iface, bool useFreezedData);
-int saej1979_data_long_term_fuel_trim_bank_2(final OBDIFace* iface, bool useFreezedData);
+#define SAEJ1979_DATA_FUEL_TRIM_ERROR -101
+double saej1979_data_short_term_fuel_trim_bank_1(final OBDIFace* iface, bool useFreezedData);
+double saej1979_data_long_term_fuel_trim_bank_1(final OBDIFace* iface, bool useFreezedData);
+double saej1979_data_short_term_fuel_trim_bank_2(final OBDIFace* iface, bool useFreezedData);
+double saej1979_data_long_term_fuel_trim_bank_2(final OBDIFace* iface, bool useFreezedData);
 /**
  * Service 0*0A
  * @return kPa [0;765] (gauge)
@@ -686,6 +686,7 @@ SAEJ1979_DATA_FUEL_TYPE saej1979_data_fuel_type(final OBDIFace* iface, bool useF
  * @return %
  */
 double saej1979_data_ethanol_fuel_percent(final OBDIFace* iface, bool useFreezedData);
+#define SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR -1
 /**
  * Service 0*53
  * kPa
