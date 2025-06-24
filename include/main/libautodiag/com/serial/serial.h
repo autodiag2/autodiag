@@ -160,11 +160,15 @@ void list_serial_set_selected_by_location(char *location);
  */
 #define SERIAL_AT_TIMEOUT        1000
 /**
+ * The standard version of serial sending some data, it just the raw bytes.
  * Send commands over the serial link at the specified speed (baud rate).
  * @return number of bytes sent or DEVICE_ERROR on error
  */
-int serial_send(final Serial * port, const char *command);
 int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
+/**
+ * A non standard wrapper.
+ */
+int serial_send(final Serial * port, const char *command);
 
 #define GEN_SERIAL_RECV(sym,type,ITERATOR) int sym(final type* serial) { \
     if ( serial == null || serial->recv_buffer == null ) { \
