@@ -28,7 +28,7 @@ bool saej1979_clear_dtc_and_stored_values(final OBDIFace* iface) {
 
 #define saej1979_is_pid_supported_iterator(data) \
     int buffer_as_32bits = 0; \
-    final unsigned char * ptr = (unsigned char*)&buffer_as_32bits; \
+    final byte * ptr = (byte*)&buffer_as_32bits; \
     if ( O32_HOST_ORDER == O32_LITTLE_ENDIAN ) { \
         memcpy(&buffer_as_32bits,data->buffer, 4); \
     } else if ( O32_HOST_ORDER == O32_BIG_ENDIAN ) { \
