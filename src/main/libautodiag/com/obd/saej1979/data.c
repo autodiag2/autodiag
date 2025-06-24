@@ -1568,7 +1568,7 @@ int hashmap_void_char_key_comparator(void * k1, void *k2) {
     return ! ( k1 == k2 );
 }
 HASHMAP_SRC(void, char)
-hashmap_void_char* saej1979_data_data_gen_pid_map_get() {
+char* saej1979_data_data_gen_pid_map_get(void *key) {
     if ( _saej1979_data_data_gen_pid_map == null ) {
         _saej1979_data_data_gen_pid_map = hashmap_void_char_new();
         hashmap_void_char_set(_saej1979_data_data_gen_pid_map, saej1979_data_number_of_dtc, strdup("01"));
@@ -1662,5 +1662,10 @@ hashmap_void_char* saej1979_data_data_gen_pid_map_get() {
         hashmap_void_char_set(_saej1979_data_data_gen_pid_map, saej1979_data_abs_switch_present, strdup("A9"));
         hashmap_void_char_set(_saej1979_data_data_gen_pid_map, saej1979_data_abs_switch, strdup("A9"));
     }
-    return _saej1979_data_data_gen_pid_map;
+    char * value = hashmap_void_char_get(_saej1979_data_data_gen_pid_map, key);
+    if ( value == null ) {
+        return null;
+    } else {
+        return strdup(value);
+    }
 }
