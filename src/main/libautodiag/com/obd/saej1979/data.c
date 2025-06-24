@@ -1,14 +1,5 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
-_saej1979_data_data_gen_pid_map = null;
-HASHMAP_SRC(void, char)
-hashmap_void_char* saej1979_data_data_gen_pid_map_get() {
-    if ( _saej1979_data_data_gen_pid_map == null ) {
-        _saej1979_data_data_gen_pid_map = hashmap_void_char_new();
-    }
-    return _saej1979_data_data_gen_pid_map;
-}
-
 /**
  * Actual data extracted from wikipedia OBDII PIDs page
  */
@@ -1572,3 +1563,104 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     false
                 )
 
+hashmap_void_char * _saej1979_data_data_gen_pid_map = null;
+int hashmap_void_char_key_comparator(void * k1, void *k2) {
+    return ! ( k1 == k2 );
+}
+HASHMAP_SRC(void, char)
+hashmap_void_char* saej1979_data_data_gen_pid_map_get() {
+    if ( _saej1979_data_data_gen_pid_map == null ) {
+        _saej1979_data_data_gen_pid_map = hashmap_void_char_new();
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_number_of_dtc), strdup("01"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_type), strdup("01"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_mil_status), strdup("01"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_status), strdup("01"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_status_this_cycle), strdup("41"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_system_status), strdup("03"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_load), strdup("04"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_coolant_temperature), strdup("05"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_pressure), strdup("0A"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_intake_manifold_pressure), strdup("0B"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_speed), strdup("0C"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_vehicle_speed), strdup("0D"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_timing_advance_cycle_1), strdup("0E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_intake_air_temperature), strdup("0F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_maf_air_flow_rate), strdup("10"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_throttle_position), strdup("11"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_secondary_air_status), strdup("12"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_oxygen_sensors_present_generic), strdup("13"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_obd_standard), strdup("1C"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_oxygen_sensors_present_2_generic), strdup("1D"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_powertakeoff_status), strdup("1E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_seconds_since_engine_start), strdup("1F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_distance_since_mil_activated), strdup("21"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_frp_relative), strdup("22"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_frp_widerange), strdup("23"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_commanded_egr), strdup("2C"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_egr_error), strdup("2D"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_commanded_evap_purge), strdup("2E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_tank_level_input), strdup("2F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_warm_ups_since_ecu_reset), strdup("30"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_distance_since_ecu_reset), strdup("31"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_evap_system_vapor_pressure), strdup("32"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_baro_pressure_absolute), strdup("33"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_ecu_voltage), strdup("42"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_absolute_engine_load), strdup("43"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_commanded_air_fuel_equivalence_ratio), strdup("44"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_relative_throttle_position), strdup("45"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_ambient_air_temperature), strdup("46"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_time_run_mil_on), strdup("4D"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_time_since_trouble_codes_cleared), strdup("4E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_max_fuel_air_equiv_ratio), strdup("4F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_max_oxygen_sensor_voltage), strdup("4F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_max_oxygen_sensor_current), strdup("4F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_max_intake_manifold_absolute_pressure), strdup("4F"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_max_air_flow_rate_from_maf_sensor), strdup("50"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_type), strdup("51"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_absolute_evap_system_vapor_pressure), strdup("53"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_relative_evap_system_vapor_pressure), strdup("54"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_short_term_secondary_oxygen_sensor_trim_1), strdup("55"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_short_term_secondary_oxygen_sensor_trim_2), strdup("57"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_short_term_secondary_oxygen_sensor_trim_3), strdup("55"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_short_term_secondary_oxygen_sensor_trim_4), strdup("57"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_long_term_secondary_oxygen_sensor_trim_1), strdup("56"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_long_term_secondary_oxygen_sensor_trim_2), strdup("58"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_long_term_secondary_oxygen_sensor_trim_3), strdup("56"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_long_term_secondary_oxygen_sensor_trim_4), strdup("58"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_rail_absolute_pressure), strdup("59"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_oil_temperature), strdup("5C"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_fuel_injection_timing), strdup("5D"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_fuel_rate), strdup("5E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_driver_demand_engine_percent_torque), strdup("61"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_actual_engine_percent_torque), strdup("62"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_reference_torque), strdup("63"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_percent_torque_data_idle), strdup("64"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_maf_sensor_present_1), strdup("66"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_maf_sensor_present_2), strdup("66"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_maf_sensor_1), strdup("66"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_maf_sensor_2), strdup("66"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_coolant_temperature_sensor_present_1), strdup("67"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_coolant_temperature_sensor_present_2), strdup("67"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_coolant_temperature_sensor_1), strdup("67"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_coolant_temperature_sensor_2), strdup("67"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_intake_air_temperature_sensor_present_1), strdup("68"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_intake_air_temperature_sensor_present_2), strdup("68"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_intake_air_temperature_sensor_1), strdup("68"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_intake_air_temperature_sensor_2), strdup("68"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_egt_sensor_bank_1_present_byte), strdup("78"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_egt_sensor_bank_2_present_byte), strdup("79"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_egt_sensor_temperature_bank_1), strdup("78"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_egt_sensor_temperature_bank_2), strdup("79"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_diesel_particulate_filter_temperature), strdup("7C"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_engine_friction_percent_torque), strdup("8E"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_cylinder_fuel_rate), strdup("A2"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_transmission_actual_gear_present), strdup("A4"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_transmission_actual_gear), strdup("A4"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_commanded_diesel_exhaust_fluid_dosing_present), strdup("A5"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_commanded_diesel_exhaust_fluid_dosing), strdup("A5"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_odometer), strdup("A6"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_abs_switch_present), strdup("A9"));
+        hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(saej1979_data_abs_switch), strdup("A9"));
+    }
+    return _saej1979_data_data_gen_pid_map;
+}

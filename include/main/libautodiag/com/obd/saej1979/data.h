@@ -9,7 +9,6 @@
 #include "saej1979.h"
 
 HASHMAP_H(void, char)
-extern hashmap_void_char * _saej1979_data_data_gen_pid_map;
 hashmap_void_char* saej1979_data_data_gen_pid_map_get();
 
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \

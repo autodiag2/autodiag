@@ -20,3 +20,7 @@ bool testGlobals() {
     }
     return true;
 }
+void * voiddup(void *arg) {
+    log_msg(LOG_WARNING, "This is messy, do not free values acquired using this operator");
+    return arg;
+}
