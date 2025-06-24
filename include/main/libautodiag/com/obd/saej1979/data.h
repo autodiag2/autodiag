@@ -8,13 +8,18 @@
 #include "libautodiag/com/obd/obd.h"
 #include "saej1979.h"
 
-#define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) type symbol(final OBDIFace* iface, bool useFreezedData) { \
+HASHMAP_H(void, char)
+extern hashmap_void_char * _saej1979_data_data_gen_pid_map;
+hashmap_void_char* saej1979_data_data_gen_pid_map_get();
+
+#define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \
+type symbol(final OBDIFace* iface, bool useFreezedData) { \
     if ( useFreezedData ) { \
         SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,"02" data_pid_requested,iterator,errorValue,ecu->obd_service.freeze_frame_data) \
     } else { \
         SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,"01" data_pid_requested,iterator,errorValue,ecu->obd_service.current_data)  \
     } \
-}
+} \
 
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(sym,data_pid_requested) \
     SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(double,sym,data_pid_requested,saej1979_data_generic_one_byte_percentage_iterator,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR)

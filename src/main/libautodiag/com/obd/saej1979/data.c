@@ -1,5 +1,14 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
+_saej1979_data_data_gen_pid_map = null;
+HASHMAP_SRC(void, char)
+hashmap_void_char* saej1979_data_data_gen_pid_map_get() {
+    if ( _saej1979_data_data_gen_pid_map == null ) {
+        _saej1979_data_data_gen_pid_map = hashmap_void_char_new();
+    }
+    return _saej1979_data_data_gen_pid_map;
+}
+
 /**
  * Actual data extracted from wikipedia OBDII PIDs page
  */
@@ -223,6 +232,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_number_of_dtc_iterator,
                         SAEJ1979_DATA_NUMBER_OF_DTC_ERROR
                     )
+
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DATA_ENGINE_TYPES,
