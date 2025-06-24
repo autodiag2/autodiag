@@ -52,11 +52,11 @@ typedef struct {
 
 typedef struct {
     Device;
-    bool echo;
+    bool echo;                  // Not part of the serial standard but defined here for convenience
     int baud_rate;              // RS232 speed in bauds
     SerialStatus status;
     char *location;             // location of the device accross OSs
-    char *eol;
+    char *eol;                  // Not part of the serial standard but defined here for convenience
     int timeout;                // timeout in ms before considering no reply from the remote
     int timeout_seq;            // timeout in ms for burst reception
     Buffer * recv_buffer;       // buffer for input data
@@ -216,6 +216,9 @@ bool at_is_command(char * command);
 char * serial_describe_communication_layer(final Serial * serial);
 bool serial_query_at_command(final Serial* serial, char *cmd, ...);
 bool serial_send_at_command(final Serial* serial, char *cmd, ...);
+/**
+ * Default of ELM327 (non standard)
+ */
 void serial_reset_to_default(final Serial* serial);
 
 /**
