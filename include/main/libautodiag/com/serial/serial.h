@@ -33,6 +33,7 @@ typedef enum {
     SERIAL_STATE_MISSING_PERM
 } SerialStatus;
 
+// timeout values in ms
 #define SERIAL_DEFAULT_TIMEOUT 1000
 #define SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT 0
 #define SERIAL_DEFAULT_BAUD_RATE 38400
