@@ -59,5 +59,15 @@
         "buffer.h": "c",
         "math.h": "c",
         "string.h": "c"
+    },
+    // globally disable import-folding
+    "editor.foldingImportsByDefault": false,
+
+    // (optional) per-language override
+    "[c]": {
+    "editor.foldingImportsByDefault": false
+    },
+    "[cpp]": {
+    "editor.foldingImportsByDefault": false
     }
 }

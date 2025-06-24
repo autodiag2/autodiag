@@ -1,5 +1,6 @@
 #include "libTest.h"
 
+bool testHashMap();
 bool testBuffer();
 bool testGlobals();
 bool testSerial(OBDIFace* iface);
@@ -17,6 +18,7 @@ int main(int argc, char **argv) {
     log_set_from_env();
     initLibTest();
 
+    runTestMaybe(testHashMap, null);
     runTestMaybe(testBuffer,null);
     runTestMaybe(testGlobals,null);
     runTestMaybe(testSIM,null);

@@ -1016,7 +1016,7 @@ obj/main/libautodiag/thread.o: src/main/libautodiag/thread.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang.h \
   include/main/libautodiag/compile_target.h
 obj/main/libautodiag/windows.o: src/main/libautodiag/windows.c \
-  include/main/libautodiag/windows.h \
+  include/main/libautodiag/windows.h include/main/libautodiag/lang.h \
   include/main/libautodiag/compile_target.h
 obj/main/libprog/config.o: src/main/libprog/config.c \
   include/main/libprog/config.h include/main/libautodiag/lib.h \
@@ -1990,6 +1990,52 @@ obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/sim/elm327/sim_generators.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h
+obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
+  src/testFixtures/libTest.h \
+  include/main/libautodiag/com/serial/serial.h \
+  include/main/libautodiag/string.h include/main/libautodiag/lang.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/list.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/log.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/model/iso3779.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/stored_dtcs.h \
+  include/main/libautodiag/model/database.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/../iso15031/iso15031_6.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/vehicle_info.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
+  include/main/libautodiag/com/can/can.h \
+  include/main/libautodiag/com/can/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm.h \
+  include/main/libautodiag/com/serial/list_serial.h \
+  include/main/libautodiag/com/serial/elm/elm_iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm329/elm329.h \
+  include/main/libautodiag/com/serial/elm/elm329/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm329/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm327/elm327.h \
+  include/main/libautodiag/com/serial/elm/elm327/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm323/elm323.h \
+  include/main/libautodiag/com/serial/elm/elm323/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm322.h \
+  include/main/libautodiag/com/serial/elm/elm320.h \
+  include/main/libautodiag/sim/elm327/sim.h \
+  include/main/libautodiag/sim/elm327/sim_generators.h \
+  include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libautodiag/hashmap.h
 obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   src/testFixtures/libTest.h \
   include/main/libautodiag/com/serial/serial.h \
