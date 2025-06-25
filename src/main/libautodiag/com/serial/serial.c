@@ -16,6 +16,15 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         bytes_dump(tx_buf,bytes_to_send);
     }
     int bytes_sent = 0;
+    int write_len_rv = 0;
+    final int poll_result = file_pool_write(&port->implementation->fdtty, port->timeout);
+    if ( poll_result == -1 ) {
+        log_msg(LOG_ERROR, "Error while polling");
+        return DEVICE_ERROR;
+    } else if ( poll_result == 0 ) {
+        log_msg(LOG_ERROR, "Timeout while polling for write");
+        return 0;
+    }
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
@@ -563,7 +572,6 @@ bool serial_send_at_command(final Serial* serial, char *cmd, ...) {
 bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
     va_list ap;
     va_start(ap, cmd);
-    
     if ( ! serial_send_at_command_internal(serial, cmd, ap) ) {
         return false;
     }

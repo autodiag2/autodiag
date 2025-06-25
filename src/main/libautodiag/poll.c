@@ -8,8 +8,10 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
             return -1;
         } else {
             int sleep_length_ms = 20;
+            final int max_tries = timeout_ms / sleep_length_ms ;
+            int tries = 0;
             if ( isComPort(connection_handle) ) {
-                for(int i = 0; i < timeout_ms / sleep_length_ms && readLen == 0; i++) {
+                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
                     DWORD errors;
                     COMSTAT stat = {0};
                     ClearCommError(connection_handle, &errors, &stat);
@@ -19,12 +21,15 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
                     }
                 }
             } else {
-                for(int i = 0; i < timeout_ms / sleep_length_ms && readLen == 0; i++) {
+                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
                     PeekNamedPipe(connection_handle, NULL, 0, NULL, &readLen, NULL);
                     if ( readLen == 0 ) {
                         usleep(1000 * sleep_length_ms);
                     }
                 }
+            }
+            if ( tries == max_tries) {
+                return 0;
             }
         }
         if ( readLen_rv != null ) {
@@ -35,24 +40,67 @@ int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
                 *readLen_rv = readLen;
             }
         }
-        return 0;
+        return 1;
     #elif defined OS_POSIX
         struct pollfd fileDescriptor = {
             .fd = *((int*)handle),
             .events = POLLIN
         };
         int ret = poll(&fileDescriptor, 1, timeout_ms);
-        if (ret > 0 && (fileDescriptor.revents & POLLIN)) {
-            if (readLen_rv != null) {
-                int available = 0;
-                if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
-                    *readLen_rv = available;
-                } else {
-                    *readLen_rv = 0;
+        if ( ret > 0 ) {
+            if ( fileDescriptor.revents & POLLIN ) {
+                if (readLen_rv != null) {
+                    int available = 0;
+                    if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
+                        *readLen_rv = available;
+                    } else {
+                        *readLen_rv = 0;
+                    }
+                }
+            } else {
+                ret = -1;
+            }
+        }
+        return ret;
+    #endif
+}
+
+int file_pool_write(void *handle, int timeout_ms) {
+    #if defined OS_WINDOWS
+        HANDLE connection_handle = (HANDLE)*((HANDLE*)handle);
+        if (connection_handle == INVALID_HANDLE_VALUE) {
+            return -1;
+        } else {
+            int sleep_length_ms = 20;
+            final int max_tries = timeout_ms / sleep_length_ms ;
+            int tries = 0;
+            if (isComPort(connection_handle)) {
+                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
+                    COMSTAT stat = {0};
+                    DWORD errors = 0;
+                    ClearCommError(connection_handle, &errors, &stat);
+                    /* if no flow-control hold, port is writable */
+                    if (!(stat.fCtsHold || stat.fOutxCtsFlow || stat.fRlsdHold)) {
+                        break;
+                    }
+                    usleep(1000 * sleep_length_ms);
                 }
             }
-        } else if (readLen_rv != null) {
-            *readLen_rv = 0;
+            if ( tries == max_tries) {
+                return 0;
+            }
+        }
+        return 1;
+    #elif defined OS_POSIX
+        struct pollfd pfd = {
+            .fd     = *((int*)handle),
+            .events = POLLOUT
+        };
+        int ret = poll(&pfd, 1, timeout_ms);
+        if (0 < ret) {
+            if ( ! ( pfd.revents & POLLOUT ) ) {
+                ret = -1;
+            }
         }
         return ret;
     #endif
