@@ -1,33 +1,34 @@
 #include "ui/CommandLine.h"
 
 #include <limits.h>
-CommandLineGui *cmdGui = null;
+
+static CommandLineGui *gui = null;
 static list_object_string * commandHistory = null;
-gdouble command_line_output_scrollbar_current_upper = -1;
-void command_line_output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
+static gdouble output_scrollbar_current_upper = -1;
+static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
         gdouble upper = gtk_adjustment_get_upper(adj);
-        if ( command_line_output_scrollbar_current_upper != upper ) {
-            command_line_output_scrollbar_current_upper = upper;
+        if ( output_scrollbar_current_upper != upper ) {
+            output_scrollbar_current_upper = upper;
             gdouble v = upper - gtk_adjustment_get_page_size(adj);
             gtk_adjustment_set_value(adj,v);
         }
     }
 }
 
-gboolean command_line_append_text_to_output_gsource(gpointer data) {
+static gboolean append_text_to_output_gsource(gpointer data) {
     final char *text = (char*)data;
     GtkTextIter iter;
-    gtk_text_buffer_get_iter_at_offset(cmdGui->output.text,&iter,-1);
-    gtk_text_buffer_insert(cmdGui->output.text, &iter, text, -1);
+    gtk_text_buffer_get_iter_at_offset(gui->output.text,&iter,-1);
+    gtk_text_buffer_insert(gui->output.text, &iter, text, -1);
     return false;
 }
 
-void command_line_append_text_to_output(final char *text) {
-    g_idle_add(command_line_append_text_to_output_gsource, (gpointer)strdup(text));
+static void append_text_to_output(final char *text) {
+    g_idle_add(append_text_to_output_gsource, (gpointer)strdup(text));
 }
 #include <ctype.h>
-char *ascii_interpret_escape_sequences(const char *input) {
+static char *ascii_interpret_escape_sequences(const char *input) {
     const char *src = input;
     char *parsed = malloc(strlen(input) + 1);
     char *dst = parsed;
@@ -57,38 +58,38 @@ char *ascii_interpret_escape_sequences(const char *input) {
     *dst = '\0';
     return parsed;
 }
-void * command_line_send_command_wait_response_internal(final void * arg) {
+static void * send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
     final Serial * port = list_serial_get_selected();
-    if ( ! error_feedback_serial(cmdGui->errorFeedback,port) ) {
+    if ( ! error_feedback_serial(gui->errorFeedback,port) ) {
         buffer_recycle(port->recv_buffer);
         {
             char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
             char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
             sprintf(msg, "%s> %s\n", ctime, command);
-            command_line_append_text_to_output(msg);
+            append_text_to_output(msg);
             free(ctime);
         }
-        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cmdGui->send.interpretEscapes))) {
+        if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.interpretEscapes))) {
             char *tmp = ascii_interpret_escape_sequences(command);
             command = tmp;
         }
         final int result;
-        if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cmdGui->send.raw)) ) {
+        if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.raw)) ) {
             result = serial_send_internal(port, command, strlen(command));
         } else {
             result = port->send(CAST_DEVICE(port), command);
         }
         if ( result == DEVICE_ERROR ) {
-            error_feedback_serial(cmdGui->errorFeedback,port);                
+            error_feedback_serial(gui->errorFeedback,port);                
         } else {
             port->recv(CAST_DEVICE(port));
             {
                 final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
                 if ( result == null ) {
-                    command_line_append_text_to_output("No data received from the device\n");
+                    append_text_to_output("No data received from the device\n");
                 } else {
-                    command_line_append_text_to_output(result);
+                    append_text_to_output(result);
                     free(result);
                 }
             }
@@ -97,52 +98,52 @@ void * command_line_send_command_wait_response_internal(final void * arg) {
     pthread_exit(0);
 }
 
-void command_line_send_command_wait_response(final char * command) {
+static void send_command_wait_response(final char * command) {
     pthread_t t;
-    pthread_create(&t, null, &command_line_send_command_wait_response_internal, command);
+    pthread_create(&t, null, &send_command_wait_response_internal, command);
 }
-gboolean command_line_generic_send_command_from_button_gsource(gpointer button) {
+static gboolean send_command_from_button_gsource(gpointer button) {
     final char * command = (char*)gtk_button_get_label((GtkButton*)button);
-    gtk_entry_set_text(cmdGui->customCommandInput, command);
+    gtk_entry_set_text(gui->customCommandInput, command);
 
     char *tooltipText = gtk_widget_get_tooltip_text((GtkWidget*)button);
     if ( tooltipText == null ) {
         tooltipText = strdup("");
         log_msg(LOG_WARNING, "No tooltip text for button with label '%s'", command);
     }
-    gtk_label_set_text(cmdGui->tooltip, tooltipText);
+    gtk_label_set_text(gui->tooltip, tooltipText);
     return false;
 }
 void command_line_generic_send_command_from_button(final GtkButton * button) {
-    g_idle_add(command_line_generic_send_command_from_button_gsource, (gpointer)button);
+    g_idle_add(send_command_from_button_gsource, (gpointer)button);
 }
 
-void show_window_command_line() {
-   gtk_widget_show_now (cmdGui->window);
-   gtk_widget_grab_focus(GTK_WIDGET(cmdGui->customCommandInput));
+static void show() {
+   gtk_widget_show_now (gui->window);
+   gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
 }
-void command_line_send_custom_command() {
-    final char * command = (char *)gtk_entry_get_text(cmdGui->customCommandInput);
+static void send_custom_command() {
+    final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
     list_object_string_append(commandHistory, object_string_new_from(command));
-    command_line_send_command_wait_response(command);
+    send_command_wait_response(command);
 }
 
-void command_line_output_clear() {
-    gtk_text_buffer_set_text(cmdGui->output.text, "", 0);
+static void output_clear() {
+    gtk_text_buffer_set_text(gui->output.text, "", 0);
 }
 
-void command_line_custom_clear() {
-    gtk_entry_set_text(cmdGui->customCommandInput,"");
-    gtk_label_set_text(cmdGui->tooltip,"");    
+static void custom_clear() {
+    gtk_entry_set_text(gui->customCommandInput,"");
+    gtk_label_set_text(gui->tooltip,"");    
 }
 
-void command_line_output_copy() {
+static void output_copy() {
     GtkTextIter start, end;
 
-    gtk_text_buffer_get_start_iter(cmdGui->output.text, &start);
-    gtk_text_buffer_get_end_iter(cmdGui->output.text, &end);
+    gtk_text_buffer_get_start_iter(gui->output.text, &start);
+    gtk_text_buffer_get_end_iter(gui->output.text, &end);
                                 
-    gchar *text = gtk_text_buffer_get_text(cmdGui->output.text, &start, &end, true);
+    gchar *text = gtk_text_buffer_get_text(gui->output.text, &start, &end, true);
 
     GdkDisplay *dpy = gdk_display_get_default();
     GtkClipboard *clipboard = gtk_clipboard_get_default(dpy);
@@ -150,7 +151,7 @@ void command_line_output_copy() {
     log_msg(LOG_INFO, "text \"%s\" copied", text);
 }
 
-bool command_line_vehicle_set_tooltip_text(GtkButton* child) {
+static bool vehicle_set_tooltip_text(GtkButton* child) {
     const gchar* text = gtk_button_get_label(child);
     bool res = false;
     final Buffer* bin_buffer = buffer_from_ascii_hex((char*)text);
@@ -169,7 +170,7 @@ bool command_line_vehicle_set_tooltip_text(GtkButton* child) {
     return res;
 }
 
-void command_line_vehicle_add_pid_buttons() {
+static void vehicle_add_pid_buttons() {
     // insert at the end
     int rowi = 1000;
     int rowSize = 10;
@@ -177,13 +178,13 @@ void command_line_vehicle_add_pid_buttons() {
         char *label;
         asprintf(&label,"01%02X",pid);
         GtkWidget* widget = GTK_WIDGET(gtk_button_new_with_label(label));
-        if ( command_line_vehicle_set_tooltip_text(GTK_BUTTON(widget)) ) {
+        if ( vehicle_set_tooltip_text(GTK_BUTTON(widget)) ) {
             g_signal_connect(G_OBJECT(widget),"clicked",G_CALLBACK(command_line_generic_send_command_from_button),null);
             int columni = pid % rowSize;
             if ( columni == 0 ) {
-                gtk_grid_insert_row (cmdGui->vehicleOBDCodes, ++rowi);
+                gtk_grid_insert_row (gui->vehicleOBDCodes, ++rowi);
             }          
-            gtk_grid_attach(cmdGui->vehicleOBDCodes,
+            gtk_grid_attach(gui->vehicleOBDCodes,
                      widget,
                      columni,
                      rowi,
@@ -197,9 +198,9 @@ void command_line_vehicle_add_pid_buttons() {
 }
 
 void module_init_command_line(final GtkBuilder *builder) {
-    if ( cmdGui == null ) {
+    if ( gui == null ) {
         commandHistory = list_object_string_new();
-        cmdGui = (CommandLineGui*)malloc(sizeof(CommandLineGui));
+        gui = (CommandLineGui*)malloc(sizeof(CommandLineGui));
         CommandLineGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-command-line")),
             .customCommandInput = (GtkEntry *)gtk_builder_get_object (builder, "window-command-line-custom-text"),
@@ -216,27 +217,25 @@ void module_init_command_line(final GtkBuilder *builder) {
                 .raw = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "command-line-raw"))
             }
         };
-        *cmdGui = g;
-        command_line_vehicle_add_pid_buttons();
-        gtk_text_view_set_buffer(cmdGui->output.frame, cmdGui->output.text);
-        g_signal_connect(G_OBJECT(cmdGui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
-        error_feedback_windows_init(cmdGui->errorFeedback);
-        g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(cmdGui->output.window)),"changed",G_CALLBACK(command_line_output_scrollbar_size_changed),null);        
-        gtk_builder_add_callback_symbol(builder,"show-window-command-line",&show_window_command_line);
-        gtk_builder_add_callback_symbol(builder,"window-command-line-custom-send_clicked",&command_line_send_custom_command);
-        gtk_builder_add_callback_symbol(builder,"window-command-line-clear_output_clicked",&command_line_output_clear);
-        gtk_builder_add_callback_symbol(builder,"command_line_generic_send_command_from_button",G_CALLBACK(&command_line_generic_send_command_from_button));
-        gtk_builder_add_callback_symbol(builder,"window-command-line-output-copy",&command_line_output_copy);
-        gtk_builder_add_callback_symbol(builder,"window-command-line-custom-clear-clicked",&command_line_custom_clear);
+        *gui = g;
+        vehicle_add_pid_buttons();
+        gtk_text_view_set_buffer(gui->output.frame, gui->output.text);
+        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        error_feedback_windows_init(gui->errorFeedback);
+        g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(gui->output.window)),"changed",G_CALLBACK(output_scrollbar_size_changed),null);        
+        gtk_builder_add_callback_symbol(builder,"show-window-command-line",&show);
+        gtk_builder_add_callback_symbol(builder,"window-command-line-custom-send_clicked",&send_custom_command);
+        gtk_builder_add_callback_symbol(builder,"window-command-line-clear_output_clicked",&output_clear);
+        gtk_builder_add_callback_symbol(builder,"send_command_from_button",G_CALLBACK(&command_line_generic_send_command_from_button));
+        gtk_builder_add_callback_symbol(builder,"window-command-line-output-copy",&output_copy);
+        gtk_builder_add_callback_symbol(builder,"window-command-line-custom-clear-clicked",&custom_clear);
     } else {
         module_debug(MODULE_COMMAND_LINE "Already initialized");        
     }
 }
 
 void module_shutdown_command_line() {
-    if ( cmdGui != null ) {
-        free(cmdGui);
+    if ( gui != null ) {
+        free(gui);
     }
 }
-
-
