@@ -12,14 +12,14 @@
         unsigned int size; \
     } object_hashmap_##key_type##_##value_type;
 
-#define HASHMAP_SRC_NEW(key_type, value_type) H_OBJECT_NEW(hashmap_##key_type##_##value_type) { \
+#define HASHMAP_SRC_NEW(key_type, value_type) OBJECT_H_NEW(hashmap_##key_type##_##value_type) { \
     object_hashmap_##key_type##_##value_type * hm = (object_hashmap_##key_type##_##value_type *)malloc(sizeof(object_hashmap_##key_type##_##value_type)); \
     hm->size = 0; \
     hm->keys = null; \
     hm->values = null; \
     return hm; \
 }
-#define HASHMAP_SRC_FREE(key_type, value_type) H_OBJECT_FREE(hashmap_##key_type##_##value_type) { \
+#define HASHMAP_SRC_FREE(key_type, value_type) OBJECT_H_FREE(hashmap_##key_type##_##value_type) { \
     if ( object == null ) return; \
     if ( object->keys != null ) { \
         for(unsigned int i = 0; i < object->size; i++) { \
@@ -69,7 +69,7 @@
 
 #define HASHMAP_H(key_type, value_type) \
     HASHMAP_H_STRUCT(key_type, value_type) \
-    H_OBJECT(hashmap_##key_type##_##value_type); \
+    OBJECT_H(hashmap_##key_type##_##value_type); \
     HASHMAP_H_SET(key_type, value_type); \
     HASHMAP_H_GET(key_type, value_type); \
 
