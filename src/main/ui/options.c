@@ -101,7 +101,6 @@ static void options_serial_list_changed(GtkComboBoxText *combo, gpointer user_da
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
     gtk_entry_set_text(entry, text ? text : "");
-    g_free(text);
 }
 void* options_save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
@@ -116,7 +115,6 @@ void* options_save_internal(void *arg) {
         module_debug(MODULE_OPTIONS "Serial port selected:");
         module_debug(MODULE_OPTIONS (char *)device_location);
         config.com.serial.device_location = strdup(device_location);
-        g_free(device_location);
     }
     const char * activeBaudRateText = gtk_entry_get_text(optionsGui->baudRateSelection);
     int baud_rate = atoi(activeBaudRateText);
