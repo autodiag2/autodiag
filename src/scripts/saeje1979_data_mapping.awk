@@ -12,7 +12,7 @@
     if ( match(args, /\s*[^,]+\s*,\s*([^,]+)\s*,\s*([^,]+)\s*/, m) ) {
         name = m[1]
         pid  = m[2]
-        print "hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(" name "), strdup(" pid "));"
+        print "object_hashmap_void_char_set(_saej1979_data_data_gen_pid_map, voiddup(" name "), strdup(" pid "));"
     }
 }
 
