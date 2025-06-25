@@ -17,6 +17,10 @@ typedef struct {
     pthread_t *thread;
 } ThreadedAction;
 
+/**
+ * Prevent the scroll change value behaviour
+ */
+gboolean gtk_combo_box_text_prevent_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data);
 void gtk_widget_hide_on_main_thread(GtkWidget *widget);
 void gtk_widget_show_on_main_thread(GtkWidget *widget);
 gboolean gtk_widget_generic_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused);

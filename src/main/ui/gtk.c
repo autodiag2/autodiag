@@ -1,5 +1,10 @@
 #include "ui/gtk.h"
 
+gboolean gtk_combo_box_text_prevent_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data) {
+    gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)event);
+    return TRUE;
+}
+
 gboolean gtk_widget_hide_on_main_thread_wrapper(gpointer data) {
     gtk_widget_hide((GtkWidget*)data);
     return false;

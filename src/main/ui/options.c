@@ -3,10 +3,6 @@
 
 static OptionsGui *gui = null;
 
-gboolean gtk_combo_box_text_prevent_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data) {
-    gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)event);
-    return TRUE;
-}
 static void simutation_add_ecu(char *address, char *generator) {
     GtkBox * container = gui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
