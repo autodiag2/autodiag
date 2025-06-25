@@ -30,11 +30,21 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
                     #if defined OS_WINDOWS
+                        final int poll_result = file_pool_write(&elm327->implementation->pipe_handle, elm327->implementation->timeout_ms);
+                        if ( poll_result <= 0 ) {
+                            log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+                            return;
+                        }
                         DWORD bytes_written = 0;
                         if (!WriteFile(elm327->implementation->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
                             log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                         }
                     #elif defined OS_POSIX
+                        final int poll_result = file_pool_write(&elm327->implementation->fd, elm327->implementation->timeout_ms);
+                        if ( poll_result <= 0 ) {
+                            log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+                            return;
+                        }
                         if ( write(elm327->implementation->fd,act_alert,strlen(act_alert)) == -1 ) {
                             perror("write");
                         }
@@ -419,6 +429,7 @@ SimELM327* sim_elm327_new() {
     list_SimECU_append(elm327->ecus,ecu);
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
+    elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
     return elm327;
 }

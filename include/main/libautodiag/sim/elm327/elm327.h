@@ -19,6 +19,7 @@ typedef struct {
     pthread_t * activity_monitor_thread;
     pthread_t * loop_thread;
     bool loop_ready;
+    int timeout_ms;
     #ifdef OS_WINDOWS
         HANDLE pipe_handle;
     #elif defined OS_POSIX

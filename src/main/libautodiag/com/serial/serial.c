@@ -15,6 +15,19 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         module_debug(MODULE_SERIAL "Sending");
         bytes_dump(tx_buf,bytes_to_send);
     }
+    #if defined OS_WINDOWS
+        if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
+            port->status = SERIAL_STATE_NOT_OPEN;
+            return DEVICE_ERROR;
+        }
+    #elif defined OS_POSIX
+        if (port->implementation->fdtty < 0) {
+            port->status = SERIAL_STATE_NOT_OPEN;
+            return DEVICE_ERROR;
+        }
+    #else
+    #   warning OS unsupported
+    #endif
     int bytes_sent = 0;
     int write_len_rv = 0;
     final int poll_result = file_pool_write(&port->implementation->fdtty, port->timeout);
