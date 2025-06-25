@@ -13,11 +13,11 @@
     } object_hashmap_##key_type##_##value_type;
 
 #define HASHMAP_SRC_NEW(key_type, value_type) OBJECT_H_NEW(hashmap_##key_type##_##value_type) { \
-    object_hashmap_##key_type##_##value_type * hm = (object_hashmap_##key_type##_##value_type *)malloc(sizeof(object_hashmap_##key_type##_##value_type)); \
-    hm->size = 0; \
-    hm->keys = null; \
-    hm->values = null; \
-    return hm; \
+    object_hashmap_##key_type##_##value_type * object = (object_hashmap_##key_type##_##value_type *)malloc(sizeof(object_hashmap_##key_type##_##value_type)); \
+    object->size = 0; \
+    object->keys = null; \
+    object->values = null; \
+    return object; \
 }
 #define HASHMAP_SRC_FREE(key_type, value_type) OBJECT_H_FREE(hashmap_##key_type##_##value_type) { \
     if ( object == null ) return; \
