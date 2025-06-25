@@ -4,7 +4,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
-#include "list.h"
+#include "libautodiag/lang/list.h"
 #include "log.h"
 #include "byte.h"
 #include "math.h"

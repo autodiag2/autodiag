@@ -5,7 +5,7 @@
 #include "libautodiag/string.h"
 #include <assert.h>
 #include <stdlib.h>
-#include "lang.h"
+#include "libautodiag/lang/lang.h"
 #include "log.h"
 
 void bytes_dump(final byte *buffer, final int size);

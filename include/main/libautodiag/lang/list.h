@@ -3,7 +3,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
-#include "lang.h"
+#include "libautodiag/lang/lang.h"
 
 #define LIST_FREE_CONTIGUOUS(list)\
     if (list->list != null ) {\

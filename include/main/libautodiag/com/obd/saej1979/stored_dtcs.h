@@ -4,7 +4,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include "libautodiag/dirent.h"
-#include "libautodiag/list.h"
+#include "libautodiag/lang/list.h"
 #include "saej1979.h"
 #include "libautodiag/installation.h"
 #include "libautodiag/model/database.h"

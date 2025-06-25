@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <stdarg.h>
-#include "lang.h"
+#include "libautodiag/lang/lang.h"
 
 // do not change order, it is linked to options gui
 typedef enum {

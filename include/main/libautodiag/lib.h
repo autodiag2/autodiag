@@ -8,8 +8,8 @@ int asprintf(char **strp, const char *fmt, ...);
 #include <assert.h>
 
 #include "compile_target.h"
-#include "lang.h"
-#include "list.h"
+#include "libautodiag/lang/lang.h"
+#include "libautodiag/lang/list.h"
 
 /**
  * Generic return values for functions.
@@ -48,6 +48,6 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "cli_tools.h"
 #include "installation.h"
 #include "libautodiag/string.h"
-#include "libautodiag/hashmap.h"
+#include "libautodiag/lang/hashmap.h"
 
 #endif

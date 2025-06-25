@@ -2,7 +2,7 @@
 #define __CUSTOM_POLL_H
 
 #include "libautodiag/compile_target.h"
-#include "libautodiag/lang.h"
+#include "libautodiag/lang/lang.h"
 #include "libautodiag/log.h"
 #include <unistd.h>
 #include <errno.h>

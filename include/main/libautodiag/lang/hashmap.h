@@ -1,8 +1,8 @@
 #ifndef __HASHMAP_H
 #define __HASHMAP_H
 
-#include "libautodiag/lang.h"
-#include "libautodiag/list.h"
+#include "libautodiag/lang/lang.h"
+#include "libautodiag/lang/list.h"
 
 #define HASHMAP_H_STRUCT(key_type, value_type) \
     typedef struct { \
