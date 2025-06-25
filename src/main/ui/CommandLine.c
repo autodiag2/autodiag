@@ -28,6 +28,7 @@ static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpoin
                 commandHistoryIndex--;
             } else {
                 gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
+                gtk_label_set_text(gui->tooltip, "");
             }
             return TRUE;
 
@@ -37,8 +38,10 @@ static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpoin
                 commandHistoryIndex++;
             } else if ( commandHistoryIndex == -1 ) {
                 gtk_entry_set_text(GTK_ENTRY(entry), "");
+                gtk_label_set_text(gui->tooltip, "");
             } else {
                 gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
+                gtk_label_set_text(gui->tooltip, "");
             }
             return TRUE;
 
@@ -155,10 +158,14 @@ static void show() {
 }
 static void send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
-    if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
-        list_object_string_append(commandHistory, object_string_new_from(command));
+    if ( -1 == commandHistoryIndex || strcmp(commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data, command) != 0 ) {
+        if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
+            list_object_string_append(commandHistory, object_string_new_from(command));
+        }
     }
-    send_command_wait_response(command);
+    send_command_wait_response(strdup(command));
+    commandHistoryIndex = -1;
+    gtk_entry_set_text(gui->customCommandInput, "");
 }
 
 static void output_clear() {
