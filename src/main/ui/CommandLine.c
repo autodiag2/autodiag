@@ -2,7 +2,7 @@
 
 #include <limits.h>
 CommandLineGui *cmdGui = null;
-
+static list_object_string * commandHistory = null;
 gdouble command_line_output_scrollbar_current_upper = -1;
 void command_line_output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
@@ -123,6 +123,7 @@ void show_window_command_line() {
 }
 void command_line_send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(cmdGui->customCommandInput);
+    list_object_string_append(commandHistory, object_string_new_from(command));
     command_line_send_command_wait_response(command);
 }
 
@@ -197,6 +198,7 @@ void command_line_vehicle_add_pid_buttons() {
 
 void module_init_command_line(final GtkBuilder *builder) {
     if ( cmdGui == null ) {
+        commandHistory = list_object_string_new();
         cmdGui = (CommandLineGui*)malloc(sizeof(CommandLineGui));
         CommandLineGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-command-line")),

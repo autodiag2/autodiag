@@ -4,6 +4,8 @@
 #include <string.h>
 #include <strings.h>
 #include "libautodiag/lang/lang.h"
+#include "libautodiag/lang/object.h"
+#include "libautodiag/lang/list.h"
 #include "compile_target.h"
 
 #ifndef OS_POSIX
@@ -14,5 +16,13 @@
 
 bool strbeginwith(char *str, char *begin);
 bool strcasebeginwith(char *str, char *begin);
+typedef struct {
+    char *data;
+} object_string;
+
+OBJECT_H(string)
+object_string * object_string_new_from(char *data);
+
+LIST_H(object_string)
 
 #endif
