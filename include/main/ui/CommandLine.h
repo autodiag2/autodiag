@@ -26,8 +26,6 @@ typedef struct {
     } send;
 } CommandLineGui;
 
-extern CommandLineGui *cmdGui;
-
 void command_line_generic_send_command_from_button(final GtkButton * button);
 void module_init_command_line(GtkBuilder *builder);
 void module_shutdown_command_line();

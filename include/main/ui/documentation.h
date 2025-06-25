@@ -17,9 +17,6 @@ typedef struct {
     } about;
 } DocumentationGui;
 
-extern DocumentationGui *documentationgui;
-
-void documentation_show_window();
 void module_init_documentation(GtkBuilder *builder);
 
 #endif
