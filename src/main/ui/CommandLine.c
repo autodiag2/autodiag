@@ -4,6 +4,7 @@
 
 static CommandLineGui *gui = null;
 static list_object_string * commandHistory = null;
+static int commandHistoryIndex = -1;
 static gdouble output_scrollbar_current_upper = -1;
 static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
@@ -13,6 +14,36 @@ static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data
             gdouble v = upper - gtk_adjustment_get_page_size(adj);
             gtk_adjustment_set_value(adj,v);
         }
+    }
+}
+
+static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpointer user_data) {
+    if (commandHistory->size == 0)
+        return FALSE;
+
+    switch (event->keyval) {
+        case GDK_KEY_Up:
+            commandHistoryIndex ++;
+            if ( commandHistoryIndex == commandHistory->size ) {
+                commandHistoryIndex--;
+            } else {
+                gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
+            }
+            return TRUE;
+
+        case GDK_KEY_Down:
+            commandHistoryIndex --;
+            if ( commandHistoryIndex < -1 ) {
+                commandHistoryIndex++;
+            } else if ( commandHistoryIndex == -1 ) {
+                gtk_entry_set_text(GTK_ENTRY(entry), "");
+            } else {
+                gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
+            }
+            return TRUE;
+
+        default:
+            return FALSE;
     }
 }
 
@@ -124,7 +155,9 @@ static void show() {
 }
 static void send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
-    list_object_string_append(commandHistory, object_string_new_from(command));
+    if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
+        list_object_string_append(commandHistory, object_string_new_from(command));
+    }
     send_command_wait_response(command);
 }
 
@@ -221,6 +254,7 @@ void module_init_command_line(final GtkBuilder *builder) {
         vehicle_add_pid_buttons();
         gtk_text_view_set_buffer(gui->output.frame, gui->output.text);
         g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        g_signal_connect(gui->customCommandInput, "key-press-event", G_CALLBACK(input_line_keypress), NULL);
         error_feedback_windows_init(gui->errorFeedback);
         g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(gui->output.window)),"changed",G_CALLBACK(output_scrollbar_size_changed),null);        
         gtk_builder_add_callback_symbol(builder,"show-window-command-line",&show);
