@@ -41,7 +41,6 @@ typedef struct {
 } MainGui;
 
 extern MainGui *mainGui;
-extern GtkWidget *windowAbout, *windowFreezeFrame, *windowSensorData;
 
 void refresh_usb_adaptater_state();
 void*refresh_usb_adaptater_state_spinner(void *arg);
