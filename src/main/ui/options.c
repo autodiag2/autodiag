@@ -97,21 +97,26 @@ int ensure_serial_in_list(final Serial * port) {
     }
     return 0;
 }
-
+static void options_serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
+    GtkEntry *entry = GTK_ENTRY(user_data);
+    gchar *text = gtk_combo_box_text_get_active_text(combo);
+    gtk_entry_set_text(entry, text ? text : "");
+    g_free(text);
+}
 void* options_save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
-    final char *selected_device_location = gtk_combo_box_text_get_active_text(optionsGui->serialList);
-    if ( selected_device_location == null ) {
+    final char * device_location = gtk_entry_get_text(optionsGui->device_location);
+    if ( device_location == null || strcmp(device_location,"") == 0 ) {
         if ( config.com.serial.device_location != null ) {
             free(config.com.serial.device_location);
             config.com.serial.device_location = null;
         }
     } else {
         module_debug(MODULE_OPTIONS "Serial port selected:");
-        module_debug(MODULE_OPTIONS (char *)selected_device_location);
-        config.com.serial.device_location = strdup(selected_device_location);
-        g_free(selected_device_location);
+        module_debug(MODULE_OPTIONS (char *)device_location);
+        config.com.serial.device_location = strdup(device_location);
+        g_free(device_location);
     }
     const char * activeBaudRateText = gtk_entry_get_text(optionsGui->baudRateSelection);
     int baud_rate = atoi(activeBaudRateText);
@@ -162,7 +167,7 @@ void options_save() {
 void options_list_serial_refresh() {
     list_serial_fill();
     if ( optionsGui->serialList == null ) {
-        module_debug(MODULE_OPTIONS "Cannot process with gui attached");
+        module_debug(MODULE_OPTIONS "Cannot process without gui attached");
     } else {
         gtk_combo_box_text_remove_all(optionsGui->serialList);
         for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
@@ -170,6 +175,7 @@ void options_list_serial_refresh() {
             gtk_combo_box_text_append(optionsGui->serialList,NULL,port->location);
             if ( port == list_serial_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
+                gtk_entry_set_text(optionsGui->device_location, port->location);
             }
         }
     }
@@ -229,7 +235,8 @@ gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     options_cancel();
     return TRUE;
 }
-void options_set_serial_select_from_location(char * location) {
+void options_set_device_location(char * location) {
+    gtk_entry_set_text(optionsGui->device_location, location);
     for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
         final Serial * port = list_serial.list[serial_i];
         if ( strcmp(location, port->location) == 0 ) {
@@ -252,7 +259,7 @@ void options_show_window() {
     gtk_entry_set_text(optionsGui->baudRateSelection,txt);
     free(txt);
     if ( config.com.serial.device_location != null ) {
-        options_set_serial_select_from_location(config.com.serial.device_location);
+        options_set_device_location(config.com.serial.device_location);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
@@ -290,7 +297,7 @@ gboolean options_launch_simulation_update_gui(gpointer data) {
     gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
     free(simu_desc);
     
-    options_set_serial_select_from_location(elm327->device_location);
+    options_set_device_location(elm327->device_location);
 
     return false;
 }
@@ -376,6 +383,7 @@ void module_init_options(GtkBuilder *builder) {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
             .logLevel = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-log-level")),
             .serialList = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-serial-list")),
+            .device_location = GTK_ENTRY(gtk_builder_get_object(builder, "options-device-location")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
             .mainGui = {
                 .advancedLinkDetails = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details"))
@@ -407,6 +415,7 @@ void module_init_options(GtkBuilder *builder) {
         *optionsGui = g;
 
         db_vehicle_load_in_memory();
+        g_signal_connect(g.serialList, "changed", G_CALLBACK(options_serial_list_changed), optionsGui->device_location);
         g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
