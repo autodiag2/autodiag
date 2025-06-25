@@ -1,14 +1,14 @@
 #include "ui/options.h"
 #include "ui/main.h"
 
-OptionsGui *optionsGui = null;
+static OptionsGui *gui = null;
 
 gboolean gtk_combo_box_text_prevent_scroll(GtkWidget *widget, GdkEventScroll *event, gpointer user_data) {
     gtk_propagate_event(gtk_widget_get_parent(widget), (GdkEvent*)event);
     return TRUE;
 }
-void options_simutation_add_ecu(char *address, char *generator) {
-    GtkBox * container = optionsGui->simulator.ecus.container;
+static void simutation_add_ecu(char *address, char *generator) {
+    GtkBox * container = gui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 
     int index = get_container_child_count(GTK_CONTAINER(container));
@@ -47,15 +47,15 @@ void options_simutation_add_ecu(char *address, char *generator) {
     gtk_widget_show_all(row);
 }
 
-void options_simutation_add_clicked(GtkButton *button, gpointer user_data) {
-    const char *addr_text = gtk_entry_get_text(optionsGui->simulator.ecus.address);
-    char *gen_text = gtk_combo_box_text_get_active_text(optionsGui->simulator.ecus.generator);
+static void simutation_add_clicked(GtkButton *button, gpointer user_data) {
+    const char *addr_text = gtk_entry_get_text(gui->simulator.ecus.address);
+    char *gen_text = gtk_combo_box_text_get_active_text(gui->simulator.ecus.generator);
     if (gen_text == NULL) {
         gen_text = strdup("random");
     }
 
     if (addr_text == NULL || strcmp(addr_text, "") == 0) {
-        GtkBox *container = optionsGui->simulator.ecus.container;
+        GtkBox *container = gui->simulator.ecus.container;
         GList *children = gtk_container_get_children(GTK_CONTAINER(container));
         GtkWidget *last = g_list_last(children) ? g_list_last(children)->data : NULL;
         char new_addr[16] = "E8";
@@ -73,17 +73,17 @@ void options_simutation_add_clicked(GtkButton *button, gpointer user_data) {
         addr_text = strdup(new_addr);
     }
 
-    options_simutation_add_ecu((char *)addr_text, gen_text);
+    simutation_add_ecu((char *)addr_text, gen_text);
     free(gen_text);
 }
 
-void options_hide_window() {
-   gtk_widget_hide(optionsGui->window);
+static void hide_window() {
+   gtk_widget_hide(gui->window);
 }
 
-void options_cancel() {
+static void cancel() {
    module_debug(MODULE_OPTIONS "Cancel options setup");
-   options_hide_window();
+   hide_window();
 }
 
 int ensure_serial_in_list(final Serial * port) {
@@ -97,15 +97,15 @@ int ensure_serial_in_list(final Serial * port) {
     }
     return 0;
 }
-static void options_serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
+static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
     gtk_entry_set_text(entry, text ? text : "");
 }
-void* options_save_internal(void *arg) {
+static void* save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
-    final char * device_location = gtk_entry_get_text(optionsGui->device_location);
+    final char * device_location = gtk_entry_get_text(gui->device_location);
     if ( device_location == null || strcmp(device_location,"") == 0 ) {
         if ( config.com.serial.device_location != null ) {
             free(config.com.serial.device_location);
@@ -116,35 +116,35 @@ void* options_save_internal(void *arg) {
         module_debug(MODULE_OPTIONS (char *)device_location);
         config.com.serial.device_location = strdup(device_location);
     }
-    const char * activeBaudRateText = gtk_entry_get_text(optionsGui->baudRateSelection);
+    const char * activeBaudRateText = gtk_entry_get_text(gui->baudRateSelection);
     int baud_rate = atoi(activeBaudRateText);
     if ( baud_rate < 0 ) {
         log_msg(LOG_ERROR, "Invalid baud rate setup '%s'", activeBaudRateText);
     } else {
         config.com.serial.baud_rate = baud_rate;
     }
-    config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(optionsGui->logLevel));
+    config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(gui->logLevel));
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);
     }
-    config.main.adaptater_detailled_settings_showned = gtk_toggle_button_get_active(optionsGui->mainGui.advancedLinkDetails);
-    config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(optionsGui->commandLineGui.outputAutoScroll);
-    config_commandLine_showTimestamp_set(gtk_toggle_button_get_active(optionsGui->commandLineGui.showTimestamp));
-    config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(optionsGui->vehicleExplorerGui.refreshRateS), null);
-    config.vehicleInfos.vin = strdup(gtk_entry_get_text(optionsGui->vehicleInfos.vin));
+    config.main.adaptater_detailled_settings_showned = gtk_toggle_button_get_active(gui->mainGui.advancedLinkDetails);
+    config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(gui->commandLineGui.outputAutoScroll);
+    config_commandLine_showTimestamp_set(gtk_toggle_button_get_active(gui->commandLineGui.showTimestamp));
+    config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(gui->vehicleExplorerGui.refreshRateS), null);
+    config.vehicleInfos.vin = strdup(gtk_entry_get_text(gui->vehicleInfos.vin));
     config_store();
     config_onchange();
     final OBDIFace * iface = config.ephemere.iface;
     if ( iface != null ) {
         obd_fill_infos_from_vin(iface);
-        final char * manufacturer = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.manufacturer);
+        final char * manufacturer = gtk_combo_box_text_get_active_text(gui->vehicleInfos.manufacturer);
         if ( manufacturer != null ) {
             if ( iface->vehicle->manufacturer != null ) {
                 free(iface->vehicle->manufacturer);
             }
             iface->vehicle->manufacturer = manufacturer;
         }
-        final char * engine = gtk_combo_box_text_get_active_text(optionsGui->vehicleInfos.engine);
+        final char * engine = gtk_combo_box_text_get_active_text(gui->vehicleInfos.engine);
         if ( engine != null ) {
             if ( iface->vehicle->engine != null ) {
                 free(iface->vehicle->engine);
@@ -157,33 +157,33 @@ void* options_save_internal(void *arg) {
     return null;
 }
 
-void options_save() {
-    main_usb_adaptater_state_spinner_wait_for(&options_save_internal);
-    options_hide_window();
+static void save() {
+    main_usb_adaptater_state_spinner_wait_for(&save_internal);
+    hide_window();
 }
 
-void options_list_serial_refresh() {
+static void list_serial_refresh() {
     list_serial_fill();
-    if ( optionsGui->serialList == null ) {
+    if ( gui->serialList == null ) {
         module_debug(MODULE_OPTIONS "Cannot process without gui attached");
     } else {
-        gtk_combo_box_text_remove_all(optionsGui->serialList);
+        gtk_combo_box_text_remove_all(gui->serialList);
         for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
             final Serial * port = list_serial.list[serial_i];
-            gtk_combo_box_text_append(optionsGui->serialList,NULL,port->location);
+            gtk_combo_box_text_append(gui->serialList,NULL,port->location);
             if ( port == list_serial_get_selected() ) {
-                gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
-                gtk_entry_set_text(optionsGui->device_location, port->location);
+                gtk_combo_box_set_active((GtkComboBox *)gui->serialList,serial_i);
+                gtk_entry_set_text(gui->device_location, port->location);
             }
         }
     }
 }
-void options_fill_vehicle_infos() {
-    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.manufacturer);
-    gtk_combo_box_text_remove_all(optionsGui->vehicleInfos.engine);
+static void fill_vehicle_infos() {
+    gtk_combo_box_text_remove_all(gui->vehicleInfos.manufacturer);
+    gtk_combo_box_text_remove_all(gui->vehicleInfos.engine);
 
-    gtk_combo_box_text_append(optionsGui->vehicleInfos.manufacturer, NULL, "");
-    gtk_combo_box_text_append(optionsGui->vehicleInfos.engine, NULL, "");
+    gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, NULL, "");
+    gtk_combo_box_text_append(gui->vehicleInfos.engine, NULL, "");
 
     GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
     GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
@@ -197,7 +197,7 @@ void options_fill_vehicle_infos() {
 
         if (vehicle->manufacturer != null && !g_hash_table_contains(manufacturers, vehicle->manufacturer)) {
             g_hash_table_add(manufacturers, vehicle->manufacturer);
-            gtk_combo_box_text_append(optionsGui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
+            gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
             if (iface != null && iface->vehicle->manufacturer != null) {
                 if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
                     manufacturer_active_i = manufacturer_i;
@@ -208,7 +208,7 @@ void options_fill_vehicle_infos() {
 
         if (vehicle->engine != null && !g_hash_table_contains(engines, vehicle->engine)) {
             g_hash_table_add(engines, vehicle->engine);
-            gtk_combo_box_text_append(optionsGui->vehicleInfos.engine, NULL, vehicle->engine);
+            gtk_combo_box_text_append(gui->vehicleInfos.engine, NULL, vehicle->engine);
             if (iface != null && iface->vehicle->engine != null) {
                 if (strcmp(iface->vehicle->engine, vehicle->engine) == 0) {
                     engine_active_i = engine_i;
@@ -218,95 +218,95 @@ void options_fill_vehicle_infos() {
         }
     }
     if ( manufacturer_active_i != -1 ) {
-        gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.manufacturer, manufacturer_active_i);
+        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.manufacturer, manufacturer_active_i);
     }
     if ( engine_active_i != -1 ) {
-        gtk_combo_box_set_active((GtkComboBox *)optionsGui->vehicleInfos.engine, engine_active_i);
+        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.engine, engine_active_i);
     }
     g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
 
-    gtk_entry_set_text(optionsGui->vehicleInfos.vin, config.vehicleInfos.vin == null ? "" : config.vehicleInfos.vin);
+    gtk_entry_set_text(gui->vehicleInfos.vin, config.vehicleInfos.vin == null ? "" : config.vehicleInfos.vin);
 }
-gboolean options_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
+static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
-    options_cancel();
+    cancel();
     return TRUE;
 }
-void options_set_device_location(char * location) {
-    gtk_entry_set_text(optionsGui->device_location, location);
+static void set_device_location(char * location) {
+    gtk_entry_set_text(gui->device_location, location);
     for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
         final Serial * port = list_serial.list[serial_i];
         if ( strcmp(location, port->location) == 0 ) {
-            gtk_combo_box_set_active((GtkComboBox *)optionsGui->serialList,serial_i);
+            gtk_combo_box_set_active((GtkComboBox *)gui->serialList,serial_i);
             break;
         }
     }
 }
 
-void options_show_window() {
-    gtk_widget_show_now (optionsGui->window);
-    options_list_serial_refresh();
-    options_fill_vehicle_infos();
-    gtk_toggle_button_set_active(optionsGui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
-    gtk_toggle_button_set_active(optionsGui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
-    gtk_toggle_button_set_active(optionsGui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(optionsGui->logLevel), config.log.level);
+static void show_window() {
+    gtk_widget_show_now (gui->window);
+    list_serial_refresh();
+    fill_vehicle_infos();
+    gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
+    gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
+    gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(gui->logLevel), config.log.level);
     char * txt;
     asprintf(&txt,"%d", config.com.serial.baud_rate);
-    gtk_entry_set_text(optionsGui->baudRateSelection,txt);
+    gtk_entry_set_text(gui->baudRateSelection,txt);
     free(txt);
     if ( config.com.serial.device_location != null ) {
-        options_set_device_location(config.com.serial.device_location);
+        set_device_location(config.com.serial.device_location);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
-    gtk_entry_set_text(optionsGui->vehicleExplorerGui.refreshRateS, text);
+    gtk_entry_set_text(gui->vehicleExplorerGui.refreshRateS, text);
     free(text);
 
-    GList *children = gtk_container_get_children(GTK_CONTAINER(optionsGui->simulator.ecus.container));
+    GList *children = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
     for (GList *iter = children; iter != NULL; iter = iter->next) {
         gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
     g_list_free(children);
-    options_simutation_add_ecu("E8", "random");
+    simutation_add_ecu("E8", "random");
 }
 
-void window_options_baud_rate_set_from_button(final GtkButton * button) {
+void window_baud_rate_set_from_button(final GtkButton * button) {
     char* baud_rate_str = (char*)gtk_button_get_label(button);
-    gtk_entry_set_text(optionsGui->baudRateSelection, baud_rate_str);
+    gtk_entry_set_text(gui->baudRateSelection, baud_rate_str);
 }
 
-gboolean options_launch_simulation_set_pending_text(gpointer data) {
+static gboolean launch_simulation_set_pending_text(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
-    gtk_label_set_text(optionsGui->simulator.launchDesc, "Starting simulation ...");
+    gtk_label_set_text(gui->simulator.launchDesc, "Starting simulation ...");
     return false;
 }
-gboolean options_launch_simulation_update_gui(gpointer data) {
+static gboolean launch_simulation_update_gui(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
-    options_list_serial_refresh();
+    list_serial_refresh();
 
     char * fmt = elm327->device_location == null ? 
             "Simulation not started ..." 
             : "Simulation started at '%s'";
     char * simu_desc;
     asprintf(&simu_desc,fmt,elm327->device_location);
-    gtk_label_set_text(optionsGui->simulator.launchDesc, simu_desc);
+    gtk_label_set_text(gui->simulator.launchDesc, simu_desc);
     free(simu_desc);
     
-    options_set_device_location(elm327->device_location);
+    set_device_location(elm327->device_location);
 
     return false;
 }
 
-void options_launch_simulation_internal() {
-    gtk_spinner_start(optionsGui->simulator.spinner);
+static void launch_simulation_internal() {
+    gtk_spinner_start(gui->simulator.spinner);
 
     SimELM327 *elm327 = sim_elm327_new();
     bool firstPass = true;    
 
-    GList *rows = gtk_container_get_children(GTK_CONTAINER(optionsGui->simulator.ecus.container));
+    GList *rows = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
 
     for (GList *iter = rows; iter != NULL; iter = iter->next) {
         if ( firstPass ) {
@@ -353,30 +353,30 @@ void options_launch_simulation_internal() {
     g_list_free(rows);
 
     sim_elm327_loop_as_daemon(elm327);
-    g_idle_add(options_launch_simulation_set_pending_text, elm327);
+    g_idle_add(launch_simulation_set_pending_text, elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    g_idle_add(options_launch_simulation_update_gui, elm327);
+    g_idle_add(launch_simulation_update_gui, elm327);
 }
 
-static void options_launch_simulation_clean_up_routine(void *arg) {
+static static void launch_simulation_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
-    gtk_spinner_stop(optionsGui->simulator.spinner);
+    gtk_spinner_stop(gui->simulator.spinner);
 }
 
 THREAD_WRITE_DAEMON(
-        options_launch_simulation_daemon,
-        options_launch_simulation_internal,
-        options_launch_simulation_clean_up_routine, optionsGui->simulator.launchThread
+        launch_simulation_daemon,
+        launch_simulation_internal,
+        launch_simulation_clean_up_routine, gui->simulator.launchThread
 )
 
 
-void options_launch_simulation() {
-    thread_allocate_and_start(&optionsGui->simulator.launchThread,&options_launch_simulation_daemon);
+static void launch_simulation() {
+    thread_allocate_and_start(&gui->simulator.launchThread,&launch_simulation_daemon);
 }
 
 void module_init_options(GtkBuilder *builder) {
-    if ( optionsGui == null ) {
-        optionsGui = (OptionsGui*)malloc(sizeof(OptionsGui));
+    if ( gui == null ) {
+        gui = (OptionsGui*)malloc(sizeof(OptionsGui));
         OptionsGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
             .logLevel = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-log-level")),
@@ -410,31 +410,31 @@ void module_init_options(GtkBuilder *builder) {
                 .vin = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-vehicle-vin"))
             }
         };
-        *optionsGui = g;
+        *gui = g;
 
         db_vehicle_load_in_memory();
-        g_signal_connect(g.serialList, "changed", G_CALLBACK(options_serial_list_changed), optionsGui->device_location);
+        g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location);
         g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(options_simutation_add_clicked), builder);
-        gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_options_baud_rate_set_from_button));
-        g_signal_connect(G_OBJECT(optionsGui->window),"delete-event",G_CALLBACK(options_onclose),NULL);
-        gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&options_launch_simulation);
-        gtk_builder_add_callback_symbol(builder,"window-options-cancel",&options_cancel);
-        gtk_builder_add_callback_symbol(builder,"window-options-save",&options_save);
-        gtk_builder_add_callback_symbol(builder,"show-window-options",&options_show_window);
-        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&options_list_serial_refresh);
+        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simutation_add_clicked), builder);
+        gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
+        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL);
+        gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
+        gtk_builder_add_callback_symbol(builder,"window-options-cancel",&cancel);
+        gtk_builder_add_callback_symbol(builder,"window-options-save",&save);
+        gtk_builder_add_callback_symbol(builder,"show-window-options",&show_window);
+        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&list_serial_refresh);
     } else {
     
     }
 }
 
 void module_shutdown_options() {
-    if ( optionsGui != null ) {
-        free(optionsGui);
+    if ( gui != null ) {
+        free(gui);
     }   
 }
 

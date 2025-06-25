@@ -43,11 +43,8 @@ typedef struct {
     } vehicleInfos;
 } OptionsGui;
 
-extern OptionsGui *optionsGui;
 
 void module_init_options(GtkBuilder *builder);
 void module_shutdown_options();
-void options_show_window();
-int ensure_serial_in_list(final Serial * port);
 
 #endif
