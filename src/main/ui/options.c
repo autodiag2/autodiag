@@ -86,17 +86,6 @@ static void cancel() {
    hide_window();
 }
 
-int ensure_serial_in_list(final Serial * port) {
-    if ( port == null ) {
-        return 1;
-    }
-    for(int i = 0;i < list_serial.size; i++) {
-        if ( list_serial.list[i] == port ) {
-            return 1;
-        }
-    }
-    return 0;
-}
 static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
