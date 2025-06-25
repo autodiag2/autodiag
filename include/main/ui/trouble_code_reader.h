@@ -51,6 +51,6 @@ typedef struct {
 void module_init_read_codes(GtkBuilder *builder);
 
 #define trouble_code_reader_error_feedback_obd(iface) \
-    error_feedback_obd(tcgui->errorFeedback,iface,list_serial_get_selected())
+    error_feedback_obd(gui->errorFeedback,iface,list_serial_get_selected())
 
 #endif
