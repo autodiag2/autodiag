@@ -545,11 +545,11 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
             elm327->eol,
             SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
         );
-        log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
-        usleep(50e3);
     } else {
         asprintf(&response,"%s%s", serial_response, elm327->eol);
     }
+    log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
+    usleep(50e3);
     free(serial_response);
     log_msg(LOG_DEBUG, "sending back %s", response);
 
