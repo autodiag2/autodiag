@@ -492,7 +492,7 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
                 return false;
             }
         }
-        if ( file_pool(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
+        if ( file_pool_read(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
         }
         DWORD readedBytes = 0;
@@ -507,7 +507,7 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
         }
         buffer->size = readedBytes;
     #elif defined OS_POSIX
-        int res = file_pool(&elm327->implementation->fd, null, SERIAL_DEFAULT_TIMEOUT);
+        int res = file_pool_read(&elm327->implementation->fd, null, SERIAL_DEFAULT_TIMEOUT);
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
             return false;

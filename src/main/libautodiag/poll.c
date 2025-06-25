@@ -1,6 +1,6 @@
 #include "libautodiag/poll.h"
 
-int file_pool(void *handle, int *readLen_rv, int timeout_ms) {
+int file_pool_read(void *handle, int *readLen_rv, int timeout_ms) {
     #if defined OS_WINDOWS
         DWORD readLen = 0;
         HANDLE connection_handle = (HANDLE)*((HANDLE*)handle);

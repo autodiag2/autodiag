@@ -83,7 +83,7 @@ int serial_recv_internal(final Serial * port) {
                 DWORD bytes_readed = 0;
 
                 int readLen = 0;
-                file_pool(&port->implementation->connexion_handle, &readLen, port->timeout);
+                file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout);
                 
                 while(0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
@@ -100,7 +100,7 @@ int serial_recv_internal(final Serial * port) {
                     } else {
                         log_msg(LOG_ERROR, "ReadFile error 2");
                     }
-                    file_pool(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
+                    file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
                 }
             }
         #elif defined OS_POSIX
@@ -110,7 +110,7 @@ int serial_recv_internal(final Serial * port) {
             } else {
                 int res = 1;
                 int block_sz = 64;
-                res = file_pool(&port->implementation->fdtty, null, port->timeout);
+                res = file_pool_read(&port->implementation->fdtty, null, port->timeout);
                 if ( 0 < res ) {
                     while( 0 < res && port->implementation->fdtty != -1 ) {
                         buffer_ensure_capacity(port->recv_buffer, block_sz);
@@ -123,7 +123,7 @@ int serial_recv_internal(final Serial * port) {
                             perror("read");
                             break;
                         }
-                        res = file_pool(&port->implementation->fdtty, null, port->timeout_seq);
+                        res = file_pool_read(&port->implementation->fdtty, null, port->timeout_seq);
                     }
                     if ( log_has_level(LOG_DEBUG) ) {
                         module_debug(MODULE_SERIAL "Serial data received");

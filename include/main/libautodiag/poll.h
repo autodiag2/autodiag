@@ -19,7 +19,7 @@
  * All is a file implementation of the pool, support both windows and unix.
  * @return -1 on error, 0 on time out, 1 or greater on success
  */
-int file_pool(void *handle, int *readLen, int timeout_ms);
+int file_pool_read(void *handle, int *readLen, int timeout_ms);
 int file_pool_write(void *handle, int timeout_ms);
 
 #endif
