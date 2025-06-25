@@ -95,6 +95,6 @@ typedef struct {
 void module_init_vehicle_explorer(final GtkBuilder *builder);
 
 #define vehicle_explorer_error_feedback_obd(iface) \
- error_feedback_obd(vdgui->errorFeedback,iface,list_serial_get_selected())
+ error_feedback_obd(gui->errorFeedback,iface,list_serial_get_selected())
 
 #endif
