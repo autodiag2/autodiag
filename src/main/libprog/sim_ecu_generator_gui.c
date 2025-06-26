@@ -1,24 +1,24 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
-void sim_ecu_generator_gui_data_coolant_temperature_set(SimECUGeneratorGui *gui, int temperature) {
+static void coolant_temperature_set(SimECUGeneratorGui *gui, int temperature) {
     char *res;
     asprintf(&res, "%d °C", temperature);
     counter_set_label(gui->data.coolantTemperature, res);
     free(res);
 }
-void sim_ecu_generator_gui_data_engine_speed_set(SimECUGeneratorGui *gui, double speed) {
+static void engine_speed_set(SimECUGeneratorGui *gui, double speed) {
     char *res;
     asprintf(&res, "%.2f r/min", speed);
     counter_set_label(gui->data.engineSpeed, res);
     free(res);
 }
-void sim_ecu_generator_gui_data_vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
+static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
     char *res;
     asprintf(&res, "%d km/h", speed);
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
-void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
     switch(binRequest->buffer[0]) {
@@ -43,7 +43,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                         int value = percent * span;
                         buffer_append_byte(binResponse, (byte)(value));
-                        sim_ecu_generator_gui_data_coolant_temperature_set(gui, value + SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
+                        coolant_temperature_set(gui, value + SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
                     } break;
                     case 0x0C: {
                         gdouble percent = counter_get_fraction(gui->data.engineSpeed);
@@ -53,14 +53,14 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
                         byte bB = 0xFF & value;
                         buffer_append_byte(binResponse, bA);
                         buffer_append_byte(binResponse, bB);
-                        sim_ecu_generator_gui_data_engine_speed_set(gui, value/4.0 + SAEJ1979_DATA_ENGINE_SPEED_MIN);
+                        engine_speed_set(gui, value/4.0 + SAEJ1979_DATA_ENGINE_SPEED_MIN);
                     } break;
                     case 0x0D: {
                         gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
                         int value = percent * span;
                         buffer_append_byte(binResponse, (byte)value);
-                        sim_ecu_generator_gui_data_vehicle_speed_set(gui, value + SAEJ1979_DATA_VEHICLE_SPEED_MIN);
+                        vehicle_speed_set(gui, value + SAEJ1979_DATA_VEHICLE_SPEED_MIN);
                     } break;
                 }
             }
@@ -102,12 +102,12 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
 
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_gui);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("gui");
     return generator;
 }
 
-void sim_ecu_generator_gui_add_dtc(GtkButton *button, gpointer user_data) {
+static void add_dtc(GtkButton *button, gpointer user_data) {
     SimECUGeneratorGui* simGui = (SimECUGeneratorGui*)user_data;
     const char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
     if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
@@ -166,7 +166,7 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
 
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
-    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(sim_ecu_generator_gui_add_dtc), simGui);
+    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), simGui);
 
     counter_init_modifiable(simGui->data.vehicleSpeed,"counter_85_2_255_0_0_255.png", true);
     counter_init_modifiable(simGui->data.coolantTemperature,"gaugehalf_225_5_255_0_0_255.png", true);
@@ -175,15 +175,15 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
 
-    sim_ecu_generator_gui_data_coolant_temperature_set(simGui, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
-    sim_ecu_generator_gui_data_engine_speed_set(simGui, SAEJ1979_DATA_ENGINE_SPEED_MIN);
-    sim_ecu_generator_gui_data_vehicle_speed_set(simGui, SAEJ1979_DATA_VEHICLE_SPEED_MIN);
+    coolant_temperature_set(simGui, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
+    engine_speed_set(simGui, SAEJ1979_DATA_ENGINE_SPEED_MIN);
+    vehicle_speed_set(simGui, SAEJ1979_DATA_VEHICLE_SPEED_MIN);
 
     generator->context = (void *)simGui;
 
     return simGui;
 }
-gboolean sim_ecu_generator_gui_present_window_false(gpointer w) {
+static gboolean present_window_false(gpointer w) {
     sleep(1);
     gtk_window_set_keep_above(GTK_WINDOW(w), false);
     return false;
@@ -192,6 +192,6 @@ gboolean sim_ecu_generator_gui_present_window_false(gpointer w) {
 SimECUGeneratorGui * sim_ecu_generator_gui_show(SimECUGeneratorGui *simGui) {
     gtk_widget_show(simGui->window);
     gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
-    g_idle_add(sim_ecu_generator_gui_present_window_false, (gpointer)simGui->window);
+    g_idle_add(present_window_false, (gpointer)simGui->window);
     gtk_window_present(GTK_WINDOW(simGui->window));
 }
