@@ -29,12 +29,12 @@ class PlotCanvas(FigureCanvas):
     def on_motion(self, event):
         if self._press_pos is None or not event.inaxes:
             return
-        dx = event.xdata - self._press_pos[0]
-        dy = event.ydata - self._press_pos[1]
+        dx = self._press_pos[0] - event.xdata
+        dy = self._press_pos[1] - event.ydata
         x0, x1 = self._press_xlim
         y0, y1 = self._press_ylim
-        self.ax.set_xlim(x0 - dx, x1 - dx)
-        self.ax.set_ylim(y0 - dy, y1 - dy)
+        self.ax.set_xlim(x0 + dx, x1 + dx)
+        self.ax.set_ylim(y0 + dy, y1 + dy)
         self.draw_idle()
 
     def on_release(self, event):
@@ -54,6 +54,9 @@ class PlotCanvas(FigureCanvas):
         x = np.linspace(-100, 100, 1000)
         y = np.sin(x)
         self.ax.clear()
+        self.ax.set_title("Sine Wave")
+        self.ax.set_xlabel("X Axis")
+        self.ax.set_ylabel("Y Axis")
         self.ax.plot(x, y, color='red')
         self.set_grey_lines()
         self.draw()
