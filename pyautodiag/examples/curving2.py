@@ -5,6 +5,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 
 class PlotCanvas(FigureCanvas):
+
     def __init__(self, parent=None):
         fig = Figure()
         self.ax = fig.add_subplot(111)
@@ -12,16 +13,49 @@ class PlotCanvas(FigureCanvas):
         self.setParent(parent)
         self.plot()
         self.mpl_connect('scroll_event', self.on_scroll)
+        self.mpl_connect('button_press_event', self.on_press)
+        self.mpl_connect('motion_notify_event', self.on_motion)
+        self.mpl_connect('button_release_event', self.on_release)
+        self._press_pos = None
+        self._press_xlim = None
+        self._press_ylim = None
+
+    def on_press(self, event):
+        if event.button == 1 and event.inaxes:
+            self._press_pos = (event.xdata, event.ydata)
+            self._press_xlim = self.ax.get_xlim()
+            self._press_ylim = self.ax.get_ylim()
+
+    def on_motion(self, event):
+        if self._press_pos is None or not event.inaxes:
+            return
+        dx = event.xdata - self._press_pos[0]
+        dy = event.ydata - self._press_pos[1]
+        x0, x1 = self._press_xlim
+        y0, y1 = self._press_ylim
+        self.ax.set_xlim(x0 - dx, x1 - dx)
+        self.ax.set_ylim(y0 - dy, y1 - dy)
+        self.draw_idle()
+
+    def on_release(self, event):
+        self._press_pos = None
+        self._press_xlim = None
+        self._press_ylim = None
+
+    def set_grey_lines(self):
+        [l.remove() for l in self.ax.get_lines()[1:]]  # Keep plot line, remove extra
+        [l.remove() for l in self.ax.lines if l.get_linestyle() == '--']  # If you use dashed for grid, adjust as needed
+        for xg in self.ax.get_xticks():
+            self.ax.axvline(x=xg, color='grey', linewidth=0.5, zorder=0)
+        for yg in self.ax.get_yticks():
+            self.ax.axhline(y=yg, color='grey', linewidth=0.5, zorder=0)
 
     def plot(self):
-        x = np.linspace(-10, 10, 1000)
+        x = np.linspace(-100, 100, 1000)
         y = np.sin(x)
         self.ax.clear()
         self.ax.plot(x, y, color='red')
-        for xg in np.arange(-10, 11, 1):
-            self.ax.axvline(x=xg, color='grey', linewidth=0.5, zorder=0)
-        for yg in np.arange(-1, 2, 0.5):
-            self.ax.axhline(y=yg, color='grey', linewidth=0.5, zorder=0)
+        self.set_grey_lines()
         self.draw()
 
     def on_scroll(self, event):
@@ -37,6 +71,7 @@ class PlotCanvas(FigureCanvas):
         rely = (ydata - cur_ylim[0]) / (cur_ylim[1] - cur_ylim[0])
         self.ax.set_xlim([xdata - new_width * relx, xdata + new_width * (1 - relx)])
         self.ax.set_ylim([ydata - new_height * rely, ydata + new_height * (1 - rely)])
+        self.set_grey_lines()
         self.draw_idle()
 
 class MainWindow(QMainWindow):
