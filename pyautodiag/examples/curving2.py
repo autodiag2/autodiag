@@ -13,34 +13,6 @@ class PlotCanvas(FigureCanvas):
         self.setParent(parent)
         self.plot()
         self.mpl_connect('scroll_event', self.on_scroll)
-        self.mpl_connect('button_press_event', self.on_press)
-        self.mpl_connect('motion_notify_event', self.on_motion)
-        self.mpl_connect('button_release_event', self.on_release)
-        self._press_pos = None
-        self._press_xlim = None
-        self._press_ylim = None
-
-    def on_press(self, event):
-        if event.button == 1 and event.inaxes:
-            self._press_pos = (event.xdata, event.ydata)
-            self._press_xlim = self.ax.get_xlim()
-            self._press_ylim = self.ax.get_ylim()
-
-    def on_motion(self, event):
-        if self._press_pos is None or not event.inaxes:
-            return
-        dx = self._press_pos[0] - event.xdata
-        dy = self._press_pos[1] - event.ydata
-        x0, x1 = self._press_xlim
-        y0, y1 = self._press_ylim
-        self.ax.set_xlim(x0 + dx, x1 + dx)
-        self.ax.set_ylim(y0 + dy, y1 + dy)
-        self.draw_idle()
-
-    def on_release(self, event):
-        self._press_pos = None
-        self._press_xlim = None
-        self._press_ylim = None
 
     def set_grey_lines(self):
         [l.remove() for l in self.ax.get_lines()[1:]]  # Keep plot line, remove extra
@@ -55,6 +27,7 @@ class PlotCanvas(FigureCanvas):
         y = np.sin(x)
         self.ax.clear()
         self.ax.set_title("Sine Wave")
+        self.ax.xaxis.set_label_position('top')
         self.ax.set_xlabel("X Axis")
         self.ax.set_ylabel("Y Axis")
         self.ax.plot(x, y, color='red')
