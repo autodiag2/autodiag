@@ -1,10 +1,10 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
-int dtc_count = 2;
-bool mil_on = true;
+static int dtc_count = 2;
+static bool mil_on = true;
 
-void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -108,7 +108,7 @@ void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char *
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_citroen_c5_x7);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("Citroen C5 X7");
     return generator;
 }
