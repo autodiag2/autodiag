@@ -102,7 +102,7 @@ void sim_ecu_generator_response_gui(SimECUGenerator *generator, char ** response
 
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_gui);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_gui);
     generator->type = strdup("gui");
     return generator;
 }

@@ -212,7 +212,7 @@ void sim_elm327_debug(final SimELM327 * elm327) {
         printf("            generator: %p {\n", sim_ecu->generator);
         printf("                context: %p\n", generator->context);
         printf("                type: %p %s\n", generator->type, generator->type);
-        printf("                sim_ecu_generator_response: %p\n", generator->sim_ecu_generator_response);
+        printf("                sim_ecu_generator_response: %p\n", generator->response);
         printf("            }\n");
         printf("            sim_ecu_response: %p\n", sim_ecu->sim_ecu_response);
         printf("        }\n");

@@ -98,7 +98,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    ecu->generator->sim_ecu_generator_response(ecu->generator, &response, binResponse, binRequest);
+    ecu->generator->response(ecu->generator, &response, binResponse, binRequest);
     if ( 0 < binResponse->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;

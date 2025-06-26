@@ -85,7 +85,7 @@ void sim_ecu_generator_response_cycle(SimECUGenerator *generator, char ** respon
 
 SimECUGenerator* sim_ecu_generator_new_cycle() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_cycle);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_cycle);
     generator->type = strdup("cycle");
     return generator;
 }

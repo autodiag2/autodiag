@@ -108,7 +108,7 @@ void sim_ecu_generator_response_citroen_c5_x7(SimECUGenerator *generator, char *
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->sim_ecu_generator_response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_citroen_c5_x7);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(sim_ecu_generator_response_citroen_c5_x7);
     generator->type = strdup("Citroen C5 X7");
     return generator;
 }
