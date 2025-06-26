@@ -35,9 +35,9 @@ extern Logger logger;
 void log_msg(LogLevel level, char *msg, ...);
 void module_debug(char * modname, char *msg);
 void module_debug_init(char * modname);
-#define log_set_level(level) logger.current_level = level;
+void log_set_level(final LogLevel level);
 #define log_get_level() logger.current_level
-#define log_has_level(level) (level <= logger.current_level)
+bool log_has_level(final LogLevel level);
 /**
  * Extract log level from given string
  */

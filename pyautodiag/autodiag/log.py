@@ -19,8 +19,6 @@ lib.module_debug_init.restype = None
 lib.log_set_level.argtypes = [LogLevel]
 lib.log_set_level.restype = None
 
-lib.log_get_level.restype = LogLevel
-
 lib.log_has_level.argtypes = [LogLevel]
 lib.log_has_level.restype = bool
 

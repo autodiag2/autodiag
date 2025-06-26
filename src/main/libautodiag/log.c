@@ -94,3 +94,9 @@ void module_debug(char * modname, char *msg) {
 void module_debug_init(char * modname) {
     module_debug(modname, "Module initialization");
 }
+void log_set_level(final LogLevel level) {
+    logger.current_level = level;
+}
+bool log_has_level(final LogLevel level) {
+    return level <= logger.current_level;
+}
