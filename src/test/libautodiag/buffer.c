@@ -27,14 +27,6 @@ bool testBuffer() {
         testOutput(ascii);
         assert(strcmp(ascii,"000102")==0);
     }
-    {
-        final Buffer * b = buffer_new();
-        buffer_ensure_capacity(b, 100);
-        strcpy(b->buffer,"\r\r>");
-        b->size = 4;
-        serial_strip_char(b,"\r");
-        assert(strlen(b->buffer) == 1);
-    }
     testLeftShift();
     {
         assert(buffer_new() != null);

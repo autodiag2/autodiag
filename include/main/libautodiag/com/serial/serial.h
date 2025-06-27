@@ -204,11 +204,6 @@ int serial_recv(final Serial * port);
  */
 int serial_recv_internal(final Serial * port);
 /**
- * Remove eol from start/end of the buffer
- */
-void serial_strip_char(final Buffer * buffer, final char * char_to_strip);
-void serial_strip_char_internal(final Buffer * buffer, final char * char_to_strip, final bool start, final bool end);
-/**
  * @return allocated with malloc
  */
 char * serial_status_to_string(final SerialStatus status);

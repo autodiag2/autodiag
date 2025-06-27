@@ -350,44 +350,6 @@ void serial_lock(final Serial * port) {
 void serial_unlock(final Serial * port) {
     pthread_mutex_unlock(&port->implementation->lock_mutex);
 }
-
-void serial_strip_char(final Buffer * buffer, final char * char_to_strip) {
-    serial_strip_char_internal(buffer,char_to_strip,true,true);
-}
-
-void serial_strip_char_internal(final Buffer * buffer, final char * char_to_strip, final bool start, final bool end) {
-    int leading_to_remove = 0, trailing_to_remove = 0;
-    int current = 0;
-    int max = strlen(char_to_strip);
-    if ( start ) {
-        for(int i = 0; i < buffer->size; i++) {
-            if ( buffer->buffer[i] == char_to_strip[current++] ) {
-                if ( max == current ) {
-                    current = 0;
-                    leading_to_remove += max;
-                }
-            } else {
-                current = 0;
-                break;
-            }
-        }
-        buffer_left_shift(buffer, leading_to_remove);
-    }
-    if ( end ) {
-        for(int i = buffer->size - 1; 0 <= i ; i--) {
-            if ( buffer->buffer[i] == char_to_strip[current++] ) {
-                if ( max == current ) {
-                    current = 0;
-                    buffer->size -= max;
-                    buffer->buffer[buffer->size] = 0;     
-                }
-            } else {
-                current = 0;
-                break;
-            }
-        }
-    }    
-}
 Serial * serial_new() {
     final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
