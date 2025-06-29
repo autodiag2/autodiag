@@ -5,11 +5,11 @@ INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 # Programs
 SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
-OBJS_PROGS = $(filter-out obj/main/libautodiag/%.o,$(filter-out obj/main/prog/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o))))
+OBJS_PROGS = $(filter-out output/obj/main/libautodiag/%.o,$(filter-out output/obj/main/prog/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
 BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,*.c))
 
 # Library shared object
-OBJS_LIB = $(filter obj/main/libautodiag/%.o,$(subst src/main/,obj/main/,$(SOURCES_PROGS:.c=.o)))
+OBJS_LIB = $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
 BIN_LIB := $(BIN_LIB_NAME)
 PYTHON_INSTALL_FOLDER_ROOT = pyautodiag/autodiag
 PYTHON_INSTALL_FOLDER_LIB = $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
@@ -17,7 +17,7 @@ PYTHON_INSTALL_FOLDER_DATA = $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
-OBJS_TESTS = $(subst obj/test/regression.o,,$(subst obj/test/obd_get_pid_supported.o,,$(subst src/test/,obj/test/,$(SOURCES_TESTS:.c=.o))))
+OBJS_TESTS = $(subst output/obj/test/regression.o,,$(subst output/obj/test/obd_get_pid_supported.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o))))
 BINS_TESTS = bin/regression bin/obd_get_pid_supported
 
 SOURCES = $(SOURCES_PROGS) $(SOURCES_TESTS)
@@ -82,18 +82,18 @@ bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
 
-obj/main/%.o:
+output/obj/main/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
-obj/test/%.o:
+output/obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(filter %.c,$(^)) -o '$@'
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
 # Additionnal specific dependencies
-dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
+dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
 dependencies: $(SOURCES)
 	@echo "Generating dependencies..."
 	@> dependencies.mk
@@ -102,7 +102,7 @@ dependencies: $(SOURCES)
 -include dependencies.mk
 
 clean:
-	rm -rf obj/
+	rm -rf output/obj/
 	rm -fr pyautodiag/build
 	rm -fr pyautodiag/dist
 	rm -fr pyautodiag/*.egg-info
