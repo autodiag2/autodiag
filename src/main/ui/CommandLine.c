@@ -160,7 +160,9 @@ static void send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
     if ( -1 == commandHistoryIndex || strcmp(commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data, command) != 0 ) {
         if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
-            list_object_string_append(commandHistory, object_string_new_from(command));
+            if ( 0 < strlen(command) ) {
+                list_object_string_append(commandHistory, object_string_new_from(command));
+            }
         }
     }
     send_command_wait_response(strdup(command));
