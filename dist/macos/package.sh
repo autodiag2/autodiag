@@ -1,8 +1,8 @@
 #!/bin/bash
 
 APP_NAME="autodiag"
-APP_PATH="./bin/$APP_NAME.app"
-APP_PACKAGE="./bin/$APP_NAME.dmg"
+APP_PATH="./output/bin/$APP_NAME.app"
+APP_PACKAGE="./output/bin/$APP_NAME.dmg"
 EXECS_PATH="$APP_PATH/Contents/MacOS/"
 EXECUTABLE="$EXECS_PATH/$APP_NAME"
 FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
@@ -19,7 +19,7 @@ for folder in ui data/data media ; do
 done
 
 # Process all executables
-for EXECUTABLE in bin/*; do
+for EXECUTABLE in output/bin/*; do
     [[ "$EXECUTABLE" == *.dylib ]] && continue
     [[ "$EXECUTABLE" == *.dmg ]] && continue
     [[ "$EXECUTABLE" == *.app ]] && continue
@@ -28,11 +28,11 @@ for EXECUTABLE in bin/*; do
 done
 
 # Process all libraries inside Frameworks folder recursively
-for LIB in "$FRAMEWORKS_PATH"/*.dylib bin/*.dylib; do
+for LIB in "$FRAMEWORKS_PATH"/*.dylib output/bin/*.dylib; do
     process_dependencies "$LIB" "$FRAMEWORKS_PATH"
 done
 
-for LIB in bin/*.dylib; do
+for LIB in output/bin/*.dylib; do
     cp "$LIB" "$FRAMEWORKS_PATH"
     LIB_NAME=$(basename "$LIB")
     for EXEC in "$EXECS_PATH"/*; do

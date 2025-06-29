@@ -6,7 +6,7 @@ INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 # Programs
 SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
 OBJS_PROGS = $(filter-out output/obj/main/libautodiag/%.o,$(filter-out output/obj/main/prog/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
-BINS_PROGS = $(patsubst src/main/prog/%.c,bin/%,$(call rwildcard,src/main/prog/,*.c))
+BINS_PROGS = $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c))
 
 # Library shared object
 OBJS_LIB = $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
@@ -18,7 +18,7 @@ PYTHON_INSTALL_FOLDER_DATA = $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
 OBJS_TESTS = $(subst output/obj/test/regression.o,,$(subst output/obj/test/obd_get_pid_supported.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o))))
-BINS_TESTS = bin/regression bin/obd_get_pid_supported
+BINS_TESTS = output/bin/regression output/bin/obd_get_pid_supported
 
 SOURCES = $(SOURCES_PROGS) $(SOURCES_TESTS)
 OBJS = $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
@@ -50,17 +50,17 @@ coverage: CFLAGS_COVERAGE += --coverage
 coverage: CFLAGS_LIBS_TESTS += -lgcov
 coverage: veryclean compile_tests
 	echo "running coverage with : $(CFLAGS)"
-	./bin/regression
+	./output/bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
-bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
+output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 $(BIN_LIB): $(OBJS_LIB)
 	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
-	mkdir -p bin/
-	cp "$@" bin/
+	mkdir -p output/bin/
+	cp "$@" output/bin/
 
 uninstallPython:
 	-rm -f $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
@@ -78,7 +78,7 @@ installPythonDev: _installPython
 	ln -s $(PWD)/$(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	ln -s $(PWD)/data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
-bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
+output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
 
@@ -108,14 +108,14 @@ clean:
 	rm -fr pyautodiag/*.egg-info
 
 veryclean: clean
-	rm -rf bin/
+	rm -rf output/bin/
 
 run: default
-	bin/$(APP_NAME)
+	output/bin/$(APP_NAME)
 runDebug: default
-	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug bin/$(APP_NAME)
-runTest: ./bin/regression
-	./bin/regression
+	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME)
+runTest: ./output/bin/regression
+	./output/bin/regression
 
 info:
 	@-echo "OBJS=$(OBJS)"
@@ -137,10 +137,10 @@ distDebianSrc: veryclean
 	dpkg-source --format="$$(cat dist/debian/source/format)" -l$$(pwd)/dist/debian/changelog -c$$(pwd)/dist/debian/control -b .
 
 distDebianBin: release_progs
-	cd dist/ && dpkg-buildpackage -b --buildinfo-option=-u../bin/ --changes-option=-u../bin/ -us -uc --hook-done='fakeroot debian/rules done'
+	cd dist/ && dpkg-buildpackage -b --buildinfo-option=-u../output/bin/ --changes-option=-u../output/bin/ -us -uc --hook-done='fakeroot debian/rules done'
 	# Due to missing behaviour in dpkg-genchanges(1.19.7) (that is in dpkg-genbuilinfo) look -u -O, we are required to do this
-	mv $(APP_NAME)_*.changes ./bin/
-	dpkg -I ./bin/$(APP_NAME)*$(APP_VERSION)*.deb
+	mv $(APP_NAME)_*.changes ./output/bin/
+	dpkg -I ./output/bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
 distWindows: release_progs
 	"/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ./dist/windows/package.iss
@@ -174,17 +174,17 @@ install: _install
 	cp -fr ui "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr data/data "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr media "$(INSTALL_DATA_FOLDER_APP)"
-	-cp ./bin/* "$(INSTALL_BIN_FOLDER)"
-	cp ./bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
+	-cp ./output/bin/* "$(INSTALL_BIN_FOLDER)"
+	cp ./output/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
 installDev: _install
 	ln -s "$${PWD}/data/data" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/ui" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/media" "$(INSTALL_DATA_FOLDER_APP)"
-	ln -s "$${PWD}"/bin/* "$(INSTALL_BIN_FOLDER)"
-	ln -s "$${PWD}"/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
+	ln -s "$${PWD}"/output/bin/* "$(INSTALL_BIN_FOLDER)"
+	ln -s "$${PWD}"/output/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
 uninstall:
 	rm -fr "$(INSTALL_DATA_FOLDER_APP)"
-	for bin in "$${PWD}"/bin/*; do \
+	for bin in "$${PWD}"/output/bin/*; do \
 		if [ -f "$${bin}" ]; then \
 			rm -f "$(INSTALL_BIN_FOLDER)/$$(basename "$${bin}")"; \
 			rm -f "$(INSTALL_LIB_FOLDER)/$$(basename "$${bin}")"; \

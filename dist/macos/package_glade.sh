@@ -1,6 +1,6 @@
 APP_NAME="glade"
-APP_PATH="./bin/$APP_NAME.app"
-APP_PACKAGE="./bin/$APP_NAME.dmg"
+APP_PATH="./output/bin/$APP_NAME.app"
+APP_PACKAGE="./output/bin/$APP_NAME.dmg"
 FRAMEWORKS_PATH="$APP_PATH/Contents/Frameworks"
 
 EXECS_PATH="$APP_PATH/Contents/MacOS/"

@@ -44,8 +44,8 @@ make distDebian distWindows distMacOS
 ```
 ## Run
 ```bash
-./bin/autodiag
-./bin/elm327sim
+./output/bin/autodiag
+./output/bin/elm327sim
 ```
 
 # Python package

@@ -72,12 +72,12 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            bin/*.deb
-            bin/*.so
-            bin/*.dylib
-            bin/*.dll
-            bin/*.dmg
-            bin/*Setup.exe
+            output/bin/*.deb
+            output/bin/*.so
+            output/bin/*.dylib
+            output/bin/*.dll
+            output/bin/*.dmg
+            output/bin/*Setup.exe
           tag_name: ${{ needs.tag.outputs.tag_name }}
           name: Release ${{ needs.tag.outputs.tag_name }}
           token: ${{ secrets.TOKEN }}

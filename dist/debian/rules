@@ -18,14 +18,14 @@ build:
 binary:
 	mkdir -p $(BUILD_DIR) $(BUILD_LIB) $(BUILD_BIN) $(BUILD_SHARE) $(BUILD_DIR)/DEBIAN/
 
-	for f in $(SRC_ROOT)/bin/*; do \
+	for f in $(SRC_ROOT)/output/bin/*; do \
 		case "$$f" in \
 			*.so|*.deb|*.changes|*.buildinfo) continue ;; \
 			*) install -m 755 "$$f" $(BUILD_BIN) ;; \
 		esac \
 	done
 
-	for f in $(SRC_ROOT)/bin/*.so; do \
+	for f in $(SRC_ROOT)/output/bin/*.so; do \
 		install -m 644 "$$f" $(BUILD_LIB) ; \
 	done
 
@@ -35,13 +35,13 @@ binary:
 	chmod 777 $(BUILD_SHARE)/*
 
 	dpkg-gencontrol -P$(BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" -DDescription="Car scantool`echo \"\\n$(APP_DESC)\" | sed 's/\\n/\n/g'`" -v$(APP_VERSION) -USource -O$(BUILD_DIR)/DEBIAN/control
-	ln -s $(SRC_ROOT)/$(BUILDINFO_FILENAME) $(SRC_ROOT)/bin/$(BUILDINFO_FILENAME)
-	dpkg-deb --build $(BUILD_DIR) $(SRC_ROOT)/bin/
+	ln -s $(SRC_ROOT)/$(BUILDINFO_FILENAME) $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
+	dpkg-deb --build $(BUILD_DIR) $(SRC_ROOT)/output/bin/
 
 clean:
 	
 done:
 	rm -fr $(BUILD_DIR)
 	rm $(PKG_SRC_DIR)/files
-	rm -f $(SRC_ROOT)/bin/$(BUILDINFO_FILENAME)
+	rm -f $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
 	rm -f $(SRC_ROOT)/$(BUILDINFO_FILENAME)
