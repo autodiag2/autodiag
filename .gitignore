@@ -1,8 +1,6 @@
 bin/**
 *~
 **/*~
-obj/**
-output/obj/
 **/#**#
 TODO
 *.swp
@@ -17,7 +15,6 @@ autodiag
 *.dylib
 *.dll
 private-doc
-releases
 *.whl
 *.exe
 *.dmg
