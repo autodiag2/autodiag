@@ -5,7 +5,6 @@
  */
 #include "libautodiag/com/serial/serial.h"
 #include "libautodiag/com/serial/list_serial.h"
-#include "libautodiag/com/obd/obd.h"
 #include "elm_iso15765.h"
 
 typedef struct {
@@ -21,6 +20,7 @@ typedef struct {
 } ELMDevice;
 
 #define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
+#define CAST_ELM_DEVICE(var) ((ELMDevice*)var)
 
 #define ELM_RESPONSE_UNKNOWN                 0xF00
 
@@ -37,7 +37,7 @@ char * elm_print_id(final Serial * port);
 /**
  * Try to open an elm device from the provided serial
  */
-OBDIFace* elm_open_from_serial(final Serial * port);
+ELMDevice* elm_open_from_serial(final Serial * port);
 
 Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii);
 Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr);

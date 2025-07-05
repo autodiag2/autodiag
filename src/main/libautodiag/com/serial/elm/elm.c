@@ -84,57 +84,51 @@ char * elm_print_id(final Serial * port) {
     return id;
 }
 
-OBDIFace* elm_open_from_serial_internal2(final Serial ** port) {
-    OBDIFace* iface = null;
+ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
+    ELMDevice * device = null;
     final char * response = elm_print_id(*port);
-    final bool interfaceConfigured;
+    final bool deviceConfigured;
     if ( response == null ) {
-        interfaceConfigured = false;
+        deviceConfigured = false;
     } else {
         if ( strncmp(response, "ELM329",strlen("ELM329")) == 0 ) {
-            iface = obd_new_from_device((Device*)elm329_new_from_serial(*port));
+            device = CAST_ELM_DEVICE(elm329_new_from_serial(*port));
         } else if ( strncmp(response, "ELM327",strlen("ELM327")) == 0 ) {
-            iface = obd_new_from_device((Device*)elm327_new_from_serial(*port));
+            device = CAST_ELM_DEVICE((Device*)elm327_new_from_serial(*port));
         } else if ( strncmp(response, "ELM323",strlen("ELM323")) == 0 ) {
-            iface = obd_new_from_device((Device*)elm323_new_from_serial(*port));
+            device = CAST_ELM_DEVICE((Device*)elm323_new_from_serial(*port));
         } else if ( strncmp(response, "ELM322",strlen("ELM322")) == 0 ) {
-            iface = obd_new_from_device((Device*)elm322_new_from_serial(*port));
+            device = CAST_ELM_DEVICE((Device*)elm322_new_from_serial(*port));
         } else if ( strncmp(response, "ELM320",strlen("ELM320")) == 0 ) {
-            iface = obd_new_from_device((Device*)elm320_new_from_serial(*port));
+            device = CAST_ELM_DEVICE((Device*)elm320_new_from_serial(*port));
         }
-        if ( iface == null ) {
-            interfaceConfigured = false;
+        if ( device == null ) {
+            deviceConfigured = false;
         } else {
-            ELMDevice* elm = (ELMDevice*)iface->device;
-            interfaceConfigured = elm->configure((Device*)elm);
+            deviceConfigured = device->configure((Device*)device);
             free(*port);
         }
         free(response);
     }
     log_msg(LOG_DEBUG, "Info fetch done");
 
-    if ( iface != null ) {
+    if ( device != null ) {
         for(int i = 0;i < list_serial.size; i++) {
             if ( list_serial.list[i] == *port ) {
                 log_msg(LOG_DEBUG, "Serial port changed to the real device");
-                list_serial.list[i] = (Serial *)iface->device;
+                list_serial.list[i] = (Serial *)device;
                 *port = list_serial.list[i];
                 break;
             }
         }
     }
-    if ( interfaceConfigured ) {
-        return iface;
+    if ( deviceConfigured ) {
+        return device;
     } else {
-        if ( iface != null ) {
-            iface->device = null;
-            obd_free(iface);
-        }
         return null;
     }
-    return iface;
 }
-OBDIFace* elm_open_from_serial_internal(final Serial * * port) {
+ELMDevice* elm_open_from_serial_internal(final Serial * * port) {
     if ( elm_echo(*port,false) == DEVICE_ERROR ) {
         log_msg(LOG_ERROR, "Error while turn echo off");
         return null;
@@ -155,7 +149,7 @@ void elm_debug(final ELMDevice * elm) {
     printf("}\n");
 }
 
-OBDIFace* elm_open_from_serial(final Serial * port) {
+ELMDevice* elm_open_from_serial(final Serial * port) {
     if ( port == null ) {
         return null;
     } else {
@@ -163,25 +157,25 @@ OBDIFace* elm_open_from_serial(final Serial * port) {
             log_msg(LOG_ERROR, "Error while openning serial port");
             return null;
         } else {
-            OBDIFace* iface = elm_open_from_serial_internal(&port);
-            if ( iface == null ) {
+            ELMDevice* device = elm_open_from_serial_internal(&port);
+            if ( device == null ) {
                 log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time");
                 serial_query_at_command(port, "d");
                 serial_reset_to_default(port);
-                iface = elm_open_from_serial_internal(&port);
-                if ( iface == null ) {
+                device = elm_open_from_serial_internal(&port);
+                if ( device == null ) {
                     log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time");
                     elm_echo(port,false);
                     port->echo = false;
                     elm_linefeeds(port,false);
                     port->eol = strdup("\r");
-                    iface = elm_open_from_serial_internal2(&port);
+                    device = elm_open_from_serial_internal2(&port);
                 }
             }
-            if ( iface == null ) {
-                log_msg(LOG_WARNING, "Everything has been tried but iface config has failed");
+            if ( device == null ) {
+                log_msg(LOG_WARNING, "Everything has been tried but device config has failed");
             }
-            return iface;
+            return device;
         }
     }
 }

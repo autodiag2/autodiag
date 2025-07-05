@@ -66,7 +66,7 @@ static OBDIFace* port_open(char *device_location) {
     printf("open port %s\n", device_location);
     final Serial * serial = serial_new();
     serial->location = strdup(device_location);
-    return elm_open_from_serial(serial);
+    return obd_open_from_device(CAST_DEVICE(serial));
 }
 
 static OBDIFace* port_parse_open(int argc, char **argv) {
