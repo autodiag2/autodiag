@@ -118,13 +118,6 @@ OBDIFace* obd_new() {
     iface->vehicle = vehicle_new();
     return iface;
 }
-
-OBDIFace* obd_new_from_device(final Device* device) {
-    assert(device != null);
-    final OBDIFace* iface = obd_new();
-    iface->device = device;
-    return iface;
-}
 void obd_fill_infos_from_vin(final OBDIFace * iface) {
     if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
         final ISO3779 * decoder = ISO3779_new();
@@ -161,7 +154,9 @@ OBDIFace* obd_open_from_device(final Device* device) {
         log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s: device config has failed", serial->location);
         return null;
     }
-    OBDIFace * iface = obd_new_from_device(CAST_DEVICE(elm));
+
+    final OBDIFace* iface = obd_new();
+    iface->device = CAST_DEVICE(elm);
     obd_discover_vehicle(iface);
     return iface;
 }

@@ -29,7 +29,6 @@ typedef struct {
 } OBDIFace;
 
 OBDIFace* obd_new();
-OBDIFace* obd_new_from_device(final Device* device);
 void obd_free(final OBDIFace* iface);
 void obd_lock(final OBDIFace *iface);
 void obd_unlock(final OBDIFace *iface);

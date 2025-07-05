@@ -9,11 +9,8 @@ class OBDIFace(Structure):
         ("vehicle", POINTER(Vehicle)),
     ]
 
-    def __new__(cls, device=None):
-        if device is None:
-            ptr = lib.obd_new()
-        else:
-            ptr = lib.obd_new_from_device(byref(device))
+    def __new__(cls):
+        ptr = lib.obd_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
         obj = cast(ptr, POINTER(cls)).contents
@@ -51,9 +48,6 @@ class OBDIFace(Structure):
 
 lib.obd_new.argtypes = []
 lib.obd_new.restype = POINTER(OBDIFace)
-
-lib.obd_new_from_device.argtypes = [POINTER(Device)]
-lib.obd_new_from_device.restype = POINTER(OBDIFace)
 
 lib.obd_open_from_device.argtypes = [POINTER(Device)]
 lib.obd_open_from_device.restype = POINTER(OBDIFace)
