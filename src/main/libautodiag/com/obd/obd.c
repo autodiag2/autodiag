@@ -150,7 +150,7 @@ void obd_discover_vehicle(OBDIFace* iface) {
 OBDIFace* obd_open_from_device(final Device* device) {
     Serial * serial = (Serial*)device;
     ELMDevice * elm = elm_open_from_serial(serial);
-    if ( device == null ) {
+    if ( elm == null ) {
         log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s: device config has failed", serial->location);
         return null;
     }
