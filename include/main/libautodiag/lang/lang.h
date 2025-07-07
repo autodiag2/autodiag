@@ -33,4 +33,9 @@ byte byte_reverse(byte b);
  */
 #define bitRetrieve(value,bitN) (((value) & (1 << (bitN))) != 0)
 
+#include "libautodiag/lang/Int.h"
+#include "libautodiag/lang/hashmap.h"
+#include "libautodiag/lang/object.h"
+#include "libautodiag/lang/list.h"
+
 #endif

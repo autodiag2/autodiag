@@ -44,4 +44,15 @@ object_string * object_string_new_from(char *data) {
     s->data = strdup(data);
     return s;
 }
+object_string * object_string_assign(object_string * o1, object_string * o2) {
+    if ( o1->data ) {
+        free(o1->data);
+    }
+    if ( o2->data ) {
+        o1->data = strdup(o2->data);
+    } else {
+        o1->data = null;
+    }
+    return o1;
+}
 LIST_SRC(object_string)
