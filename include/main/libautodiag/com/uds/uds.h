@@ -28,4 +28,7 @@ typedef enum {
     UDS_SERVICE_TESTER_PRESENT = 0x3E
 } UDService;
 
+HASHMAP_H(object_Int, object_string)
+char* uds_service_to_string(final UDService key);
+
 #endif

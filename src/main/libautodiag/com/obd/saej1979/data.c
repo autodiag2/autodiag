@@ -1563,7 +1563,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     false
                 )
 
-object_hashmap_void_char * _saej1979_data_data_gen_pid_map = null;
+static object_hashmap_void_char * _saej1979_data_data_gen_pid_map = null;
 int object_hashmap_void_char_key_comparator(void * k1, void *k2) {
     return ! ( k1 == k2 );
 }

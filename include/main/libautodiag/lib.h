@@ -47,7 +47,6 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "log.h"
 #include "cli_tools.h"
 #include "installation.h"
-#include "libautodiag/string.h"
-#include "libautodiag/lang/hashmap.h"
+#include "libautodiag/lang/all.h"
 
 #endif
