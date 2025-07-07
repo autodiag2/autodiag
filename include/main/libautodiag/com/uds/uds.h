@@ -1,7 +1,7 @@
 #ifndef __UDS_H
 #define __UDS_H
 
-#include "libautodiag/lang/lang.h"
+#include "libautodiag/lang/all.h"
 
 typedef enum {
     UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL = 0x10,
@@ -29,6 +29,6 @@ typedef enum {
 } UDService;
 
 HASHMAP_H(object_Int, object_string)
-char* uds_service_to_string(final UDService key);
+char* uds_service_to_string(final int key);
 
 #endif
