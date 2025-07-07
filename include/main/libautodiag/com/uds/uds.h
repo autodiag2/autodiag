@@ -1,3 +1,6 @@
+/**
+ * ISO 14229
+ */
 #ifndef __UDS_H
 #define __UDS_H
 
@@ -26,9 +29,9 @@ typedef enum {
     UDS_SERVICE_REQUEST_TRANSFER_EXIT = 0x37,
     UDS_SERVICE_REQUEST_FILE_TRANSFER = 0x38,
     UDS_SERVICE_TESTER_PRESENT = 0x3E
-} UDService;
+} UDSService;
 
-HASHMAP_H(object_Int, object_string)
-char* uds_service_to_string(final int key);
+char* uds_service_to_string(final UDSService key);
+int uds_service_response(final UDSService key);
 
 #endif
