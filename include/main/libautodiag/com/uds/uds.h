@@ -5,6 +5,7 @@
 #define __UDS_H
 
 #include "libautodiag/lang/all.h"
+#include "libautodiag/com/vehicle_interface.h"
 
 typedef enum {
     UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL = 0x10,
@@ -77,5 +78,8 @@ typedef enum {
 char* uds_service_to_string(final UDSService key);
 int uds_service_response(final UDSService key);
 char * uds_nrc_to_string(final UDS_NRC nrc);
+
+list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
+
 
 #endif

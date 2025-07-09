@@ -82,15 +82,15 @@ int viface_recv(final VehicleIFace* iface) {
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
                 if ( 0 < data->size ) {
-                    final byte service_id = data->buffer[0];
+                    byte service_id = data->buffer[0];
                     if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
                         log_msg(LOG_DEBUG, "Diagnostic Service negative code found (cannot response to the request)");
                         continue;
                     } else {
-                        byte sid = service_id & ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
+                        service_id &= ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
                         final Buffer * data_copy = buffer_copy(data);
                         buffer_extract_0(data_copy);
-                        switch(sid) {
+                        switch(service_id) {
                             case OBD_SERVICE_SHOW_CURRENT_DATA: list_Buffer_append(ecu->obd_service.current_data, data_copy); break;
                             case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: list_Buffer_append(ecu->obd_service.freeze_frame_data, data_copy); break;
                             case OBD_SERVICE_TESTS_RESULTS: list_Buffer_append(ecu->obd_service.tests_results, data_copy); break;
