@@ -140,7 +140,7 @@ bool config_store() {
     return res;
 }
 
-bool config_load_parser(char * funcData, char *key, char *value) {
+static bool config_load_parser(char * funcData, char *key, char *value) {
     if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
         config.com.serial.baud_rate = atoi(value);
         return true;
