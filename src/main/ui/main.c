@@ -118,7 +118,6 @@ void * module_init_main_deferred(void *ignored) {
     refresh_usb_adaptater_state_internal(null);
     return null;
 }
-
 void module_init_main() {
     if ( mainGui == null ) {
         config_load();
@@ -161,7 +160,8 @@ void module_init_main() {
                             
         mainGui = (MainGui*)malloc(sizeof(MainGui));
         (*mainGui) = gui;
-        
+        gtk_wrapper_set_window_icon(GTK_WINDOW(gui.window));
+
         {
             GError * error = null;
             GtkCssProvider * css_provider = gtk_css_provider_new();

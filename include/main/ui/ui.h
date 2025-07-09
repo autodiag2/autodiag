@@ -3,7 +3,7 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include "ui/gtk.h"
+#include "ui/gtk_wrapper.h"
 #include "libautodiag/log.h"
 #include "libautodiag/thread.h"
 #include "libautodiag/com/obd/obd.h"

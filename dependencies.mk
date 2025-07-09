@@ -1457,7 +1457,8 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/sim/elm327/nvm.h include/main/ui/gtk.h \
   include/main/ui/counter.h include/main/libprog/config.h
 output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
-  include/main/ui/main.h include/main/ui/ui.h include/main/ui/gtk.h \
+  include/main/ui/main.h include/main/ui/ui.h \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1569,7 +1570,7 @@ output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/ui/counter.h include/main/libprog/config.h
 output/obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/ui/CommandLine.h include/main/ui/ui.h \
-  include/main/ui/gtk.h \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1667,7 +1668,7 @@ output/obj/main/ui/counter.o: src/main/ui/counter.c \
   include/main/libautodiag/com/serial/elm/elm320.h
 output/obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/ui/documentation.h include/main/ui/ui.h \
-  include/main/ui/gtk.h \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1762,6 +1763,25 @@ output/obj/main/ui/error_feedback.o: src/main/ui/error_feedback.c \
   include/main/libautodiag/com/serial/elm/elm323/../elm.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h
+output/obj/main/ui/gtk_wrapper.o: src/main/ui/gtk_wrapper.c \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
+  include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/ui/gtk.o: src/main/ui/gtk.c include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -1781,7 +1801,8 @@ output/obj/main/ui/gtk.o: src/main/ui/gtk.c include/main/ui/gtk.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
-  include/main/ui/ui.h include/main/ui/gtk.h \
+  include/main/ui/ui.h include/main/ui/gtk_wrapper.h \
+  include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1838,7 +1859,8 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
   include/main/libprog/graph_data.h include/main/ui/documentation.h
 output/obj/main/ui/options.o: src/main/ui/options.c \
-  include/main/ui/options.h include/main/ui/ui.h include/main/ui/gtk.h \
+  include/main/ui/options.h include/main/ui/ui.h \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1897,7 +1919,8 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
 output/obj/main/ui/trouble_code_reader.o: \
   src/main/ui/trouble_code_reader.c \
   include/main/ui/trouble_code_reader.h include/main/ui/main.h \
-  include/main/ui/ui.h include/main/ui/gtk.h \
+  include/main/ui/ui.h include/main/ui/gtk_wrapper.h \
+  include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
@@ -1954,7 +1977,7 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libprog/graph_data.h include/main/ui/documentation.h
 output/obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/ui/vehicle_explorer.h include/main/ui/ui.h \
-  include/main/ui/gtk.h \
+  include/main/ui/gtk_wrapper.h include/main/ui/gtk.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
   include/main/libautodiag/lang/lang.h \
