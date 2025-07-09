@@ -1,6 +1,6 @@
 #include "libautodiag/com/obd/saej1979/vehicle_info.h"
 
-bool saej1979_vehicle_info_is_pid_supported(final OBDIFace* iface, final int pid) {
+bool saej1979_vehicle_info_is_pid_supported(final VehicleIFace* iface, final int pid) {
     return saej1979_is_pid_supported(iface, 9, pid);
 }
 

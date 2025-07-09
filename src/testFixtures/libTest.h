@@ -21,7 +21,7 @@ static void initLibTest() {
     srand(time(NULL));
 }
 
-static void runTestWithMessage(char *msg, bool (*func)(OBDIFace*), OBDIFace* iface) {
+static void runTestWithMessage(char *msg, bool (*func)(VehicleIFace*), VehicleIFace* iface) {
     printf("Running '%s'\n", msg);
     printf("   -> %s\n",func(iface) ? "\033[32mSUCCESS\033[0m" : "\033[33mFAILURE\033[0m");
 }
@@ -62,14 +62,14 @@ static FILE* tmpFile(char **name) {
     return fopen(*name,"w+");
 }
 
-static OBDIFace* port_open(char *device_location) {
+static VehicleIFace* port_open(char *device_location) {
     printf("open port %s\n", device_location);
     final Serial * serial = serial_new();
     serial->location = strdup(device_location);
-    return obd_open_from_device(CAST_DEVICE(serial));
+    return viface_open_from_device(CAST_DEVICE(serial));
 }
 
-static OBDIFace* port_parse_open(int argc, char **argv) {
+static VehicleIFace* port_parse_open(int argc, char **argv) {
     char * device_location = "/dev/pts/2";
     if ( 1 < argc ) {
         device_location = argv[1];
@@ -84,8 +84,8 @@ static char* start_elm327_simulation() {
     return strdup(elm327->device_location);
 }
 
-static OBDIFace* fake_can_iface() {
-    OBDIFace* tmp = obd_new();
+static VehicleIFace* fake_can_iface() {
+    VehicleIFace* tmp = viface_new();
     ELM327Device* device = elm327_new_from_serial(serial_new());
     tmp->device = (Device*)device;
     device->printing_of_spaces = false;
@@ -94,8 +94,8 @@ static OBDIFace* fake_can_iface() {
     tmp->vehicle = vehicle_new();
     return tmp;
 }
-static OBDIFace* fake_standard_obd_iface() {
-    OBDIFace* tmp = obd_new();
+static VehicleIFace* fake_standard_obd_iface() {
+    VehicleIFace* tmp = viface_new();
     ELM327Device* device = elm327_new_from_serial(serial_new());
     tmp->device = (Device*)device;    
     device->printing_of_spaces = false;

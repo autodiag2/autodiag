@@ -24,6 +24,6 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
 /**
  * Same but at a different level
  */
-bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final Serial * serial);
+bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Serial * serial);
 
 #endif

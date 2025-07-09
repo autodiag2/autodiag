@@ -3,14 +3,14 @@
 bool testHashMap();
 bool testBuffer();
 bool testGlobals();
-bool testSerial(OBDIFace* iface);
-bool testOBD(OBDIFace* iface);
-bool testELM327(OBDIFace* iface);
-bool testSAEJ1979(OBDIFace* iface);
-bool testSerialListOperations(OBDIFace* iface);
-bool testCarDatabaseLoad(OBDIFace* iface);
-bool testIniTools(OBDIFace* iface);
-bool testElm(final OBDIFace* iface);
+bool testSerial(VehicleIFace* iface);
+bool testOBD(VehicleIFace* iface);
+bool testELM327(VehicleIFace* iface);
+bool testSAEJ1979(VehicleIFace* iface);
+bool testSerialListOperations(VehicleIFace* iface);
+bool testCarDatabaseLoad(VehicleIFace* iface);
+bool testIniTools(VehicleIFace* iface);
+bool testElm(final VehicleIFace* iface);
 bool testSIM();
 bool testISO3779();
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testSIM,null);
     runTestMaybe(testISO3779,null);
     
-    final OBDIFace* iface = port_open(start_elm327_simulation());
+    final VehicleIFace* iface = port_open(start_elm327_simulation());
 
     runTestMaybe(testIniTools, iface);
     runTestMaybe(testELM327, iface);
@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
     runTestMaybe(testSAEJ1979, iface);
     runTestMaybe(testElm, iface);
 
-    obd_close(iface);
-    obd_free(iface);
+    viface_close(iface);
+    viface_free(iface);
 
     return 0;
 }

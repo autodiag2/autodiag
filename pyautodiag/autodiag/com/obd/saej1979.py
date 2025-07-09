@@ -1,5 +1,5 @@
 from autodiag.libloader import *
-from autodiag.com.obd.obd import OBDIFace
+from autodiag.com.obd.obd import VehicleIFace
 
 class SAEJ1979_Test(Structure):
     _fields_ = [
@@ -13,7 +13,7 @@ class list_SAEJ1979_Test(Structure):
         ("list", POINTER(POINTER(SAEJ1979_Test)))
     ]
 
-lib.saej1979_data_tests.argtypes = [POINTER(OBDIFace), bool, bool]
+lib.saej1979_data_tests.argtypes = [POINTER(VehicleIFace), bool, bool]
 lib.saej1979_data_tests.restype = POINTER(list_SAEJ1979_Test)
 
 class SAEJ1979():
@@ -142,9 +142,9 @@ class SAEJ1979():
     def abs_switch(self, freezed=False): return lib.saej1979_data_abs_switch(byref(self.iface), freezed)
 
 lib.saej1979_clear_dtc_and_stored_values.restype = c_bool
-lib.saej1979_clear_dtc_and_stored_values.argtypes = [POINTER(OBDIFace)] 
+lib.saej1979_clear_dtc_and_stored_values.argtypes = [POINTER(VehicleIFace)] 
 lib.saej1979_service_code_to_str.restype = c_char_p
-lib.saej1979_service_code_to_str.argtypes = [POINTER(OBDIFace),c_int]
+lib.saej1979_service_code_to_str.argtypes = [POINTER(VehicleIFace),c_int]
 lib.saej1979_data_number_of_dtc.restype = c_int
 lib.saej1979_data_mil_status.restype = c_bool
 lib.saej1979_data_engine_type.restype = c_int
@@ -165,293 +165,293 @@ lib.saej1979_data_maf_air_flow_rate.restype = c_double
 lib.saej1979_data_throttle_position.restype = c_double
 lib.saej1979_data_fuel_system_status.restype = POINTER(c_char_p)
 lib.saej1979_data_is_pid_supported.restype = c_bool
-lib.saej1979_data_is_pid_supported.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_is_pid_supported.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 lib.saej1979_data_freeze_frame.restype = c_bool
-lib.saej1979_data_freeze_frame.argtypes = [POINTER(OBDIFace)]
+lib.saej1979_data_freeze_frame.argtypes = [POINTER(VehicleIFace)]
 lib.saej1979_data_fuel_system_status_code_to_str.restype = c_char_p
 lib.saej1979_data_fuel_system_status_code_to_str.argtypes = [c_int]
 lib.saej1979_data_fuel_system_status.restype = POINTER(c_char_p)
-lib.saej1979_data_fuel_system_status.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_system_status.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_engine_load.restype = c_double
-lib.saej1979_data_engine_load.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_load.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_engine_coolant_temperature.restype = c_int
-lib.saej1979_data_engine_coolant_temperature.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_coolant_temperature.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_short_term_fuel_trim_bank_1.restype = c_int
-lib.saej1979_data_short_term_fuel_trim_bank_1.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_short_term_fuel_trim_bank_1.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_long_term_fuel_trim_bank_1.restype = c_int
-lib.saej1979_data_long_term_fuel_trim_bank_1.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_long_term_fuel_trim_bank_1.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_short_term_fuel_trim_bank_2.restype = c_int
-lib.saej1979_data_short_term_fuel_trim_bank_2.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_short_term_fuel_trim_bank_2.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_long_term_fuel_trim_bank_2.restype = c_int
-lib.saej1979_data_long_term_fuel_trim_bank_2.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_long_term_fuel_trim_bank_2.argtypes = [POINTER(VehicleIFace), c_bool]
 lib.saej1979_data_fuel_pressure.restype = c_int
-lib.saej1979_data_fuel_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_oxygen_sensor_voltage_ext_range.restype = c_double
-lib.saej1979_data_oxygen_sensor_voltage_ext_range.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensor_voltage_ext_range.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 lib.saej1979_data_intake_manifold_pressure.restype = c_int
-lib.saej1979_data_intake_manifold_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_intake_manifold_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_max_oxygen_sensor_current.restype = c_int
-lib.saej1979_data_max_oxygen_sensor_current.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_max_oxygen_sensor_current.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_speed.restype = c_double
-lib.saej1979_data_engine_speed.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_speed.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_vehicle_speed.restype = c_int
-lib.saej1979_data_vehicle_speed.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_vehicle_speed.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_timing_advance_cycle_1.restype = c_double
-lib.saej1979_data_timing_advance_cycle_1.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_timing_advance_cycle_1.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_intake_air_temperature.restype = c_int
-lib.saej1979_data_intake_air_temperature.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_intake_air_temperature.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_maf_air_flow_rate.restype = c_double
-lib.saej1979_data_maf_air_flow_rate.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_maf_air_flow_rate.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_throttle_position.restype = c_double
-lib.saej1979_data_throttle_position.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_throttle_position.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_secondary_air_status.restype = c_int
-lib.saej1979_data_secondary_air_status.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_secondary_air_status.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_oxygen_sensors_present.restype = c_bool
-lib.saej1979_data_oxygen_sensors_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensors_present.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_oxygen_sensor_voltage.restype = c_double
-lib.saej1979_data_oxygen_sensor_voltage.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensor_voltage.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_oxygen_sensor_trim.restype = c_double
-lib.saej1979_data_oxygen_sensor_trim.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensor_trim.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_obd_standard.restype = c_int
-lib.saej1979_data_obd_standard.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_obd_standard.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_obd_standard_as_string.restype = c_char_p
-lib.saej1979_data_obd_standard_as_string.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_obd_standard_as_string.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_oxygen_sensors_present_2.restype = c_bool
-lib.saej1979_data_oxygen_sensors_present_2.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensors_present_2.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_powertakeoff_status.restype = c_bool
-lib.saej1979_data_powertakeoff_status.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_powertakeoff_status.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_seconds_since_engine_start.restype = c_int
-lib.saej1979_data_seconds_since_engine_start.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_seconds_since_engine_start.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_time_since_engine_start.restype = c_char_p
-lib.saej1979_data_time_since_engine_start.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_time_since_engine_start.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_distance_since_mil_activated.restype = c_int
-lib.saej1979_data_distance_since_mil_activated.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_distance_since_mil_activated.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_frp_relative.restype = c_double
-lib.saej1979_data_frp_relative.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_frp_relative.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_frp_widerange.restype = c_int
-lib.saej1979_data_frp_widerange.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_frp_widerange.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio.restype = c_double
-lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensor_air_fuel_equiv_ratio.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_commanded_egr.restype = c_double
-lib.saej1979_data_commanded_egr.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_egr.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_egr_error.restype = c_double
-lib.saej1979_data_egr_error.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_egr_error.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_commanded_evap_purge.restype = c_double
-lib.saej1979_data_commanded_evap_purge.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_evap_purge.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_fuel_tank_level_input.restype = c_double
-lib.saej1979_data_fuel_tank_level_input.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_tank_level_input.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_warm_ups_since_ecu_reset.restype = c_int
-lib.saej1979_data_warm_ups_since_ecu_reset.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_warm_ups_since_ecu_reset.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_distance_since_ecu_reset.restype = c_int
-lib.saej1979_data_distance_since_ecu_reset.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_distance_since_ecu_reset.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_evap_system_vapor_pressure.restype = c_double
-lib.saej1979_data_evap_system_vapor_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_evap_system_vapor_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_baro_pressure_absolute.restype = c_int
-lib.saej1979_data_baro_pressure_absolute.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_baro_pressure_absolute.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_oxygen_sensor_current.restype = c_int
-lib.saej1979_data_oxygen_sensor_current.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_oxygen_sensor_current.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_catalyst_tempature.restype = c_int
-lib.saej1979_data_catalyst_tempature.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_catalyst_tempature.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_catalyst_tempature_with_bank.restype = c_int
-lib.saej1979_data_catalyst_tempature_with_bank.argtypes = [POINTER(OBDIFace), c_bool, c_int, c_int]
+lib.saej1979_data_catalyst_tempature_with_bank.argtypes = [POINTER(VehicleIFace), c_bool, c_int, c_int]
 
 lib.saej1979_data_ecu_voltage.restype = c_double
-lib.saej1979_data_ecu_voltage.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_ecu_voltage.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_absolute_engine_load.restype = c_double
-lib.saej1979_data_absolute_engine_load.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_absolute_engine_load.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_commanded_air_fuel_equivalence_ratio.restype = c_double
-lib.saej1979_data_commanded_air_fuel_equivalence_ratio.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_air_fuel_equivalence_ratio.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_relative_throttle_position.restype = c_double
-lib.saej1979_data_relative_throttle_position.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_relative_throttle_position.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_ambient_air_temperature.restype = c_int
-lib.saej1979_data_ambient_air_temperature.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_ambient_air_temperature.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_absolute_throttle_position_B.restype = c_double
-lib.saej1979_data_absolute_throttle_position_B.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_absolute_throttle_position_B.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_absolute_throttle_position_C.restype = c_double
-lib.saej1979_data_absolute_throttle_position_C.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_absolute_throttle_position_C.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_accelerator_pedal_position_D.restype = c_double
-lib.saej1979_data_accelerator_pedal_position_D.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_accelerator_pedal_position_D.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_accelerator_pedal_position_E.restype = c_double
-lib.saej1979_data_accelerator_pedal_position_E.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_accelerator_pedal_position_E.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_accelerator_pedal_position_F.restype = c_double
-lib.saej1979_data_accelerator_pedal_position_F.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_accelerator_pedal_position_F.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_commanded_throttle_actuator.restype = c_double
-lib.saej1979_data_commanded_throttle_actuator.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_throttle_actuator.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_time_run_mil_on.restype = c_int
-lib.saej1979_data_time_run_mil_on.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_time_run_mil_on.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_time_since_trouble_codes_cleared.restype = c_int
-lib.saej1979_data_time_since_trouble_codes_cleared.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_time_since_trouble_codes_cleared.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_max_fuel_air_equiv_ratio.restype = c_int
-lib.saej1979_data_max_fuel_air_equiv_ratio.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_max_fuel_air_equiv_ratio.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_max_oxygen_sensor_voltage.restype = c_int
-lib.saej1979_data_max_oxygen_sensor_voltage.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_max_oxygen_sensor_voltage.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_max_intake_manifold_absolute_pressure.restype = c_int
-lib.saej1979_data_max_intake_manifold_absolute_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_max_intake_manifold_absolute_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_max_air_flow_rate_from_maf_sensor.restype = c_int
-lib.saej1979_data_max_air_flow_rate_from_maf_sensor.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_max_air_flow_rate_from_maf_sensor.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_fuel_type_as_string.restype = c_char_p
-lib.saej1979_data_fuel_type_as_string.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_type_as_string.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_fuel_type.restype = c_int
-lib.saej1979_data_fuel_type.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_type.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_ethanol_fuel_percent.restype = c_double
-lib.saej1979_data_ethanol_fuel_percent.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_ethanol_fuel_percent.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_absolute_evap_system_vapor_pressure.restype = c_double
-lib.saej1979_data_absolute_evap_system_vapor_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_absolute_evap_system_vapor_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_relative_evap_system_vapor_pressure.restype = c_int
-lib.saej1979_data_relative_evap_system_vapor_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_relative_evap_system_vapor_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_short_term_secondary_oxygen_sensor_trim.restype = c_int
-lib.saej1979_data_short_term_secondary_oxygen_sensor_trim.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_short_term_secondary_oxygen_sensor_trim.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_long_term_secondary_oxygen_sensor_trim.restype = c_int
-lib.saej1979_data_long_term_secondary_oxygen_sensor_trim.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_long_term_secondary_oxygen_sensor_trim.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_fuel_rail_absolute_pressure.restype = c_int
-lib.saej1979_data_fuel_rail_absolute_pressure.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_rail_absolute_pressure.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_relative_accelerator_pedal_position.restype = c_double
-lib.saej1979_data_relative_accelerator_pedal_position.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_relative_accelerator_pedal_position.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_hybrid_battery_pack_remaining_life.restype = c_double
-lib.saej1979_data_hybrid_battery_pack_remaining_life.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_hybrid_battery_pack_remaining_life.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_oil_temperature.restype = c_int
-lib.saej1979_data_engine_oil_temperature.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_oil_temperature.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_fuel_injection_timing.restype = c_double
-lib.saej1979_data_fuel_injection_timing.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_fuel_injection_timing.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_fuel_rate.restype = c_double
-lib.saej1979_data_engine_fuel_rate.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_fuel_rate.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_actual_engine_percent_torque.restype = c_int
-lib.saej1979_data_actual_engine_percent_torque.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_actual_engine_percent_torque.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_driver_demand_engine_percent_torque.restype = c_int
-lib.saej1979_data_driver_demand_engine_percent_torque.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_driver_demand_engine_percent_torque.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_reference_torque.restype = c_int
-lib.saej1979_data_engine_reference_torque.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_reference_torque.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_percent_torque_data_idle.restype = c_int
-lib.saej1979_data_engine_percent_torque_data_idle.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_percent_torque_data_idle.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_percent_torque_data_point_1.restype = c_int
-lib.saej1979_data_engine_percent_torque_data_point_1.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_percent_torque_data_point_1.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_percent_torque_data_point_2.restype = c_int
-lib.saej1979_data_engine_percent_torque_data_point_2.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_percent_torque_data_point_2.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_percent_torque_data_point_3.restype = c_int
-lib.saej1979_data_engine_percent_torque_data_point_3.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_percent_torque_data_point_3.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_percent_torque_data_point_4.restype = c_int
-lib.saej1979_data_engine_percent_torque_data_point_4.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_percent_torque_data_point_4.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_maf_sensor_present.restype = c_bool
-lib.saej1979_data_maf_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_maf_sensor_present.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_maf_sensor.restype = c_int
-lib.saej1979_data_maf_sensor.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_maf_sensor.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_engine_coolant_temperature_sensor.restype = c_int
-lib.saej1979_data_engine_coolant_temperature_sensor.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_engine_coolant_temperature_sensor.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_engine_coolant_temperature_sensor_present.restype = c_bool
-lib.saej1979_data_engine_coolant_temperature_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_engine_coolant_temperature_sensor_present.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_engine_intake_air_temperature_sensor.restype = c_int
-lib.saej1979_data_engine_intake_air_temperature_sensor.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_engine_intake_air_temperature_sensor.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_engine_intake_air_temperature_sensor_present.restype = c_bool
-lib.saej1979_data_engine_intake_air_temperature_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_data_engine_intake_air_temperature_sensor_present.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_egt_sensor_present.restype = c_bool
-lib.saej1979_egt_sensor_present.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_egt_sensor_present.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_egt_sensor_temperature.restype = c_int
-lib.saej1979_egt_sensor_temperature.argtypes = [POINTER(OBDIFace), c_bool, c_int]
+lib.saej1979_egt_sensor_temperature.argtypes = [POINTER(VehicleIFace), c_bool, c_int]
 
 lib.saej1979_data_diesel_particulate_filter_temperature.restype = c_int
-lib.saej1979_data_diesel_particulate_filter_temperature.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_diesel_particulate_filter_temperature.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_engine_friction_percent_torque.restype = c_int
-lib.saej1979_data_engine_friction_percent_torque.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_engine_friction_percent_torque.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_cylinder_fuel_rate.restype = c_double
-lib.saej1979_data_cylinder_fuel_rate.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_cylinder_fuel_rate.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_transmission_actual_gear_present.restype = c_bool
-lib.saej1979_data_transmission_actual_gear_present.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_transmission_actual_gear_present.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_transmission_actual_gear.restype = c_int
-lib.saej1979_data_transmission_actual_gear.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_transmission_actual_gear.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing_present.restype = c_bool
-lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing_present.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing_present.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing.restype = c_int
-lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_commanded_diesel_exhaust_fluid_dosing.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_odometer.restype = c_double
-lib.saej1979_data_odometer.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_odometer.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_abs_switch_present.restype = c_bool
-lib.saej1979_data_abs_switch_present.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_abs_switch_present.argtypes = [POINTER(VehicleIFace), c_bool]
 
 lib.saej1979_data_abs_switch.restype = c_bool
-lib.saej1979_data_abs_switch.argtypes = [POINTER(OBDIFace), c_bool]
+lib.saej1979_data_abs_switch.argtypes = [POINTER(VehicleIFace), c_bool]

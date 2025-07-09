@@ -6,7 +6,7 @@ bool testIniToolsHandler(char*funcData,char*key,char*value) {
     *data = strdup(value);
     return true;
 }
-bool testIniTools(OBDIFace* iface) {
+bool testIniTools(VehicleIFace* iface) {
     {
         char *fname;
         FILE *f = tmpFile(&fname);

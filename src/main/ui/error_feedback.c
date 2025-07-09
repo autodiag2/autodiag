@@ -18,7 +18,7 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
     return msg != null;
 }
 
-bool error_feedback_obd(final ErrorFeedbackWindows ws, final OBDIFace* iface, final Serial * serial) {
+bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Serial * serial) {
     if ( iface == null ) {
         if ( ! error_feedback_serial(ws,serial) ) {
             log_msg(LOG_INFO, "Cannot read codes : no obd interface openned");

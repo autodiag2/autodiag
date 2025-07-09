@@ -1,7 +1,7 @@
 
 from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
-from autodiag.com.obd.obd import OBDIFace
+from autodiag.com.obd.obd import VehicleIFace
 from autodiag.log import *
 from autodiag.com.obd.saej1979 import SAEJ1979
 from autodiag.sim.elm327.sim_generators import *
@@ -43,7 +43,7 @@ def test_saej1979():
 
     serial = Serial()
     serial.set_location(emulation.device_location)
-    iface = OBDIFace.open_from_device(serial)
+    iface = VehicleIFace.open_from_device(serial)
 
     saej1979 = SAEJ1979(iface)
     assert saej1979.coolant_temp() == 0

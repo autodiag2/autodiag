@@ -1,8 +1,8 @@
 #include "libTest.h"
 
-bool testElm(final OBDIFace* iface) {
+bool testElm(final VehicleIFace* iface) {
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELMDevice * elm = (ELMDevice *)tmp->device;
         elm->printing_of_spaces = false;
         Buffer * buffer = buffer_new();
@@ -14,7 +14,7 @@ bool testElm(final OBDIFace* iface) {
         }
     }
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELMDevice * elm = (ELMDevice *)tmp->device;        
         elm->printing_of_spaces = true;
         Buffer * buffer = buffer_new();

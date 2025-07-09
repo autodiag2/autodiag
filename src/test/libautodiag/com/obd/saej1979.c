@@ -1,7 +1,7 @@
 #include "libTest.h"
 #include "libautodiag/com/obd/saej1979/saej1979.h"
 
-bool testSAEJ1979(OBDIFace* iface) {
+bool testSAEJ1979(VehicleIFace* iface) {
     {
         saej1979_data_is_pid_supported(iface, false, 0);
         saej1979_data_is_pid_supported(iface, false, 1);

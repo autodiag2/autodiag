@@ -119,7 +119,7 @@ static void* save_internal(void *arg) {
     config.vehicleInfos.vin = strdup(gtk_entry_get_text(gui->vehicleInfos.vin));
     config_store();
     config_onchange();
-    final OBDIFace * iface = config.ephemere.iface;
+    final VehicleIFace * iface = config.ephemere.iface;
     if ( iface != null ) {
         obd_fill_infos_from_vin(iface);
         final char * manufacturer = gtk_combo_box_text_get_active_text(gui->vehicleInfos.manufacturer);
@@ -173,7 +173,7 @@ static void fill_vehicle_infos() {
     GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
     GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
 
-    OBDIFace *iface = config.ephemere.iface;
+    VehicleIFace *iface = config.ephemere.iface;
     int manufacturer_i = 1, engine_i = 1;
     int manufacturer_active_i = -1, engine_active_i = -1;
 

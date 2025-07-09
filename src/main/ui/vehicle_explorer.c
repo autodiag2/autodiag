@@ -33,7 +33,7 @@ static bool error_feedback(GtkMessageDialog * widget, char * title, char *msg) {
     }
 }
 static void data_freeze_frame_internal() {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     if ( vehicle_explorer_error_feedback_obd(iface) ) {
         return;
     } else {
@@ -328,7 +328,7 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
 }
 
 static bool refresh_dynamic_internal() {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     if ( vehicle_explorer_error_feedback_obd(iface) ) {
         return false;
     } else {
@@ -437,7 +437,7 @@ VH_GTK_LABEL_SET_TEXT_SYM(saej1979_data_fuel_type_as_string, gui->engine.fuel.ty
 
 
 static void refresh_one_time_internal() {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     if ( ! vehicle_explorer_error_feedback_obd(iface) ) {
         VH_REFRESH_LABEL(saej1979_data_engine_type_as_string);
         VH_REFRESH_LABEL(saej1979_data_obd_standard_as_string);
@@ -472,7 +472,7 @@ static void refresh_one_time_with_spinner() {
 }
 static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     pthread_mutex_lock(&graphs_mutex);
-    OBDIFace* iface = config.ephemere.iface;
+    VehicleIFace* iface = config.ephemere.iface;
     char * graph_title = (char*)user_data;
     final Graph * graph = list_Graph_get_by_title(graphs, graph_title);
     assert(graph != null);
@@ -642,7 +642,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
 static void* graphs_add_daemon(void *arg) {
     pthread_mutex_lock(&graphs_mutex);
     static int graph_count = 0;
-    OBDIFace* iface = config.ephemere.iface;
+    VehicleIFace* iface = config.ephemere.iface;
 
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(gui->graphs.list));
     if ( 0 <= active_index ) {

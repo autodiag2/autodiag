@@ -83,7 +83,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
                 adaptater_state_set_text("No data", "red");
                 break;
         }
-        final OBDIFace* iface = config.ephemere.iface;
+        final VehicleIFace* iface = config.ephemere.iface;
         if ( iface == null ) {
             adaptater_protocol_set_text(port->describe_communication_layer(CAST_DEVICE(port)));
             adaptater_interface_set_text("Not an OBD interface");

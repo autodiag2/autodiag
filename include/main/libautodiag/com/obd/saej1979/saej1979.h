@@ -16,21 +16,21 @@ LIST_H(int)
  * but passing parameters through the macro is a pain, for that writing custom data send function as
  * in saej1979_current_data_is_pid_supported is prefered.
  */
-#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,data_buffer_accessor, ...) type symbol(final OBDIFace* iface, ##__VA_ARGS__) { \
+#define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(type,symbol,obd_request_str,iterator,errorValue,data_buffer_accessor, ...) type symbol(final VehicleIFace* iface, ##__VA_ARGS__) { \
     SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,data_buffer_accessor) \
 }
 
 #define SAEJ1979_GENERATE_OBD_REQUEST_ITERATE_BODY(type,obd_request_str,iterator,errorValue,data_buffer_accessor) \
-    obd_lock(iface); \
+    viface_lock(iface); \
     int response = 0; \
     type result = errorValue; \
     Buffer * obd_req = buffer_from_ascii_hex(obd_request_str); \
     int pid; \
     bool hasPid = ( 1 < obd_req->size ); \
     if ( hasPid ) { \
-        pid = (int)((unsigned char)obd_req->buffer[1]); \
+        pid = (int)((byte)obd_req->buffer[1]); \
     } \
-    obd_send(iface, obd_request_str); \
+    viface_send(iface, obd_request_str); \
     obd_clear_data(iface); \
     response = obd_recv(iface); \
     if ( 0 < response ) { \
@@ -40,14 +40,14 @@ LIST_H(int)
             OBD_ITERATE_ECUS_DATA_BUFFER(data_buffer_accessor,iterator); \
         } \
     } \
-    obd_unlock(iface); \
+    viface_unlock(iface); \
     return result; \
 
 /**
  * Returned strings are malloc'ed
  */
 char *saej1979_service_code_to_str(final unsigned char code);
-bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, int pid);
+bool saej1979_is_pid_supported(final VehicleIFace* iface, final int service_id, int pid);
 
 /**
  * Service 01 02
@@ -60,7 +60,7 @@ bool saej1979_is_pid_supported(final OBDIFace* iface, final int service_id, int 
 /**
  * Service 04
  */
-bool saej1979_clear_dtc_and_stored_values(final OBDIFace* iface);
+bool saej1979_clear_dtc_and_stored_values(final VehicleIFace* iface);
 /**
  * Service 09
  */

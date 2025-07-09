@@ -3,14 +3,14 @@ from autodiag.buffer import Buffer
 from autodiag.model.vehicle import Vehicle
 from autodiag.com.device import Device
 
-class OBDIFace(Structure):
+class VehicleIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
         ("vehicle", POINTER(Vehicle)),
     ]
 
     def __new__(cls):
-        ptr = lib.obd_new()
+        ptr = lib.viface_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
         obj = cast(ptr, POINTER(cls)).contents
@@ -18,13 +18,13 @@ class OBDIFace(Structure):
         return obj
 
     def lock(self):
-        lib.obd_lock(byref(self))
+        lib.viface_lock(byref(self))
 
     def unlock(self):
-        lib.obd_unlock(byref(self))
+        lib.viface_unlock(byref(self))
 
     def send(self, command: str) -> int:
-        return lib.obd_send(byref(self), command.encode())
+        return lib.viface_send(byref(self), command.encode())
 
     def recv(self) -> int:
         return lib.obd_recv(byref(self))
@@ -33,35 +33,35 @@ class OBDIFace(Structure):
         lib.obd_clear_data(byref(self))
 
     def close(self):
-        lib.obd_close(byref(self))
+        lib.viface_close(byref(self))
 
     def discover_vehicle(self):
         lib.obd_discover_vehicle(byref(self))
     
     @staticmethod
-    def open_from_device(device: Device) -> 'OBDIFace':
-        iface_ptr = lib.obd_open_from_device(cast(byref(device), POINTER(Device)))
+    def open_from_device(device: Device) -> 'VehicleIFace':
+        iface_ptr = lib.viface_open_from_device(cast(byref(device), POINTER(Device)))
         if not iface_ptr:
             return None
         iface = iface_ptr.contents
         return iface
 
-lib.obd_new.argtypes = []
-lib.obd_new.restype = POINTER(OBDIFace)
+lib.viface_new.argtypes = []
+lib.viface_new.restype = POINTER(VehicleIFace)
 
-lib.obd_open_from_device.argtypes = [POINTER(Device)]
-lib.obd_open_from_device.restype = POINTER(OBDIFace)
+lib.viface_open_from_device.argtypes = [POINTER(Device)]
+lib.viface_open_from_device.restype = POINTER(VehicleIFace)
 
-lib.obd_free.argtypes = [POINTER(OBDIFace)]
-lib.obd_lock.argtypes = [POINTER(OBDIFace)]
-lib.obd_unlock.argtypes = [POINTER(OBDIFace)]
-lib.obd_send.argtypes = [POINTER(OBDIFace), c_char_p]
-lib.obd_send.restype = c_int
-lib.obd_recv.argtypes = [POINTER(OBDIFace)]
+lib.viface_free.argtypes = [POINTER(VehicleIFace)]
+lib.viface_lock.argtypes = [POINTER(VehicleIFace)]
+lib.viface_unlock.argtypes = [POINTER(VehicleIFace)]
+lib.viface_send.argtypes = [POINTER(VehicleIFace), c_char_p]
+lib.viface_send.restype = c_int
+lib.obd_recv.argtypes = [POINTER(VehicleIFace)]
 lib.obd_recv.restype = c_int
-lib.obd_clear_data.argtypes = [POINTER(OBDIFace)]
-lib.obd_close.argtypes = [POINTER(OBDIFace)]
-lib.obd_discover_vehicle.argtypes = [POINTER(OBDIFace)]
+lib.obd_clear_data.argtypes = [POINTER(VehicleIFace)]
+lib.viface_close.argtypes = [POINTER(VehicleIFace)]
+lib.obd_discover_vehicle.argtypes = [POINTER(VehicleIFace)]
 
 lib.obd_standard_parse_buffer.argtypes = [POINTER(Vehicle), POINTER(Buffer)]
 lib.obd_standard_parse_buffer.restype = c_bool

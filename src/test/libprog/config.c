@@ -1,6 +1,6 @@
 #include "libTest.h"
 
-bool testCarDatabaseLoad(OBDIFace* iface) {
+bool testCarDatabaseLoad(VehicleIFace* iface) {
     final char *vehicleDirectory = installation_folder_resolve("data/vehicle/citroen/973");
     Vehicle * vehicle = db_vehicle_load_from_directory(vehicleDirectory);
     vehicle_dump(vehicle);

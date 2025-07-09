@@ -35,7 +35,7 @@ typedef struct {
         bool showTimestamp;
     } commandLine;
     struct {
-        OBDIFace* iface;
+        VehicleIFace* iface;
     } ephemere;
     struct {
         double refreshRateS;

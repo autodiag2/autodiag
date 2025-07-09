@@ -14,10 +14,10 @@
  * Perform operation such as lock release on obd interface on thread cancel event
  */
 static void obd_thread_cleanup_routine(void *arg) {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     log_msg(LOG_INFO, "clean up execution");
     if ( iface != null ) {
-        obd_unlock(iface);
+        viface_unlock(iface);
     }
 }
 

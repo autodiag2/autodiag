@@ -44,7 +44,7 @@ static gboolean show_ecus_buffer_gsource(gpointer data) {
     return false;
 }
 static void show_ecus_buffer_internal() {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     char * result = strdup("");
     if ( iface != null ) {
         Vehicle * vehicle = iface->vehicle;    
@@ -119,7 +119,7 @@ static gboolean set_list_dtc_gsource(gpointer data) {
 }
 
 static void read_codes_daemon_internal() {
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
         gtk_spinner_start(gui->actionWaitIcon);
         // The state of the port may change if thereis an error during the retrieve
@@ -177,7 +177,7 @@ static void read_codes() {
 
 static void clear_codes_daemon_internal() {
     gtk_spinner_start(gui->actionWaitIcon);
-    final OBDIFace* iface = config.ephemere.iface;
+    final VehicleIFace* iface = config.ephemere.iface;
     if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
         saej1979_clear_dtc_and_stored_values(iface);
     }

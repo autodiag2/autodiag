@@ -19,15 +19,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
     } 
 }
 
-void obd_close(final OBDIFace* iface) {
-    iface->device->close(iface->device);    
-}
-
-int obd_send(final OBDIFace* iface, const char *request) {
-    return iface->device->send(iface->device, request);
-}
-
-int obd_recv(final OBDIFace* iface) {
+int obd_recv(final VehicleIFace* iface) {
     iface->device->clear_data(iface->device);
     final int initial_data_buffer_received = iface->vehicle->data_buffer->size;
     switch(iface->device->recv(iface->device)) {
@@ -85,15 +77,7 @@ int obd_recv(final OBDIFace* iface) {
     return iface->vehicle->data_buffer->size - initial_data_buffer_received;
 }
 
-void obd_lock(final OBDIFace* iface) {
-    iface->device->lock(iface->device);
-}
-
-void obd_unlock(final OBDIFace* iface) {
-    iface->device->unlock(iface->device);
-}
-
-void obd_clear_data(final OBDIFace* iface) {
+void obd_clear_data(final VehicleIFace* iface) {
     iface->device->clear_data(iface->device);
     for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
         vehicle_ecu_empty(iface->vehicle->ecus[i]);
@@ -101,24 +85,7 @@ void obd_clear_data(final OBDIFace* iface) {
     list_Buffer_empty(iface->vehicle->data_buffer);
 }
 
-void obd_free(final OBDIFace* iface) {
-    assert(iface != null);
-    if ( iface->vehicle != null ) {
-        vehicle_free(iface->vehicle);
-    }
-    if ( iface->device != null ) {
-        log_msg(LOG_ERROR, "should free the device");
-    }
-    free(iface);
-}
-
-OBDIFace* obd_new() {
-    final OBDIFace* iface = (OBDIFace*)malloc(sizeof(OBDIFace));
-    iface->device = null;
-    iface->vehicle = vehicle_new();
-    return iface;
-}
-void obd_fill_infos_from_vin(final OBDIFace * iface) {
+void obd_fill_infos_from_vin(final VehicleIFace * iface) {
     if ( iface->vehicle->vin != null && 17 <= iface->vehicle->vin->size ) {
         final ISO3779 * decoder = ISO3779_new();
         ISO3779_decode(decoder, iface->vehicle->vin);
@@ -132,7 +99,7 @@ void obd_fill_infos_from_vin(final OBDIFace * iface) {
         ISO3779_free(decoder);
     }
 }
-void obd_discover_vehicle(OBDIFace* iface) {
+void obd_discover_vehicle(VehicleIFace* iface) {
     saej1979_data_is_pid_supported(iface, false, 0x01);
 
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
@@ -145,18 +112,4 @@ void obd_discover_vehicle(OBDIFace* iface) {
     saej1979_vehicle_info_discover_ecus_name(iface);
     saej1979_vehicle_info_discover_vin(iface);
     obd_fill_infos_from_vin(iface);
-}
-
-OBDIFace* obd_open_from_device(final Device* device) {
-    Serial * serial = (Serial*)device;
-    ELMDevice * elm = elm_open_from_serial(serial);
-    if ( elm == null ) {
-        log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s: device config has failed", serial->location);
-        return null;
-    }
-
-    final OBDIFace* iface = obd_new();
-    iface->device = CAST_DEVICE(elm);
-    obd_discover_vehicle(iface);
-    return iface;
 }

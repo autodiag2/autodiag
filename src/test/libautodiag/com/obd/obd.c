@@ -1,6 +1,6 @@
 #include "libTest.h"
 
-bool testOBD(OBDIFace* iface) {
+bool testOBD(VehicleIFace* iface) {
     {
         testOutput("MIL status: %s", saej1979_data_mil_status(iface, false) ? "ON":"OFF");
         testOutput("Number of DTC: %d", saej1979_data_number_of_dtc(iface, false));

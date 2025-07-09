@@ -1,8 +1,8 @@
 #include "libTest.h"
 
-bool testELM327(OBDIFace* iface) {
+bool testELM327(VehicleIFace* iface) {
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm = (ELM327Device*)tmp->device;
         for(int i = 0; i < 2; i ++) {
             Buffer * buffer = buffer_new();
@@ -15,7 +15,7 @@ bool testELM327(OBDIFace* iface) {
         if ( tmp->vehicle->ecus_len != 1 ) return false;
     }
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm = (ELM327Device*)tmp->device;
         Buffer * buffer = buffer_new();
         buffer_append_str(buffer,"7E9024300\r7E8024300\r");
@@ -27,7 +27,7 @@ bool testELM327(OBDIFace* iface) {
     }
     {
         testOutput("Consecutive from one ecu");
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm327 = (ELM327Device*)tmp->device;
         Buffer * buffer = buffer_new();
         buffer_append_str(buffer,"7E9024300\r7E8100E430613361340\r7E82113380087133713\r7E82239AAAAAAAAAAAA\r");
@@ -51,7 +51,7 @@ bool testELM327(OBDIFace* iface) {
         
     }
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm327 = (ELM327Device*)tmp->device;
         Buffer * buffer = buffer_new();
         buffer_append_str(buffer,"7E9100E430613361340\r7E8100E430613361340\r7E92113380087133713\r7E82113380087133713\r7E82239AAAAAAAAAAAA\r7E82239AAAAAAAAAAAA\r");
@@ -75,7 +75,7 @@ bool testELM327(OBDIFace* iface) {
         assert(found);
     }
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm327 = (ELM327Device*)tmp->device;
         Buffer * buffer = buffer_new();
         buffer_append_str(buffer,"416B1043010300000000\r416B1143010300000000\r");
@@ -96,7 +96,7 @@ bool testELM327(OBDIFace* iface) {
         assert(found);
     }
     {
-        OBDIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = fake_can_iface();
         ELM327Device* elm327 = (ELM327Device*)tmp->device;
         Buffer * buffer = buffer_new();
         elm327->printing_of_spaces = true;
