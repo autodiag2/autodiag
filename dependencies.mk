@@ -757,7 +757,17 @@ output/obj/main/libautodiag/com/uds/uds_maps.o: \
   include/main/libautodiag/lang/list.h \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/string.h \
-  include/main/libautodiag/compile_target.h
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/log.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h
 output/obj/main/libautodiag/com/uds/uds.o: \
   src/main/libautodiag/com/uds/uds.c \
   include/main/libautodiag/com/uds/uds.h \
@@ -770,7 +780,17 @@ output/obj/main/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/lang/list.h \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/string.h \
-  include/main/libautodiag/compile_target.h
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/log.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h
 output/obj/main/libautodiag/com/vehicle_interface.o: \
   src/main/libautodiag/com/vehicle_interface.c \
   include/main/libautodiag/com/vehicle_interface.h \
