@@ -745,6 +745,19 @@ output/obj/main/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/com/serial/list_serial.h
+output/obj/main/libautodiag/com/uds/uds_maps.o: \
+  src/main/libautodiag/com/uds/uds_maps.c \
+  include/main/libautodiag/com/uds/uds.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/list.h \
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/compile_target.h
 output/obj/main/libautodiag/com/uds/uds.o: \
   src/main/libautodiag/com/uds/uds.c \
   include/main/libautodiag/com/uds/uds.h \
