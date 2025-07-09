@@ -39,7 +39,7 @@ void buffer_left_shift(final Buffer * buffer, final unsigned int shift);
 /**
  * Extract part of a buffer into an other
  */
-void buffer_slice(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size);
+void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size);
 void buffer_append(final Buffer * dest, final Buffer * src);
 void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned int size);
 void buffer_append_byte(final Buffer * dest, final byte b);

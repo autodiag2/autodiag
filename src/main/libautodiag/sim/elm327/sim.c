@@ -133,7 +133,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
                 }
             }
             obdMessageDataBytes = min(obdMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
-            buffer_slice(responseBodyChunk, binResponse, responseBodyIndex, obdMessageDataBytes);
+            buffer_slice_append(responseBodyChunk, binResponse, responseBodyIndex, obdMessageDataBytes);
 
             char * space = elm327->printing_of_spaces ? " " : "";
             char *header = "";

@@ -19,7 +19,7 @@ list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int 
                     continue;
                 }
                 Buffer * resultBuffer = buffer_new();
-                buffer_slice(resultBuffer, data, 3, data->size - 4);
+                buffer_slice_append(resultBuffer, data, 3, data->size - 4);
                 list_Buffer_append(result, resultBuffer);
             }
         }
