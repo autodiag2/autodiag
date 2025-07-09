@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define OBJECT(type) object_##type
 #define OBJECT_H(type) \
     OBJECT_H_NEW(type); \
     OBJECT_H_FREE(type); \
@@ -12,5 +13,6 @@
 #define OBJECT_H_NEW(type) object_##type * object_##type##_new()
 #define OBJECT_H_FREE(type) void object_##type##_free(object_##type *object)
 #define OBJECT_H_ASSIGN(type) object_##type * object_##type##_assign(object_##type *object, object_##type *other)    
+
 
 #endif

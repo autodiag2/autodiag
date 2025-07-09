@@ -5,15 +5,16 @@
 #include "libautodiag/lang/object.h"
 #include "libautodiag/lang/list.h"
 
+#define HASHMAP(key_type, value_type) OBJECT(hashmap_##key_type##_##value_type)
 #define HASHMAP_H_STRUCT(key_type, value_type) \
     typedef struct { \
-        object_##key_type ** keys; \
-        object_##value_type ** values; \
+        OBJECT(key_type) ** keys; \
+        OBJECT(value_type) ** values; \
         unsigned int size; \
-    } object_hashmap_##key_type##_##value_type;
+    } HASHMAP(key_type, value_type);
 
 #define HASHMAP_SRC_NEW(key_type, value_type) OBJECT_H_NEW(hashmap_##key_type##_##value_type) { \
-    object_hashmap_##key_type##_##value_type * object = (object_hashmap_##key_type##_##value_type *)malloc(sizeof(object_hashmap_##key_type##_##value_type)); \
+    HASHMAP(key_type, value_type) * object = (HASHMAP(key_type, value_type) *)malloc(sizeof(HASHMAP(key_type, value_type))); \
     object->size = 0; \
     object->keys = null; \
     object->values = null; \
@@ -36,7 +37,7 @@
     object->size = 0; \
 }
 
-#define HASHMAP_H_GET(key_type, value_type) object_##value_type * object_hashmap_##key_type##_##value_type##_get(object_hashmap_##key_type##_##value_type * hm, object_##key_type *key)
+#define HASHMAP_H_GET(key_type, value_type) OBJECT(value_type) * object_hashmap_##key_type##_##value_type##_get(HASHMAP(key_type,value_type) * hm, OBJECT(key_type) *key)
 #define HASHMAP_SRC_GET(key_type, value_type) HASHMAP_H_GET(key_type, value_type) { \
     assert(hm != null); \
     for(unsigned int i = 0; i < hm->size; i++) { \
@@ -46,7 +47,7 @@
     } \
     return null; \
 }
-#define HASHMAP_H_SET(key_type, value_type) void object_hashmap_##key_type##_##value_type##_set(object_hashmap_##key_type##_##value_type * hm, object_##key_type *key, object_##value_type *value)
+#define HASHMAP_H_SET(key_type, value_type) void object_hashmap_##key_type##_##value_type##_set(object_hashmap_##key_type##_##value_type * hm, OBJECT(key_type) *key, OBJECT(value_type) *value)
 #define HASHMAP_SRC_SET(key_type, value_type) HASHMAP_H_SET(key_type, value_type) { \
     assert(hm != null); \
     bool found = false; \
@@ -58,8 +59,8 @@
     } \
     if ( ! found ) { \
         hm->size ++; \
-        hm->keys = (object_##key_type**)realloc(hm->keys, sizeof(object_##key_type*) * hm->size); \
-        hm->values = (object_##value_type**)realloc(hm->values, sizeof(object_##value_type*) * hm->size); \
+        hm->keys = (OBJECT(key_type)**)realloc(hm->keys, sizeof(OBJECT(key_type)*) * hm->size); \
+        hm->values = (OBJECT(value_type)**)realloc(hm->values, sizeof(OBJECT(value_type)*) * hm->size); \
         hm->keys[hm->size-1] = key; \
         hm->values[hm->size-1] = value; \
     } \
