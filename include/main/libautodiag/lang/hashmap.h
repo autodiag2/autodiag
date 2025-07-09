@@ -60,7 +60,7 @@
     } \
     if ( ! found ) { \
         hm->size ++; \
-        hm->keys = (value_type**)realloc(hm->keys, sizeof(value_type*) * hm->size); \
+        hm->keys = (key_type**)realloc(hm->keys, sizeof(key_type*) * hm->size); \
         hm->values = (value_type**)realloc(hm->values, sizeof(value_type*) * hm->size); \
         hm->keys[hm->size-1] = key; \
         hm->values[hm->size-1] = value; \

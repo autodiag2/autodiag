@@ -8,7 +8,7 @@
 #include "libautodiag/com/obd/obd.h"
 #include "saej1979.h"
 
-HASHMAP_H(void, char)
+HASHMAP_H(object_Ptr, object_string)
 // WARNING: never attempt to free this map
 char* saej1979_data_data_gen_pid_map_get(void *key);
 
