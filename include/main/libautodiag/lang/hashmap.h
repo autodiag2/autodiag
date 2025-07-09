@@ -7,8 +7,8 @@
 
 #define HASHMAP_H_STRUCT(key_type, value_type) \
     typedef struct { \
-        key_type ** keys; \
-        value_type ** values; \
+        object_##key_type ** keys; \
+        object_##value_type ** values; \
         unsigned int size; \
     } object_hashmap_##key_type##_##value_type;
 
@@ -23,22 +23,20 @@
     if ( object == null ) return; \
     if ( object->keys != null ) { \
         for(unsigned int i = 0; i < object->size; i++) { \
-            /* should call the key free operator */ \
-            free(object->keys[i]); \
+            object_##key_type##_free(object->keys[i]); \
         } \
         object->keys = null; \
     } \
     if ( object->values != null ) { \
         for(unsigned int i = 0; i < object->size; i++) { \
-            /* should call the value free operator */ \
-            free(object->values[i]); \
+            object_##value_type##_free(object->values[i]); \
         } \
         object->values = null; \
     } \
     object->size = 0; \
 }
 
-#define HASHMAP_H_GET(key_type, value_type) value_type * object_hashmap_##key_type##_##value_type##_get(object_hashmap_##key_type##_##value_type * hm, key_type *key)
+#define HASHMAP_H_GET(key_type, value_type) object_##value_type * object_hashmap_##key_type##_##value_type##_get(object_hashmap_##key_type##_##value_type * hm, object_##key_type *key)
 #define HASHMAP_SRC_GET(key_type, value_type) HASHMAP_H_GET(key_type, value_type) { \
     assert(hm != null); \
     for(unsigned int i = 0; i < hm->size; i++) { \
@@ -48,7 +46,7 @@
     } \
     return null; \
 }
-#define HASHMAP_H_SET(key_type, value_type) void object_hashmap_##key_type##_##value_type##_set(object_hashmap_##key_type##_##value_type * hm, key_type *key, value_type *value)
+#define HASHMAP_H_SET(key_type, value_type) void object_hashmap_##key_type##_##value_type##_set(object_hashmap_##key_type##_##value_type * hm, object_##key_type *key, object_##value_type *value)
 #define HASHMAP_SRC_SET(key_type, value_type) HASHMAP_H_SET(key_type, value_type) { \
     assert(hm != null); \
     bool found = false; \
@@ -60,8 +58,8 @@
     } \
     if ( ! found ) { \
         hm->size ++; \
-        hm->keys = (key_type**)realloc(hm->keys, sizeof(key_type*) * hm->size); \
-        hm->values = (value_type**)realloc(hm->values, sizeof(value_type*) * hm->size); \
+        hm->keys = (object_##key_type**)realloc(hm->keys, sizeof(object_##key_type*) * hm->size); \
+        hm->values = (object_##value_type**)realloc(hm->values, sizeof(object_##value_type*) * hm->size); \
         hm->keys[hm->size-1] = key; \
         hm->values[hm->size-1] = value; \
     } \

@@ -5,7 +5,7 @@
 #include "libautodiag/lang/Int.h"
 #include "libautodiag/string.h"
 
-HASHMAP_H(object_Int, object_string)
-HASHMAP_H(object_Int, object_Int)
+HASHMAP_H(Int, string)
+HASHMAP_H(Int, Int)
 
 #endif
