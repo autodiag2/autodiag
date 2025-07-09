@@ -353,6 +353,7 @@ void serial_unlock(final Serial * port) {
 Serial * serial_new() {
     final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
+    port->type = strdup("serial");
     serial_init(port);
     return port;
 }

@@ -35,15 +35,23 @@ void viface_unlock(final VehicleIFace* iface) {
 }
 
 VehicleIFace* viface_open_from_device(final Device* device) {
-    Serial * serial = (Serial*)device;
-    ELMDevice * elm = elm_open_from_serial(serial);
-    if ( elm == null ) {
-        log_msg(LOG_ERROR, "Cannot open OBD interface from serial port %s: device config has failed", serial->location);
+    assert(device->type != null);
+    final VehicleIFace* iface = viface_new();
+    if ( strcmp(device->type, "serial") == 0 ) {
+        Serial * serial = (Serial*)device;
+        // TODO should test if ati contains ELM, if so, launch elm open from serial
+        ELMDevice * elm = elm_open_from_serial(serial);
+        if ( elm == null ) {
+            log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
+            return null;
+        }
+        iface->device = CAST_DEVICE(elm);
+    } else {
+        log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);
+        viface_free(iface);
         return null;
     }
 
-    final VehicleIFace* iface = viface_new();
-    iface->device = CAST_DEVICE(elm);
     obd_discover_vehicle(iface);
     return iface;
 }

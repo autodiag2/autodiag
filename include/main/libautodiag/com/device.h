@@ -18,6 +18,12 @@
 #define CAST_DEVICE(arg) ((struct Device*)arg)
 typedef struct Device {
     /**
+     * This is very similar to describing the communication layer, except that it holds
+     * only the minimal information required to known which type of device to use
+     * eg serial, ip
+     */
+    char * type;
+    /**
      * Send a string with the device
      * @return number of bytes sent or DEVICE_SEND_ERROR on error
      */

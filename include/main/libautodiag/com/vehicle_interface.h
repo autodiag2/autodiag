@@ -26,6 +26,7 @@ void viface_close(final VehicleIFace* iface);
  */
 int viface_send(final VehicleIFace * iface, const char *command);
 /**
+ * Open or reopen a device and configure it.
  * Discover the type of device, ecus present on the bus and vehicle information.
  */
 VehicleIFace* viface_open_from_device(final Device* device);
