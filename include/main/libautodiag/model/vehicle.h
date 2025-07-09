@@ -97,7 +97,7 @@ typedef struct {
 
 Vehicle* vehicle_new();
 void vehicle_free(Vehicle* v);
-void vehicle_fill_global_obd_data_from_ecus(Vehicle* v);
+void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v);
 void vehicle_dump(Vehicle* v);
 void vehicle_debug(Vehicle* v);
 

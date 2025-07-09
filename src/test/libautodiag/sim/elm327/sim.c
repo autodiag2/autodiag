@@ -15,7 +15,7 @@ void testSIM_1() {
         for(int i = 0; i < sz; i++) {
             printf("i=%d cmd=%s\n", i, cmds[i]);
             iface->device->send(iface->device,cmds[i]);
-            obd_clear_data(iface);
+            viface_clear_data(iface);
             assert(iface->device->recv(iface->device) == SERIAL_RESPONSE_OK);
         }
     }
@@ -23,87 +23,87 @@ void testSIM_1() {
         for(int i = 1; i <= 9; i ++) {
             char *setProto;
             asprintf(&setProto,"atsp %01x", i);
-            obd_clear_data(iface);
+            viface_clear_data(iface);
             iface->device->send(iface->device,setProto);
             iface->device->recv(iface->device);
             ((ELM327Device*)iface->device)->protocol = i;
             free(setProto);
             {
                 viface_send(iface,"0101");
-                obd_clear_data(iface);
-                obd_recv(iface);
+                viface_clear_data(iface);
+                viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 3);
 
-                obd_clear_data(iface);
+                viface_clear_data(iface);
                 iface->device->send(iface->device,"atsr E9");
                 iface->device->recv(iface->device);
                 viface_send(iface,"0101");
-                obd_clear_data(iface);
-                obd_recv(iface);
+                viface_clear_data(iface);
+                viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 1);        
 
-                obd_clear_data(iface);
+                viface_clear_data(iface);
                 iface->device->send(iface->device,"atar");
                 iface->device->recv(iface->device);
                 viface_send(iface,"0101");
-                obd_clear_data(iface);
-                obd_recv(iface);
+                viface_clear_data(iface);
+                viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 3);
             }
         }
         
-        obd_clear_data(iface);    
+        viface_clear_data(iface);    
         iface->device->send(iface->device,"atsp B");
         iface->device->recv(iface->device);
         ((ELM327Device*)iface->device)->protocol = 0xB;    
         {
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
             
-            obd_clear_data(iface);
+            viface_clear_data(iface);
             iface->device->send(iface->device,"atsr E9");
             iface->device->recv(iface->device);
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);        
 
-            obd_clear_data(iface);
+            viface_clear_data(iface);
             iface->device->send(iface->device,"atar");
             iface->device->recv(iface->device);
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
         }   
         {
-            obd_clear_data(iface);    
+            viface_clear_data(iface);    
             iface->device->send(iface->device,"atcm FF0");
             iface->device->recv(iface->device);
-            obd_clear_data(iface);    
+            viface_clear_data(iface);    
             iface->device->send(iface->device,"atcf 710");
             iface->device->recv(iface->device);        
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 1);  
         }
         {
-            obd_clear_data(iface);    
+            viface_clear_data(iface);    
             iface->device->send(iface->device,"atcra");
             iface->device->recv(iface->device);
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
-            obd_clear_data(iface);    
+            viface_clear_data(iface);    
             iface->device->send(iface->device,"atcra 7EX");
             iface->device->recv(iface->device);
             viface_send(iface,"0101");
-            obd_clear_data(iface);
-            obd_recv(iface);
+            viface_clear_data(iface);
+            viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 2);
         }        
     }
@@ -113,12 +113,12 @@ void ensureReplayCommands() {
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-    obd_clear_data(iface);
+    viface_clear_data(iface);
     viface_send(iface, "0101");
-    obd_recv(iface);
+    viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
     viface_send(iface, ""); // does it works when changing the pp value of carriage return ? for the emulator point of view not (to test on the real device)
-    obd_recv(iface);
+    viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 2);
 }
 void anyCommandShouldReplyUnknown() {
@@ -126,9 +126,9 @@ void anyCommandShouldReplyUnknown() {
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-    obd_clear_data(iface);
+    viface_clear_data(iface);
     viface_send(iface, "azrer");
-    obd_recv(iface);
+    viface_recv(iface);
     Serial * serial = (Serial*)iface->device;
     buffer_ensure_termination(serial->recv_buffer);
     assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
@@ -158,11 +158,11 @@ bool testSIM() {
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->device->send(iface->device,"0104");
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->recv(iface->device);
         Buffer * response = buffer_copy(serial->recv_buffer);
         iface->device->send(iface->device,"0104");
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->recv(iface->device);
         assert( ! buffer_cmp(response, serial->recv_buffer));
     }
@@ -176,7 +176,7 @@ bool testSIM() {
         iface->device->recv(iface->device);
         iface->device->send(iface->device,"ath1");
         iface->device->recv(iface->device);
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"030902");
         iface->device->recv(iface->device);
         assert(strstr(serial->recv_buffer->buffer, "<DATA ERROR") != null);
@@ -187,7 +187,7 @@ bool testSIM() {
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"unknown");
         iface->device->recv(iface->device);
         buffer_dump(serial->recv_buffer);
@@ -198,10 +198,10 @@ bool testSIM() {
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"ath0");
         iface->device->recv(iface->device);
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"0902");
         iface->device->recv(iface->device);
         final Serial* serial = (Serial*)iface->device;
@@ -216,17 +216,17 @@ bool testSIM() {
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"atbrd 12");
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->recv(iface->device); // OK
         final Serial* serial = (Serial*)iface->device;
         assert(strstr(serial->recv_buffer->buffer, "OK") != null);
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->recv(iface->device); // ATI
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"\r");
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->recv(iface->device); // OK + Prompt
     }
     testSIM_1();
@@ -235,22 +235,22 @@ bool testSIM() {
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"atcea 12");
         iface->device->recv(iface->device);
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"ats1");
         iface->device->recv(iface->device);
         viface_send(iface,"0101");
-        obd_clear_data(iface);
-        assert(obd_recv(iface) != OBD_RECV_ERROR);
+        viface_clear_data(iface);
+        assert(viface_recv(iface) != VIFACE_RECV_ERROR);
     }
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         iface->device->send(iface->device,"atd");
         int recv = iface->device->recv(iface->device);
         printf("recv=%d\n", recv);
@@ -260,10 +260,10 @@ bool testSIM() {
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         viface_send(iface, "0900");
-        obd_clear_data(iface);
-        obd_recv(iface);
+        viface_clear_data(iface);
+        viface_recv(iface);
         assert(buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
     }
     {
@@ -271,10 +271,10 @@ bool testSIM() {
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         viface_send(iface, "0902");
-        obd_clear_data(iface);
-        obd_recv(iface);
+        viface_clear_data(iface);
+        viface_recv(iface);
         list_Buffer_dump(iface->vehicle->data_buffer);
         assert(17 < iface->vehicle->data_buffer->list[0]->size);
     }

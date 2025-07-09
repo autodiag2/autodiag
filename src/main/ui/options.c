@@ -121,7 +121,7 @@ static void* save_internal(void *arg) {
     config_onchange();
     final VehicleIFace * iface = config.ephemere.iface;
     if ( iface != null ) {
-        obd_fill_infos_from_vin(iface);
+        viface_fill_infos_from_vin(iface);
         final char * manufacturer = gtk_combo_box_text_get_active_text(gui->vehicleInfos.manufacturer);
         if ( manufacturer != null ) {
             if ( iface->vehicle->manufacturer != null ) {

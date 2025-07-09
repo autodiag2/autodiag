@@ -26,9 +26,30 @@ void viface_close(final VehicleIFace* iface);
  */
 int viface_send(final VehicleIFace * iface, const char *command);
 /**
+ * Generic error (eg any device reception error)
+ */
+#define VIFACE_RECV_ERROR -1
+/**
+ * The vehicle does not support the wanted function
+ */
+#define VIFACE_RECV_UNSUPPORTED -2
+/**
  * Open or reopen a device and configure it.
  * Discover the type of device, ecus present on the bus and vehicle information.
  */
 VehicleIFace* viface_open_from_device(final Device* device);
+/**
+ * Receive some data on the device and update the model
+ * @return number of data buffer received or VIFACE_RECV_ERROR on error (no obd data available, serial error or any error more deep in the stack)
+ */
+int viface_recv(final VehicleIFace* iface);
+
+void viface_fill_infos_from_vin(final VehicleIFace * iface);
+
+void viface_clear_data(final VehicleIFace* iface);
+/**
+ * A one time process to discover ECUs on the bus, and specific vehicle data
+ */
+void viface_discover_vehicle(VehicleIFace* iface);
 
 #endif

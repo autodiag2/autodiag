@@ -38,7 +38,7 @@ bool testSAEJ1979(VehicleIFace* iface) {
         #define iterator(data) \
             result = false;
 
-        obd_clear_data(iface);
+        viface_clear_data(iface);
         buffer_append_str(((Serial *)iface->device)->recv_buffer,"\r7E804410C59C019\r>");
         
         iface->device->parse_data(iface->device,iface->vehicle);
@@ -70,7 +70,7 @@ bool testSAEJ1979(VehicleIFace* iface) {
                 }
             }
         }
-        vehicle_fill_global_obd_data_from_ecus(v);
+        vehicle_fill_global_data_buffer_from_ecus(v);
         
         int pid = 0x42;
         OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data,iterator,pid);

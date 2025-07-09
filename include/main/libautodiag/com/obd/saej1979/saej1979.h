@@ -31,8 +31,8 @@ LIST_H(int)
         pid = (int)((byte)obd_req->buffer[1]); \
     } \
     viface_send(iface, obd_request_str); \
-    obd_clear_data(iface); \
-    response = obd_recv(iface); \
+    viface_clear_data(iface); \
+    response = viface_recv(iface); \
     if ( 0 < response ) { \
         if ( hasPid ) { \
             OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(data_buffer_accessor,iterator,pid); \

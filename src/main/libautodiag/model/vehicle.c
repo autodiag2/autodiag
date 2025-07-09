@@ -126,7 +126,7 @@ void vehicle_free(Vehicle * v) {
     }
 }
 
-void vehicle_fill_global_obd_data_from_ecus(Vehicle* v) {
+void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v) {
     list_Buffer_empty(v->data_buffer);
     for ( int i = 0; i < v->ecus_len; i++) {
         ECU* ecu = v->ecus[i];

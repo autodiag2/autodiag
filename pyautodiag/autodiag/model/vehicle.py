@@ -99,6 +99,6 @@ lib.vehicle_ecu_add.restype = POINTER(ECU)
 lib.vehicle_ecu_add_if_not_in.argtypes = [POINTER(Vehicle), POINTER(byte), c_int]
 lib.vehicle_ecu_add_if_not_in.restype = POINTER(ECU)
 
-lib.vehicle_fill_global_obd_data_from_ecus.argtypes = [POINTER(Vehicle)]
+lib.vehicle_fill_global_data_buffer_from_ecus.argtypes = [POINTER(Vehicle)]
 lib.vehicle_dump.argtypes = [POINTER(Vehicle)]
 lib.vehicle_debug.argtypes = [POINTER(Vehicle)]

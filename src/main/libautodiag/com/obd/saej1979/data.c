@@ -317,8 +317,8 @@ list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool use
 bool saej1979_data_freeze_frame(final VehicleIFace* iface) {
     viface_lock(iface);
     bool result = viface_send(iface, "0102") <= 0;
-    obd_clear_data(iface);
-    result = ( obd_recv(iface) < 0 );
+    viface_clear_data(iface);
+    result = ( viface_recv(iface) < 0 );
     viface_unlock(iface);
     return result;
 }

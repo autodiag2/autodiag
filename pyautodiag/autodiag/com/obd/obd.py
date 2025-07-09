@@ -27,16 +27,16 @@ class VehicleIFace(Structure):
         return lib.viface_send(byref(self), command.encode())
 
     def recv(self) -> int:
-        return lib.obd_recv(byref(self))
+        return lib.viface_recv(byref(self))
 
     def clear_data(self):
-        lib.obd_clear_data(byref(self))
+        lib.viface_clear_data(byref(self))
 
     def close(self):
         lib.viface_close(byref(self))
 
     def discover_vehicle(self):
-        lib.obd_discover_vehicle(byref(self))
+        lib.viface_discover_vehicle(byref(self))
     
     @staticmethod
     def open_from_device(device: Device) -> 'VehicleIFace':
@@ -57,11 +57,11 @@ lib.viface_lock.argtypes = [POINTER(VehicleIFace)]
 lib.viface_unlock.argtypes = [POINTER(VehicleIFace)]
 lib.viface_send.argtypes = [POINTER(VehicleIFace), c_char_p]
 lib.viface_send.restype = c_int
-lib.obd_recv.argtypes = [POINTER(VehicleIFace)]
-lib.obd_recv.restype = c_int
-lib.obd_clear_data.argtypes = [POINTER(VehicleIFace)]
+lib.viface_recv.argtypes = [POINTER(VehicleIFace)]
+lib.viface_recv.restype = c_int
+lib.viface_clear_data.argtypes = [POINTER(VehicleIFace)]
 lib.viface_close.argtypes = [POINTER(VehicleIFace)]
-lib.obd_discover_vehicle.argtypes = [POINTER(VehicleIFace)]
+lib.viface_discover_vehicle.argtypes = [POINTER(VehicleIFace)]
 
 lib.obd_standard_parse_buffer.argtypes = [POINTER(Vehicle), POINTER(Buffer)]
 lib.obd_standard_parse_buffer.restype = c_bool

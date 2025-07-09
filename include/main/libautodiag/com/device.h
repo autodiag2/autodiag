@@ -47,7 +47,7 @@ typedef struct Device {
      */
     char* (*describe_communication_layer)(final struct Device* device);
     /**
-     * Parse a previously received data
+     * Parse a previously received data and store in corresponding ECU in the vehicle
      * eg OBD data
      * @return true if the parsing has succeed else false
      */

@@ -194,7 +194,7 @@ void config_onchange() {
         if ( config.ephemere.iface != null ) {
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
                 config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
-                obd_fill_infos_from_vin(config.ephemere.iface);
+                viface_fill_infos_from_vin(config.ephemere.iface);
             }
         }
     }

@@ -24,23 +24,6 @@ typedef enum {
 #define OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE 0x7F
 #define OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE 0x40
 
-void obd_fill_infos_from_vin(final VehicleIFace * iface);
-
-/**
- * From obd point of view we do not care what ECU has sent the message we only focus on the message "the car has sent back theses errors".
- * @return number of data buffer received or OBD_RECV_ERROR on error (no obd data available, serial error or any error more deep in the stack)
- */
-int obd_recv(final VehicleIFace* iface);
-/**
- * Generic error (eg any device reception error)
- */
-#define OBD_RECV_ERROR -1
-/**
- * The vehicle does not support the wanted function
- */
-#define OBD_RECV_NO_DATA -2
-
-void obd_clear_data(final VehicleIFace* iface);
 /**
  * Parse one obd message (non can devices only)
  */
@@ -83,11 +66,6 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         } \
     } \
 }
-
-/**
- * A one time process to discover ECUs on the bus, and specific vehicle data
- */
-void obd_discover_vehicle(VehicleIFace* iface);
 
 #include "iso15031/iso15031.h"
 #include "libautodiag/com/can/can.h"

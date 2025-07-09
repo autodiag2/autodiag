@@ -20,8 +20,8 @@ char *saej1979_service_code_to_str(final unsigned char code) {
 bool saej1979_clear_dtc_and_stored_values(final VehicleIFace* iface) {
     viface_lock(iface);
     viface_send(iface, "04");
-    obd_clear_data(iface);
-    obd_recv(iface);
+    viface_clear_data(iface);
+    viface_recv(iface);
     viface_unlock(iface);
     return true;
 }
@@ -73,8 +73,8 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         bool result = false;
 
         viface_send(iface, request);
-        obd_clear_data(iface);
-        obd_recv(iface);
+        viface_clear_data(iface);
+        viface_recv(iface);
         if ( service_id == 0x01 ) {
             OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data,saej1979_is_pid_supported_iterator,current_set)
         } else if ( service_id == 0x02 ) {
