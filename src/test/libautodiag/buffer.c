@@ -66,5 +66,12 @@ bool testBuffer() {
         assert(buffer_from_ascii_hex("12G3") == null);
         assert(buffer_from_ascii_hex("1123") != null);
     }
+    {
+        Buffer * b = buffer_from_ints(0x00, 0x01);
+        assert(b != null);
+        assert(b->size == 2);
+        assert(b->buffer[0] == 0x00);
+        assert(b->buffer[1] == 0x01);
+    }
     return true;
 }

@@ -57,7 +57,10 @@ Buffer* buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size);
  */
 Buffer* buffer_from_ascii_hex(char * ascii_hex);
 Buffer* buffer_from_ascii(char *ascii);
-Buffer* buffer_from_ints(unsigned int first, ...);
+Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n);
+#define buffer_from_ints(...) \
+    buffer_from_ints_arr((unsigned int[]){ __VA_ARGS__ }, \
+                       sizeof((unsigned int[]){ __VA_ARGS__ })/sizeof(unsigned int))
 /**
  * Get an ascii hex the given data.
  * Without spaces.
