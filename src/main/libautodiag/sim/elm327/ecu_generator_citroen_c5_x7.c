@@ -1,8 +1,10 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
+#include "libautodiag/com/uds/uds.h"
 
 static int dtc_count = 2;
 static bool mil_on = true;
+static int session_type = UDS_SESSION_DEFAULT;
 
 static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
@@ -102,6 +104,14 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 }
             } else {
                 log_msg(LOG_ERROR, "Missing PID");
+            }
+        } break;
+        case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
+            if ( 1 < binRequest->size ) {
+                buffer_append(binResponse, buffer_from_ints(
+                    UDS_POSITIVE_RESPONSE|UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, 
+                    binRequest->buffer[1]
+                ));
             }
         } break;
     }

@@ -32,6 +32,9 @@ typedef enum {
     UDS_SERVICE_TESTER_PRESENT = 0x3E
 } UDSService;
 
+#define UDS_NEGATIVE_RESPONSE 0x7F
+#define UDS_POSITIVE_RESPONSE 0x40
+
 typedef enum {
     UDS_NRC_GENERAL_REJECT = 0x10,
     UDS_NRC_SERVICE_NOT_SUPPORTED = 0x11,
@@ -81,5 +84,14 @@ char * uds_nrc_to_string(final UDS_NRC nrc);
 
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
 
+// SBF field (second byte after the service byte)
+typedef enum {
+    UDS_SESSION_DEFAULT = 0x01,
+    UDS_SESSION_PROGRAMMING = 0x02,
+    UDS_SESSION_EXTENDED_DIAGNOSTIC = 0x03,
+    UDS_SESSION_SYSTEM_SAFETY_DIAGNOSTIC = 0x04,
+} UDS_SESSION;
+object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final UDS_SESSION session_type);
+bool uds_request_session_cond(final VehicleIFace * iface, final UDS_SESSION session_type);
 
 #endif
