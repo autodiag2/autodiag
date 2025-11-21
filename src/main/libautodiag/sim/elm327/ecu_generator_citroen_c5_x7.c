@@ -108,9 +108,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
-                buffer_append(binResponse, buffer_from_ints(
-                    UDS_POSITIVE_RESPONSE|UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, 
-                    binRequest->buffer[1]
+                buffer_append(binResponse, buffer_from_ints( 
+                    0x00, 0x19, 0x07, 0xD0 
                 ));
             }
         } break;

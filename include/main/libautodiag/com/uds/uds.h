@@ -6,6 +6,7 @@
 
 #include "libautodiag/lang/all.h"
 #include "libautodiag/com/vehicle_interface.h"
+#include "libautodiag/com/obd/obd.h"
 
 typedef enum {
     UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL = 0x10,
@@ -32,8 +33,8 @@ typedef enum {
     UDS_SERVICE_TESTER_PRESENT = 0x3E
 } UDSService;
 
-#define UDS_NEGATIVE_RESPONSE 0x7F
-#define UDS_POSITIVE_RESPONSE 0x40
+#define UDS_NEGATIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE
+#define UDS_POSITIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE
 
 typedef enum {
     UDS_NRC_GENERAL_REJECT = 0x10,
