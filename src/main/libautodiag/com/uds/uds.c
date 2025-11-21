@@ -56,13 +56,13 @@ object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final U
         final ECU * ecu = iface->vehicle->ecus[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
-            if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) != UDS_NEGATIVE_RESPONSE ) ) {
+            if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
                 object_hashmap_Int_Int_set(
                     result,
                     intdup(ecu->address->buffer[1]), 
                     booldup(false)
                 );
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) != 0 ) {
+            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 object_hashmap_Int_Int_set(
                     result,
                     intdup(ecu->address->buffer[1]), 
