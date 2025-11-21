@@ -110,7 +110,11 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             bool iso_15765_is_multi_message_ff = false;
             bool hasPid = false;
             switch(binRequest->buffer[0]) {
-                case 0x01: case 0x02: case 0x09: hasPid = true; break;
+                case OBD_SERVICE_SHOW_CURRENT_DATA:
+                case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+                case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
+                    hasPid = true;
+                    break;
             }
 
             if ( responseBodyIndex == 0 ) {
