@@ -242,6 +242,21 @@ Buffer* buffer_from_ascii(char *ascii) {
 Buffer* buffer_from_ascii_hex(char * ascii_hex) {
     return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
+Buffer* buffer_from_ints(unsigned int first, ...) {
+    Buffer *result = buffer_new();
+    va_list args;
+    va_start(args, first);
+
+    unsigned int v = first;
+    while (v >= 0) {
+        buffer_ensure_capacity(result, result->size + 1);
+        result->buffer[result->size++] = (byte)v;
+        v = va_arg(args, unsigned int);
+    }
+
+    va_end(args);
+    return result;
+}
 char * buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {
         return strdup("");

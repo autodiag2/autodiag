@@ -57,6 +57,7 @@ Buffer* buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size);
  */
 Buffer* buffer_from_ascii_hex(char * ascii_hex);
 Buffer* buffer_from_ascii(char *ascii);
+Buffer* buffer_from_ints(unsigned int first, ...);
 /**
  * Get an ascii hex the given data.
  * Without spaces.
