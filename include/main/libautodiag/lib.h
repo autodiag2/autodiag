@@ -1,6 +1,7 @@
 #ifndef __LIB_H
 #define __LIB_H
 
+#include <string.h>
 #define _GNU_SOURCE
 #include <stdio.h>
 int asprintf(char **strp, const char *fmt, ...);
@@ -10,6 +11,8 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "compile_target.h"
 #include "libautodiag/lang/lang.h"
 #include "libautodiag/lang/list.h"
+
+char * ascii_escape_breaking_chars(char *str);
 
 /**
  * Generic return values for functions.

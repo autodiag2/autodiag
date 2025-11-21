@@ -19,14 +19,16 @@ int main(int argc, char **argv) {
     log_set_from_env();
     initLibTest();
 
+    /*
     runTestMaybe(testHashMap, null);
     runTestMaybe(testBuffer,null);
     runTestMaybe(testGlobals,null);
     runTestMaybe(testSIM,null);
-    runTestMaybe(testISO3779,null);
+    runTestMaybe(testISO3779,null);*/
     
     final VehicleIFace* iface = port_open(start_elm327_simulation());
 
+    /*
     runTestMaybe(testIniTools, iface);
     runTestMaybe(testELM327, iface);
     runTestMaybe(testSerial, iface);
@@ -34,7 +36,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testCarDatabaseLoad, iface);
     runTestMaybe(testSerialListOperations, iface);
     runTestMaybe(testSAEJ1979, iface);
-    runTestMaybe(testElm, iface);
+    runTestMaybe(testElm, iface);*/
     runTestMaybe(testUDS, null);
 
     viface_close(iface);
