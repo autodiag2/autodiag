@@ -8,7 +8,7 @@
 
 #include "libautodiag/com/obd/obd.h"
 
-LIST_H(int)
+AD_LIST_H(int)
 
 /**
  * Just iterate accross ecus received data until at least one valid found (validated by iterator setting the result value).

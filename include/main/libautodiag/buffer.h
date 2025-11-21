@@ -67,7 +67,7 @@ char* buffer_to_hex_string(Buffer *buffer);
  */
 char * buffer_to_ascii(final Buffer *buffer);
 
-LIST_H(Buffer)
+AD_LIST_H(Buffer)
 void list_Buffer_empty(list_Buffer* list);
 void list_Buffer_dump(final list_Buffer* list);
 /**

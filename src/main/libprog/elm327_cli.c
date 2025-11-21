@@ -35,8 +35,8 @@ void sim_elm327_cli_display_help() {
     sim_elm327_cli_help("");
 }
 
-LIST_H(SimECUGeneratorGui)
-LIST_SRC(SimECUGeneratorGui)
+AD_LIST_H(SimECUGeneratorGui)
+AD_LIST_SRC(SimECUGeneratorGui)
 
 typedef struct {
     SimELM327* sim;

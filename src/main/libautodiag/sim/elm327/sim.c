@@ -1,7 +1,7 @@
 #include "libautodiag/sim/elm327/sim.h"
 #include "libautodiag/sim/elm327/elm327.h"
 
-LIST_SRC(SimECU)
+AD_LIST_SRC(SimECU)
 
 void list_SimECU_empty(list_SimECU * list) {
     while(0 < list->size) {

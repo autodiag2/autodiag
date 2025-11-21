@@ -55,7 +55,7 @@ SAEJ1979_DTC * saej1979_dtc_new();
 void saej1979_dtc_free(SAEJ1979_DTC *dtc);
 char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc);
 
-LIST_H(SAEJ1979_DTC)
+AD_LIST_H(SAEJ1979_DTC)
 void list_SAEJ1979_DTC_append_list(list_SAEJ1979_DTC * list, list_SAEJ1979_DTC * another);
 SAEJ1979_DTC * list_SAEJ1979_DTC_get(list_SAEJ1979_DTC * list, char *dtc);
 

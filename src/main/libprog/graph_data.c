@@ -16,7 +16,7 @@ GraphData * graph_data_new(final double data) {
     return graph_data;
 }
 
-LIST_SRC(GraphData)
+AD_LIST_SRC(GraphData)
 
 Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
     Graph * graph = (Graph*)malloc(sizeof(Graph));
@@ -31,7 +31,7 @@ void graph_append_data(Graph *graph, double data) {
     list_GraphData_append(graph->data, graph_data_new(data));
 }
 
-LIST_SRC(Graph)
+AD_LIST_SRC(Graph)
 
 Graph * list_Graph_get_by_title(list_Graph * list, char * title) {
     assert(list != null);

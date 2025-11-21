@@ -186,7 +186,7 @@ void vehicle_dump(Vehicle* v) {
     }
 }
 
-LIST_SRC(Vehicle)
+AD_LIST_SRC(Vehicle)
 
 void list_Vehicle_empty(list_Vehicle * list) {
     assert(list != null);

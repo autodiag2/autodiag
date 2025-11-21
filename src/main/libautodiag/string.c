@@ -55,4 +55,4 @@ object_string * object_string_assign(object_string * o1, object_string * o2) {
     }
     return o1;
 }
-LIST_SRC(object_string)
+AD_LIST_SRC(object_string)

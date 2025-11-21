@@ -13,7 +13,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
 }
 
 SAEJ1979_DTC * list_SAEJ1979_DTC_get(list_SAEJ1979_DTC * list, char *dtcStr) {
-    LIST_FOREACH(list, SAEJ1979_DTC, dtc, 
+    AD_LIST_FOREACH(list, SAEJ1979_DTC, dtc, 
 
         final char * searched_dtc = saej1979_dtc_to_string(dtc);
         if ( strcmp(searched_dtc, dtcStr) == 0) {
@@ -227,15 +227,15 @@ char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {
     return res;
 }
 
-LIST_SRC(SAEJ1979_DTC)
+AD_LIST_SRC(SAEJ1979_DTC)
 
-LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION)
+AD_LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION)
 void list_SAEJ1979_DTC_DESCRIPTION_append(list_SAEJ1979_DTC_DESCRIPTION * list, SAEJ1979_DTC_DESCRIPTION *desc) {
     list->list = (SAEJ1979_DTC_DESCRIPTION*)realloc(list->list, sizeof(SAEJ1979_DTC_DESCRIPTION) * ++list->size);
     list->list[list->size-1] = *desc;
 }
 void list_SAEJ1979_DTC_DESCRIPTION_free(list_SAEJ1979_DTC_DESCRIPTION * list) {
-    LIST_FREE_CONTIGUOUS(list);
+    AD_LIST_FREE_CONTIGUOUS(list);
 }
 
 SAEJ1979_DTC_DESCRIPTION * saej1979_dtc_description_new() {

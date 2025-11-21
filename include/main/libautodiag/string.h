@@ -23,6 +23,6 @@ typedef struct {
 OBJECT_H(string)
 object_string * object_string_new_from(char *data);
 
-LIST_H(object_string)
+AD_LIST_H(object_string)
 
 #endif

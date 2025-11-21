@@ -59,7 +59,7 @@ static void show_ecus_buffer_internal() {
                 free(ascii_dump);
             }
             
-            LIST_FOREACH(ecu->data_buffer,Buffer,buffer,
+            AD_LIST_FOREACH(ecu->data_buffer,Buffer,buffer,
                 char * dump = bytes_to_hexdump(buffer->buffer, buffer->size);
                 char *tmp;
                 asprintf(&tmp, "%sdata#%d:\n%s",result,list_element_index+1,dump);
@@ -107,7 +107,7 @@ static gboolean set_list_dtc_gsource(gpointer data) {
         ptr = ptr_next;
     }
     if ( list_dtc != null ) {
-        LIST_FOREACH(list_dtc,SAEJ1979_DTC,dtc,
+        AD_LIST_FOREACH(list_dtc,SAEJ1979_DTC,dtc,
             char * dtc_string = saej1979_dtc_to_string(dtc);
             GtkWidget *label = gtk_label_new(dtc_string);
             gtk_container_add((GtkContainer*)gui->dtc.list,label);

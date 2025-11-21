@@ -187,7 +187,7 @@ void config_onchange() {
     list_serial_set_selected_by_location(config.com.serial.device_location);
     final Serial * port = list_serial_get_selected();
     if ( port == null ) {
-        list_serial_selected = SERIAL_LIST_NO_SELECTED;
+        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
         config.ephemere.iface = viface_open_from_device(CAST_DEVICE(port));

@@ -188,8 +188,8 @@ void buffer_recycle(Buffer * buffer) {
     buffer->size = 0;
 }
 
-LIST_SRC(Buffer)
-LIST_SRC_EMPTY(Buffer, buffer_free)
+AD_LIST_SRC(Buffer)
+AD_LIST_SRC_EMPTY(Buffer, buffer_free)
 
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size) {
     assert(ascii_hex != null);
@@ -258,7 +258,7 @@ char* buffer_to_hex_string(Buffer *buffer) {
 }
 void list_Buffer_dump(final list_Buffer* list) {
     assert(list != null);
-    LIST_FOREACH(list,Buffer,buffer,
+    AD_LIST_FOREACH(list,Buffer,buffer,
         buffer_dump(buffer);
     )
 }

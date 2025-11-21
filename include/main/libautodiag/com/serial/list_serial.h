@@ -1,5 +1,5 @@
-#ifndef __SERIAL_LIST_H
-#define __SERIAL_LIST_H
+#ifndef __SERIAL_AD_LIST_H
+#define __SERIAL_AD_LIST_H
 
 #include "libautodiag/dirent.h"
 #include "libautodiag/log.h"
@@ -12,15 +12,15 @@
 #   include <devguid.h>
 #   include <stdio.h>
 #   include <string.h>
-#   define SERIAL_LIST_PIPE_PREFIX "elm327sim_"
+#   define SERIAL_AD_LIST_PIPE_PREFIX "elm327sim_"
 #endif
 
-LIST_H_STRUCT(Serial)
-LIST_H_APPEND(Serial);
+AD_LIST_H_STRUCT(Serial)
+AD_LIST_H_APPEND(Serial);
 
 extern list_Serial list_serial;
 extern int list_serial_selected;
-#define SERIAL_LIST_NO_SELECTED -1
+#define SERIAL_AD_LIST_NO_SELECTED -1
 
 void serial_close_selected();
 /**

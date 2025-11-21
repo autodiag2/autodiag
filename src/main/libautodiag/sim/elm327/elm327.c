@@ -1030,7 +1030,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         HANDLE hPipe;
         int i;
         for (i = 0; i < MAX_ATTEMPTS; i++) {
-            snprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\" SERIAL_LIST_PIPE_PREFIX "%d", i);
+            snprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\" SERIAL_AD_LIST_PIPE_PREFIX "%d", i);
 
             // Création du pipe nommé
             hPipe = CreateNamedPipeA(

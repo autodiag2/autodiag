@@ -10,7 +10,7 @@ typedef struct {
     int time;
 } GraphData;
 
-LIST_H(GraphData)
+AD_LIST_H(GraphData)
 
 typedef struct {
     char *title;
@@ -18,7 +18,7 @@ typedef struct {
     char *unit;
     GtkWidget * widget;
 } Graph;
-LIST_H(Graph)
+AD_LIST_H(Graph)
 extern double graph_time_start_ms;
 
 GraphData * graph_data_new(final double data);

@@ -106,7 +106,7 @@ void vehicle_ecu_debug(final ECU *ecu);
 ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_ecu_empty_duplicated_info(ECU* ecu);
 
-LIST_H(Vehicle)
+AD_LIST_H(Vehicle)
 void list_Vehicle_empty(list_Vehicle * list);
 
 #endif

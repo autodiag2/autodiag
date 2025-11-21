@@ -1,10 +1,10 @@
 #include "libautodiag/com/serial/list_serial.h"
 
 list_Serial list_serial = { .list = null, .size = 0};
-int list_serial_selected = SERIAL_LIST_NO_SELECTED;
+int list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
 
 Serial * list_serial_get_selected() {
-    if ( SERIAL_LIST_NO_SELECTED == list_serial_selected ) {
+    if ( SERIAL_AD_LIST_NO_SELECTED == list_serial_selected ) {
         return null;
     } else {
         assert(0 <= list_serial_selected && list_serial_selected < list_serial.size);
@@ -35,7 +35,7 @@ Serial * list_serial_add_if_not_in_by_location(char * location) {
     }
 }
 
-LIST_SRC_APPEND(Serial)
+AD_LIST_SRC_APPEND(Serial)
 
 int list_Serial_index_from_location(char *location) {
     if ( location != null ) {
@@ -52,7 +52,7 @@ int list_Serial_index_from_location(char *location) {
 void list_serial_set_selected_by_location(char *location) {
     final int index = list_Serial_index_from_location(location);
     if ( index == -1 ) {
-        list_serial_selected = SERIAL_LIST_NO_SELECTED;
+        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
     } else {
         list_serial_selected = index;
     }
@@ -83,7 +83,7 @@ void list_serial_free() {
         list_serial.list = null;
     }
     list_serial.size = 0;
-    list_serial_selected = SERIAL_LIST_NO_SELECTED;
+    list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
 }
 #if defined OS_WINDOWS
     void list_serial_fill_comports(char *selected_serial_path, int *baud_rate) {
@@ -109,7 +109,7 @@ void list_serial_free() {
 
                 final Serial * serial = list_serial_add_if_not_in_by_location(formattedPortNameFullPath);
                 serial->detected = true;
-                if ( list_serial_selected == SERIAL_LIST_NO_SELECTED ) {
+                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
                         list_serial_selected = list_serial.size-1;
                         serial->baud_rate = *baud_rate;
@@ -136,12 +136,12 @@ void list_serial_free() {
         }
 
         do {
-            if (strncmp(findFileData.cFileName, SERIAL_LIST_PIPE_PREFIX, strlen(SERIAL_LIST_PIPE_PREFIX)) == 0) {
+            if (strncmp(findFileData.cFileName, SERIAL_AD_LIST_PIPE_PREFIX, strlen(SERIAL_AD_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
                 final Serial * serial = list_serial_add_if_not_in_by_location(pipeFullPath);
                 serial->detected = true;
-                if ( list_serial_selected == SERIAL_LIST_NO_SELECTED ) {
+                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,pipeFullPath) == 0 ) {
                         list_serial_selected = list_serial.size-1;
                         serial->baud_rate = *baud_rate;
@@ -185,7 +185,7 @@ void list_serial_free() {
                                 } else {
                                     module_debug(MODULE_SERIAL "    Missing permissions");
                                 }
-                                if ( list_serial_selected == SERIAL_LIST_NO_SELECTED ) {
+                                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
                                     if ( selected_serial_path != null && strcmp(selected_serial_path,serial_path) == 0 ) {
                                         list_serial_selected = list_serial.size-1;
                                         serial->baud_rate = *baud_rate;
@@ -241,7 +241,7 @@ void list_serial_remove_undetected() {
         Serial * serial = list_serial.list[i];
         if ( ! serial->detected ) {
             if ( i == list_serial_selected ) {
-                list_serial_selected = SERIAL_LIST_NO_SELECTED;
+                list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
             }
             list_serial_remove(serial);
         }

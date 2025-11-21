@@ -254,7 +254,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-LIST_SRC(SAEJ1979_DATA_Test)
+AD_LIST_SRC(SAEJ1979_DATA_Test)
 
 list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
     list_SAEJ1979_DATA_Test *list = list_SAEJ1979_DATA_Test_new();
