@@ -15,7 +15,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
     }
 
     switch(binRequest->buffer[0]) {
-        case 0x01: {
+        case OBD_SERVICE_SHOW_CURRENT_DATA: {
             bool generic_behaviour = true;
             switch(binRequest->buffer[1]) {
                 case 0x01: {
@@ -31,24 +31,24 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
             }
         } break;
-        case 0x02: {
+        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
             buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
-        case 0x03: {
+        case OBD_SERVICE_SHOW_DTC: {
             for(int i = 0; i < dtc_count; i++) {
                 Buffer *dtc_bin = saej1979_dtc_bin_from_string("P0103");
                 buffer_append(binResponse, dtc_bin);
             }
         } break;
-        case 0x07: case 0x0A: {
+        case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
             buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
-        case 0x04: {
+        case OBD_SERVICE_CLEAR_DTC: {
             mil_on = false;
             dtc_count = 0;
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
-        case 0x09: {
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
