@@ -13,6 +13,7 @@ bool testIniTools(VehicleIFace* iface);
 bool testElm(final VehicleIFace* iface);
 bool testSIM();
 bool testISO3779();
+bool testUDS();
 
 int main(int argc, char **argv) {
     log_set_from_env();
@@ -34,6 +35,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testSerialListOperations, iface);
     runTestMaybe(testSAEJ1979, iface);
     runTestMaybe(testElm, iface);
+    runTestMaybe(testUDS, null);
 
     viface_close(iface);
     viface_free(iface);

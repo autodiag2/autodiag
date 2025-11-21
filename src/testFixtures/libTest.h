@@ -77,11 +77,18 @@ static VehicleIFace* port_parse_open(int argc, char **argv) {
     return port_open(device_location);
 }
 
-static char* start_elm327_simulation() {
+static char* start_elm327_simulation_with_ecus(SimECU *first) {
     SimELM327* elm327 = sim_elm327_new();
+    if ( first != null ) {
+        elm327->ecus->list[0] = first;
+    }
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     return strdup(elm327->device_location);
+}
+
+static char* start_elm327_simulation() {
+    return start_elm327_simulation_with_ecus(null);    
 }
 
 static VehicleIFace* fake_can_iface() {
