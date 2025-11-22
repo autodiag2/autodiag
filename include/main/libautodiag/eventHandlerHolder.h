@@ -18,7 +18,7 @@ void ehh_register(final EventHandlerHolder* ehh, void *ptr);
 #define ehh_trigger(ehh, HANDLER_TYPE, ...) \
     {   \
         for(int ehh_i = 0; ehh_i < ehh->size; ehh_i++) { \
-            (HANDLER_TYPE (ehh)->list[ehh_i])(null, __VA_ARGS__); \
+            (HANDLER_TYPE (ehh)->list[ehh_i])(__VA_ARGS__); \
         } \
     }
 

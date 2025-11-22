@@ -803,7 +803,7 @@ static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_
         gtk_check_menu_item_set_active(all_item, false);
     }
 }
-static void menubar_data_source_filter_by_add(final void *unused, final ECU * ecu) {
+static void menubar_data_source_filter_by_add(final ECU * ecu) {
     char *displayLabel;
     asprintf(&displayLabel, "%s (%s)", ecu->name, buffer_to_hex_string(ecu->address));
     GtkWidget *all_item = GTK_WIDGET(gui->menuBar.data.source.all);

@@ -98,7 +98,7 @@ typedef struct {
     } internal;
 } Vehicle;
 
-#define VEHICLE_EVENTS_ON_ECU_REGISTER_CAST (void(*)(void *, ECU*))
+#define VEHICLE_EVENTS_ON_ECU_REGISTER_CAST (void(*)(ECU*))
 #define vehicle_events_on_ecu_register(v, ecu) \
     ehh_trigger(v->internal.events.onECURegister, VEHICLE_EVENTS_ON_ECU_REGISTER_CAST, ecu);
 
