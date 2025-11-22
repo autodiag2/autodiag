@@ -61,5 +61,8 @@ void viface_clear_data(final VehicleIFace* iface);
  */
 void viface_discover_vehicle(VehicleIFace* iface);
 void viface_dump(final VehicleIFace * iface);
+void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address);
+bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address);
+void viface_recv_filter_clear(final VehicleIFace* iface);
 
 #endif

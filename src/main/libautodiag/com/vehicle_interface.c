@@ -71,7 +71,21 @@ VehicleIFace* viface_open_from_device(final Device* device) {
         return null;
     }
 }
-
+void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address) {
+    if ( ! list_Buffer_find(iface->vehicle->internal.filter, address) ) {
+        list_Buffer_append(iface->vehicle->internal.filter, address);
+    }
+}
+bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
+    final Buffer * found = list_Buffer_find(iface->vehicle->internal.filter, address);
+    if ( found ) {
+        list_Buffer_remove(iface->vehicle->internal.filter, found);
+    }
+    return found != null;
+}
+void viface_recv_filter_clear(final VehicleIFace* iface) {
+    list_Buffer_empty(iface->vehicle->internal.filter);
+}
 int viface_recv(final VehicleIFace* iface) {
     iface->device->clear_data(iface->device);
     final int initial_data_buffer_received = iface->vehicle->data_buffer->size;

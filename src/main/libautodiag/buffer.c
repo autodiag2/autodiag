@@ -193,6 +193,10 @@ int Buffer_cmp(Buffer* e1, Buffer* e2) {
 }
 AD_LIST_SRC(Buffer)
 AD_LIST_SRC_EMPTY(Buffer, buffer_free)
+bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
+    return buffer_cmp(b1, b2) == 0;
+}
+AD_LIST_SRC_FIND(Buffer, Buffer*, buffer_find_comparator)
 
 Buffer * buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size) {
     assert(ascii_hex != null);
