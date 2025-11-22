@@ -84,10 +84,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
                 break;
         }
         final VehicleIFace* iface = config.ephemere.iface;
-        if ( iface == null ) {
-            adaptater_protocol_set_text(port->describe_communication_layer(CAST_DEVICE(port)));
-            adaptater_interface_set_text("Not an OBD interface");
-        } else {
+        if ( iface->state == VIFaceState_READY ) {
             final char * response = elm_print_id((Serial *)iface->device);
             adaptater_interface_set_text((char*)response);
             adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
@@ -96,6 +93,9 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             gtk_label_printf(mainGui->vehicle.country, "%s", iface->vehicle->country);
             gtk_label_printf(mainGui->vehicle.year, "%d", iface->vehicle->year);
             gtk_label_printf(mainGui->vehicle.vin, "%s", buffer_to_ascii(iface->vehicle->vin));
+        } else {
+            adaptater_protocol_set_text(port->describe_communication_layer(CAST_DEVICE(port)));
+            adaptater_interface_set_text("Not an OBD interface");
         }
     }
     gtk_widget_set_visible(GTK_WIDGET(mainGui->adaptater.state.more.container), config.main.adaptater_detailled_settings_showned);
@@ -120,6 +120,7 @@ void * module_init_main_deferred(void *ignored) {
 }
 void module_init_main() {
     if ( mainGui == null ) {
+        config_init();
         config_load();
         
         if ( ! log_is_env_set() ) {

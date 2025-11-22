@@ -803,9 +803,9 @@ static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_
         gtk_check_menu_item_set_active(all_item, false);
     }
 }
-static void menubar_data_source_filter_by_add(char *name, char *address) {
+static void menubar_data_source_filter_by_add(final void *unused, final ECU * ecu) {
     char *displayLabel;
-    asprintf(&displayLabel, "%s (%s)", name, address);
+    asprintf(&displayLabel, "%s (%s)", ecu->name, buffer_to_hex_string(ecu->address));
     GtkWidget *all_item = GTK_WIDGET(gui->menuBar.data.source.all);
     GtkWidget *filter_check = gtk_check_menu_item_new_with_label(displayLabel);
     gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.source.filter_by_menu), filter_check);
@@ -940,8 +940,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         GtkMenu *filter_menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));
         gui->menuBar.data.source.filter_by_menu = filter_menu;
-
-        menubar_data_source_filter_by_add("ecuname", "7E8");
+        ehh_register(config.ephemere.iface->vehicle->internal.events.onECUAdded, menubar_data_source_filter_by_add);
 
     } else {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");

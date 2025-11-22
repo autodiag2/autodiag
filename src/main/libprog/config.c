@@ -32,23 +32,26 @@ const Config DEFAULT_CONFIG = _DEFAULT_CONFIG;
 Config config = _DEFAULT_CONFIG;
 
 void config_commandLine_showTimestamp_set(final bool state) {
+    config_initiated_check();
     config.commandLine.showTimestamp = state;
     logger.show_timestamp = state;
 }
 
-void config_dump(Config * config) {
+void config_dump(Config * c) {
+    config_initiated_check();
     log_msg(LOG_DEBUG, "Config {");
     log_msg(LOG_DEBUG,"    com.serial {");
-    log_msg(LOG_DEBUG,"        baud_rate=%d, device_location=%s", config->com.serial.baud_rate, config->com.serial.device_location);
+    log_msg(LOG_DEBUG,"        baud_rate=%d, device_location=%s", c->com.serial.baud_rate, c->com.serial.device_location);
     log_msg(LOG_DEBUG,"    }");
-    log_msg(LOG_DEBUG,"    main.adaptater_detailled_settings_showned=%d",config->main.adaptater_detailled_settings_showned);
+    log_msg(LOG_DEBUG,"    main.adaptater_detailled_settings_showned=%d",c->main.adaptater_detailled_settings_showned);
     log_msg(LOG_DEBUG,"    commandLine {");
-    log_msg(LOG_DEBUG,"        autoScrollEnabled=%d, showTimestamp=%d", config->commandLine.autoScrollEnabled, config->commandLine.showTimestamp);
+    log_msg(LOG_DEBUG,"        autoScrollEnabled=%d, showTimestamp=%d", c->commandLine.autoScrollEnabled, c->commandLine.showTimestamp);
     log_msg(LOG_DEBUG,"    }");
     log_msg(LOG_DEBUG,"}");
 }
 
 char *config_get_config_filename() {
+    config_initiated_check();
     char *path;
     #if defined OS_WINDOWS
         // Windows application data directory
@@ -66,6 +69,7 @@ char *config_get_config_filename() {
  * Get the config file
  */
 char *config_get_config_file_safe() {
+    config_initiated_check();
     char *configFile = config_get_config_filename();
     #if defined OS_POSIX || defined OS_WINDOWS
         if ( access(configFile,R_OK|W_OK) != 0 ) {
@@ -81,6 +85,7 @@ char *config_get_config_file_safe() {
 }
 
 char *config_try_make_config_file() {
+    config_initiated_check();
     final char * configFile = config_get_config_filename();
     if ( mkdir_p(configFile) ) {
         #if defined OS_POSIX                
@@ -105,11 +110,13 @@ char *config_try_make_config_file() {
 }
 
 bool config_reset() {
+    config_initiated_check();
     config = DEFAULT_CONFIG;
     return config_store();
 }
 
 bool config_store() {
+    config_initiated_check();
     bool res = false;
     final char * configPath = config_try_make_config_file();
     if ( configPath == null ) {
@@ -141,6 +148,7 @@ bool config_store() {
 }
 
 static bool config_load_parser(char * funcData, char *key, char *value) {
+    config_initiated_check();
     if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
         config.com.serial.baud_rate = atoi(value);
         return true;
@@ -172,7 +180,13 @@ static bool config_load_parser(char * funcData, char *key, char *value) {
     return false;
 }
 
+void config_init() {
+    if ( config.ephemere.iface == null ) {
+        config.ephemere.iface = viface_new();
+    }
+}
 bool config_load() {
+    config_initiated_check();
     bool res = false;
     char * configPath = config_get_config_file_safe();
     if ( configPath == null ) {
@@ -184,14 +198,14 @@ bool config_load() {
     return res;
 }
 void config_onchange() {
+    config_initiated_check();
     list_serial_set_selected_by_location(config.com.serial.device_location);
     final Serial * port = list_serial_get_selected();
     if ( port == null ) {
         list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
-        config.ephemere.iface = viface_open_from_device(CAST_DEVICE(port));
-        if ( config.ephemere.iface != null ) {
+        if ( viface_open_from_iface_device(config.ephemere.iface, CAST_DEVICE(port))) {
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
                 config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
                 viface_fill_infos_from_vin(config.ephemere.iface);

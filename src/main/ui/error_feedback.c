@@ -19,14 +19,14 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
 }
 
 bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Serial * serial) {
-    if ( iface == null ) {
+    if ( iface->state == VIFaceState_READY ) {
+        return error_feedback_serial(ws,(Serial *)iface->device);
+    } else {
         if ( ! error_feedback_serial(ws,serial) ) {
             log_msg(LOG_INFO, "Cannot read codes : no obd interface openned");
             gtk_widget_show_on_main_thread(GTK_WIDGET(ws.obd));
         }
         return true;
-    } else {
-        return error_feedback_serial(ws,(Serial *)iface->device);
     }
 }
 

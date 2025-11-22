@@ -13,6 +13,7 @@ PRINT_MODULAR(serial_cli_help,
 
 int serial_cli_main(int argc, char *argv[]) {
     
+    config_init();
     config_load();
     module_init_serial();
 

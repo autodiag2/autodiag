@@ -23,6 +23,7 @@ VehicleIFace* viface_new() {
     final VehicleIFace* iface = (VehicleIFace*)malloc(sizeof(VehicleIFace));
     iface->device = null;
     iface->vehicle = vehicle_new();
+    iface->state = VIFaceState_NOT_READY;
     return iface;
 }
 
@@ -34,26 +35,37 @@ void viface_unlock(final VehicleIFace* iface) {
     iface->device->unlock(iface->device);
 }
 
-VehicleIFace* viface_open_from_device(final Device* device) {
+bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
+    assert(iface != null);
     assert(device->type != null);
-    final VehicleIFace* iface = viface_new();
     if ( strcmp(device->type, "serial") == 0 ) {
         Serial * serial = (Serial*)device;
         log_msg(LOG_INFO, "TODO: should test if ati contains ELM, if so, launch elm open from serial");
         ELMDevice * elm = elm_open_from_serial(serial);
         if ( elm == null ) {
             log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
-            return null;
+            iface->state = VIFaceState_NOT_READY;
+            return false;
         }
         iface->device = CAST_DEVICE(elm);
     } else {
         log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);
-        viface_free(iface);
-        return null;
+        iface->state = VIFaceState_NOT_READY;
+        return false;
     }
 
     viface_discover_vehicle(iface);
-    return iface;
+    iface->state = VIFaceState_READY;
+    return true;
+}
+VehicleIFace* viface_open_from_device(final Device* device) {
+    final VehicleIFace* iface = viface_new();
+    if ( viface_open_from_iface_device (iface, device) ) {
+        return iface;
+    } else {
+        viface_free(iface);
+        return null;
+    }
 }
 
 int viface_recv(final VehicleIFace* iface) {

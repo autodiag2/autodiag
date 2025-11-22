@@ -46,7 +46,7 @@ static gboolean show_ecus_buffer_gsource(gpointer data) {
 static void show_ecus_buffer_internal() {
     final VehicleIFace* iface = config.ephemere.iface;
     char * result = strdup("");
-    if ( iface != null ) {
+    if ( iface->state == VIFaceState_READY ) {
         Vehicle * vehicle = iface->vehicle;    
         for(int i = 0; i < vehicle->ecus_len; i++) {
             ECU* ecu = vehicle->ecus[i];

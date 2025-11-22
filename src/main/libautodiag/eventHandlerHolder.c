@@ -7,10 +7,10 @@ EventHandlerHolder * ehh_new() {
 }
 void ehh_free(EventHandlerHolder * ehh) {
     if ( ehh != null ) {
-        for(int i = 0; i < ehh->size; i++) {
-            free(ehh->list[i]);
+        if ( ehh->list != null ) {
+            free(ehh->list);
+            ehh->list = null;
         }
-        ehh->list = null;
         ehh->size = 0;
         free(ehh);
     }

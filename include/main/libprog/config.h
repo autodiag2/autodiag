@@ -50,6 +50,7 @@ typedef struct {
 
 extern Config config;
 
+#define config_initiated_check() assert(config.ephemere.iface != null);
 /**
  * Store config to filesystem
  */
@@ -58,6 +59,10 @@ bool config_store();
  * Load config from filesystem
  */
 bool config_load();
+/**
+ * mandatory for all other operations
+ */
+void config_init();
 /**
  * Reset to default
  */

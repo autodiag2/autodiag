@@ -120,7 +120,7 @@ static void* save_internal(void *arg) {
     config_store();
     config_onchange();
     final VehicleIFace * iface = config.ephemere.iface;
-    if ( iface != null ) {
+    if ( iface->state == VIFaceState_READY ) {
         viface_fill_infos_from_vin(iface);
         final char * manufacturer = gtk_combo_box_text_get_active_text(gui->vehicleInfos.manufacturer);
         if ( manufacturer != null ) {
@@ -183,7 +183,7 @@ static void fill_vehicle_infos() {
         if (vehicle->manufacturer != null && !g_hash_table_contains(manufacturers, vehicle->manufacturer)) {
             g_hash_table_add(manufacturers, vehicle->manufacturer);
             gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
-            if (iface != null && iface->vehicle->manufacturer != null) {
+            if (( iface->state == VIFaceState_READY ) && iface->vehicle->manufacturer != null) {
                 if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
                     manufacturer_active_i = manufacturer_i;
                 }
