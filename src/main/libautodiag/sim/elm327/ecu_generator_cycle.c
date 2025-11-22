@@ -44,7 +44,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         buffer_append_byte(binResponse, 0x05);
                         break;
                     }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_E_VIN: {
+                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         buffer_append(binResponse,
                             buffer_new_cycle(17,
                             cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
@@ -84,7 +84,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         buffer_append_byte(binResponse,0x01);
                         break;
                     }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_E_ECU_NAME: {
+                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         final Buffer * name = buffer_from_ascii("TEST");
                         buffer_padding(name, 20, 0x00);
                         buffer_append(binResponse, name);
