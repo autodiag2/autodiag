@@ -798,10 +798,8 @@ static void generic_error_feedback_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->genericErrorFeedback));
 }
 static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data) {
-    GtkCheckMenuItem *all_item = GTK_CHECK_MENU_ITEM(user_data);
     ECU *ecu = g_object_get_data(G_OBJECT(check_item), "ecu");
     if (gtk_check_menu_item_get_active(check_item)) {
-        gtk_check_menu_item_set_active(all_item, false);
         viface_recv_filter_add(config.ephemere.iface, ecu->address);
     } else {
         viface_recv_filter_rm(config.ephemere.iface, ecu->address);
@@ -835,16 +833,14 @@ static void menubar_data_source_filter_by_add(final ECU * ecu) {
     }
     free(displayLabel);
 }
-static void menubar_data_source_all() {
-    if ( gtk_check_menu_item_get_active(gui->menuBar.data.source.all) ) {
-        GList *children = gtk_container_get_children(GTK_CONTAINER(gui->menuBar.data.source.filter_by_menu));
-        for (GList *l = children; l != NULL; l = l->next) {
-            GtkWidget *w = GTK_WIDGET(l->data);
-            gtk_check_menu_item_set_active(w, false);
-            viface_recv_filter_clear(config.ephemere.iface);
-        }
-        g_list_free(children);
+static void menubar_data_source_all(GtkMenuItem *item, gpointer user_data) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(gui->menuBar.data.source.filter_by_menu));
+    for (GList *l = children; l != NULL; l = l->next) {
+        GtkWidget *w = GTK_WIDGET(l->data);
+        gtk_check_menu_item_set_active(w, false);
+        viface_recv_filter_clear(config.ephemere.iface);
     }
+    g_list_free(children);
 }
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( gui == null ) {
@@ -969,7 +965,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-changed",G_CALLBACK(&refresh_changed));
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&data_freeze_frame);
-        gtk_builder_add_callback_symbol(builder,"vehicle-explorer-data-source-all",&menubar_data_source_all);
+        g_signal_connect(gui->menuBar.data.source.all, "activate", G_CALLBACK(menubar_data_source_all), null);
 
         GtkWidget *filter_menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));

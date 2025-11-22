@@ -9595,7 +9595,7 @@ What can be done:
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <child>
-                              <object class="GtkCheckMenuItem" id="vehicle-explorer-menubar-data-source-all">
+                              <object class="GtkMenuItem" id="vehicle-explorer-menubar-data-source-all">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="tooltip-text" translatable="yes">Receive from all data sources (all ECUs)</property>
