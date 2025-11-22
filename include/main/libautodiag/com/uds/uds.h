@@ -83,7 +83,7 @@ char* uds_service_to_string(final UDSService key);
 int uds_service_response(final UDSService key);
 char * uds_nrc_to_string(final UDS_NRC nrc);
 
-// WWH-OBD Standardized DID
+// UDS Standardized DID
 typedef enum {
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_bootSoftwareIdentificationDataIdentifier                = 0xF180,
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationSoftwareIdentificationDataIdentifier         = 0xF181,
@@ -112,6 +112,11 @@ typedef enum {
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ECU_installation_date                                   = 0xF19D,
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ODX_file                                                = 0xF19E
 } UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID;
+
+// WWH-OBD DID
+typedef enum {
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID_VIN = 0xF802
+} UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID;
 
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
 
