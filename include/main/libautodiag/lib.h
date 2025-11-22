@@ -51,6 +51,7 @@ GENERATE_TYPE_DUP_HEADER(byte);
 #include "log.h"
 #include "cli_tools.h"
 #include "installation.h"
+#include "eventHandlerHolder.h"
 #include "libautodiag/lang/all.h"
 
 #endif

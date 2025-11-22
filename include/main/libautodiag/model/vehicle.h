@@ -92,6 +92,9 @@ typedef struct {
          * Directory containing meta datas for this car
          */
         char *directory;
+        struct {
+            EventHandlerHolder * onECUAdded;
+        } events;
     } internal;
 } Vehicle;
 
