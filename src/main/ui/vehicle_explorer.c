@@ -940,7 +940,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         GtkWidget *filter_menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));
         gui->menuBar.data.source.filter_by_menu = filter_menu;
-        ehh_register(config.ephemere.iface->vehicle->internal.events.onECUAdded, menubar_data_source_filter_by_add);
+        ehh_register(config.ephemere.iface->vehicle->internal.events.onECURegister, menubar_data_source_filter_by_add);
 
     } else {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");

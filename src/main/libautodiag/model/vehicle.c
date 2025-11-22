@@ -18,7 +18,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
     buffer_append_bytes(ecu->address,address,size);
     v->ecus = (ECU**)realloc(v->ecus,sizeof(ECU*)*(++v->ecus_len));
     v->ecus[v->ecus_len-1] = ecu;
-    vehicle_events_on_ecu_added(v, ecu);
+    vehicle_events_on_ecu_register(v, ecu);
     return ecu;
 }
 
@@ -101,7 +101,7 @@ Vehicle * vehicle_new() {
     v->engine = null;
     v->vin = null;
     v->internal.directory = null;
-    v->internal.events.onECUAdded = ehh_new();
+    v->internal.events.onECURegister = ehh_new();
     return v;
 }
 
@@ -125,7 +125,7 @@ void vehicle_free(Vehicle * v) {
             buffer_free(v->vin);
             v->vin = null;
         }
-        ehh_free(v->internal.events.onECUAdded);
+        ehh_free(v->internal.events.onECURegister);
         free(v);
     }
 }
