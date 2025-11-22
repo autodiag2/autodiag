@@ -797,6 +797,22 @@ static void expanders_default_state(GtkWidget *widget, gpointer data) {
 static void generic_error_feedback_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->genericErrorFeedback));
 }
+static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data) {
+    GtkCheckMenuItem *all_item = GTK_CHECK_MENU_ITEM(user_data);
+    if (gtk_check_menu_item_get_active(check_item)) {
+        gtk_check_menu_item_set_active(all_item, false);
+    }
+}
+static void menubar_data_source_filter_by_add(char *name, char *address) {
+    char *displayLabel;
+    asprintf(&displayLabel, "%s (%s)", name, address);
+    GtkWidget *all_item = GTK_WIDGET(gui->menuBar.data.source.all);
+    GtkWidget *filter_check = gtk_check_menu_item_new_with_label(displayLabel);
+    gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.source.filter_by_menu), filter_check);
+    gtk_widget_show(filter_check);
+    g_signal_connect(filter_check, "toggled", G_CALLBACK(on_filter_check_toggled), gui->menuBar.data.source.all);
+    free(displayLabel);
+}
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( gui == null ) {
         graphs = list_Graph_new();
@@ -808,7 +824,13 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .autoRefresh = (GtkCheckMenuItem*)gtk_builder_get_object(builder,"vehicle-explorer-menubar-autorefresh"),
                 .freeze_frame_thread = null,
                 .freeze_frame_error_popup = GTK_WINDOW(gtk_builder_get_object(builder,"vehicle-explorer-freeze-frame-error")),
-                .showFreezeFrame = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"vehicle-explorer-menubar-show-freezeframe"))
+                .showFreezeFrame = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"vehicle-explorer-menubar-show-freezeframe")),
+                .data = {
+                    .source = {
+                        .all = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-all")),
+                        .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-filter-by"))
+                    }    
+                }
             },
             .engine = {
                 .expandableSection = (GtkBox *)gtk_builder_get_object(builder,"vehicle-explorer-expandable-section"),
@@ -914,6 +936,13 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-changed",G_CALLBACK(&refresh_changed));
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&data_freeze_frame);
+
+        GtkMenu *filter_menu = gtk_menu_new();
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));
+        gui->menuBar.data.source.filter_by_menu = filter_menu;
+
+        menubar_data_source_filter_by_add("ecuname", "7E8");
+
     } else {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
     }

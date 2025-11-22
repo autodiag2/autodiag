@@ -28,6 +28,13 @@ typedef struct {
         pthread_t* freeze_frame_thread;
         GtkWindow* freeze_frame_error_popup;
         GtkCheckMenuItem *showFreezeFrame;
+        struct {
+            struct {
+                GtkCheckMenuItem *all;
+                GtkWidget *filter_by;
+                GtkMenu *filter_by_menu;
+            } source;
+        } data;
     } menuBar;
     struct {
         GtkBox* expandableSection;
