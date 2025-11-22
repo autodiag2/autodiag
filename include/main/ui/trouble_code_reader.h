@@ -39,12 +39,14 @@ typedef struct {
     } dtc;
     struct {
         struct {
-            GtkWidget       *window;
-            GtkTextView     *textView;
-            GtkTextBuffer   *text;
-            ThreadedAction;            
-        } showECUsBuffer;
-        GtkCheckMenuItem *filtered;
+            struct {
+                GtkWidget       *window;
+                GtkTextView     *textView;
+                GtkTextBuffer   *text;
+                ThreadedAction;            
+            } showECUsBuffer;
+            GtkCheckMenuItem *filtered;
+        } view;
     } menuBar;
 } TroubleCodeReaderGui;
 

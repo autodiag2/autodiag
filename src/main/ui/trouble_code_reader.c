@@ -9,7 +9,7 @@ static void clear_dtc_description() {
     gtk_text_buffer_set_text(gui->dtc.causeSolutionText, "", 0);
 }
 static bool filtered_dtc_state() {
-    return gtk_check_menu_item_get_active(gui->menuBar.filtered);    
+    return gtk_check_menu_item_get_active(gui->menuBar.view.filtered);    
 }
 static void hide() {
     gtk_widget_hide_on_main_thread(gui->window);
@@ -39,7 +39,7 @@ static void no_obd_data_ok() {
 }
 static gboolean show_ecus_buffer_gsource(gpointer data) {
     char *msg = (char*)data; 
-    gtk_text_buffer_set_text(gui->menuBar.showECUsBuffer.text, msg, strlen(msg));
+    gtk_text_buffer_set_text(gui->menuBar.view.showECUsBuffer.text, msg, strlen(msg));
     free(msg);
     return false;
 }
@@ -75,12 +75,12 @@ static void show_ecus_buffer_internal() {
 THREAD_WRITE_DAEMON(
         show_ecus_buffer_daemon,
         show_ecus_buffer_internal,
-        button_click_clean_up_routine, gui->menuBar.showECUsBuffer.thread
+        button_click_clean_up_routine, gui->menuBar.view.showECUsBuffer.thread
 )
 
 static void show_ecus_buffer() {
-    gtk_widget_show_on_main_thread(gui->menuBar.showECUsBuffer.window);
-    thread_allocate_and_start(&gui->menuBar.showECUsBuffer.thread,&show_ecus_buffer_daemon);
+    gtk_widget_show_on_main_thread(gui->menuBar.view.showECUsBuffer.window);
+    thread_allocate_and_start(&gui->menuBar.view.showECUsBuffer.thread,&show_ecus_buffer_daemon);
 }
 
 static gboolean set_mil_gsource(gpointer data) {
@@ -194,7 +194,7 @@ static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     log_msg(LOG_DEBUG, "Close event received");
     THREAD_CANCEL(gui->read.thread);
     THREAD_CANCEL(gui->clear.thread);
-    THREAD_CANCEL(gui->menuBar.showECUsBuffer.thread);
+    THREAD_CANCEL(gui->menuBar.view.showECUsBuffer.thread);
     return gtk_widget_generic_onclose(dialog,event,unused);
 }
 
@@ -244,7 +244,7 @@ void module_init_read_codes(GtkBuilder *builder) {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-read-codes")),
             .noObdData = GTK_WIDGET (gtk_builder_get_object (builder, "window-no-obd-data")),
             .errorFeedback = ERROR_FEEDBACK_RETRIEVE_WINDOWS(builder),
-            .menuBar = {
+            .menuBar.view = {
                 .showECUsBuffer = {
                     .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-show-ecus-buffer")),
                     .textView = (GtkTextView*) (gtk_builder_get_object (builder, "window-show-ecus-buffer-text")),
@@ -284,15 +284,15 @@ void module_init_read_codes(GtkBuilder *builder) {
         gtk_text_view_set_buffer(g.dtc.description, g.dtc.descriptionText);
         gtk_text_view_set_buffer(g.dtc.causeSolution, g.dtc.causeSolutionText);
         gtk_text_view_set_buffer(g.dtc.explanation, g.dtc.explanationText);
-        gtk_text_view_set_buffer(g.menuBar.showECUsBuffer.textView, g.menuBar.showECUsBuffer.text);
+        gtk_text_view_set_buffer(g.menuBar.view.showECUsBuffer.textView, g.menuBar.view.showECUsBuffer.text);
         *gui = g;
-        gtk_check_menu_item_set_active(gui->menuBar.filtered, false);
+        gtk_check_menu_item_set_active(gui->menuBar.view.filtered, false);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-go-back-main-menu",&hide);
         g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),null);
         g_signal_connect(G_OBJECT(gui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         error_feedback_windows_init(gui->errorFeedback);
         g_signal_connect(G_OBJECT(gui->noObdData),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
-        g_signal_connect(G_OBJECT(gui->menuBar.showECUsBuffer.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        g_signal_connect(G_OBJECT(gui->menuBar.view.showECUsBuffer.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
         gtk_builder_add_callback_symbol(builder,"show-window-read-codes",&show);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-read-codes",&read_codes);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-clear-codes",&show_clear_confirm);
