@@ -18,6 +18,10 @@ void viface_free(final VehicleIFace* iface) {
     }
     free(iface);
 }
+void viface_dump(final VehicleIFace * iface) {
+    log_msg(LOG_DEBUG, "VIFace dump state=%s", iface->state == VIFaceState_READY ? "ready" : "not ready");
+    vehicle_dump(iface->vehicle);
+}
 
 VehicleIFace* viface_new() {
     final VehicleIFace* iface = (VehicleIFace*)malloc(sizeof(VehicleIFace));
@@ -152,7 +156,6 @@ void viface_fill_infos_from_vin(final VehicleIFace * iface) {
 }
 void viface_discover_vehicle(VehicleIFace* iface) {
     saej1979_data_is_pid_supported(iface, false, 0x01);
-
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
         ECU* ecu = iface->vehicle->ecus[i];
         if ( ecu->name != null ) {

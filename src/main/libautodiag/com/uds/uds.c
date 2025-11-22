@@ -59,14 +59,14 @@ object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final b
             if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
                 object_hashmap_Int_Int_set(
                     result,
-                    intdup(ecu->address->buffer[1]), 
-                    booldup(false)
+                    object_Int_new_from(ecu->address->buffer[1]), 
+                    object_Int_new_from(false)
                 );
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 object_hashmap_Int_Int_set(
                     result,
-                    intdup(ecu->address->buffer[1]), 
-                    booldup(true)
+                    object_Int_new_from(ecu->address->buffer[1]), 
+                    object_Int_new_from(true)
                 );
             } else {
                 log_msg(LOG_ERROR, "Incorrect data byte: %02hhX", data->buffer[0]);

@@ -18,7 +18,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
     buffer_append_bytes(ecu->address,address,size);
     v->ecus = (ECU**)realloc(v->ecus,sizeof(ECU*)*(++v->ecus_len));
     v->ecus[v->ecus_len-1] = ecu;
-    ehh_trigger(v->internal.events.onECUAdded, ecu);
+    vehicle_events_on_ecu_added(v, ecu);
     return ecu;
 }
 

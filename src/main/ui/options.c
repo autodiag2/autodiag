@@ -90,7 +90,7 @@ static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
 static void* save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
-    final char * device_location = gtk_entry_get_text(gui->device_location);
+    final const gchar * device_location = gtk_entry_get_text(gui->device_location);
     if ( device_location == null || strcmp(device_location,"") == 0 ) {
         if ( config.com.serial.device_location != null ) {
             free(config.com.serial.device_location);
@@ -343,7 +343,7 @@ static void launch_simulation_internal() {
     g_idle_add(launch_simulation_update_gui, elm327);
 }
 
-static static void launch_simulation_clean_up_routine(void *arg) {
+static void launch_simulation_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
     gtk_spinner_stop(gui->simulator.spinner);
 }

@@ -4,6 +4,7 @@ EventHandlerHolder * ehh_new() {
     EventHandlerHolder * ehh = (EventHandlerHolder*)malloc(sizeof(EventHandlerHolder));
     ehh->list = null;
     ehh->size = 0;
+    return ehh;
 }
 void ehh_free(EventHandlerHolder * ehh) {
     if ( ehh != null ) {

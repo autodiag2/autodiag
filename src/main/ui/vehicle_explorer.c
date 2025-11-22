@@ -937,7 +937,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&data_freeze_frame);
 
-        GtkMenu *filter_menu = gtk_menu_new();
+        GtkWidget *filter_menu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));
         gui->menuBar.data.source.filter_by_menu = filter_menu;
         ehh_register(config.ephemere.iface->vehicle->internal.events.onECUAdded, menubar_data_source_filter_by_add);

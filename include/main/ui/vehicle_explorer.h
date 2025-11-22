@@ -32,7 +32,7 @@ typedef struct {
             struct {
                 GtkCheckMenuItem *all;
                 GtkWidget *filter_by;
-                GtkMenu *filter_by_menu;
+                GtkWidget *filter_by_menu;
             } source;
         } data;
     } menuBar;

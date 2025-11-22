@@ -60,5 +60,6 @@ void viface_clear_data(final VehicleIFace* iface);
  * A one time process to discover ECUs on the bus, and specific vehicle data
  */
 void viface_discover_vehicle(VehicleIFace* iface);
+void viface_dump(final VehicleIFace * iface);
 
 #endif

@@ -16,7 +16,7 @@
 static void obd_thread_cleanup_routine(void *arg) {
     final VehicleIFace* iface = config.ephemere.iface;
     log_msg(LOG_INFO, "clean up execution");
-    if ( iface != null ) {
+    if ( iface->state == VIFaceState_READY ) {
         viface_unlock(iface);
     }
 }

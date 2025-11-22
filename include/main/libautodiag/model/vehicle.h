@@ -98,6 +98,10 @@ typedef struct {
     } internal;
 } Vehicle;
 
+#define VEHICLE_EVENTS_ON_ECU_ADDED_CAST (void(*)(void *, ECU*))
+#define vehicle_events_on_ecu_added(v, ecu) \
+    ehh_trigger(v->internal.events.onECUAdded, VEHICLE_EVENTS_ON_ECU_ADDED_CAST, ecu);
+
 Vehicle* vehicle_new();
 void vehicle_free(Vehicle* v);
 void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v);
