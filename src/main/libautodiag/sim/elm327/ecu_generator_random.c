@@ -8,18 +8,28 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
         *seed = 1;
         generator->context = seed;
     }
+
     switch(binRequest->buffer[0]) {
-        case 0x02: case 0x01: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+
+        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+        case OBD_SERVICE_SHOW_CURRENT_DATA: {
+            buffer_append(binResponse,
+                buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
-        case 0x07: case 0x0A: case 0x03: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
+
+        case OBD_SERVICE_PENDING_DTC:
+        case OBD_SERVICE_PERMANENT_DTC:
+        case OBD_SERVICE_SHOW_DTC: {
+            buffer_append(binResponse,
+                buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));
         } break;
-        case 0x04: {
+
+        case OBD_SERVICE_CLEAR_DTC: {
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
-        case 0x09: {
-            if ( 1 < binRequest->size ) {            
+
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
+            if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
                         buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
@@ -30,7 +40,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case 0x02: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(17, seed));                
+                        buffer_append(binResponse,
+                            buffer_new_random_with_seed(17, seed));
                         break;
                     }
                     case 0x03: {
@@ -38,7 +49,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case 0x04: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(16, seed));                
+                        buffer_append(binResponse,
+                            buffer_new_random_with_seed(16, seed));
                         break;
                     }
                     case 0x05: {
@@ -46,7 +58,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case 0x06: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,
+                            buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
@@ -54,7 +67,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case 0x08: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,
+                            buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
@@ -68,7 +82,8 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,
+                            buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }
@@ -78,6 +93,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
     }
 }
+
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
