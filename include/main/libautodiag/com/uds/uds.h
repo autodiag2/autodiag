@@ -83,6 +83,36 @@ char* uds_service_to_string(final UDSService key);
 int uds_service_response(final UDSService key);
 char * uds_nrc_to_string(final UDS_NRC nrc);
 
+// WWH-OBD Standardized DID
+typedef enum {
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_bootSoftwareIdentificationDataIdentifier                = 0xF180,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationSoftwareIdentificationDataIdentifier         = 0xF181,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationDataIdentification                           = 0xF182,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_bootSoftwareFingerprint                                 = 0xF183,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationSoftwareFingerprint                          = 0xF184,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationDataFingerprint                              = 0xF185,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information   = 0xF186,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_manufacturerSparePartNumber                             = 0xF187,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_manufacturerECUSoftwareNumber                           = 0xF188,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_manufacturerECUSoftwareVersion                          = 0xF189,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_identifierOfSystemSupplier                              = 0xF18A,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ECUManufacturingDate                                    = 0xF18B,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ECUSerialNumber                                         = 0xF18C,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_SupportedFunctionnalUnit                                = 0xF18D,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ManufacturerKitAssemblyPartNumber                       = 0xF18E,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_VIN                                                     = 0xF190,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_system_supplier_ECU_hardware_number                     = 0xF192,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_system_supplier_ECU_hardware_version_number             = 0xF193,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_system_supplier_ECU_software_number                     = 0xF194,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_system_supplier_ECU_software_version_number             = 0xF195,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_exhaust_regulation_type_approval_number                 = 0xF196,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_system_name_engine_type                                 = 0xF197,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_repair_shop_code_tester_serial_number                   = 0xF198,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_programming_date                                        = 0xF199,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ECU_installation_date                                   = 0xF19D,
+    UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_ODX_file                                                = 0xF19E
+} UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID;
+
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
 
 // SBF field (second byte after the service byte)
