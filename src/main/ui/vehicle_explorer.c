@@ -803,14 +803,32 @@ static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_
         gtk_check_menu_item_set_active(all_item, false);
     }
 }
+static GtkWidget *find_widget_for_ecu(GtkWidget *menu, ECU *ecu) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
+    for (GList *l = children; l != NULL; l = l->next) {
+        GtkWidget *w = GTK_WIDGET(l->data);
+        ECU *attached = g_object_get_data(G_OBJECT(w), "ecu");
+        if (attached == ecu) {
+            g_list_free(children);
+            return w;
+        }
+    }
+    g_list_free(children);
+    return null;
+}
 static void menubar_data_source_filter_by_add(final ECU * ecu) {
     char *displayLabel;
     asprintf(&displayLabel, "%s (%s)", ecu->name, buffer_to_hex_string(ecu->address));
-    GtkWidget *all_item = GTK_WIDGET(gui->menuBar.data.source.all);
-    GtkWidget *filter_check = gtk_check_menu_item_new_with_label(displayLabel);
-    gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.source.filter_by_menu), filter_check);
-    gtk_widget_show(filter_check);
-    g_signal_connect(filter_check, "toggled", G_CALLBACK(on_filter_check_toggled), gui->menuBar.data.source.all);
+    GtkWidget *filter_check = find_widget_for_ecu(gui->menuBar.data.source.filter_by_menu, ecu);
+    if ( filter_check == null ) {
+        filter_check = gtk_check_menu_item_new_with_label(displayLabel);
+        gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.source.filter_by_menu), filter_check);
+        gtk_widget_show(filter_check);
+        g_object_set_data(G_OBJECT(filter_check), "ecu", ecu);
+        g_signal_connect(filter_check, "toggled", G_CALLBACK(on_filter_check_toggled), gui->menuBar.data.source.all);
+    } else {
+        gtk_menu_item_set_label(GTK_MENU_ITEM(filter_check), displayLabel);
+    }
     free(displayLabel);
 }
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
