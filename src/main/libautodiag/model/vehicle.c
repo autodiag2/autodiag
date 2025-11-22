@@ -102,6 +102,7 @@ Vehicle * vehicle_new() {
     v->vin = null;
     v->internal.directory = null;
     v->internal.events.onECURegister = ehh_new();
+    v->internal.filter = list_Buffer_new();
     return v;
 }
 
@@ -125,6 +126,7 @@ void vehicle_free(Vehicle * v) {
             buffer_free(v->vin);
             v->vin = null;
         }
+        list_Buffer_free(v->internal.filter);
         ehh_free(v->internal.events.onECURegister);
         free(v);
     }
@@ -190,6 +192,9 @@ void vehicle_dump(Vehicle* v) {
     }
 }
 
+int Vehicle_cmp(Vehicle* e1, Vehicle* e2) {
+    return e1 - e2;
+}
 AD_LIST_SRC(Vehicle)
 
 void list_Vehicle_empty(list_Vehicle * list) {

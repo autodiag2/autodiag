@@ -95,6 +95,7 @@ typedef struct {
         struct {
             EventHandlerHolder * onECURegister;
         } events;
+        list_Buffer * filter;
     } internal;
 } Vehicle;
 

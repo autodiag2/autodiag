@@ -27,4 +27,7 @@ bool list_Iso15765Conversation_find_comparator(Iso15765Conversation *conv, ECU* 
 AD_LIST_SRC_FIND(Iso15765Conversation,
                 ECU*,list_Iso15765Conversation_find_comparator
 )
+int Iso15765Conversation_cmp(Iso15765Conversation* e1, Iso15765Conversation* e2) {
+    return e1->ecu - e2->ecu;
+}
 AD_LIST_SRC(Iso15765Conversation)

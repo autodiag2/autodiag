@@ -43,6 +43,9 @@ bool saej1979_clear_dtc_and_stored_values(final VehicleIFace* iface) {
     } \
     result |= (pid_as_bitmask&buffer_as_32bits) != 0;
 
+int int_cmp(int* e1, int* e2) {
+    return *e1 - *e2;
+}
 AD_LIST_SRC(int)
 
 list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int service_id, int pid) {

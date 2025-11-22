@@ -226,7 +226,11 @@ char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {
     free(type);
     return res;
 }
-
+int SAEJ1979_DTC_cmp(SAEJ1979_DTC* e1, SAEJ1979_DTC* e2) {
+    char * e1s = saej1979_dtc_to_string(e1);
+    char * e2s = saej1979_dtc_to_string(e2);
+    return buffer_cmp(saej1979_dtc_bin_from_string(e1s), saej1979_dtc_bin_from_string(e2s));
+}
 AD_LIST_SRC(SAEJ1979_DTC)
 
 AD_LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION)

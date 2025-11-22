@@ -55,4 +55,7 @@ object_string * object_string_assign(object_string * o1, object_string * o2) {
     }
     return o1;
 }
+int object_string_cmp(object_string* e1, object_string* e2) {
+    return strcmp(e1->data, e2->data);
+}
 AD_LIST_SRC(object_string)

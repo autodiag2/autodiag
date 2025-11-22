@@ -95,7 +95,7 @@ int buffer_get_free_space(Buffer * buffer);
 /**
  * Compare two buffers
  */
-bool buffer_cmp(final Buffer *buf1, final Buffer *buf2);
+int buffer_cmp(final Buffer *buf1, final Buffer *buf2);
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2);
 void buffer_padding(final Buffer * buffer, unsigned int until, final byte pad);
 

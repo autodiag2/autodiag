@@ -32,14 +32,29 @@
     AD_LIST_H_FREE(element_type); \
     AD_LIST_H_APPEND(element_type); \
     AD_LIST_H_REMOVE(element_type); \
-    AD_LIST_H_REMOVE_AT(element_type);
+    AD_LIST_H_REMOVE_AT(element_type); \
+    AD_LIST_H_CONTAINS(element_type);
 
 #define AD_LIST_SRC(element_type) \
     AD_LIST_SRC_NEW(element_type) \
     AD_LIST_SRC_FREE(element_type) \
     AD_LIST_SRC_APPEND(element_type) \
     AD_LIST_SRC_REMOVE(element_type) \
-    AD_LIST_SRC_REMOVE_AT(element_type)
+    AD_LIST_SRC_REMOVE_AT(element_type) \
+    AD_LIST_SRC_CONTAINS(element_type)
+
+#define AD_LIST_H_CONTAINS(element_type) bool list_##element_type##_contains(list_##element_type * list, element_type * element)
+#define AD_LIST_SRC_CONTAINS(element_type) AD_LIST_H_CONTAINS(element_type) { \
+    AD_LIST_FOREACH( \
+        list, element_type, element2, \
+        { \
+            if ( element_type##_cmp(element2, element) == 0 ) { \
+                return true; \
+            } \
+        } \
+    ) \
+    return false; \
+}
 
 #define AD_LIST_H_NEW(element_type) list_##element_type* list_##element_type##_new()
 #define AD_LIST_SRC_NEW(element_type) AD_LIST_H_NEW(element_type) { \

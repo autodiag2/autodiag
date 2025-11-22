@@ -164,7 +164,7 @@ bool testSIM() {
         iface->device->send(iface->device,"0104");
         viface_clear_data(iface);
         iface->device->recv(iface->device);
-        assert( ! buffer_cmp(response, serial->recv_buffer));
+        assert(buffer_cmp(response, serial->recv_buffer) != 0);
     }
     {
         SimELM327* elm327 = sim_elm327_new();       
@@ -264,7 +264,7 @@ bool testSIM() {
         viface_send(iface, "0900");
         viface_clear_data(iface);
         viface_recv(iface);
-        assert(buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
+        assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
     }
     {
         SimELM327* elm327 = sim_elm327_new();       

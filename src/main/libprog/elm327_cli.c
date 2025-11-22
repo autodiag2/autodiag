@@ -35,6 +35,9 @@ void sim_elm327_cli_display_help() {
     sim_elm327_cli_help("");
 }
 
+int SimECUGeneratorGui_cmp(SimECUGeneratorGui*g1, SimECUGeneratorGui*g2) {
+    return g1 - g2;
+}
 AD_LIST_H(SimECUGeneratorGui)
 AD_LIST_SRC(SimECUGeneratorGui)
 

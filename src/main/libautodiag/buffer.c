@@ -19,16 +19,16 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
-bool buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
+int buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     if ( buf1->size != buf2->size ) {
-        return false;
+        return -1;
     }
     for(unsigned int i = 0; i < buf1->size; i++) {
         if ( buf1->buffer[i] != buf2->buffer[i] ) {
-            return false;
+            return i;
         }
     }
-    return true;
+    return 0;
 }
 Buffer * buffer_new_cycle(unsigned int sz, int percent) {
     assert(0 <= percent && percent <= 100);
@@ -188,6 +188,9 @@ void buffer_recycle(Buffer * buffer) {
     buffer->size = 0;
 }
 
+int Buffer_cmp(Buffer* e1, Buffer* e2) {
+    return buffer_cmp(e1, e2);
+}
 AD_LIST_SRC(Buffer)
 AD_LIST_SRC_EMPTY(Buffer, buffer_free)
 

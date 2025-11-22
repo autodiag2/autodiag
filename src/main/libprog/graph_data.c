@@ -16,6 +16,9 @@ GraphData * graph_data_new(final double data) {
     return graph_data;
 }
 
+int GraphData_cmp(GraphData*g1, GraphData*g2) {
+    return g1 - g2;
+}
 AD_LIST_SRC(GraphData)
 
 Graph * graph_new(GtkWidget * widget, char *title, char *unit) {
@@ -31,6 +34,9 @@ void graph_append_data(Graph *graph, double data) {
     list_GraphData_append(graph->data, graph_data_new(data));
 }
 
+int Graph_cmp(Graph*g1, Graph*g2) {
+    return g1 - g2;
+}
 AD_LIST_SRC(Graph)
 
 Graph * list_Graph_get_by_title(list_Graph * list, char * title) {

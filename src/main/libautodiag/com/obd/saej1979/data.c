@@ -253,7 +253,9 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_status_iterator,
                         null
                     )
-
+int SAEJ1979_DATA_Test_cmp(SAEJ1979_DATA_Test* e1, SAEJ1979_DATA_Test* e2) {
+    return e1 - e2;
+}
 AD_LIST_SRC(SAEJ1979_DATA_Test)
 
 list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
