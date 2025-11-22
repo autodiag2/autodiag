@@ -27,7 +27,7 @@ list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int 
     viface_unlock(iface);
     return result;
 }
-bool uds_request_session_cond(final VehicleIFace * iface, final UDS_SESSION session_type) {
+bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
     final object_hashmap_Int_Int * result = uds_request_session(iface, session_type);
     int value = -1;
     if ( 0 < result->size ) {
@@ -43,7 +43,7 @@ bool uds_request_session_cond(final VehicleIFace * iface, final UDS_SESSION sess
     return value == -1 ? false : value;
 }
 
-object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final UDS_SESSION session_type) {
+object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     
     char * request;

@@ -92,7 +92,10 @@ typedef enum {
     UDS_SESSION_EXTENDED_DIAGNOSTIC = 0x03,
     UDS_SESSION_SYSTEM_SAFETY_DIAGNOSTIC = 0x04,
 } UDS_SESSION;
-object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final UDS_SESSION session_type);
-bool uds_request_session_cond(final VehicleIFace * iface, final UDS_SESSION session_type);
+/**
+ * UDS_SESSION or a byte for ISO/SAE reserved
+ */
+object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final byte session_type);
+bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
 
 #endif
