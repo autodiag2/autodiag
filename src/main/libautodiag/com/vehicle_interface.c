@@ -108,7 +108,7 @@ int viface_recv(final VehicleIFace* iface) {
         for(int i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
             vehicle_ecu_empty_duplicated_info(ecu);
-            if ( list_Buffer_contains(v->internal.filter, ecu->address) ) {
+            if ( 0 < v->internal.filter->size && ! list_Buffer_contains(v->internal.filter, ecu->address) ) {
                 list_Buffer_empty(ecu->data_buffer);
             } else {
                 for(int j = 0; j < ecu->data_buffer->size; j++) {
