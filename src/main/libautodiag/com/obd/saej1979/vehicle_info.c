@@ -30,6 +30,7 @@ SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
         ecu->name = (char*)malloc(sizeof(char) * (n + 1)); \
         ecu->name[n] = 0; \
         strncat(ecu->name, data->buffer, n); \
+        vehicle_events_on_ecu_register(iface->vehicle, ecu); \
     }
 
 SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
