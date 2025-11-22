@@ -22,7 +22,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
     switch(binRequest->buffer[0]) {
-        case 0x01: {
+        case OBD_SERVICE_SHOW_CURRENT_DATA: {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
                     case 0x01: {
@@ -65,7 +65,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 }
             }
         } break;
-        case 0x03: {
+        case OBD_SERVICE_SHOW_DTC: {
             if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
                 GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
                 while (ptr != NULL) {
@@ -91,7 +91,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 }
             }
         } break;
-        case 0x04: {
+        case OBD_SERVICE_CLEAR_DTC: {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
