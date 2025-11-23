@@ -110,11 +110,31 @@ char* elm327_describe_communication_layer(final ELM327Device* elm327) {
     }
 }
 
+bool elm327_set_filter_by_address(final ELM327Device* elm327, final list_Buffer * filter_addresses) {
+    if ( filter_addresses->size == 1 ) {
+        final Buffer * address = filter_addresses->list[0];
+        if ( elm327_protocol_is_can_11_bits_id(elm327->protocol) ) {
+            assert(address->size == 2);
+            serial_query_at_command((Serial*)elm327,"cra %01hhX%02hhX",address->buffer[0], address->buffer[1]);
+        } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocol) ) {
+            assert(address->size == 4);
+            serial_query_at_command((Serial*)elm327,"cra %s",buffer_to_hex_string(address->buffer));
+        } else {
+            assert(0 < address->size);
+            serial_query_at_command((Serial*)elm327,"ra %02hhX",address->buffer[address->size-1]);
+        }
+    } else {
+        serial_query_at_command((Serial*)elm327,"cra");
+        serial_query_at_command((Serial*)elm327,"ar");
+    }
+}
+
 void elm327_init(ELM327Device* d) {
     d->send = CAST_DEVICE_SEND(elm327_send);
     d->recv = CAST_DEVICE_RECV(elm327_recv);
     d->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm327_describe_communication_layer);
     d->parse_data = CAST_DEVICE_PARSE_DATA(elm327_obd_data_parse);
+    d->set_filter_by_address = CAST_DEVICE_SET_FILTER_BY_ADDRESS(elm327_set_filter_by_address);
     d->guess_response = CAST_SERIAL_GUESS_RESPONSE(elm327_guess_response);
     d->configure = CAST_ELM_DEVICE_CONFIGURE(elm327_configure);
     d->protocol = ELM327_PROTO_NONE;

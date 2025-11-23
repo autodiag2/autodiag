@@ -71,10 +71,16 @@ VehicleIFace* viface_open_from_device(final Device* device) {
         return null;
     }
 }
+static bool update_filters_on_device(final VehicleIFace* iface) {
+    if ( iface->device->set_filter_by_address != null ) {
+        iface->device->set_filter_by_address(iface->device, iface->vehicle->internal.filter);
+    }
+}
 void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address) {
     if ( ! list_Buffer_find(iface->vehicle->internal.filter, address) ) {
         final Buffer * address_copy = buffer_copy(address);
         list_Buffer_append(iface->vehicle->internal.filter, address_copy);
+        update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_add(iface->vehicle, address_copy);
     }
 }
@@ -82,6 +88,7 @@ bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
     final Buffer * found = list_Buffer_find(iface->vehicle->internal.filter, address);
     if ( found ) {
         list_Buffer_remove(iface->vehicle->internal.filter, found);
+        update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_rm(iface->vehicle, address);
         buffer_free(found);
     }
@@ -89,6 +96,7 @@ bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
 }
 void viface_recv_filter_clear(final VehicleIFace* iface) {
     list_Buffer_empty(iface->vehicle->internal.filter);
+    update_filters_on_device(iface);
     vehicle_event_emit_on_filter_change_clear(iface->vehicle);
 }
 int viface_recv(final VehicleIFace* iface) {

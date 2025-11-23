@@ -376,6 +376,7 @@ void serial_init(final Serial* serial) {
     serial->recv = CAST_DEVICE_RECV(serial_recv);
     serial->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(serial_describe_communication_layer);
     serial->parse_data = null;
+    serial->set_filter_by_address = null;
     serial->guess_response = CAST_SERIAL_GUESS_RESPONSE(serial_guess_response);
     serial->lock = CAST_DEVICE_LOCK(serial_lock);
     serial->unlock = CAST_DEVICE_UNLOCK(serial_unlock);

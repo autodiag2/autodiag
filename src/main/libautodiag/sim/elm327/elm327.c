@@ -950,7 +950,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             asprintf(&filterCmd,"atcf %s", filter);            
             sim_elm327_command_and_protocol_interpreter(elm327, filterCmd, true);
             free(filterCmd);
-
         } else {
             elm327->can.mask = buffer_new();
             elm327->can.filter = buffer_new();
