@@ -5,6 +5,8 @@ static pthread_t *refresh_dynamic_thread = null;
 static list_Graph *graphs = null;
 static pthread_mutex_t graphs_mutex;
 
+MENUBAR_DATA_SOURCE_ALL_IN_ONE
+
 static void button_click_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
     gtk_spinner_stop(gui->refreshIcon);
@@ -797,68 +799,6 @@ static void expanders_default_state(GtkWidget *widget, gpointer data) {
 static void generic_error_feedback_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->genericErrorFeedback));
 }
-static void on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data) {
-    ECU *ecu = g_object_get_data(G_OBJECT(check_item), "ecu");
-    if (gtk_check_menu_item_get_active(check_item)) {
-        viface_recv_filter_add(config.ephemere.iface, ecu->address);
-    } else {
-        viface_recv_filter_rm(config.ephemere.iface, ecu->address);
-    }
-}
-static GtkWidget *find_widget_for_ecu(GtkWidget *menu, ECU *ecu) {
-    GList *children = gtk_container_get_children(GTK_CONTAINER(menu));
-    for (GList *l = children; l != NULL; l = l->next) {
-        GtkWidget *w = GTK_WIDGET(l->data);
-        ECU *attached = g_object_get_data(G_OBJECT(w), "ecu");
-        if (attached == ecu) {
-            g_list_free(children);
-            return w;
-        }
-    }
-    g_list_free(children);
-    return null;
-}
-static void menubar_data_source_filter_by_filter_change(final char * type, Buffer * address) {
-    if ( strcmp(type, "clear") == 0 ) {
-        GList *children = gtk_container_get_children(GTK_CONTAINER(gui->menuBar.data.source.filter_by_menu));
-        for (GList *l = children; l != NULL; l = l->next) {
-            GtkWidget *w = GTK_WIDGET(l->data);
-            gtk_check_menu_item_set_active(w, false);
-        }
-        g_list_free(children);
-    } else {
-        final ECU * ecu = vehicle_search_ecu_by_address(config.ephemere.iface->vehicle, address);
-        if ( ecu == null ) {
-            log_msg(LOG_WARNING, "ecu with address '%s' not found", buffer_to_hex_string(address));
-        } else {
-            GtkWidget * w = find_widget_for_ecu(gui->menuBar.data.source.filter_by_menu, ecu);
-            if ( w == null ) {
-                log_msg(LOG_WARNING, "widget associated with: not found");
-                vehicle_ecu_debug(ecu);
-            } else {
-                gtk_check_menu_item_set_active(w, strcmp(type,"add") == 0);
-            }
-        }
-    }
-}
-static void menubar_data_source_filter_by_register(final ECU * ecu) {
-    char *displayLabel;
-    asprintf(&displayLabel, "%s (%s)", ecu->name, buffer_to_hex_string(ecu->address));
-    GtkWidget *filter_check = find_widget_for_ecu(gui->menuBar.data.source.filter_by_menu, ecu);
-    if ( filter_check == null ) {
-        filter_check = gtk_check_menu_item_new_with_label(displayLabel);
-        gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.source.filter_by_menu), filter_check);
-        gtk_widget_show(filter_check);
-        g_object_set_data(G_OBJECT(filter_check), "ecu", ecu);
-        g_signal_connect(filter_check, "toggled", G_CALLBACK(on_filter_check_toggled), gui->menuBar.data.source.all);
-    } else {
-        gtk_menu_item_set_label(GTK_MENU_ITEM(filter_check), displayLabel);
-    }
-    free(displayLabel);
-}
-static void menubar_data_source_all(GtkMenuItem *item, gpointer user_data) {
-    viface_recv_filter_clear(config.ephemere.iface);
-}
 void module_init_vehicle_explorer(final GtkBuilder *builder) {
     if ( gui == null ) {
         graphs = list_Graph_new();
@@ -982,13 +922,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-global-refresh-changed",G_CALLBACK(&refresh_changed));
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&data_freeze_frame);
-        g_signal_connect(gui->menuBar.data.source.all, "activate", G_CALLBACK(menubar_data_source_all), null);
 
-        GtkWidget *filter_menu = gtk_menu_new();
-        gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu));
-        gui->menuBar.data.source.filter_by_menu = filter_menu;
-        ehh_register(config.ephemere.iface->vehicle->internal.events.onECURegister, menubar_data_source_filter_by_register);
-        ehh_register(config.ephemere.iface->vehicle->internal.events.onFilterChange, menubar_data_source_filter_by_filter_change);
+        MENUBAR_DATA_SOURCE_CONNECT()
 
     } else {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
