@@ -91,6 +91,20 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 }
             }
         } break;
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
+            if ( 1 < binRequest->size ) {
+                switch(binRequest->buffer[1]) {
+                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
+                        const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
+                        if ( 0 < strlen(ecuName) ) {
+                            final Buffer * name = buffer_from_ascii(ecuName);
+                            buffer_padding(name, 20, 0x00);
+                            buffer_append(binResponse, name);
+                        }
+                    } break;
+                }
+            }
+        } break;
         case OBD_SERVICE_CLEAR_DTC: {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
@@ -161,7 +175,8 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
             .vehicleSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "data-vehicle-speed")),
             .coolantTemperature = GTK_WIDGET(gtk_builder_get_object(builder, "data-coolant-temperature")),
             .engineSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "data-engine-speed"))
-        }
+        },
+        .ecuName = GTK_ENTRY(gtk_builder_get_object(builder,"ecu-name"))
     };
 
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);

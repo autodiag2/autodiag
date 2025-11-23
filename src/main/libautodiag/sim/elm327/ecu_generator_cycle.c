@@ -85,7 +85,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        final Buffer * name = buffer_from_ascii("TEST");
+                        final Buffer * name = buffer_from_ascii("ECU cycle");
                         buffer_padding(name, 20, 0x00);
                         buffer_append(binResponse, name);
                         break;
