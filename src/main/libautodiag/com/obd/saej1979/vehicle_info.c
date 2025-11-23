@@ -17,19 +17,19 @@ SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
 )
 
 #define saej1979_vehicle_info_discover_ecus_names_iterator(data) \
-    if ( 0 < data->size ) { \
-        final int n; \
-        if ( data->buffer[data->size-1] == 0x00 ) { \
+    if (0 < data->size) { \
+        int n; \
+        if (data->buffer[data->size - 1] == 0x00) { \
             n = strlen(data->buffer); \
         } else { \
             n = data->size; \
         } \
-        if ( ecu->name != null ) { \
+        if (ecu->name != NULL) { \
             free(ecu->name); \
         } \
-        ecu->name = (char*)malloc(sizeof(char) * (n + 1)); \
-        ecu->name[n] = 0; \
-        strncat(ecu->name, data->buffer, n); \
+        ecu->name = malloc(n + 1); \
+        memcpy(ecu->name, data->buffer, n); \
+        ecu->name[n] = '\0'; \
         vehicle_event_emit_on_ecu_register(iface->vehicle, ecu); \
     }
 
