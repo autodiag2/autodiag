@@ -6,6 +6,7 @@
 #include "main.h"
 #include "ui.h"
 #include "libautodiag/com/obd/obd.h"
+#include "ui/lib/menubar.h"
 
 typedef struct {
     GtkWidget *window;
@@ -39,14 +40,19 @@ typedef struct {
     } dtc;
     struct {
         struct {
+            GtkWidget       *window;
+            GtkTextView     *textView;
+            GtkTextBuffer   *text;
+            ThreadedAction;            
+        } showECUsBuffer;
+        GtkCheckMenuItem *filtered;
+        struct {
             struct {
-                GtkWidget       *window;
-                GtkTextView     *textView;
-                GtkTextBuffer   *text;
-                ThreadedAction;            
-            } showECUsBuffer;
-            GtkCheckMenuItem *filtered;
-        } view;
+                GtkCheckMenuItem *all;
+                GtkWidget *filter_by;
+                GtkWidget *filter_by_menu;
+            } source;
+        } data;
     } menuBar;
 } TroubleCodeReaderGui;
 
