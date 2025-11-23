@@ -129,7 +129,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
                     }
                 } else {
                     buffer_append_byte(responseBodyChunk, OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE);
-                    buffer_append_byte(responseBodyChunk, binRequest->buffer[1]);
+                    buffer_append_byte(responseBodyChunk, binRequest->buffer[0]);
                     buffer_append(responseBodyChunk, binResponse);
                 }
                 iso_15765_is_multi_message = 7 < binResponse->size;

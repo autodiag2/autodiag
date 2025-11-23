@@ -13,6 +13,7 @@ bool testSimUDS() {
         )));
         viface_clear_data(iface);
         viface_recv(iface);
+        bool passed = false;
         for(int i = 0; i < iface->vehicle->ecus_len; i++) {
             final ECU * ecu = iface->vehicle->ecus[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
@@ -20,8 +21,10 @@ bool testSimUDS() {
                 assert(data->buffer[0] == UDS_NEGATIVE_RESPONSE);
                 assert(data->buffer[1] == UDS_SERVICE_READ_DATA_BY_IDENTIFIER);
                 assert(data->buffer[2] == UDS_NRC_INVALID_MESSAGE_LENGTH);
+                passed = true;
             }
         }
+        assert(passed);
     }
     {
         list_Buffer *result = uds_read_data_by_identifier(iface,

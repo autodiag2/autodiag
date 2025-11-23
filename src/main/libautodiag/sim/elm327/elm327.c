@@ -71,21 +71,21 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
     }
 }
 
-char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
+char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
-    bool isOBD = true;
+    bool isHexString = true;
     int space_num = 0;
-    for(int i = 0; i < strlen(obd_request); i++) {
-        char c = obd_request[i];
+    for(int i = 0; i < strlen(hex_string_request); i++) {
+        char c = hex_string_request[i];
         if ( c == ' ' ) {
             space_num ++;
         }
-        if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 ) ) {
-            isOBD = false;
+        if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 || 0x61 <= c && c <= 0x7A ) ) {
+            isHexString = false;
         }
     }
     final bool hasSpaces = 0 < space_num;
-    if ( isOBD && elm327->responses ) {
+    if ( isHexString && elm327->responses ) {
         char * space = hasSpaces ? " " : "";
         char *requestStr;
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -115,19 +115,19 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
                 request_header = sim_ecu_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
             }
             if ( elm327->can.auto_format ) {
-                final int pci = strlen(obd_request) - space_num;
-                asprintf(&requestStr,"%s%s%02x%s%s", request_header, space, pci, space, obd_request);
+                final int pci = strlen(hex_string_request) - space_num;
+                asprintf(&requestStr,"%s%s%02x%s%s", request_header, space, pci, space, hex_string_request);
             } else {
-                asprintf(&requestStr,"%s%s%s", request_header, space, obd_request);
+                asprintf(&requestStr,"%s%s%s", request_header, space, hex_string_request);
             }
         } else {
             if ( elm327->custom_header->size == 3 ) {
-                asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),obd_request);
+                asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),hex_string_request);
             } else {
-                asprintf(&requestStr,"%s%s%s",sim_ecu_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,obd_request);
+                asprintf(&requestStr,"%s%s%s",sim_ecu_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,hex_string_request);
             }
         }
-        obd_request = requestStr;
+        hex_string_request = requestStr;
         for(int i = 0; i < elm327->ecus->size; i++) {
             SimECU * ecu = elm327->ecus->list[i];
 
@@ -137,7 +137,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * obd_request) {
                 }
             }
 
-            char * tmpResponse = ecu->sim_ecu_response(ecu,(SimELM327 *)elm327,obd_request,hasSpaces);
+            char * tmpResponse = ecu->sim_ecu_response(ecu,(SimELM327 *)elm327,hex_string_request,hasSpaces);
 
             Buffer * response_header_bin = sim_ecu_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -580,7 +580,6 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
 char *lastBinCommand = null;
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
     log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", ascii_escape_breaking_chars(buffer), strlen(buffer));
-
     char * command_reduced = serial_at_reduce(buffer);
     int last_index;
     bool commandReconized = false;
