@@ -125,7 +125,7 @@ bool elm327_set_filter_by_address(final ELM327Device* elm327, final list_Buffer 
         }
     } else {
         serial_query_at_command((Serial*)elm327,"cra");
-        serial_query_at_command((Serial*)elm327,"ar");
+        serial_query_at_command((Serial*)elm327,"ra");
     }
 }
 

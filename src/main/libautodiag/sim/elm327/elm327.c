@@ -841,12 +841,11 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         }
     } else if ( AT_PARSE("sr") || AT_PARSE("ra") ) {
         byte * b = (byte*)malloc(sizeof(byte));
-        if ( sscanf(AT_DATA_START,"%02hhX", b) == 1 ) {
-            elm327->receive_address = b;
-            SIM_ELM327_REPLY_OK();
-        } else {
-            free(b);
+        if ( sscanf(AT_DATA_START,"%02hhX", b) == 0 ) {
+            b = null;
         }
+        elm327->receive_address = b;
+        SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("sd") {
         if ( sscanf(AT_DATA_START, "%02hhX", &elm327->nvm.user_memory) == 1 ) {
             SIM_ELM327_REPLY_OK();
