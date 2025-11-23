@@ -17,8 +17,8 @@ PYTHON_INSTALL_FOLDER_DATA = $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
 SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
-OBJS_TESTS = $(subst output/obj/test/main.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o)))
-BINS_TESTS = output/bin/main
+OBJS_TESTS = $(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o)))
+BINS_TESTS = output/bin/regression
 
 SOURCES = $(SOURCES_PROGS) $(SOURCES_TESTS)
 OBJS = $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
@@ -50,7 +50,7 @@ coverage: CFLAGS_COVERAGE += --coverage
 coverage: CFLAGS_LIBS_TESTS += -lgcov
 coverage: veryclean compile_tests
 	echo "running coverage with : $(CFLAGS)"
-	./output/bin/main
+	./output/bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
 output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
@@ -114,8 +114,8 @@ run: default
 	output/bin/$(APP_NAME)
 runDebug: default
 	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME)
-runTest: ./output/bin/main
-	./output/bin/main
+runTest: ./output/bin/regression
+	./output/bin/regression
 
 info:
 	@-echo "OBJS=$(OBJS)"

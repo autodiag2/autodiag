@@ -1,7 +1,7 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
-static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -92,6 +92,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
             }
         } break;
     }
+    return true;
 }
 
 SimECUGenerator* sim_ecu_generator_new_random() {

@@ -101,7 +101,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         log_msg(LOG_ERROR, "No obd data provided");        
         return null;
     }
-    ecu->generator->response(ecu->generator, &response, binResponse, binRequest);
+    final bool responseStatus = ecu->generator->response(ecu->generator, &response, binResponse, binRequest);
     if ( 0 < binResponse->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;
@@ -122,9 +122,15 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             }
 
             if ( responseBodyIndex == 0 ) {
-                buffer_append_byte(responseBodyChunk, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
-                if ( hasPid ) {
+                if ( responseStatus ) {
+                    buffer_append_byte(responseBodyChunk, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+                    if ( hasPid ) {
+                        buffer_append_byte(responseBodyChunk, binRequest->buffer[1]);
+                    }
+                } else {
+                    buffer_append_byte(responseBodyChunk, OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE);
                     buffer_append_byte(responseBodyChunk, binRequest->buffer[1]);
+                    buffer_append(responseBodyChunk, binResponse);
                 }
                 iso_15765_is_multi_message = 7 < binResponse->size;
                 if ( iso_15765_is_multi_message ) {

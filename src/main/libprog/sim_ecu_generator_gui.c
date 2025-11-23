@@ -18,7 +18,7 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
-static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
     switch(binRequest->buffer[0]) {
@@ -119,7 +119,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
 
     }
-
+    return true;
 }
 
 SimECUGenerator* sim_ecu_generator_new_gui() {

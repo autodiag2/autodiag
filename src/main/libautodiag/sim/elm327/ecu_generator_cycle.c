@@ -7,7 +7,7 @@ static void cycle_iterate(int service_id, int pid, unsigned gears) {
     cycle_percent[service_id][pid] %= 100;
 }
 
-static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
@@ -106,6 +106,7 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
     cycle_iterate(binRequest->buffer[0],
         1 < binRequest->size ? binRequest->buffer[1] : 0,
         gears);
+    return true;
 }
 
 SimECUGenerator* sim_ecu_generator_new_cycle() {

@@ -14,6 +14,7 @@ bool testElm(final VehicleIFace* iface);
 bool testSIM();
 bool testISO3779();
 bool testUDS();
+bool testSimUDS();
 
 int main(int argc, char **argv) {
 
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testSAEJ1979, iface);
     runTestMaybe(testElm, iface);
     runTestMaybe(testUDS, null);
+    runTestMaybe(testSimUDS, null);
 
     viface_close(iface);
     viface_free(iface);

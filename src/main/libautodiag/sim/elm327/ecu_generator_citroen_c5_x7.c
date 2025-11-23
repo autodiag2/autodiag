@@ -6,7 +6,8 @@ static int dtc_count = 2;
 static bool mil_on = true;
 static int session_type = UDS_SESSION_DEFAULT;
 
-static void response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+    bool responseStatus = true;
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -113,7 +114,24 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
                 ));
             }
         } break;
+        case UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
+            if ( 2 < binRequest->size ) {
+                if ( (binRequest->size-1) % 2 != 0 ) {
+                    responseStatus = false;
+                    buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+                } else {
+                    for(int i = 1; i < (binRequest->size-1); i+=2) {
+                        final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
+                        buffer_append(binResponse, buffer_from_ints(0x00, did));
+                    }
+                }
+            } else {
+                responseStatus = false;
+                buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+            }
+        } break;
     }
+    return responseStatus;
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
