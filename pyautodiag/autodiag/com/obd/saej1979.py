@@ -1,5 +1,5 @@
 from autodiag.libloader import *
-from autodiag.com.obd.obd import VehicleIFace
+from autodiag.com.vehicle_interface import VehicleIFace
 
 class SAEJ1979_Test(Structure):
     _fields_ = [

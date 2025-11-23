@@ -1,7 +1,7 @@
 
 from autodiag.sim.elm327.elm327 import SimELM327
 from autodiag.com.serial import Serial
-from autodiag.com.obd.obd import VehicleIFace
+from autodiag.com.vehicle_interface import VehicleIFace
 from autodiag.log import *
 from autodiag.com.obd.saej1979 import SAEJ1979
 from autodiag.sim.elm327.sim_generators import *

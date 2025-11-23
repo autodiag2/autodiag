@@ -41,9 +41,16 @@ lib.vehicle_ecu_new.restype = POINTER(ECU)
 lib.vehicle_ecu_free.argtypes = [POINTER(ECU)]
 lib.vehicle_ecu_empty.argtypes = [POINTER(ECU)]
 
+class VehicleEvents(Structure):
+    _fields_ = [
+        ('onECURegister', c_void_p),
+        ('onFilterChange', c_void_p)
+    ]
 class VehicleInternal(Structure):
     _fields_ = [
-        ('directory', c_char_p)
+        ('directory', c_char_p),
+        ('events', VehicleEvents),
+        ('filter', c_void_p)
     ]
 
 class Vehicle(Structure):

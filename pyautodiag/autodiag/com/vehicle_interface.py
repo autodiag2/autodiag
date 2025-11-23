@@ -7,6 +7,7 @@ class VehicleIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
         ("vehicle", POINTER(Vehicle)),
+        ("state", c_int)
     ]
 
     def __new__(cls):

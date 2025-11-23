@@ -6,6 +6,7 @@ DeviceOpenFunc = CFUNCTYPE(None, c_void_p)
 DeviceCloseFunc = CFUNCTYPE(None, c_void_p)
 DeviceDescribeFunc = CFUNCTYPE(c_char_p, c_void_p)
 DeviceParseFunc = CFUNCTYPE(c_bool, c_void_p, c_void_p)  # Vehicle* as c_void_p
+DeviceSetFilterByAddressFunc = CFUNCTYPE(c_void_p, c_void_p)
 DeviceClearFunc = CFUNCTYPE(None, c_void_p)
 DeviceLockFunc = CFUNCTYPE(None, c_void_p)
 DeviceUnlockFunc = CFUNCTYPE(None, c_void_p)
@@ -19,6 +20,7 @@ class Device(Structure):
         ("close", DeviceCloseFunc),
         ("describe_communication_layer", DeviceDescribeFunc),
         ("parse_data", DeviceParseFunc),
+        ("set_filter_by_address", DeviceSetFilterByAddressFunc),
         ("clear_data", DeviceClearFunc),
         ("lock", DeviceLockFunc),
         ("unlock", DeviceUnlockFunc),
