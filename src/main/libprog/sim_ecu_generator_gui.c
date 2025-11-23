@@ -94,6 +94,14 @@ static void response(SimECUGenerator *generator, char ** response, final Buffer 
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
+                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
+                        const gchar * vin = gtk_entry_get_text(gui->vin);
+                        if ( 0 < strlen(vin) ) {
+                            final Buffer * vinBuffer = buffer_from_ascii(vin);
+                            buffer_padding(vinBuffer, 17, 0x00);
+                            buffer_append(binResponse, vinBuffer);
+                        }
+                    } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
                         if ( 0 < strlen(ecuName) ) {
@@ -176,7 +184,8 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
             .coolantTemperature = GTK_WIDGET(gtk_builder_get_object(builder, "data-coolant-temperature")),
             .engineSpeed = GTK_WIDGET(gtk_builder_get_object(builder, "data-engine-speed"))
         },
-        .ecuName = GTK_ENTRY(gtk_builder_get_object(builder,"ecu-name"))
+        .ecuName = GTK_ENTRY(gtk_builder_get_object(builder,"ecu-name")),
+        .vin = GTK_ENTRY(gtk_builder_get_object(builder,"vin"))
     };
 
     g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);

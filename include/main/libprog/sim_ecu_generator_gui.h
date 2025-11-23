@@ -23,6 +23,7 @@ typedef struct {
         GtkWidget *invalidDtc;
     } dtcs;
     GtkEntry * ecuName;
+    GtkEntry * vin;
 } SimECUGeneratorGui;
 
 SimECUGenerator* sim_ecu_generator_new_gui();
