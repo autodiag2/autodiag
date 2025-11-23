@@ -1,7 +1,7 @@
 #ifndef __UI_COUNTER_H
 #define __UI_COUNTER_H
 
-#include "ui/lib/gtk.h"
+#include "libprog/ui/gtk.h"
 #include "libprog/config.h"
 #include "libautodiag/math.h"
 

@@ -6,9 +6,9 @@
 #include "ui.h"
 #include "libautodiag/com/obd/obd.h"
 #include "libprog/config.h"
-#include "ui/lib/counter.h"
-#include "libprog/graph_data.h"
-#include "ui/lib/menubar.h"
+#include "libprog/ui/counter.h"
+#include "libprog/ui/graph_data.h"
+#include "ui/widget/menubar.h"
 
 #define VH_GEN_OX_SENSOR_STRUCT(i) \
     struct { \

@@ -1,4 +1,4 @@
-#include "libprog/graph_data.h"
+#include "libprog/ui/graph_data.h"
 
 double graph_time_start_ms = 0;
 

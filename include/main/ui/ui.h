@@ -3,11 +3,11 @@
 
 #define _GNU_SOURCE
 #include <stdio.h>
-#include "ui/lib/gtk_wrapper.h"
+#include "libprog/ui/gtk_wrapper.h"
 #include "libautodiag/log.h"
 #include "libautodiag/thread.h"
 #include "libautodiag/com/obd/obd.h"
-#include "ui/lib/error_feedback.h"
+#include "ui/widget/error_feedback.h"
 #include "libprog/config.h"
 
 /**
