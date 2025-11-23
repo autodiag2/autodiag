@@ -61,8 +61,19 @@ void viface_clear_data(final VehicleIFace* iface);
  */
 void viface_discover_vehicle(VehicleIFace* iface);
 void viface_dump(final VehicleIFace * iface);
+/**
+ * Messages filtering capabilities - add a filter
+ * @param address CAN address (11bits, 29bits), OBD SA
+ */
 void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address);
+/**
+ * Messages filtering capabilities - remove a filter
+ * @param address CAN address (11bits, 29bits), OBD SA
+ */
 bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address);
+/**
+ * Messages filtering capabilities - clear filters
+ */
 void viface_recv_filter_clear(final VehicleIFace* iface);
 
 #endif
