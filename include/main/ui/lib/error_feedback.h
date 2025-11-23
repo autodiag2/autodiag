@@ -2,7 +2,7 @@
 #define __ERROR_FEEDBACK_H
 
 #include "libautodiag/lib.h"
-#include "ui/gtk.h"
+#include "ui/lib/gtk.h"
 #include "libautodiag/com/serial/serial.h"
 #include "libautodiag/com/obd/obd.h"
 

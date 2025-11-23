@@ -4,8 +4,8 @@
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/elm327/sim_generators.h"
 
-#include "ui/gtk.h"
-#include "ui/counter.h"
+#include "ui/lib/gtk.h"
+#include "ui/lib/counter.h"
 
 typedef struct {
     GtkWidget *window;

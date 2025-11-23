@@ -1,4 +1,4 @@
-#include "ui/gtk_wrapper.h"
+#include "ui/lib/gtk_wrapper.h"
 
 void gtk_wrapper_set_window_icon(GtkWindow * window) {
     char * mediaDir = installation_folder_resolve("media");

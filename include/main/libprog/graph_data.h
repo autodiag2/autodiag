@@ -3,7 +3,7 @@
 
 #include <time.h>
 #include "libautodiag/lib.h"
-#include "ui/gtk.h"
+#include "ui/lib/gtk.h"
 
 typedef struct {
     double data;

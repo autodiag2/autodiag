@@ -6,7 +6,7 @@
 #include "ui.h"
 #include "libautodiag/com/obd/obd.h"
 #include "libprog/config.h"
-#include "counter.h"
+#include "ui/lib/counter.h"
 #include "libprog/graph_data.h"
 #include "ui/lib/menubar.h"
 

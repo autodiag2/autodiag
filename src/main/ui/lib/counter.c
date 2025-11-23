@@ -1,4 +1,4 @@
-#include "ui/counter.h"
+#include "ui/lib/counter.h"
 
 void counter_destroy_progress_bar_allocations(gpointer data) {
     if ( data != null ) {
