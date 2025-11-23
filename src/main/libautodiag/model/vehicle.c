@@ -18,7 +18,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
     buffer_append_bytes(ecu->address,address,size);
     v->ecus = (ECU**)realloc(v->ecus,sizeof(ECU*)*(++v->ecus_len));
     v->ecus[v->ecus_len-1] = ecu;
-    vehicle_events_on_ecu_register(v, ecu);
+    vehicle_event_emit_on_ecu_register(v, ecu);
     return ecu;
 }
 
@@ -40,7 +40,14 @@ ECU* vehicle_ecu_new() {
     ecu->obd_service.permanent_dtc = list_Buffer_new();
     return ecu;
 }
-
+ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address) {
+    for(int i = 0; i < v->ecus_len; i++) {
+        if ( buffer_cmp(v->ecus[i]->address, address) == 0 ) {
+            return v->ecus[i];
+        }
+    }
+    return null;
+}
 void vehicle_ecu_empty(ECU* ecu) {
     list_Buffer_empty(ecu->data_buffer);
     vehicle_ecu_empty_duplicated_info(ecu);
@@ -102,6 +109,7 @@ Vehicle * vehicle_new() {
     v->vin = null;
     v->internal.directory = null;
     v->internal.events.onECURegister = ehh_new();
+    v->internal.events.onFilterChange = ehh_new();
     v->internal.filter = list_Buffer_new();
     return v;
 }
@@ -128,6 +136,7 @@ void vehicle_free(Vehicle * v) {
         }
         list_Buffer_free(v->internal.filter);
         ehh_free(v->internal.events.onECURegister);
+        ehh_free(v->internal.events.onFilterChange);
         free(v);
     }
 }

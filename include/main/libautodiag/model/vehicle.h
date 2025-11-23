@@ -94,14 +94,23 @@ typedef struct {
         char *directory;
         struct {
             EventHandlerHolder * onECURegister;
+            EventHandlerHolder * onFilterChange;
         } events;
         list_Buffer * filter;
     } internal;
 } Vehicle;
 
-#define VEHICLE_EVENTS_ON_ECU_REGISTER_CAST (void(*)(ECU*))
-#define vehicle_events_on_ecu_register(v, ecu) \
-    ehh_trigger(v->internal.events.onECURegister, VEHICLE_EVENTS_ON_ECU_REGISTER_CAST, ecu);
+#define vehicle_event_emit_on_ecu_register(v, ecu) \
+    ehh_trigger(v->internal.events.onECURegister, (void(*)(ECU*)), ecu);
+
+#define vehicle_event_emit_on_filter_change(v, type, address) \
+    ehh_trigger(v->internal.events.onFilterChange, (void(*)(char*,Buffer*)), type, address)
+#define vehicle_event_emit_on_filter_change_add(v, address) \
+    vehicle_event_emit_on_filter_change(v, "add", address)
+#define vehicle_event_emit_on_filter_change_rm(v, address) \
+    vehicle_event_emit_on_filter_change(v, "rm", address)
+#define vehicle_event_emit_on_filter_change_clear(v) \
+    vehicle_event_emit_on_filter_change(v, "clear", null)
 
 Vehicle* vehicle_new();
 void vehicle_free(Vehicle* v);
@@ -113,6 +122,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
 void vehicle_ecu_debug(final ECU *ecu);
 ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
 void vehicle_ecu_empty_duplicated_info(ECU* ecu);
+ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address);
 
 AD_LIST_H(Vehicle)
 void list_Vehicle_empty(list_Vehicle * list);
