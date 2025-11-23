@@ -56,7 +56,10 @@ bool sim_elm327_non_volatile_wipe_out() {
     return true;
 }
 bool sim_elm327_non_volatile_memory_load(SimELM327 * elm327, int load_mask) {
-    SIM_ELM327_NVM_LOAD_DATA data = { elm327, load_mask };
+    SIM_ELM327_NVM_LOAD_DATA data = { 
+        .elm327 = elm327, 
+        .load_mask = load_mask
+    };
     return parse_ini_file(sim_elm327_non_volatile_get_filename(), sim_elm327_non_volatile_memory_parse, &data);
 }
 

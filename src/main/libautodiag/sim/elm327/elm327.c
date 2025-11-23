@@ -5,9 +5,7 @@
     (elm327->nvm.programmable_parameters_states->buffer[parameter] ? elm327->nvm.programmable_parameters->buffer[parameter] : elm327->programmable_parameters_defaults->buffer[parameter])
 
 #define SIM_ELM327_PPS_STATE(elm327,state) \
-    for(int i = 0;i < elm327->nvm.programmable_parameters_states->size; i++) { \
-        elm327->nvm.programmable_parameters_states->buffer[i] = state; \
-    }
+    buffer_initialise(elm327->nvm.programmable_parameters_states, state);
 
 void sim_elm327_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
@@ -238,17 +236,26 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
         elm327->nvm.programmable_parameters_pending = buffer_new();
         elm327->programmable_parameters_pending_load_type = buffer_new();
         elm327->programmable_parameters_defaults = buffer_new();  
+
         buffer_ensure_capacity(elm327->programmable_parameters_defaults, SIM_ELM327_PPS_SZ);
         elm327->programmable_parameters_defaults->size = SIM_ELM327_PPS_SZ; 
+        buffer_initialise(elm327->programmable_parameters_defaults, 0x00);
+
         buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, SIM_ELM327_PPS_SZ);
         elm327->programmable_parameters_pending_load_type->size = SIM_ELM327_PPS_SZ;
+        buffer_initialise(elm327->programmable_parameters_pending_load_type, SIM_ELM327_INIT_TYPE_IMMEDIATE);
+
         buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters_states->size = SIM_ELM327_PPS_SZ;
         SIM_ELM327_PPS_STATE(elm327,false)  
+
         buffer_ensure_capacity(elm327->nvm.programmable_parameters, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters->size = SIM_ELM327_PPS_SZ;
+        buffer_initialise(elm327->nvm.programmable_parameters, 0x00);
+
         buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters_pending->size = SIM_ELM327_PPS_SZ;
+        buffer_initialise(elm327->nvm.programmable_parameters_pending, 0x00);
 
         // Perform an AT MA command after powerup or reset
         elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;

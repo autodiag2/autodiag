@@ -23,6 +23,10 @@ Buffer * buffer_copy(Buffer* buffer);
  */
 bool buffer_ensure_capacity(Buffer * buffer, unsigned int size);
 /**
+ * Set the value for all members
+ */
+void buffer_initialise(final Buffer * buffer, final byte value);
+/**
  * Append 0x00 to the buffer if not in
  */
 void buffer_ensure_termination(Buffer * buffer);

@@ -115,6 +115,11 @@ bool buffer_ensure_capacity(Buffer * buffer, unsigned int size) {
         return true;
     }
 }
+void buffer_initialise(final Buffer * buffer, final byte value) {
+    for(int i = 0; i < buffer->size; i++) {
+        buffer->buffer[i] = value;
+    }
+}
 void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size) {
     assert(size <= src->size);
     assert(dest != null);
