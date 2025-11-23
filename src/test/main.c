@@ -16,6 +16,9 @@ bool testISO3779();
 bool testUDS();
 
 int main(int argc, char **argv) {
+
+    printf(" ==== REGRESSION TEST ==== \n");
+
     log_set_from_env();
     initLibTest();
 
@@ -39,6 +42,8 @@ int main(int argc, char **argv) {
 
     viface_close(iface);
     viface_free(iface);
+
+    printf(" ==== REGRESSION END ====\n");
 
     return 0;
 }
