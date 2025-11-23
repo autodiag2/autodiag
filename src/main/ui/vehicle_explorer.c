@@ -813,7 +813,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .showFreezeFrame = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"vehicle-explorer-menubar-show-freezeframe")),
                 .data = {
                     .source = {
-                        .all = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-all")),
+                        .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-all")),
                         .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-filter-by"))
                     }    
                 }

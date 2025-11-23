@@ -256,7 +256,7 @@ void module_init_read_codes(GtkBuilder *builder) {
                 .filtered = (GtkCheckMenuItem*) (gtk_builder_get_object (builder, "window-read-codes-view-filtered")),
                 .data = {
                     .source = {
-                        .all = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "read-codes-menubar-data-source-all")),
+                        .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "read-codes-menubar-data-source-all")),
                         .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "read-codes-menubar-data-source-filter-by"))
                     }    
                 }
