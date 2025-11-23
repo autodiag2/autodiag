@@ -1,9 +1,8 @@
 docker container create -it --name glade -v /Users/jean/Desktop/fun/autodiag/autodiag/:/DATA/ -e DISPLAY=host.docker.internal:0 ubuntu
-docker start -i bash
+docker start -i glade
 apt-get update
 apt-get install -y glade
 
 xhost +
-docker start -i bash
-
-docker exec -ti glade bash
+docker start glade
+docker exec -ti glade glade
