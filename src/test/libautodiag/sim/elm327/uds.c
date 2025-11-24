@@ -31,7 +31,8 @@ bool testSimUDS() {
             UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
-        assert(result->list[0]->size == 2);
+        assert(result->list[0]->size == 1);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_DEFAULT);
     }
     return true;
 }

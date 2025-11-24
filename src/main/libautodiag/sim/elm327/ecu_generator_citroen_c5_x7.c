@@ -5,6 +5,12 @@
 static int dtc_count = 2;
 static bool mil_on = true;
 static int session_type = UDS_SESSION_DEFAULT;
+typedef struct {
+    int session_type;
+} UDSState;
+static UDSState uds_state = {
+    .session_type = UDS_SESSION_DEFAULT
+};
 
 static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     bool responseStatus = true;
@@ -109,6 +115,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
+                uds_state.session_type = binRequest->buffer[1];
                 buffer_append(binResponse, buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
@@ -122,7 +129,12 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 } else {
                     for(int i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
-                        buffer_append(binResponse, buffer_from_ints(0x00, did));
+                        buffer_append(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
+                        switch(did) {
+                            case UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information: {
+                                buffer_append_byte(binResponse, uds_state.session_type);
+                            } break;
+                        }
                     }
                 }
             } else {

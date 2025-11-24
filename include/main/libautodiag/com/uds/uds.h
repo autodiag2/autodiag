@@ -111,7 +111,6 @@ typedef enum {
 } UDS_NRC;
 
 char* uds_service_to_string(final UDSService key);
-int uds_service_response(final UDSService key);
 char * uds_nrc_to_string(final UDS_NRC nrc);
 
 // UDS Standardized DID

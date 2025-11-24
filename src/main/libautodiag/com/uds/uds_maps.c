@@ -59,40 +59,6 @@ char * uds_nrc_to_string(final UDS_NRC nrc) {
     }
 }
 
-int uds_service_response(final UDSService key) {
-    if ( service_to_response_map == null ) {
-        service_to_response_map = object_hashmap_Int_Int_new();
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL), object_Int_new_from(0x50));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_ECU_RESET), object_Int_new_from(0x51));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION), object_Int_new_from(0x54));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_DTC_INFORMATION), object_Int_new_from(0x59));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_DATA_BY_IDENTIFIER), object_Int_new_from(0x62));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_MEMORY_BY_ADDRESS), object_Int_new_from(0x63));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_SCALING_DATA_BY_IDENTIFIER), object_Int_new_from(0x64));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_SECURITY_ACCESS), object_Int_new_from(0x67));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_COMMUNICATION_CONTROL), object_Int_new_from(0x68));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_AUTHENTICATION), object_Int_new_from(0x69));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_DATA_BY_PERIOD_IDENTIFIER), object_Int_new_from(0x6A));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_READ_FRESH_DATA_BY_IDENTIFIER), object_Int_new_from(0x6C));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_DYNAMICALLY_DEFINE_DATA_IDENTIFIER), object_Int_new_from(0x6C));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER), object_Int_new_from(0x6E));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_INPUT_OUTPUT_CONTROL_BY_IDENTIFIER), object_Int_new_from(0x70));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_ROUTINE_CONTROL), object_Int_new_from(0x71));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_REQUEST_DOWNLOAD), object_Int_new_from(0x74));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_REQUEST_UPLOAD), object_Int_new_from(0x75));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_TRANSFER_DATA), object_Int_new_from(0x76));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_REQUEST_TRANSFER_EXIT), object_Int_new_from(0x77));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_REQUEST_FILE_TRANSFER), object_Int_new_from(0x78));
-        object_hashmap_Int_Int_set(service_to_response_map, object_Int_new_from(UDS_SERVICE_TESTER_PRESENT), object_Int_new_from(0x7E));
-    }
-    object_Int * result = object_hashmap_Int_Int_get(service_to_response_map, object_Int_new_from(key));
-    if ( result ) {
-        return result->value;
-    } else {
-        return 0xFF;
-    }
-}
-
 char* uds_service_to_string(final UDSService key) {
     if ( service_to_string_map == null ) {
         service_to_string_map = object_hashmap_Int_string_new();
