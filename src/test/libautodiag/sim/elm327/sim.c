@@ -144,7 +144,7 @@ void incomplete_string_return_after_20_secs() {
     assert(serial_recv(serial) == DEVICE_RECV_NULL);
     usleep(20 + 3);
     assert(serial_recv_internal(serial) > 0);
-    assert(strncmp(serial->recv_buffer, "?", 1) == 0);
+    assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
 bool testSIM() {
     //incomplete_string_return_after_20_secs();
