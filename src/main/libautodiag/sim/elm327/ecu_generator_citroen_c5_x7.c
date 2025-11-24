@@ -6,10 +6,19 @@ static int dtc_count = 2;
 static bool mil_on = true;
 static int session_type = UDS_SESSION_DEFAULT;
 typedef struct {
-    int session_type;
-} UDSState;
-static UDSState uds_state = {
-    .session_type = UDS_SESSION_DEFAULT
+    Buffer * vin;
+
+    struct {
+        int session_type;
+    } uds;
+
+} VehicleState;
+
+static VehicleState state = {
+    .vin = null,
+    .uds = {
+        .session_type = UDS_SESSION_DEFAULT
+    }
 };
 
 static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
@@ -67,7 +76,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        buffer_append(binResponse,buffer_from_ascii("VF7RD5FV8FL507366"));                
+                        buffer_append(binResponse,state.vin);                
                         break;
                     }
                     case 0x03: {
@@ -115,7 +124,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
-                uds_state.session_type = binRequest->buffer[1];
+                state.uds.session_type = binRequest->buffer[1];
                 buffer_append(binResponse, buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
@@ -132,7 +141,10 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                         buffer_append(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
                         switch(did) {
                             case UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information: {
-                                buffer_append_byte(binResponse, uds_state.session_type);
+                                buffer_append_byte(binResponse, state.uds.session_type);
+                            } break;
+                            case UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_VIN: {
+                                buffer_append(binResponse, state.vin);
                             } break;
                         }
                     }
@@ -149,5 +161,6 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("Citroen C5 X7");
+    state.vin = buffer_from_ascii("VF7RD5FV8FL507366");
     return generator;
 }
