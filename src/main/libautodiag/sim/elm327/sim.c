@@ -106,8 +106,8 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         assert(response == null);
         bool iso_15765_is_multi_message = false;
         int iso_15765_multi_message_sn = 0;
-        int obdMessageDataBytes = 0;
-        for(int responseBodyIndex = 0; responseBodyIndex < binResponse->size; responseBodyIndex += obdMessageDataBytes, iso_15765_multi_message_sn += 1) {
+        int transportLayerMessageDataBytes = 0;
+        for(int responseBodyIndex = 0; responseBodyIndex < binResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
             
             final Buffer * responseBodyChunk = buffer_new();
             bool iso_15765_is_multi_message_ff = false;
@@ -138,16 +138,16 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
                 }
             }
 
-            int obdMessageDataBytesMax = 7;
+            int transportLayerMessageDataBytesMax = 7;
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {
-                        obdMessageDataBytesMax = 6;
+                        transportLayerMessageDataBytesMax = 6;
                     }
                 }
             }
-            obdMessageDataBytes = min(obdMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
-            buffer_slice_append(responseBodyChunk, binResponse, responseBodyIndex, obdMessageDataBytes);
+            transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
+            buffer_slice_append(responseBodyChunk, binResponse, responseBodyIndex, transportLayerMessageDataBytes);
 
             char * space = elm327->printing_of_spaces ? " " : "";
             char *header = "";
