@@ -10,6 +10,7 @@ typedef struct {
 
     struct {
         int session_type;
+        bool security_access_granted;
     } uds;
 
 } VehicleState;
@@ -17,9 +18,48 @@ typedef struct {
 static VehicleState state = {
     .vin = null,
     .uds = {
-        .session_type = UDS_SESSION_DEFAULT
+        .session_type = UDS_SESSION_DEFAULT,
+        .security_access_granted = false
     }
 };
+bool service_is_uds(byte service) {
+    return 0x10 <= service;
+}
+bool uds_service_allowed(byte service_id) {
+    switch (service_id) {
+        case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
+        case UDS_SERVICE_ECU_RESET:
+        case UDS_SERVICE_TESTER_PRESENT:
+        case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
+        case UDS_SERVICE_READ_DTC_INFORMATION:
+            // Ces services sont toujours autorisés dans les deux sessions
+            return true;
+
+        case UDS_SERVICE_SECURITY_ACCESS:
+        case UDS_SERVICE_COMMUNICATION_CONTROL:
+        case UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
+        case UDS_SERVICE_REQUEST_DOWNLOAD:
+        case UDS_SERVICE_REQUEST_UPLOAD:
+        case UDS_SERVICE_TRANSFER_DATA:
+        case UDS_SERVICE_REQUEST_TRANSFER_EXIT:
+        case UDS_SERVICE_REQUEST_FILE_TRANSFER:
+            // Ces services ne sont autorisés que dans les sessions non par défaut
+            return state.uds.session_type != UDS_SESSION_DEFAULT;
+
+        case UDS_SERVICE_READ_DATA_BY_IDENTIFIER:
+        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
+        case UDS_SERVICE_READ_SCALING_DATA_BY_IDENTIFIER:
+            // Ces services nécessitent l'accés sécurité, donc non autorisés en session par défaut
+            return state.uds.session_type != UDS_SESSION_DEFAULT && state.uds.security_access_granted;
+
+        case UDS_SERVICE_ROUTINE_CONTROL:
+            // RoutineControl nécessite aussi un accés sécurité et une session non par défaut
+            return state.uds.session_type != UDS_SESSION_DEFAULT && state.uds.security_access_granted;
+
+    }
+    // Pour les autres services non répertoriés
+    return false;
+}
 
 static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
     bool responseStatus = true;
@@ -28,6 +68,13 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         seed = (unsigned*)malloc(sizeof(unsigned));
         *seed = 1;
         generator->context = seed;
+    }
+
+    if ( service_is_uds(binRequest->buffer[0]) ) {
+        if ( ! uds_service_allowed(binRequest->buffer[0]) ) {
+            buffer_append_byte(binResponse, UDS_NRC_CONDITIONS_NOT_CORRECT);
+            return false;
+        }
     }
 
     switch(binRequest->buffer[0]) {
@@ -125,6 +172,9 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
                 state.uds.session_type = binRequest->buffer[1];
+                if ( state.uds.session_type == UDS_SERVICE_SECURITY_ACCESS ) {
+                    state.uds.security_access_granted = true;
+                }
                 buffer_append(binResponse, buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
