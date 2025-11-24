@@ -27,12 +27,13 @@ bool testSimUDS() {
         assert(passed);
     }
     {
+        assert(uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC));
         list_Buffer *result = uds_read_data_by_identifier(iface,
             UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_DEFAULT);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_EXTENDED_DIAGNOSTIC);
     }
     return true;
 }
