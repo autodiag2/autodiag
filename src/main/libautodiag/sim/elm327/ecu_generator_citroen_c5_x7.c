@@ -140,10 +140,10 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
                         buffer_append(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
                         switch(did) {
-                            case UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information: {
+                            case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: {
                                 buffer_append_byte(binResponse, state.uds.session_type);
                             } break;
-                            case UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_VIN: {
+                            case UDS_DID_VIN: {
                                 buffer_append(binResponse, state.vin);
                             } break;
                         }

@@ -203,7 +203,7 @@ void viface_discover_vehicle(VehicleIFace* iface) {
     saej1979_vehicle_info_discover_ecus_name(iface);
     saej1979_vehicle_info_discover_vin(iface);
     if ( iface->vehicle->vin->size == 0 ) {
-        final list_Buffer * result = uds_read_data_by_identifier(iface, UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_VIN);
+        final list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
         assert(result->size == 1);
         iface->vehicle->vin = buffer_copy(result->list[0]);
     }

@@ -9,7 +9,7 @@ bool testSimUDS() {
     {
         viface_send(iface, buffer_to_hex_string(buffer_from_ints(
             UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
-            UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
         )));
         viface_clear_data(iface);
         viface_recv(iface);
@@ -29,7 +29,7 @@ bool testSimUDS() {
     {
         assert(uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC));
         list_Buffer *result = uds_read_data_by_identifier(iface,
-            UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_Active_Diagnostic_Session_Data_Identifier_information
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
