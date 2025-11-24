@@ -22,8 +22,8 @@ Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte
             asprintf(&res,"%02XDA0000",can28bits_prio);
             header = buffer_from_ascii_hex(res);
             free(res);
-            header->buffer[3] = elm327->testerAddress;
-            header->buffer[4] = ecu->address;
+            header->buffer[2] = elm327->testerAddress;
+            header->buffer[3] = ecu->address;
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
             header = buffer_from_ascii_hex("0700");
             header->buffer[header->size-1] = ecu->address;
