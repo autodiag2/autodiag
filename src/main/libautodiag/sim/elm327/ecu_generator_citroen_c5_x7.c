@@ -42,18 +42,15 @@ bool uds_service_allowed(byte service_id) {
         case UDS_SERVICE_REQUEST_UPLOAD:
         case UDS_SERVICE_TRANSFER_DATA:
         case UDS_SERVICE_REQUEST_TRANSFER_EXIT:
-        case UDS_SERVICE_ERASE_MEMORY:
+        // unsure
+        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
+        case UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
+        case UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS:
             return state.uds.session_type == UDS_SESSION_PROGRAMMING;
 
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
             return state.uds.session_type == UDS_SESSION_EXTENDED_DIAGNOSTIC;
 
-        case UDS_SERVICE_COMMUNICATION_CONTROL:
-        case UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
-        case UDS_SERVICE_REQUEST_FILE_TRANSFER:
-        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
-        case UDS_SERVICE_READ_SCALING_DATA_BY_IDENTIFIER:
-            return false;
     }
     return false;
 }
