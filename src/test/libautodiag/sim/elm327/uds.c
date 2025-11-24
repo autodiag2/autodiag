@@ -33,4 +33,5 @@ bool testSimUDS() {
         assert(result->size == 1);
         assert(result->list[0]->size == 2);
     }
+    return true;
 }
