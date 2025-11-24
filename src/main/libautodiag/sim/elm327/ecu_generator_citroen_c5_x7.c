@@ -11,6 +11,7 @@ typedef struct {
     struct {
         int session_type;
         bool security_access_granted;
+        list_Buffer * dtcs;
     } uds;
 
 } VehicleState;
@@ -18,7 +19,9 @@ typedef struct {
 static VehicleState state = {
     .vin = null,
     .uds = {
-        .session_type = UDS_SESSION_DEFAULT
+        .session_type = UDS_SESSION_DEFAULT,
+        .security_access_granted = false,
+        .dtcs = null
     }
 };
 void uds_reset_default_session() {
@@ -199,6 +202,23 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
             }
         } break;
+        case UDS_SERVICE_READ_DTC_INFORMATION: {
+            if ( 1 < binRequest->size ) {
+                switch(binRequest->buffer[1]) {
+                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
+                        buffer_append_byte(binResponse, 0xFF); // 	DTC Status Availability Mask
+                        for(int i = 0; i < state.uds.dtcs->size; i++) {
+                            final Buffer * dtc = state.uds.dtcs->list[i];
+                            buffer_append(binResponse, dtc);
+                            buffer_append_byte(binResponse, 0xFF); // status
+                        }
+                    } break;
+                }
+            } else {
+                responseStatus = false;
+                buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+            }
+        } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
             log_msg(LOG_DEBUG, "TODO");
             state.uds.security_access_granted = true;
@@ -212,5 +232,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("Citroen C5 X7");
     state.vin = buffer_from_ascii("VF7RD5FV8FL507366");
+    state.uds.dtcs = list_Buffer_new();
+    list_Buffer_append(state.uds.dtcs, saej1979_dtc_bin_from_string("P0103"));
     return generator;
 }
