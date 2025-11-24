@@ -8,8 +8,6 @@ list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int 
     viface_send(iface, request);
     viface_clear_data(iface);
     viface_recv(iface);
-    printf("==============\n");
-    viface_dump(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
         final ECU * ecu = iface->vehicle->ecus[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
