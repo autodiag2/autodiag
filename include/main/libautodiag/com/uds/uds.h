@@ -113,7 +113,7 @@ typedef enum {
 char* uds_service_to_string(final UDSService key);
 char * uds_nrc_to_string(final UDS_NRC nrc);
 
-// UDS Standardized DID
+// UDS Standardized DID (ISO14229)
 typedef enum {
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_bootSoftwareIdentificationDataIdentifier                = 0xF180,
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID_applicationSoftwareIdentificationDataIdentifier         = 0xF181,
