@@ -116,7 +116,6 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
                 case OBD_SERVICE_SHOW_CURRENT_DATA:
                 case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
                 case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
-                case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
                     hasPid = true;
                     break;
             }

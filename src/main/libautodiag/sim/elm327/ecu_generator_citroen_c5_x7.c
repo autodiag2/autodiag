@@ -169,6 +169,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 if ( state.uds.session_type == UDS_SESSION_DEFAULT ) {
                     uds_reset_default_session();
                 }
+                buffer_append_byte(binResponse, state.uds.session_type);
                 buffer_append(binResponse, buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));

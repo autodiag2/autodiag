@@ -73,7 +73,6 @@ char* uds_service_to_string(final UDSService key) {
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_COMMUNICATION_CONTROL), object_string_new_from("Communication Control"));
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_AUTHENTICATION), object_string_new_from("Authentication"));
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_READ_DATA_BY_PERIOD_IDENTIFIER), object_string_new_from("Read Data By Period Identifier"));
-        object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_READ_FRESH_DATA_BY_IDENTIFIER), object_string_new_from("Read Fresh Data By Identifier"));
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_DYNAMICALLY_DEFINE_DATA_IDENTIFIER), object_string_new_from("Dynamically Define Data Identifier"));
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER), object_string_new_from("Write Data By Identifier"));
         object_hashmap_Int_string_set(service_to_string_map, object_Int_new_from(UDS_SERVICE_INPUT_OUTPUT_CONTROL_BY_IDENTIFIER), object_string_new_from("Input Output Control By Identifier"));
