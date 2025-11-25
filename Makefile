@@ -206,7 +206,7 @@ help:
 	@-echo " installPythonDev	- same but using symlinks"
 	@-echo " uninstallPython	- uninstall data from the python package"
 	@-echo " coverage     		- recompile project with coverage information included"
-	@-echo " dependencies 		- update project files dependencies"
+	@-echo " dependencies 		- update make dependencies"
 	@-echo "Software management"
 	@-echo " distDebian   		- package for debian"
 	@-echo " distWindows  		- package in an installer for windows"
