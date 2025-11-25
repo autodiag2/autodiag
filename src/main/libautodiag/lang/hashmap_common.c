@@ -11,3 +11,7 @@ int object_hashmap_Int_Int_key_comparator(object_Int * k1, object_Int *k2) {
     return object_hashmap_Int_string_key_comparator(k1, k2);
 }
 HASHMAP_SRC(Int, Int)
+int object_hashmap_string_Ptr_key_comparator(object_string * k1, object_string * k2) {
+    return strcmp(k1->data, k2->data);
+}
+HASHMAP_SRC(string, Ptr)
