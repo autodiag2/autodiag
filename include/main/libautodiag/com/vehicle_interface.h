@@ -18,6 +18,10 @@ typedef struct {
      */
     Vehicle * vehicle;
     int state;
+    /**
+     * Does have uds on the current connexion
+     */
+    bool uds_enabled;
 } VehicleIFace;
 
 VehicleIFace* viface_new();

@@ -34,6 +34,9 @@ list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int 
     viface_unlock(iface);
     return result;
 }
+bool uds_is_enabled(final VehicleIFace *iface) {
+    return uds_request_session_cond(iface, UDS_SESSION_DEFAULT);
+}
 bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
     final object_hashmap_Int_Int * result = uds_request_session(iface, session_type);
     int value = -1;

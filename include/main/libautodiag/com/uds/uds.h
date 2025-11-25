@@ -142,6 +142,7 @@ typedef enum {
  */
 object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final byte session_type);
 bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
+bool uds_is_enabled(final VehicleIFace *iface);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
