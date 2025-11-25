@@ -111,11 +111,11 @@ veryclean: clean
 	rm -rf output/bin/
 
 run: default
-	output/bin/$(APP_NAME)
+	output/bin/$(APP_NAME) $(args)
 runDebug: default
-	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME)
+	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME) $(args)
 runTest: ./output/bin/regression
-	./output/bin/regression
+	./output/bin/regression $(args)
 
 info:
 	@-echo "OBJS=$(OBJS)"
