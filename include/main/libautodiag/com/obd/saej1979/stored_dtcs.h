@@ -11,6 +11,7 @@
 #include "../iso15031/iso15031_6.h"
 #include "libautodiag/file.h"
 #include "libautodiag/model/dtc.h"
+#include <string.h>
 
 typedef struct {
     DTC;

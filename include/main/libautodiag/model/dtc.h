@@ -50,7 +50,7 @@ struct DTC;
  */
 typedef struct {
     /**
-     * Bytes of the DTC
+     * Bytes of the DTC, stored in big endian order
      */
     byte data[DTC_DATA_SZ];
     /**
