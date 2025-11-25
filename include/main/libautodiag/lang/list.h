@@ -36,7 +36,8 @@
     AD_LIST_H_APPEND(element_type); \
     AD_LIST_H_REMOVE(element_type); \
     AD_LIST_H_REMOVE_AT(element_type); \
-    AD_LIST_H_CONTAINS(element_type);
+    AD_LIST_H_CONTAINS(element_type); \
+    AD_LIST_H_CLEAR(element_type);
 
 #define AD_LIST_SRC(element_type) AD_LIST_SRC_DEEP(element_type,,)
 #define AD_LIST_SRC_DEEP(element_type, new, free) \
@@ -45,7 +46,15 @@
     AD_LIST_SRC_APPEND(element_type) \
     AD_LIST_SRC_REMOVE(element_type) \
     AD_LIST_SRC_REMOVE_AT(element_type) \
-    AD_LIST_SRC_CONTAINS(element_type)
+    AD_LIST_SRC_CONTAINS(element_type) \
+    AD_LIST_H_SRC_CLEAR(element_type)
+
+#define AD_LIST_H_CLEAR(element_type) void list_##element_type##_clear(list_##element_type * list)
+#define AD_LIST_H_SRC_CLEAR(element_type) AD_LIST_H_CLEAR(element_type) { \
+    while(0 < list->size) { \
+        list_##element_type##_remove_at(list, list->size-1); \
+    } \
+}
 
 #define AD_LIST_H_CONTAINS(element_type) bool list_##element_type##_contains(list_##element_type * list, element_type * element)
 #define AD_LIST_SRC_CONTAINS(element_type) AD_LIST_H_CONTAINS(element_type) { \

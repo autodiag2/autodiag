@@ -14,12 +14,18 @@ char * UDS_DTC_to_string(final UDS_DTC * dtc) {
 }
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
-    dtc->status = 0xFF;
+    dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
     dtc->description = null;
     dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
     return dtc;
+}
+UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc) {
+    UDS_DTC * udtc = UDS_DTC_new();
+    memcpy(udtc->data, dtc->data, DTC_DATA_SZ);
+    udtc->ecu = dtc->ecu;
+    return udtc;
 }
 void UDS_DTC_free(UDS_DTC * dtc) {
     free(dtc);

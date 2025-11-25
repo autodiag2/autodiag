@@ -2,17 +2,18 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 #include "libautodiag/com/uds/uds.h"
 
-static int dtc_count = 2;
-static bool mil_on = true;
-static int session_type = UDS_SESSION_DEFAULT;
 typedef struct {
     Buffer * vin;
 
     struct {
         int session_type;
         bool security_access_granted;
-        list_Buffer * dtcs;
+        list_DTC * dtcs;
     } uds;
+    struct {
+        list_DTC * dtcs;
+        bool mil_on;
+    } obd;
 
 } VehicleState;
 
@@ -22,6 +23,10 @@ static VehicleState state = {
         .session_type = UDS_SESSION_DEFAULT,
         .security_access_granted = false,
         .dtcs = null
+    },
+    .obd = {
+        .dtcs = null,
+        .mil_on = true
     }
 };
 void uds_reset_default_session() {
@@ -81,8 +86,8 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 case 0x01: {
                     Buffer* status = buffer_new();
                     buffer_padding(status, 4, 0x00);
-                    status->buffer[0] = dtc_count;
-                    status->buffer[0] |= mil_on << 7;
+                    status->buffer[0] = state.obd.dtcs->size;
+                    status->buffer[0] |= state.obd.mil_on << 7;
                     buffer_append(binResponse, status);
                     generic_behaviour = false;
                 }
@@ -95,17 +100,17 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
             buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
         case OBD_SERVICE_SHOW_DTC: {
-            for(int i = 0; i < dtc_count; i++) {
-                Buffer *dtc_bin = saej1979_dtc_bin_from_string("P0103");
-                buffer_append(binResponse, dtc_bin);
+            for(int i = 0; i < state.obd.dtcs->size; i++) {
+                final DTC * dtc = state.obd.dtcs->list[i];
+                buffer_append_byte(binResponse, dtc->data[0]);
+                buffer_append_byte(binResponse, dtc->data[1]);
             }
         } break;
         case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
             buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
-            mil_on = false;
-            dtc_count = 0;
+            list_DTC_clear(state.obd.dtcs);
             (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
@@ -214,14 +219,9 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                             UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
                         );
                         for(int i = 0; i < state.uds.dtcs->size; i++) {
-                            final Buffer * dtc = state.uds.dtcs->list[i];
-                            while ( dtc->size < 3 ) {
-                                buffer_append_byte(dtc, 0x00);
-                            }
-                            buffer_append(binResponse, dtc);
-                            buffer_append_byte(binResponse, 
-                                UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle
-                            );
+                            final UDS_DTC * dtc = state.uds.dtcs->list[i];
+                            buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                            buffer_append_byte(binResponse, dtc->status);
                         }
                     } break;
                 }
@@ -244,6 +244,14 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->type = strdup("Citroen C5 X7");
     state.vin = buffer_from_ascii("VF7RD5FV8FL507366");
     state.uds.dtcs = list_Buffer_new();
-    list_Buffer_append(state.uds.dtcs, saej1979_dtc_bin_from_string("P0103"));
+
+    list_object_string * dtcs = list_object_string_new();
+    list_object_string_append(dtcs, object_string_new_from("P0103"));
+    list_object_string_append(dtcs, object_string_new_from("P0104"));
+    for(int i = 0; i < dtcs->size; i++) {
+        SAEJ1979_DTC * dtc = saej1979_dtc_bin_from_string(dtcs->list[i]->data);
+        list_DTC_append(state.uds.dtcs, dtc);
+        list_Buffer_append(state.uds.dtcs, UDS_DTC_new_from(dtc));
+    }
     return generator;
 }

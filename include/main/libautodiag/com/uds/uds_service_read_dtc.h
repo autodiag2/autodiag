@@ -44,6 +44,7 @@ typedef struct {
 } UDS_DTC;
 
 UDS_DTC * UDS_DTC_new();
+UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc);
 void UDS_DTC_free(UDS_DTC * dtc);
 int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2);
 char * UDS_DTC_to_string(final UDS_DTC * dtc);
