@@ -13,12 +13,13 @@ char * UDS_DTC_to_string(final UDS_DTC * dtc) {
     return result;
 }
 UDS_DTC * UDS_DTC_new() {
-    UDS_DTC * result = (UDS_DTC*)malloc(sizeof(UDS_DTC));
-    result->status = 0xFF;
-    result->description = null;
-    result->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
-    memset(result->data, 0x00, 3);
-    return result;
+    UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
+    dtc->status = 0xFF;
+    dtc->description = null;
+    dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
+    memset(dtc->data, 0x00, 3);
+    dtc->ecu = null;
+    return dtc;
 }
 void UDS_DTC_free(UDS_DTC * dtc) {
     free(dtc);
@@ -68,6 +69,7 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
                         final UDS_DTC * dtc = UDS_DTC_new();
                         memcpy(dtc->data, data->buffer + i, DTC_DATA_SZ);
                         dtc->status = data->buffer[i+DTC_DATA_SZ];
+                        dtc->ecu = ecu;
                         list_UDS_DTC_append(ecu_response, dtc);
                     }
                 }

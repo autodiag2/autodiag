@@ -4,6 +4,7 @@ SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
     dtc->description = list_DTC_DESCRIPTION_new();
     dtc->to_string = CAST_DTC_TO_STRING(saej1979_dtc_to_string);
+    dtc->ecu = null;
     return dtc;
 }
 void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
@@ -11,6 +12,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
         list_DTC_DESCRIPTION_free(dtc->description);
         dtc->description = null;
     }
+    dtc->ecu = null;
 }
 
 #define saej1979_dtcs_iterator(data_buffer) { \
@@ -28,6 +30,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
             dtc->data[0] = (byte_0 & (~0xC0)) ; \
             dtc->data[1] = byte_1; \
             dtc->data[2] = 0; \
+            dtc->ecu = ecu; \
             sprintf((char*)&(dtc->number),"%x%x%x%x", (byte_0 & 0x30) >> 4, byte_0 & 0xF, (byte_1 & 0xF0) >> 4, byte_1 & 0xF); \
             dtc_description_fetch_from_fs(dtc, filter); \
             list_DTC_append(result, dtc); \

@@ -61,6 +61,10 @@ typedef struct {
      * Convert bytes to string representation
      */
     char* (*to_string)(final struct DTC * dtc);
+    /**
+     * ECU who has emitted this DTC.
+     */
+    ECU * ecu;
 } DTC;
 
 #define CAST_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
