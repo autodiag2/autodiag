@@ -1,5 +1,14 @@
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
+object_UDS_DTC * object_UDS_DTC_new() { return UDS_DTC_new(); }
+object_UDS_DTC * object_UDS_DTC_assign(object_UDS_DTC * to, object_UDS_DTC * from) {
+    memcpy(to->data, from->data, DTC_DATA_SZ);
+    to->description = from->description;
+    to->ecu = from->ecu;
+    to->status = from->status;
+    return to;
+}
+void object_UDS_DTC_free(object_UDS_DTC *o) { return UDS_DTC_free(o); }
 char * UDS_DTC_to_string(final UDS_DTC * dtc) {
     final Buffer * code = buffer_new();
     buffer_append_bytes(code, dtc->data, DTC_DATA_SZ);

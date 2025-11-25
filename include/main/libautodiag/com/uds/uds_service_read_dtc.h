@@ -38,10 +38,11 @@ typedef enum {
     UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_WWH_OBD_DTCS_WITH_PERMANENT_STATUS         = 0x55
 } UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION;
 
-typedef struct {
+OBJECT_H(UDS_DTC,
     DTC;
     byte status;
-} UDS_DTC;
+)
+typedef object_UDS_DTC UDS_DTC;
 
 void uds_dtc_dump(final UDS_DTC * dtc);
 UDS_DTC * UDS_DTC_new();
