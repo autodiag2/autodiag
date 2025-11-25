@@ -42,7 +42,7 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
     list_list_UDS_DTC * result = list_list_UDS_DTC_new();
     viface_lock(iface);
     char * request;
-    asprintf(&request, "%02hhX%02hhX%02hhX", UDS_SERVICE_READ_DTC_INFORMATION, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC);
+    asprintf(&request, "%02hhX%02hhX", UDS_SERVICE_READ_DTC_INFORMATION, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC);
     viface_send(iface, request);
     free(request);
     viface_clear_data(iface);
@@ -69,6 +69,7 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
                 buffer_dump(data);
             }
         }
+        list_list_UDS_DTC_append(result, ecu_response);
     }
     viface_unlock(iface);
     return result;

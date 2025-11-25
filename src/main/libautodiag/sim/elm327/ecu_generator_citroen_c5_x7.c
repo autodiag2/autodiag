@@ -204,6 +204,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case UDS_SERVICE_READ_DTC_INFORMATION: {
             if ( 1 < binRequest->size ) {
+                buffer_append_byte(binResponse, binRequest->buffer[1]);
                 switch(binRequest->buffer[1]) {
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
                         buffer_append_byte(binResponse, 
