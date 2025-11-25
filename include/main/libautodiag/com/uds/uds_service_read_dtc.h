@@ -5,6 +5,7 @@
 #include "libautodiag/lang/all.h"
 #include "libautodiag/com/vehicle_interface.h"
 #include "libautodiag/com/obd/obd.h"
+#include "libautodiag/model/dtc.h"
 
 // sub function for UDS_SERVICE_READ_DTC_INFORMATION
 typedef enum {

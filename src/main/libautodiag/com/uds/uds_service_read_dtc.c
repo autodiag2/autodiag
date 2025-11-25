@@ -11,7 +11,7 @@ void UDS_DTC_free(UDS_DTC * dtc) {
     free(dtc);
 }
 int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2) {
-    return buffer_cmp(e1, e2);
+    return memcmp(e1->data, e2->data, DTC_DATA_SZ);
 }
 AD_LIST_SRC_DEEP(UDS_DTC,
     list->Status_Availability_Mask = 0xFF;
@@ -39,10 +39,10 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
                 buffer_dump(data);
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 ecu_response->Status_Availability_Mask = data->buffer[2];
-                for(int i = 3; i < (data->size-3); i += 4) {
+                for(int i = 3; i < (data->size-DTC_DATA_SZ); i += (DTC_DATA_SZ+1)) {
                     final UDS_DTC * dtc = UDS_DTS_new();
-                    memcpy(dtc->data, data->buffer + i, 3);
-                    dtc->status = data->buffer[i+3];
+                    memcpy(dtc->data, data->buffer + i, DTC_DATA_SZ);
+                    dtc->status = data->buffer[i+DTC_DATA_SZ];
                     list_UDS_DTC_append(ecu_response, dtc);
                 }
             } else {
