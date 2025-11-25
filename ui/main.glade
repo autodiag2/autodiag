@@ -11956,16 +11956,25 @@ What can be done:
                           </object>
                         </child>
                         <child>
-                          <object class="GtkCheckMenuItem" id="read-codes-data-source-obd">
+                          <object class="GtkMenuItem">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="tooltip-text" translatable="yes">Toggle OBD Data</property>
+                            <property name="tooltip-text" translatable="yes">OBD related settings</property>
                             <property name="label" translatable="yes">_OBD</property>
                             <property name="use-underline">True</property>
                             <child type="submenu">
                               <object class="GtkMenu">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
+                                <child>
+                                  <object class="GtkCheckMenuItem" id="read-codes-data-source-obd">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="tooltip-text" translatable="yes">Toggle OBD Data</property>
+                                    <property name="label" translatable="yes">_Enable</property>
+                                    <property name="use-underline">True</property>
+                                  </object>
+                                </child>
                                 <child>
                                   <object class="GtkCheckMenuItem" id="window-read-codes-read-stored">
                                     <property name="visible">True</property>
