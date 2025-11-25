@@ -20,14 +20,17 @@
 /**
  * Used to define generic list - each new value is a pointer
  */
-#define AD_LIST_H_STRUCT(element_type) \
+#define AD_LIST_H_STRUCT_DEEP(element_type, init_struct) \
     typedef struct { \
         int size; \
         element_type **list; \
+        init_struct; \
     } list_##element_type;
+#define AD_LIST_H_STRUCT(element_type) AD_LIST_H_STRUCT_DEEP(element_type,)
 
-#define AD_LIST_H(element_type) \
-    AD_LIST_H_STRUCT(element_type) \
+#define AD_LIST_H(element_type) AD_LIST_H_DEEP(element_type,)
+#define AD_LIST_H_DEEP(element_type, init_struct) \
+    AD_LIST_H_STRUCT_DEEP(element_type, init_struct) \
     AD_LIST_H_NEW(element_type); \
     AD_LIST_H_FREE(element_type); \
     AD_LIST_H_APPEND(element_type); \
@@ -35,9 +38,10 @@
     AD_LIST_H_REMOVE_AT(element_type); \
     AD_LIST_H_CONTAINS(element_type);
 
-#define AD_LIST_SRC(element_type) \
-    AD_LIST_SRC_NEW(element_type) \
-    AD_LIST_SRC_FREE(element_type) \
+#define AD_LIST_SRC(element_type) AD_LIST_SRC_DEEP(element_type,,)
+#define AD_LIST_SRC_DEEP(element_type, new, free) \
+    AD_LIST_SRC_NEW(element_type, new) \
+    AD_LIST_SRC_FREE(element_type, free) \
     AD_LIST_SRC_APPEND(element_type) \
     AD_LIST_SRC_REMOVE(element_type) \
     AD_LIST_SRC_REMOVE_AT(element_type) \
@@ -57,16 +61,18 @@
 }
 
 #define AD_LIST_H_NEW(element_type) list_##element_type* list_##element_type##_new()
-#define AD_LIST_SRC_NEW(element_type) AD_LIST_H_NEW(element_type) { \
+#define AD_LIST_SRC_NEW(element_type, init) AD_LIST_H_NEW(element_type) { \
     list_##element_type* list = (list_##element_type*) malloc(sizeof(list_##element_type)); \
     list->size = 0; \
     list->list = null; \
+    init; \
     return list; \
 }
 
 #define AD_LIST_H_FREE(element_type) void list_##element_type##_free(list_##element_type* list)
-#define AD_LIST_SRC_FREE(element_type) AD_LIST_H_FREE(element_type) { \
+#define AD_LIST_SRC_FREE(element_type, free) AD_LIST_H_FREE(element_type) { \
    if (list->list != null ) {\
+        free; \
         for(int i = 0; i < list->size; i ++) {\
             free(list->list[i]);\
         }\

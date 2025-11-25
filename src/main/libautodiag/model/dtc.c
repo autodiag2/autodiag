@@ -1,7 +1,7 @@
 #include "libautodiag/model/dtc.h"
 
 
-AD_LIST_SRC_NEW(DTC_DESCRIPTION)
+AD_LIST_SRC_NEW(DTC_DESCRIPTION,)
 void list_DTC_DESCRIPTION_append(list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc) {
     list->list = (DTC_DESCRIPTION*)realloc(list->list, sizeof(DTC_DESCRIPTION) * ++list->size);
     list->list[list->size-1] = *desc;

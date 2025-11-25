@@ -37,6 +37,21 @@ typedef enum {
     UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_WWH_OBD_DTCS_WITH_PERMANENT_STATUS         = 0x55
 } UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION;
 
-list_Buffer * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface);
+
+typedef struct {
+    DTC;
+    byte status;
+} UDS_DTC;
+
+UDS_DTC * UDS_DTC_new();
+void UDS_DTC_free(UDS_DTC * dtc);
+int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2);
+
+AD_LIST_H_DEEP(UDS_DTC,
+    byte Status_Availability_Mask;
+);
+AD_LIST_H(list_UDS_DTC);
+
+list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface);
 
 #endif
