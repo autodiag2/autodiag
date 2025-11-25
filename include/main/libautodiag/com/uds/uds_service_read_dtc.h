@@ -38,7 +38,6 @@ typedef enum {
     UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_WWH_OBD_DTCS_WITH_PERMANENT_STATUS         = 0x55
 } UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION;
 
-
 typedef struct {
     DTC;
     byte status;
@@ -47,6 +46,19 @@ typedef struct {
 UDS_DTC * UDS_DTC_new();
 void UDS_DTC_free(UDS_DTC * dtc);
 int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2);
+
+typedef enum {
+    UDS_DTC_STATUS_TestFailed = 0b00000001,
+    UDS_DTC_STATUS_TestFailedThisOperationCycle = 0b00000010,
+    UDS_DTC_STATUS_PendingDTC = 0b00000100,
+    UDS_DTC_STATUS_ConfirmedDTC = 0b00001000,
+    UDS_DTC_STATUS_TestNotCompletedSinceLastClear = 0b00010000,
+    UDS_DTC_STATUS_TestFailedSinceLastClear = 0b00100000,
+    UDS_DTC_STATUS_TestNotCompletedThisOperationCycle = 0b01000000,
+    UDS_DTC_STATUS_WarningIndicatorRequested = 0b10000000,
+} UDS_DTC_STATUS;
+
+char * uds_dtc_status_to_string(byte status, UDS_DTC_STATUS wanted);
 
 AD_LIST_H_DEEP(UDS_DTC,
     byte Status_Availability_Mask;
