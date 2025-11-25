@@ -43,6 +43,7 @@ typedef struct {
     byte status;
 } UDS_DTC;
 
+void uds_dtc_dump(final UDS_DTC * dtc);
 UDS_DTC * UDS_DTC_new();
 UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc);
 void UDS_DTC_free(UDS_DTC * dtc);

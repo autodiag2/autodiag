@@ -59,7 +59,22 @@ char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc) {
     asprintf(&result, "%c%s",iso15031_dtc_type_first_letter(dtc->type),dtc->number);
     return result;
 }
-Buffer* saej1979_dtc_bin_from_string(char *dtc_string) {
+SAEJ1979_DTC * saej1979_dtc_from_string(final char *dtc_string) {
+    return saej1979_dtc_from_bin(saej1979_dtc_bin_from_string(dtc_string));
+}
+SAEJ1979_DTC * saej1979_dtc_from_bin(final Buffer * buffer) {
+    assert(2 <= buffer->size);
+    if ( 2 < buffer->size ) {
+        log_msg(LOG_WARNING, "Warning more data received than expected by format");
+    }
+    SAEJ1979_DTC * dtc = saej1979_dtc_new();
+    dtc->type = (buffer->buffer[0] & 0xC0) >> 6;
+    dtc->data[0] = (buffer->buffer[0] & (~0xC0));
+    dtc->data[1] = buffer->buffer[1];
+    dtc->data[2] = 0; 
+    return dtc;
+}
+Buffer* saej1979_dtc_bin_from_string(final char *dtc_string) {
     final Buffer * dtc_bin = buffer_from_ascii_hex(&(dtc_string[1]));
     if ( dtc_bin == null ) {
         return null;

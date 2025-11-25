@@ -249,7 +249,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     list_object_string_append(dtcs, object_string_new_from("P0103"));
     list_object_string_append(dtcs, object_string_new_from("P0104"));
     for(int i = 0; i < dtcs->size; i++) {
-        SAEJ1979_DTC * dtc = saej1979_dtc_bin_from_string(dtcs->list[i]->data);
+        SAEJ1979_DTC * dtc = saej1979_dtc_from_string(dtcs->list[i]->data);
         list_DTC_append(state.uds.dtcs, dtc);
         list_Buffer_append(state.uds.dtcs, UDS_DTC_new_from(dtc));
     }

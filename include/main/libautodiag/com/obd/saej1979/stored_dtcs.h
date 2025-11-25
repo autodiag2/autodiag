@@ -44,5 +44,7 @@ char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc);
  * eg. 1122
  */
 Buffer* saej1979_dtc_bin_from_string(char *dtc_string);
+SAEJ1979_DTC * saej1979_dtc_from_string(final char *dtc_string);
+SAEJ1979_DTC * saej1979_dtc_from_bin(final Buffer * buffer);
 
 #endif

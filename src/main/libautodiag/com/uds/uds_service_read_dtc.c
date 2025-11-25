@@ -90,6 +90,10 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
     return result;
 }
 
+void uds_dtc_dump(final UDS_DTC * dtc) {
+    log_msg(LOG_DEBUG, "%s", dtc->to_string(dtc));
+}
+
 char * uds_dtc_status_to_string(byte status, UDS_DTC_STATUS wanted) {
     if ((status & wanted) == 0) return null;
     switch (wanted) {
