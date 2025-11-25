@@ -60,6 +60,20 @@
     } \
 }
 
+#define HASHMAP_H_CLEAR(key_type, value_type) void object_hashmap_##key_type##_##value_type##_clear(object_hashmap_##key_type##_##value_type * hm)
+#define HASHMAP_SRC_CLEAR(key_type, value_type) HASHMAP_H_CLEAR(key_type, value_type) { \
+    assert(hm != null); \
+    for(unsigned int i = 0; i < hm->size; i++) { \
+        object_##key_type##_free(hm->keys[i]); \
+        object_##value_type##_free(hm->values[i]); \
+    } \
+    hm->size = 0; \
+    free(hm->keys); \
+    hm->keys = null; \
+    free(hm->values); \
+    hm->values = null; \
+}
+
 #define HASHMAP_H(key_type, value_type) \
     OBJECT_H(hashmap_##key_type##_##value_type, \
         OBJECT(key_type) ** keys; \
@@ -68,11 +82,13 @@
     ); \
     HASHMAP_H_SET(key_type, value_type); \
     HASHMAP_H_GET(key_type, value_type); \
+    HASHMAP_H_CLEAR(key_type, value_type);
 
 #define HASHMAP_SRC(key_type, value_type) \
     HASHMAP_SRC_SET(key_type, value_type) \
     HASHMAP_SRC_GET(key_type, value_type) \
     HASHMAP_SRC_NEW(key_type, value_type) \
-    HASHMAP_SRC_FREE(key_type, value_type)
+    HASHMAP_SRC_FREE(key_type, value_type) \
+    HASHMAP_SRC_CLEAR(key_type, value_type)
 
 #endif
