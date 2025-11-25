@@ -14,7 +14,7 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
     dtc->type = ISO15031_DTC_TYPE_POWERTRAIN;
     strcpy(dtc->number,"1152");
     
-    saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
+    dtc_desc_fill_from_codes_file(dtc, dtc_desc);
     testOutput("codes filled for citroen");
     dtc_description_dump(dtc_desc);
     assert(dtc_desc != null);

@@ -3,6 +3,7 @@
 
 #include "libautodiag/lang/all.h"
 #include "libautodiag/model/vehicle.h"
+#include "libautodiag/model/database.h"
 
 typedef enum {
     SAE_J2012_DA_DTCFormat_00 = 0x00, //	SAE_J2012-DA_DTCFormat_00 (Diagnostic & Analysis)
@@ -42,12 +43,35 @@ list_DTC_DESCRIPTION * list_DTC_DESCRIPTION_new();
 void list_DTC_DESCRIPTION_free(list_DTC_DESCRIPTION * list);
 void list_DTC_DESCRIPTION_append(list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc);
 
+struct DTC;
+#define DTC_DATA_SZ 3
 /**
  * Support DTC format 0x00 -> 0x04
  */
 typedef struct {
-    byte data[3];
+    /**
+     * Bytes of the DTC
+     */
+    byte data[DTC_DATA_SZ];
+    /**
+     * Error corresponding to the DTC
+     */
     list_DTC_DESCRIPTION * description;
+    /**
+     * Convert bytes to string representation
+     */
+    char* (*to_string)(final struct DTC * dtc);
 } DTC;
+
+#define CAST_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
+
+AD_LIST_H(DTC)
+void list_DTC_append_list(list_DTC * list, list_DTC * another);
+DTC * list_DTC_get(list_DTC * list, char *dtc);
+/**
+ * Fill DTC description fields from the file codes.tsv
+ */
+void dtc_desc_fill_from_codes_file(final DTC * dtc, final DTC_DESCRIPTION * dtc_desc);
+void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter);
 
 #endif

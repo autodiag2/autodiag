@@ -1,7 +1,7 @@
 #include "ui/trouble_code_reader.h"
 
 TroubleCodeReaderGui * gui = null;
-list_SAEJ1979_DTC * list_dtc = null;
+list_DTC * list_dtc = null;
 
 MENUBAR_DATA_SOURCE_ALL_IN_ONE
 
@@ -101,7 +101,7 @@ static gboolean set_dtc_count_gsource(gpointer data) {
     return false;
 }
 static gboolean set_list_dtc_gsource(gpointer data) {
-    list_SAEJ1979_DTC *list_dtc = (list_SAEJ1979_DTC *)data;
+    list_DTC *list_dtc = (list_DTC *)data;
     GList *ptr = gtk_container_get_children((GtkContainer*)gui->dtc.list);
     while(ptr != null) {
         final GList *ptr_next = ptr->next;
@@ -134,20 +134,20 @@ static void read_codes_daemon_internal() {
             }
             {
                 if ( list_dtc != null ) {
-                    list_SAEJ1979_DTC_free(list_dtc);
+                    list_DTC_free(list_dtc);
                     list_dtc = null;
                 }
-                final list_SAEJ1979_DTC * list_dtc_buffer = list_SAEJ1979_DTC_new();
+                final list_DTC * list_dtc_buffer = list_DTC_new();
                 bool state = filtered_dtc_state();
                 final Vehicle* filter = state ? iface->vehicle : null;
                 if ( gtk_toggle_button_get_active(gui->read.stored) ) {
-                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_stored_dtcs(iface, filter));
+                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_stored_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(gui->read.pending) ) {
-                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_pending_dtcs(iface, filter));
+                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_pending_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(gui->read.permanent) ) {
-                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_permanent_dtcs(iface, filter));
+                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_permanent_dtcs(iface, filter));
                 }
                 if ( 0 < list_dtc_buffer->size ) {
                     list_dtc = list_dtc_buffer;
@@ -226,7 +226,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
     clear_dtc_description();
     if ( row != null ) {
         const char * selectedDTC = gtk_label_get_text((GtkLabel*)gtk_bin_get_child((GtkBin*)row));
-        SAEJ1979_DTC *dtc = list_SAEJ1979_DTC_get(list_dtc,(char*)selectedDTC);
+        SAEJ1979_DTC *dtc = list_DTC_get(list_dtc,(char*)selectedDTC);
 
         for(int i = 0; i < dtc->description->size; i++) {
             DTC_DESCRIPTION desc = dtc->description->list[i];
