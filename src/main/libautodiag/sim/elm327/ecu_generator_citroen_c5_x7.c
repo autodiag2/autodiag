@@ -8,7 +8,7 @@ typedef struct {
     struct {
         int session_type;
         bool security_access_granted;
-        list_DTC * dtcs;
+        list_UDS_DTC * dtcs;
     } uds;
     struct {
         list_DTC * dtcs;
@@ -243,14 +243,15 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("Citroen C5 X7");
     state.vin = buffer_from_ascii("VF7RD5FV8FL507366");
-    state.uds.dtcs = list_Buffer_new();
+    state.uds.dtcs = list_UDS_DTC_new();
+    state.obd.dtcs = list_DTC_new();
 
     list_object_string * dtcs = list_object_string_new();
     list_object_string_append(dtcs, object_string_new_from("P0103"));
     list_object_string_append(dtcs, object_string_new_from("P0104"));
     for(int i = 0; i < dtcs->size; i++) {
         SAEJ1979_DTC * dtc = saej1979_dtc_from_string(dtcs->list[i]->data);
-        list_DTC_append(state.uds.dtcs, dtc);
+        list_DTC_append(state.obd.dtcs, dtc);
         list_Buffer_append(state.uds.dtcs, UDS_DTC_new_from(dtc));
     }
     return generator;
