@@ -206,11 +206,18 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
-                        buffer_append_byte(binResponse, 0xFF); // 	DTC Status Availability Mask
+                        buffer_append_byte(binResponse, 
+                            UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
+                            UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
+                            UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
+                            UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
+                        );
                         for(int i = 0; i < state.uds.dtcs->size; i++) {
                             final Buffer * dtc = state.uds.dtcs->list[i];
                             buffer_append(binResponse, dtc);
-                            buffer_append_byte(binResponse, 0xFF); // status
+                            buffer_append_byte(binResponse, 
+                                UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle
+                            );
                         }
                     } break;
                 }
