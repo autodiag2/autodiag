@@ -207,7 +207,7 @@ static void confirm_confirm() {
     thread_allocate_and_start(&gui->clear.thread,&clear_codes_daemon);
 }
 
-static void append_multi_manufacturer_explanation(GtkTextBuffer *buffer, SAEJ1979_DTC_DESCRIPTION *desc, char *part) {
+static void append_multi_manufacturer_explanation(GtkTextBuffer *buffer, DTC_DESCRIPTION *desc, char *part) {
     if ( part == null ) {
 
     } else {
@@ -229,7 +229,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
         SAEJ1979_DTC *dtc = list_SAEJ1979_DTC_get(list_dtc,(char*)selectedDTC);
 
         for(int i = 0; i < dtc->description->size; i++) {
-            SAEJ1979_DTC_DESCRIPTION desc = dtc->description->list[i];
+            DTC_DESCRIPTION desc = dtc->description->list[i];
             append_multi_manufacturer_explanation(gui->dtc.causeSolutionText,&desc,desc.solution);
             append_multi_manufacturer_explanation(gui->dtc.descriptionText,&desc,desc.reason);
         }

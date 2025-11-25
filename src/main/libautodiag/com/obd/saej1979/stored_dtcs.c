@@ -2,12 +2,12 @@
 
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
-    dtc->description = list_SAEJ1979_DTC_DESCRIPTION_new();
+    dtc->description = list_DTC_DESCRIPTION_new();
     return dtc;
 }
 void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
     if ( dtc->description != null ) {
-        list_SAEJ1979_DTC_DESCRIPTION_free(dtc->description);
+        list_DTC_DESCRIPTION_free(dtc->description);
         dtc->description = null;
     }
 }
@@ -27,7 +27,7 @@ SAEJ1979_DTC * list_SAEJ1979_DTC_get(list_SAEJ1979_DTC * list, char *dtcStr) {
 bool saej1979_read_tsv_line(Buffer * line, void*data) {
     void **ptrs = data;
     char * searched_dtc = (char*)ptrs[0];
-    SAEJ1979_DTC_DESCRIPTION *dtc_desc = (SAEJ1979_DTC_DESCRIPTION *)ptrs[1];
+    DTC_DESCRIPTION *dtc_desc = (DTC_DESCRIPTION *)ptrs[1];
 
     if ( 0 < line->size ) {
         if ( line->buffer[0] == '#' ) {
@@ -56,7 +56,7 @@ bool saej1979_read_tsv_line(Buffer * line, void*data) {
     return true;
 }
 
-bool saej1979_read_tsv(char *fileName, char * searched_dtc, SAEJ1979_DTC_DESCRIPTION *dtc_desc) {
+bool saej1979_read_tsv(char *fileName, char * searched_dtc, DTC_DESCRIPTION *dtc_desc) {
     void ** ptrs = (void**)malloc(sizeof(void*)*2);
     ptrs[0] = searched_dtc;
     ptrs[1] = dtc_desc;
@@ -65,7 +65,7 @@ bool saej1979_read_tsv(char *fileName, char * searched_dtc, SAEJ1979_DTC_DESCRIP
     return res;
 }
 
-void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_DTC_DESCRIPTION * dtc_desc) {
+void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final DTC_DESCRIPTION * dtc_desc) {
     char *codesFile;
     asprintf(&codesFile, "%s/codes.tsv", dtc_desc->vehicle->internal.directory);
     final char * searched_dtc = saej1979_dtc_to_string(dtc);
@@ -126,10 +126,10 @@ void saej1979_fetch_dtc_description_from_fs_recurse(final char*path, final SAEJ1
                                 } 
                             }
                             if ( match ) {
-                                final SAEJ1979_DTC_DESCRIPTION * dtc_desc = saej1979_dtc_description_new();
+                                final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
                                 dtc_desc->vehicle = compare_against;
                                 saej1979_fill_dtc_from_codes_file(dtc, dtc_desc);
-                                list_SAEJ1979_DTC_DESCRIPTION_append(dtc->description,dtc_desc);
+                                list_DTC_DESCRIPTION_append(dtc->description,dtc_desc);
                             }
                         }
                         break;
@@ -232,42 +232,4 @@ int SAEJ1979_DTC_cmp(SAEJ1979_DTC* e1, SAEJ1979_DTC* e2) {
     return buffer_cmp(saej1979_dtc_bin_from_string(e1s), saej1979_dtc_bin_from_string(e2s));
 }
 AD_LIST_SRC(SAEJ1979_DTC)
-
-AD_LIST_SRC_NEW(SAEJ1979_DTC_DESCRIPTION)
-void list_SAEJ1979_DTC_DESCRIPTION_append(list_SAEJ1979_DTC_DESCRIPTION * list, SAEJ1979_DTC_DESCRIPTION *desc) {
-    list->list = (SAEJ1979_DTC_DESCRIPTION*)realloc(list->list, sizeof(SAEJ1979_DTC_DESCRIPTION) * ++list->size);
-    list->list[list->size-1] = *desc;
-}
-void list_SAEJ1979_DTC_DESCRIPTION_free(list_SAEJ1979_DTC_DESCRIPTION * list) {
-    AD_LIST_FREE_CONTIGUOUS(list);
-}
-
-SAEJ1979_DTC_DESCRIPTION * saej1979_dtc_description_new() {
-    SAEJ1979_DTC_DESCRIPTION * desc = (SAEJ1979_DTC_DESCRIPTION*)malloc(sizeof(SAEJ1979_DTC_DESCRIPTION));
-    desc->vehicle = null;
-    desc->reason = null;
-    desc->solution = null;
-    return desc;
-}
-void saej1979_dtc_description_free(SAEJ1979_DTC_DESCRIPTION *desc) {
-    if ( desc->vehicle != null ) {
-        desc->vehicle = null;
-    }
-    if ( desc->reason != null ) {
-        free(desc->reason);
-        desc->reason = null;
-    }
-    if ( desc->solution != null ) {
-        free(desc->solution);
-        desc->solution = null;
-    }
-}
-
-void saej1979_dtc_description_dump(SAEJ1979_DTC_DESCRIPTION *desc) {
-    printf("SAEJ1979_DTC_DESCRIPTION {\n");
-    printf("    reason: %s\n", desc->reason);
-    printf("    solution: %s\n", desc->solution);
-    vehicle_dump(desc->vehicle);
-    printf("}\n");
-}
 

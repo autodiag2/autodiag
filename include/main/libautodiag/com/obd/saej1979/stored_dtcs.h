@@ -10,34 +10,7 @@
 #include "libautodiag/model/database.h"
 #include "../iso15031/iso15031_6.h"
 #include "libautodiag/file.h"
-
-typedef struct {
-    /**
-     * Text reason describing the DTC
-     */
-    char * reason;
-    /**
-     * Recommended solution
-     */
-    char * solution;
-    /**
-     * A DTC is linked to a car model
-     */
-    Vehicle *vehicle;
-} SAEJ1979_DTC_DESCRIPTION;
-
-SAEJ1979_DTC_DESCRIPTION * saej1979_dtc_description_new();
-void saej1979_dtc_description_free(SAEJ1979_DTC_DESCRIPTION *desc);
-void saej1979_dtc_description_dump(SAEJ1979_DTC_DESCRIPTION *desc);
-
-typedef struct {
-    int size;
-    SAEJ1979_DTC_DESCRIPTION *list;
-} list_SAEJ1979_DTC_DESCRIPTION;
-
-list_SAEJ1979_DTC_DESCRIPTION * list_SAEJ1979_DTC_DESCRIPTION_new();
-void list_SAEJ1979_DTC_DESCRIPTION_free(list_SAEJ1979_DTC_DESCRIPTION * list);
-void list_SAEJ1979_DTC_DESCRIPTION_append(list_SAEJ1979_DTC_DESCRIPTION * list, SAEJ1979_DTC_DESCRIPTION *desc);
+#include "libautodiag/model/dtc.h"
 
 typedef struct {
     ISO15031_DTC_TYPE type;
@@ -48,7 +21,7 @@ typedef struct {
     /**
      * Error corresponding to the DTC
      */
-    list_SAEJ1979_DTC_DESCRIPTION * description;
+    list_DTC_DESCRIPTION * description;
 } SAEJ1979_DTC;
 
 SAEJ1979_DTC * saej1979_dtc_new();
@@ -77,6 +50,6 @@ Buffer* saej1979_dtc_bin_from_string(char *dtc_string);
 /**
  * Fill DTC description fields from the file codes.tsv
  */
-void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final SAEJ1979_DTC_DESCRIPTION * dtc_desc);
+void saej1979_fill_dtc_from_codes_file(final SAEJ1979_DTC * dtc, final DTC_DESCRIPTION * dtc_desc);
 
 #endif
