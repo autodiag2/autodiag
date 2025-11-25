@@ -53,16 +53,23 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
         ecu_response->ecu = ecu;
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
+            if ( data->size < 3 ) {
+                log_msg(LOG_WARNING, "received some data with wrong size (probably concurrent access)");
+                buffer_dump(data);
+                continue;
+            }
             if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
                 log_msg(LOG_DEBUG, "negative response found: ");
                 buffer_dump(data);
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                ecu_response->Status_Availability_Mask = data->buffer[2];
-                for(int i = 3; i < (data->size-DTC_DATA_SZ); i += (DTC_DATA_SZ+1)) {
-                    final UDS_DTC * dtc = UDS_DTC_new();
-                    memcpy(dtc->data, data->buffer + i, DTC_DATA_SZ);
-                    dtc->status = data->buffer[i+DTC_DATA_SZ];
-                    list_UDS_DTC_append(ecu_response, dtc);
+                if ( (data->buffer[1] & UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC) == UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC ) {
+                    ecu_response->Status_Availability_Mask = data->buffer[2];
+                    for(int i = 3; i < (data->size-DTC_DATA_SZ); i += (DTC_DATA_SZ+1)) {
+                        final UDS_DTC * dtc = UDS_DTC_new();
+                        memcpy(dtc->data, data->buffer + i, DTC_DATA_SZ);
+                        dtc->status = data->buffer[i+DTC_DATA_SZ];
+                        list_UDS_DTC_append(ecu_response, dtc);
+                    }
                 }
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");

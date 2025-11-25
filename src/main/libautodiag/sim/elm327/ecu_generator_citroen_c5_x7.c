@@ -215,6 +215,9 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                         );
                         for(int i = 0; i < state.uds.dtcs->size; i++) {
                             final Buffer * dtc = state.uds.dtcs->list[i];
+                            while ( dtc->size < 3 ) {
+                                buffer_append_byte(dtc, 0x00);
+                            }
                             buffer_append(binResponse, dtc);
                             buffer_append_byte(binResponse, 
                                 UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle
