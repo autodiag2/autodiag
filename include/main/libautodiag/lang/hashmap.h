@@ -6,12 +6,6 @@
 #include "libautodiag/lang/list.h"
 
 #define HASHMAP(key_type, value_type) OBJECT(hashmap_##key_type##_##value_type)
-#define HASHMAP_H_STRUCT(key_type, value_type) \
-    typedef struct { \
-        OBJECT(key_type) ** keys; \
-        OBJECT(value_type) ** values; \
-        unsigned int size; \
-    } HASHMAP(key_type, value_type);
 
 #define HASHMAP_SRC_NEW(key_type, value_type) OBJECT_H_NEW(hashmap_##key_type##_##value_type) { \
     HASHMAP(key_type, value_type) * object = (HASHMAP(key_type, value_type) *)malloc(sizeof(HASHMAP(key_type, value_type))); \
@@ -67,8 +61,11 @@
 }
 
 #define HASHMAP_H(key_type, value_type) \
-    HASHMAP_H_STRUCT(key_type, value_type) \
-    OBJECT_H(hashmap_##key_type##_##value_type); \
+    OBJECT_H(hashmap_##key_type##_##value_type, \
+        OBJECT(key_type) ** keys; \
+        OBJECT(value_type) ** values; \
+        unsigned int size; \
+    ); \
     HASHMAP_H_SET(key_type, value_type); \
     HASHMAP_H_GET(key_type, value_type); \
 

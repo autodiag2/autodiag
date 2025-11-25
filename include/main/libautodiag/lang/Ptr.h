@@ -4,11 +4,9 @@
 #include "libautodiag/lang/object.h"
 #include "libautodiag/lang/lang.h"
 
-typedef struct {
+OBJECT_H(Ptr,
     void * value;
-} object_Ptr;
-
-OBJECT_H(Ptr)
+)
 object_Ptr * object_Ptr_new_from(void* value);
 
 #endif

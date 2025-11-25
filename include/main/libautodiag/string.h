@@ -16,11 +16,10 @@
 
 bool strbeginwith(char *str, char *begin);
 bool strcasebeginwith(char *str, char *begin);
-typedef struct {
-    char *data;
-} object_string;
 
-OBJECT_H(string)
+OBJECT_H(string,
+    char *data;
+)
 object_string * object_string_new_from(char *data);
 
 AD_LIST_H(object_string)

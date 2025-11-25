@@ -3,11 +3,9 @@
 
 #include "libautodiag/lang/object.h"
 
-typedef struct {
+OBJECT_H(Int,
     int value;
-} object_Int;
-
-OBJECT_H(Int)
+)
 object_Int * object_Int_new_from(int value);
 
 #endif

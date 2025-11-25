@@ -5,7 +5,10 @@
 #include <assert.h>
 
 #define OBJECT(type) object_##type
-#define OBJECT_H(type) \
+#define OBJECT_H(type, struct_def) \
+    typedef struct { \
+        struct_def; \
+    } OBJECT(type); \
     OBJECT_H_NEW(type); \
     OBJECT_H_FREE(type); \
     OBJECT_H_ASSIGN(type);
