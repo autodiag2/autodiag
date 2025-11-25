@@ -137,20 +137,20 @@ static void read_codes_daemon_internal() {
                     list_SAEJ1979_DTC_free(list_dtc);
                     list_dtc = null;
                 }
-                final list_SAEJ1979_DTC * pending = list_SAEJ1979_DTC_new();
+                final list_SAEJ1979_DTC * list_dtc_buffer = list_SAEJ1979_DTC_new();
                 bool state = filtered_dtc_state();
                 final Vehicle* filter = state ? iface->vehicle : null;
                 if ( gtk_toggle_button_get_active(gui->read.stored) ) {
-                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_stored_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_stored_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(gui->read.pending) ) {
-                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_pending_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_pending_dtcs(iface, filter));
                 }
                 if ( gtk_toggle_button_get_active(gui->read.permanent) ) {
-                    list_SAEJ1979_DTC_append_list(pending,saej1979_retrieve_permanent_dtcs(iface, filter));
+                    list_SAEJ1979_DTC_append_list(list_dtc_buffer,saej1979_retrieve_permanent_dtcs(iface, filter));
                 }
-                if ( 0 < pending->size ) {
-                    list_dtc = pending;
+                if ( 0 < list_dtc_buffer->size ) {
+                    list_dtc = list_dtc_buffer;
                 }
                 g_idle_add(set_list_dtc_gsource, (gpointer)list_dtc);
             }
