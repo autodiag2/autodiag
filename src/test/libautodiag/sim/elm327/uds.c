@@ -35,5 +35,13 @@ bool testSimUDS() {
         assert(result->list[0]->size == 1);
         assert(result->list[0]->buffer[0] == UDS_SESSION_EXTENDED_DIAGNOSTIC);
     }
+    {
+        list_list_UDS_DTC * result = uds_read_dtc_first_confirmed_dtc(iface);
+        assert(result->size == 1);
+        list_UDS_DTC * result_per_ecu = result->list[0];
+        assert(result_per_ecu->size == 1);
+        UDS_DTC * dtc = result_per_ecu->list[0];
+        assert(strcmp(dtc->to_string(dtc), "P0103") == 0);
+    }
     return true;
 }

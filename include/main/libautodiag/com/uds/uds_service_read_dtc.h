@@ -46,6 +46,7 @@ typedef struct {
 UDS_DTC * UDS_DTC_new();
 void UDS_DTC_free(UDS_DTC * dtc);
 int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2);
+char * UDS_DTC_to_string(final UDS_DTC * dtc);
 
 typedef enum {
     UDS_DTC_STATUS_TestFailed = 0b00000001,
@@ -62,6 +63,7 @@ char * uds_dtc_status_to_string(byte status, UDS_DTC_STATUS wanted);
 
 AD_LIST_H_DEEP(UDS_DTC,
     byte Status_Availability_Mask;
+    ECU * ecu;
 );
 AD_LIST_H(list_UDS_DTC);
 

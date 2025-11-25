@@ -25,7 +25,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
         } else { \
             SAEJ1979_DTC * dtc = saej1979_dtc_new(); \
             dtc->type = (byte_0 & 0xC0) >> 6; \
-            dtc->data[0] = byte_0; \
+            dtc->data[0] = (byte_0 & (~0xC0)) ; \
             dtc->data[1] = byte_1; \
             dtc->data[2] = 0; \
             sprintf((char*)&(dtc->number),"%x%x%x%x", (byte_0 & 0x30) >> 4, byte_0 & 0xF, (byte_1 & 0xF0) >> 4, byte_1 & 0xF); \

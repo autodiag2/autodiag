@@ -1,9 +1,22 @@
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
+char * UDS_DTC_to_string(final UDS_DTC * dtc) {
+    final Buffer * code = buffer_new();
+    buffer_append_bytes(code, dtc->data, DTC_DATA_SZ);
+    final byte type = (code->buffer[0] & 0xC0) >> 6;
+    char letter = iso15031_dtc_type_first_letter(type);
+    code->buffer[0] = (code->buffer[0] & (~0xC0)) ;
+    code->size -= 1;
+    char * result;
+    asprintf(&result, "%c%s", letter, buffer_to_hex_string(code));
+    buffer_free(code);
+    return result;
+}
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * result = (UDS_DTC*)malloc(sizeof(UDS_DTC));
     result->status = 0xFF;
     result->description = null;
+    result->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
     memset(result->data, 0x00, 3);
     return result;
 }
@@ -15,8 +28,10 @@ int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2) {
 }
 AD_LIST_SRC_DEEP(UDS_DTC,
     list->Status_Availability_Mask = 0xFF;
+    list->ecu = null;
     ,
     list->Status_Availability_Mask = 0x00;
+    list->ecu = null;
 )
 int list_UDS_DTC_cmp(final list_UDS_DTC * e1, final list_UDS_DTC * e2) {
     return e1 - e2;
@@ -35,6 +50,7 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
         final ECU * ecu = iface->vehicle->ecus[i];
         final list_UDS_DTC * ecu_response = list_UDS_DTC_new();
+        ecu_response->ecu = ecu;
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
