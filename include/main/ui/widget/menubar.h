@@ -60,9 +60,7 @@ static void menubar_data_source_all(GtkMenuItem *item,gpointer user_data){ \
 
 #define MENUBAR_DATA_SOURCE_CONNECT() \
     g_signal_connect(gui->menuBar.data.source.all, "activate", G_CALLBACK(menubar_data_source_all), null); \
-    GtkWidget *filter_menu = gtk_menu_new(); \
-    gtk_menu_item_set_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by), GTK_WIDGET(filter_menu)); \
-    gui->menuBar.data.source.filter_by_menu = filter_menu; \
+    gui->menuBar.data.source.filter_by_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(gui->menuBar.data.source.filter_by)); \
     ehh_register(config.ephemere.iface->vehicle->internal.events.onECURegister, menubar_data_source_filter_by_register); \
     ehh_register(config.ephemere.iface->vehicle->internal.events.onFilterChange, menubar_data_source_filter_by_filter_change); \
 
