@@ -11918,7 +11918,7 @@ What can be done:
                   <object class="GtkMenuItem">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="tooltip-text" translatable="yes">Choose the data source</property>
+                    <property name="tooltip-text" translatable="yes">Configure the input/output data</property>
                     <property name="label" translatable="yes">_Data</property>
                     <property name="use-underline">True</property>
                     <child type="submenu">
@@ -11926,48 +11926,84 @@ What can be done:
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <child>
-                          <object class="GtkMenuItem">
+                          <object class="GtkMenuItem" id="read-codes-menubar-data-source-filter-by">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="tooltip-text" translatable="yes">Select sources of data (which ECU)</property>
-                            <property name="label" translatable="yes">_Source</property>
+                            <property name="tooltip-text" translatable="yes">Select one or more data source (ECU)</property>
+                            <property name="label" translatable="yes">_Filter by ECU</property>
                             <property name="use-underline">True</property>
                             <child type="submenu">
                               <object class="GtkMenu">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <child>
-                                  <object class="GtkMenuItem" id="read-codes-menubar-data-source-filter-by">
+                                  <object class="GtkMenuItem" id="read-codes-menubar-data-source-all">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="tooltip-text" translatable="yes">Select one or more data source (ECU)</property>
-                                    <property name="label" translatable="yes">_Filter by ECU</property>
+                                    <property name="tooltip-text" translatable="yes">Receive from all data sources (all ECUs)</property>
+                                    <property name="label" translatable="yes">_All</property>
                                     <property name="use-underline">True</property>
-                                    <child type="submenu">
-                                      <object class="GtkMenu">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <child>
-                                          <object class="GtkMenuItem" id="read-codes-menubar-data-source-all">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                            <property name="tooltip-text" translatable="yes">Receive from all data sources (all ECUs)</property>
-                                            <property name="label" translatable="yes">_All</property>
-                                            <property name="use-underline">True</property>
-                                          </object>
-                                        </child>
-                                        <child>
-                                          <object class="GtkSeparatorMenuItem">
-                                            <property name="visible">True</property>
-                                            <property name="can-focus">False</property>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkSeparatorMenuItem">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
                                   </object>
                                 </child>
                               </object>
                             </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckMenuItem" id="read-codes-data-source-obd">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">Toggle OBD Data</property>
+                            <property name="label" translatable="yes">_OBD</property>
+                            <property name="use-underline">True</property>
+                            <child type="submenu">
+                              <object class="GtkMenu">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <child>
+                                  <object class="GtkCheckMenuItem" id="window-read-codes-read-stored">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="tooltip-text" translatable="yes">Read stored DTCs (service 0x03)</property>
+                                    <property name="label" translatable="yes">_Stored DTCs</property>
+                                    <property name="use-underline">True</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckMenuItem" id="window-read-codes-read-pending">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="tooltip-text" translatable="yes">Read pending DTCs (service 0x07)</property>
+                                    <property name="label" translatable="yes">_Pending DTCs</property>
+                                    <property name="use-underline">True</property>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckMenuItem" id="window-read-codes-read-permanent">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="tooltip-text" translatable="yes">Read stored DTCs (service 0x0A)</property>
+                                    <property name="label" translatable="yes">_Permanent DTCs</property>
+                                    <property name="use-underline">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkCheckMenuItem" id="read-codes-data-source-uds">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="tooltip-text" translatable="yes">Toggle UDS Data (if both OBD and UDS are enabled, UDS is priorized)</property>
+                            <property name="label" translatable="yes">_UDS</property>
+                            <property name="use-underline">True</property>
                           </object>
                         </child>
                       </object>
@@ -12185,64 +12221,6 @@ What can be done:
                             <property name="fill">True</property>
                             <property name="padding">3</property>
                             <property name="position">1</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkCheckButton" id="window-read-codes-read-stored">
-                                <property name="label" translatable="yes">read stored DTC</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="tooltip-text" translatable="yes">Show stored DTC</property>
-                                <property name="active">True</property>
-                                <property name="draw-indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="window-read-codes-read-pending">
-                                <property name="label" translatable="yes">read pending DTC</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="tooltip-text" translatable="yes">Show pending DTC (detected during current or last driving cycle)</property>
-                                <property name="draw-indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkCheckButton" id="window-read-codes-read-permanent">
-                                <property name="label" translatable="yes">read permanent DTC</property>
-                                <property name="visible">True</property>
-                                <property name="can-focus">True</property>
-                                <property name="receives-default">False</property>
-                                <property name="tooltip-text" translatable="yes">Show permanent DTCs (Cleared DTCs)</property>
-                                <property name="draw-indicator">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">2</property>
                           </packing>
                         </child>
                         <child>

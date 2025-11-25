@@ -125,9 +125,9 @@ static void read_codes_daemon_internal() {
     if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
         gtk_spinner_start(gui->actionWaitIcon);
         // The state of the port may change if thereis an error during the retrieve
-        final bool mil = saej1979_data_mil_status(iface,false);
         if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
-            {
+            if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
+                final bool mil = saej1979_data_mil_status(iface,false);
                 bool * mil_ptr = (bool*)malloc(sizeof(bool));
                 *mil_ptr = mil;
                 g_idle_add(set_mil_gsource, (gpointer)mil_ptr);
@@ -140,14 +140,19 @@ static void read_codes_daemon_internal() {
                 final list_DTC * list_dtc_buffer = list_DTC_new();
                 bool state = filtered_dtc_state();
                 final Vehicle* filter = state ? iface->vehicle : null;
-                if ( gtk_toggle_button_get_active(gui->read.stored) ) {
-                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_stored_dtcs(iface, filter));
+                if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
+                    if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.stored) ) {
+                        list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_stored_dtcs(iface, filter));
+                    }
+                    if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.pending) ) {
+                        list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_pending_dtcs(iface, filter));
+                    }
+                    if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.permanent) ) {
+                        list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_permanent_dtcs(iface, filter));
+                    }
                 }
-                if ( gtk_toggle_button_get_active(gui->read.pending) ) {
-                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_pending_dtcs(iface, filter));
-                }
-                if ( gtk_toggle_button_get_active(gui->read.permanent) ) {
-                    list_DTC_append_list(list_dtc_buffer,saej1979_retrieve_permanent_dtcs(iface, filter));
+                if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
+                    log_msg(LOG_DEBUG, "TODO : implement filtering for UDS DTC retrieve and DTC retrieve");
                 }
                 if ( 0 < list_dtc_buffer->size ) {
                     list_dtc = list_dtc_buffer;
@@ -181,7 +186,11 @@ static void clear_codes_daemon_internal() {
     gtk_spinner_start(gui->actionWaitIcon);
     final VehicleIFace* iface = config.ephemere.iface;
     if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
-        saej1979_clear_dtc_and_stored_values(iface);
+        if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
+            saej1979_clear_dtc_and_stored_values(iface);
+        } else {
+            log_msg(LOG_WARNING, "Data configuration do not allow to send the request");
+        }
     }
     gtk_widget_hide_on_main_thread(gui->clear.confirm);
     clear_dtc_description();
@@ -255,10 +264,17 @@ void module_init_read_codes(GtkBuilder *builder) {
                 },
                 .filtered = (GtkCheckMenuItem*) (gtk_builder_get_object (builder, "window-read-codes-view-filtered")),
                 .data = {
-                    .source = {
-                        .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "read-codes-menubar-data-source-all")),
-                        .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "read-codes-menubar-data-source-filter-by"))
-                    }    
+                    .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "read-codes-menubar-data-source-all")),
+                    .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "read-codes-menubar-data-source-filter-by")),
+                    .obd = {
+                        .origin = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"read-codes-data-source-obd")),
+                        .stored = GTK_CHECK_MENU_ITEM(gtk_builder_get_object (builder, "window-read-codes-read-stored")),
+                        .pending = GTK_CHECK_MENU_ITEM(gtk_builder_get_object (builder, "window-read-codes-read-pending")),
+                        .permanent = GTK_CHECK_MENU_ITEM(gtk_builder_get_object (builder, "window-read-codes-read-permanent")),
+                    },
+                    .uds = {
+                        .origin = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder, "read-codes-data-source-uds"))
+                    }
                 }
             },
             .mil = {
@@ -275,12 +291,6 @@ void module_init_read_codes(GtkBuilder *builder) {
                 .causeSolutionText = gtk_text_buffer_new(null),
                 .explanation = (GtkTextView*)gtk_builder_get_object (builder, "window-read-codes-dtc-cause-solution-explanation"),
                 .explanationText = gtk_text_buffer_new(null),
-            },
-            .read = {
-                .stored = (GtkToggleButton*)gtk_builder_get_object (builder, "window-read-codes-read-stored"),
-                .pending = (GtkToggleButton*)gtk_builder_get_object (builder, "window-read-codes-read-pending"),
-                .permanent = (GtkToggleButton*)gtk_builder_get_object (builder, "window-read-codes-read-permanent"),
-                .thread = null
             },
             .clear = {
                 .confirm = GTK_WIDGET (gtk_builder_get_object (builder, "window-read-codes-clear-confirm")),
@@ -310,6 +320,10 @@ void module_init_read_codes(GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-read-codes-no-serial-selected-ok",&error_serial_ok);
         gtk_builder_add_callback_symbol(builder,"window-no-obd-data-ok",&no_obd_data_ok);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-show-ecus-buffer",&show_ecus_buffer);
+
+        gtk_check_menu_item_set_active(gui->menuBar.data.obd.origin, true);
+        gtk_check_menu_item_set_active(gui->menuBar.data.obd.stored, true);
+        gtk_check_menu_item_set_active(gui->menuBar.data.uds.origin, true);
 
         MENUBAR_DATA_SOURCE_CONNECT();
         

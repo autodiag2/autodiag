@@ -30,11 +30,9 @@ typedef struct {
         GtkWindow* freeze_frame_error_popup;
         GtkCheckMenuItem *showFreezeFrame;
         struct {
-            struct {
-                GtkCheckMenuItem *all;
-                GtkWidget *filter_by;
-                GtkWidget *filter_by_menu;
-            } source;
+            GtkCheckMenuItem *all;
+            GtkWidget *filter_by;
+            GtkWidget *filter_by_menu;
         } data;
     } menuBar;
     struct {

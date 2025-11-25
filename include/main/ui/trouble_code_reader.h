@@ -14,9 +14,6 @@ typedef struct {
     GtkWidget *noObdData;
     ErrorFeedbackWindows errorFeedback;
     struct {
-        GtkToggleButton *stored;
-        GtkToggleButton *pending;
-        GtkToggleButton *permanent;
         ThreadedAction;
     } read;
     struct {
@@ -47,11 +44,18 @@ typedef struct {
         } showECUsBuffer;
         GtkCheckMenuItem *filtered;
         struct {
+            GtkCheckMenuItem *all;
+            GtkWidget *filter_by;
+            GtkWidget *filter_by_menu;
             struct {
-                GtkCheckMenuItem *all;
-                GtkWidget *filter_by;
-                GtkWidget *filter_by_menu;
-            } source;
+                GtkCheckMenuItem *origin;
+                GtkCheckMenuItem *stored;
+                GtkCheckMenuItem *pending;
+                GtkCheckMenuItem *permanent;
+            } obd;
+            struct {
+                GtkCheckMenuItem *origin;
+            } uds;
         } data;
     } menuBar;
 } TroubleCodeReaderGui;

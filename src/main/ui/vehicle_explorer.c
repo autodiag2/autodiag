@@ -812,10 +812,8 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
                 .freeze_frame_error_popup = GTK_WINDOW(gtk_builder_get_object(builder,"vehicle-explorer-freeze-frame-error")),
                 .showFreezeFrame = GTK_CHECK_MENU_ITEM(gtk_builder_get_object(builder,"vehicle-explorer-menubar-show-freezeframe")),
                 .data = {
-                    .source = {
-                        .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-all")),
-                        .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-filter-by"))
-                    }    
+                    .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-all")),
+                    .filter_by = GTK_WIDGET(gtk_builder_get_object(builder, "vehicle-explorer-menubar-data-source-filter-by"))    
                 }
             },
             .engine = {
