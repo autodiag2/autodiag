@@ -42,6 +42,11 @@ void buffer_recycle(Buffer * buffer);
 void buffer_left_shift(final Buffer * buffer, final unsigned int shift);
 /**
  * Extract part of a buffer into an other
+ * [index;index+size[ if size = 0, index excluded
+ * @param dest non null
+ * @param src non null
+ * @param index start index
+ * @param size size to slice
  */
 void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size);
 void buffer_append(final Buffer * dest, final Buffer * src);

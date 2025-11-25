@@ -1,11 +1,12 @@
 #include "libautodiag/com/uds/uds.h"
 
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
-    viface_lock(iface);
     list_Buffer * result = list_Buffer_new();
+    viface_lock(iface);
     char * request;
-    asprintf(&request, "%02hhX%02hhX%02hhX", UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF); // BIG endian with ELM
+    asprintf(&request, "%02hhX%02hhX%02hhX", UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
     viface_send(iface, request);
+    free(request);
     viface_clear_data(iface);
     viface_recv(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
