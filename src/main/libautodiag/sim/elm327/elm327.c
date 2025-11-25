@@ -558,7 +558,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
     log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
     usleep(50e3);
     free(serial_response);
-    log_msg(LOG_DEBUG, "sending back %s", response);
+    log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
 
     #ifdef OS_WINDOWS
         DWORD bytes_written = 0;
