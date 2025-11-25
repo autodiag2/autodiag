@@ -21,16 +21,28 @@ bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *valu
         return true;
     }
     if ( strcasecmp(key,"nvm.programmable_parameters") == 0 ) {
-        elm327->nvm.programmable_parameters_pending = buffer_from_ascii_hex(value);
-        for(int i = 0; i < elm327->nvm.programmable_parameters_pending->size; i++) {
-            if ( (data->load_mask & elm327->programmable_parameters_pending_load_type->buffer[i]) != 0 ) {
-                elm327->nvm.programmable_parameters->buffer[i] = elm327->nvm.programmable_parameters_pending->buffer[i];
+        final Buffer * pp_pending = buffer_from_ascii_hex(value);
+        if ( pp_pending == null || elm327->nvm.programmable_parameters->size < pp_pending->size ) {
+            log_msg(LOG_WARNING, "Potential memory corruption detected - NVM dropped !");
+            log_msg(LOG_DEBUG, "reading: %s", value);
+        } else {
+            elm327->nvm.programmable_parameters_pending = pp_pending;
+            for(int i = 0; i < elm327->nvm.programmable_parameters_pending->size; i++) {
+                if ( (data->load_mask & elm327->programmable_parameters_pending_load_type->buffer[i]) != 0 ) {
+                    elm327->nvm.programmable_parameters->buffer[i] = elm327->nvm.programmable_parameters_pending->buffer[i];
+                }
             }
         }
         return true;
     } 
     if ( strcasecmp(key,"nvm.programmable_parameters_states") == 0 ) {
-        elm327->nvm.programmable_parameters_states = buffer_from_ascii_hex(value);
+        final Buffer * pp_states = buffer_from_ascii_hex(value);
+        if ( pp_states == null || elm327->nvm.programmable_parameters_states->size < pp_states->size ) {
+            log_msg(LOG_WARNING, "Potential memory corruption detected - NVM dropped !");
+            log_msg(LOG_DEBUG, "reading: %s", value);
+        } else {
+            elm327->nvm.programmable_parameters_states = pp_states;
+        }
         return true;
     }    
     return false;
