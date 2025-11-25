@@ -13,6 +13,9 @@
 #include "libautodiag/model/dtc.h"
 #include <string.h>
 
+/**
+ *  Also known as SAE_J2012-DA_DTCFormat_00 (Diagnostic & Analysis)
+ */
 typedef struct {
     DTC;
     ISO15031_DTC_TYPE type;
