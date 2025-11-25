@@ -6,7 +6,7 @@
 
 void thread_allocate_and_start(pthread_t** t, void*ptr);
 
-#define THREAD_WRITE_DAEMON(sym,handle,cleanupHandle,thread) void* sym(void *arg) { \
+#define THREAD_WRITE_DAEMON(sym,handle,cleanupHandle,thread) static void* sym(void *arg) { \
     pthread_cleanup_push(cleanupHandle, null); \
     handle(); \
     free(thread); \
