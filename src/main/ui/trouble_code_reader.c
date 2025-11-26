@@ -112,6 +112,7 @@ static gboolean set_list_dtc_gsource(gpointer data) {
         AD_LIST_FOREACH(list_dtc,DTC,dtc,
             char * dtc_string = dtc->to_string(dtc);
             GtkWidget *label = gtk_label_new(dtc_string);
+            g_object_set_data(label, "dtc", dtc);
             gtk_container_add((GtkContainer*)gui->dtc.list,label);
             gtk_widget_show(label);
             free(dtc_string);
@@ -234,8 +235,9 @@ static void append_multi_manufacturer_explanation(GtkTextBuffer *buffer, DTC_DES
 static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data) {
     clear_dtc_description();
     if ( row != null ) {
-        const char * selectedDTC = gtk_label_get_text((GtkLabel*)gtk_bin_get_child((GtkBin*)row));
-        DTC *dtc = list_DTC_get(list_dtc,(char*)selectedDTC);
+        final GtkLabel* rowLabel = gtk_bin_get_child((GtkBin*)row);
+        final DTC *dtc = (DTC*)g_object_get_data(rowLabel, "dtc");
+        assert(dtc != null);
 
         for(int i = 0; i < dtc->description->size; i++) {
             DTC_DESCRIPTION desc = dtc->description->list[i];

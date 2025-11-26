@@ -39,7 +39,6 @@ void dtc_description_dump(DTC_DESCRIPTION *desc) {
     printf("}\n");
 }
 
-
 DTC * list_DTC_get(list_DTC * list, char *dtcStr) {
     AD_LIST_FOREACH(list, DTC, dtc, 
 

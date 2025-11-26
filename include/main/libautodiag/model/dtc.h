@@ -77,6 +77,7 @@ typedef struct {
 AD_LIST_H(DTC)
 void list_DTC_append_list(list_DTC * list, list_DTC * another);
 DTC * list_DTC_get(list_DTC * list, char *dtc);
+
 /**
  * Fill DTC description fields from the file codes.tsv
  */
