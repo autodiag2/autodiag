@@ -18,16 +18,11 @@
  */
 typedef struct {
     DTC;
-    ISO15031_DTC_TYPE type;
-    /**
-     * Ascii value of the dtc (less the type)
-     */
-    char number[5];
 } SAEJ1979_DTC;
 
 SAEJ1979_DTC * saej1979_dtc_new();
 void saej1979_dtc_free(SAEJ1979_DTC *dtc);
-char * saej1979_dtc_explanation(final SAEJ1979_DTC * dtc);
+char * saej1979_dtc_explanation(final DTC * dtc);
 
 /**
  * Service 03 retrieve stored DTCs
@@ -39,7 +34,12 @@ list_DTC * saej1979_retrieve_permanent_dtcs(final VehicleIFace* iface, final Veh
  * eg. P1122
  * @return dtc as string, result must be then cleared
  */
-char * saej1979_dtc_to_string(final SAEJ1979_DTC * dtc);
+char * saej1979_dtc_to_string(final DTC * dtc);
+ISO15031_DTC_TYPE saej1979_dtc_type(final DTC * dtc);
+/**
+ * @return non type part eg. P0103 => [0x01,0x03]
+ */
+Buffer * saej1979_dtc_number(final DTC * dtc);
 /**
  * eg. 1122
  */
