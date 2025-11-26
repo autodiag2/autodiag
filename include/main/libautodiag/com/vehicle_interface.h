@@ -10,7 +10,7 @@ typedef enum {
 }VIFaceState;
 typedef struct {
     /**
-     * Device onto which communication should start
+     * Device onto which communication should start.
      */
     Device* device;
     /**
@@ -19,9 +19,13 @@ typedef struct {
     Vehicle * vehicle;
     int state;
     /**
-     * Does have uds on the current connexion
+     * Does have uds on the current connexion.
      */
     bool uds_enabled;
+    /**
+     * A thread that send periodically TesterPresent messages.
+     */
+    pthread_t *uds_tester_present_timer;
 } VehicleIFace;
 
 VehicleIFace* viface_new();

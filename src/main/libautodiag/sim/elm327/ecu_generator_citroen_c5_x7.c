@@ -47,18 +47,17 @@ static void uds_reset_default_session() {
 static void * session_timer_daemon(void *arg) {
     while(state.uds.session_continue) {
         state.uds.session_continue = false;
-        sleep(UDS_SESSION_TIMEOUT_MS/1000);
+        usleep(UDS_SESSION_TIMEOUT_MS * 1000);
     }
     uds_reset_default_session();
     free(state.uds.session_timer);
     state.uds.session_timer = null;
 }
 static void start_or_update_session_timer() {
+    state.uds.session_continue = true;
     if ( state.uds.session_timer == null ) {
         state.uds.session_timer = (pthread_t*)malloc(sizeof(pthread_t));
         pthread_create(state.uds.session_timer, null, session_timer_daemon, null);
-    } else {
-        state.uds.session_continue = true;
     }
 }
 static bool service_is_uds(byte service) {
@@ -296,7 +295,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                     case UDS_TESTER_PRESENT_SUB_ZERO:
                         buffer_append_byte(binResponse, binRequest->buffer[1]);
                         break;
-                    case UDS_TESTER_PRESENT_SUB_NOT_RESPONSE:
+                    case UDS_TESTER_PRESENT_SUB_NO_RESPONSE:
                         buffer_append_byte(binResponse, binRequest->buffer[1]);
                         log_msg(LOG_DEBUG, "TODO (not sending anything back)");
                         break;

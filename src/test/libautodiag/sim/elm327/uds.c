@@ -47,6 +47,7 @@ bool testSimUDS() {
     }
     {
         assert(uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        uds_viface_stop_tester_present_timer(iface);
         list_Buffer *result = uds_read_data_by_identifier(iface,
             UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
@@ -54,14 +55,30 @@ bool testSimUDS() {
         assert(result->list[0]->size == 1);
         assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
         sleep(UDS_SESSION_TIMEOUT_MS/1000 - 1);
-        assert(uds_tester_present(iface, false));
-        sleep(UDS_SESSION_TIMEOUT_MS/1000 + 1);
+        assert(uds_tester_present(iface, true));
+        sleep((UDS_SESSION_TIMEOUT_MS/1000) * 2);
         result = uds_read_data_by_identifier(iface,
             UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
         assert(result->list[0]->buffer[0] == UDS_SESSION_DEFAULT);
+    }
+    {
+        assert(uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        list_Buffer *result = uds_read_data_by_identifier(iface,
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+        );
+        assert(result->size == 1);
+        assert(result->list[0]->size == 1);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
+        sleep((UDS_SESSION_TIMEOUT_MS/1000) * 2);
+        result = uds_read_data_by_identifier(iface,
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+        );
+        assert(result->size == 1);
+        assert(result->list[0]->size == 1);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
     }
     return true;
 }

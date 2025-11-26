@@ -3,6 +3,7 @@
 #include "libautodiag/com/uds/uds.h"
 
 void viface_close(final VehicleIFace* iface) {
+    uds_viface_stop_tester_present_timer(iface);
     iface->device->close(iface->device);    
 }
 
@@ -30,6 +31,7 @@ VehicleIFace* viface_new() {
     iface->vehicle = vehicle_new();
     iface->state = VIFaceState_NOT_READY;
     iface->uds_enabled = false;
+    iface->uds_tester_present_timer = null;
     return iface;
 }
 
@@ -44,10 +46,12 @@ void viface_unlock(final VehicleIFace* iface) {
 static void viface_open_abort(final VehicleIFace * iface) {
     iface->state = VIFaceState_NOT_READY;
     iface->uds_enabled = false;
+    uds_viface_stop_tester_present_timer(iface);
 }
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
     assert(iface != null);
     assert(device->type != null);
+    uds_viface_stop_tester_present_timer(iface);
     if ( strcmp(device->type, "serial") == 0 ) {
         Serial * serial = (Serial*)device;
         log_msg(LOG_INFO, "TODO: should test if ati contains ELM, if so, launch elm open from serial");

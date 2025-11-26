@@ -56,20 +56,22 @@ bool uds_request_session_cond(final VehicleIFace * iface, final byte session_typ
 bool uds_tester_present(final VehicleIFace *iface, final bool response) {
     bool result = true;
     viface_lock(iface);
-    viface_send(iface, gprintf("%02hhX%02hhx", UDS_SERVICE_TESTER_PRESENT, UDS_TESTER_PRESENT_SUB_ZERO));
-    viface_clear_data(iface);
-    viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
-        for(int j = 0; j < ecu->data_buffer->size; j++) {
-            final Buffer * ecu_buffer = ecu->data_buffer->list[j];
-            if ( ecu_buffer->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
-                result &= false;
-            } else if ( (ecu_buffer->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                result &= true;
-            } else {
-                log_msg(LOG_ERROR, "nor positive nor negative response received: %s", buffer_to_hex_string(ecu_buffer));
-                result &= false;
+    viface_send(iface, gprintf("%02hhX%02hhx", UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
+    if ( response ) {
+        viface_clear_data(iface);
+        viface_recv(iface);
+        for(int i = 0; i < iface->vehicle->ecus_len; i++) {
+            final ECU * ecu = iface->vehicle->ecus[i];
+            for(int j = 0; j < ecu->data_buffer->size; j++) {
+                final Buffer * ecu_buffer = ecu->data_buffer->list[j];
+                if ( ecu_buffer->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                    result &= false;
+                } else if ( (ecu_buffer->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                    result &= true;
+                } else {
+                    log_msg(LOG_ERROR, "nor positive nor negative response received: %s", buffer_to_hex_string(ecu_buffer));
+                    result &= false;
+                }
             }
         }
     }
@@ -77,6 +79,38 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
     return result;
 }
 
+static void * tester_present_timer_daemon(void *arg) {
+    final VehicleIFace * iface = (VehicleIFace*)arg;
+    while(true) {
+        if ( iface->state == VIFaceState_NOT_READY || iface->uds_tester_present_timer == null ) {
+            break;
+        } else {
+            if ( ! uds_tester_present(iface, true) ) {
+                log_msg(LOG_ERROR, "Periodic message tester present not sent, session will reset to default");
+                break;
+            }
+            usleep((UDS_SESSION_TIMEOUT_MS * 1000) * 3/4);
+        }
+    }
+    log_msg(LOG_DEBUG, "Terminating the beacon thread");
+    if ( iface->uds_tester_present_timer != null ) {
+        free(iface->uds_tester_present_timer);
+        iface->uds_tester_present_timer = null;
+    }
+    return null;
+}
+void uds_viface_start_tester_present_timer(final VehicleIFace * iface) {
+    if ( iface->uds_tester_present_timer == null ) {
+        iface->uds_tester_present_timer = (pthread_t*)malloc(sizeof(pthread_t));
+        pthread_create(iface->uds_tester_present_timer, null, tester_present_timer_daemon, (void*)iface);
+    }
+}
+void uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
+    if ( iface->uds_tester_present_timer != null ) {
+        free(iface->uds_tester_present_timer);
+        iface->uds_tester_present_timer = null;
+    }
+}
 object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     
@@ -102,6 +136,7 @@ object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final b
                     object_Int_new_from(ecu->address->buffer[1]), 
                     object_Int_new_from(true)
                 );
+                uds_viface_start_tester_present_timer(iface);
             } else {
                 log_msg(LOG_ERROR, "Incorrect data byte: %02hhX", data->buffer[0]);
             }
