@@ -125,7 +125,12 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface,
     return uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
 }
 list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter) {
-    list_list_UDS_DTC * lists_dtcs = uds_read_dtc_by_status_mask(iface, filter, 0x00);
+    list_list_UDS_DTC * lists_dtcs = uds_read_dtc_by_status_mask(iface, filter,
+        UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
+        UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
+        UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
+        UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
+    );
     list_UDS_DTC * dtcs = list_UDS_DTC_new();
     for(int i = 0; i < lists_dtcs->size; i ++) {
         list_DTC_append_list(dtcs, lists_dtcs->list[0]);

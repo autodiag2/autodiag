@@ -251,7 +251,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                             buffer_append_byte(binResponse, state.uds.DTCSupportedStatusMask);
                             for(int i = 0; i < state.uds.dtcs->size; i++) {
                                 final UDS_DTC * dtc = state.uds.dtcs->list[i];
-                                if ( (dtc->status & DTCStatusMask) == DTCStatusMask ) {
+                                if ( (dtc->status & DTCStatusMask) != 0 ) {
                                     buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
                                     buffer_append_byte(binResponse, dtc->status);
                                 }
