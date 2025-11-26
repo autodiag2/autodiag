@@ -152,6 +152,9 @@ static void read_codes_daemon_internal() {
                     }
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
+                    list_DTC_append_list(list_dtc_buffer, uds_read_all_dtcs(iface, filter));
+                }
+                if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
                     log_msg(LOG_DEBUG, "TODO : implement filtering for UDS DTC retrieve and DTC retrieve");
                 }
                 if ( 0 < list_dtc_buffer->size ) {

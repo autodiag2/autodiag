@@ -54,7 +54,7 @@ int list_UDS_DTC_cmp(final list_UDS_DTC * e1, final list_UDS_DTC * e2) {
 }
 AD_LIST_SRC(list_UDS_DTC);
 
-static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
+static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
     list_list_UDS_DTC * result = list_list_UDS_DTC_new();
     viface_lock(iface);
     char * request;
@@ -92,6 +92,7 @@ static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, f
                         dtc->status = data->buffer[i+DTC_DATA_SZ];
                         dtc->ecu = ecu;
                         list_UDS_DTC_append(ecu_response, dtc);
+                        dtc_description_fetch_from_fs(dtc, filter);
                     }
                 }
             } else {
@@ -104,14 +105,19 @@ static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, f
     viface_unlock(iface);
     return result;
 }
-list_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final byte StatusMask) {
-    return uds_read_dtcs_with_mask(iface, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
+list_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask) {
+    return uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
 }
-list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface) {
-    return uds_read_dtcs_with_mask(iface, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
+list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter) {
+    return uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
 }
-list_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface) {
-    return uds_read_dtc_by_status_mask(iface, 0x00);
+list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter) {
+    list_list_UDS_DTC * lists_dtcs = uds_read_dtc_by_status_mask(iface, filter, 0x00);
+    list_UDS_DTC * dtcs = list_UDS_DTC_new();
+    for(int i = 0; i < lists_dtcs->size; i ++) {
+        list_DTC_append_list(dtcs, lists_dtcs->list[0]);
+    }
+    return dtcs;
 }
 void uds_dtc_dump(final UDS_DTC * dtc) {
     log_msg(LOG_DEBUG, "%s", dtc->to_string(dtc));
