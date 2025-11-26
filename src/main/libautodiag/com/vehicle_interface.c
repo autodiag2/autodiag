@@ -127,7 +127,6 @@ int viface_recv(final VehicleIFace* iface) {
     } 
 
     log_msg(LOG_DEBUG, "Storing in the corresponding service");
-    log_msg(LOG_DEBUG, "TODO implement more protocol here, eg UDS");
     Vehicle * v = iface->vehicle;
     if ( 0 < v->ecus_len ) {
         for(int i = 0; i < v->ecus_len; i++) {

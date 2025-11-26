@@ -62,12 +62,17 @@ typedef struct {
      */
     char* (*to_string)(final struct DTC * dtc);
     /**
+     * A string explaning by the data of this DTC origin of DTC.
+     */
+    char* (*explanation)(final struct DTC * dtc);
+    /**
      * ECU who has emitted this DTC.
      */
     ECU * ecu;
 } DTC;
 
 #define CAST_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
+#define CAST_DTC_EXPLANATION(var) ((char* (*)(final struct DTC*))var)
 
 AD_LIST_H(DTC)
 void list_DTC_append_list(list_DTC * list, list_DTC * another);

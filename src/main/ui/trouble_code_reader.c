@@ -109,8 +109,8 @@ static gboolean set_list_dtc_gsource(gpointer data) {
         ptr = ptr_next;
     }
     if ( list_dtc != null ) {
-        AD_LIST_FOREACH(list_dtc,SAEJ1979_DTC,dtc,
-            char * dtc_string = saej1979_dtc_to_string(dtc);
+        AD_LIST_FOREACH(list_dtc,DTC,dtc,
+            char * dtc_string = dtc->to_string(dtc);
             GtkWidget *label = gtk_label_new(dtc_string);
             gtk_container_add((GtkContainer*)gui->dtc.list,label);
             gtk_widget_show(label);
@@ -153,9 +153,6 @@ static void read_codes_daemon_internal() {
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
                     list_DTC_append_list(list_dtc_buffer, uds_read_all_dtcs(iface, filter));
-                }
-                if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
-                    log_msg(LOG_DEBUG, "TODO : implement filtering for UDS DTC retrieve and DTC retrieve");
                 }
                 if ( 0 < list_dtc_buffer->size ) {
                     list_dtc = list_dtc_buffer;
@@ -238,14 +235,14 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
     clear_dtc_description();
     if ( row != null ) {
         const char * selectedDTC = gtk_label_get_text((GtkLabel*)gtk_bin_get_child((GtkBin*)row));
-        SAEJ1979_DTC *dtc = list_DTC_get(list_dtc,(char*)selectedDTC);
+        DTC *dtc = list_DTC_get(list_dtc,(char*)selectedDTC);
 
         for(int i = 0; i < dtc->description->size; i++) {
             DTC_DESCRIPTION desc = dtc->description->list[i];
             append_multi_manufacturer_explanation(gui->dtc.causeSolutionText,&desc,desc.solution);
             append_multi_manufacturer_explanation(gui->dtc.descriptionText,&desc,desc.reason);
         }
-        final char * explanation = saej1979_dtc_categorization_string(dtc);
+        final char * explanation = dtc->explanation(dtc);
         gtk_text_buffer_set_text(gui->dtc.explanationText,explanation,strlen(explanation));
         free(explanation);
     }

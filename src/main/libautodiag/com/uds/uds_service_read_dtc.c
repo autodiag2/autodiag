@@ -26,9 +26,25 @@ UDS_DTC * UDS_DTC_new() {
     dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
     dtc->description = list_DTC_DESCRIPTION_new();
     dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
+    dtc->explanation = CAST_DTC_EXPLANATION(UDS_DTC_explanation);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
     return dtc;
+}
+char * UDS_DTC_explanation(final UDS_DTC * dtc) {
+    char * result = strdup("");
+    for(int i = 1; i < 256; i *= 2) {
+        char * status_string = uds_dtc_status_to_string(i);
+        assert(status_string != null);
+        char * r2;
+        asprintf(&r2, "%s%s%s: %d", result, strlen(result) == 0 ? "" : "\n", 
+            status_string, (dtc->status & i) != 0
+        );
+        free(result);
+        free(status_string);
+        result = r2;
+    }
+    return result;
 }
 UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc) {
     UDS_DTC * udtc = UDS_DTC_new();
@@ -128,8 +144,7 @@ void uds_dtc_dump(final UDS_DTC * dtc) {
     log_msg(LOG_DEBUG, "%s", dtc->to_string(dtc));
 }
 
-char * uds_dtc_status_to_string(byte status, UDS_DTC_STATUS wanted) {
-    if ((status & wanted) == 0) return null;
+char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted) {
     switch (wanted) {
         case UDS_DTC_STATUS_TestFailed:
             return strdup("Test Failed");
