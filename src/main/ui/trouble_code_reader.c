@@ -244,7 +244,26 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
             append_multi_manufacturer_explanation(gui->dtc.causeSolutionText,&desc,desc.solution);
             append_multi_manufacturer_explanation(gui->dtc.descriptionText,&desc,desc.reason);
         }
-        final char * explanation = dtc->explanation(dtc);
+        final char * explanation = strdup("Detection methods: ");
+        for(int i = 0; i < dtc->detection_method->size; i++) {
+            char * dm = dtc->detection_method->list[i]->data;
+            char * result;
+            asprintf(&result, "%s%s ", explanation, dm);
+            free(explanation);
+            explanation = result;
+        }
+        {
+            char * result;
+            asprintf(&result, "%s\n%s", explanation, saej1979_dtc_explanation(dtc));
+            free(explanation);
+            explanation = result;
+        }
+        if ( list_object_string_contains(dtc->detection_method, object_string_new_from("UDS")) ) {
+            char * result;
+            asprintf(&result, "%s%s", explanation, UDS_DTC_explanation(dtc));
+            free(explanation);
+            explanation = result;
+        }
         gtk_text_buffer_set_text(gui->dtc.explanationText,explanation,strlen(explanation));
         free(explanation);
     }

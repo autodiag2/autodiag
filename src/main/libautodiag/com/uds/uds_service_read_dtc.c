@@ -25,14 +25,15 @@ UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
     dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
     dtc->description = list_DTC_DESCRIPTION_new();
+    dtc->detection_method = list_object_string_new();
+    list_object_string_append(dtc->detection_method, object_string_new_from("UDS"));
     dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
-    dtc->explanation = CAST_DTC_EXPLANATION(UDS_DTC_explanation);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
     return dtc;
 }
 char * UDS_DTC_explanation(final UDS_DTC * dtc) {
-    char * result = strdup("This code has been detected with UDS");
+    char * result = strdup("ISO14229 (UDS):");
     for(int i = 1; i < 256; i *= 2) {
         char * status_string = uds_dtc_status_to_string(i);
         assert(status_string != null);
