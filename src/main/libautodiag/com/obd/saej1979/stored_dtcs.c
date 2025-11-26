@@ -105,11 +105,11 @@ Buffer* saej1979_dtc_bin_from_string(final char *dtc_string) {
 char * saej1979_dtc_explanation(final DTC * dtc) {
     char * res;
     final Buffer * dtc_number = saej1979_dtc_number(dtc);
-    final Buffer * dtc_number_str = buffer_to_hex_string(dtc_number);
+    final char * dtc_number_str = buffer_to_hex_string(dtc_number);
     char * sub = iso15031_dtc_to_subsystem_string(dtc_number_str);
     char * type = iso15031_dtc_type_to_string(saej1979_dtc_type(dtc));
     asprintf(&res,"This code has been detected with SAEJ1979/OBD\nFault on %s, this is a %s DTC\nIt is related to %s\n",
-        type, iso15031_dtc_is_generic_code(dtc_number_str->buffer[0]) ? "generic" : "manufacturer specific",
+        type, iso15031_dtc_is_generic_code(dtc_number_str[0]) ? "generic" : "manufacturer specific",
         sub  
     );
     free(sub);
