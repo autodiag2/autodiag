@@ -10,16 +10,7 @@ object_UDS_DTC * object_UDS_DTC_assign(object_UDS_DTC * to, object_UDS_DTC * fro
 }
 void object_UDS_DTC_free(object_UDS_DTC *o) { return UDS_DTC_free(o); }
 char * UDS_DTC_to_string(final UDS_DTC * dtc) {
-    final Buffer * code = buffer_new();
-    buffer_append_bytes(code, dtc->data, DTC_DATA_SZ);
-    final byte type = (code->buffer[0] & 0xC0) >> 6;
-    char letter = iso15031_dtc_type_first_letter(type);
-    code->buffer[0] = (code->buffer[0] & (~0xC0)) ;
-    code->size -= 1;
-    char * result;
-    asprintf(&result, "%c%s", letter, buffer_to_hex_string(code));
-    buffer_free(code);
-    return result;
+    return saej1979_dtc_to_string(dtc);
 }
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
