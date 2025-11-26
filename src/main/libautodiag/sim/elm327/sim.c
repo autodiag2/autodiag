@@ -13,7 +13,7 @@ void list_SimECU_empty(list_SimECU * list) {
     }
 }
 
-Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
+Buffer* sim_ecu_generate_response_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
     char *protocolSpecificHeader = null;
     Buffer * header = null;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -37,7 +37,7 @@ Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte
     }
     return header;     
 }
-char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
+char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
     char * space = print_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -98,7 +98,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         }
     }
     if ( 0 == binRequest->size ) {
-        log_msg(LOG_ERROR, "No obd data provided");        
+        log_msg(LOG_ERROR, "No obd/uds data provided");        
         return null;
     }
     final bool responseStatus = ecu->generator->response(ecu->generator, &response, binResponse, binRequest);
@@ -152,7 +152,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             char *header = "";
             if ( elm327->printing_of_headers ) {
                 char *inBuildHeader = "";
-                header = sim_ecu_generate_obd_header(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+                header = sim_ecu_generate_request_header_bin(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
             } else {
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {

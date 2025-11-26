@@ -112,7 +112,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
             if ( request_header == null ) {
-                request_header = sim_ecu_generate_obd_header(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
+                request_header = sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
             }
             if ( elm327->can.auto_format ) {
                 final int pci = strlen(hex_string_request) - space_num;
@@ -124,7 +124,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             if ( elm327->custom_header->size == 3 ) {
                 asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),hex_string_request);
             } else {
-                asprintf(&requestStr,"%s%s%s",sim_ecu_generate_obd_header(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,hex_string_request);
+                asprintf(&requestStr,"%s%s%s",sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,hex_string_request);
             }
         }
         hex_string_request = requestStr;
@@ -139,7 +139,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
 
             char * tmpResponse = ecu->sim_ecu_response(ecu,(SimELM327 *)elm327,hex_string_request,hasSpaces);
 
-            Buffer * response_header_bin = sim_ecu_generate_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            Buffer * response_header_bin = sim_ecu_generate_response_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 assert(elm327->can.mask != null);
                 assert(elm327->can.filter != null);

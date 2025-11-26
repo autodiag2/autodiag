@@ -22,9 +22,13 @@ void list_SimECU_empty(list_SimECU * list);
 SimECU* sim_ecu_emulation_new(byte address);
 /**
  * Generate a header as string for use in the current emulation.
+ * Header sent by tester to ECU.
  */
-char * sim_ecu_generate_obd_header(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces);
-Buffer* sim_ecu_generate_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio);
+char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces);
+/**
+ * Generate the header for the response by ECU to the tester.
+ */
+Buffer* sim_ecu_generate_response_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio);
 
 #include "elm327.h"
 
