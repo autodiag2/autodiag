@@ -4,6 +4,19 @@ GENERATE_TYPE_DUP(int)
 GENERATE_TYPE_DUP(double)
 GENERATE_TYPE_DUP(byte)
 
+char * gprintf(char * format, ...) {
+    char *result;
+    va_list ap;
+    va_start(ap, format);
+    char *txt = null;
+    if ( vasprintf(&txt, format, ap) == -1 ) {
+        log_msg(LOG_ERROR, "Fill label impossible");
+        txt = null;
+    }
+    va_end(ap);
+    return txt;
+}
+
 char * ascii_escape_breaking_chars(char *str) {
     size_t len = strlen(str);
     char *res = malloc(len * 4 + 1);

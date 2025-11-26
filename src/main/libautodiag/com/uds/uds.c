@@ -53,6 +53,29 @@ bool uds_request_session_cond(final VehicleIFace * iface, final byte session_typ
     return value == -1 ? false : value;
 }
 
+bool uds_tester_present(final VehicleIFace *iface, final bool response) {
+    bool result = true;
+    viface_lock(iface);
+    viface_send(iface, gprintf("%02hhX%02hhx", UDS_SERVICE_TESTER_PRESENT, UDS_TESTER_PRESENT_SUB_ZERO));
+    viface_clear_data(iface);
+    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
+        final ECU * ecu = iface->vehicle->ecus[i];
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            final Buffer * ecu_buffer = ecu->data_buffer->list[j];
+            if ( ecu_buffer->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                result &= false;
+            } else if ( (ecu_buffer->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                result &= true;
+            } else {
+                log_msg(LOG_ERROR, "nor positive nor negative response received: %s", buffer_to_hex_string(ecu_buffer));
+                result &= false;
+            }
+        }
+    }
+    viface_unlock(iface);
+    return result;
+}
+
 object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     

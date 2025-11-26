@@ -144,6 +144,13 @@ object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final by
 bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
 bool uds_is_enabled(final VehicleIFace *iface);
 
+// Without a sub-function (default value), indicating that the ECU should remain in its current state and continue with the active diagnostic session.
+#define UDS_TESTER_PRESENT_SUB_ZERO 0x00
+// With the sub-function, indicating that the tester is present but does not require any response from the ECU
+#define UDS_TESTER_PRESENT_SUB_NOT_RESPONSE 0x80
+#define UDS_SESSION_TIMEOUT_MS 10000
+bool uds_tester_present(final VehicleIFace *iface, final bool response);
+
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
 #endif

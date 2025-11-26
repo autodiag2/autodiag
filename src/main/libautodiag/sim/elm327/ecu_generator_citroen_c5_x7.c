@@ -10,6 +10,8 @@ typedef struct {
         bool security_access_granted;
         list_UDS_DTC * dtcs;
         byte DTCSupportedStatusMask;
+        pthread_t session_timer;
+        bool session_continue;
     } uds;
     struct {
         list_DTC * dtcs;
@@ -28,21 +30,40 @@ static VehicleState state = {
             UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
             UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
             UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
-            UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
+            UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested,
+        .session_timer = null,
+        .session_continue = true
     },
     .obd = {
         .dtcs = null,
         .mil_on = true
     }
 };
-void uds_reset_default_session() {
+static void uds_reset_default_session() {
     log_msg(LOG_DEBUG, "should reset controls and settings leaving in the ram");
     state.uds.security_access_granted = false;
 }
-bool service_is_uds(byte service) {
+static void * session_timer_daemon(void *arg) {
+    while(state.uds.session_continue) {
+        state.uds.session_continue = false;
+        sleep(UDS_SESSION_TIMEOUT_MS/1000);
+    }
+    uds_reset_default_session();
+    free(state.uds.session_timer);
+    state.uds.session_timer = null;
+}
+static void start_or_update_session_timer() {
+    if ( state.uds.session_timer == null ) {
+        state.uds.session_timer = (pthread_t*)malloc(sizeof(pthread_t));
+        pthread_create(state.uds.session_timer, null, session_timer_daemon, null);
+    } else {
+        state.uds.session_continue = true;
+    }
+}
+static bool service_is_uds(byte service) {
     return 0x10 <= service;
 }
-bool uds_service_allowed(byte service_id) {
+static bool uds_service_allowed(byte service_id) {
     switch (service_id) {
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
         case UDS_SERVICE_TESTER_PRESENT:
@@ -70,6 +91,9 @@ bool uds_service_allowed(byte service_id) {
 }
 
 static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+    
+    start_or_update_session_timer();
+
     bool responseStatus = true;
     unsigned * seed = generator->context;
     if ( seed == null ) {
@@ -258,6 +282,27 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                             }
                         }
                     } break;
+                }
+            } else {
+                responseStatus = false;
+                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        } break;
+        case UDS_SERVICE_TESTER_PRESENT: {
+            if ( 1 < binRequest->size ) {
+                switch(binRequest->buffer[1]) {
+                    case UDS_TESTER_PRESENT_SUB_ZERO:
+                        buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        break;
+                    case UDS_TESTER_PRESENT_SUB_NOT_RESPONSE:
+                        buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        log_msg(LOG_DEBUG, "TODO (not sending anything back)");
+                        break;
+                    default:
+                        log_msg(LOG_INFO, "unsupported sub function %02hhX", binRequest->buffer[1]);
+                        responseStatus = false;
+                        buffer_append_byte(binResponse, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+                        break;
                 }
             } else {
                 responseStatus = false;
