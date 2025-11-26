@@ -24,7 +24,7 @@ char * UDS_DTC_to_string(final UDS_DTC * dtc) {
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
     dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
-    dtc->description = null;
+    dtc->description = list_DTC_DESCRIPTION_new();
     dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
