@@ -42,6 +42,7 @@ static VehicleState state = {
 static void uds_reset_default_session() {
     log_msg(LOG_DEBUG, "should reset controls and settings leaving in the ram");
     state.uds.security_access_granted = false;
+    state.uds.session_type = UDS_SESSION_DEFAULT;
 }
 static void * session_timer_daemon(void *arg) {
     while(state.uds.session_continue) {
@@ -203,9 +204,10 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
-                state.uds.session_type = binRequest->buffer[1];
-                if ( state.uds.session_type == UDS_SESSION_DEFAULT ) {
+                if ( binRequest->buffer[1] == UDS_SESSION_DEFAULT ) {
                     uds_reset_default_session();
+                } else {
+                    state.uds.session_type = binRequest->buffer[1];
                 }
                 buffer_append_byte(binResponse, state.uds.session_type);
                 buffer_append(binResponse, buffer_from_ints( 

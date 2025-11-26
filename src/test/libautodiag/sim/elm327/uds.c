@@ -54,7 +54,7 @@ bool testSimUDS() {
         assert(result->list[0]->size == 1);
         assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
         sleep(UDS_SESSION_TIMEOUT_MS/1000 - 1);
-        uds_tester_present(iface, false);
+        assert(uds_tester_present(iface, false));
         sleep(UDS_SESSION_TIMEOUT_MS/1000 + 1);
         result = uds_read_data_by_identifier(iface,
             UDS_DID_Active_Diagnostic_Session_Data_Identifier_information

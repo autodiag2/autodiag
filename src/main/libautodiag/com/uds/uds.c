@@ -58,6 +58,7 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
     viface_lock(iface);
     viface_send(iface, gprintf("%02hhX%02hhx", UDS_SERVICE_TESTER_PRESENT, UDS_TESTER_PRESENT_SUB_ZERO));
     viface_clear_data(iface);
+    viface_recv(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
         final ECU * ecu = iface->vehicle->ecus[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
