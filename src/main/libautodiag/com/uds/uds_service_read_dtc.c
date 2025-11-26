@@ -54,11 +54,17 @@ int list_UDS_DTC_cmp(final list_UDS_DTC * e1, final list_UDS_DTC * e2) {
 }
 AD_LIST_SRC(list_UDS_DTC);
 
-list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface) {
+static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
     list_list_UDS_DTC * result = list_list_UDS_DTC_new();
     viface_lock(iface);
     char * request;
-    asprintf(&request, "%02hhX%02hhX", UDS_SERVICE_READ_DTC_INFORMATION, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC);
+    asprintf(&request, "%02hhX%02hhX", UDS_SERVICE_READ_DTC_INFORMATION, sub);
+    if ( sub == UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK ) {
+        char * request2;
+        asprintf(&request2, "%s%02hhX", request, StatusMask);
+        free(request);
+        request = request2;
+    }
     viface_send(iface, request);
     free(request);
     viface_clear_data(iface);
@@ -78,7 +84,7 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
                 log_msg(LOG_DEBUG, "negative response found: ");
                 buffer_dump(data);
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                if ( (data->buffer[1] & UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC) == UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC ) {
+                if ( (data->buffer[1] & sub) == sub ) {
                     ecu_response->Status_Availability_Mask = data->buffer[2];
                     for(int i = 3; i < (data->size-DTC_DATA_SZ); i += (DTC_DATA_SZ+1)) {
                         final UDS_DTC * dtc = UDS_DTC_new();
@@ -98,7 +104,15 @@ list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface)
     viface_unlock(iface);
     return result;
 }
-
+list_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final byte StatusMask) {
+    return uds_read_dtcs_with_mask(iface, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
+}
+list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface) {
+    return uds_read_dtcs_with_mask(iface, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
+}
+list_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface) {
+    return uds_read_dtc_by_status_mask(iface, 0x00);
+}
 void uds_dtc_dump(final UDS_DTC * dtc) {
     log_msg(LOG_DEBUG, "%s", dtc->to_string(dtc));
 }

@@ -71,5 +71,10 @@ AD_LIST_H_DEEP(UDS_DTC,
 AD_LIST_H(list_UDS_DTC);
 
 list_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface);
+list_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final byte StatusMask);
+/**
+ * No matter if they're confirmed, report any DTC
+ */
+list_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface);
 
 #endif
