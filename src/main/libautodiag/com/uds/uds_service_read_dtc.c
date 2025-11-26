@@ -37,6 +37,11 @@ UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc) {
     return udtc;
 }
 void UDS_DTC_free(UDS_DTC * dtc) {
+    if ( dtc->description != null ) {
+        list_DTC_DESCRIPTION_free(dtc->description);
+        dtc->description = null;
+    }
+    dtc->ecu = null;
     free(dtc);
 }
 int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2) {
