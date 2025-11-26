@@ -20,7 +20,7 @@ bool testSimUDS() {
                 final Buffer * data = ecu->data_buffer->list[j];
                 assert(data->buffer[0] == UDS_NEGATIVE_RESPONSE);
                 assert(data->buffer[1] == UDS_SERVICE_READ_DATA_BY_IDENTIFIER);
-                assert(data->buffer[2] == UDS_NRC_INVALID_MESSAGE_LENGTH);
+                assert(data->buffer[2] == UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 passed = true;
             }
         }

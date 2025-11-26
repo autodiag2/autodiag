@@ -10,7 +10,7 @@ char * uds_nrc_to_string(final UDS_NRC nrc) {
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_GENERAL_REJECT), object_string_new_from("General reject"));
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_SERVICE_NOT_SUPPORTED), object_string_new_from("Service not supported"));
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_SUBFUNCTION_NOT_SUPPORTED), object_string_new_from("Sub-function not supported"));
-        object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_INVALID_MESSAGE_LENGTH), object_string_new_from("Invalid message length/format"));
+        object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_IncorrectMessageLengthOrInvalidFormat), object_string_new_from("Invalid message length/format"));
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_RESPONSE_TOO_LONG), object_string_new_from("Response too long"));
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_BUSY_REPEAT_REQUEST), object_string_new_from("Busy-repeat request"));
         object_hashmap_Int_string_set(nrc_to_string_map, object_Int_new_from(UDS_NRC_CONDITIONS_NOT_CORRECT), object_string_new_from("Conditions not correct"));

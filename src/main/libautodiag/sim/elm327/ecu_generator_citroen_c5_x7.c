@@ -9,6 +9,7 @@ typedef struct {
         int session_type;
         bool security_access_granted;
         list_UDS_DTC * dtcs;
+        byte DTCSupportedStatusMask;
     } uds;
     struct {
         list_DTC * dtcs;
@@ -22,7 +23,12 @@ static VehicleState state = {
     .uds = {
         .session_type = UDS_SESSION_DEFAULT,
         .security_access_granted = false,
-        .dtcs = null
+        .dtcs = null,
+        .DTCSupportedStatusMask = 
+            UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
+            UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
+            UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
+            UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
     },
     .obd = {
         .dtcs = null,
@@ -187,7 +193,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
             if ( 2 < binRequest->size ) {
                 if ( (binRequest->size-1) % 2 != 0 ) {
                     responseStatus = false;
-                    buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+                    buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 } else {
                     for(int i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
@@ -204,7 +210,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 }
             } else {
                 responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_READ_DTC_INFORMATION: {
@@ -212,22 +218,50 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 buffer_append_byte(binResponse, binRequest->buffer[1]);
                 switch(binRequest->buffer[1]) {
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
-                        buffer_append_byte(binResponse, 
-                            UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
-                            UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
-                            UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
-                            UDS_DTC_STATUS_TestNotCompletedThisOperationCycle | UDS_DTC_STATUS_WarningIndicatorRequested
-                        );
+                        buffer_append_byte(binResponse, state.uds.DTCSupportedStatusMask);
                         for(int i = 0; i < state.uds.dtcs->size; i++) {
                             final UDS_DTC * dtc = state.uds.dtcs->list[i];
                             buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
                             buffer_append_byte(binResponse, dtc->status);
                         }
                     } break;
+                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_SEVERITY_MASK_RECORD: {
+                        if ( binRequest->size <= 3 ) {
+                            responseStatus = false;
+                            buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                        } else {
+                            final byte DTCSeverityMask = binRequest->buffer[2];
+                            final byte DTCStatusMask = binRequest->buffer[3];
+                            buffer_append_byte(binResponse, state.uds.DTCSupportedStatusMask);
+                            for(int i = 0; i < state.uds.dtcs->size; i++) {
+                                final UDS_DTC * dtc = state.uds.dtcs->list[i];
+                                buffer_append_byte(binResponse, 0xFF); // DTCSeverity
+                                buffer_append_byte(binResponse, 0xFF); // DTCFunctionalUnit
+                                buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                                buffer_append_byte(binResponse, dtc->status);
+                            }
+                        }
+                    } break;
+                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK: {
+                        if ( binRequest->size <= 2 ) {
+                            responseStatus = false;
+                            buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                        } else {
+                            final byte DTCStatusMask = binRequest->buffer[2];
+                            buffer_append_byte(binResponse, state.uds.DTCSupportedStatusMask);
+                            for(int i = 0; i < state.uds.dtcs->size; i++) {
+                                final UDS_DTC * dtc = state.uds.dtcs->list[i];
+                                if ( (dtc->status & DTCStatusMask) == DTCStatusMask ) {
+                                    buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                                    buffer_append_byte(binResponse, dtc->status);
+                                }
+                            }
+                        }
+                    } break;
                 }
             } else {
                 responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_INVALID_MESSAGE_LENGTH);
+                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
