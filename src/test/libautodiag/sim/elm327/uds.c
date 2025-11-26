@@ -45,5 +45,23 @@ bool testSimUDS() {
         dtc = result_per_ecu->list[1];
         assert(strcmp(dtc->to_string(dtc), "P0104") == 0);
     }
+    {
+        assert(uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        list_Buffer *result = uds_read_data_by_identifier(iface,
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+        );
+        assert(result->size == 1);
+        assert(result->list[0]->size == 1);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
+        sleep(UDS_SESSION_TIMEOUT_MS/1000 - 1);
+        uds_tester_present(iface, false);
+        sleep(UDS_SESSION_TIMEOUT_MS/1000 + 1);
+        result = uds_read_data_by_identifier(iface,
+            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+        );
+        assert(result->size == 1);
+        assert(result->list[0]->size == 1);
+        assert(result->list[0]->buffer[0] == UDS_SESSION_DEFAULT);
+    }
     return true;
 }
