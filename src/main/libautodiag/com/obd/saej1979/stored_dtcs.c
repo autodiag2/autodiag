@@ -58,6 +58,7 @@ char * saej1979_dtc_to_string(final DTC * dtc) {
     buffer_append_bytes(dtc_bin, dtc->data, DTC_DATA_SZ);
     final byte type = (dtc_bin->buffer[0] & 0xC0) >> 6;
     dtc_bin->buffer[0] = (dtc_bin->buffer[0] & (~0xC0)) ;
+    dtc_bin->size -= 1;
     char *result;
     asprintf(&result, "%c%s",iso15031_dtc_type_first_letter(type),buffer_to_hex_string(dtc_bin));
     return result;
