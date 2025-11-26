@@ -543,11 +543,11 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
     return true;
 }
 
-bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response, final bool isGeneric) {
+bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_response, final bool isGeneric) {
     char * response;
     if ( isGeneric ) {
         asprintf(&response,"%s%s%s%s%s",
-            elm327->echo ? buffer : "", elm327->echo ? elm327->eol : "", 
+            elm327->echo ? serial_request : "", elm327->echo ? elm327->eol : "", 
             serial_response,
             elm327->eol,
             SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
@@ -578,9 +578,9 @@ bool sim_elm327_reply(SimELM327 * elm327, char * buffer, char * serial_response,
     return true;
 }
 char *lastBinCommand = null;
-bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffer, bool preventWrite) {
-    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", ascii_escape_breaking_chars(buffer), strlen(buffer));
-    char * command_reduced = serial_at_reduce(buffer);
+bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite) {
+    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", ascii_escape_breaking_chars(serial_request), strlen(serial_request));
+    char * command_reduced = serial_at_reduce(serial_request);
     int last_index;
     bool commandReconized = false;
     
@@ -590,7 +590,11 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         if ( ! preventWrite ) { \
             char *serial_response; \
             asprintf(&serial_response, __VA_ARGS__); \
-            if ( ! sim_elm327_reply(elm327, buffer, serial_response, isGeneric) ) { \
+            if ( ! sim_elm327_reply(elm327, serial_request, serial_response, isGeneric) ) { \
+                log_msg(LOG_ERROR, "Error while trying to reply to the command '%s' by '%s'", \
+                    ascii_escape_breaking_chars(serial_request), \
+                    ascii_escape_breaking_chars(serial_response) \
+                ); \
                 exit(1); \
             } \
         } \
@@ -603,8 +607,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
     #define SIM_ELM327_REPLY_ATI() \
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
 
-    if ( lastBinCommand != null && strlen(buffer) == 1 && buffer[0] == '\r' ) {
-        buffer = lastBinCommand;
+    if ( lastBinCommand != null && strlen(serial_request) == 1 && serial_request[0] == '\r' ) {
+        serial_request = lastBinCommand;
     }
     if AT_PARSE("al") {
         SIM_ELM327_REPLY_OK();
@@ -961,14 +965,13 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
             asprintf(&tmp,"0%s", mask);
             strcpy(mask,tmp);
             free(tmp);
-            SIM_ELM327_REPLY_OK();  
             parsed = true;              
         } else if ( sscanf(AT_DATA_START, "%8s", mask) == 1 ) {
-            SIM_ELM327_REPLY_OK();   
             parsed = true;                 
         }
         if ( parsed ) {
             elm327->can.mask = buffer_from_ascii_hex(mask);
+            SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("csm") {
         SIM_ELM327_REPLY_OK();                    
@@ -980,24 +983,23 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
         if ( sscanf(AT_DATA_START, "%3s", filter) == 1 ) {
             char * tmp;
             asprintf(&tmp,"0%s", filter);
-            strcpy(filter,tmp);free(tmp);
-            SIM_ELM327_REPLY_OK();       
+            strcpy(filter,tmp);free(tmp);   
             parsed = true;         
         } else if ( sscanf(AT_DATA_START, "%8s", filter) == 1 ) {
-            SIM_ELM327_REPLY_OK();    
             parsed = true;                
         }
         if ( parsed) {
             elm327->can.filter = buffer_from_ascii_hex(filter);
+            SIM_ELM327_REPLY_OK();    
         }                    
     } else {
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if AT_PARSE("cs") {
                 SIM_ELM327_REPLY_GENERIC("T:00 R:00 ")
             } else {
-                char * response = sim_elm327_bus(elm327,buffer);
+                char * response = sim_elm327_bus(elm327,serial_request);
                 if ( response != null ) {
-                    lastBinCommand = strdup(buffer);
+                    lastBinCommand = strdup(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }
@@ -1008,16 +1010,16 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* buffe
                 } else if AT_PARSE("si") {
                     SIM_ELM327_REPLY_OK();
                 } else {
-                    char * response = sim_elm327_bus(elm327,buffer);
+                    char * response = sim_elm327_bus(elm327,serial_request);
                     if ( response != null ) {
-                        lastBinCommand = strdup(buffer);
+                        lastBinCommand = strdup(serial_request);
                         SIM_ELM327_REPLY_GENERIC("%s", response);
                     }                
                 }
             } else {
-                char * response = sim_elm327_bus(elm327,buffer);
+                char * response = sim_elm327_bus(elm327,serial_request);
                 if ( response != null ) {
-                    lastBinCommand = strdup(buffer);
+                    lastBinCommand = strdup(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }
