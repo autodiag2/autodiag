@@ -32,7 +32,7 @@ UDS_DTC * UDS_DTC_new() {
     return dtc;
 }
 char * UDS_DTC_explanation(final UDS_DTC * dtc) {
-    char * result = strdup("");
+    char * result = strdup("This code has been detected with UDS");
     for(int i = 1; i < 256; i *= 2) {
         char * status_string = uds_dtc_status_to_string(i);
         assert(status_string != null);

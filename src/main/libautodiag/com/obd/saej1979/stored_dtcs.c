@@ -4,7 +4,7 @@ SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
     dtc->description = list_DTC_DESCRIPTION_new();
     dtc->to_string = CAST_DTC_TO_STRING(saej1979_dtc_to_string);
-    dtc->explanation = CAST_DTC_EXPLANATION(saej1979_dtc_categorization_string);
+    dtc->explanation = CAST_DTC_EXPLANATION(saej1979_dtc_explanation);
     dtc->ecu = null;
     return dtc;
 }
@@ -91,11 +91,11 @@ Buffer* saej1979_dtc_bin_from_string(final char *dtc_string) {
     }
 }
 
-char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc) {
+char * saej1979_dtc_explanation(final SAEJ1979_DTC * dtc) {
     char * res;
     char * sub = iso15031_dtc_to_subsystem_string(dtc->number);
     char * type = iso15031_dtc_type_to_string(dtc->type);
-    asprintf(&res,"Fault on %s, this is a %s DTC\nIt is related to %s\n",
+    asprintf(&res,"This code has been detected with SAEJ1979/OBD\nFault on %s, this is a %s DTC\nIt is related to %s\n",
         type, iso15031_dtc_is_generic_code(dtc->number[0]) ? "generic" : "manufacturer specific",
         sub  
     );

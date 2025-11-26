@@ -27,7 +27,7 @@ typedef struct {
 
 SAEJ1979_DTC * saej1979_dtc_new();
 void saej1979_dtc_free(SAEJ1979_DTC *dtc);
-char * saej1979_dtc_categorization_string(final SAEJ1979_DTC * dtc);
+char * saej1979_dtc_explanation(final SAEJ1979_DTC * dtc);
 
 /**
  * Service 03 retrieve stored DTCs
