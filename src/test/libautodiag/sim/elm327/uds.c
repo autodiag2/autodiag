@@ -80,5 +80,11 @@ bool testSimUDS() {
         assert(result->list[0]->size == 1);
         assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
     }
+    {
+        assert(uds_request_session_cond(iface, UDS_SESSION_DEFAULT));
+        assert(!uds_security_access_ecu_generator_citroen_c5_x7(iface));
+        assert(uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        assert(uds_security_access_ecu_generator_citroen_c5_x7(iface));
+    }
     return true;
 }
