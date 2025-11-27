@@ -20,6 +20,7 @@
 #endif
 #ifndef bool
  #define bool int
+ #define bool_unset 2
 #endif
 
 typedef unsigned char byte;

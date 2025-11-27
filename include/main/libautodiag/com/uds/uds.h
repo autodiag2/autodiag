@@ -155,6 +155,14 @@ bool uds_is_enabled(final VehicleIFace *iface);
 bool uds_tester_present(final VehicleIFace *iface, final bool response);
 void uds_viface_start_tester_present_timer(final VehicleIFace * iface);
 void uds_viface_stop_tester_present_timer(final VehicleIFace * iface);
+#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED 0x01
+#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY 0x02
+#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY 0b0001000100010001
+/**
+ * Unlock ECU for programming and other capabilities
+ */
+bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface);
+int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 

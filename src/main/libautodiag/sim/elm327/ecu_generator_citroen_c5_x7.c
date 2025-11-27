@@ -311,9 +311,35 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
             }
         } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
-            log_msg(LOG_DEBUG, "TODO");
-            state.uds.security_access_granted = true;
-            buffer_append(binResponse, buffer_new_random(2));
+            if ( 1 < binRequest->size ) {
+                final int seed = 0x4321;
+                switch(binRequest->buffer[1]) {
+                    case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED: {
+                        buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        buffer_append_byte(binResponse, seed >> 8);
+                        buffer_append_byte(binResponse, seed & 0xFF);
+                    } break;
+                    case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY: {
+                        assert(3 < binRequest->size);
+                        int encrypted = binRequest->buffer[2] << 8 | binRequest->buffer[3];
+                        int decrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
+                        if ( seed == decrypted ) {
+                            buffer_append_byte(binResponse, binRequest->buffer[1]);
+                            state.uds.security_access_granted = true;
+                        } else {
+                            responseStatus = false;
+                            buffer_append_byte(binResponse, UDS_NRC_SECURITY_ACCESS_DENIED);
+                        }
+                    } break;
+                    default: {
+                        responseStatus = false;
+                        buffer_append_byte(binResponse, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+                    } break;
+                }
+            } else {
+                responseStatus = false;
+                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
         } break;
     }
     return responseStatus;
