@@ -164,7 +164,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
                         object_Int_new_from(false)
                     );
                 } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                    assert(3 < data->size);
+                    assert(1 < data->size);
                     assert(data->buffer[1] == UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY);
                     object_hashmap_Int_Int_set(
                         verify,
@@ -187,6 +187,8 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
             result &= verify->values[i]->value; 
         }
     }
+    object_hashmap_Int_Int_free(verify);
+    object_hashmap_Int_Int_free(seeds);
     return result == bool_unset ? false : result;
 }
 object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {

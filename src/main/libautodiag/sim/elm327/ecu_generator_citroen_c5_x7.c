@@ -323,6 +323,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                         assert(3 < binRequest->size);
                         int encrypted = binRequest->buffer[2] << 8 | binRequest->buffer[3];
                         int decrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
+                        log_msg(LOG_DEBUG, "From emu: encrypted received: 0x%X decrypted to 0x%X", encrypted, decrypted);
                         if ( seed == decrypted ) {
                             buffer_append_byte(binResponse, binRequest->buffer[1]);
                             state.uds.security_access_granted = true;
