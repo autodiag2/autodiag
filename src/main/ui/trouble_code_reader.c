@@ -3,7 +3,7 @@
 TroubleCodeReaderGui * gui = null;
 list_DTC * list_dtc = null;
 
-MENUBAR_DATA_SOURCE_ALL_IN_ONE
+MENUBAR_DATA_ALL_IN_ONE
 
 static void clear_dtc_description() {
     gtk_text_buffer_set_text(gui->dtc.explanationText, "", 0);
@@ -365,7 +365,7 @@ void module_init_read_codes(GtkBuilder *builder) {
         gtk_check_menu_item_set_active(gui->menuBar.data.obd.stored, true);
         gtk_check_menu_item_set_active(gui->menuBar.data.uds.origin, true);
 
-        MENUBAR_DATA_SOURCE_CONNECT();
+        MENUBAR_DATA_CONNECT();
         
     } else {
         module_debug(MODULE_CODES_READER, "Module already initialized");

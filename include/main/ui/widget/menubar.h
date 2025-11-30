@@ -1,7 +1,7 @@
 #ifndef __UI_LIB_MENUBAR_H
 #define __UI_LIB_MENUBAR_H
 
-#define MENUBAR_DATA_SOURCE_ALL_IN_ONE \
+#define MENUBAR_DATA_ALL_IN_ONE \
 static void menubar_data_filter_by_on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data){ \
     ECU *ecu=g_object_get_data(G_OBJECT(check_item),"ecu"); \
     if(gtk_check_menu_item_get_active(check_item))viface_recv_filter_add(config.ephemere.iface,ecu->address); \
@@ -58,7 +58,7 @@ static void menubar_data_all(GtkMenuItem *item,gpointer user_data){ \
     viface_recv_filter_clear(config.ephemere.iface); \
 }
 
-#define MENUBAR_DATA_SOURCE_CONNECT() \
+#define MENUBAR_DATA_CONNECT() \
     g_signal_connect(gui->menuBar.data.all, "activate", G_CALLBACK(menubar_data_all), null); \
     gui->menuBar.data.filter_by_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(gui->menuBar.data.filter_by)); \
     ehh_register(config.ephemere.iface->vehicle->internal.events.onECURegister, menubar_data_filter_by_register); \

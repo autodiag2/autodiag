@@ -5,7 +5,7 @@ static pthread_t *refresh_dynamic_thread = null;
 static list_Graph *graphs = null;
 static pthread_mutex_t graphs_mutex;
 
-MENUBAR_DATA_SOURCE_ALL_IN_ONE
+MENUBAR_DATA_ALL_IN_ONE
 
 static void button_click_clean_up_routine(void *arg) {
     obd_thread_cleanup_routine(arg);
@@ -921,7 +921,7 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-freeze-frame-error-ok",G_CALLBACK(&freeze_frame_error_ok));
         gtk_builder_add_callback_symbol(builder,"window-vehicle-explorer-data-freeze-frame",&data_freeze_frame);
 
-        MENUBAR_DATA_SOURCE_CONNECT()
+        MENUBAR_DATA_CONNECT()
 
     } else {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
