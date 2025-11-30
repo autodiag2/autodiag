@@ -78,19 +78,24 @@ int file_pool_write(void *handle, int timeout_ms) {
                 for(tries = 0; tries < max_tries && readLen == 0; tries++) {
                     COMSTAT stat = {0};
                     DWORD errors = 0;
-                    ClearCommError(connection_handle, &errors, &stat);
+                    if ( ! ClearCommError(connection_handle, &errors, &stat) ) {
+                        return -1;
+                    }
                     /* if no flow-control hold, port is writable */
-                    if (!(stat.fCtsHold || stat.fOutxCtsFlow || stat.fRlsdHold)) {
-                        break;
+                    if (!(stat.fCtsHold || stat.fOutxCtsFlow || stat.fRlsdHold) && stat.cbOutQue == 0) {
+                        return 1;
                     }
                     usleep(1000 * sleep_length_ms);
                 }
+            } else {
+                DWORD err = GetLastError();
+                if ( err == ERROR_BROKEN_PIPE || err == ERROR_PIPE_NOT_CONNECTED ) {
+                    return -1;
+                }
+                return 1;
             }
-            if ( tries == max_tries) {
-                return 0;
-            }
+            return 0;
         }
-        return 1;
     #elif defined OS_POSIX
         struct pollfd pfd = {
             .fd     = *((int*)handle),
