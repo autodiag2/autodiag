@@ -78,14 +78,14 @@ int file_pool_write(void *handle, int timeout_ms) {
             final int max_tries = timeout_ms / sleep_length_ms ;
             int tries = 0;
             if (isComPort(connection_handle)) {
-                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
+                for(tries = 0; tries < max_tries; tries++) {
                     COMSTAT stat = {0};
                     DWORD errors = 0;
                     if ( ! ClearCommError(connection_handle, &errors, &stat) ) {
                         return -1;
                     }
                     /* if no flow-control hold, port is writable */
-                    if (!(stat.fCtsHold || stat.fOutxCtsFlow || stat.fRlsdHold) && stat.cbOutQue == 0) {
+                    if (!(stat.fCtsHold || stat.fDsrHold || stat.fRlsdHold || stat.fXoffHold) && stat.cbOutQue == 0) {
                         return 1;
                     }
                     usleep(1000 * sleep_length_ms);
