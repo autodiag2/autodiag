@@ -178,7 +178,8 @@ static void output_clear() {
 
 static void custom_clear() {
     gtk_entry_set_text(gui->customCommandInput,"");
-    gtk_label_set_text(gui->tooltip,"");    
+    gtk_label_set_text(gui->tooltip,"");
+    commandHistoryIndex = -1;   
 }
 
 static void output_copy() {
