@@ -29,6 +29,7 @@ static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpoin
             } else {
                 gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
                 gtk_label_set_text(gui->tooltip, "");
+                gtk_editable_set_position(GTK_EDITABLE(entry), -1);
             }
             return TRUE;
 
@@ -42,6 +43,7 @@ static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpoin
             } else {
                 gtk_entry_set_text(GTK_ENTRY(entry), commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data);
                 gtk_label_set_text(gui->tooltip, "");
+                gtk_editable_set_position(GTK_EDITABLE(entry), -1);
             }
             return TRUE;
 
