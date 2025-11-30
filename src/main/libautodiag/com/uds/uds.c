@@ -1,5 +1,41 @@
 #include "libautodiag/com/uds/uds.h"
 
+bool uds_clear_dtcs(final VehicleIFace * iface) {
+    bool result = bool_unset;
+    if ( ! uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {
+        return false;
+    }
+    final byte emissionRelatedDTC = 0xFF;
+    final byte group2RelatedDTC = 0xFF;
+    final byte group3RelatedDTC = 0xFF;
+    viface_lock(iface);
+    viface_send(iface, gprintf("%02hhX%02hhX%02hhX%02hhX", 
+        UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION, emissionRelatedDTC, group2RelatedDTC, group3RelatedDTC
+    ));
+    viface_clear_data(iface);
+    viface_recv(iface);
+    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
+        final ECU * ecu = iface->vehicle->ecus[i];
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            final Buffer * data = ecu->data_buffer->list[j];
+            if ( result == bool_unset ) {
+                result = true;
+            }
+            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                log_msg(LOG_DEBUG, "negative response found: ");
+                buffer_dump(data);
+                result &= false;
+            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                result &= true;
+            } else {
+                log_msg(LOG_WARNING, "Unknown byte at first");
+                buffer_dump(data);
+            }
+        }
+    }
+    viface_unlock(iface);
+    return result == bool_unset ? false : result;
+}
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
     list_Buffer * result = list_Buffer_new();
     viface_lock(iface);

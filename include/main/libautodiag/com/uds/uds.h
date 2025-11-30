@@ -164,6 +164,11 @@ void uds_viface_stop_tester_present_timer(final VehicleIFace * iface);
 bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface);
 int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed);
 
+/**
+ * Clear diagnostic information.
+ */
+bool uds_clear_dtcs(final VehicleIFace * iface);
+
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
 #endif

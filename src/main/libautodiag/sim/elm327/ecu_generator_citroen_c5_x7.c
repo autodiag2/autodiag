@@ -310,6 +310,15 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
                 buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
+        case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
+            if ( 3 < binRequest->size ) {
+                list_DTC_clear(state.uds.dtcs);
+                buffer_slice_append(binResponse, binRequest, 1, 3);
+            } else {
+                responseStatus = false;
+                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
             if ( 1 < binRequest->size ) {
                 final int seed = 0x4321;

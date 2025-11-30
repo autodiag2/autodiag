@@ -206,9 +206,20 @@ static void clear_codes_daemon_internal() {
     gtk_spinner_start(gui->actionWaitIcon);
     final VehicleIFace* iface = config.ephemere.iface;
     if ( ! trouble_code_reader_error_feedback_obd(iface) ) {
+        bool at_least_one = false;
         if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
             saej1979_clear_dtc_and_stored_values(iface);
-        } else {
+            at_least_one = true;
+        }
+        if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
+            if ( uds_clear_dtcs(iface) ) {
+                log_msg(LOG_DEBUG, "DTCs(UDS) successfully cleared");
+            } else {
+                log_msg(LOG_ERROR, "Error while clearing DTCs(UDS)");
+            }
+            at_least_one = true;
+        }
+        if ( ! at_least_one ) {
             log_msg(LOG_WARNING, "Data configuration do not allow to send the request");
         }
     }
