@@ -313,6 +313,8 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
             if ( 3 < binRequest->size ) {
                 list_DTC_clear(state.uds.dtcs);
+                list_DTC_clear(state.obd.dtcs);
+                log_msg(LOG_DEBUG, "Should apply the group mask from the request");
                 buffer_slice_append(binResponse, binRequest, 1, 3);
             } else {
                 responseStatus = false;
