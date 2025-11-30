@@ -30,7 +30,13 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #endif
     int bytes_sent = 0;
     int write_len_rv = 0;
-    final int poll_result = file_pool_write(&port->implementation->fdtty, port->timeout);
+    #if defined OS_WINDOWS
+        final int poll_result = file_pool_write(&port->implementation->connexion_handle, port->timeout);
+    #elif defined OS_POSIX
+        final int poll_result = file_pool_write(&port->implementation->fdtty, port->timeout);
+    #else
+    #   warning OS unsupported
+    #endif
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
