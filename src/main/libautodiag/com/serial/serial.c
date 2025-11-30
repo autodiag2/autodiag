@@ -102,9 +102,15 @@ int serial_recv_internal(final Serial * port) {
                 DWORD bytes_readed = 0;
 
                 int readLen = 0;
-                file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout);
+                int res = file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout);
+
+                if ( res == -1 ) {
+                    log_msg(LOG_ERROR, "Error while polling");
+                } else if ( res == 0 ) {
+                    log_msg(LOG_WARNING, "Timeout while polling");
+                }
                 
-                while(0 < readLen) {
+                while(0 < res && 0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
                     if ( ReadFile(port->implementation->connexion_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
                         if( readLen == bytes_readed ) {
@@ -119,7 +125,12 @@ int serial_recv_internal(final Serial * port) {
                     } else {
                         log_msg(LOG_ERROR, "ReadFile error 2");
                     }
-                    file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
+                    res = file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
+                    if ( res == -1 ) {
+                        log_msg(LOG_ERROR, "Error while polling");
+                    } else if ( res == 0 ) {
+                        log_msg(LOG_WARNING, "Timeout while polling");
+                    }
                 }
             }
         #elif defined OS_POSIX
@@ -127,9 +138,8 @@ int serial_recv_internal(final Serial * port) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
             } else {
-                int res = 1;
                 int block_sz = 64;
-                res = file_pool_read(&port->implementation->fdtty, null, port->timeout);
+                int res = file_pool_read(&port->implementation->fdtty, null, port->timeout);
                 if ( 0 < res ) {
                     while( 0 < res && port->implementation->fdtty != -1 ) {
                         buffer_ensure_capacity(port->recv_buffer, block_sz);

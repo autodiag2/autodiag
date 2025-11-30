@@ -512,6 +512,7 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
         }
         if ( file_pool_read(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
             log_msg(LOG_ERROR, "Error while pooling");
+            return false;
         }
         DWORD readedBytes = 0;
         final int success = ReadFile(elm327->implementation->pipe_handle, buffer->buffer, buffer->size_allocated-1, &readedBytes, 0);
