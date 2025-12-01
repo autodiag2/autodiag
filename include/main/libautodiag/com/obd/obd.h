@@ -63,10 +63,10 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
 #define OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(list_Buffer,handler,_expected_pid) { \
     int expected_pid = _expected_pid; \
     final Vehicle* v = iface->vehicle; \
-    for(int i = 0; i < v->ecus_len; i++) { \
+    for(unsigned int i = 0; i < v->ecus_len; i++) { \
         final ECU* ecu = v->ecus[i]; \
         if ( 0 < list_Buffer->size ) { \
-            for(unsigned int j = list_Buffer->size-1; 0 <= j; j--) { \
+            for(int j = list_Buffer->size-1; 0 <= j; j--) { \
                 Buffer * data = list_Buffer->list[j]; \
                 if ( 0 < data->size ) { \
                     Buffer * data_copy = buffer_copy(data); \
