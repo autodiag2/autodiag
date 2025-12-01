@@ -7,7 +7,9 @@ class VehicleIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
         ("vehicle", POINTER(Vehicle)),
-        ("state", c_int)
+        ("state", c_int),
+        ("uds_enabled", c_bool),
+        ("uds_tester_present_timer", c_void_p)
     ]
 
     def __new__(cls):
