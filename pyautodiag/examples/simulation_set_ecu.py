@@ -14,7 +14,7 @@ def custom_sim_ecu_generator_response(generator_ptr, binRequest_ptr, binResponse
 class CustomECUGenerator(SimECUGenerator):
     def __init__(self):
         self.context = None
-        self.response_for_python = custom_sim_ecu_generator_response
+        self.response = custom_sim_ecu_generator_response
         self.type = "custom".encode()
 
 assert emulation.get_ecu(0xE8) is not None

@@ -14,7 +14,7 @@ def custom_sim_ecu_generator_response(this_ptr, binRequest_ptr, binResponse_ptr)
 class CustomECUGenerator(SimECUGenerator):
     def __init__(self):
         self.context = None
-        self.response_for_python = custom_sim_ecu_generator_response
+        self.response = custom_sim_ecu_generator_response
         self.type = "custom".encode()
 
 from autodiag.lib import *

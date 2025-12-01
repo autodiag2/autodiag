@@ -45,7 +45,7 @@ def test_saej1979():
     class CustomECUGenerator(SimECUGenerator):
         def __init__(self):
             self.context = None
-            self.response_for_python = custom_sim_ecu_generator_response
+            self.response = custom_sim_ecu_generator_response
             self.type = "custom".encode()
             
     log_set_level(LOG_DEBUG)

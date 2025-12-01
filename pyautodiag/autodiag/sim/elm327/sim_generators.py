@@ -14,8 +14,8 @@ SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE = CFUNCTYPE(
 SimECUGenerator._fields_ = [
     ("context", c_void_p),
     ("type", char_p),
-    ("response", c_void_p),
-    ("response_for_python", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE),
+    ("response_trashed", c_void_p),
+    ("response", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE),
 ]
 
 class SimECUGeneratorRandom(SimECUGenerator):
