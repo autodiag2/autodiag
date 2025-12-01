@@ -7,11 +7,13 @@ static void cycle_iterate(int service_id, int pid, unsigned gears) {
     cycle_percent[service_id][pid] %= 100;
 }
 
-static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
+static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
     }
+    final Buffer *binResponse = buffer_new();
+    sim_ecu_generator_fill_success(binResponse, binRequest);
 
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
@@ -106,7 +108,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
     cycle_iterate(binRequest->buffer[0],
         1 < binRequest->size ? binRequest->buffer[1] : 0,
         gears);
-    return true;
+    return binResponse;
 }
 
 SimECUGenerator* sim_ecu_generator_new_cycle() {

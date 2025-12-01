@@ -18,8 +18,10 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
-static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
+static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    final Buffer *binResponse = buffer_new();
+    sim_ecu_generator_fill_success(binResponse, binRequest);
     
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_CURRENT_DATA: {
@@ -119,7 +121,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
         } break;
 
     }
-    return true;
+    return binResponse;
 }
 
 SimECUGenerator* sim_ecu_generator_new_gui() {

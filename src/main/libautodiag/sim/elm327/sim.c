@@ -63,7 +63,6 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
 char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request, bool hasSpaces) {
     char * response = null;
     Buffer* binRequest = buffer_new();
-    Buffer* binResponse = buffer_new();
     char * end_ptr = strstr(request,elm327->eol);
 
     int szToRemove = 0;
@@ -101,11 +100,15 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         log_msg(LOG_ERROR, "No obd/uds data provided");        
         return null;
     }
-    final bool responseStatus = ecu->generator->response(ecu->generator, binResponse, binRequest);
+    final Buffer* binResponse = ecu->generator->response(ecu->generator, binRequest);
     if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
-        log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
-        buffer_recycle(binResponse);
-        response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+        if ( 0 < binResponse->size ) {
+            if ( (binResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
+                log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
+                buffer_recycle(binResponse);
+                response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            }
+        }
     }
     if ( 0 < binResponse->size ) {
         assert(response == null);
@@ -116,26 +119,8 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             
             final Buffer * responseBodyChunk = buffer_new();
             bool iso_15765_is_multi_message_ff = false;
-            bool hasPid = false;
-            switch(binRequest->buffer[0]) {
-                case OBD_SERVICE_SHOW_CURRENT_DATA:
-                case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-                case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
-                    hasPid = true;
-                    break;
-            }
 
             if ( responseBodyIndex == 0 ) {
-                if ( responseStatus ) {
-                    buffer_append_byte(responseBodyChunk, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
-                    if ( hasPid ) {
-                        buffer_append_byte(responseBodyChunk, binRequest->buffer[1]);
-                    }
-                } else {
-                    buffer_append_byte(responseBodyChunk, OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE);
-                    buffer_append_byte(responseBodyChunk, binRequest->buffer[0]);
-                    buffer_append(responseBodyChunk, binResponse);
-                }
                 iso_15765_is_multi_message = 7 < binResponse->size;
                 if ( iso_15765_is_multi_message ) {
                     iso_15765_is_multi_message_ff = true;
@@ -161,8 +146,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             } else {
                 if ( iso_15765_is_multi_message ) {
                     if ( iso_15765_is_multi_message_ff ) {
-                        int extra_size = 1 + hasPid;
-                        asprintf(&response, "%03d%s", extra_size + binResponse->size, elm327->eol);
+                        asprintf(&response, "%03d%s", binResponse->size, elm327->eol);
                     }
                     asprintf(&header,"%d:", iso_15765_multi_message_sn);
                 }
@@ -173,7 +157,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
                     if ( iso_15765_is_multi_message ) {
                         if ( iso_15765_is_multi_message_ff ) {
                             log_msg(LOG_DEBUG, "reply first frame");
-                            int bytesSent = binResponse->size + 1 + hasPid;
+                            int bytesSent = binResponse->size;
                             int dl11_8 = (bytesSent & 0x0F00) >> 8;
                             final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                             final byte dl7_0 = bytesSent & 0xFF;

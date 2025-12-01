@@ -91,11 +91,12 @@ static bool uds_service_allowed(byte service_id) {
     return false;
 }
 
-static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
+static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
+    final Buffer *binResponse = buffer_new();
+    sim_ecu_generator_fill_success(binResponse, binRequest);
     start_or_update_session_timer();
 
-    bool responseStatus = true;
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -105,7 +106,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
 
     if ( service_is_uds(binRequest->buffer[0]) ) {
         if ( ! uds_service_allowed(binRequest->buffer[0]) ) {
-            buffer_append_byte(binResponse, UDS_NRC_CONDITIONS_NOT_CORRECT);
+            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_CONDITIONS_NOT_CORRECT);
             return false;
         }
     }
@@ -218,8 +219,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
         case UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
             if ( 2 < binRequest->size ) {
                 if ( (binRequest->size-1) % 2 != 0 ) {
-                    responseStatus = false;
-                    buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 } else {
                     for(int i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
@@ -235,8 +235,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                     }
                 }
             } else {
-                responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_READ_DTC_INFORMATION: {
@@ -253,8 +252,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                     } break;
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_SEVERITY_MASK_RECORD: {
                         if ( binRequest->size <= 3 ) {
-                            responseStatus = false;
-                            buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                         } else {
                             final byte DTCSeverityMask = binRequest->buffer[2];
                             final byte DTCStatusMask = binRequest->buffer[3];
@@ -270,8 +268,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                     } break;
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK: {
                         if ( binRequest->size <= 2 ) {
-                            responseStatus = false;
-                            buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                         } else {
                             final byte DTCStatusMask = binRequest->buffer[2];
                             buffer_append_byte(binResponse, state.uds.DTCSupportedStatusMask);
@@ -286,8 +283,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                     } break;
                 }
             } else {
-                responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_TESTER_PRESENT: {
@@ -302,13 +298,11 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                         break;
                     default:
                         log_msg(LOG_INFO, "unsupported sub function %02hhX", binRequest->buffer[1]);
-                        responseStatus = false;
-                        buffer_append_byte(binResponse, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+                        sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
                         break;
                 }
             } else {
-                responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
@@ -318,8 +312,7 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                 log_msg(LOG_DEBUG, "Should apply the group mask from the request");
                 buffer_slice_append(binResponse, binRequest, 1, 3);
             } else {
-                responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
@@ -340,22 +333,19 @@ static bool response(SimECUGenerator *generator, final Buffer *binResponse, fina
                             buffer_append_byte(binResponse, binRequest->buffer[1]);
                             state.uds.security_access_granted = true;
                         } else {
-                            responseStatus = false;
-                            buffer_append_byte(binResponse, UDS_NRC_SECURITY_ACCESS_DENIED);
+                            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_SECURITY_ACCESS_DENIED);
                         }
                     } break;
                     default: {
-                        responseStatus = false;
-                        buffer_append_byte(binResponse, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
+                        sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_SUBFUNCTION_NOT_SUPPORTED);
                     } break;
                 }
             } else {
-                responseStatus = false;
-                buffer_append_byte(binResponse, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
     }
-    return responseStatus;
+    return binResponse;
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
