@@ -5,15 +5,17 @@ class SimECUGenerator(Structure):
     pass
 
 SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE = CFUNCTYPE(
-    c_void_p,
+    None,
     POINTER(SimECUGenerator),
+    POINTER(Buffer),
     POINTER(Buffer)
 )
 
 SimECUGenerator._fields_ = [
     ("context", c_void_p),
     ("type", char_p),
-    ("response", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE)
+    ("response", c_void_p),
+    ("response_for_python", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE),
 ]
 
 class SimECUGeneratorRandom(SimECUGenerator):

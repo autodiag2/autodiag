@@ -8,10 +8,9 @@ from autodiag.sim.elm327.sim_generators import *
 
 def test_saej1979():
     temperature = 0
-    binResponse = Buffer()
     @SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
-    def custom_sim_ecu_generator_response(generator_ptr, binRequest):
-        binResponse.recycle()
+    def custom_sim_ecu_generator_response(generator_ptr, binRequest, binResponse_ptr):
+        binResponse = binResponse_ptr.contents
         hexString = binRequest.contents.to_hex_string()
         print(hexString, hexString == "0100", hexString == "0105", hexString == "0101")
         if hexString == "0105":
@@ -40,13 +39,13 @@ def test_saej1979():
             D = 0b00000000
             binResponse.append_byte(D)
         else:
-            binResponse.append_str("error triggering response")
-        return cast(pointer(binResponse), c_void_p)
+            # NO DATA
+            pass
 
     class CustomECUGenerator(SimECUGenerator):
         def __init__(self):
             self.context = None
-            self.response = custom_sim_ecu_generator_response
+            self.response_for_python = custom_sim_ecu_generator_response
             self.type = "custom".encode()
             
     log_set_level(LOG_DEBUG)

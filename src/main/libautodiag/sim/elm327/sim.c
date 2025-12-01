@@ -100,7 +100,12 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         log_msg(LOG_ERROR, "No obd/uds data provided");        
         return null;
     }
-    final Buffer* binResponse = ecu->generator->response(ecu->generator, binRequest);
+    Buffer* binResponse = buffer_new();
+    if ( ecu->generator->response_for_python != null ) {
+        ecu->generator->response_for_python(ecu->generator, binRequest, binResponse);
+    } else {
+        binResponse = ecu->generator->response(ecu->generator, binRequest);
+    }
     assert(binResponse != null);
     if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
         if ( 0 < binResponse->size ) {

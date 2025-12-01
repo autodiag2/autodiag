@@ -4,6 +4,7 @@ SimECUGenerator * sim_ecu_generator_new() {
     SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
     generator->response = null;
+    generator->response_for_python = null;
     generator->type = null;
     return generator;
 }

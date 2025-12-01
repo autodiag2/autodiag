@@ -8,6 +8,7 @@ typedef struct SimECUGenerator {
     void *context;
     char *type;
     Buffer * (*response)(struct SimECUGenerator * this, final Buffer *binRequest);
+    void (*response_for_python)(struct SimECUGenerator * this, final Buffer *binRequest, final Buffer * binResponse);
 } SimECUGenerator;
 
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, Buffer * binRequest, byte nrc);
