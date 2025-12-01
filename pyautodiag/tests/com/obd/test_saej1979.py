@@ -12,10 +12,14 @@ def test_saej1979():
     def custom_sim_ecu_generator_response(generator_ptr, binRequest):
         binResponse = Buffer()
         hexString = binRequest.contents.to_hex_string()
-        print(hexString)
+        print(hexString, hexString == "0105", hexString == "0101")
         if hexString == "0105":
+            binResponse.append_byte(0x41)
+            binResponse.append_byte(0x05)
             binResponse.append_byte(temperature + 40)
         elif hexString == "0101":
+            binResponse.append_byte(0x41)
+            binResponse.append_byte(0x01)
             # mil on, 2 dtcs
             A = 0b10000010
             binResponse.append_byte(A)
@@ -28,7 +32,7 @@ def test_saej1979():
             D = 0b00000000
             binResponse.append_byte(D)
         else:
-            binResponse.append_str("NO DATA")
+            binResponse.append_str("error triggering response")
         return cast(pointer(binResponse), c_void_p)
 
     class CustomECUGenerator(SimECUGenerator):
