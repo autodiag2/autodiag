@@ -156,7 +156,7 @@ static void read_codes_daemon_internal() {
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
                     list_DTC_append_list(list_dtc_uds, uds_read_all_dtcs(iface, filter));
-                    for(int i = 0; i < list_dtc_uds->size; i++) {
+                    for(unsigned int i = 0; i < list_dtc_uds->size; i++) {
                         final DTC * dtc = list_dtc_uds->list[i];
                         if ( list_DTC_contains(list_dtc_obd, dtc) ) {
                             list_object_string_append(dtc->detection_method, object_string_new_from("OBD"));
@@ -165,7 +165,7 @@ static void read_codes_daemon_internal() {
                     list_DTC_append_list(list_dtc_buffer, list_dtc_uds);
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
-                    for(int i = 0; i < list_dtc_obd->size; i ++) {
+                    for(unsigned int i = 0; i < list_dtc_obd->size; i ++) {
                         final DTC * dtc = list_dtc_obd->list[i];
                         if ( ! list_DTC_contains(list_dtc_buffer, dtc)) {
                             list_DTC_append(list_dtc_buffer, dtc);
@@ -269,13 +269,13 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
         final DTC *dtc = (DTC*)g_object_get_data(rowLabel, "dtc");
         assert(dtc != null);
 
-        for(int i = 0; i < dtc->description->size; i++) {
+        for(unsigned int i = 0; i < dtc->description->size; i++) {
             DTC_DESCRIPTION desc = dtc->description->list[i];
             append_multi_manufacturer_explanation(gui->dtc.causeSolutionText,&desc,desc.solution);
             append_multi_manufacturer_explanation(gui->dtc.descriptionText,&desc,desc.reason);
         }
         final char * explanation = strdup("Detection methods: ");
-        for(int i = 0; i < dtc->detection_method->size; i++) {
+        for(unsigned int i = 0; i < dtc->detection_method->size; i++) {
             char * dm = dtc->detection_method->list[i]->data;
             char * result;
             asprintf(&result, "%s%s ", explanation, dm);

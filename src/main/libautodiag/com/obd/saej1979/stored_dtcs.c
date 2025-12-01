@@ -20,7 +20,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
     if ( result == null ) { \
         result = list_DTC_new(); \
     } \
-    for(int byte = 0; byte < data_buffer->size-1; byte += 2) { \
+    for(unsigned int byte = 0; 0 < data_buffer->size && byte < data_buffer->size-1; byte += 2) { \
         unsigned char byte_0 = data_buffer->buffer[byte]; \
         unsigned char byte_1 = data_buffer->buffer[byte+1]; \
         if ( byte_0 == 0 && byte_1 == 0 ) { \

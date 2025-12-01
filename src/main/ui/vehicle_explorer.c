@@ -316,7 +316,7 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
         glist = glist->next;
     }
     list_SAEJ1979_DATA_Test *testsList = data;
-    for(int i = 0; i < testsList->size; i ++) {
+    for(unsigned int i = 0; i < testsList->size; i ++) {
         SAEJ1979_DATA_Test * test = testsList->list[i];
         GtkBox * box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         gtk_container_add(GTK_CONTAINER(box), gtk_label_new(test->name));
@@ -516,7 +516,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     GraphData * data_0 = graph->data->list[0];
     double min_val = data_0->data, max_val = data_0->data;
     double min_time = data_0->time, max_time = data_0->time;
-    for (int i = 1; i < graph->data->size; i++) {
+    for (unsigned int i = 1; i < graph->data->size; i++) {
         GraphData * data = graph->data->list[i];
         if (data->data < min_val) min_val = data->data;
         if (data->data > max_val) max_val = data->data;
@@ -624,7 +624,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     double y = y_centered ? margin_top + (height - margin_top - margin_bottom) / 2.0
                           : height - margin_bottom - (data_0->data - min_val) * y_scale;
     cairo_move_to(cr, x, y);
-    for (int i = 1; i < graph->data->size; i++) {
+    for (unsigned int i = 1; i < graph->data->size; i++) {
         final GraphData * data = graph->data->list[i];
         x = x_offset + (data->time - min_time) * x_scale;
         y = y_centered ? margin_top + (height - margin_top - margin_bottom) / 2.0
@@ -719,7 +719,7 @@ static void graphs_add() {
 }
 static void* graphs_reset_data_daemon(void *arg) {
     pthread_mutex_lock(&graphs_mutex);
-    for(int i = 0; i < graphs->size; i++) {
+    for(unsigned int i = 0; i < graphs->size; i++) {
         list_GraphData_free(graphs->list[i]->data);
         graphs->list[i]->data = list_GraphData_new();
     }

@@ -221,7 +221,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 if ( (binRequest->size-1) % 2 != 0 ) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 } else {
-                    for(int i = 1; i < (binRequest->size-1); i+=2) {
+                    for(unsigned int i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
                         buffer_append(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
                         switch(did) {

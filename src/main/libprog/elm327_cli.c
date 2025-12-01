@@ -108,6 +108,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 logger.current_level = log_level_from_str(optarg);
             } break;
             case 'g': {
+                assert(0 < sim->ecus->size);
                 final SimECU * target_ecu = sim->ecus->list[sim->ecus->size - 1];
                 final SimECUGenerator * generator;
                 if ( strcasecmp(optarg, "random") == 0 ) {

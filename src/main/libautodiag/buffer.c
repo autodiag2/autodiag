@@ -138,8 +138,13 @@ void buffer_prepend(final Buffer* dest, final Buffer * src) {
     buffer_prepend_bytes(dest, src->buffer, src->size);
 }
 void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned int size) {
+    if ( size == 0 ) {
+        return;
+    }
+    assert(dest != null);
+    assert(data != null);
     buffer_ensure_capacity(dest, size);
-    for(int i = dest->size_allocated - 1; size <= i; i--) {
+    for(unsigned int i = dest->size_allocated - 1; size <= i; i--) {
         dest->buffer[i] = dest->buffer[i-size];
     }
     memcpy(dest->buffer, data, size);

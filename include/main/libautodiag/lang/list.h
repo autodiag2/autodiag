@@ -149,12 +149,12 @@
     return 0 <= index; \
 }
 
-#define AD_LIST_H_REMOVE_AT(element_type) element_type* list_##element_type##_remove_at(list_##element_type* list, int i)
+#define AD_LIST_H_REMOVE_AT(element_type) element_type* list_##element_type##_remove_at(list_##element_type* list, unsigned int i)
 #define AD_LIST_SRC_REMOVE_AT(element_type) AD_LIST_H_REMOVE_AT(element_type) { \
     assert(list != null); \
     assert(i < list->size); \
     final element_type * res = list->list[i]; \
-    for(int j = i; j < (list->size-1); j++) { \
+    for(unsigned int j = i; j < (list->size-1); j++) { \
         list->list[j] = list->list[j+1]; \
     } \
     list->size --; \

@@ -202,7 +202,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
 void sim_elm327_debug(final SimELM327 * elm327) {
     printf("SimELM327: {\n");
     printf("    ecus %p (list: %p, size: %d): {\n", elm327->ecus, elm327->ecus->list, elm327->ecus->size);
-    for(int i = 0; i < elm327->ecus->size; i++) {
+    for(unsigned int i = 0; i < elm327->ecus->size; i++) {
         SimECU * sim_ecu = elm327->ecus->list[i];
         SimECUGenerator * generator = sim_ecu->generator;
         printf("        ecu: %p {\n", sim_ecu);
