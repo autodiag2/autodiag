@@ -12,7 +12,7 @@ bool saej1979_vehicle_info_is_pid_supported(final VehicleIFace* iface, final int
     }
 
 SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
-    void*,saej1979_vehicle_info_discover_vin,buffer_new(),
+    void*,saej1979_vehicle_info_discover_vin,null,
     "02",saej1979_vehicle_info_discover_vin_iterator
 )
 
