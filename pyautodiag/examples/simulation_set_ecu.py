@@ -7,14 +7,14 @@ from autodiag.sim.elm327.sim_generators import *
 log_set_level(LOG_DEBUG)
 emulation = SimELM327()
 
-@SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE
-def custom_sim_ecu_generator_response(generator_ptr, response_ptr, binResponse, binRequest):
-    response_ptr[0] = c_char_p(b"OK")
+@SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
+def custom_sim_ecu_generator_response(generator_ptr, binRequest_ptr, binResponse_ptr):
+    pass
 
 class CustomECUGenerator(SimECUGenerator):
     def __init__(self):
         self.context = None
-        self.sim_ecu_generator_response = custom_sim_ecu_generator_response
+        self.response_for_python = custom_sim_ecu_generator_response
         self.type = "custom".encode()
 
 assert emulation.get_ecu(0xE8) is not None
