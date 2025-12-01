@@ -7,7 +7,6 @@ from autodiag.com.obd.saej1979 import SAEJ1979
 from autodiag.sim.elm327.sim_generators import *
 
 def test_saej1979():
-
     temperature = 0
     @SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
     def custom_sim_ecu_generator_response(generator_ptr, binRequest):
@@ -15,29 +14,27 @@ def test_saej1979():
         hexString = binRequest.contents.to_hex_string()
         print(hexString)
         if hexString == "0105":
-            binResponse.contents.append_byte(temperature + 40)
+            binResponse.append_byte(temperature + 40)
         elif hexString == "0101":
             # mil on, 2 dtcs
             A = 0b10000010
-            binResponse.contents.append_byte(A)
+            binResponse.append_byte(A)
             # Compression ingnition, first and last test present but only the first is complete
             B = 0b01001101
-            binResponse.contents.append_byte(B)
+            binResponse.append_byte(B)
             # No engine specific tests
             C = 0b00000000
-            binResponse.contents.append_byte(C)
+            binResponse.append_byte(C)
             D = 0b00000000
-            binResponse.contents.append_byte(D)
+            binResponse.append_byte(D)
         else:
-            # TODO response_ptr[0] = c_char_p(b"OK")
-            pass
-
-        return pointer(binResponse)
+            binResponse.append_str("NO DATA")
+        return cast(pointer(binResponse), c_void_p)
 
     class CustomECUGenerator(SimECUGenerator):
         def __init__(self):
             self.context = None
-            self.sim_ecu_generator_response = custom_sim_ecu_generator_response
+            self.response = custom_sim_ecu_generator_response
             self.type = "custom".encode()
             
     log_set_level(LOG_DEBUG)
