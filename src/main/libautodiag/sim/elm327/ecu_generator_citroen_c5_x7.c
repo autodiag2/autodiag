@@ -91,7 +91,7 @@ static bool uds_service_allowed(byte service_id) {
     return false;
 }
 
-static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
     
     start_or_update_session_timer();
 
@@ -142,7 +142,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state.obd.dtcs);
-            (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {            

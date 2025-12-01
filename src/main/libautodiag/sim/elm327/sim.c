@@ -101,7 +101,12 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         log_msg(LOG_ERROR, "No obd/uds data provided");        
         return null;
     }
-    final bool responseStatus = ecu->generator->response(ecu->generator, &response, binResponse, binRequest);
+    final bool responseStatus = ecu->generator->response(ecu->generator, binResponse, binRequest);
+    if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
+        log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
+        buffer_recycle(binResponse);
+        response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+    }
     if ( 0 < binResponse->size ) {
         assert(response == null);
         bool iso_15765_is_multi_message = false;

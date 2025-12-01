@@ -7,7 +7,7 @@ static void cycle_iterate(int service_id, int pid, unsigned gears) {
     cycle_percent[service_id][pid] %= 100;
 }
 
-static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
@@ -30,7 +30,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
 
         case OBD_SERVICE_CLEAR_DTC: {
-            (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
         } break;
 
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {

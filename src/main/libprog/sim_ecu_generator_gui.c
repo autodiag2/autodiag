@@ -18,7 +18,7 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
-static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     
     switch(binRequest->buffer[0]) {
@@ -115,7 +115,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
-            (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
         } break;
 
     }

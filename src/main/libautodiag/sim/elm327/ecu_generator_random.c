@@ -1,7 +1,7 @@
 #include "libautodiag/sim/elm327/sim_generators.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
-static bool response(SimECUGenerator *generator, char ** response, final Buffer *binResponse, final Buffer *binRequest) {
+static bool response(SimECUGenerator *generator, final Buffer *binResponse, final Buffer *binRequest) {
     unsigned * seed = generator->context;
     if ( seed == null ) {
         seed = (unsigned*)malloc(sizeof(unsigned));
@@ -25,7 +25,7 @@ static bool response(SimECUGenerator *generator, char ** response, final Buffer 
         } break;
 
         case OBD_SERVICE_CLEAR_DTC: {
-            (*response) = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
         } break;
 
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
