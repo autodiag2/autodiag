@@ -8,15 +8,23 @@ from autodiag.sim.elm327.sim_generators import *
 
 def test_saej1979():
     temperature = 0
+    binResponse = Buffer()
     @SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
     def custom_sim_ecu_generator_response(generator_ptr, binRequest):
-        binResponse = Buffer()
+        binResponse.recycle()
         hexString = binRequest.contents.to_hex_string()
-        print(hexString, hexString == "0105", hexString == "0101")
+        print(hexString, hexString == "0100", hexString == "0105", hexString == "0101")
         if hexString == "0105":
             binResponse.append_byte(0x41)
             binResponse.append_byte(0x05)
             binResponse.append_byte(temperature + 40)
+        elif hexString == "0100":
+            binResponse.append_byte(0x41)
+            binResponse.append_byte(0x00)
+            binResponse.append_byte(0xFF)
+            binResponse.append_byte(0xFF)
+            binResponse.append_byte(0xFF)
+            binResponse.append_byte(0xFF)
         elif hexString == "0101":
             binResponse.append_byte(0x41)
             binResponse.append_byte(0x01)

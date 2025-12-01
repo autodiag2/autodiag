@@ -2,8 +2,8 @@ from autodiag.libloader import *
 
 class Buffer(Structure):
     _fields_ = [
-        ("size_allocated", c_int),
-        ("size", c_int),
+        ("size_allocated", c_uint),
+        ("size", c_uint),
         ("buffer", POINTER(c_ubyte))
     ]
 
