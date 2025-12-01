@@ -4,18 +4,16 @@ from autodiag.buffer import Buffer
 class SimECUGenerator(Structure):
     pass
 
-SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE = CFUNCTYPE(
-    None,
+SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE = CFUNCTYPE(
+    c_void_p,
     POINTER(SimECUGenerator),
-    POINTER(char_p),
-    POINTER(Buffer),
     POINTER(Buffer)
 )
 
 SimECUGenerator._fields_ = [
     ("context", c_void_p),
     ("type", char_p),
-    ("sim_ecu_generator_response", SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE)
+    ("response", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE)
 ]
 
 class SimECUGeneratorRandom(SimECUGenerator):

@@ -140,7 +140,7 @@ class SimELM327(Structure):
             if generator:
                 print(f"                context: {addr(generator.context)}")
                 print(f"                type: {addr(generator.type)} {generator.type.decode() if generator.type else 'NULL'}")
-                print(f"                sim_ecu_generator_response: {addr(generator.sim_ecu_generator_response)}")
+                print(f"                sim_ecu_generator_response: {addr(generator.response)}")
             else:
                 print("                NULL")
             print("            }")
