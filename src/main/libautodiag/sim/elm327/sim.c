@@ -185,7 +185,8 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
             response = tmpResponse;
         }
     }
-    buffer_free(binResponse);
+    // leave this commented else when setting custom generators with python there is issues
+    // buffer_free(binResponse);
     buffer_free(binRequest);
     return response;
 }
