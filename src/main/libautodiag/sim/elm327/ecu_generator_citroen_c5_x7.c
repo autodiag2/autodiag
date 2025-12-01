@@ -107,7 +107,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     if ( service_is_uds(binRequest->buffer[0]) ) {
         if ( ! uds_service_allowed(binRequest->buffer[0]) ) {
             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_CONDITIONS_NOT_CORRECT);
-            return false;
+            return binResponse;
         }
     }
 
