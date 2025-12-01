@@ -9,9 +9,9 @@ from autodiag.sim.elm327.sim_generators import *
 def test_saej1979():
     temperature = 0
     @SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
-    def custom_sim_ecu_generator_response(generator_ptr, binRequest, binResponse_ptr):
+    def custom_sim_ecu_generator_response(generator_ptr, binRequest_ptr, binResponse_ptr):
         binResponse = binResponse_ptr.contents
-        hexString = binRequest.contents.to_hex_string()
+        hexString = binRequest_ptr.contents.to_hex_string()
         print(hexString, hexString == "0100", hexString == "0105", hexString == "0101")
         if hexString == "0105":
             binResponse.append_byte(0x41)
