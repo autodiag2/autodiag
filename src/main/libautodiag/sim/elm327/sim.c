@@ -101,6 +101,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
         return null;
     }
     final Buffer* binResponse = ecu->generator->response(ecu->generator, binRequest);
+    assert(binResponse != null);
     if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
         if ( 0 < binResponse->size ) {
             if ( (binResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
