@@ -71,8 +71,9 @@ static bool uds_service_allowed(byte service_id) {
         case UDS_SERVICE_READ_DATA_BY_IDENTIFIER:
             return true;
         
-        case UDS_SERVICE_ECU_RESET:
         case UDS_SERVICE_SECURITY_ACCESS:
+            return state.uds.session_type == UDS_SESSION_PROGRAMMING;
+        case UDS_SERVICE_ECU_RESET:
         case UDS_SERVICE_REQUEST_DOWNLOAD:
         case UDS_SERVICE_REQUEST_UPLOAD:
         case UDS_SERVICE_TRANSFER_DATA:
@@ -81,7 +82,7 @@ static bool uds_service_allowed(byte service_id) {
         case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
         case UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
         case UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS:
-            return state.uds.session_type == UDS_SESSION_PROGRAMMING;
+            return state.uds.session_type == UDS_SESSION_PROGRAMMING && state.uds.security_access_granted;
 
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
             return state.uds.session_type == UDS_SESSION_EXTENDED_DIAGNOSTIC;
