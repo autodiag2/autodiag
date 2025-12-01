@@ -8,17 +8,17 @@ log_set_level(LOG_DEBUG)
 emulation = SimELM327()
 
 @SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE
-def custom_sim_ecu_generator_response(binRequest):
-    response_ptr[0] = c_char_p(b"OK")
+def custom_sim_ecu_generator_response(this_ptr, binRequest_ptr, binResponse_ptr):
+    pass
 
 class CustomECUGenerator(SimECUGenerator):
     def __init__(self):
         self.context = None
-        self.sim_ecu_generator_response = custom_sim_ecu_generator_response
+        self.response_for_python = custom_sim_ecu_generator_response
         self.type = "custom".encode()
 
 from autodiag.lib import *
-callback = SimECUGenerator.CALLBACK_OBD_SIM_RESPONSE(custom_sim_ecu_generator_response)
+callback = SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE(custom_sim_ecu_generator_response)
 from ctypes import cast, c_void_p
 print("Function address:", hex(cast(callback, c_void_p).value))
 print(addr(byref(emulation.ecus.contents.list[0])))
