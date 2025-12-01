@@ -117,7 +117,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
-            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
+            log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
 
     }

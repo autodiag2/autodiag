@@ -143,7 +143,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state.obd.dtcs);
-            buffer_append_byte(binResponse, 0xAA); // Random byte so the response is not empty
+            log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {            
