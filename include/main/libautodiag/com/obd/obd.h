@@ -46,7 +46,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
     for(int i = 0; i < v->ecus_len; i++) { \
         final ECU* ecu = v->ecus[i]; \
         if ( 0 < list_Buffer->size ) { \
-            for(unsigned int j = list_Buffer->size-1; 0 <= j; j--) { \
+            for(int j = list_Buffer->size-1; 0 <= j; j--) { \
                 Buffer * data = list_Buffer->list[j]; \
                 handler(data); \
             } \
