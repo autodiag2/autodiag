@@ -3,8 +3,12 @@
 #include "libautodiag/com/uds/uds.h"
 
 void viface_close(final VehicleIFace* iface) {
+    if ( iface->state == VIFaceState_NOT_READY ) {
+        return;
+    }
     uds_viface_stop_tester_present_timer(iface);
-    iface->device->close(iface->device);    
+    assert(iface->device != null);
+    iface->device->close(iface->device);
 }
 
 int viface_send(final VehicleIFace* iface, const char *request) {
@@ -54,42 +58,49 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
     uds_viface_stop_tester_present_timer(iface);
     if ( strcmp(device->type, "serial") == 0 ) {
         Serial * serial = (Serial*)device;
-        if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
-            log_msg(LOG_ERROR, "Error while openning serial port");
+        if ( serial->status != SERIAL_STATE_READY ) {
+            if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
+                log_msg(LOG_ERROR, "Error while openning serial port");
+                viface_open_abort(iface);
+                return false;
+            }
+        }
+        serial_lock(serial);
+        final char ati_request[] = "ati\r\n";
+        if ( serial_send_internal(serial, ati_request, strlen(ati_request)) == strlen(ati_request) ) {
+            buffer_recycle(serial->recv_buffer);
+            if ( serial_recv_internal(serial) <= 0 ) {
+                log_msg(LOG_ERROR, "Error while receiving ATI response");
+                serial_unlock(serial);
+                viface_open_abort(iface);
+                return false;
+            }
+        } else {
+            log_msg(LOG_ERROR, "Error while sending ATI command");
+            serial_unlock(serial);
             viface_open_abort(iface);
             return false;
+        }
+        buffer_ensure_termination(serial->recv_buffer);
+        log_msg(LOG_DEBUG, "ATI response: %s", serial->recv_buffer->buffer);
+        if ( 
+            strstr(serial->recv_buffer->buffer, "ELM") != null ||
+            strstr(serial->recv_buffer->buffer, "elm") != null
+        ) {
+            ELMDevice * elm = elm_open_from_serial(serial);
+            if ( elm == null ) {
+                log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
+                serial_unlock(serial);
+                viface_open_abort(iface);
+                return false;
+            }
+            iface->device = CAST_DEVICE(elm);
+            iface->device->unlock(CAST_ELM_DEVICE(iface->device));
         } else {
-            final char ati_request[] = "ati\r\n";
-            if ( serial_send_internal(serial, ati_request, strlen(ati_request)) == strlen(ati_request) ) {
-                buffer_recycle(serial->recv_buffer);
-                if ( serial_recv_internal(serial) <= 0 ) {
-                    log_msg(LOG_ERROR, "Error while receiving ATI response");
-                    viface_open_abort(iface);
-                    return false;
-                }
-            } else {
-                log_msg(LOG_ERROR, "Error while sending ATI command");
-                viface_open_abort(iface);
-                return false;
-            }
-            buffer_ensure_termination(serial->recv_buffer);
-            log_msg(LOG_DEBUG, "ATI response: %s", serial->recv_buffer->buffer);
-            if ( 
-                strstr(serial->recv_buffer->buffer, "ELM") != null ||
-                strstr(serial->recv_buffer->buffer, "elm") != null
-            ) {
-                ELMDevice * elm = elm_open_from_serial(serial);
-                if ( elm == null ) {
-                    log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
-                    viface_open_abort(iface);
-                    return false;
-                }
-                iface->device = CAST_DEVICE(elm);
-            } else {
-                log_msg(LOG_ERROR, "Unknown serial device type identification: '%s' aborting", serial->recv_buffer->buffer);
-                viface_open_abort(iface);
-                return false;
-            }
+            log_msg(LOG_ERROR, "Unknown serial device type identification: '%s' aborting", serial->recv_buffer->buffer);
+            serial_unlock(serial);
+            viface_open_abort(iface);
+            return false;
         }
     } else {
         log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);

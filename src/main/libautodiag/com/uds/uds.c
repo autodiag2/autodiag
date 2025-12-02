@@ -143,8 +143,10 @@ void uds_viface_start_tester_present_timer(final VehicleIFace * iface) {
 }
 void uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
     if ( iface->uds_tester_present_timer != null ) {
+        pthread_t thread = *(iface->uds_tester_present_timer);
         free(iface->uds_tester_present_timer);
         iface->uds_tester_present_timer = null;
+        pthread_join(thread, null);
     }
 }
 int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
