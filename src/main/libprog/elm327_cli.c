@@ -14,6 +14,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " -g            : list available generators\n"
     " -g generator  : set the generator of values\n"
     " -c context    : context for the generator\n"
+    " --clear-nvm   : delete the file storing nvm (pps, protocol)\n"
     "\n"
     "Examples:\n"
     " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
@@ -77,6 +78,10 @@ int sim_elm327_cli_main(int argc, char **argv) {
     argForEach() {
         if ( argIs("-h") || argIs("--help") || argIs("help") ) {
             sim_elm327_cli_display_help();
+            return 0;
+        } else if argIs("--clear-nvm") {
+            sim_elm327_non_volatile_wipe_out();
+            printf("NVM deleted\n");
             return 0;
         } else if argIs("-e") {
             argNext();
