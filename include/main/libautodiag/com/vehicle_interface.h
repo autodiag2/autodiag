@@ -17,6 +17,9 @@ typedef struct {
      * Data structure representing the data received from the vehicle itself.
      */
     Vehicle * vehicle;
+    /**
+     * State of this interface, whether ready to communicate with the vehicle or not.
+     */
     int state;
     /**
      * Does have uds on the current connexion.
