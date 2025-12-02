@@ -1,6 +1,4 @@
-#include "libautodiag/sim/elm327/sim_generators.h"
-#include "libautodiag/com/serial/elm/elm327/elm327.h"
-#include "libautodiag/com/uds/uds.h"
+#include "libautodiag/sim/ecu/generator.h"
 
 typedef struct {
     Buffer * vin;

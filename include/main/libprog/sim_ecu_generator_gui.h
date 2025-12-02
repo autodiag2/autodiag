@@ -2,7 +2,7 @@
 #define __SIM_OBD_GENERATORS_H
 
 #include "libautodiag/sim/elm327/elm327.h"
-#include "libautodiag/sim/elm327/sim_generators.h"
+#include "libautodiag/sim/ecu/generator.h"
 
 #include "libprog/ui/gtk.h"
 #include "libprog/ui/counter.h"

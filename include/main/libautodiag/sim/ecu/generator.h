@@ -1,8 +1,9 @@
-#ifndef __SIM_SIM_ELM327_GENERATORS_H
-#define __SIM_SIM_ELM327_GENERATORS_H
+#ifndef __SIM_ECU_GENERATOR_H
+#define __SIM_ECU_GENERATOR_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/obd/obd.h"
+#include "libautodiag/com/uds/uds.h"
 
 typedef struct SimECUGenerator {
     void *context;

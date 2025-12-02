@@ -1,5 +1,5 @@
 #include "libTest.h"
-#include "libautodiag/sim/elm327/sim_generators.h"
+#include "libautodiag/sim/ecu/generator.h"
 #include "libautodiag/com/uds/uds.h"
 
 bool testUDS() {

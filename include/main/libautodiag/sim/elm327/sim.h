@@ -1,7 +1,7 @@
 #ifndef __SIM_H
 #define __SIM_H
 
-#include "sim_generators.h"
+#include "libautodiag/sim/ecu/generator.h"
 #include "libautodiag/com/uds/uds.h"
 
 struct _SimELM327;

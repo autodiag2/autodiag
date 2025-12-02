@@ -1,5 +1,4 @@
-#include "libautodiag/sim/elm327/sim_generators.h"
-#include "libautodiag/com/serial/elm/elm327/elm327.h"
+#include "libautodiag/sim/ecu/generator.h"
 
 static int cycle_percent[0xFF][0xFF] = {0};
 static void cycle_iterate(int service_id, int pid, unsigned gears) {
