@@ -33,6 +33,10 @@ static char * ELMResponseStr[] = {
 int elm_guess_response(final char * buffer);
 int elm_linefeeds(final Serial * port, final bool state);
 int elm_echo(final Serial * port, final bool state);
+/**
+ * Make the elm to print it's identification string
+ * @warning there is no lock of interface here, caller must ensure exclusive access to the device
+ */
 char * elm_print_id(final Serial * port);
 /**
  * Try to open an elm device from the provided serial
