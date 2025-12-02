@@ -190,6 +190,9 @@ uninstall:
 			rm -f "$(INSTALL_LIB_FOLDER)/$$(basename "$${bin}")"; \
 		fi; \
 	done
+doc:
+	doxygen
+	@-echo "Documentation generated in output/doc/html/index.html"
 help:
 	@-echo "Development setup"
 	@-echo " install      		- copy files"
@@ -212,6 +215,7 @@ help:
 	@-echo " distWindows  		- package in an installer for windows"
 	@-echo " distMacOS    		- package as DMG for macOS"
 	@-echo " newVersion   		- create a new version"
+	@-echo " doc 		 		- generate documentation"
 	@-echo "Configuration variables"
 	@-echo " TOOLCHAIN           - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
 	@-echo " INSTALL_DATA_FOLDER - where to install application data"
