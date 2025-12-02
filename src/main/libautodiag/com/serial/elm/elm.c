@@ -150,34 +150,26 @@ void elm_debug(final ELMDevice * elm) {
 }
 
 ELMDevice* elm_open_from_serial(final Serial * port) {
-    if ( port == null ) {
-        return null;
-    } else {
-        if ( serial_open(port) == GENERIC_FUNCTION_ERROR ) {
-            log_msg(LOG_ERROR, "Error while openning serial port");
-            return null;
-        } else {
-            ELMDevice* device = elm_open_from_serial_internal(&port);
-            if ( device == null ) {
-                log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time");
-                serial_query_at_command(port, "d");
-                serial_reset_to_default(port);
-                device = elm_open_from_serial_internal(&port);
-                if ( device == null ) {
-                    log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time");
-                    elm_echo(port,false);
-                    port->echo = false;
-                    elm_linefeeds(port,false);
-                    port->eol = strdup("\r");
-                    device = elm_open_from_serial_internal2(&port);
-                }
-            }
-            if ( device == null ) {
-                log_msg(LOG_WARNING, "Everything has been tried but device config has failed");
-            }
-            return device;
+    assert(port != null);
+    ELMDevice* device = elm_open_from_serial_internal(&port);
+    if ( device == null ) {
+        log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time");
+        serial_query_at_command(port, "d");
+        serial_reset_to_default(port);
+        device = elm_open_from_serial_internal(&port);
+        if ( device == null ) {
+            log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time");
+            elm_echo(port,false);
+            port->echo = false;
+            elm_linefeeds(port,false);
+            port->eol = strdup("\r");
+            device = elm_open_from_serial_internal2(&port);
         }
     }
+    if ( device == null ) {
+        log_msg(LOG_WARNING, "Everything has been tried but device config has failed");
+    }
+    return device;
 }
 
 void elm_ascii_to_bin_with_device(final ELMDevice * elm, final Buffer * bin, final char * ascii, final char * end_ptr) {

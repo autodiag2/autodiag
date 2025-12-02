@@ -54,14 +54,20 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
     uds_viface_stop_tester_present_timer(iface);
     if ( strcmp(device->type, "serial") == 0 ) {
         Serial * serial = (Serial*)device;
-        log_msg(LOG_INFO, "TODO: should test if ati contains ELM, if so, launch elm open from serial");
-        ELMDevice * elm = elm_open_from_serial(serial);
-        if ( elm == null ) {
-            log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
+        if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
+            log_msg(LOG_ERROR, "Error while openning serial port");
             viface_open_abort(iface);
             return false;
+        } else {
+            log_msg(LOG_INFO, "TODO: should test if ati contains ELM, if so, launch elm open from serial");
+            ELMDevice * elm = elm_open_from_serial(serial);
+            if ( elm == null ) {
+                log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
+                viface_open_abort(iface);
+                return false;
+            }
+            iface->device = CAST_DEVICE(elm);
         }
-        iface->device = CAST_DEVICE(elm);
     } else {
         log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);
         viface_open_abort(iface);
