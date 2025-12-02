@@ -17,49 +17,50 @@ int serial_cli_main(int argc, char *argv[]) {
     config_load();
     module_init_serial();
 
-    int opt;
-    optind = 1;
-    while ((opt = getopt(argc, argv, "hb:n:l:")) != -1) {
-        switch (opt) {
-            case 'h': {
-                serial_cli_help("");
-                return 0;
-            } break;
-            case 'b': {
-                config.com.serial.baud_rate = atoi(optarg);
-            } break;
-            case 'n': {
-                config.com.serial.device_location = strdup(optarg);
-            } break;
-            case 'l': {
-                config.log.level = log_level_from_str(optarg);
-                log_set_level(config.log.level);
-            } break;
-            case '?': {
-                switch(optopt) {
-                    case 'n': {
-                        printf("Ports available:\n");
-                        for(int i = 0; i < list_serial.size; i++) {
-                            Serial * port = list_serial.list[i];
-                            printf(" %s\n", port->location);
-                        }
-                        return 0;
-                    } break;
-                    case 'l': {
-                        printf("log levels:\n");
-                        printf("none\n");
-                        printf("error\n");                        
-                        printf("warning\n");                        
-                        printf("info\n");                        
-                        printf("debug\n");    
-                        break; 
-                    } break;
-                    default: {
-                        serial_cli_help("");
-                        return 1;
-                    }
+    argForEach() {
+        if ( argIs("-h") || argIs("help") || argIs("--help") ) {
+            serial_cli_help("");
+            return 0;
+        } else if argIs("-b") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("-b require the baud rate as argument\n");
+                return 1;
+            } else {
+                config.com.serial.baud_rate = atoi(arg);
+            }
+        } else if argIs("-n") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("Ports available:\n");
+                for(int i = 0; i < list_serial.size; i++) {
+                    Serial * port = list_serial.list[i];
+                    printf(" %s\n", port->location);
                 }
-            } break;
+                return 0;
+            } else {
+                config.com.serial.device_location = strdup(arg);
+            }
+        } else if argIs("-l") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("log levels:\n");
+                printf("none\n");
+                printf("error\n");                        
+                printf("warning\n");                        
+                printf("info\n");                        
+                printf("debug\n"); 
+                return 0; 
+            } else {
+                config.log.level = log_level_from_str(arg);
+                log_set_level(config.log.level);
+            }  
+        } else {
+            printf("Unknown argument '%s', aborting\n", argCurrent());
+            return 1;
         }
     }
 

@@ -1,9 +1,9 @@
 #ifndef __CLI_TOOLS_H
 #define __CLI_TOOLS_H
 
+#define argForEach() for(int i = 1; i < argc; i++)
 #define argNext() i++;
 #define argIs(value) ( i < argc && strcmp(argv[i],value) == 0 )
-#define argForEach() for(int i = 1; i < argc; i++)
 #define argCurrentIndex() i
 #define argCurrent() ( i < argc ? argv[i] : null)
 
