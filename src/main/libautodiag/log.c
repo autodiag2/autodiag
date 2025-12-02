@@ -2,7 +2,8 @@
 
 Logger logger = {
     .current_level = LOG_ERROR,
-    .show_timestamp = false
+    .show_timestamp = false,
+    .show_code_location = false
 };
 
 bool log_is_env_set() {
@@ -14,7 +15,11 @@ void log_set_from_env() {
     if ( logLevel == null ) {
         log_set_level(LOG_DEFAULT_LEVEL);
     } else {
-        log_set_level(log_level_from_str(logLevel));
+        LogLevel level = log_level_from_str(logLevel);
+        if ( level == LOG_DEBUG ) {
+            logger.show_code_location = true;
+        }
+        log_set_level(level);
     }
 }
 
@@ -56,19 +61,22 @@ char *log_get_current_time() {
     asprintf(&ctime, "%02d/%02d/%04d %02d:%02d:%02d.%03ld ", localtm->tm_mday, localtm->tm_mon, 1900 + localtm->tm_year, localtm->tm_hour, localtm->tm_min, localtm->tm_sec, tv.tv_usec/1000);
     return ctime;
 }
-
-void log_msg(LogLevel level, char *format, ...) {
+void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) {
     if ( level <= logger.current_level ) {
 
         va_list ap;
 
         va_start(ap, format);
 
-        final char * header;
+        final char * header = strdup("");
+        if ( logger.show_code_location ) {
+            asprintf(&header, "%s:%d: ", file, line);
+        }
         if ( logger.show_timestamp ) {
-            header = log_get_current_time();
-        } else {
-            header = strdup("");
+            char * tmpHeader;
+            asprintf(&tmpHeader, "%s%s: ", header, log_get_current_time());
+            free(header);
+            header = tmpHeader;
         }
 
         char *formatMod;

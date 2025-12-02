@@ -25,14 +25,18 @@ typedef enum {
 typedef struct {
     LogLevel current_level;
     bool show_timestamp;
+    bool show_code_location;
 } Logger;
 
 extern Logger logger;
 
+#define log_msg(level, msg, ...) \
+    log_msg_internal(level, __FILE__, __LINE__, msg, ##__VA_ARGS__)
+
 /**
  * @param level N
  */
-void log_msg(LogLevel level, char *msg, ...);
+void log_msg_internal(LogLevel level, char * file, int line, char *msg, ...);
 void module_debug(char * modname, char *msg);
 void module_debug_init(char * modname);
 void log_set_level(final LogLevel level);
