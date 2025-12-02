@@ -1,4 +1,5 @@
 from autodiag.libloader import *
+import inspect
 
 LogLevel = c_int
 LOG_NONE = 0
@@ -7,8 +8,8 @@ LOG_WARNING = 2
 LOG_INFO = 3
 LOG_DEBUG = 4
 
-lib.log_msg.argtypes = [LogLevel, c_char_p]
-lib.log_msg.restype = None
+lib.log_msg_internal.argtypes = [LogLevel, c_char_p, c_int, c_char_p]
+lib.log_msg_internal.restype = None
 
 lib.module_debug.argtypes = [c_char_p, c_char_p]
 lib.module_debug.restype = None
@@ -34,10 +35,12 @@ lib.log_set_from_env.restype = None
 
 lib.log_is_env_set.restype = bool
 
-
 def log_msg(msg: str, level=LOG_DEBUG, *args):
-    formatted_msg = msg % args if args else msg
-    lib.log_msg(level, formatted_msg.encode())
+    frame = inspect.currentframe().f_back
+    file = frame.f_code.co_filename.encode()
+    line = frame.f_lineno
+    formatted = (msg % args if args else msg).encode()
+    lib.log_msg_internal(level, file, line, formatted)
 
 def module_debug(modname: str, msg: str):
     lib.module_debug(modname.encode(), msg.encode())
