@@ -64,13 +64,13 @@ int main (int argc, char *argv[]) {
         } else if argIs("sim") {
             argNext()
             if argIs("elm327") {
-                return sim_elm327_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
+                return sim_elm327_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
             }
            ABORT_WITH_HELP()
         } else if argIs("gui") {
             log_msg(LOG_INFO, "this is the default behaviour");
         } else if argIs("cli") {
-            return serial_cli_main(argc-argCurentIndex(), argv+argCurentIndex());
+            return serial_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
         }
     }
     

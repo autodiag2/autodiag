@@ -4,7 +4,8 @@
 #define argNext() i++;
 #define argIs(value) ( i < argc && strcmp(argv[i],value) == 0 )
 #define argForEach() for(int i = 1; i < argc; i++)
-#define argCurentIndex() i
+#define argCurrentIndex() i
+#define argCurrent() ( i < argc ? argv[i] : null)
 
 #define PRINT_MODULAR_H(sym) void sym(char *offset);
 
