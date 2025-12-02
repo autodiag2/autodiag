@@ -3,12 +3,10 @@
 #include "libautodiag/com/uds/uds.h"
 
 void viface_close(final VehicleIFace* iface) {
-    if ( iface->state == VIFaceState_NOT_READY ) {
-        return;
-    }
     uds_viface_stop_tester_present_timer(iface);
-    assert(iface->device != null);
-    iface->device->close(iface->device);
+    if ( iface->device != null ) {
+        iface->device->close(iface->device);
+    }
 }
 
 int viface_send(final VehicleIFace* iface, const char *request) {
