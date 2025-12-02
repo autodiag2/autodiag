@@ -1,3 +1,8 @@
+/**
+ * All this lib is designed to be used on a simple thread,
+ * to avoid concurrency, you must lock the serial port before using it
+ * and unlock it after usage.
+ */
 #ifndef __SERIAL_H
 #define __SERIAL_H
 
