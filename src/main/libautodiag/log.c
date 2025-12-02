@@ -16,9 +16,6 @@ void log_set_from_env() {
         log_set_level(LOG_DEFAULT_LEVEL);
     } else {
         LogLevel level = log_level_from_str(logLevel);
-        if ( level == LOG_DEBUG ) {
-            logger.show_code_location = true;
-        }
         log_set_level(level);
     }
 }
