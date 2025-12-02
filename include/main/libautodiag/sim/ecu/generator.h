@@ -6,8 +6,19 @@
 #include "libautodiag/com/uds/uds.h"
 
 typedef struct SimECUGenerator {
+    /**
+     * Context to be set by the caller for the generator to work.
+     */
     void *context;
+    /**
+     * Plain text type of the generator (e.g., "Citroen C5 X7", "cycle", "random", etc.)
+     */
     char *type;
+    /**
+     * Holds the state of the generator (like DTCs, session type, etc.)
+     * it is not expected to be modified by external parts using the generator.
+     */
+    void *state;
     /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN stack)
      * @param this Pointer to the SimECUGenerator instance

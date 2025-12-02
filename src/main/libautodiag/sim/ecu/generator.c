@@ -6,6 +6,7 @@ SimECUGenerator * sim_ecu_generator_new() {
     generator->response = null;
     generator->response_for_python = null;
     generator->type = null;
+    generator->state = null;
     return generator;
 }
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, final Buffer * binRequest, byte nrc) {

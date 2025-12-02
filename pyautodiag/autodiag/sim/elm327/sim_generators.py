@@ -14,6 +14,7 @@ SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE = CFUNCTYPE(
 SimECUGenerator._fields_ = [
     ("context", c_void_p),
     ("type", char_p),
+    ("state", c_void_p),
     ("response_trashed", c_void_p),
     ("response", SimECUGenerator.CALLBACK_SIM_ECU_RESPONSE),
 ]

@@ -1,16 +1,16 @@
 #include "libautodiag/sim/ecu/generator.h"
 
-static int cycle_percent[0xFF][0xFF] = {0};
-static void cycle_iterate(int service_id, int pid, unsigned gears) {
-    cycle_percent[service_id][pid] += (100/gears);
-    cycle_percent[service_id][pid] %= 100;
-}
+typedef struct {
+    int cycle_percent[0xFF][0xFF];
+} GState;
 
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     unsigned gears = 10;
     if ( generator->context != null ) {
         gears = *((unsigned*)generator->context);
     }
+    GState * state = (GState*)generator->state;
+    int ** cycle_percent = state->cycle_percent;
     final Buffer *binResponse = buffer_new();
     sim_ecu_generator_fill_success(binResponse, binRequest);
 
@@ -104,9 +104,10 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
     }
 
-    cycle_iterate(binRequest->buffer[0],
-        1 < binRequest->size ? binRequest->buffer[1] : 0,
-        gears);
+    int service_id = binRequest->buffer[0];
+    int pid = 1 < binRequest->size ? binRequest->buffer[1] : 0;
+    cycle_percent[service_id][pid] += (100/gears);
+    cycle_percent[service_id][pid] %= 100;
     return binResponse;
 }
 
@@ -114,5 +115,7 @@ SimECUGenerator* sim_ecu_generator_new_cycle() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
     generator->type = strdup("cycle");
+    GState * state = (GState*)calloc(1, sizeof(GState));
+    generator->state = (void*)state;
     return generator;
 }
