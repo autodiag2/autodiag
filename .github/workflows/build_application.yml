@@ -5,6 +5,14 @@ on:
     tags:
       - '**'
 
+  workflow_dispatch:
+    inputs:
+      debug_enabled:
+        type: boolean
+        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
+        required: false
+        default: false
+
 jobs:
 
   tag:
@@ -41,32 +49,10 @@ jobs:
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             choco install msys2 -y
             choco install innosetup -y
-            rm -rf /c/cygwin64/
             /c/tools/msys64/usr/bin/bash -lc 'pacman -Syu --noconfirm'
             /c/tools/msys64/usr/bin/bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "from here"'
-            /c/tools/msys64/usr/bin/bash -lc 'env'
-            /c/tools/msys64/usr/bin/bash -lc 'pwd'
-            /c/tools/msys64/usr/bin/bash -lc 'whereis gcc'
-            /c/tools/msys64/usr/bin/bash -lc 'which gcc'
-            /c/tools/msys64/usr/bin/bash -lc 'gcc --version'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "export LD_LIBRARY_PATH=/mingw64/lib:\$LD_LIBRARY_PATH" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.profile'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "export PATH=/mingw64/bin:\$PATH" >> ~/.profile'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "export C_INCLUDE_PATH=/mingw64/include" >> ~/.profile'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "from here 2"'
-            /c/tools/msys64/usr/bin/bash -lc 'env'
-            /c/tools/msys64/usr/bin/bash -lc 'pwd'
-            /c/tools/msys64/usr/bin/bash -lc 'whereis gcc'
-            /c/tools/msys64/usr/bin/bash -lc 'which gcc'
-            /c/tools/msys64/usr/bin/bash -lc 'gcc --version'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "from /"'
-            /c/tools/msys64/usr/bin/bash -lc 'ls -l /'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "from /mingw64/"'
-            /c/tools/msys64/usr/bin/bash -lc 'ls -l /mingw64/'
-            /c/tools/msys64/usr/bin/bash -lc 'echo "from /mingw64/lib/"'
-            /c/tools/msys64/usr/bin/bash -lc 'ls -l /mingw64/lib/'
           fi
 
       - name: Clone external database
@@ -74,6 +60,10 @@ jobs:
 
       - name: Submodule update
         run: git submodule update --init --recursive || true
+
+      - name: Start tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
 
       - name: Build
         shell: bash
@@ -84,9 +74,6 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            /c/tools/msys64/usr/bin/bash -lc "echo 'see here'"
-            /c/tools/msys64/usr/bin/bash -lc "env"
-            /c/tools/msys64/usr/bin/bash -lc "gcc -print-search-dirs"
             /c/tools/msys64/usr/bin/bash -lc "cd $location && make distWindows"
           else
             echo "unsupported OS"
