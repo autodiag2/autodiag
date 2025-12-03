@@ -10,7 +10,7 @@ object_UDS_DTC * object_UDS_DTC_assign(object_UDS_DTC * to, object_UDS_DTC * fro
 }
 void object_UDS_DTC_free(object_UDS_DTC *o) { return UDS_DTC_free(o); }
 char * UDS_DTC_to_string(final UDS_DTC * dtc) {
-    return saej1979_dtc_to_string(dtc);
+    return saej1979_dtc_to_string((DTC*)dtc);
 }
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
@@ -105,7 +105,7 @@ static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, f
                         dtc->status = data->buffer[i+DTC_DATA_SZ];
                         dtc->ecu = ecu;
                         list_UDS_DTC_append(ecu_response, dtc);
-                        dtc_description_fetch_from_fs(dtc, filter);
+                        dtc_description_fetch_from_fs((DTC*)dtc, filter);
                     }
                 }
             } else {
@@ -133,12 +133,12 @@ list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * fil
     );
     list_UDS_DTC * dtcs = list_UDS_DTC_new();
     for(int i = 0; i < lists_dtcs->size; i ++) {
-        list_DTC_append_list(dtcs, lists_dtcs->list[0]);
+        list_DTC_append_list((list_DTC*)dtcs, (list_DTC*)lists_dtcs->list[0]);
     }
     return dtcs;
 }
 void uds_dtc_dump(final UDS_DTC * dtc) {
-    log_msg(LOG_DEBUG, "%s", dtc->to_string(dtc));
+    log_msg(LOG_DEBUG, "%s", dtc->to_string(CAST_DTC(dtc)));
 }
 
 char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted) {

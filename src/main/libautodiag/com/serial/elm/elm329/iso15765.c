@@ -10,6 +10,8 @@ bool elm329_is_can_11_bits_id(final ELM329Device* elm329) {
         case ELM329_PROTO_USER4_CAN:
         case ELM329_PROTO_USER5_CAN:
             return true;
+        default:
+            return false;
     }
     return false;
 }
@@ -21,6 +23,8 @@ bool elm329_is_can_29_bits_id(final ELM329Device* elm329) {
         case ELM329_PROTO_SAEJ1939:
         case ELM329_PROTO_SAEJ1939_2:
             return true;
+        default:
+            return false;
     }
     return false;
 }

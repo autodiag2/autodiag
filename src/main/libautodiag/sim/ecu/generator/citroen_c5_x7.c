@@ -8,7 +8,7 @@ typedef struct {
         bool security_access_granted;
         list_UDS_DTC * dtcs;
         byte DTCSupportedStatusMask;
-        pthread_t session_timer;
+        pthread_t * session_timer;
         bool session_continue;
     } uds;
     struct {
@@ -32,6 +32,7 @@ static void * session_timer_daemon(void *arg) {
     uds_reset_default_session(state);
     free(state->uds.session_timer);
     state->uds.session_timer = null;
+    return null;
 }
 static void start_or_update_session_timer(GState *state) {
     state->uds.session_continue = true;
@@ -288,7 +289,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
             if ( 3 < binRequest->size ) {
-                list_DTC_clear(state->uds.dtcs);
+                list_DTC_clear((list_DTC*)state->uds.dtcs);
                 list_DTC_clear(state->obd.dtcs);
                 log_msg(LOG_DEBUG, "Should apply the group mask from the request");
                 buffer_slice_append(binResponse, binRequest, 1, 3);
@@ -357,8 +358,8 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     list_object_string_append(dtcs, object_string_new_from("P0104"));
     for(int i = 0; i < dtcs->size; i++) {
         SAEJ1979_DTC * dtc = saej1979_dtc_from_string(dtcs->list[i]->data);
-        list_DTC_append(state->obd.dtcs, dtc);
-        list_Buffer_append(state->uds.dtcs, UDS_DTC_new_from(dtc));
+        list_DTC_append(state->obd.dtcs, (DTC*)dtc);
+        list_UDS_DTC_append(state->uds.dtcs, UDS_DTC_new_from(dtc));
     }
     return generator;
 }

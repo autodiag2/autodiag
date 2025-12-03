@@ -1134,10 +1134,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( recv_buffer->size <= 1 ) {
             continue;
         }
-        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", ascii_escape_breaking_chars(recv_buffer->buffer), recv_buffer->size);
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", ascii_escape_breaking_chars((char*)recv_buffer->buffer), recv_buffer->size);
 
-        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, recv_buffer->buffer, false) ) {
-            if ( ! sim_elm327_reply(elm327, recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
+        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, (char*)recv_buffer->buffer, false) ) {
+            if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
                 log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
                 return;
             }

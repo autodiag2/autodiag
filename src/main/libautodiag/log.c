@@ -55,7 +55,7 @@ char *log_get_current_time() {
     const time_t* time = (const time_t*)&(tv.tv_sec);
     struct tm * localtm = localtime(time);
     char *ctime;
-    asprintf(&ctime, "%02d/%02d/%04d %02d:%02d:%02d.%03ld ", localtm->tm_mday, localtm->tm_mon, 1900 + localtm->tm_year, localtm->tm_hour, localtm->tm_min, localtm->tm_sec, tv.tv_usec/1000);
+    asprintf(&ctime, "%02d/%02d/%04d %02d:%02d:%02d.%03d ", localtm->tm_mday, localtm->tm_mon, 1900 + localtm->tm_year, localtm->tm_hour, localtm->tm_min, localtm->tm_sec, tv.tv_usec/1000);
     return ctime;
 }
 void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) {

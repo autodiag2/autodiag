@@ -10,7 +10,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         gears = *((unsigned*)generator->context);
     }
     GState * state = (GState*)generator->state;
-    int ** cycle_percent = state->cycle_percent;
+    int ** cycle_percent = (int **)state->cycle_percent;
     final Buffer *binResponse = buffer_new();
     sim_ecu_generator_fill_success(binResponse, binRequest);
 

@@ -51,7 +51,7 @@
                 buffer->size += bytes_readed; \
                 buffer_ensure_termination(buffer); \
                 \
-                for(char * eol_ptr = strstr(buffer->buffer,eol);eol_ptr != null;eol_ptr = strstr(buffer->buffer,eol)) { \
+                for(char * eol_ptr = strstr((char*)buffer->buffer,eol);eol_ptr != null;eol_ptr = strstr((char *)buffer->buffer,eol)) { \
                     *eol_ptr = 0;                     \
                     if ( ! handler(buffer,handlerFunc,handlerData) ) { \
                         return false; \

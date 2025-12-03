@@ -95,7 +95,9 @@ VehicleIFace* viface_open_from_device(final Device* device) {
 static bool update_filters_on_device(final VehicleIFace* iface) {
     if ( iface->device->set_filter_by_address != null ) {
         iface->device->set_filter_by_address(iface->device, iface->vehicle->internal.filter);
+        return true;
     }
+    return false;
 }
 void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address) {
     if ( ! list_Buffer_find(iface->vehicle->internal.filter, address) ) {

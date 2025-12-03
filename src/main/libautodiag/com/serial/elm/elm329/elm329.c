@@ -13,6 +13,8 @@ bool elm329_is_can(final ELM329Device* elm329) {
         case ELM329_PROTO_USER4_CAN:
         case ELM329_PROTO_USER5_CAN:
             return true;
+        default:
+            return false;
     }
     return false;
 }
@@ -41,7 +43,7 @@ int elm329_guess_response(final char * buffer) {
         case DEVICE_RECV_DATA: { \
             final int chrs = strlen(ptr); \
             final bool isAuto = (1 < chrs && *ptr == 'A' ); \
-            final byte * protocolLetter; \
+            final char * protocolLetter; \
             if ( isAuto ) { \
                 protocolLetter = ptr + 1; \
             } else { \

@@ -61,7 +61,7 @@ bool ISO3779_country_read_tsv_line(Buffer * line, void*data) {
     void** ptrs = (void**)data; 
     char *vin_prefix = (char *)ptrs[0];
     char **result = (char**)ptrs[1];
-    char *start = strtok(line->buffer, "\t");
+    char *start = strtok((char*)line->buffer, "\t");
     char *end = strtok(NULL, "\t");
     char *country = strtok(NULL, "\t");
     if (!start || !end || !country) return true;
@@ -72,7 +72,7 @@ bool ISO3779_country_read_tsv_line(Buffer * line, void*data) {
     return true;
 }
 char * ISO3779_country(final ISO3779 *decoder) {
-    final char *wmi = decoder->wmi;
+    final char *wmi = (char*)decoder->wmi;
     char *result = NULL;
 
     char *countries_file = installation_folder_resolve("data/vehicle/countries.tsv");
@@ -94,7 +94,7 @@ bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
     char *searched_manufacturer_code = (char *)ptrs[2];
 
     if ( 0 < line->size ) {
-        char * firstTab = strchr(line->buffer,'\t');
+        char * firstTab = strchr((char*)line->buffer,'\t');
         char * secondTab = null;
         if ( firstTab != null ) {
             *firstTab = 0;
@@ -103,7 +103,7 @@ bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
                 *secondTab = 0;
             }
         }
-        if ( strncasecmp(searched_wmi,line->buffer, strlen(line->buffer)) == 0 ) {
+        if ( strncasecmp(searched_wmi,(char*)line->buffer, strlen((char*)line->buffer)) == 0 ) {
             if ( firstTab != null ) {
                 if ( searched_manufacturer_code == null ) {
                     *manufacturer = strdup(firstTab + 1);
@@ -132,7 +132,7 @@ char * ISO3779_manufacturer(final ISO3779 *decoder) {
     char *manufacturer_code = null;
     if ( ISO3779_manufacturer_is_less_500(decoder) ) {
         manufacturer_code = (char*)malloc(sizeof(char) * 4);
-        strncpy(manufacturer_code,&decoder->vis[2],3);
+        strncpy(manufacturer_code,(char*)&decoder->vis[2],3);
     }
     void* parameters[] = {vin, &manufacturer, manufacturer_code};
     if ( file_read_lines(manufacturers_file,ISO3779_manufacturers_read_tsv_line,parameters) ) {

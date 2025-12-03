@@ -60,16 +60,16 @@ static bool read_tsv_line_dtc(Buffer * line, void*data) {
         if ( line->buffer[0] == '#' ) {
 
         } else {
-            char * firstTab = strchr(line->buffer,'\t');
+            char * firstTab = strchr((char *)line->buffer,'\t');
             char * secondTab = null;
             if ( firstTab != null ) {
                 *firstTab = 0;
-                secondTab = strchr(line->buffer,'\t');
+                secondTab = strchr((char *)line->buffer,'\t');
                 if ( secondTab != null ) {
                     *secondTab = 0;
                 }
             }
-            if ( strcmp(searched_dtc,line->buffer) == 0 ) {
+            if ( strcmp(searched_dtc,(char*)line->buffer) == 0 ) {
                 if ( firstTab != null ) {
                     dtc_desc->reason = strdup(firstTab + 1);
                 }

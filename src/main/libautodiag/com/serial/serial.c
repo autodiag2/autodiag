@@ -13,7 +13,7 @@ int serial_guess_response(final char * buffer) {
 int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) {
     if ( log_has_level(LOG_DEBUG) ) {
         module_debug(MODULE_SERIAL "Sending");
-        bytes_dump(tx_buf,bytes_to_send);
+        bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     #if defined OS_WINDOWS
         if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {

@@ -30,7 +30,8 @@ int oneHex(char c);
                 case Iso15765SingleFrame: { \
                     iso15765_conversation_free(conversation); \
                     conversation = null; \
-                } \
+                } break; \
+                default: break; \
             } \
             switch(frame_type) { \
                 case Iso15765SingleFrame: { \
@@ -81,6 +82,7 @@ int oneHex(char c);
                 switch(frame_type) { \
                     case Iso15765SingleFrame:           \
                     case Iso15765FirstFrame: \
+                    case Iso15765FlowControlFrame: \
                         break; \
                     case Iso15765ConsecutiveFrame: { \
                         position_in_buffer = \
@@ -111,6 +113,7 @@ int oneHex(char c);
                                 log_msg(LOG_ERROR, "More data received than expected received"); \
                             } \
                         } break; \
+                    default: break; \
                 } \
                 buffer_free(bin_buffer); \
             } \
