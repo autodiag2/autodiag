@@ -1,4 +1,5 @@
 #include "libautodiag/log.h"
+#include "libautodiag/lib.h"
 
 Logger logger = {
     .current_level = LOG_ERROR,
@@ -79,7 +80,7 @@ void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) 
         char *formatMod;
         asprintf(&formatMod,"%s%s\n",header,format);
         char *txt;
-        if ( vasprintf(&txt, formatMod, ap) == -1 ) {
+        if ( compat_vasprintf(&txt, formatMod, ap) == -1 ) {
             log_msg(LOG_ERROR, "Fill label impossible");
         } else {
             fprintf(stderr,"%s",txt);

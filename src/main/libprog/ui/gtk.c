@@ -34,7 +34,7 @@ bool gtk_label_printf(GtkLabel *label, const char *format, ...) {
     va_start(ap, format);
 
     char *txt;
-    if ( vasprintf(&txt, format, ap) == -1 ) {
+    if ( compat_vasprintf(&txt, format, ap) == -1 ) {
         log_msg(LOG_ERROR, "Fill label impossible");
         result = false;
     } else {

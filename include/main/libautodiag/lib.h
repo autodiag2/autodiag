@@ -43,6 +43,7 @@ GENERATE_TYPE_DUP_HEADER(byte);
  * Avoid one declaration
  */
 char * gprintf(char * format, ...);
+int compat_vasprintf(char **ret, const char *fmt, va_list ap);
 
 #include "byte.h"
 #include "file.h"

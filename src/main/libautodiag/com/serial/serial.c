@@ -524,7 +524,7 @@ char * at_command_va(char * at_command, va_list ap) {
     asprintf(&atCmd,"at%s", at_command);
     
     char *res = null;
-    if ( vasprintf(&res, atCmd, ap) == -1 ) {
+    if ( compat_vasprintf(&res, atCmd, ap) == -1 ) {
         log_msg(LOG_ERROR, "Error with at command");
     }
 
