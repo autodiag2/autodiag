@@ -18,3 +18,4 @@ private-doc
 *.exe
 *.dmg
 *.deb
+autodiag_*.buildinfo

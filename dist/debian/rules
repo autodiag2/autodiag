@@ -35,7 +35,9 @@ binary:
 	chmod 777 $(BUILD_SHARE)/*
 
 	dpkg-gencontrol -P$(BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" -DDescription="Car scantool`echo \"\\n$(APP_DESC)\" | sed 's/\\n/\n/g'`" -v$(APP_VERSION) -USource -O$(BUILD_DIR)/DEBIAN/control
+	rm -f $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
 	ln -s $(SRC_ROOT)/$(BUILDINFO_FILENAME) $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
+	dch -v $(APP_VERSION) "Update to version $(APP_VERSION)"
 	dpkg-deb --build $(BUILD_DIR) $(SRC_ROOT)/output/bin/
 
 clean:
