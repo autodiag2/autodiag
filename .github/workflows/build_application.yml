@@ -50,6 +50,7 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'whereis gcc'
             /c/tools/msys64/usr/bin/bash -lc 'which gcc'
             /c/tools/msys64/usr/bin/bash -lc 'gcc --version'
+            /c/tools/msys64/usr/bin/bash -lc 'echo "export LD_LIBRARY_PATH=/mingw64/lib:\$LD_LIBRARY_PATH" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PATH=/mingw64/bin:\$PATH" >> ~/.profile'
