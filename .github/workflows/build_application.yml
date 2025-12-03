@@ -60,6 +60,12 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'whereis gcc'
             /c/tools/msys64/usr/bin/bash -lc 'which gcc'
             /c/tools/msys64/usr/bin/bash -lc 'gcc --version'
+            /c/tools/msys64/usr/bin/bash -lc 'echo "from /"'
+            /c/tools/msys64/usr/bin/bash -lc 'ls -l /'
+            /c/tools/msys64/usr/bin/bash -lc 'echo "from /mingw64/"'
+            /c/tools/msys64/usr/bin/bash -lc 'ls -l /mingw64/'
+            /c/tools/msys64/usr/bin/bash -lc 'echo "from /mingw64/lib/"'
+            /c/tools/msys64/usr/bin/bash -lc 'ls -l /mingw64/lib/'
           fi
 
       - name: Clone external database
