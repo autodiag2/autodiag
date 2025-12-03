@@ -2,7 +2,7 @@
 # App definition
 #
 APP_NAME = autodiag
-APP_VERSION = 34
+APP_VERSION = 35
 APP_MAINTAINER = autodiag2 <autodiag@netcourrier.com>
 APP_DESC = \
 Autodiag is a tool to do everything possible to do with car computers. \n\
