@@ -24,7 +24,7 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
     if(strcmp(type,"clear")==0){ \
         GList *children=gtk_container_get_children(GTK_CONTAINER(gui->menuBar.data.filter_by_menu)); \
         for(GList *l=children;l!=NULL;l=l->next){ \
-            GtkWidget *w=GTK_WIDGET(l->data); \
+            GtkCheckMenuItem *w=GTK_CHECK_MENU_ITEM(l->data); \
             gtk_check_menu_item_set_active(w,false); \
         } \
         g_list_free(children); \
@@ -33,18 +33,18 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
         if(ecu==null){ \
             log_msg(LOG_WARNING,"ecu with address '%s' not found",buffer_to_hex_string(address)); \
         }else{ \
-            GtkWidget *w=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,ecu); \
+            GtkCheckMenuItem *w = GTK_CHECK_MENU_ITEM(menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,ecu)); \
             if(w==null){ \
                 log_msg(LOG_WARNING,"widget associated with: not found"); \
                 vehicle_ecu_debug(ecu); \
-            }else gtk_check_menu_item_set_active(w,strcmp(type,"add")==0); \
+            } else gtk_check_menu_item_set_active(w,strcmp(type,"add")==0); \
         } \
     } \
 } \
 static void menubar_data_filter_by_register(const ECU *ecu){ \
     char *displayLabel; \
     asprintf(&displayLabel,"%s (%s)",ecu->name,buffer_to_hex_string(ecu->address)); \
-    GtkWidget *filter_check=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,ecu); \
+    GtkWidget *filter_check=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,(ECU*)ecu); \
     if(filter_check==null){ \
         filter_check=gtk_check_menu_item_new_with_label(displayLabel); \
         gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.filter_by_menu),filter_check); \

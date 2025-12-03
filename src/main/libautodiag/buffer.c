@@ -167,7 +167,7 @@ void buffer_append_byte(final Buffer * dest, final byte b) {
     dest->size ++;
 }
 void buffer_append_str(final Buffer * dest, final char *data) {
-    buffer_append_bytes(dest,data,strlen(data));
+    buffer_append_bytes(dest,(byte*)data,strlen(data));
 }
 
 void buffer_ensure_termination(Buffer * buffer) {

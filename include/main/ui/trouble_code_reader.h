@@ -44,7 +44,7 @@ typedef struct {
         } showECUsBuffer;
         GtkCheckMenuItem *filtered;
         struct {
-            GtkCheckMenuItem *all;
+            GtkMenuItem *all;
             GtkWidget *filter_by;
             GtkWidget *filter_by_menu;
             struct {

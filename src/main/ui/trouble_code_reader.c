@@ -110,9 +110,9 @@ static gboolean set_list_dtc_gsource(gpointer data) {
     }
     if ( list_dtc != null ) {
         AD_LIST_FOREACH(list_dtc,DTC,dtc,
-            char * dtc_string = dtc->to_string(dtc);
+            char * dtc_string = dtc->to_string(CAST_DTC(dtc));
             GtkWidget *label = gtk_label_new(dtc_string);
-            g_object_set_data(label, "dtc", dtc);
+            g_object_set_data(G_OBJECT(label), "dtc", dtc);
             gtk_container_add((GtkContainer*)gui->dtc.list,label);
             gtk_widget_show(label);
             free(dtc_string);
@@ -155,7 +155,7 @@ static void read_codes_daemon_internal() {
                     }
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
-                    list_DTC_append_list(list_dtc_uds, uds_read_all_dtcs(iface, filter));
+                    list_DTC_append_list(list_dtc_uds, (list_DTC*)uds_read_all_dtcs(iface, filter));
                     for(unsigned int i = 0; i < list_dtc_uds->size; i++) {
                         final DTC * dtc = list_dtc_uds->list[i];
                         if ( list_DTC_contains(list_dtc_obd, dtc) ) {
@@ -265,8 +265,8 @@ static void append_multi_manufacturer_explanation(GtkTextBuffer *buffer, DTC_DES
 static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data) {
     clear_dtc_description();
     if ( row != null ) {
-        final GtkLabel* rowLabel = gtk_bin_get_child((GtkBin*)row);
-        final DTC *dtc = (DTC*)g_object_get_data(rowLabel, "dtc");
+        final GtkLabel* rowLabel = GTK_LABEL(gtk_bin_get_child((GtkBin*)row));
+        final DTC *dtc = (DTC*)g_object_get_data(G_OBJECT(rowLabel), "dtc");
         assert(dtc != null);
 
         for(unsigned int i = 0; i < dtc->description->size; i++) {
@@ -290,7 +290,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
         }
         if ( list_object_string_contains(dtc->detection_method, object_string_new_from("UDS")) ) {
             char * result;
-            asprintf(&result, "%s%s", explanation, UDS_DTC_explanation(dtc));
+            asprintf(&result, "%s%s", explanation, UDS_DTC_explanation((UDS_DTC*)dtc));
             free(explanation);
             explanation = result;
         }

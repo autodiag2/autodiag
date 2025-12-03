@@ -15,7 +15,7 @@ double counter_get_fraction(GtkWidget *widget) {
 char* counter_get_label(GtkWidget *widget) {
     final char * text;
     if ( GTK_IS_PROGRESS_BAR(widget) ) {
-        text = gtk_progress_bar_get_text((GtkProgressBar*)widget);
+        text = (char*)gtk_progress_bar_get_text((GtkProgressBar*)widget);
     } else {
         text = (char*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_TEXT);
     }

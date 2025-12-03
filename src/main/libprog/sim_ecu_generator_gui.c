@@ -78,7 +78,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
                         if (GTK_IS_LABEL(child)) {
                             const char *dtc = gtk_label_get_text(GTK_LABEL(child));
-                            Buffer *dtc_bin = saej1979_dtc_bin_from_string(dtc);
+                            Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
@@ -99,7 +99,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         const gchar * vin = gtk_entry_get_text(gui->vin);
                         if ( 0 < strlen(vin) ) {
-                            final Buffer * vinBuffer = buffer_from_ascii(vin);
+                            final Buffer * vinBuffer = buffer_from_ascii((char*)vin);
                             buffer_padding(vinBuffer, 17, 0x00);
                             buffer_append(binResponse, vinBuffer);
                         }
@@ -107,7 +107,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
                         if ( 0 < strlen(ecuName) ) {
-                            final Buffer * name = buffer_from_ascii(ecuName);
+                            final Buffer * name = buffer_from_ascii((char*)ecuName);
                             buffer_padding(name, 20, 0x00);
                             buffer_append(binResponse, name);
                         }
@@ -134,8 +134,8 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
 static void add_dtc(GtkButton *button, gpointer user_data) {
     SimECUGeneratorGui* simGui = (SimECUGeneratorGui*)user_data;
     const char *dtc_string = gtk_entry_get_text(simGui->dtcs.input);
-    if ( saej1979_dtc_bin_from_string(dtc_string) == null ) {
-        gtk_message_dialog_format_secondary_text(simGui->dtcs.invalidDtc,"%s: expected LXXXX where L is P,C,B,U",dtc_string);
+    if ( saej1979_dtc_bin_from_string((char*)dtc_string) == null ) {
+        gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(simGui->dtcs.invalidDtc),"%s: expected LXXXX where L is P,C,B,U",dtc_string);
         gtk_widget_show_on_main_thread(simGui->dtcs.invalidDtc);
     } else {
         GtkWidget *label = gtk_label_new(dtc_string);
@@ -194,9 +194,9 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
     g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
     g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), simGui);
 
-    counter_init_modifiable(simGui->data.vehicleSpeed,"counter_85_2_255_0_0_255.png", true);
-    counter_init_modifiable(simGui->data.coolantTemperature,"gaugehalf_225_5_255_0_0_255.png", true);
-    counter_init_modifiable(simGui->data.engineSpeed,"counter_85_2_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_PROGRESS_BAR(simGui->data.vehicleSpeed),"counter_85_2_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_PROGRESS_BAR(simGui->data.coolantTemperature),"gaugehalf_225_5_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_PROGRESS_BAR(simGui->data.engineSpeed),"counter_85_2_255_0_0_255.png", true);
 
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
@@ -220,4 +220,5 @@ SimECUGeneratorGui * sim_ecu_generator_gui_show(SimECUGeneratorGui *simGui) {
     gtk_window_set_keep_above(GTK_WINDOW(simGui->window), true);
     g_idle_add(present_window_false, (gpointer)simGui->window);
     gtk_window_present(GTK_WINDOW(simGui->window));
+    return simGui;
 }
