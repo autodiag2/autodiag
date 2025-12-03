@@ -7,6 +7,8 @@ bool elm327_protocol_is_can_11_bits_id(final ELM327_PROTO proto) {
         case ELM327_PROTO_USER1_CAN:
         case ELM327_PROTO_USER2_CAN:
             return true;
+        default:
+            return false;
     }
     return false;
 }
@@ -20,6 +22,8 @@ bool elm327_protocol_is_can_29_bits_id(final ELM327_PROTO proto) {
         case ELM327_PROTO_ISO_15765_4_CAN_4:
         case ELM327_PROTO_SAEJ1939:
             return true;
+        default:
+            return false;
     }
     return false;
 }

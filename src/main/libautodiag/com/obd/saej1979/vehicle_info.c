@@ -20,7 +20,7 @@ SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
     if (0 < data->size) { \
         int n; \
         if (data->buffer[data->size - 1] == 0x00) { \
-            n = strlen(data->buffer); \
+            n = strlen((char*)data->buffer); \
         } else { \
             n = data->size; \
         } \

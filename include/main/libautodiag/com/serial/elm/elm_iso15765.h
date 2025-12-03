@@ -13,7 +13,7 @@ int oneHex(char c);
             memcpy(id_ascii,ptr,id_sz_chars); \
             ptr += id_sz_chars + elm->printing_of_spaces; \
             \
-            final Buffer * address = buffer_from_ascii_hex_n(id_ascii,id_sz_chars); \
+            final Buffer * address = buffer_from_ascii_hex_n((char*)id_ascii,id_sz_chars); \
             if ( address == null ) { \
                 log_msg(LOG_ERROR, "Data has been detected but address cannot be decoded, maybe it is not ISO15765 frame"); \
                 return false; \

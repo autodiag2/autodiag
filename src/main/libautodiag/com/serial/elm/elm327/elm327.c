@@ -98,6 +98,7 @@ char* elm327_protocol_to_string(final ELM327_PROTO proto) {
         case ELM327_PROTO_SAEJ1939:                return strdup("SAE J1939 (CAN 29-bit ID, 250 kBit/s)");
         case ELM327_PROTO_USER1_CAN:               return strdup("USER1 CAN");
         case ELM327_PROTO_USER2_CAN:               return strdup("USER2 CAN");
+        default:                                   return null;
     }
     return null;
 }
@@ -118,14 +119,21 @@ bool elm327_set_filter_by_address(final ELM327Device* elm327, final list_Buffer 
             serial_query_at_command((Serial*)elm327,"cra %01hhX%02hhX",address->buffer[0], address->buffer[1]);
         } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocol) ) {
             assert(address->size == 4);
-            serial_query_at_command((Serial*)elm327,"cra %s",buffer_to_hex_string(address->buffer));
+            serial_query_at_command((Serial*)elm327,"cra %s",buffer_to_hex_string(address));
         } else {
             assert(0 < address->size);
             serial_query_at_command((Serial*)elm327,"ra %02hhX",address->buffer[address->size-1]);
         }
+        return true;
     } else {
-        serial_query_at_command((Serial*)elm327,"cra");
-        serial_query_at_command((Serial*)elm327,"ra");
+        if ( filter_addresses->size == 0 ) {
+            serial_query_at_command((Serial*)elm327,"cra");
+            serial_query_at_command((Serial*)elm327,"ra");
+            return true;
+        } else {
+            log_msg(LOG_ERROR, "elm327_set_filter_by_address: multiple addresses filtering not supported");
+            return false;
+        }
     }
 }
 
@@ -168,7 +176,7 @@ bool elm327_printing_of_spaces(final ELM327Device* elm327, bool state) {
         case DEVICE_RECV_DATA: { \
             final int chrs = strlen(ptr); \
             final bool isAuto = (1 < chrs && *ptr == 'A' ); \
-            final byte * protocolLetter; \
+            final char * protocolLetter; \
             if ( isAuto ) { \
                 protocolLetter = ptr + 1; \
             } else { \
@@ -230,6 +238,8 @@ bool elm327_protocol_is_can(final ELM327_PROTO proto) {
         case ELM327_PROTO_USER2_CAN:
         case ELM327_PROTO_SAEJ1939:
             return true;
+        default:
+            return false;
     }
     return false;
 }

@@ -199,7 +199,7 @@ char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin) {
 Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii) {
     final Buffer * bin = buffer_new();
     buffer_ensure_capacity(bin,ascii->size);
-    elm_ascii_to_bin_with_device(elm, bin, ascii->buffer, ascii->buffer + ascii->size);
+    elm_ascii_to_bin_with_device(elm, bin, (char*)ascii->buffer, (char*)ascii->buffer + ascii->size);
     return bin;
 }
 

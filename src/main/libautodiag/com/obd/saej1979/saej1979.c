@@ -61,7 +61,7 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         log_msg(LOG_ERROR, "called with the wrong service id : %d", service_id);
         exit(1);
     }
-    int * pids_status = list_int_new();
+    list_int * pids_status = list_int_new();
     if ( 0 == pid ) {
         list_int_append(pids_status, intdup(true));
     } else {

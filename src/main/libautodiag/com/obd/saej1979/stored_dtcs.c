@@ -31,8 +31,8 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
             dtc->data[1] = byte_1; \
             dtc->data[2] = 0; \
             dtc->ecu = ecu; \
-            dtc_description_fetch_from_fs(dtc, filter); \
-            list_DTC_append(result, dtc); \
+            dtc_description_fetch_from_fs((DTC*)dtc, filter); \
+            list_DTC_append(result, (DTC*)dtc); \
         } \
     } \
 }
