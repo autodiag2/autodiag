@@ -271,7 +271,12 @@ char * buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {
         return strdup("");
     } else {
-        return bytes_to_ascii(buffer->buffer, buffer->size);
+        if ( buffer->size == 0 ) {
+            return strdup("");
+        } else {
+            assert(buffer->buffer != null);
+            return bytes_to_ascii(buffer->buffer, buffer->size);
+        }
     }
 }
 char* buffer_to_hex_string(Buffer *buffer) {
