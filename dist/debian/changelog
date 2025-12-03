@@ -1,3 +1,15 @@
+autodiag (32) jammy; urgency=medium
+
+  * Version 32
+
+ -- root <ffprivacy@netcourrier.com>  Wed, 03 Dec 2025 11:46:50 +0100
+
+autodiag (31) UNRELEASED; urgency=medium
+
+  * Update to version 31
+
+ -- root <ffprivacy@netcourrier.com>  Wed, 03 Dec 2025 11:46:31 +0100
+
 autodiag (31) jammy; urgency=medium
 
   * Version 31
