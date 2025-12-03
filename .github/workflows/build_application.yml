@@ -5,14 +5,6 @@ on:
     tags:
       - '**'
 
-  workflow_dispatch:
-    inputs:
-      debug_enabled:
-        type: boolean
-        description: 'Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)'
-        required: false
-        default: false
-
 jobs:
 
   tag:
@@ -61,10 +53,6 @@ jobs:
       - name: Submodule update
         run: git submodule update --init --recursive || true
 
-      - name: Start tmate session
-        uses: mxschmitt/action-tmate@v3
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
-
       - name: Build
         shell: bash
         run: |
@@ -74,7 +62,8 @@ jobs:
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
-            /c/tools/msys64/usr/bin/bash -lc "cd $location && make distWindows"
+            /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib/ gcc -print-search-dirs"
+            /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib/ make distWindows"
           else
             echo "unsupported OS"
             exit 1
