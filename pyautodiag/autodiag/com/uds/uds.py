@@ -1,6 +1,7 @@
 from autodiag.libloader import *
 from autodiag.com.vehicle_interface import VehicleIFace
 from autodiag.buffer import *
+from autodiag.com.uds.read_dtc import *
 
 class UDSService(c_int):
     DIAGNOSTIC_SESSION_CONTROL = 0x10
@@ -149,3 +150,10 @@ class UDS():
     def is_enabled(self): return lib.uds_is_enabled(byref(self.iface))
     def tester_present(self): return lib.uds_tester_present(byref(self.iface), True)
     def clear_dtcs(self): return lib.uds_clear_dtcs(byref(self.iface))
+    def read_dtcs(self) -> Array[DTC]: 
+        list_dtc_ptr = lib.uds_read_all_dtcs(byref(self.iface), None)
+        list_dtc = list_dtc_ptr.contents
+        dtcs = []
+        for i in range(list_dtc.size):
+            dtcs.append(list_dtc.list[i])
+        return dtcs

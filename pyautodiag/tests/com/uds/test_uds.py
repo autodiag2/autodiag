@@ -7,6 +7,7 @@ from autodiag.com.uds.uds import *
 from autodiag.sim.ecu.generator import *
 
 def test_UDS():
+    #log_set_level(LOG_DEBUG)
     emulation = SimELM327()
     emulation.set_ecu_and_generator(0xE8, GeneratorCitroenC5X7())
     emulation.loop(daemon=True)
@@ -25,4 +26,9 @@ def test_UDS():
 
     assert uds.tester_present()
 
+    dtcs = uds.read_dtcs()
+    assert 0 < len(dtcs)
+
     assert uds.clear_dtcs()
+
+    assert 0 == len(uds.read_dtcs())
