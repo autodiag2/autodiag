@@ -8,7 +8,7 @@ class Buffer(Structure):
     ]
 
     def __new__(cls):
-        lib.buffer_new.restype = POINTER(Buffer)
+        lib.buffer_new.restype = POINTER(cls)
         ptr = lib.buffer_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
