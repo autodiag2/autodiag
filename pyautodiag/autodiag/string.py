@@ -16,7 +16,7 @@ class object_string(Structure):
 class list_object_string(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(object_string)),
+        ("list", POINTER(POINTER(object_string))),
     ]
     def __new__(cls):
         lib.list_object_string_new.restype = POINTER(cls)

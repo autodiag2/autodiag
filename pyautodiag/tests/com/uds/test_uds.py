@@ -30,21 +30,11 @@ def test_UDS():
     assert 0 < len(dtcs)
     result = 0b11
     for dtc in dtcs:
-        dtc.debug_from_python()
-        print("description")
-        print(dtc.dtc.description)
-        dtc_descs = dtc.dtc.description.contents
-        for i in range(dtc_descs.size):
-            dtc_desc: DTC_DESCRIPTION = dtc_descs.list[i]
-            print(f"dtc_desc:{i}")
-            print(dtc_desc)
-            dtc_desc.dump()
-        ecu = dtc.dtc.ecu.contents
-        ecu.debug_from_python()
-        dtc_bin_str = bytes(dtc.dtc.data).hex()
-        if dtc_bin_str == "0103":
+        dtc = dtc.contents
+        dtc_bin_str = str(dtc)
+        if dtc_bin_str == "P0103":
             result &= 0b10
-        if dtc_bin_str == "0104":
+        if dtc_bin_str == "P0104":
             result &= 0b01
     
     assert result == 0b00

@@ -61,7 +61,7 @@ DTC._fields_ = [
 class list_DTC(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(DTC)),
+        ("list", POINTER(POINTER(DTC))),
     ]
 
 lib.list_DTC_append_list.argtypes = [POINTER(list_DTC), POINTER(list_DTC)]

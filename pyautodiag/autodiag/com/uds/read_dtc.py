@@ -89,7 +89,7 @@ lib.UDS_DTC_explanation.restype = c_char_p
 class list_UDS_DTC(Structure):
     _fields_ = [
         ("size", c_int),
-        ("list", POINTER(UDS_DTC)),
+        ("list", POINTER(POINTER(UDS_DTC))),
         ("Status_Availability_Mask", c_byte),
         ("ecu", POINTER(ECU))
     ]
