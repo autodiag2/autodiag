@@ -31,6 +31,14 @@ def test_UDS():
     result = 0b11
     for dtc in dtcs:
         dtc.debug_from_python()
+        print("description")
+        print(dtc.dtc.description)
+        dtc_descs = dtc.dtc.description.contents
+        for i in range(dtc_descs.size):
+            dtc_desc: DTC_DESCRIPTION = dtc_descs.list[i]
+            print(f"dtc_desc:{i}")
+            print(dtc_desc)
+            dtc_desc.dump()
         ecu = dtc.dtc.ecu.contents
         ecu.debug_from_python()
         dtc_bin_str = bytes(dtc.dtc.data).hex()
