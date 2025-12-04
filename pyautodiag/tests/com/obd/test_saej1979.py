@@ -4,7 +4,7 @@ from autodiag.com.serial import Serial
 from autodiag.com.vehicle_interface import VehicleIFace
 from autodiag.log import *
 from autodiag.com.obd.saej1979 import SAEJ1979
-from autodiag.sim.elm327.sim_generators import *
+from autodiag.sim.ecu.generator import *
 
 def test_saej1979():
     temperature = 0

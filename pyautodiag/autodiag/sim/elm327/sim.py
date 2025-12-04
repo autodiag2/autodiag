@@ -1,6 +1,6 @@
 import os
 from autodiag.libloader import *
-from autodiag.sim.elm327.sim_generators import SimECUGenerator
+from autodiag.sim.ecu.generator import SimECUGenerator
 
 class SimELM327(Structure):
     pass

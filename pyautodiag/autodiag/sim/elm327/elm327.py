@@ -1,7 +1,7 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.sim.elm327.sim import list_SimECU
-from autodiag.sim.elm327.sim_generators import SimECUGenerator
+from autodiag.sim.ecu.generator import SimECUGenerator
 from autodiag.lib import *
 from autodiag.sim.elm327.sim import SimECU
 
