@@ -62,6 +62,18 @@ class UDS_DTC(Structure):
         obj.__class__ = cls
         return obj
 
+    def debug_from_python(self):
+        print("UDS_DTC: {")
+        print(" dtc: {")
+        print(f"  data: {bytes(self.dtc.data).hex()}")
+        print(f"  description: {self.dtc.description}")
+        print(f"  to_string: {self.dtc.to_string}")
+        print(f"  ecu: {self.dtc.ecu}")
+        print(f"  detection_method: {self.dtc.detection_method}")
+        print(" }")
+        print(f" status: {self.status}")
+        print("}")
+
     def __str__(self): return lib.UDS_DTC_to_string(byref(self)).decode()
     def explanation(self): return lib.UDS_DTC_explanation(byref(self)).decode()
 
