@@ -5,13 +5,6 @@ from autodiag.string import *
 
 DTC_DATA_SZ = 3
 
-class DTC_Format(c_int):
-    SAE_J2012_DA_DTCFormat_00 = 0x00
-    ISO_14229_1_DTCFormat = 0x01
-    SAE_J1939_73_DTCFormat = 0x02
-    ISO_11992_4_DTCFormat = 0x03
-    SAE_J2012_DA_DTCFormat_04 = 0x04
-
 class DTC_DESCRIPTION(Structure):
     _fields_ = [
         ("reason", c_char_p),
