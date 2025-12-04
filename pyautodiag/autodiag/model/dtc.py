@@ -51,7 +51,7 @@ class DTC(Structure):
     pass
 
 DTC._fields_ = [
-    ("data", c_byte_p),
+    ("data", c_ubyte * DTC_DATA_SZ),
     ("description", POINTER(list_DTC_DESCRIPTION)),
     ("to_string", CFUNCTYPE(c_char_p, POINTER(DTC))),
     ("ecu", POINTER(ECU)),
