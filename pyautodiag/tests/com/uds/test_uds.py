@@ -28,6 +28,19 @@ def test_UDS():
 
     dtcs = uds.read_dtcs()
     assert 0 < len(dtcs)
+    result = 0b11
+    for dtc in dtcs:
+        if dtc.data is None:
+            print("error")
+        else:
+            dtc_bin_str = bytes(dtc.data).hex()
+            print(f"dtc: {dtc_bin_str}")
+            if dtc_bin_str == "0103":
+                result &= 0b10
+            if dtc_bin_str == "0104":
+                result &= 0b01
+    
+    assert result == 0b00
 
     assert uds.clear_dtcs()
 
