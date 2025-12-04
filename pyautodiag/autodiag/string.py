@@ -26,3 +26,6 @@ class list_object_string(Structure):
         obj = cast(ptr, POINTER(cls)).contents
         obj.__class__ = cls
         return obj
+
+    def append(self, o: object_string): return lib.list_object_string_append(byref(self), byref(o))
+    def remove_at(self, i: int): return lib.list_object_string_remove_at(byref(self), i)
