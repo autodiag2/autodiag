@@ -8,8 +8,8 @@ from autodiag.sim.ecu.generator import *
 
 def test_saej1979():
     temperature = 0
-    @Generator.CALLBACK_SIM_ECU_RESPONSE
-    def custom_sim_ecu_generator_response(generator_ptr, binRequest_ptr, binResponse_ptr):
+    @Generator.RESPONSE
+    def response(generator_ptr, binRequest_ptr, binResponse_ptr):
         binResponse = binResponse_ptr.contents
         hexString = binRequest_ptr.contents.to_hex_string()
         print(hexString, hexString == "0100", hexString == "0105", hexString == "0101")
@@ -45,7 +45,7 @@ def test_saej1979():
     class CustomECUGenerator(Generator):
         def __init__(self):
             self.context = None
-            self.response = custom_sim_ecu_generator_response
+            self.response = response
             self.type = "custom".encode()
             
     log_set_level(LOG_DEBUG)

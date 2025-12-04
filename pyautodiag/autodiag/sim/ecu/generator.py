@@ -4,7 +4,7 @@ from autodiag.buffer import Buffer
 class Generator(Structure):
     pass
 
-Generator.CALLBACK_SIM_ECU_RESPONSE = CFUNCTYPE(
+Generator.RESPONSE = CFUNCTYPE(
     None,
     POINTER(Generator),
     POINTER(Buffer),
@@ -16,7 +16,7 @@ Generator._fields_ = [
     ("type", char_p),
     ("state", c_void_p),
     ("response_trashed", c_void_p),
-    ("response", Generator.CALLBACK_SIM_ECU_RESPONSE),
+    ("response", Generator.RESPONSE),
 ]
 
 class GeneratorRandom(Generator):
