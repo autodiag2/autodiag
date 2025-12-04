@@ -150,7 +150,7 @@ class UDS():
     def is_enabled(self): return lib.uds_is_enabled(byref(self.iface))
     def tester_present(self): return lib.uds_tester_present(byref(self.iface), True)
     def clear_dtcs(self): return lib.uds_clear_dtcs(byref(self.iface))
-    def read_dtcs(self) -> Array[DTC]: 
+    def read_dtcs(self) -> Array[UDS_DTC]: 
         list_dtc_ptr = lib.uds_read_all_dtcs(byref(self.iface), None)
         list_dtc = list_dtc_ptr.contents
         dtcs = []
