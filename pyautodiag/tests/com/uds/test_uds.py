@@ -31,6 +31,8 @@ def test_UDS():
     result = 0b11
     for dtc in dtcs:
         dtc.debug_from_python()
+        ecu = dtc.dtc.ecu.contents
+        ecu.debug_from_python()
         dtc_bin_str = bytes(dtc.dtc.data).hex()
         if dtc_bin_str == "0103":
             result &= 0b10
