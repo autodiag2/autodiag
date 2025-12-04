@@ -1,6 +1,6 @@
 import os
 from autodiag.libloader import *
-from autodiag.sim.ecu.generator import SimECUGenerator
+from autodiag.sim.ecu.generator import Generator
 
 class SimELM327(Structure):
     pass
@@ -15,8 +15,8 @@ class SimECU(Structure):
         obj.__class__ = cls
         return obj
     
-    def set_generator(self, generator: SimECUGenerator):
-        self.generator = cast(pointer(generator), POINTER(SimECUGenerator))
+    def set_generator(self, generator: Generator):
+        self.generator = cast(pointer(generator), POINTER(Generator))
 
 SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
     char_p,
@@ -28,7 +28,7 @@ SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
 
 SimECU._fields_ = [
     ("address", byte),
-    ("generator", POINTER(SimECUGenerator)),
+    ("generator", POINTER(Generator)),
     ("sim_ecu_response", SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE)
 ]
 

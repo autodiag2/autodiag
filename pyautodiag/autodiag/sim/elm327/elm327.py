@@ -1,7 +1,7 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
 from autodiag.sim.elm327.sim import list_SimECU
-from autodiag.sim.ecu.generator import SimECUGenerator
+from autodiag.sim.ecu.generator import Generator
 from autodiag.lib import *
 from autodiag.sim.elm327.sim import SimECU
 
@@ -79,7 +79,7 @@ class SimELM327(Structure):
             lib.sim_elm327_loop(byref(self))
             return True
 
-    def set_ecu_and_generator(self, address: int, generator: SimECUGenerator) -> SimECU:
+    def set_ecu_and_generator(self, address: int, generator: Generator) -> SimECU:
         """
         Set the generator for the ECU at the specified address.
 
@@ -88,7 +88,7 @@ class SimELM327(Structure):
 
         Args:
             address (int): The address of the ECU to configure.
-            generator (SimECUGenerator): The generator instance to assign to the ECU.
+            generator (Generator): The generator instance to assign to the ECU.
 
         Returns:
             SimECU: The ECU instance with the assigned generator.
