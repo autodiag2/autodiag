@@ -133,7 +133,10 @@ list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * fil
     );
     list_UDS_DTC * dtcs = list_UDS_DTC_new();
     for(int i = 0; i < lists_dtcs->size; i ++) {
-        list_DTC_append_list((list_DTC*)dtcs, (list_DTC*)lists_dtcs->list[0]);
+        list_DTC_append_list((list_DTC*)dtcs, (list_DTC*)lists_dtcs->list[i]);
+    }
+    if ( lists_dtcs->size == 1 ) {
+        dtcs->ecu = lists_dtcs->list[0]->ecu;
     }
     return dtcs;
 }
