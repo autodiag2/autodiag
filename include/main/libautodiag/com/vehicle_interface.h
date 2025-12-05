@@ -43,6 +43,8 @@ typedef struct {
     ehh_trigger(iface->internal.onResponse, (void(*)(ECU*,Buffer*)), ecu, binResponse);
 
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state);
+void viface_recorder_reset(final VehicleIFace* iface);
+list_object_Record * viface_recorder_get(final VehicleIFace* iface);
 
 VehicleIFace* viface_new();
 void viface_free(final VehicleIFace* iface);

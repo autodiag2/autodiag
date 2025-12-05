@@ -2,6 +2,12 @@
 #include "libautodiag/com/serial/elm/elm.h"
 #include "libautodiag/com/uds/uds.h"
 
+void viface_recorder_reset(final VehicleIFace* iface) {
+    record_clear();
+}
+list_object_Record * viface_recorder_get(final VehicleIFace* iface) {
+    return recorder_get();
+}
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state) {
     if ( state ) {
         ehh_register(iface->internal.onRequest, record_on_request);

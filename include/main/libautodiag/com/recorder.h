@@ -19,5 +19,7 @@ OBJECT_H(Record,
 AD_LIST_H(object_Record)
 void record_on_request(final Buffer * binRequest);
 void record_on_response(final ECU * ecu, final Buffer * binResponse);
+void record_clear();
+list_object_Record * recorder_get();
 
 #endif

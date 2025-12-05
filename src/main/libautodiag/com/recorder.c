@@ -79,3 +79,10 @@ void record_on_response(final ECU * ecu, final Buffer * binResponse) {
     }
     list_ECUBufferRecord_append(list, buffer_copy(binResponse));
 }
+void record_clear() {
+    // should release object properly
+    list_object_Record_clear(recorder);
+}
+list_object_Record * recorder_get() {
+    return recorder;
+}

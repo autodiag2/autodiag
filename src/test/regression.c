@@ -14,6 +14,7 @@ bool testElm(final VehicleIFace* iface);
 bool testSIM();
 bool testISO3779();
 bool testUDS();
+bool testRecorder(VehicleIFace* iface);
 bool testSimUDS();
 
 int main(int argc, char **argv) {
@@ -39,6 +40,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testSerialListOperations, iface);
     runTestMaybe(testSAEJ1979, iface);
     runTestMaybe(testElm, iface);
+    runTestMaybe(testRecorder, iface);
     runTestMaybe(testUDS, null);
     runTestMaybe(testSimUDS, null);
 
