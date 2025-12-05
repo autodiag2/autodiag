@@ -41,6 +41,6 @@ SimECUGenerator* sim_ecu_generator_new_cycle();
 SimECUGenerator* sim_ecu_generator_new_random();
 SimECUGenerator * sim_ecu_generator_new();
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7();
-#define SIM_ECU_GENERATOR_RESPONSE_FUNC(f) ((Buffer* (*)(SimECUGenerator *, Buffer *))f)
+#define SIM_ECU_GENERATOR_RESPONSE(f) ((Buffer* (*)(SimECUGenerator *, Buffer *))f)
 
 #endif

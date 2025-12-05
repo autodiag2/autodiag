@@ -126,7 +126,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
     return generator;
 }

@@ -331,7 +331,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 }
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
-    generator->response = SIM_ECU_GENERATOR_RESPONSE_FUNC(response);
+    generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("Citroen C5 X7");
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
