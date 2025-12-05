@@ -14,6 +14,7 @@ typedef struct {
 EventHandlerHolder * ehh_new();
 void ehh_free(EventHandlerHolder * ehh);
 void ehh_register(final EventHandlerHolder* ehh, void *ptr);
+bool ehh_unregister(final EventHandlerHolder* ehh, void *ptr);
 
 #define ehh_trigger(ehh, HANDLER_TYPE, ...) \
     {   \

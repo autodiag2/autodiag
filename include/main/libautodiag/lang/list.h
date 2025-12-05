@@ -37,7 +37,9 @@
     AD_LIST_H_REMOVE(element_type); \
     AD_LIST_H_REMOVE_AT(element_type); \
     AD_LIST_H_CONTAINS(element_type); \
-    AD_LIST_H_CLEAR(element_type);
+    AD_LIST_H_INDEX_OF(element_type); \
+    AD_LIST_H_CLEAR(element_type); \
+    AD_LIST_H_OBJECT_CMP(element_type);
 
 #define AD_LIST_SRC(element_type) AD_LIST_SRC_DEEP(element_type,,)
 #define AD_LIST_SRC_DEEP(element_type, new, free) \
@@ -47,6 +49,7 @@
     AD_LIST_SRC_REMOVE(element_type) \
     AD_LIST_SRC_REMOVE_AT(element_type) \
     AD_LIST_SRC_CONTAINS(element_type) \
+    AD_LIST_SRC_INDEX_OF(element_type) \
     AD_LIST_H_SRC_CLEAR(element_type)
 
 #define AD_LIST_H_CLEAR(element_type) void list_##element_type##_clear(list_##element_type * list)
@@ -56,17 +59,23 @@
     } \
 }
 
-#define AD_LIST_H_CONTAINS(element_type) bool list_##element_type##_contains(list_##element_type * list, element_type * element)
-#define AD_LIST_SRC_CONTAINS(element_type) AD_LIST_H_CONTAINS(element_type) { \
+#define AD_LIST_H_OBJECT_CMP(element_type) int element_type##_cmp(element_type * element2, element_type * element)
+
+#define AD_LIST_H_INDEX_OF(element_type) int list_##element_type##_index_of(list_##element_type * list, element_type * element)
+#define AD_LIST_SRC_INDEX_OF(element_type) AD_LIST_H_INDEX_OF(element_type) { \
     AD_LIST_FOREACH( \
         list, element_type, element2, \
         { \
             if ( element_type##_cmp(element2, element) == 0 ) { \
-                return true; \
+                return list_element_index; \
             } \
         } \
     ) \
-    return false; \
+    return -1; \
+}
+#define AD_LIST_H_CONTAINS(element_type) bool list_##element_type##_contains(list_##element_type * list, element_type * element)
+#define AD_LIST_SRC_CONTAINS(element_type) AD_LIST_H_CONTAINS(element_type) { \
+    return list_##element_type##_index_of(list, element) != -1; \
 }
 
 #define AD_LIST_H_NEW(element_type) list_##element_type* list_##element_type##_new()

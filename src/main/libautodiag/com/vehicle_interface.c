@@ -2,6 +2,15 @@
 #include "libautodiag/com/serial/elm/elm.h"
 #include "libautodiag/com/uds/uds.h"
 
+void viface_recorder_set_state(final VehicleIFace* iface, final bool state) {
+    if ( state ) {
+        ehh_register(iface->internal.onRequest, record_on_request);
+        ehh_register(iface->internal.onResponse, record_on_response);
+    } else {
+        ehh_unregister(iface->internal.onRequest, record_on_request);
+        ehh_unregister(iface->internal.onResponse, record_on_response);
+    }
+}
 void viface_close(final VehicleIFace* iface) {
     uds_viface_stop_tester_present_timer(iface);
     if ( iface->device != null ) {

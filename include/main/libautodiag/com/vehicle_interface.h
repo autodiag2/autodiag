@@ -3,6 +3,7 @@
 
 #include "libautodiag/com/device.h"
 #include "libautodiag/model/vehicle.h"
+#include "libautodiag/com/recorder.h"
 
 typedef enum {
     VIFaceState_READY,
@@ -39,7 +40,9 @@ typedef struct {
     ehh_trigger(iface->internal.onRequest, (void(*)(Buffer*)), binRequest);
 
 #define viface_event_emit_on_response(iface, ecu, binResponse) \
-    ehh_trigger(iface->internal.onRequest, (void(*)(ECU*,Buffer*)), ecu, binResponse);
+    ehh_trigger(iface->internal.onResponse, (void(*)(ECU*,Buffer*)), ecu, binResponse);
+
+void viface_recorder_set_state(final VehicleIFace* iface, final bool state);
 
 VehicleIFace* viface_new();
 void viface_free(final VehicleIFace* iface);
