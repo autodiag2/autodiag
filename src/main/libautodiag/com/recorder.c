@@ -11,6 +11,15 @@ AD_LIST_SRC_DEEP(ECUBufferRecord,
 AD_LIST_SRC(object_Record)
 AD_LIST_SRC(list_ECUBufferRecord)
 
+int ECUBufferRecord_cmp(final ECUBufferRecord *r1, final ECUBufferRecord *r2) {
+    return buffer_cmp(r1, r2);
+}
+int object_Record_cmp(object_Record * r1, object_Record * r2) {
+    return r1 - r2;
+}
+int list_ECUBufferRecord_cmp(list_ECUBufferRecord * r1, list_ECUBufferRecord * r2) {
+    return r1->ecu - r2->ecu;
+}
 object_Record * object_Record_new() {
     object_Record * r = (object_Record*)malloc(sizeof(object_Record));
     r->binRequest = buffer_new();
@@ -37,7 +46,7 @@ object_Record * object_Record_assign(object_Record *r, final object_Record *r2) 
     return r;
 }
 static final list_object_Record * recorder = null;
-static ensure_init() {
+static void ensure_init() {
     if ( recorder == null ) {
         recorder = list_object_Record_new();
     }
