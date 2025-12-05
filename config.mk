@@ -36,7 +36,7 @@ endif
 
 CFLAGS_DEBUG    = -ggdb
 CGLAGS_GUI      = `pkg-config --cflags gtk+-3.0`
-CFLAGS          = -I include/main/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
+CFLAGS          = -I include/main/ -I include/main/libautodiag/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
 CFLAGS_LIBS     = -lpthread -lm
 CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
 
