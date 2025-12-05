@@ -34,6 +34,8 @@ VehicleIFace* viface_new() {
     iface->state = VIFaceState_NOT_READY;
     iface->uds_enabled = false;
     iface->uds_tester_present_timer = null;
+    iface->internal.onRequest = ehh_new();
+    iface->internal.onResponse = ehh_new();
     return iface;
 }
 
@@ -155,6 +157,7 @@ int viface_recv(final VehicleIFace* iface) {
                 for(unsigned int j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {
+                        viface_event_emit_on_response(iface, ecu, data);
                         byte service_id = data->buffer[0];
                         if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
                             log_msg(LOG_DEBUG, "Diagnostic Service negative code found (cannot response to the request)");

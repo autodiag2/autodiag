@@ -29,7 +29,17 @@ typedef struct {
      * A thread that send periodically TesterPresent messages.
      */
     pthread_t *uds_tester_present_timer;
+    struct {
+        EventHandlerHolder * onRequest;
+        EventHandlerHolder * onResponse;
+    } internal;
 } VehicleIFace;
+
+#define viface_event_emit_on_request(iface, binRequest) \
+    ehh_trigger(iface->internal.onRequest, (void(*)(Buffer*)), binRequest);
+
+#define viface_event_emit_on_response(iface, ecu, binResponse) \
+    ehh_trigger(iface->internal.onRequest, (void(*)(ECU*,Buffer*)), ecu, binResponse);
 
 VehicleIFace* viface_new();
 void viface_free(final VehicleIFace* iface);
