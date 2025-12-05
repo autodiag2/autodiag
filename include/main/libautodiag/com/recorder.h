@@ -21,5 +21,6 @@ void record_on_request(final Buffer * binRequest);
 void record_on_response(final ECU * ecu, final Buffer * binResponse);
 void record_clear();
 list_object_Record * recorder_get();
+bool record_to_json_file(char *filepath);
 
 #endif

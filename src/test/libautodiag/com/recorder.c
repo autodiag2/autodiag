@@ -29,6 +29,7 @@ bool testRecorder(VehicleIFace* iface) {
             buffer_dump(r->list[j]);
         }
     }
+    assert(record_to_json_file("/tmp/record.json"));
 
     return true;
 }

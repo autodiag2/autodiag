@@ -89,3 +89,39 @@ list_object_Record * recorder_get() {
     ensure_init();
     return recorder;
 }
+bool record_to_json_file(char *filepath) {
+    ensure_init();
+    final FILE * file = fopen(filepath, "w");
+    if ( file == null ) {
+        perror("fopen");
+        return false;
+    }
+    fprintf(file, "[" FILE_EOL);
+    for(int i = 0; i < recorder->size; i ++) {
+        final object_Record * record = recorder->list[i];
+        assert(record != null);
+        fprintf(file, " {" FILE_EOL);
+        fprintf(file, "  \"request\": \"%s\"," FILE_EOL, buffer_to_hex_string(record->binRequest));
+        fprintf(file, "  \"response\": [" FILE_EOL);
+        for(int j = 0; j < record->binResponses->size; j++) {
+            final list_ECUBufferRecord * ecu_response = record->binResponses->list[j];
+            assert(ecu_response->ecu != null);
+            fprintf(file, "   {" FILE_EOL);
+            fprintf(file, "    \"ecu\": \"%s\"," FILE_EOL, buffer_to_hex_string(ecu_response->ecu->address));
+            fprintf(file, "    \"responses\": [" FILE_EOL);
+            for(int k = 0; k < ecu_response->size; k++) {
+                fprintf(file, "     \"%s\"%s" FILE_EOL, 
+                    buffer_to_hex_string(ecu_response->list[k]),
+                    (k+1) < ecu_response->size ? "," : ""
+                );
+            }
+            fprintf(file, "    ]" FILE_EOL);
+            fprintf(file, "   }%s" FILE_EOL, (j+1) < record->binResponses->size ? "," : "");
+        }
+        fprintf(file, "  ]" FILE_EOL);
+        fprintf(file, " }%s" FILE_EOL, (i+1) < recorder->size ? "," : "");
+    }
+    fprintf(file, "]" FILE_EOL);
+    fclose(file);
+    return true;
+}
