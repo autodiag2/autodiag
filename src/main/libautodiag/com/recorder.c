@@ -91,37 +91,49 @@ list_object_Record * recorder_get() {
 }
 bool record_to_json_file(char *filepath) {
     ensure_init();
-    final FILE * file = fopen(filepath, "w");
-    if ( file == null ) {
-        perror("fopen");
+
+    cJSON *root = cJSON_CreateArray();
+
+    for (int i = 0; i < recorder->size; i++) {
+        object_Record *record = recorder->list[i];
+        cJSON *rec = cJSON_CreateObject();
+        cJSON_AddItemToArray(root, rec);
+
+        cJSON_AddStringToObject(rec, "request", buffer_to_hex_string(record->binRequest));
+
+        cJSON *resp_arr = cJSON_CreateArray();
+        cJSON_AddItemToObject(rec, "response", resp_arr);
+
+        for (int j = 0; j < record->binResponses->size; j++) {
+            list_ECUBufferRecord *ecu_response = record->binResponses->list[j];
+
+            cJSON *ecu_obj = cJSON_CreateObject();
+            cJSON_AddItemToArray(resp_arr, ecu_obj);
+
+            cJSON_AddStringToObject(ecu_obj, "ecu", buffer_to_hex_string(ecu_response->ecu->address));
+
+            cJSON *rs_arr = cJSON_CreateArray();
+            cJSON_AddItemToObject(ecu_obj, "responses", rs_arr);
+
+            for (int k = 0; k < ecu_response->size; k++) {
+                cJSON_AddItemToArray(rs_arr,
+                    cJSON_CreateString(buffer_to_hex_string(ecu_response->list[k])));
+            }
+        }
+    }
+
+    char *out = cJSON_Print(root);
+    FILE *f = fopen(filepath, "w");
+    if (!f) {
+        cJSON_Delete(root);
+        free(out);
         return false;
     }
-    fprintf(file, "[" FILE_EOL);
-    for(int i = 0; i < recorder->size; i ++) {
-        final object_Record * record = recorder->list[i];
-        assert(record != null);
-        fprintf(file, " {" FILE_EOL);
-        fprintf(file, "  \"request\": \"%s\"," FILE_EOL, buffer_to_hex_string(record->binRequest));
-        fprintf(file, "  \"response\": [" FILE_EOL);
-        for(int j = 0; j < record->binResponses->size; j++) {
-            final list_ECUBufferRecord * ecu_response = record->binResponses->list[j];
-            assert(ecu_response->ecu != null);
-            fprintf(file, "   {" FILE_EOL);
-            fprintf(file, "    \"ecu\": \"%s\"," FILE_EOL, buffer_to_hex_string(ecu_response->ecu->address));
-            fprintf(file, "    \"responses\": [" FILE_EOL);
-            for(int k = 0; k < ecu_response->size; k++) {
-                fprintf(file, "     \"%s\"%s" FILE_EOL, 
-                    buffer_to_hex_string(ecu_response->list[k]),
-                    (k+1) < ecu_response->size ? "," : ""
-                );
-            }
-            fprintf(file, "    ]" FILE_EOL);
-            fprintf(file, "   }%s" FILE_EOL, (j+1) < record->binResponses->size ? "," : "");
-        }
-        fprintf(file, "  ]" FILE_EOL);
-        fprintf(file, " }%s" FILE_EOL, (i+1) < recorder->size ? "," : "");
-    }
-    fprintf(file, "]" FILE_EOL);
-    fclose(file);
+
+    fwrite(out, 1, strlen(out), f);
+    fclose(f);
+
+    free(out);
+    cJSON_Delete(root);
     return true;
 }

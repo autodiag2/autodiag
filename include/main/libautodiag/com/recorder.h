@@ -3,6 +3,7 @@
 
 #include "libautodiag/lib.h"
 #include "libautodiag/model/vehicle.h"
+#include "cJSON.h"
 
 typedef Buffer ECUBufferRecord;
 
