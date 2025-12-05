@@ -2,6 +2,9 @@ from autodiag.libloader import *
 from autodiag.buffer import Buffer
 
 class Generator(Structure):
+    """
+    Holds how the ECU react to data bytes (UDS, OBD, CAN messages)
+    """
     pass
 
 Generator.RESPONSE = CFUNCTYPE(
