@@ -10,7 +10,7 @@ void viface_close(final VehicleIFace* iface) {
 }
 int viface_send_str(final VehicleIFace * iface, final char * request) {
     final Buffer * binRequest = buffer_from_ascii_hex(request);
-    if ( binRequest == null ) {
+    if ( binRequest == null || binRequest->size == 0 ) {
         log_msg(LOG_WARNING, "Sending at command through the vehicle interface is a bad pratice");
         return iface->device->send(iface->device, request);
     }
