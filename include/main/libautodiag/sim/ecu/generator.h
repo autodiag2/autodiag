@@ -20,14 +20,17 @@ typedef struct SimECUGenerator {
      */
     void *state;
     /**
-     * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN stack)
+     * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance
      * @param binRequest Pointer to the binary request buffer
      * @return Pointer to the binary response buffer
      */
     Buffer * (*response)(struct SimECUGenerator * this, final Buffer *binRequest);
     /**
-     * Same as 'response' but designed to be called from Python code
+     * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
+     * @param this Pointer to the SimECUGenerator instance
+     * @param binRequest Pointer to the binary request buffer
+     * @param binResponse Pointer to the preallocated response buffer
      */
     void (*response_for_python)(struct SimECUGenerator * this, final Buffer *binRequest, final Buffer * binResponse);
 } SimECUGenerator;
