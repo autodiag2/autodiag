@@ -19,7 +19,7 @@ char *saej1979_service_code_to_str(final unsigned char code) {
 
 bool saej1979_clear_dtc_and_stored_values(final VehicleIFace* iface) {
     viface_lock(iface);
-    viface_send(iface, "04");
+    viface_send_str(iface, "04");
     viface_clear_data(iface);
     viface_recv(iface);
     viface_unlock(iface);
@@ -69,13 +69,12 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         final int current_set = pid - (pid % pid_set_inc);
         final int pid_as_bitmask = 1 << (pid - current_set);
 
-        char * request;
-        asprintf(&request,"%02x%02x", service_id, current_set);
-
         viface_lock(iface);
         bool result = false;
 
-        viface_send(iface, request);
+        final Buffer * binRequest = buffer_from_ints(service_id, current_set);
+        viface_send(iface, binRequest);
+        buffer_free(binRequest);
         viface_clear_data(iface);
         viface_recv(iface);
         if ( service_id == 0x01 ) {
@@ -87,8 +86,6 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         }
         viface_unlock(iface);
         list_int_append(pids_status, intdup(result));
-
-        free(request);
     }
     return pids_status;
 }

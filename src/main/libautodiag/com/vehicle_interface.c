@@ -8,9 +8,22 @@ void viface_close(final VehicleIFace* iface) {
         iface->device->close(iface->device);
     }
 }
-
-int viface_send(final VehicleIFace* iface, const char *request) {
-    return iface->device->send(iface->device, request);
+int viface_send_str(final VehicleIFace * iface, final char * request) {
+    final Buffer * binRequest = buffer_from_ascii_hex(request);
+    if ( binRequest == null ) {
+        log_msg(LOG_WARNING, "Sending at command through the vehicle interface is a bad pratice");
+        return iface->device->send(iface->device, request);
+    }
+    final int result = viface_send(iface, binRequest);
+    buffer_free(binRequest);
+    return result;
+}
+int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
+    char * request = buffer_to_hex_string(binRequest);
+    final int result = iface->device->send(iface->device, request);
+    free(request);
+    viface_event_emit_on_request(iface, binRequest);
+    return result;
 }
 void viface_free(final VehicleIFace* iface) {
     assert(iface != null);

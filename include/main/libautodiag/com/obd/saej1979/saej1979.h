@@ -30,7 +30,7 @@ AD_LIST_H(int)
     if ( hasPid ) { \
         pid = (int)((byte)obd_req->buffer[1]); \
     } \
-    viface_send(iface, obd_request_str); \
+    viface_send(iface, obd_req); \
     viface_clear_data(iface); \
     response = viface_recv(iface); \
     if ( 0 < response ) { \

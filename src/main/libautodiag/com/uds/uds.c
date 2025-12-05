@@ -9,7 +9,7 @@ bool uds_clear_dtcs(final VehicleIFace * iface) {
     final byte group2RelatedDTC = 0xFF;
     final byte group3RelatedDTC = 0xFF;
     viface_lock(iface);
-    viface_send(iface, gprintf("%02hhX%02hhX%02hhX%02hhX", 
+    viface_send(iface, buffer_from_ints( 
         UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION, emissionRelatedDTC, group2RelatedDTC, group3RelatedDTC
     ));
     viface_clear_data(iface);
@@ -39,10 +39,9 @@ bool uds_clear_dtcs(final VehicleIFace * iface) {
 list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
     list_Buffer * result = list_Buffer_new();
     viface_lock(iface);
-    char * request;
-    asprintf(&request, "%02hhX%02hhX%02hhX", UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
-    viface_send(iface, request);
-    free(request);
+    final Buffer * binRequest = buffer_from_ints(UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
+    viface_send(iface, binRequest);
+    buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
@@ -92,7 +91,7 @@ bool uds_request_session_cond(final VehicleIFace * iface, final byte session_typ
 bool uds_tester_present(final VehicleIFace *iface, final bool response) {
     bool result = true;
     viface_lock(iface);
-    viface_send(iface, gprintf("%02hhX%02hhx", UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
+    viface_send(iface, buffer_from_ints( UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
     if ( response ) {
         viface_clear_data(iface);
         viface_recv(iface);
@@ -155,7 +154,7 @@ int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
 bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface) {
     final object_hashmap_Int_Int * seeds = object_hashmap_Int_Int_new();
     viface_lock(iface);
-    viface_send(iface, gprintf("%02hhX%02hhX", 
+    viface_send(iface, buffer_from_ints( 
         UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
     ));
     viface_clear_data(iface);
@@ -183,7 +182,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
     final object_hashmap_Int_Int * verify = object_hashmap_Int_Int_new();
     for(int i = 0; i < seeds->size; i++) {
         final int encrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
-        viface_send(iface, gprintf("%02hhX%02hhX%02hhX%02hhX", 
+        viface_send(iface, buffer_from_ints(
             UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
             (encrypted & 0xFF00) >> 8,
             encrypted & 0x00FF
@@ -232,11 +231,10 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
 object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     
-    char * request;
     final object_hashmap_Int_Int * result = object_hashmap_Int_Int_new();
-    asprintf(&request, "%02hhX%02hhX", UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, session_type);
-    viface_send(iface, request);
-    free(request);
+    final Buffer * binRequest = buffer_from_ints(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, session_type);
+    viface_send(iface, binRequest);
+    buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {

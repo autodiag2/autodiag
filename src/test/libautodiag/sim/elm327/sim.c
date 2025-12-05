@@ -29,7 +29,7 @@ void testSIM_1() {
             ((ELM327Device*)iface->device)->protocol = i;
             free(setProto);
             {
-                viface_send(iface,"0101");
+                viface_send_str(iface,"0101");
                 viface_clear_data(iface);
                 viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 3);
@@ -37,7 +37,7 @@ void testSIM_1() {
                 viface_clear_data(iface);
                 iface->device->send(iface->device,"atsr E9");
                 iface->device->recv(iface->device);
-                viface_send(iface,"0101");
+                viface_send_str(iface,"0101");
                 viface_clear_data(iface);
                 viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 1);        
@@ -45,7 +45,7 @@ void testSIM_1() {
                 viface_clear_data(iface);
                 iface->device->send(iface->device,"atar");
                 iface->device->recv(iface->device);
-                viface_send(iface,"0101");
+                viface_send_str(iface,"0101");
                 viface_clear_data(iface);
                 viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 3);
@@ -57,7 +57,7 @@ void testSIM_1() {
         iface->device->recv(iface->device);
         ((ELM327Device*)iface->device)->protocol = 0xB;    
         {
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
@@ -65,7 +65,7 @@ void testSIM_1() {
             viface_clear_data(iface);
             iface->device->send(iface->device,"atsr E9");
             iface->device->recv(iface->device);
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);        
@@ -73,7 +73,7 @@ void testSIM_1() {
             viface_clear_data(iface);
             iface->device->send(iface->device,"atar");
             iface->device->recv(iface->device);
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
@@ -85,7 +85,7 @@ void testSIM_1() {
             viface_clear_data(iface);    
             iface->device->send(iface->device,"atcf 710");
             iface->device->recv(iface->device);        
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 1);  
@@ -94,14 +94,14 @@ void testSIM_1() {
             viface_clear_data(iface);    
             iface->device->send(iface->device,"atcra");
             iface->device->recv(iface->device);
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
             viface_clear_data(iface);    
             iface->device->send(iface->device,"atcra 7EX");
             iface->device->recv(iface->device);
-            viface_send(iface,"0101");
+            viface_send_str(iface,"0101");
             viface_clear_data(iface);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 2);
@@ -114,10 +114,10 @@ void ensureReplayCommands() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
     viface_clear_data(iface);
-    viface_send(iface, "0101");
+    viface_send_str(iface, "0101");
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
-    viface_send(iface, ""); // does it works when changing the pp value of carriage return ? for the emulator point of view not (to test on the real device)
+    viface_send_str(iface, ""); // does it works when changing the pp value of carriage return ? for the emulator point of view not (to test on the real device)
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 2);
 }
@@ -127,7 +127,7 @@ void anyCommandShouldReplyUnknown() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
     viface_clear_data(iface);
-    viface_send(iface, "azrer");
+    viface_send_str(iface, "azrer");
     viface_recv(iface);
     Serial * serial = (Serial*)iface->device;
     buffer_ensure_termination(serial->recv_buffer);
@@ -241,7 +241,7 @@ bool testSIM() {
         viface_clear_data(iface);
         iface->device->send(iface->device,"ats1");
         iface->device->recv(iface->device);
-        viface_send(iface,"0101");
+        viface_send_str(iface,"0101");
         viface_clear_data(iface);
         assert(viface_recv(iface) != VIFACE_RECV_ERROR);
     }
@@ -261,7 +261,7 @@ bool testSIM() {
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
         viface_clear_data(iface);
-        viface_send(iface, "0900");
+        viface_send_str(iface, "0900");
         viface_clear_data(iface);
         viface_recv(iface);
         assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
@@ -272,7 +272,7 @@ bool testSIM() {
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
         viface_clear_data(iface);
-        viface_send(iface, "0902");
+        viface_send_str(iface, "0902");
         viface_clear_data(iface);
         viface_recv(iface);
         list_Buffer_dump(iface->vehicle->data_buffer);
