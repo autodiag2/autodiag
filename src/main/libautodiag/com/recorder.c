@@ -1,5 +1,11 @@
 #include "libautodiag/com/recorder.h"
 
+static final list_object_Record * recorder = null;
+static void ensure_init() {
+    if ( recorder == null ) {
+        recorder = list_object_Record_new();
+    }
+}
 AD_LIST_SRC_DEEP(ECUBufferRecord,
     {
         list->ecu = null;
@@ -45,12 +51,6 @@ object_Record * object_Record_assign(object_Record *r, final object_Record *r2) 
     r->binResponses = r2->binResponses;
     return r;
 }
-static final list_object_Record * recorder = null;
-static void ensure_init() {
-    if ( recorder == null ) {
-        recorder = list_object_Record_new();
-    }
-}
 void record_on_request(final Buffer * binRequest) {
     ensure_init();
     final object_Record * record = object_Record_new();
@@ -80,9 +80,11 @@ void record_on_response(final ECU * ecu, final Buffer * binResponse) {
     list_ECUBufferRecord_append(list, buffer_copy(binResponse));
 }
 void record_clear() {
+    ensure_init();
     // should release object properly
     list_object_Record_clear(recorder);
 }
 list_object_Record * recorder_get() {
+    ensure_init();
     return recorder;
 }

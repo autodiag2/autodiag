@@ -9,7 +9,7 @@ bool testRecorder(VehicleIFace* iface) {
     viface_recorder_set_state(iface, true);
     viface_lock(iface);
     viface_send(iface, buffer_from_ints(0x01,0x01));
-    viface_clear(iface);
+    viface_clear_data(iface);
     viface_recv(iface);
     assert(recorder->size == 1);
 
