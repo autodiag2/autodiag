@@ -77,6 +77,7 @@ void vehicle_ecu_free(ECU* ecu) {
     }
 }
 void vehicle_ecu_debug(final ECU *ecu) {
+    assert(ecu != null);
     printf("ECU debug: {\n");
     printf("  address: %p\n", ecu->address);
     printf("  name: %s\n", ecu->name ? ecu->name : "null");

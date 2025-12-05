@@ -75,13 +75,14 @@ void record_on_response(final ECU * ecu, final Buffer * binResponse) {
     list_ECUBufferRecord * list = ecu_response_list_find(responses, ecu);
     if ( list == null ) {
         list = list_ECUBufferRecord_new();
+        list->ecu = ecu;
         list_list_ECUBufferRecord_append(responses, list);
     }
     list_ECUBufferRecord_append(list, buffer_copy(binResponse));
 }
 void record_clear() {
     ensure_init();
-    // should release object properly
+    log_msg(LOG_DEBUG, "should release object properly");
     list_object_Record_clear(recorder);
 }
 list_object_Record * recorder_get() {
