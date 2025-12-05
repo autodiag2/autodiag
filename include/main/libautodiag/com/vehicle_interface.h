@@ -51,7 +51,7 @@ void viface_close(final VehicleIFace* iface);
  * or communication protocol headers
  */
 int viface_send(final VehicleIFace * iface, final Buffer * binRequest);
-int viface_send_str(final VehicleIFace * iface, final char * hexStrRequest);
+int viface_send_str(final VehicleIFace * iface, final char * request);
 /**
  * Generic error (eg any device reception error)
  */

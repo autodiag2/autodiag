@@ -1070,7 +1070,20 @@ output/obj/main/libautodiag/log.o: src/main/libautodiag/log.c \
   include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
   include/main/libautodiag/lang/list.h \
-  include/main/libautodiag/compile_target.h
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/libautodiag/math.o: src/main/libautodiag/math.c \
   include/main/libautodiag/math.h
 output/obj/main/libautodiag/model/database.o: \
