@@ -161,7 +161,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                         }
                     }
                     if ( filtered ) {
-                        tmpResponse = null; // we do not free to compat with python
+                        free(tmpResponse);
+                        tmpResponse = null;
                     }
                 } else {
                     if ( 0 < elm327->can.mask->size ) {
