@@ -1,6 +1,7 @@
 import os
 from autodiag.libloader import *
 from autodiag.sim.ecu.generator import Generator
+from autodiag.buffer import Buffer
 
 class SimELM327(Structure):
     pass
@@ -22,8 +23,7 @@ SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
     char_p,
     POINTER(SimELM327),
     POINTER(SimECU),
-    char_p,
-    bool
+    POINTER(Buffer)
 )
 
 SimECU._fields_ = [

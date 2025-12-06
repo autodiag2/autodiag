@@ -60,33 +60,8 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
     return protocolSpecificHeader;     
 }
 
-char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, char * request, bool hasSpaces) {
+char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRequest) {
     char * response = null;
-    Buffer* binRequest = buffer_new();
-    char * end_ptr = strstr(request,elm327->eol);
-
-    int szToRemove = 0;
-    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            szToRemove = (4 + 1) * (2 + hasSpaces);
-        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            szToRemove = (3 + 2) + hasSpaces * 2;
-        } else {
-            log_msg(LOG_WARNING, "Missing case here");
-        }
-        if ( elm327->can.extended_addressing ) {
-            szToRemove += 2 + hasSpaces;
-        }
-        if ( strlen(request) <= szToRemove ) {
-            log_msg(LOG_ERROR, "Can auto formatting is disabled, but seem header not provided");
-            return null;
-        }
-    } else {
-        szToRemove = 3 * (2 + hasSpaces);
-    }
-    request = request + szToRemove;
-
-    elm_ascii_to_bin_internal(hasSpaces, binRequest, request, end_ptr == null ? request + strlen(request): end_ptr);
     if ( ! elm327->can.auto_format ) {
         byte pci = binRequest->buffer[0];
         assert((pci & 0xF0) == Iso15765SingleFrame);
@@ -200,7 +175,7 @@ char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, char * request
 
 SimECU* sim_ecu_emulation_new(byte address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
-    emu->sim_ecu_response = (char *(*)(struct _SimELM327 *, struct SimECU *, char *, int))sim_ecu_response_generic;
+    emu->sim_ecu_response = (char *(*)(struct _SimELM327 *, struct SimECU *, Buffer *))sim_ecu_response_generic;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;

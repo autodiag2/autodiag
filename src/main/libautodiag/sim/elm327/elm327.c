@@ -223,7 +223,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 log_msg(LOG_DEBUG, "Not addressed to this ECU");
                 continue;
             }
-            char * tmpResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,hex_string_request,hasSpaces);
+            char * tmpResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,extractedDataRequest);
 
             Buffer * response_header_bin = sim_ecu_generate_response_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
