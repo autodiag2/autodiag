@@ -1697,6 +1697,64 @@ output/obj/main/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h
+output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
+  include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/com/serial/elm/elm327/elm327.h \
+  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/com/recorder.h \
+  include/main/libautodiag/cJSON_customize.h cJSON/cJSON.h \
+  include/main/libautodiag/model/iso3779.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/stored_dtcs.h \
+  include/main/libautodiag/model/database.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/../iso15031/iso15031_6.h \
+  include/main/libautodiag/model/dtc.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/vehicle_info.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
+  include/main/libautodiag/com/can/can.h \
+  include/main/libautodiag/com/can/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm.h \
+  include/main/libautodiag/com/serial/serial.h \
+  include/main/libautodiag/com/serial/list_serial.h \
+  include/main/libautodiag/com/serial/elm/elm_iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm329/elm329.h \
+  include/main/libautodiag/com/serial/elm/elm329/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm329/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm323/elm323.h \
+  include/main/libautodiag/com/serial/elm/elm323/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm322.h \
+  include/main/libautodiag/com/serial/elm/elm320.h \
+  include/main/libautodiag/com/serial/elm/elm327/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
+  include/main/libautodiag/sim/elm327/sim_ecu.h \
+  include/main/libautodiag/sim/ecu/generator.h \
+  include/main/libautodiag/com/uds/uds.h \
+  include/main/libautodiag/com/uds/uds_service_read_dtc.h \
+  include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/string.o: src/main/libautodiag/string.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
@@ -2104,7 +2162,8 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
-  include/main/ui/options.h include/main/libautodiag/sim/elm327/sim_ecu.h \
+  include/main/ui/options.h \
+  include/main/libautodiag/sim/elm327/sim_ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2338,7 +2397,8 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
-  include/main/ui/options.h include/main/libautodiag/sim/elm327/sim_ecu.h \
+  include/main/ui/options.h \
+  include/main/libautodiag/sim/elm327/sim_ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2469,7 +2529,8 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/options.h include/main/libautodiag/sim/elm327/sim_ecu.h \
+  include/main/ui/options.h \
+  include/main/libautodiag/sim/elm327/sim_ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -3505,6 +3566,64 @@ output/obj/test/libautodiag/sim/elm327/uds.o: \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/elm327/nvm.h
+output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
+  src/testFixtures/libTest.h \
+  include/main/libautodiag/com/serial/serial.h \
+  include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/list.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/log.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/com/vehicle_interface.h \
+  include/main/libautodiag/com/recorder.h \
+  include/main/libautodiag/cJSON_customize.h cJSON/cJSON.h \
+  include/main/libautodiag/model/iso3779.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/saej1979.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/data.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/stored_dtcs.h \
+  include/main/libautodiag/model/database.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/../iso15031/iso15031_6.h \
+  include/main/libautodiag/model/dtc.h \
+  include/main/libautodiag/com/obd/iso15031/../saej1979/vehicle_info.h \
+  include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
+  include/main/libautodiag/com/can/can.h \
+  include/main/libautodiag/com/can/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm.h \
+  include/main/libautodiag/com/serial/list_serial.h \
+  include/main/libautodiag/com/serial/elm/elm_iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm329/elm329.h \
+  include/main/libautodiag/com/serial/elm/elm329/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm329/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm327/elm327.h \
+  include/main/libautodiag/com/serial/elm/elm327/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm327/iso15765.h \
+  include/main/libautodiag/com/serial/elm/elm323/elm323.h \
+  include/main/libautodiag/com/serial/elm/elm323/../elm.h \
+  include/main/libautodiag/com/serial/elm/elm322.h \
+  include/main/libautodiag/com/serial/elm/elm320.h \
+  include/main/libautodiag/sim/elm327/sim_ecu.h \
+  include/main/libautodiag/sim/ecu/generator.h \
+  include/main/libautodiag/com/uds/uds.h \
+  include/main/libautodiag/com/uds/uds_service_read_dtc.h \
+  include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libautodiag/sim/sim.h
 output/obj/test/libprog/config.o: src/test/libprog/config.c \
   src/testFixtures/libTest.h \
   include/main/libautodiag/com/serial/serial.h \
