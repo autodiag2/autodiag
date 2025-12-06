@@ -102,6 +102,10 @@ Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu,
     return dataRequest;
 }
 
+/**
+ * Request by the tester to the vehicle (emu).
+ * @return header to send to the vehicle (emu).
+ */
 Buffer* sim_elm327_bus_request_header(SimELM327* elm327,byte source_address, byte can28bits_prio) {
     Buffer *protocolSpecificHeader = buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -129,20 +133,20 @@ Buffer* sim_elm327_bus_request_header(SimELM327* elm327,byte source_address, byt
     return protocolSpecificHeader;     
 }
 
-char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
+char * sim_elm327_bus(SimELM327 * elm327, char * request) {
     char *response = null;
-    bool isHexString = true;
     bool hasSpaces = false;
-    for(int i = 0; i < strlen(hex_string_request); i++) {
-        char c = hex_string_request[i];
+    for(int i = 0; i < strlen(request); i++) {
+        char c = request[i];
         if ( c == ' ' ) {
             hasSpaces = true;
         }
         if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 || 0x61 <= c && c <= 0x66 ) ) {
-            isHexString = false;
+            return strdup("");
         }
     }
-    if ( isHexString && elm327->responses ) {
+    char * hex_string_request = request;
+    if ( elm327->responses ) {
         Buffer * requestHeader = buffer_new();
         Buffer * binRequest = buffer_new();
         
