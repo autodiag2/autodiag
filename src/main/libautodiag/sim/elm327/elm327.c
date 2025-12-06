@@ -87,6 +87,14 @@ Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu,
         if ( elm327->can.extended_addressing ) {
             buffer_left_shift(dataRequest, 1);
         }
+        final int pci_sz = 1;
+        assert(0 < dataRequest->size);
+        final int pci_sz_value = dataRequest->buffer[0] & 0x0F;
+        buffer_left_shift(dataRequest, pci_sz);
+        if ( pci_sz_value != dataRequest->size ) {
+            log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, dataRequest->size);
+            //assert(pci_sz_value == dataRequest->size); TODO
+        }
     } else {
         assert(3 <= binRequest->size);
         buffer_slice_append(dataRequest, binRequest, 3, binRequest->size - 3);
