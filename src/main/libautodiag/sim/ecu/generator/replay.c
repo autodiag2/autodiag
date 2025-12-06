@@ -8,7 +8,6 @@ typedef struct ReqIdx {
 } ReqIdx;
 
 typedef struct {
-    byte address;
     cJSON *records;
     ReqIdx *head;
 } GState;
@@ -41,6 +40,7 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     if (!st->records) {
         char *filepath = (char*)generator->context;
         FILE *f = fopen(filepath, "r");
+        printf("filepath=%s\n", filepath);
         assert(f);
         fseek(f, 0, SEEK_END);
         long len = ftell(f);
@@ -51,24 +51,32 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
         fclose(f);
         st->records = cJSON_Parse(buf);
         free(buf);
-        assert(st->records);
+        if (!st->records) {
+            const char *error_ptr = cJSON_GetErrorPtr();
+            if (error_ptr) {
+                printf("JSON parse error before: %s\n", error_ptr);
+            } else {
+                printf("JSON parse failed: unknown error\n");
+            }
+            assert(st->records);
+        }
     }
 
     char *req_hex = buffer_to_hex_string(binRequest);
 
     // Calculate max flow count for this request and address filter
     int max = 0;
+
+    if ( ! cJSON_IsArray(st->records) ) {
+        assert(cJSON_IsObject(st->records));
+        cJSON * arr = cJSON_CreateArray();
+        cJSON_AddItemToArray(arr, st->records);
+        st->records = arr;
+    }
     int n = cJSON_GetArraySize(st->records);
 
     for (int i = 0; i < n; i++) {
         cJSON *ecu_obj = cJSON_GetArrayItem(st->records, i);
-
-        char *ecu_addr = cJSON_GetObjectItem(ecu_obj, "ecu")->valuestring;
-
-        Buffer * address = buffer_from_ascii_hex(ecu_addr);
-
-        if ( address->buffer[address->size-1] != st->address )
-            continue;
 
         cJSON *flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
         if (!flow_arr) continue;
@@ -90,12 +98,6 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     int count = 0;
     for (int i = 0; i < n; i++) {
         cJSON *ecu_obj = cJSON_GetArrayItem(st->records, i);
-
-        char *ecu_addr = cJSON_GetObjectItem(ecu_obj, "ecu")->valuestring;
-        Buffer * address = buffer_from_ascii_hex(ecu_addr);
-
-        if ( address->size == 0 || address->buffer[address->size-1] != st->address )
-            continue;
 
         cJSON *flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
         if (!flow_arr) continue;
@@ -121,15 +123,14 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     return buffer_new();
 }
 
-SimECUGenerator* sim_ecu_generator_new_replay(byte address) {
+SimECUGenerator* sim_ecu_generator_new_replay() {
     SimECUGenerator *g = sim_ecu_generator_new();
     g->response = SIM_ECU_GENERATOR_RESPONSE(response);
     g->type = strdup("replay");
 
     GState *st = malloc(sizeof(GState));
-    st->address = address;
-    st->records = NULL;
-    st->head = NULL;
+    st->records = null;
+    st->head = null;
 
     g->state = st;
     return g;
