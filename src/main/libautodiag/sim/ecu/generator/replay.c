@@ -58,27 +58,34 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     int count = 0;
 
     for (int i = 0; i < n; i++) {
-        cJSON *item = cJSON_GetArrayItem(st->records, i);
-        char *file_req = cJSON_GetObjectItem(item, "request")->valuestring;
-        if (strcmp(req_hex, file_req) == 0) {
-            if (count == idx) {
-                cJSON *resp_arr = cJSON_GetObjectItem(item, "response");
-                int rn = cJSON_GetArraySize(resp_arr);
-                for (int j = 0; j < rn; j++) {
-                    cJSON *ecu = cJSON_GetArrayItem(resp_arr, j);
-                    char *addr = cJSON_GetObjectItem(ecu, "ecu")->valuestring;
-                    if (!st->address ||
-                        buffer_cmp(st->address, buffer_from_ascii_hex(addr)) == 0 ||
-                        st->address->size == 0) {
-                        cJSON *rs = cJSON_GetObjectItem(ecu, "responses");
-                        if (!rs || cJSON_GetArraySize(rs) == 0) return buffer_new();
-                        char *hex = cJSON_GetArrayItem(rs, 0)->valuestring;
-                        return buffer_from_ascii_hex(hex);
-                    }
+        cJSON *ecu_obj = cJSON_GetArrayItem(st->records, i);
+
+        char *ecu_addr = cJSON_GetObjectItem(ecu_obj, "ecu")->valuestring;
+
+        if (st->address &&
+            buffer_cmp(st->address, buffer_from_ascii_hex(ecu_addr)) != 0 &&
+            st->address->size != 0)
+            continue;
+
+        cJSON *flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
+        if (!flow_arr) continue;
+
+        int fn = cJSON_GetArraySize(flow_arr);
+
+        for (int j = 0; j < fn; j++) {
+            cJSON *flow_obj = cJSON_GetArrayItem(flow_arr, j);
+
+            char *file_req = cJSON_GetObjectItem(flow_obj, "request")->valuestring;
+
+            if (strcmp(req_hex, file_req) == 0) {
+                if (count == idx) {
+                    cJSON *rs_arr = cJSON_GetObjectItem(flow_obj, "responses");
+                    if (!rs_arr || cJSON_GetArraySize(rs_arr) == 0) return buffer_new();
+                    char *hex = cJSON_GetArrayItem(rs_arr, 0)->valuestring;
+                    return buffer_from_ascii_hex(hex);
                 }
-                return buffer_new();
+                count++;
             }
-            count++;
         }
     }
 
