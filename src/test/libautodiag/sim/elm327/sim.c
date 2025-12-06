@@ -1,6 +1,6 @@
 #include "libTest.h"
 
-void testSIM_1() {
+void testSimELM327_1() {
 
     SimELM327* elm327 = sim_elm327_new();
     list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0xE9));
@@ -146,7 +146,7 @@ void incomplete_string_return_after_20_secs() {
     assert(serial_recv_internal(serial) > 0);
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
-bool testSIM() {
+bool testSimELM327() {
     //incomplete_string_return_after_20_secs();
     anyCommandShouldReplyUnknown();
     ensureReplayCommands();
@@ -229,7 +229,7 @@ bool testSIM() {
         viface_clear_data(iface);
         iface->device->recv(iface->device); // OK + Prompt
     }
-    testSIM_1();
+    testSimELM327_1();
     {
         SimELM327* elm327 = sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);

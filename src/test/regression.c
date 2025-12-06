@@ -11,7 +11,8 @@ bool testSerialListOperations(VehicleIFace* iface);
 bool testCarDatabaseLoad(VehicleIFace* iface);
 bool testIniTools(VehicleIFace* iface);
 bool testElm(final VehicleIFace* iface);
-bool testSIM();
+bool testSimELM327();
+bool testSim();
 bool testISO3779();
 bool testUDS();
 bool testReplay();
@@ -28,7 +29,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testHashMap, null);
     runTestMaybe(testBuffer,null);
     runTestMaybe(testGlobals,null);
-    runTestMaybe(testSIM,null);
+    runTestMaybe(testSimELM327,null);
     runTestMaybe(testISO3779,null);
     
     final VehicleIFace* iface = port_open(start_elm327_simulation());
@@ -45,6 +46,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testReplay, null);
     runTestMaybe(testUDS, null);
     runTestMaybe(testSimUDS, null);
+    runTestMaybe(testSim, null);
 
     viface_close(iface);
     viface_free(iface);

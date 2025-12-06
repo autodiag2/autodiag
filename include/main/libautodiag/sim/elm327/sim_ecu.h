@@ -1,5 +1,5 @@
-#ifndef __SIM_H
-#define __SIM_H
+#ifndef __SIM_ELM327_SIM_H
+#define __SIM_ELM327_SIM_H
 
 #include "libautodiag/sim/ecu/generator.h"
 #include "libautodiag/com/uds/uds.h"
