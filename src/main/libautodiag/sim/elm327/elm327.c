@@ -104,19 +104,44 @@ Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu,
 
 /**
  * Request by the tester to the vehicle (emu).
+ * @param ecu to which send the dataRequest
+ * @param dataRequest OBD/UDS
  * @return header to send to the vehicle (emu).
  */
-Buffer* sim_elm327_bus_request_header(SimELM327* elm327,byte source_address, byte can28bits_prio) {
+Buffer* sim_elm327_bus_request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequest) {
     Buffer *protocolSpecificHeader = buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            BUFFER_APPEND_BYTES(protocolSpecificHeader,
-                can28bits_prio, 0xDA, 0xF1, source_address
-            );
+            if ( elm327->custom_header->size == 3 ) {
+                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                    elm327->can.priority_29bits,
+                    elm327->custom_header->buffer[0],
+                    elm327->custom_header->buffer[1], 
+                    elm327->custom_header->buffer[2]
+                );
+            } else if ( elm327->custom_header->size == 4 ) {
+                buffer_append(protocolSpecificHeader, elm327->custom_header);
+            } else {
+                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                    elm327->can.priority_29bits, 0xDA, 0xF1, elm327->testerAddress
+                );
+            }
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            BUFFER_APPEND_BYTES(protocolSpecificHeader,
-                0x7, source_address
-            );
+            if ( elm327->custom_header->size == 2 ) {
+                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                    elm327->custom_header->buffer[0]&0xF, 
+                    elm327->custom_header->buffer[1]
+                );
+            } else if ( elm327->custom_header->size == 3 ) {
+                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                    elm327->custom_header->buffer[1]&0xF, 
+                    elm327->custom_header->buffer[2]
+                );
+            } else {
+                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                    0x7, elm327->testerAddress
+                );
+            }
         } else {
             log_msg(LOG_WARNING, "Missing case here");
         }
@@ -125,10 +150,21 @@ Buffer* sim_elm327_bus_request_header(SimELM327* elm327,byte source_address, byt
                 elm327->can.extended_addressing_target_address
             );
         }
+        if ( elm327->can.auto_format ) {
+            final int pci = dataRequest->size;
+            BUFFER_APPEND_BYTES(
+                protocolSpecificHeader,
+                pci   
+            );
+        }
     } else {
-        BUFFER_APPEND_BYTES(protocolSpecificHeader,
-            0x41, 0x6B, source_address
-        );
+        if ( elm327->custom_header->size == 3 ) {
+            buffer_append(protocolSpecificHeader, elm327->custom_header);
+        } else {
+            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                0x41, 0x6B, elm327->testerAddress
+            );
+        }
     }
     return protocolSpecificHeader;     
 }
@@ -147,59 +183,18 @@ char * sim_elm327_bus(SimELM327 * elm327, char * request) {
     }
     char * hex_string_request = request;
     if ( elm327->responses ) {
-        Buffer * requestHeader = buffer_new();
-        Buffer * binRequest = buffer_new();
         
         final Buffer * dataRequest = buffer_new();
         char * end_ptr = strstr(hex_string_request,elm327->eol);
         elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
 
-        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-            if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-                if ( elm327->custom_header->size == 2 ) {
-                    BUFFER_APPEND_BYTES(requestHeader,
-                        elm327->custom_header->buffer[0]&0xF, 
-                        elm327->custom_header->buffer[1]
-                    );
-                } else if ( elm327->custom_header->size == 3 ) {
-                    BUFFER_APPEND_BYTES(requestHeader,
-                        elm327->custom_header->buffer[1]&0xF, 
-                        elm327->custom_header->buffer[2]
-                    );
-                }
-            } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {            
-                if ( elm327->custom_header->size == 3 ) {
-                    BUFFER_APPEND_BYTES(requestHeader,
-                        elm327->can.priority_29bits,
-                        elm327->custom_header->buffer[0],
-                        elm327->custom_header->buffer[1], 
-                        elm327->custom_header->buffer[2]
-                    );
-                } else if ( elm327->custom_header->size == 4 ) {
-                    buffer_append(requestHeader, elm327->custom_header);
-                }
-            }
-            if ( requestHeader->size == 0 ) {
-                requestHeader = sim_elm327_bus_request_header(elm327, elm327->testerAddress, elm327->can.priority_29bits);
-            }
-            if ( elm327->can.auto_format ) {
-                final int pci = dataRequest->size;
-                BUFFER_APPEND_BYTES(
-                    requestHeader,
-                    pci   
-                );
-            }
-        } else {
-            if ( elm327->custom_header->size == 3 ) {
-                buffer_append(requestHeader, elm327->custom_header);
-            } else {
-                requestHeader = sim_elm327_bus_request_header(elm327, elm327->testerAddress, ELM327_CAN_28_BITS_DEFAULT_PRIO);
-            }
-        }
-        buffer_append(binRequest, requestHeader);
-        buffer_append(binRequest, dataRequest);
+        
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
+            Buffer * binRequest = buffer_new();
+            final Buffer * requestHeader = sim_elm327_bus_request_header(elm327, ecu, dataRequest);
+            buffer_append(binRequest, requestHeader);
+            buffer_append(binRequest, dataRequest);
 
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
                 if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
