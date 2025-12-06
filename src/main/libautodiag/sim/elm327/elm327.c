@@ -172,20 +172,20 @@ Buffer* sim_elm327_bus_request_header(SimELM327* elm327, SimECU * ecu, Buffer * 
     return protocolSpecificHeader;     
 }
 
-char * sim_elm327_bus(SimELM327 * elm327, char * request) {
+char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
+    bool isHexString = true;
     bool hasSpaces = false;
-    for(int i = 0; i < strlen(request); i++) {
-        char c = request[i];
+    for(int i = 0; i < strlen(hex_string_request); i++) {
+        char c = hex_string_request[i];
         if ( c == ' ' ) {
             hasSpaces = true;
         }
         if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 || 0x61 <= c && c <= 0x66 ) ) {
-            return strdup("");
+            isHexString = false;
         }
     }
-    char * hex_string_request = request;
-    if ( elm327->responses ) {
+    if ( isHexString && elm327->responses ) {
         
         final Buffer * dataRequest = buffer_new();
         char * end_ptr = strstr(hex_string_request,elm327->eol);
