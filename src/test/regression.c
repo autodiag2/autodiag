@@ -46,6 +46,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testReplay, null);
     runTestMaybe(testUDS, null);
     runTestMaybe(testSimUDS, null);
+    runTestMaybe(testSimELM327, null);
     runTestMaybe(testSim, null);
 
     viface_close(iface);
