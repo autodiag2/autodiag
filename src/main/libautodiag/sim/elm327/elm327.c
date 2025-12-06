@@ -71,6 +71,33 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
     }
 }
 
+Buffer* sim_elm327_bus_msg_header(struct _SimELM327* elm327,byte source_address, byte can28bits_prio) {
+    Buffer *protocolSpecificHeader = buffer_new();
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                can28bits_prio, 0xDA, 0xF1, source_address
+            );
+        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                0x7, source_address
+            );
+        } else {
+            log_msg(LOG_WARNING, "Missing case here");
+        }
+        if ( elm327->can.extended_addressing ) {
+            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                elm327->can.extended_addressing_target_address
+            );
+        }
+    } else {
+        BUFFER_APPEND_BYTES(protocolSpecificHeader,
+            0x41, 0x6B, source_address
+        );
+    }
+    return protocolSpecificHeader;     
+}
+
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
@@ -132,8 +159,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 request_header = sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
             }
             if ( requestHeader->size == 0 ) {
-                // TODO
-                // sim_ecu_generate_request_header_bin
+                requestHeader = sim_elm327_bus_msg_header(elm327, elm327->testerAddress, elm327->can.priority_29bits);
             }
             if ( elm327->can.auto_format ) {
                 final int pci = strlen(hex_string_request) - space_num;
@@ -151,12 +177,14 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),hex_string_request);
             } else {
                 asprintf(&requestStr,"%s%s%s",sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,hex_string_request);
-                // TODO
-                // sim_ecu_generate_request_header_bin
+                requestHeader = sim_elm327_bus_msg_header(elm327, elm327->testerAddress, ELM327_CAN_28_BITS_DEFAULT_PRIO);
             }
         }
         char * end_ptr = strstr(hex_string_request,elm327->eol);
-        elm_ascii_to_bin_internal(hasSpaces, binRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
+        final Buffer * dataRequest = buffer_new();
+        elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
+        buffer_append(binRequest, requestHeader);
+        buffer_append(binRequest, dataRequest);
         hex_string_request = requestStr;
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
