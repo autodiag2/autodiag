@@ -26,10 +26,6 @@ SimECU* sim_ecu_emulation_new(byte address);
  * Header sent by tester to ECU.
  */
 char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces);
-/**
- * Generate the header for the response by ECU to the tester.
- */
-Buffer* sim_ecu_generate_response_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio);
 
 #include "elm327.h"
 

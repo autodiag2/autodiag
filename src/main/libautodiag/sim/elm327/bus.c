@@ -113,7 +113,39 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
     }
     return protocolSpecificHeader;     
 }
-
+/**
+ * Generate the response header to the tester by the bus.
+ */
+static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
+    final Buffer * header = buffer_new();
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+            BUFFER_APPEND_BYTES(header, 
+                can28bits_prio,
+                0xDA,
+                elm327->testerAddress,
+                ecu->address
+            );
+        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            BUFFER_APPEND_BYTES(header, 
+                0x7,
+                ecu->address
+            );
+        } else {
+            log_msg(LOG_WARNING, "Missing case here");
+            assert( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) || 
+                elm327_protocol_is_can_11_bits_id(elm327->protocolRunning)
+            );
+        }
+    } else {
+        BUFFER_APPEND_BYTES(header, 
+            0x41, 
+            elm327->testerAddress,
+            ecu->address
+        );
+    }
+    return header;     
+}
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
@@ -160,7 +192,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
             char * tmpResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,extractedDataRequest);
 
-            Buffer * response_header_bin = sim_ecu_generate_response_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+            Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                 assert(elm327->can.mask != null);
                 assert(elm327->can.filter != null);

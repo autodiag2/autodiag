@@ -13,30 +13,6 @@ void list_SimECU_empty(list_SimECU * list) {
     }
 }
 
-Buffer* sim_ecu_generate_response_header_bin(struct _SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
-    char *protocolSpecificHeader = null;
-    Buffer * header = null;
-    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            char * res;
-            asprintf(&res,"%02XDA0000",can28bits_prio);
-            header = buffer_from_ascii_hex(res);
-            free(res);
-            header->buffer[2] = elm327->testerAddress;
-            header->buffer[3] = ecu->address;
-        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            header = buffer_from_ascii_hex("0700");
-            header->buffer[header->size-1] = ecu->address;
-        } else {
-            log_msg(LOG_WARNING, "Missing case here");
-        }
-    } else {
-        header = buffer_from_ascii_hex("410000");
-        header->buffer[1] = elm327->testerAddress;
-        header->buffer[2] = ecu->address;
-    }
-    return header;     
-}
 char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
     char * space = print_spaces ? " " : "";
