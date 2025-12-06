@@ -3,7 +3,7 @@
 
 bool testSim() {
     SimELM327* elm327 = sim_elm327_new();
-    assert(sim_load_from_json(elm327, 
+    assert(sim_load_from_json(SIM(elm327), 
         "["
             "{"
                 "\"ecu\": \"07e8\","
@@ -40,7 +40,7 @@ bool testSim() {
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
-    assert(elm327->ecus->size == 2);
+    assert(LIST_SIM_ECU(elm327->ecus)->size == 2);
     viface_lock(iface);
     viface_send_str(iface, "0101");
     viface_clear_data(iface);

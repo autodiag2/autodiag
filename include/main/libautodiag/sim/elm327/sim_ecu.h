@@ -15,6 +15,7 @@ typedef struct SimECU {
     char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * request, bool hasSpaces);
 } SimECU;
 AD_LIST_H(SimECU)
+#define LIST_SIM_ECU(var) ((list_SimECU*)var)
 void list_SimECU_empty(list_SimECU * list);
 
 #define ELM327_CAN_28_BITS_DEFAULT_PRIO 0x18

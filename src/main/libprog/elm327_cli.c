@@ -93,7 +93,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("example: -e E8\n"); 
                 return 0;
             } else if ( sscanf(arg,"%02hhx", &ecu_address) == 1 ) {
-                list_SimECU_append(sim->ecus,sim_ecu_emulation_new(ecu_address));                    
+                list_SimECU_append((list_SimECU*)sim->ecus,sim_ecu_emulation_new(ecu_address));                    
             } else {
                 sim_elm327_cli_display_help();
                 return 1;
@@ -132,8 +132,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
         } else if argIs("-g") {
             argNext();
             char * arg = argCurrent();
-            assert(0 < sim->ecus->size);
-            final SimECU * target_ecu = sim->ecus->list[sim->ecus->size - 1];
+            assert(0 < LIST_SIM_ECU(sim->ecus)->size);
+            final SimECU * target_ecu = LIST_SIM_ECU(sim->ecus)->list[LIST_SIM_ECU(sim->ecus)->size - 1];
             final SimECUGenerator * generator;
             if ( arg == null ) {
                 printf("Available generators:\n");
@@ -167,8 +167,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
         } else if argIs("-c") {
             argNext();
             char * arg = argCurrent();
-            assert(0 < sim->ecus->size);
-            final SimECUGenerator *generator = sim->ecus->list[sim->ecus->size - 1]->generator;
+            assert(0 < LIST_SIM_ECU(sim->ecus)->size);
+            final SimECUGenerator *generator = LIST_SIM_ECU(sim->ecus)->list[LIST_SIM_ECU(sim->ecus)->size - 1]->generator;
             if ( arg == null ) {
                 printf("give the context to the -c, cannot be empty\n");
                 return 0;
@@ -199,7 +199,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("Need to provide the json context as argument\n");
                 return 1;
             }
-            if ( sim_load_from_json(sim, arg) == GENERIC_FUNCTION_ERROR ) {
+            if ( sim_load_from_json(SIM(sim), arg) == GENERIC_FUNCTION_ERROR ) {
                 printf("Failed to load from json, check your json\n");
                 return 1;
             }

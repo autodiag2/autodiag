@@ -128,8 +128,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
         }
         hex_string_request = requestStr;
-        for(int i = 0; i < elm327->ecus->size; i++) {
-            SimECU * ecu = elm327->ecus->list[i];
+        for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
+            SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
 
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
                 if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
@@ -173,7 +173,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
 
             if ( tmpResponse != null ) {
                 char * tmpResponseResult;
-                asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,tmpResponse,i+1<elm327->ecus->size ? elm327->eol : "");
+                asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,tmpResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
                 tmpResponse = null; // we do not free to compat with python
                 response = null;    // we do not free to compat with python
                 response = tmpResponseResult;
@@ -201,9 +201,9 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
 }
 void sim_elm327_debug(final SimELM327 * elm327) {
     printf("SimELM327: {\n");
-    printf("    ecus %p (list: %p, size: %d): {\n", elm327->ecus, elm327->ecus->list, elm327->ecus->size);
-    for(unsigned int i = 0; i < elm327->ecus->size; i++) {
-        SimECU * sim_ecu = elm327->ecus->list[i];
+    printf("    ecus %p (list: %p, size: %d): {\n", elm327->ecus, LIST_SIM_ECU(elm327->ecus)->list, LIST_SIM_ECU(elm327->ecus)->size);
+    for(unsigned int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
+        SimECU * sim_ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
         SimECUGenerator * generator = sim_ecu->generator;
         printf("        ecu: %p {\n", sim_ecu);
         printf("            address: %02hhX\n", sim_ecu->address);
@@ -431,9 +431,9 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
-    elm327->ecus = list_SimECU_new();
+    elm327->ecus = (struct list_SimECU*) list_SimECU_new();
     final SimECU *ecu = sim_ecu_emulation_new(0xE8);
-    list_SimECU_append(elm327->ecus,ecu);
+    list_SimECU_append(LIST_SIM_ECU(elm327->ecus),ecu);
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
     elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;

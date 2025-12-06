@@ -12,6 +12,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 #include "libautodiag/sim/elm327/sim_ecu.h"
+#include "libautodiag/sim/sim.h"
 
 #define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
@@ -30,6 +31,7 @@ typedef struct {
 } SimELM327Implementation;
 
 typedef struct _SimELM327 {
+    Sim;
     SimELM327Implementation* implementation;
 	char * eol;
 	bool echo;
@@ -123,8 +125,6 @@ typedef struct _SimELM327 {
          */
     	Buffer* programmable_parameters_states;    	
     } nvm;
-
-    list_SimECU * ecus;
 
 } SimELM327;
 

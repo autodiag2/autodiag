@@ -8,7 +8,7 @@ from autodiag.lib import *
 log_set_level(LOG_DEBUG)
 emulation = SimELM327()
 cycleGen = GeneratorCycle()
-emulation.ecus.contents.list[0].contents.set_generator(cycleGen)
+emulation.sim.ecus.contents.list[0].contents.set_generator(cycleGen)
 
 emulation.loop(daemon=True)
 

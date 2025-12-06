@@ -30,8 +30,13 @@ class NVMSettings(Structure):
         ("programmable_parameters_states", POINTER(Buffer)),
     ]
 
+class Sim(Structure):
+    _fields_ = [
+        ("ecus", POINTER(list_SimECU))
+    ]
 class SimELM327(Structure):
     _fields_ = [
+        ("sim", Sim),
         ("implementation", POINTER(SimELM327Implementation)),
         ("eol", char_p),
         ("echo", bool),
@@ -59,8 +64,7 @@ class SimELM327(Structure):
         ("can", CANSettings),
         ("isMemoryEnabled", bool),
         ("testerAddress", byte),
-        ("nvm", NVMSettings),
-        ("ecus", POINTER(list_SimECU))
+        ("nvm", NVMSettings)
     ]
 
     def __new__(cls):
@@ -96,7 +100,7 @@ class SimELM327(Structure):
         ecu = self.get_ecu(address)
         if ecu is None:
             ecu = SimECU(address)
-            self.ecus.contents.append(ecu)
+            self.sim.ecus.contents.append(ecu)
         ecu.set_generator(generator)
         return ecu 
     
@@ -113,8 +117,8 @@ class SimELM327(Structure):
         Returns:
             SimECU | None: The ECU instance if found, otherwise None.
         """
-        for i in range(self.ecus.contents.size):
-            ecu = self.ecus.contents.list[i].contents
+        for i in range(self.sim.ecus.contents.size):
+            ecu = self.sim.ecus.contents.list[i].contents
             if ecu.address == address:
                 return ecu
         return None
@@ -124,12 +128,12 @@ class SimELM327(Structure):
 
     def debug_from_python(self):
         print("SimELM327: {")
-        if not self.ecus:
+        if not self.sim.ecus:
             print("    ecus: NULL")
             print("}")
             return
-        ecu_list = self.ecus.contents
-        print(f"    ecus {addr(self.ecus)} (list: {addr(ecu_list.list)}, size: {ecu_list.size}): {{")
+        ecu_list = self.sim.ecus.contents
+        print(f"    ecus {addr(self.sim.ecus)} (list: {addr(ecu_list.list)}, size: {ecu_list.size}): {{")
         for i in range(ecu_list.size):
             sim_ecu_ptr = ecu_list.list[i]
             sim_ecu = sim_ecu_ptr.contents

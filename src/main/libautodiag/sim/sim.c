@@ -1,6 +1,6 @@
 #include "libautodiag/sim/sim.h"
 
-int sim_load_from_json(SimELM327 * elm327, char * json_context) {
+int sim_load_from_json(Sim * sim, char * json_context) {
     cJSON * root = null;
     FILE *f = fopen(json_context, "r");
     if ( f ) {
@@ -27,7 +27,7 @@ int sim_load_from_json(SimELM327 * elm327, char * json_context) {
         log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
         return GENERIC_FUNCTION_ERROR;
     }
-    list_SimECU_clear(elm327->ecus);
+    list_SimECU_clear(LIST_SIM_ECU(sim->ecus));
     if ( ! cJSON_IsArray(root) ) {
         assert(cJSON_IsObject(root));
         cJSON * arr = cJSON_CreateArray();
@@ -47,7 +47,7 @@ int sim_load_from_json(SimELM327 * elm327, char * json_context) {
         final SimECU * ecu = sim_ecu_emulation_new(address->buffer[address->size-1]);
         ecu->generator = sim_ecu_generator_new_replay();
         ecu->generator->context = context;
-        list_SimECU_append(elm327->ecus, ecu);
+        list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);
     }
     return GENERIC_FUNCTION_SUCCESS;
 }

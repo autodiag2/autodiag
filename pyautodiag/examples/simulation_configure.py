@@ -21,7 +21,7 @@ from autodiag.lib import *
 callback = Generator.RESPONSE(response)
 from ctypes import cast, c_void_p
 print("Function address:", hex(cast(callback, c_void_p).value))
-print(addr(byref(emulation.ecus.contents.list[0])))
+print(addr(byref(emulation.ecus.sim.contents.list[0])))
 emulation.debug()
 emulation.debug_from_python()
 emulation.set_ecu_and_generator(0xE8, CustomECUGenerator())

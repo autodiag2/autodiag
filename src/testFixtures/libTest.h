@@ -80,7 +80,7 @@ static VehicleIFace* port_parse_open(int argc, char **argv) {
 static char* start_elm327_simulation_with_ecus(SimECU *first) {
     SimELM327* elm327 = sim_elm327_new();
     if ( first != null ) {
-        elm327->ecus->list[0] = first;
+        LIST_SIM_ECU(elm327->ecus)->list[0] = first;
     }
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);

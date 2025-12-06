@@ -295,7 +295,7 @@ static void launch_simulation_internal() {
 
     for (GList *iter = rows; iter != NULL; iter = iter->next) {
         if ( firstPass ) {
-            list_SimECU_empty(elm327->ecus);
+            list_SimECU_empty((list_SimECU*) elm327->ecus);
             firstPass = false;
         }
         GtkWidget *row = GTK_WIDGET(iter->data);
@@ -333,7 +333,7 @@ static void launch_simulation_internal() {
         }
 
         g_list_free(children);
-        list_SimECU_append(elm327->ecus,ecu);
+        list_SimECU_append((list_SimECU*) elm327->ecus,ecu);
     }
     g_list_free(rows);
 
