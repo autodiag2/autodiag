@@ -139,6 +139,13 @@ void sim_elm327_loop_as_daemon(SimELM327 * elm327);
 bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327);
 void sim_elm327_destroy(SimELM327 * elm327);
 void sim_elm327_debug(final SimELM327 * elm327);
+void sim_elm327_start_activity_monitor(SimELM327 * elm327);
+
+#define SIM_ELM327_PP_GET(elm327,parameter) \
+    (elm327->nvm.programmable_parameters_states->buffer[parameter] ? elm327->nvm.programmable_parameters->buffer[parameter] : elm327->programmable_parameters_defaults->buffer[parameter])
+
+#define SIM_ELM327_PPS_STATE(elm327,state) \
+    buffer_initialise(elm327->nvm.programmable_parameters_states, state);
 
 #include "nvm.h"
 
