@@ -71,6 +71,9 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
     }
 }
 
+/**
+ * Response of the controller to the tester.
+ */
 Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest) {
     Buffer * dataRequest = buffer_new();
     log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
@@ -187,7 +190,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * request) {
         final Buffer * dataRequest = buffer_new();
         char * end_ptr = strstr(hex_string_request,elm327->eol);
         elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
-
+        log_msg(LOG_DEBUG, "TODO: handle multiple data request");
         
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
