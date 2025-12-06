@@ -20,7 +20,7 @@ class SimECU(Structure):
         self.generator = cast(pointer(generator), POINTER(Generator))
 
 SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
-    char_p,
+    c_void_p,
     POINTER(SimELM327),
     POINTER(SimECU),
     POINTER(Buffer)

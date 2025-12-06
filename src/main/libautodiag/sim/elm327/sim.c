@@ -36,8 +36,7 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
     return protocolSpecificHeader;     
 }
 
-char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRequest) {
-    char * response = null;
+Buffer * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRequest) {
     final Buffer* binResponse;
     if ( ecu->generator->response_for_python != null ) {
         binResponse = buffer_new();
@@ -45,100 +44,12 @@ char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRe
     } else {
         binResponse = ecu->generator->response(ecu->generator, binRequest);
     }
-    assert(binResponse != null);
-    if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
-        if ( 0 < binResponse->size ) {
-            if ( (binResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
-                log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
-                buffer_recycle(binResponse);
-                response = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-            }
-        }
-    }
-    if ( 0 < binResponse->size ) {
-        assert(response == null);
-        bool iso_15765_is_multi_message = false;
-        int iso_15765_multi_message_sn = 0;
-        int transportLayerMessageDataBytes = 0;
-        for(int responseBodyIndex = 0; responseBodyIndex < binResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
-            
-            final Buffer * responseBodyChunk = buffer_new();
-            bool iso_15765_is_multi_message_ff = false;
-
-            if ( responseBodyIndex == 0 ) {
-                iso_15765_is_multi_message = 7 < binResponse->size;
-                if ( iso_15765_is_multi_message ) {
-                    iso_15765_is_multi_message_ff = true;
-                }
-            }
-
-            int transportLayerMessageDataBytesMax = 7;
-            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                if ( iso_15765_is_multi_message ) {
-                    if ( iso_15765_is_multi_message_ff ) {
-                        transportLayerMessageDataBytesMax = 6;
-                    }
-                }
-            }
-            transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
-            buffer_slice_append(responseBodyChunk, binResponse, responseBodyIndex, transportLayerMessageDataBytes);
-
-            char * space = elm327->printing_of_spaces ? " " : "";
-            char *header = "";
-            if ( elm327->printing_of_headers ) {
-                char *inBuildHeader = "";
-                header = sim_ecu_generate_request_header_bin(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
-            } else {
-                if ( iso_15765_is_multi_message ) {
-                    if ( iso_15765_is_multi_message_ff ) {
-                        asprintf(&response, "%03d%s", binResponse->size, elm327->eol);
-                    }
-                    asprintf(&header,"%d:", iso_15765_multi_message_sn);
-                }
-            }
-
-            if ( elm327->printing_of_headers || ! elm327->can.auto_format ) {
-                if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                    if ( iso_15765_is_multi_message ) {
-                        if ( iso_15765_is_multi_message_ff ) {
-                            log_msg(LOG_DEBUG, "reply first frame");
-                            int bytesSent = binResponse->size;
-                            int dl11_8 = (bytesSent & 0x0F00) >> 8;
-                            final byte pci = Iso15765FirstFrame << 4 | dl11_8;
-                            final byte dl7_0 = bytesSent & 0xFF;
-                            buffer_prepend_byte(responseBodyChunk, dl7_0);
-                            buffer_prepend_byte(responseBodyChunk, pci);
-                        } else {
-                            log_msg(LOG_DEBUG, "reply consecutive frame");
-                            final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
-                            buffer_prepend_byte(responseBodyChunk, pci);
-                        }
-                    } else {
-                        log_msg(LOG_DEBUG, "reply as single frame");
-                        final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
-                        buffer_prepend_byte(responseBodyChunk, pci);
-                    }
-                }
-            }
-
-            char *tmpResponse;
-            asprintf(&tmpResponse, "%s%s%s%s%s", response == null ? "" : response, 
-                header, strlen(header) == 0 ? "" : space, 
-                elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol
-            );
-            free(response);
-            response = tmpResponse;
-        }
-    }
-    // leave this commented else when setting custom generators with python there is issues
-    // buffer_free(binResponse);
-    buffer_free(binRequest);
-    return response;
+    return binResponse;
 }
 
 SimECU* sim_ecu_emulation_new(byte address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
-    emu->sim_ecu_response = (char *(*)(struct _SimELM327 *, struct SimECU *, Buffer *))sim_ecu_response_generic;
+    emu->sim_ecu_response = (Buffer *(*)(struct _SimELM327 *, struct SimECU *, Buffer *))sim_ecu_response_generic;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;
