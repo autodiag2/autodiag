@@ -81,10 +81,7 @@ bool testReplay() {
         }
         {
             SimECUGenerator * g = sim_ecu_generator_new_replay();
-            char fpath[] = "/tmp/single.json";
-            FILE * f = fopen(fpath, "w");
-            assert(f);
-            fprintf(f, "{"
+            char json[] = "{"
                 "\"ecu\": \"07e8\","
                 "\"flow\": ["
                     "{"
@@ -100,9 +97,8 @@ bool testReplay() {
                         "\"responses\": [\"4101ea56137bd2\"]"
                     "}"
                 "]"
-            "}");
-            fclose(f);
-            g->context = strdup(fpath);
+            "}";
+            g->context = json;
             elm327->ecus[0].list[0]->generator = g;
             viface_send_str(iface, "0101");
             viface_clear_data(iface);

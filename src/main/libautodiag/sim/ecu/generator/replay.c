@@ -38,27 +38,33 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     GState *st = (GState*)generator->state;
 
     if (!st->records) {
-        char *filepath = (char*)generator->context;
-        FILE *f = fopen(filepath, "r");
-        printf("filepath=%s\n", filepath);
-        assert(f);
-        fseek(f, 0, SEEK_END);
-        long len = ftell(f);
-        fseek(f, 0, SEEK_SET);
-        char *buf = malloc(len + 1);
-        fread(buf, 1, len, f);
-        buf[len] = 0;
-        fclose(f);
-        st->records = cJSON_Parse(buf);
-        free(buf);
-        if (!st->records) {
-            const char *error_ptr = cJSON_GetErrorPtr();
-            if (error_ptr) {
-                printf("JSON parse error before: %s\n", error_ptr);
-            } else {
-                printf("JSON parse failed: unknown error\n");
+        char *context = (char*)generator->context;
+        FILE *f = fopen(context, "r");
+        if ( f ) {
+            fseek(f, 0, SEEK_END);
+            long len = ftell(f);
+            fseek(f, 0, SEEK_SET);
+            char *buf = malloc(len + 1);
+            fread(buf, 1, len, f);
+            buf[len] = 0;
+            fclose(f);
+            st->records = cJSON_Parse(buf);
+            free(buf);
+        } else {
+            if (errno == ENOENT) {
+                cJSON * records = cJSON_Parse(context);
+                if ( records ) {
+                    st->records = records;
+                } else {
+                    log_msg(LOG_ERROR, "Context '%s' is not a file and not a json string");
+                }
+            } else if (errno == EACCES) {
+                log_msg(LOG_ERROR, "File '%s' exists but missing reading permission", context);
             }
-            assert(st->records);
+        }
+        if (!st->records) {
+            log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
+            exit(1);
         }
     }
 
@@ -67,7 +73,11 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     // Calculate max flow count for this request and address filter
     int max = 0;
 
-    if ( ! cJSON_IsArray(st->records) ) {
+    if ( cJSON_IsArray(st->records) ) {
+        if ( 0 < cJSON_GetArraySize(st->records) ) {
+            log_msg(LOG_WARNING, "Multiple ECU records in the loaded file, so this ECU will respond frames of any ECU");
+        }
+    } else {
         assert(cJSON_IsObject(st->records));
         cJSON * arr = cJSON_CreateArray();
         cJSON_AddItemToArray(arr, st->records);
