@@ -190,7 +190,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 log_msg(LOG_DEBUG, "Not addressed to this ECU");
                 continue;
             }
-            char * tmpResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,extractedDataRequest);
+            char * ecuResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,extractedDataRequest);
 
             Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -209,8 +209,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                         }
                     }
                     if ( filtered ) {
-                        free(tmpResponse);
-                        tmpResponse = null;
+                        free(ecuResponse);
+                        ecuResponse = null;
                     }
                 } else {
                     if ( 0 < elm327->can.mask->size ) {
@@ -225,10 +225,10 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
             elm327->obd_buffer->size = sz;
 
-            if ( tmpResponse != null ) {
+            if ( ecuResponse != null ) {
                 char * tmpResponseResult;
-                asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,tmpResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
-                tmpResponse = null; // we do not free to compat with python
+                asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,ecuResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
+                ecuResponse = null; // we do not free to compat with python
                 response = null;    // we do not free to compat with python
                 response = tmpResponseResult;
             }
