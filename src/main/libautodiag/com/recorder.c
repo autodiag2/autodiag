@@ -96,28 +96,36 @@ bool record_to_json_file(char *filepath) {
 
     for (int i = 0; i < recorder->size; i++) {
         object_Record *record = recorder->list[i];
-        cJSON *rec = cJSON_CreateObject();
-        cJSON_AddItemToArray(root, rec);
+        if (record->binResponses->size < 1) continue;
 
-        cJSON_AddStringToObject(rec, "request", buffer_to_hex_string(record->binRequest));
-
-        cJSON *resp_arr = cJSON_CreateArray();
-        cJSON_AddItemToObject(rec, "response", resp_arr);
-
-        for (int j = 0; j < record->binResponses->size; j++) {
+        for(int j = 0; j < record->binResponses->size; j++) {
             list_ECUBufferRecord *ecu_response = record->binResponses->list[j];
+            cJSON * ecu_obj = cJSON_GetArrayItemByStringField(root, "ecu", buffer_to_hex_string(ecu_response->ecu->address));
+            cJSON *flow_arr = null;
+            if ( ecu_obj == null ) {
+                ecu_obj = cJSON_CreateObject();
+                cJSON_AddItemToArray(root, ecu_obj);
+                cJSON_AddStringToObject(ecu_obj, "ecu", buffer_to_hex_string(ecu_response->ecu->address));
 
-            cJSON *ecu_obj = cJSON_CreateObject();
-            cJSON_AddItemToArray(resp_arr, ecu_obj);
+                flow_arr = cJSON_CreateArray();
+                cJSON_AddItemToObject(ecu_obj, "flow", flow_arr);
 
-            cJSON_AddStringToObject(ecu_obj, "ecu", buffer_to_hex_string(ecu_response->ecu->address));
+            }
+
+            if ( flow_arr == null ) {
+                flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
+            }
+            
+            cJSON *flow_obj = cJSON_CreateObject();
+            cJSON_AddItemToArray(flow_arr, flow_obj);
+
+            cJSON_AddStringToObject(flow_obj, "request", buffer_to_hex_string(record->binRequest));
 
             cJSON *rs_arr = cJSON_CreateArray();
-            cJSON_AddItemToObject(ecu_obj, "responses", rs_arr);
+            cJSON_AddItemToObject(flow_obj, "responses", rs_arr);
 
             for (int k = 0; k < ecu_response->size; k++) {
-                cJSON_AddItemToArray(rs_arr,
-                    cJSON_CreateString(buffer_to_hex_string(ecu_response->list[k])));
+                cJSON_AddItemToArray(rs_arr, cJSON_CreateString(buffer_to_hex_string(ecu_response->list[k])));
             }
         }
     }
