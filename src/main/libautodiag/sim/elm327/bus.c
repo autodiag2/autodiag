@@ -5,6 +5,7 @@
  */
 static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest) {
     Buffer * dataRequest = buffer_new();
+    log_msg(LOG_DEBUG, "Receving incoming request by the tester");
     log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
@@ -41,6 +42,7 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
  * @return header to send to the vehicle (emu).
  */
 static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequest) {
+    log_msg(LOG_DEBUG, "Generating the tester request header");
     Buffer *protocolSpecificHeader = buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
@@ -123,16 +125,17 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
         
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
-            Buffer * binRequest = buffer_new();
-            final Buffer * requestHeader = request_header(elm327, ecu, dataRequest);
-            buffer_append(binRequest, requestHeader);
-            buffer_append(binRequest, dataRequest);
 
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
                 if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
                     continue;
                 }
             }
+
+            Buffer * binRequest = buffer_new();
+            final Buffer * requestHeader = request_header(elm327, ecu, dataRequest);
+            buffer_append(binRequest, requestHeader);
+            buffer_append(binRequest, dataRequest);
 
             final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest);
             if ( extractedDataRequest->size == 0 ) {
