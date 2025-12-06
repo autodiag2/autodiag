@@ -126,7 +126,7 @@ void buffer_padding(final Buffer * buffer, unsigned int until, final byte pad);
 #define __BUFFER_APPEND_7(dest,a1,a2,a3,a4,a5,a6,a7) __BUFFER_APPEND_6(dest,a1,a2,a3,a4,a5,a6); buffer_append_byte(dest,a7)
 #define __BUFFER_APPEND_8(dest,a1,a2,a3,a4,a5,a6,a7,a8) __BUFFER_APPEND_7(dest,a1,a2,a3,a4,a5,a6,a7); buffer_append_byte(dest,a8)
 #define __BUFFER_APPEND_9(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9) __BUFFER_APPEND_8(dest,a1,a2,a3,a4,a5,a6,a7,a8); buffer_append_byte(dest,a9)
-#define __BUFFER_APPEND_10(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) __BUFFER_APPEND_9(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9); buffer_append_byte(dest,a10)
+#define __BUFFER_APPEND_10(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) __BUFFER_APPEND_9(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9); max_recursion_level_reached
 
 #define BUFFER_APPEND_BYTES(dest, ...) __PPCAT(__BUFFER_APPEND_, __PPNARG(__VA_ARGS__))(dest, __VA_ARGS__)
 
