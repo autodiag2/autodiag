@@ -1,4 +1,4 @@
-#include "libautodiag/sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/sim_ecu.h"
 #include "libautodiag/sim/elm327/elm327.h"
 
 int SimECU_cmp(SimECU* e1, SimECU* e2) {

@@ -5,7 +5,7 @@
 
 #include "ui.h"
 #include <stdlib.h>
-#include "libautodiag/sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/sim_ecu.h"
 #include "libautodiag/model/database.h"
 #include "libprog/sim_ecu_generator_gui.h"
 

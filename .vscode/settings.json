@@ -51,7 +51,7 @@
         "iterator": "c",
         "mutex": "c",
         "streambuf": "c",
-        "sim.h": "c",
+        "sim_ecu.h": "c",
         "iso3779.h": "c",
         "ui/graph_data.h": "c",
         "vehicle.h": "c",

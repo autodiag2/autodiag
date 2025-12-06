@@ -1,5 +1,5 @@
 #include "libautodiag/sim/elm327/elm327.h"
-#include "libautodiag/sim/elm327/sim.h"
+#include "libautodiag/sim/elm327/sim_ecu.h"
 
 #define SIM_ELM327_PP_GET(elm327,parameter) \
     (elm327->nvm.programmable_parameters_states->buffer[parameter] ? elm327->nvm.programmable_parameters->buffer[parameter] : elm327->programmable_parameters_defaults->buffer[parameter])
