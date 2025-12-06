@@ -308,7 +308,6 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             if ( ecuResponse == null && 0 < dataResponse->size ) {
                 list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
 
-                char * space = elm327->printing_of_spaces ? " " : "";
                 if ( ! elm327->printing_of_headers ) {
                     if ( 1 < frames->size ) {
                         log_msg(LOG_DEBUG, "Should add the multiple single frames format");
@@ -345,7 +344,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     }
                     char *elmFrameStr;
                     asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
-                        header, strlen(header) == 0 ? "" : space, 
+                        header, elm327->printing_of_spaces ? " " : "", 
                         elm_ascii_from_bin(elm327->printing_of_spaces, frame), elm327->eol
                     );
                     free(ecuResponse);
