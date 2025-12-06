@@ -41,7 +41,10 @@ SimECUGenerator* sim_ecu_generator_new_cycle();
 SimECUGenerator* sim_ecu_generator_new_random();
 SimECUGenerator * sim_ecu_generator_new();
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7();
-SimECUGenerator* sim_ecu_generator_new_replay(Buffer *address);
+/**
+ * @param address End byte for CAN 11 bits, 29 bits, OBD Message
+ */
+SimECUGenerator* sim_ecu_generator_new_replay(byte address);
 #define SIM_ECU_GENERATOR_RESPONSE(f) ((Buffer* (*)(SimECUGenerator *, Buffer *))f)
 
 #endif

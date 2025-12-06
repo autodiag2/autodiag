@@ -8,7 +8,7 @@ typedef struct ReqIdx {
 } ReqIdx;
 
 typedef struct {
-    Buffer *address;
+    byte address;
     cJSON *records;
     ReqIdx *head;
 } GState;
@@ -65,9 +65,9 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
 
         char *ecu_addr = cJSON_GetObjectItem(ecu_obj, "ecu")->valuestring;
 
-        if (st->address &&
-            buffer_cmp(st->address, buffer_from_ascii_hex(ecu_addr)) != 0 &&
-            st->address->size != 0)
+        Buffer * address = buffer_from_ascii_hex(ecu_addr);
+
+        if ( address->buffer[address->size-1] != st->address )
             continue;
 
         cJSON *flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
@@ -92,10 +92,9 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
         cJSON *ecu_obj = cJSON_GetArrayItem(st->records, i);
 
         char *ecu_addr = cJSON_GetObjectItem(ecu_obj, "ecu")->valuestring;
+        Buffer * address = buffer_from_ascii_hex(ecu_addr);
 
-        if (st->address &&
-            buffer_cmp(st->address, buffer_from_ascii_hex(ecu_addr)) != 0 &&
-            st->address->size != 0)
+        if ( address->size == 0 || address->buffer[address->size-1] != st->address )
             continue;
 
         cJSON *flow_arr = cJSON_GetObjectItem(ecu_obj, "flow");
@@ -122,13 +121,13 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     return buffer_new();
 }
 
-SimECUGenerator* sim_ecu_generator_new_replay(Buffer *address) {
+SimECUGenerator* sim_ecu_generator_new_replay(byte address) {
     SimECUGenerator *g = sim_ecu_generator_new();
     g->response = SIM_ECU_GENERATOR_RESPONSE(response);
     g->type = strdup("replay");
 
     GState *st = malloc(sizeof(GState));
-    st->address = buffer_copy(address);
+    st->address = address;
     st->records = NULL;
     st->head = NULL;
 

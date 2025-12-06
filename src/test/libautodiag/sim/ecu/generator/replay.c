@@ -15,9 +15,7 @@ bool testReplay() {
         viface_recorder_set_state(iface, false);
         char fpath[] = "/tmp/com.json";
         record_to_json_file(fpath);
-        SimECUGenerator * g = sim_ecu_generator_new_replay(
-            buffer_from_ints(0x07, elm327->ecus[0].list[0]->address)
-        );
+        SimECUGenerator * g = sim_ecu_generator_new_replay(elm327->ecus[0].list[0]->address);
         g->context = strdup(fpath);
         elm327->ecus[0].list[0]->generator = g;
         viface_send_str(iface, "0101");
@@ -52,9 +50,7 @@ bool testReplay() {
         viface_recorder_set_state(iface, false);
         char fpath[] = "/tmp/com.json";
         record_to_json_file(fpath);
-        SimECUGenerator * g = sim_ecu_generator_new_replay(
-            buffer_from_ints(0x07, elm327->ecus[0].list[0]->address)
-        );
+        SimECUGenerator * g = sim_ecu_generator_new_replay(elm327->ecus[0].list[0]->address);
         g->context = strdup(fpath);
         elm327->ecus[0].list[0]->generator = g;
         viface_send_str(iface, "0101");
