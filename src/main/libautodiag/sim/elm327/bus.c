@@ -327,7 +327,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                             asprintf(&header,"%d:", frame_idx);
                         }
                     }
-                    if ( ! elm327->printing_of_headers || elm327->can.auto_format ) {
+                    if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                             byte pci_0 = buffer_extract_0(frame);
                             switch((pci_0 & 0xF0) >> 4) {
