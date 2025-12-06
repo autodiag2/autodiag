@@ -41,21 +41,23 @@ bool testSim() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
     assert(elm327->ecus->size == 2);
-    viface_send(iface, "0101");
+    viface_lock(iface);
+    viface_send_str(iface, "0101");
     viface_clear_data(iface);
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 2);
-    viface_send(iface, "0102");
+    viface_send_str(iface, "0102");
     viface_clear_data(iface);
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
-    viface_send(iface, "0103");
+    viface_send_str(iface, "0103");
     viface_clear_data(iface);
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
-    viface_send(iface, "0104");
+    viface_send_str(iface, "0104");
     viface_clear_data(iface);
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 0);
+    viface_unlock(iface);
     return true;
 }
