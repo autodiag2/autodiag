@@ -14,7 +14,7 @@ int sim_load_from_json(SimELM327 * elm327, char * json_context) {
         root = cJSON_Parse(buf);
         free(buf);
     } else {
-        if (errno == ENOENT) {
+        if (errno == ENOENT || errno == ENAMETOOLONG) {
             root = cJSON_Parse(json_context);
             if ( ! root ) {
                 log_msg(LOG_ERROR, "Context '%s' is not a file and not a json string");
@@ -40,7 +40,7 @@ int sim_load_from_json(SimELM327 * elm327, char * json_context) {
     }
     for(int i = 0; i < cJSON_GetArraySize(root); i++) {
         cJSON * obj = cJSON_GetArrayItem(root, i);
-        char * context = strdup(obj->string);
+        char *context = cJSON_PrintUnformatted(obj);
         cJSON * address_obj = cJSON_GetObjectItem(obj, "ecu");
         char * address_str = address_obj->valuestring;
         final Buffer * address = buffer_from_ascii_hex(address_str);

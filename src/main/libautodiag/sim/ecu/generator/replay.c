@@ -51,7 +51,7 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
             st->records = cJSON_Parse(buf);
             free(buf);
         } else {
-            if (errno == ENOENT) {
+            if (errno == ENOENT || errno == ENAMETOOLONG) {
                 cJSON * records = cJSON_Parse(context);
                 if ( records ) {
                     st->records = records;
@@ -66,6 +66,16 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
             log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
             exit(1);
         }
+        if ( cJSON_IsArray(st->records) ) {
+            if ( 0 < cJSON_GetArraySize(st->records) ) {
+                log_msg(LOG_WARNING, "Multiple ECU records in the loaded file, so this ECU will respond frames of any ECU");
+            }
+        } else {
+            assert(cJSON_IsObject(st->records));
+            cJSON * arr = cJSON_CreateArray();
+            cJSON_AddItemToArray(arr, st->records);
+            st->records = arr;
+        }
     }
 
     char *req_hex = buffer_to_hex_string(binRequest);
@@ -73,16 +83,6 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
     // Calculate max flow count for this request and address filter
     int max = 0;
 
-    if ( cJSON_IsArray(st->records) ) {
-        if ( 0 < cJSON_GetArraySize(st->records) ) {
-            log_msg(LOG_WARNING, "Multiple ECU records in the loaded file, so this ECU will respond frames of any ECU");
-        }
-    } else {
-        assert(cJSON_IsObject(st->records));
-        cJSON * arr = cJSON_CreateArray();
-        cJSON_AddItemToArray(arr, st->records);
-        st->records = arr;
-    }
     int n = cJSON_GetArraySize(st->records);
 
     for (int i = 0; i < n; i++) {
