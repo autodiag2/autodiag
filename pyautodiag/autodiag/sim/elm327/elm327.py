@@ -1,9 +1,9 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
-from pyautodiag.autodiag.sim.ecu.ecu import list_SimECU
+from autodiag.sim.ecu.ecu import list_SimECU
 from autodiag.sim.ecu.generator import Generator
 from autodiag.lib import *
-from pyautodiag.autodiag.sim.ecu.ecu import SimECU
+from autodiag.sim.ecu.ecu import SimECU
 
 class SimELM327Implementation(Structure):
     pass
