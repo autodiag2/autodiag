@@ -132,16 +132,28 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
 
     return buffer_new();
 }
-
-SimECUGenerator* sim_ecu_generator_new_replay() {
-    SimECUGenerator *g = sim_ecu_generator_new();
-    g->response = SIM_ECU_GENERATOR_RESPONSE(response);
-    g->type = strdup("replay");
-
+static void init_state(SimECUGenerator * this) {
     GState *st = malloc(sizeof(GState));
     st->records = null;
     st->head = null;
 
-    g->state = st;
+    this->state = st;
+}
+static char * context_to_string(SimECUGenerator * this) {
+    char * jsoncontext = this->context;
+    return strdup(jsoncontext);
+}
+static bool context_load_from_string(SimECUGenerator * this, char * context) {
+    this->context = strdup(context);
+    init_state(this);
+    return true;
+}
+SimECUGenerator* sim_ecu_generator_new_replay() {
+    SimECUGenerator *g = sim_ecu_generator_new();
+    g->response = SIM_ECU_GENERATOR_RESPONSE(response);
+    g->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
+    g->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
+    g->type = strdup("replay");
+    init_state(g);
     return g;
 }

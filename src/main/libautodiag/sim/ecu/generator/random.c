@@ -91,10 +91,20 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
     return binResponse;
 }
+static char * context_to_string(SimECUGenerator * this) {
+    unsigned * seed = this->context;
+    return gprintf("%d", *seed);
+}
+static bool context_load_from_string(SimECUGenerator * this, char * context) {
+    unsigned * seed = this->context;
+    return sscanf(context, "%d", seed) == 1;
+}
 
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
+    generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
+    generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("random");
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;

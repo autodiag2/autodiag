@@ -2,10 +2,6 @@
 
 typedef struct {
     Buffer * vin;
-    /**
-     * Seed used for random generation.
-     */
-    unsigned * seed;
 
     struct {
         int session_type;
@@ -82,6 +78,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     final Buffer *binResponse = buffer_new();
     sim_ecu_generator_fill_success(binResponse, binRequest);
     start_or_update_session_timer(state);
+    unsigned * seed = generator->context;
 
     if ( service_is_uds(binRequest->buffer[0]) ) {
         if ( ! uds_service_allowed(state, binRequest->buffer[0]) ) {
@@ -104,11 +101,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 }
             }
             if ( generic_behaviour ) {
-                buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, state->seed));
+                buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
             }
         } break;
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, state->seed));
+            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
         case OBD_SERVICE_SHOW_DTC: {
             for(int i = 0; i < state->obd.dtcs->size; i++) {
@@ -118,7 +115,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             }
         } break;
         case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, state->seed));                
+            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state->obd.dtcs);
@@ -144,7 +141,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x04: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(16, state->seed));                
+                        buffer_append(binResponse,buffer_new_random_with_seed(16, seed));                
                         break;
                     }
                     case 0x05: {
@@ -152,7 +149,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x06: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
@@ -160,7 +157,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x08: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
@@ -174,7 +171,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }
@@ -296,19 +293,19 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case UDS_SERVICE_SECURITY_ACCESS: {
             if ( 1 < binRequest->size ) {
-                final int seed = 0x4321;
+                final int securit_seed = 0x4321;
                 switch(binRequest->buffer[1]) {
                     case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED: {
                         buffer_append_byte(binResponse, binRequest->buffer[1]);
-                        buffer_append_byte(binResponse, seed >> 8);
-                        buffer_append_byte(binResponse, seed & 0xFF);
+                        buffer_append_byte(binResponse, securit_seed >> 8);
+                        buffer_append_byte(binResponse, securit_seed & 0xFF);
                     } break;
                     case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY: {
                         assert(3 < binRequest->size);
                         int encrypted = binRequest->buffer[2] << 8 | binRequest->buffer[3];
                         int decrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
                         log_msg(LOG_DEBUG, "From emu: encrypted received: 0x%X decrypted to 0x%X", encrypted, decrypted);
-                        if ( seed == decrypted ) {
+                        if ( securit_seed == decrypted ) {
                             buffer_append_byte(binResponse, binRequest->buffer[1]);
                             state->uds.security_access_granted = true;
                         } else {
@@ -326,9 +323,19 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
     return binResponse;
 }
+static char * context_to_string(SimECUGenerator * this) {
+    unsigned * seed = this->context;
+    return gprintf("%d", *seed);
+}
+static bool context_load_from_string(SimECUGenerator * this, char * context) {
+    unsigned * seed = this->context;
+    return sscanf(context, "%d", seed) == 1;
+}
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
+    generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
+    generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("Citroen C5 X7");
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
@@ -349,8 +356,8 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->vin = buffer_from_ascii("VF7RD5FV8FL507366");
     state->uds.dtcs = list_UDS_DTC_new();
     state->obd.dtcs = list_DTC_new();
-    state->seed = (unsigned*)malloc(sizeof(unsigned));
-    *(state->seed) = 1;
+    generator->context = (unsigned*)malloc(sizeof(unsigned));
+    *((unsigned *)generator->context) = 1;
 
     list_object_string * dtcs = list_object_string_new();
     list_object_string_append(dtcs, object_string_new_from("P0103"));

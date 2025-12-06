@@ -123,11 +123,18 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
     return binResponse;
 }
-
+static char * context_to_string(SimECUGenerator * this) {
+    return null;
+}
+static bool context_load_from_string(SimECUGenerator * this, char * context) {
+    return false;
+}
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
+    generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
+    generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;
 }
 

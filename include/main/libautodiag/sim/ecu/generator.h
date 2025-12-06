@@ -33,6 +33,14 @@ typedef struct SimECUGenerator {
      * @param binResponse Pointer to the preallocated response buffer
      */
     void (*response_for_python)(struct SimECUGenerator * this, final Buffer *binRequest, final Buffer * binResponse);
+    /**
+     * @return null in case context cannot be represented as string, the context string representation in case of success
+     */
+    char * (*context_to_string)(struct SimECUGenerator * this);
+    /**
+     * @return false in case a string represenation is not enough to describe the context, true in case of success
+     */
+    bool (*context_load_from_string)(struct SimECUGenerator * this, char * context);
 } SimECUGenerator;
 
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, Buffer * binRequest, byte nrc);
@@ -46,5 +54,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7();
  */
 SimECUGenerator* sim_ecu_generator_new_replay();
 #define SIM_ECU_GENERATOR_RESPONSE(f) ((Buffer* (*)(SimECUGenerator *, Buffer *))f)
+#define SIM_ECU_GENERATOR_CONTEXT_TO_STRING(f) ((char* (*)(SimECUGenerator *))f)
+#define SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(f) ((bool (*)(SimECUGenerator *, char*))f)
 
 #endif

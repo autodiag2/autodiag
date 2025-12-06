@@ -108,10 +108,19 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     cycle_percent[service_id][pid] %= 100;
     return binResponse;
 }
-
+static char * context_to_string(SimECUGenerator * this) {
+    unsigned * gears = this->context;
+    return gprintf("%d", *gears);
+}
+static bool context_load_from_string(SimECUGenerator * this, char * context) {
+    unsigned * gears = this->context;
+    return sscanf(context, "%d", gears) == 1;
+}
 SimECUGenerator* sim_ecu_generator_new_cycle() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
+    generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
+    generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("cycle");
     GState * state = (GState*)calloc(1, sizeof(GState));
     generator->state = (void*)state;
