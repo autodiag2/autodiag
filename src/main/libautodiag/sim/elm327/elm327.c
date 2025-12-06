@@ -102,7 +102,7 @@ Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu,
     return dataRequest;
 }
 
-Buffer* sim_elm327_bus_msg_header(SimELM327* elm327,byte source_address, byte can28bits_prio) {
+Buffer* sim_elm327_bus_request_header(SimELM327* elm327,byte source_address, byte can28bits_prio) {
     Buffer *protocolSpecificHeader = buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
@@ -176,7 +176,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
             if ( requestHeader->size == 0 ) {
-                requestHeader = sim_elm327_bus_msg_header(elm327, elm327->testerAddress, elm327->can.priority_29bits);
+                requestHeader = sim_elm327_bus_request_header(elm327, elm327->testerAddress, elm327->can.priority_29bits);
             }
             if ( elm327->can.auto_format ) {
                 final int pci = dataRequest->size;
@@ -189,7 +189,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             if ( elm327->custom_header->size == 3 ) {
                 buffer_append(requestHeader, elm327->custom_header);
             } else {
-                requestHeader = sim_elm327_bus_msg_header(elm327, elm327->testerAddress, ELM327_CAN_28_BITS_DEFAULT_PRIO);
+                requestHeader = sim_elm327_bus_request_header(elm327, elm327->testerAddress, ELM327_CAN_28_BITS_DEFAULT_PRIO);
             }
         }
         buffer_append(binRequest, requestHeader);
