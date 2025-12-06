@@ -383,8 +383,10 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             if ( ecuResponse != null ) {
                 char * tmpResponseResult;
                 asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,ecuResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
-                ecuResponse = null; // we do not free to compat with python
-                response = null;    // we do not free to compat with python
+                free(ecuResponse);
+                ecuResponse = null;
+                free(response);
+                response = null;
                 response = tmpResponseResult;
             }
         }
