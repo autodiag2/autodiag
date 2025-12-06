@@ -71,7 +71,30 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
     }
 }
 
-Buffer* sim_elm327_bus_msg_header(struct _SimELM327* elm327,byte source_address, byte can28bits_prio) {
+Buffer* sim_elm327_bus_data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest) {
+    Buffer * dataRequest = buffer_new();
+    log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+            assert(4 <= binRequest->size);
+            buffer_slice_append(dataRequest, binRequest, 4, binRequest->size - 4);
+        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            assert(2 <= binRequest->size);
+            buffer_slice_append(dataRequest, binRequest, 2, binRequest->size - 2);
+        } else {
+            log_msg(LOG_WARNING, "Missing case here");
+        }
+        if ( elm327->can.extended_addressing ) {
+            buffer_left_shift(dataRequest, 1);
+        }
+    } else {
+        assert(3 <= binRequest->size);
+        buffer_slice_append(dataRequest, binRequest, 3, binRequest->size - 3);
+    }
+    return dataRequest;
+}
+
+Buffer* sim_elm327_bus_msg_header(SimELM327* elm327,byte source_address, byte can28bits_prio) {
     Buffer *protocolSpecificHeader = buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
@@ -195,6 +218,11 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
 
+            final Buffer * extractedDataRequest = sim_elm327_bus_data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest);
+            if ( extractedDataRequest->size == 0 ) {
+                log_msg(LOG_DEBUG, "Not addressed to this ECU");
+                continue;
+            }
             char * tmpResponse = ecu->sim_ecu_response(ecu,(SimELM327 *)elm327,hex_string_request,hasSpaces);
 
             Buffer * response_header_bin = sim_ecu_generate_response_header_bin(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
