@@ -5,10 +5,8 @@ typedef struct {
 } GState;
 
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
-    unsigned gears = 10;
-    if ( generator->context != null ) {
-        gears = *((unsigned*)generator->context);
-    }
+    assert(generator->context != null);
+    unsigned gears = *((unsigned*)generator->context);
     GState * state = (GState*)generator->state;
     int ** cycle_percent = (int **)state->cycle_percent;
     final Buffer *binResponse = buffer_new();
@@ -117,5 +115,8 @@ SimECUGenerator* sim_ecu_generator_new_cycle() {
     generator->type = strdup("cycle");
     GState * state = (GState*)calloc(1, sizeof(GState));
     generator->state = (void*)state;
+    unsigned * gears = (unsigned*)malloc(sizeof(unsigned));
+    *gears = 10;
+    generator->context = gears;
     return generator;
 }

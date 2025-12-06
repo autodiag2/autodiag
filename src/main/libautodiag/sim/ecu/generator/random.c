@@ -1,12 +1,8 @@
 #include "libautodiag/sim/ecu/generator.h"
 
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
+    assert(generator->context != null);
     unsigned * seed = generator->context;
-    if ( seed == null ) {
-        seed = (unsigned*)malloc(sizeof(unsigned));
-        *seed = 1;
-        generator->context = seed;
-    }
     final Buffer *binResponse = buffer_new();
     sim_ecu_generator_fill_success(binResponse, binRequest);
 
@@ -100,5 +96,8 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("random");
+    unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
+    *seed = 1;
+    generator->context = seed;
     return generator;
 }

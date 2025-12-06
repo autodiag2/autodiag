@@ -2,6 +2,10 @@
 
 typedef struct {
     Buffer * vin;
+    /**
+     * Seed used for random generation.
+     */
+    unsigned * seed;
 
     struct {
         int session_type;
@@ -79,13 +83,6 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     sim_ecu_generator_fill_success(binResponse, binRequest);
     start_or_update_session_timer(state);
 
-    unsigned * seed = generator->context;
-    if ( seed == null ) {
-        seed = (unsigned*)malloc(sizeof(unsigned));
-        *seed = 1;
-        generator->context = seed;
-    }
-
     if ( service_is_uds(binRequest->buffer[0]) ) {
         if ( ! uds_service_allowed(state, binRequest->buffer[0]) ) {
             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_CONDITIONS_NOT_CORRECT);
@@ -107,11 +104,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 }
             }
             if ( generic_behaviour ) {
-                buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+                buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, state->seed));
             }
         } break;
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, state->seed));
         } break;
         case OBD_SERVICE_SHOW_DTC: {
             for(int i = 0; i < state->obd.dtcs->size; i++) {
@@ -121,7 +118,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             }
         } break;
         case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
+            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, state->seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state->obd.dtcs);
@@ -147,7 +144,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x04: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(16, seed));                
+                        buffer_append(binResponse,buffer_new_random_with_seed(16, state->seed));                
                         break;
                     }
                     case 0x05: {
@@ -155,7 +152,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x06: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
                         break;
                     }
                     case 0x07: {
@@ -163,7 +160,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x08: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
                         break;
                     }
                     case 0x09: {
@@ -177,7 +174,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append(binResponse,buffer_new_random_with_seed(4, state->seed));
                         break;
                     }
                 }
@@ -352,6 +349,8 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->vin = buffer_from_ascii("VF7RD5FV8FL507366");
     state->uds.dtcs = list_UDS_DTC_new();
     state->obd.dtcs = list_DTC_new();
+    state->seed = (unsigned*)malloc(sizeof(unsigned));
+    *(state->seed) = 1;
 
     list_object_string * dtcs = list_object_string_new();
     list_object_string_append(dtcs, object_string_new_from("P0103"));
