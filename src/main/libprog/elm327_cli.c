@@ -4,17 +4,19 @@ PRINT_MODULAR(sim_elm327_cli_help,
     "\n"
     "ELM327 simulator\n"
     "\n"
-    " -h            : display this help\n"
-    " -e hh         : add an ecu to the simulation with address hh\n"
-    " -p            : list protocols\n"
-    " -p h          : set protocol to h\n"
-    " -p Ah         : set protocol to automatic, h\n"
-    " -l            : list level of logging\n"
-    " -l level      : set level of logging\n"
-    " -g            : list available generators\n"
-    " -g generator  : set the generator of values\n"
-    " -c context    : context for the generator\n"
-    " --clear-nvm   : delete the file storing nvm (pps, protocol)\n"
+    " -h                        : display this help\n"
+    " -e hh                     : add an ecu to the simulation with address hh\n"
+    " -p                        : list protocols\n"
+    " -p h                      : set protocol to h\n"
+    " -p Ah                     : set protocol to automatic, h\n"
+    " -l                        : list level of logging\n"
+    " -l level                  : set level of logging\n"
+    " -g                        : list available generators\n"
+    " -g generator              : set the generator of values\n"
+    " -c context                : context for the generator\n"
+    " --clear-nvm               : delete the file storing nvm (pps, protocol)\n"
+    " --load-from-json jsoncxt  : clear previously defined simulation definition and\n"
+    "                             and load ecus, generators from the json provided (text, filepath)\n"
     "\n"
     "Examples:\n"
     " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
@@ -139,6 +141,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("cycle\n");
                 printf("citroen_c5_x7\n");
                 printf("gui\n");
+                printf("replay\n");
                 return 0;
             } else if ( strcasecmp(arg, "random") == 0 ) {
                 generator = sim_ecu_generator_new_random();
@@ -146,6 +149,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 generator = sim_ecu_generator_new_cycle();
             } else if ( strcasecmp(arg,"citroen_c5_x7") == 0 ) {
                 generator = sim_ecu_generator_new_citroen_c5_x7();
+            } else if (strcasecmp(arg,"replay") == 0 ) {
+                generator = sim_ecu_generator_new_replay();
             } else if ( strcasecmp(arg,"gui") == 0 ) {
                 generator = sim_ecu_generator_new_gui();
                 char address[3];
@@ -181,8 +186,21 @@ int sim_elm327_cli_main(int argc, char **argv) {
                     printf("Expected unsigned int number of gears for cycle of generator\n");
                     return 1;
                 }
+            } else if ( strcasecmp(generator->type, "replay") == 0 ) {
+                generator->context = strdup(arg);
             } else {
                 printf("Generator type %s as no user definable context\n", generator->type);
+                return 1;
+            }
+        } else if argIs("--load-from-json") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("Need to provide the json context as argument\n");
+                return 1;
+            }
+            if ( sim_load_from_json(sim, arg) == GENERIC_FUNCTION_ERROR ) {
+                printf("Failed to load from json, check your json\n");
                 return 1;
             }
         } else {
