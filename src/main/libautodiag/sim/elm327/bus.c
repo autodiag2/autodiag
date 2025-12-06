@@ -1,33 +1,6 @@
 #include "libautodiag/sim/elm327/bus.h"
 
 /**
- * Generate a header as string for use in the current emulation.
- * Header sent by tester to ECU.
- */
-char * sim_ecu_generate_request_header_bin(SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
-    char *protocolSpecificHeader = null;
-    char * space = print_spaces ? " " : "";
-    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            asprintf(&protocolSpecificHeader,"%02X%sDA%sF1%s%02hhX", can28bits_prio, space, space, space,source_address);
-        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            asprintf(&protocolSpecificHeader,"7%02hhX",source_address);
-        } else {
-            log_msg(LOG_WARNING, "Missing case here");
-        }
-        if ( elm327->can.extended_addressing ) {
-            char *tmp;
-            asprintf(&tmp,"%s%s%02hhX", protocolSpecificHeader, space, elm327->can.extended_addressing_target_address);
-            free(protocolSpecificHeader);
-            protocolSpecificHeader = tmp;
-        }
-    } else {
-        asprintf(&protocolSpecificHeader,"41%s6B%s%02hhX", space,space,source_address);
-    }
-    return protocolSpecificHeader;     
-}
-
-/**
  * Response of the controller to the tester.
  * @return empty buffer in case not addressed to this ECU, null on error, OBD/UDS data on success
  */
@@ -248,6 +221,29 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
     }
     return result;
 }
+/**
+ * Generate the response header by ELM device back to user through serial line.
+ */
+static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src) {
+    Buffer * header = buffer_copy(header_src);
+    char *protocolSpecificHeader = null;
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327->can.extended_addressing ) {
+            buffer_append_byte(header, elm327->can.extended_addressing_target_address);
+        }
+        protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
+        if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            protocolSpecificHeader ++;
+        }
+    } else {
+        protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
+    }
+    if ( protocolSpecificHeader[strlen(protocolSpecificHeader)-1] == ' ' ) {
+        protocolSpecificHeader[strlen(protocolSpecificHeader)-1] = 0x00;
+    }
+    return protocolSpecificHeader; 
+}
+
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
@@ -319,11 +315,10 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     char * header = null;
                     Buffer * headerBin = response_frame_extract_header(elm327, frame);
                     if ( elm327->printing_of_headers ) {
-                        // Convert headerBin to header
-                        header = sim_ecu_generate_request_header_bin(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
+                        header = elm327_response_header_str(elm327, headerBin);
                     } else {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) && 1 < frames->size ) {
-                            asprintf(&header,"%d:", frame_idx);
+                            header = gprintf("%d:", frame_idx);
                         }
                     }
                     if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
