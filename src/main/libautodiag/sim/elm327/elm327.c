@@ -88,6 +88,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     if ( isHexString && elm327->responses ) {
         char * space = hasSpaces ? " " : "";
         char *requestStr;
+        Buffer * requestHeader = buffer_new();
+        Buffer * binRequest = buffer_new();
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             char *request_header = null;
             if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
@@ -95,10 +97,18 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     asprintf(&request_header,"%01x%02x", 
                         elm327->custom_header->buffer[0]&0xF, 
                         elm327->custom_header->buffer[1]);
+                    BUFFER_APPEND_BYTES(requestHeader,
+                        elm327->custom_header->buffer[0]&0xF, 
+                        elm327->custom_header->buffer[1]
+                    );
                 } else if ( elm327->custom_header->size == 3 ) {
                     asprintf(&request_header,"%01x%02x", 
                         elm327->custom_header->buffer[1]&0xF, 
                         elm327->custom_header->buffer[2]);
+                    BUFFER_APPEND_BYTES(requestHeader,
+                        elm327->custom_header->buffer[1]&0xF, 
+                        elm327->custom_header->buffer[2]
+                    );
                 }
             } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {            
                 if ( elm327->custom_header->size == 3 ) {
@@ -107,26 +117,46 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                         elm327->custom_header->buffer[0], space,
                         elm327->custom_header->buffer[1], space,
                         elm327->custom_header->buffer[2]);
+                    BUFFER_APPEND_BYTES(requestHeader,
+                        elm327->can.priority_29bits,
+                        elm327->custom_header->buffer[0],
+                        elm327->custom_header->buffer[1], 
+                        elm327->custom_header->buffer[2]
+                    );
                 } else if ( elm327->custom_header->size == 4 ) {
                     request_header = elm_ascii_from_bin(hasSpaces,elm327->custom_header);
+                    buffer_append(requestHeader, elm327->custom_header);
                 }
             }
             if ( request_header == null ) {
                 request_header = sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,elm327->can.priority_29bits,hasSpaces);
             }
+            if ( requestHeader->size == 0 ) {
+                // TODO
+                // sim_ecu_generate_request_header_bin
+            }
             if ( elm327->can.auto_format ) {
                 final int pci = strlen(hex_string_request) - space_num;
                 asprintf(&requestStr,"%s%s%02x%s%s", request_header, space, pci, space, hex_string_request);
+                BUFFER_APPEND_BYTES(
+                    requestHeader,
+                    pci   
+                );
             } else {
                 asprintf(&requestStr,"%s%s%s", request_header, space, hex_string_request);
             }
         } else {
             if ( elm327->custom_header->size == 3 ) {
+                buffer_append(requestHeader, elm327->custom_header);
                 asprintf(&requestStr,"%s%s",elm_ascii_from_bin(hasSpaces, elm327->custom_header),hex_string_request);
             } else {
                 asprintf(&requestStr,"%s%s%s",sim_ecu_generate_request_header_bin(elm327,elm327->testerAddress,ELM327_CAN_28_BITS_DEFAULT_PRIO,hasSpaces),space,hex_string_request);
+                // TODO
+                // sim_ecu_generate_request_header_bin
             }
         }
+        char * end_ptr = strstr(hex_string_request,elm327->eol);
+        elm_ascii_to_bin_internal(hasSpaces, binRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
         hex_string_request = requestStr;
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];

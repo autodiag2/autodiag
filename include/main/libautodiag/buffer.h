@@ -109,4 +109,25 @@ int buffer_cmp(final Buffer *buf1, final Buffer *buf2);
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2);
 void buffer_padding(final Buffer * buffer, unsigned int until, final byte pad);
 
+#define __PPARG_N(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N
+#define __PPNARG_(...) __PPARG_N(__VA_ARGS__)
+#define __PPRSEQ_N() 10,9,8,7,6,5,4,3,2,1,0
+#define __PPNARG(...) __PPNARG_(__VA_ARGS__, __PPRSEQ_N())
+
+#define __PPCAT(a,b) __PPCAT_I(a,b)
+#define __PPCAT_I(a,b) a##b
+
+#define __BUFFER_APPEND_1(dest,a1) buffer_append_byte(dest,a1)
+#define __BUFFER_APPEND_2(dest,a1,a2) __BUFFER_APPEND_1(dest,a1); buffer_append_byte(dest,a2)
+#define __BUFFER_APPEND_3(dest,a1,a2,a3) __BUFFER_APPEND_2(dest,a1,a2); buffer_append_byte(dest,a3)
+#define __BUFFER_APPEND_4(dest,a1,a2,a3,a4) __BUFFER_APPEND_3(dest,a1,a2,a3); buffer_append_byte(dest,a4)
+#define __BUFFER_APPEND_5(dest,a1,a2,a3,a4,a5) __BUFFER_APPEND_4(dest,a1,a2,a3,a4); buffer_append_byte(dest,a5)
+#define __BUFFER_APPEND_6(dest,a1,a2,a3,a4,a5,a6) __BUFFER_APPEND_5(dest,a1,a2,a3,a4,a5); buffer_append_byte(dest,a6)
+#define __BUFFER_APPEND_7(dest,a1,a2,a3,a4,a5,a6,a7) __BUFFER_APPEND_6(dest,a1,a2,a3,a4,a5,a6); buffer_append_byte(dest,a7)
+#define __BUFFER_APPEND_8(dest,a1,a2,a3,a4,a5,a6,a7,a8) __BUFFER_APPEND_7(dest,a1,a2,a3,a4,a5,a6,a7); buffer_append_byte(dest,a8)
+#define __BUFFER_APPEND_9(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9) __BUFFER_APPEND_8(dest,a1,a2,a3,a4,a5,a6,a7,a8); buffer_append_byte(dest,a9)
+#define __BUFFER_APPEND_10(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9,a10) __BUFFER_APPEND_9(dest,a1,a2,a3,a4,a5,a6,a7,a8,a9); buffer_append_byte(dest,a10)
+
+#define BUFFER_APPEND_BYTES(dest, ...) __PPCAT(__BUFFER_APPEND_, __PPNARG(__VA_ARGS__))(dest, __VA_ARGS__)
+
 #endif

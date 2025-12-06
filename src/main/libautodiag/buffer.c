@@ -155,7 +155,6 @@ void buffer_append(final Buffer * dest, final Buffer * src) {
     assert(dest != null);
     buffer_append_bytes(dest, src->buffer, src->size);
 }
-
 void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned int size) {
     buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, data, size);
