@@ -179,7 +179,7 @@ bool testSimELM327() {
         viface_clear_data(iface);
         iface->device->send(iface->device,"030902");
         iface->device->recv(iface->device);
-        //assert(strstr(serial->recv_buffer->buffer, "<DATA ERROR") != null);
+        assert(strstr(serial->recv_buffer->buffer, "<DATA ERROR") != null);
     }
     {
         SimELM327* elm327 = sim_elm327_new();       

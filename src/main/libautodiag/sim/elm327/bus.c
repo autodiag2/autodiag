@@ -21,22 +21,22 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
         if ( elm327->can.extended_addressing ) {
             buffer_left_shift(dataRequest, 1);
         }
-        final int pci_sz = 1;
         assert(0 < dataRequest->size);
         byte pci = dataRequest->buffer[0];
         final int pci_sz_value = pci & 0x0F;
-        buffer_left_shift(dataRequest, pci_sz);
+        buffer_left_shift(dataRequest, 1);
         if ( elm327->can.auto_format ) {
-            if ( pci_sz_value != (dataRequest->size + pci_sz) ) {
-                log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, (pci_sz + dataRequest->size));
-                // TODO assert(( pci_sz + pci_sz_value ) == dataRequest->size);
+            if ( pci_sz_value != dataRequest->size ) {
+                log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, dataRequest->size);
+                assert( pci_sz_value == dataRequest->size);
             }
         } else {
             log_msg(LOG_DEBUG, "For now accepting only single frames");
             assert((pci & 0xF0) == Iso15765SingleFrame);
-            if ( (binRequest->size + pci_sz) != pci_sz_value ) {
+            if ( dataRequest->size != pci_sz_value ) {
                 log_msg(LOG_WARNING, "Single frame pci size does not match");
                 *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+                return null;
             }
         }
     } else {
@@ -96,7 +96,7 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
             );
         }
         if ( elm327->can.auto_format ) {
-            final byte pci = (dataRequest->size + 1) | Iso15765SingleFrame;
+            final byte pci = dataRequest->size | Iso15765SingleFrame;
             BUFFER_APPEND_BYTES(
                 protocolSpecificHeader,
                 pci   
