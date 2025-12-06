@@ -60,7 +60,7 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
     return protocolSpecificHeader;     
 }
 
-char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request, bool hasSpaces) {
+char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, char * request, bool hasSpaces) {
     char * response = null;
     Buffer* binRequest = buffer_new();
     char * end_ptr = strstr(request,elm327->eol);
@@ -200,7 +200,7 @@ char * sim_ecu_response_generic(SimECU * ecu, SimELM327 * elm327, char * request
 
 SimECU* sim_ecu_emulation_new(byte address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
-    emu->sim_ecu_response = (char *(*)(struct SimECU *, struct _SimELM327 *, char *, int))sim_ecu_response_generic;
+    emu->sim_ecu_response = (char *(*)(struct _SimELM327 *, struct SimECU *, char *, int))sim_ecu_response_generic;
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
     return emu;

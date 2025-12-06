@@ -20,8 +20,8 @@ class SimECU(Structure):
 
 SimECU.CALLBACK_SAEJ1979_SIM_RESPONSE = CFUNCTYPE(
     char_p,
-    POINTER(SimECU),
     POINTER(SimELM327),
+    POINTER(SimECU),
     char_p,
     bool
 )

@@ -12,7 +12,7 @@ typedef struct SimECU {
     /**
      * Respond to use request (at commands, OBD, UDS)
      */
-    char * (*sim_ecu_response)(struct SimECU * ecu, struct _SimELM327 * elm327, char * request, bool hasSpaces);
+    char * (*sim_ecu_response)(struct _SimELM327 * elm327, struct SimECU * ecu, char * request, bool hasSpaces);
 } SimECU;
 AD_LIST_H(SimECU)
 #define LIST_SIM_ECU(var) ((list_SimECU*)var)
