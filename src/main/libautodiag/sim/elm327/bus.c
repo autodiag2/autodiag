@@ -1,6 +1,33 @@
 #include "libautodiag/sim/elm327/bus.h"
 
 /**
+ * Generate a header as string for use in the current emulation.
+ * Header sent by tester to ECU.
+ */
+char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
+    char *protocolSpecificHeader = null;
+    char * space = print_spaces ? " " : "";
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+            asprintf(&protocolSpecificHeader,"%02X%sDA%sF1%s%02hhX", can28bits_prio, space, space, space,source_address);
+        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            asprintf(&protocolSpecificHeader,"7%02hhX",source_address);
+        } else {
+            log_msg(LOG_WARNING, "Missing case here");
+        }
+        if ( elm327->can.extended_addressing ) {
+            char *tmp;
+            asprintf(&tmp,"%s%s%02hhX", protocolSpecificHeader, space, elm327->can.extended_addressing_target_address);
+            free(protocolSpecificHeader);
+            protocolSpecificHeader = tmp;
+        }
+    } else {
+        asprintf(&protocolSpecificHeader,"41%s6B%s%02hhX", space,space,source_address);
+    }
+    return protocolSpecificHeader;     
+}
+
+/**
  * Response of the controller to the tester.
  * @return empty buffer in case not addressed to this ECU, null on error, OBD/UDS data on success
  */

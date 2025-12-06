@@ -21,11 +21,6 @@ void list_SimECU_empty(list_SimECU * list);
 #define ELM327_CAN_28_BITS_DEFAULT_PRIO 0x18
 
 SimECU* sim_ecu_emulation_new(byte address);
-/**
- * Generate a header as string for use in the current emulation.
- * Header sent by tester to ECU.
- */
-char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces);
 
 #include "elm327.h"
 
