@@ -218,30 +218,30 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 continue;
             }
             char * ecuResponse = null;
-            final Buffer * binResponse = sim_ecu_response(ecu,extractedDataRequest);
+            final Buffer * dataResponse = sim_ecu_response(ecu,extractedDataRequest);
 
-            assert(binResponse != null);
-            if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
-                if ( 0 < binResponse->size ) {
-                    if ( (binResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
+            assert(dataResponse != null);
+            if ( extractedDataRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
+                if ( 0 < dataResponse->size ) {
+                    if ( (dataResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
                         log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
-                        buffer_recycle(binResponse);
+                        buffer_recycle(dataResponse);
                         ecuResponse = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
                     }
                 }
             }
-            if ( ecuResponse == null && 0 < binResponse->size ) {
+            if ( ecuResponse == null && 0 < dataResponse->size ) {
                 assert(ecuResponse == null);
                 bool iso_15765_is_multi_message = false;
                 int iso_15765_multi_message_sn = 0;
                 int transportLayerMessageDataBytes = 0;
-                for(int responseBodyIndex = 0; responseBodyIndex < binResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
+                for(int responseBodyIndex = 0; responseBodyIndex < dataResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
                     
                     final Buffer * responseBodyChunk = buffer_new();
                     bool iso_15765_is_multi_message_ff = false;
 
                     if ( responseBodyIndex == 0 ) {
-                        iso_15765_is_multi_message = 7 < binResponse->size;
+                        iso_15765_is_multi_message = 7 < dataResponse->size;
                         if ( iso_15765_is_multi_message ) {
                             iso_15765_is_multi_message_ff = true;
                         }
@@ -255,8 +255,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                             }
                         }
                     }
-                    transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, binResponse->size - responseBodyIndex);
-                    buffer_slice_append(responseBodyChunk, binResponse, responseBodyIndex, transportLayerMessageDataBytes);
+                    transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, dataResponse->size - responseBodyIndex);
+                    buffer_slice_append(responseBodyChunk, dataResponse, responseBodyIndex, transportLayerMessageDataBytes);
 
                     char * space = elm327->printing_of_spaces ? " " : "";
                     char *header = "";
@@ -266,7 +266,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     } else {
                         if ( iso_15765_is_multi_message ) {
                             if ( iso_15765_is_multi_message_ff ) {
-                                asprintf(&ecuResponse, "%03d%s", binResponse->size, elm327->eol);
+                                asprintf(&ecuResponse, "%03d%s", dataResponse->size, elm327->eol);
                             }
                             asprintf(&header,"%d:", iso_15765_multi_message_sn);
                         }
@@ -277,7 +277,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                             if ( iso_15765_is_multi_message ) {
                                 if ( iso_15765_is_multi_message_ff ) {
                                     log_msg(LOG_DEBUG, "reply first frame");
-                                    int bytesSent = binResponse->size;
+                                    int bytesSent = dataResponse->size;
                                     int dl11_8 = (bytesSent & 0x0F00) >> 8;
                                     final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                                     final byte dl7_0 = bytesSent & 0xFF;
