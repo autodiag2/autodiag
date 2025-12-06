@@ -330,7 +330,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     if ( ! elm327->printing_of_headers || elm327->can.auto_format ) {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                             byte pci_0 = buffer_extract_0(frame);
-                            switch(pci_0 & 0xF0) {
+                            switch((pci_0 & 0xF0) >> 4) {
                                 case Iso15765FirstFrame:
                                     buffer_extract_0(frame);
                                     break;
