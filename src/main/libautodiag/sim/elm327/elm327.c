@@ -1,5 +1,5 @@
 #include "libautodiag/sim/elm327/elm327.h"
-#include "libautodiag/sim/elm327/sim_ecu.h"
+#include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/elm327/bus.h"
 
 void sim_elm327_go_low_power() {
@@ -79,7 +79,6 @@ void sim_elm327_debug(final SimELM327 * elm327) {
         printf("                type: %p %s\n", generator->type, generator->type);
         printf("                sim_ecu_generator_response: %p\n", generator->response);
         printf("            }\n");
-        printf("            sim_ecu_response: %p\n", sim_ecu->sim_ecu_response);
         printf("        }\n");
     }
     printf("    }\n");
@@ -299,7 +298,7 @@ SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->ecus = (struct list_SimECU*) list_SimECU_new();
-    final SimECU *ecu = sim_ecu_emulation_new(0xE8);
+    final SimECU *ecu = sim_ecu_new(0xE8);
     list_SimECU_append(LIST_SIM_ECU(elm327->ecus),ecu);
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;

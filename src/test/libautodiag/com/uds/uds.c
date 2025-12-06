@@ -3,7 +3,7 @@
 #include "libautodiag/com/uds/uds.h"
 
 bool testUDS() {
-    SimECU * ecu = sim_ecu_emulation_new(0xE8);
+    SimECU * ecu = sim_ecu_new(0xE8);
     ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
     final VehicleIFace* iface = port_open(start_elm327_simulation_with_ecus(ecu));
     {

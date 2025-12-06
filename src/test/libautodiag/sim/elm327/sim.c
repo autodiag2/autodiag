@@ -3,8 +3,8 @@
 void testSimELM327_1() {
 
     SimELM327* elm327 = sim_elm327_new();
-    list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0xE9));
-    list_SimECU_append(elm327->ecus,sim_ecu_emulation_new(0x1A));        
+    list_SimECU_append(elm327->ecus,sim_ecu_new(0xE9));
+    list_SimECU_append(elm327->ecus,sim_ecu_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));

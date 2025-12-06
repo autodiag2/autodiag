@@ -13,7 +13,7 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "libautodiag/string.h"
 #include <sys/types.h>
 #include <signal.h>
-#include "libautodiag/sim/elm327/sim_ecu.h"
+#include "libautodiag/sim/ecu/ecu.h"
 #include <stdarg.h>
 #include <assert.h>
 

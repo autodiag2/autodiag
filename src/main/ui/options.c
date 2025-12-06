@@ -309,7 +309,7 @@ static void launch_simulation_internal() {
             log_msg(LOG_ERROR, "should raise a popup telling incorrect address specified");
             address = 0xE8;
         }
-        SimECU *ecu = sim_ecu_emulation_new(address);
+        SimECU *ecu = sim_ecu_new(address);
 
         GtkWidget *combo_gen = GTK_WIDGET(g_list_nth_data(children, 1));
 

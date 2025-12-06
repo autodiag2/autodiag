@@ -11,7 +11,7 @@
 #include <string.h>
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
-#include "libautodiag/sim/elm327/sim_ecu.h"
+#include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/sim.h"
 
 #define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1

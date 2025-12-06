@@ -1,9 +1,9 @@
 from autodiag.libloader import *
 from autodiag.buffer import Buffer
-from autodiag.sim.elm327.sim import list_SimECU
+from pyautodiag.autodiag.sim.ecu.ecu import list_SimECU
 from autodiag.sim.ecu.generator import Generator
 from autodiag.lib import *
-from autodiag.sim.elm327.sim import SimECU
+from pyautodiag.autodiag.sim.ecu.ecu import SimECU
 
 class SimELM327Implementation(Structure):
     pass
@@ -148,7 +148,6 @@ class SimELM327(Structure):
             else:
                 print("                NULL")
             print("            }")
-            print(f"            sim_ecu_response: {addr(sim_ecu.sim_ecu_response)}")
             print("        }")
         print("    }")
         print("}")

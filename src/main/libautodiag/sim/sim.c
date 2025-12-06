@@ -44,7 +44,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         cJSON * address_obj = cJSON_GetObjectItem(obj, "ecu");
         char * address_str = address_obj->valuestring;
         final Buffer * address = buffer_from_ascii_hex(address_str);
-        final SimECU * ecu = sim_ecu_emulation_new(address->buffer[address->size-1]);
+        final SimECU * ecu = sim_ecu_new(address->buffer[address->size-1]);
         ecu->generator = sim_ecu_generator_new_replay();
         ecu->generator->context = context;
         list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);

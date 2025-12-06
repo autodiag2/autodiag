@@ -93,7 +93,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("example: -e E8\n"); 
                 return 0;
             } else if ( sscanf(arg,"%02hhx", &ecu_address) == 1 ) {
-                list_SimECU_append((list_SimECU*)sim->ecus,sim_ecu_emulation_new(ecu_address));                    
+                list_SimECU_append((list_SimECU*)sim->ecus,sim_ecu_new(ecu_address));                    
             } else {
                 sim_elm327_cli_display_help();
                 return 1;

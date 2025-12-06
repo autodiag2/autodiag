@@ -4,7 +4,7 @@
  * Generate a header as string for use in the current emulation.
  * Header sent by tester to ECU.
  */
-char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
+char * sim_ecu_generate_request_header_bin(SimELM327* elm327,byte source_address, byte can28bits_prio, bool print_spaces) {
     char *protocolSpecificHeader = null;
     char * space = print_spaces ? " " : "";
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -218,7 +218,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 continue;
             }
             char * ecuResponse = null;
-            final Buffer * binResponse = ecu->sim_ecu_response((SimELM327 *)elm327,ecu,extractedDataRequest);
+            final Buffer * binResponse = sim_ecu_response(ecu,extractedDataRequest);
 
             assert(binResponse != null);
             if ( binRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {

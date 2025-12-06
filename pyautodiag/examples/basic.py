@@ -1,4 +1,4 @@
-from autodiag.sim.elm327.sim import SimECU
+from pyautodiag.autodiag.sim.ecu.ecu import SimECU
 
 ecuEmulation = SimECU(0x70)
 print("SimECU created with address:", hex(ecuEmulation.address))
