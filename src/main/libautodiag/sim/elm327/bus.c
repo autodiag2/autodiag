@@ -132,7 +132,7 @@ static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_pr
                 ecu->address
             );
         } else {
-            log_msg(LOG_WARNING, "Missing case here");
+            log_msg(LOG_ERROR, "Missing case here");
             assert( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) || 
                 elm327_protocol_is_can_11_bits_id(elm327->protocolRunning)
             );
