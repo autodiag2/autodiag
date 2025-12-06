@@ -62,10 +62,6 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
 
 char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRequest) {
     char * response = null;
-    if ( 0 == binRequest->size ) {
-        log_msg(LOG_ERROR, "No obd/uds data provided");        
-        return null;
-    }
     final Buffer* binResponse;
     if ( ecu->generator->response_for_python != null ) {
         binResponse = buffer_new();
