@@ -62,15 +62,6 @@ char * sim_ecu_generate_request_header_bin(struct _SimELM327* elm327,byte source
 
 char * sim_ecu_response_generic(SimELM327 * elm327, SimECU * ecu, Buffer * binRequest) {
     char * response = null;
-    if ( ! elm327->can.auto_format ) {
-        byte pci = binRequest->buffer[0];
-        assert((pci & 0xF0) == Iso15765SingleFrame);
-        int sz = pci & 0x0F;
-        if ( binRequest->size != (sz + 1) ) {
-            log_msg(LOG_WARNING, "Single frame pci size does not match");
-            return strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
-        }
-    }
     if ( 0 == binRequest->size ) {
         log_msg(LOG_ERROR, "No obd/uds data provided");        
         return null;

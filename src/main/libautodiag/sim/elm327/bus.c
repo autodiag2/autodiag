@@ -2,8 +2,9 @@
 
 /**
  * Response of the controller to the tester.
+ * @return empty buffer in case not addressed to this ECU, null on error, OBD/UDS data on success
  */
-static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest) {
+static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest, char ** errorCauseReturn) {
     Buffer * dataRequest = buffer_new();
     log_msg(LOG_DEBUG, "Receving incoming request by the tester");
     log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
@@ -22,11 +23,21 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
         }
         final int pci_sz = 1;
         assert(0 < dataRequest->size);
-        final int pci_sz_value = dataRequest->buffer[0] & 0x0F;
+        byte pci = dataRequest->buffer[0];
+        final int pci_sz_value = pci & 0x0F;
         buffer_left_shift(dataRequest, pci_sz);
-        if ( pci_sz_value != dataRequest->size ) {
-            log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, dataRequest->size);
-            //assert(pci_sz_value == dataRequest->size); TODO
+        if ( elm327->can.auto_format ) {
+            if ( pci_sz_value != (dataRequest->size + pci_sz) ) {
+                log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, (pci_sz + dataRequest->size));
+                // TODO assert(( pci_sz + pci_sz_value ) == dataRequest->size);
+            }
+        } else {
+            log_msg(LOG_DEBUG, "For now accepting only single frames");
+            assert((pci & 0xF0) == Iso15765SingleFrame);
+            if ( (binRequest->size + pci_sz) != pci_sz_value ) {
+                log_msg(LOG_WARNING, "Single frame pci size does not match");
+                *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+            }
         }
     } else {
         assert(3 <= binRequest->size);
@@ -85,7 +96,7 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
             );
         }
         if ( elm327->can.auto_format ) {
-            final int pci = dataRequest->size;
+            final byte pci = (dataRequest->size + 1) | Iso15765SingleFrame;
             BUFFER_APPEND_BYTES(
                 protocolSpecificHeader,
                 pci   
@@ -137,7 +148,12 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             buffer_append(binRequest, requestHeader);
             buffer_append(binRequest, dataRequest);
 
-            final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest);
+            char * errorCauseReturn;
+            final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest, &errorCauseReturn);
+            if ( extractedDataRequest == null ) {
+                response = errorCauseReturn;
+                break;
+            }
             if ( extractedDataRequest->size == 0 ) {
                 log_msg(LOG_DEBUG, "Not addressed to this ECU");
                 continue;
