@@ -72,7 +72,6 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
     }
     return dataRequest;
 }
-
 /**
  * Request by the tester to the vehicle (emu).
  * @param ecu to which send the dataRequest
@@ -173,6 +172,82 @@ static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_pr
     }
     return header;     
 }
+static Buffer * response_frame_extract_header(final SimELM327* elm327, final Buffer * frame) {
+    final Buffer * header = buffer_new();
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+            buffer_slice_append(header, frame, 0, 4);
+            buffer_left_shift(frame, 4);
+        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            buffer_slice_append(header, frame, 0, 2);
+            buffer_left_shift(frame, 2);
+        } else {
+            log_msg(LOG_ERROR, "Missing case here");
+            assert( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) || 
+                elm327_protocol_is_can_11_bits_id(elm327->protocolRunning)
+            );
+        }
+    } else {
+        buffer_slice_append(header, frame, 0, 3);
+        buffer_left_shift(frame, 3);
+    }
+    return header;
+}
+static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * dataResponse) {
+    list_Buffer * result = list_Buffer_new();
+    bool iso_15765_is_multi_message = false;
+    int iso_15765_multi_message_sn = 0;
+    int transportLayerMessageDataBytes = 0;
+    for(int responseBodyIndex = 0; responseBodyIndex < dataResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
+        
+        final Buffer * responseBodyChunk = buffer_new();
+        bool iso_15765_is_multi_message_ff = false;
+
+        if ( responseBodyIndex == 0 ) {
+            iso_15765_is_multi_message = 7 < dataResponse->size;
+            if ( iso_15765_is_multi_message ) {
+                iso_15765_is_multi_message_ff = true;
+            }
+        }
+
+        int transportLayerMessageDataBytesMax = 7;
+        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+            if ( iso_15765_is_multi_message ) {
+                if ( iso_15765_is_multi_message_ff ) {
+                    transportLayerMessageDataBytesMax = 6;
+                }
+            }
+        }
+        transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, dataResponse->size - responseBodyIndex);
+        buffer_slice_append(responseBodyChunk, dataResponse, responseBodyIndex, transportLayerMessageDataBytes);
+
+        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+            if ( iso_15765_is_multi_message ) {
+                if ( iso_15765_is_multi_message_ff ) {
+                    log_msg(LOG_DEBUG, "reply first frame");
+                    int bytesSent = dataResponse->size;
+                    int dl11_8 = (bytesSent & 0x0F00) >> 8;
+                    final byte pci = Iso15765FirstFrame << 4 | dl11_8;
+                    final byte dl7_0 = bytesSent & 0xFF;
+                    buffer_prepend_byte(responseBodyChunk, dl7_0);
+                    buffer_prepend_byte(responseBodyChunk, pci);
+                } else {
+                    log_msg(LOG_DEBUG, "reply consecutive frame");
+                    final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
+                    buffer_prepend_byte(responseBodyChunk, pci);
+                }
+            } else {
+                log_msg(LOG_DEBUG, "reply as single frame");
+                final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
+                buffer_prepend_byte(responseBodyChunk, pci);
+            }
+        }
+        final Buffer * protocolHeader = response_header(elm327, ecu, ELM327_CAN_28_BITS_DEFAULT_PRIO);
+        buffer_prepend(responseBodyChunk, protocolHeader);
+        list_Buffer_append(result, responseBodyChunk);
+    }
+    return result;
+}
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
@@ -231,81 +306,52 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
             if ( ecuResponse == null && 0 < dataResponse->size ) {
-                assert(ecuResponse == null);
-                bool iso_15765_is_multi_message = false;
-                int iso_15765_multi_message_sn = 0;
-                int transportLayerMessageDataBytes = 0;
-                for(int responseBodyIndex = 0; responseBodyIndex < dataResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
-                    
-                    final Buffer * responseBodyChunk = buffer_new();
-                    bool iso_15765_is_multi_message_ff = false;
+                list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
 
-                    if ( responseBodyIndex == 0 ) {
-                        iso_15765_is_multi_message = 7 < dataResponse->size;
-                        if ( iso_15765_is_multi_message ) {
-                            iso_15765_is_multi_message_ff = true;
-                        }
+                char * space = elm327->printing_of_spaces ? " " : "";
+                if ( ! elm327->printing_of_headers ) {
+                    if ( 1 < frames->size ) {
+                        log_msg(LOG_DEBUG, "Should add the multiple single frames format");
+                        asprintf(&ecuResponse, "%03d%s", dataResponse->size, elm327->eol);
                     }
-
-                    int transportLayerMessageDataBytesMax = 7;
-                    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                        if ( iso_15765_is_multi_message ) {
-                            if ( iso_15765_is_multi_message_ff ) {
-                                transportLayerMessageDataBytesMax = 6;
-                            }
-                        }
-                    }
-                    transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, dataResponse->size - responseBodyIndex);
-                    buffer_slice_append(responseBodyChunk, dataResponse, responseBodyIndex, transportLayerMessageDataBytes);
-
-                    char * space = elm327->printing_of_spaces ? " " : "";
-                    char *header = "";
+                }
+                for(int frame_idx = 0; frame_idx < frames->size; frame_idx++) {
+                    Buffer * frame = frames->list[frame_idx];
+                    char * header = null;
+                    Buffer * headerBin = response_frame_extract_header(elm327, frame);
                     if ( elm327->printing_of_headers ) {
-                        char *inBuildHeader = "";
+                        // Convert headerBin to header
                         header = sim_ecu_generate_request_header_bin(elm327,ecu->address,ELM327_CAN_28_BITS_DEFAULT_PRIO,elm327->printing_of_spaces);
                     } else {
-                        if ( iso_15765_is_multi_message ) {
-                            if ( iso_15765_is_multi_message_ff ) {
-                                asprintf(&ecuResponse, "%03d%s", dataResponse->size, elm327->eol);
-                            }
-                            asprintf(&header,"%d:", iso_15765_multi_message_sn);
+                        if ( elm327_protocol_is_can(elm327->protocolRunning) && 1 < frames->size ) {
+                            asprintf(&header,"%d:", frame_idx);
                         }
                     }
-
-                    if ( elm327->printing_of_headers || ! elm327->can.auto_format ) {
+                    if ( ! elm327->printing_of_headers || elm327->can.auto_format ) {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                            if ( iso_15765_is_multi_message ) {
-                                if ( iso_15765_is_multi_message_ff ) {
-                                    log_msg(LOG_DEBUG, "reply first frame");
-                                    int bytesSent = dataResponse->size;
-                                    int dl11_8 = (bytesSent & 0x0F00) >> 8;
-                                    final byte pci = Iso15765FirstFrame << 4 | dl11_8;
-                                    final byte dl7_0 = bytesSent & 0xFF;
-                                    buffer_prepend_byte(responseBodyChunk, dl7_0);
-                                    buffer_prepend_byte(responseBodyChunk, pci);
-                                } else {
-                                    log_msg(LOG_DEBUG, "reply consecutive frame");
-                                    final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
-                                    buffer_prepend_byte(responseBodyChunk, pci);
-                                }
-                            } else {
-                                log_msg(LOG_DEBUG, "reply as single frame");
-                                final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
-                                buffer_prepend_byte(responseBodyChunk, pci);
+                            byte pci_0 = buffer_extract_0(frame);
+                            switch(pci_0 & 0xF0) {
+                                case Iso15765FirstFrame:
+                                    buffer_extract_0(frame);
+                                    break;
+                                case Iso15765ConsecutiveFrame:
+                                case Iso15765SingleFrame:
+                                    break;
+                                default:
+                                    log_msg(LOG_DEBUG, "TODO");
+                                    break;
                             }
                         }
                     }
-
-                    char *tmpResponse;
-                    asprintf(&tmpResponse, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
+                    char *elmFrameStr;
+                    asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
                         header, strlen(header) == 0 ? "" : space, 
-                        elm_ascii_from_bin(elm327->printing_of_spaces, responseBodyChunk), elm327->eol
+                        elm_ascii_from_bin(elm327->printing_of_spaces, frame), elm327->eol
                     );
                     free(ecuResponse);
-                    ecuResponse = tmpResponse;
+                    ecuResponse = elmFrameStr;
                 }
             }
-            // end of response data
 
             Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
