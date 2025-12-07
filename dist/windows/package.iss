@@ -1,6 +1,6 @@
 [Setup]
 AppName=autodiag
-AppVersion=37
+AppVersion=38
 DefaultDirName={pf}\autodiag
 DefaultGroupName=autodiag
 OutputDir=..\..\output\bin
