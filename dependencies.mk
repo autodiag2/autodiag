@@ -25,8 +25,6 @@ output/obj/main/libautodiag/cJSON_customize.o: \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/string.h \
   include/main/libautodiag/compile_target.h
-output/obj/main/libautodiag/cJSON.o: src/main/libautodiag/cJSON.c \
-  cJSON/cJSON.h
 output/obj/main/libautodiag/com/can/iso15765.o: \
   src/main/libautodiag/com/can/iso15765.c \
   include/main/libautodiag/com/can/iso15765.h \
@@ -1760,6 +1758,7 @@ output/obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/sim/sim.h
 output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -1814,7 +1813,6 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/string.o: src/main/libautodiag/string.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
