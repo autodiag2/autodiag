@@ -50,6 +50,12 @@ char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin);
 void elm_debug(final ELMDevice * elm);
 bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle* vehicle);
 
+/**
+ * Ensure that connection to vehicle is right, for some reason some devices incorrectly choose protocol.
+ * @param protocol_max_value maximum protocol value included
+ */
+bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol_max_value);
+
 #include "elm329/elm329.h"
 #include "elm327/elm327.h"
 #include "elm323/elm323.h"

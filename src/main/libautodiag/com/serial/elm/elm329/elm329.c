@@ -145,7 +145,7 @@ bool elm329_configure(final ELM329Device* elm329) {
             serial_query_at_command((Serial*)elm329,"caf%d",true);
         }
         serial_query_at_command((Serial*)elm329,"h%d",true);
-        return true;
+        return elm_ensure_protocol_config_success((ELMDevice*)elm329, ELM329_PROTO_USER5_CAN);
     }
     return false;
 }

@@ -209,3 +209,25 @@ Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final c
     return bin;
 }
 
+bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol_max_value) {
+    log_msg(LOG_DEBUG, "Detecting the connection sanity with show supported PIDS in current data");
+    char * testerOrder = buffer_to_hex_string(buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00));
+    bool sanityCheck = false;
+    int protocol = 1;
+    do {
+        elm->send(CAST_DEVICE(elm), testerOrder);
+        elm->clear_data(CAST_DEVICE(elm));
+        final int detectionResult = elm->recv(elm);
+        if ( detectionResult == DEVICE_RECV_DATA ) {
+            sanityCheck = true;
+        } else {
+            elm->send(CAST_DEVICE(elm), at_command("tp %x", protocol));
+            elm->clear_data(CAST_DEVICE(elm));
+            if ( elm->recv(CAST_DEVICE(elm)) != SERIAL_RESPONSE_OK ) {
+                log_msg(LOG_WARNING, "Cannot set the protocol correctly");
+            }
+            protocol ++;
+        }
+    } while ( ! sanityCheck && protocol <= protocol_max_value);
+    return sanityCheck;
+}
