@@ -275,7 +275,7 @@ static void fill_vehicle_infos() {
     g_hash_table_destroy(manufacturers);
     g_hash_table_destroy(engines);
 
-    gtk_entry_set_text(gui->vehicleInfos.vin, config.vehicleInfos.vin == null ? "" : config.vehicleInfos.vin);
+    gtk_entry_set_text(gui->vehicleInfos.vin, config.vehicleInfos.vin ? config.vehicleInfos.vin : "");
 }
 static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
@@ -283,6 +283,7 @@ static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     return true;
 }
 static void set_device_location(char * location) {
+    assert(location != null);
     gtk_entry_set_text(gui->device_location, location);
     for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
         final Serial * port = list_serial.list[serial_i];
@@ -300,7 +301,9 @@ static void show_window() {
     recorder_set_status("");
     sim_launch_set_status("");
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), false);
-    gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
+    if ( config.recorder.filepath ) {
+        gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
+    }
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);

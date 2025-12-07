@@ -173,7 +173,7 @@ static bool config_load_parser(char * funcData, char *key, char *value) {
     } else if ( strcasecmp(key,"recorder.enabled") == 0 ) {
         config.recorder.enabled = atoi(value);
         return true;
-    } else if ( strcasecmp(key, "recorder.file") == 0 ) {
+    } else if ( strcasecmp(key, "recorder.filepath") == 0 ) {
         config.recorder.filepath = strdup(value);
         return true;
     } else if ( strcasecmp(key,"vehicleExplorer.refreshRateS") == 0 ) {
