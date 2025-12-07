@@ -510,6 +510,7 @@ void module_init_options(GtkBuilder *builder) {
         *gui = g;
 
         db_vehicle_load_in_memory();
+        g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file);
         g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file);
         g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location);
         g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
