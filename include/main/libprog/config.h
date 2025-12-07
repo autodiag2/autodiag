@@ -38,6 +38,10 @@ typedef struct {
         VehicleIFace* iface;
     } ephemere;
     struct {
+        bool enabled;
+        char * filepath;
+    } recorder;
+    struct {
         double refreshRateS;
         bool autoRefresh;
     } vehicleExplorer;

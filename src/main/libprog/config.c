@@ -14,6 +14,10 @@
         .autoScrollEnabled = true, \
         .showTimestamp = false \
     }, \
+    .recorder = { \
+        .enabled = false, \
+        .filepath = null \
+    }, \
     .ephemere = { \
         .iface = null \
     }, \
@@ -133,6 +137,8 @@ bool config_store() {
             fprintf(file,"main.adaptater_detailled_settings_showned=%d" FILE_EOL, config.main.adaptater_detailled_settings_showned);
             fprintf(file,"commandLine.autoScrollEnabled=%d" FILE_EOL, config.commandLine.autoScrollEnabled);
             fprintf(file,"commandLine.showTimestamp=%d" FILE_EOL, config.commandLine.showTimestamp);
+            fprintf(file,"recorder.enabled=%d" FILE_EOL, config.recorder.enabled);
+            fprintf(file,"recorder.filepath=%s" FILE_EOL, config.recorder.filepath);
             fprintf(file,"vehicleExplorer.refreshRateS=%f" FILE_EOL, config.vehicleExplorer.refreshRateS);
             fprintf(file,"vehicleExplorer.autoRefresh=%d" FILE_EOL, config.vehicleExplorer.autoRefresh);
             if ( config.vehicleInfos.vin != null && strcmp("",config.vehicleInfos.vin)!=0) {
@@ -163,6 +169,12 @@ static bool config_load_parser(char * funcData, char *key, char *value) {
         return true;
     } else if ( strcasecmp(key,"commandLine.showTimestamp") == 0 ) {
         config_commandLine_showTimestamp_set(atoi(value));
+        return true;
+    } else if ( strcasecmp(key,"recorder.enabled") == 0 ) {
+        config.recorder.enabled = atoi(value);
+        return true;
+    } else if ( strcasecmp(key, "recorder.file") == 0 ) {
+        config.recorder.filepath = strdup(value);
         return true;
     } else if ( strcasecmp(key,"vehicleExplorer.refreshRateS") == 0 ) {
         config.vehicleExplorer.refreshRateS = strtod(value,null);
@@ -206,6 +218,8 @@ void config_onchange() {
         list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
+        viface_recorder_reset(config.ephemere.iface);
+        viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
         if ( viface_open_from_iface_device(config.ephemere.iface, CAST_DEVICE(port))) {
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
                 config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);

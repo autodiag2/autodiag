@@ -159,6 +159,8 @@ static void* save_internal(void *arg) {
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);
     }
+    config.recorder.enabled = gtk_toggle_button_get_active(gui->recorder.enabled);
+    config.recorder.filepath = strdup(gtk_entry_get_text(gui->recorder.file));
     config.main.adaptater_detailled_settings_showned = gtk_toggle_button_get_active(gui->mainGui.advancedLinkDetails);
     config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(gui->commandLineGui.outputAutoScroll);
     config_commandLine_showTimestamp_set(gtk_toggle_button_get_active(gui->commandLineGui.showTimestamp));
@@ -280,6 +282,8 @@ static void show_window() {
     gtk_widget_show_now (gui->window);
     list_serial_refresh();
     fill_vehicle_infos();
+    gtk_toggle_button_set_active(gui->recorder.enabled, config.recorder.enabled);
+    gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
