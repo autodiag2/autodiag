@@ -17,6 +17,11 @@ void ehh_free(EventHandlerHolder * ehh) {
     }
 }
 void ehh_register(final EventHandlerHolder* ehh, void *ptr) {
+    for(int i = 0; i < ehh->size; i ++) {
+        if ( ehh->list[i] == ptr ) {
+            return;
+        }
+    }
     ehh->list = (void**)realloc(ehh->list, sizeof(void*) * ++ehh->size);
     ehh->list[ehh->size-1] = ptr;
 }
