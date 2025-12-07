@@ -45,10 +45,10 @@ bool gtk_label_printf(GtkLabel *label, const char *format, ...) {
     va_end(ap);
     return result;
 }
-static gboolean present_window_cleaner(gpointer mainWindow) {
+static gboolean present_window_cleaner(gpointer window) {
     final int ms = 1000;
     usleep(20 * ms);
-    gtk_window_set_keep_above(GTK_WINDOW(mainWindow), false);
+    gtk_window_set_keep_above(GTK_WINDOW(window), false);
     return false;
 }
 static gboolean present_window(gpointer data) {
