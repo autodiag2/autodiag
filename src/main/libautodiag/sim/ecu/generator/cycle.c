@@ -1,14 +1,13 @@
 #include "libautodiag/sim/ecu/generator.h"
 
 typedef struct {
-    int cycle_percent[0xFF][0xFF];
+    byte cycle_percent[256][256];
 } GState;
 
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     assert(generator->context != null);
     unsigned gears = *((unsigned*)generator->context);
     GState * state = (GState*)generator->state;
-    int ** cycle_percent = (int **)state->cycle_percent;
     final Buffer *binResponse = buffer_new();
     sim_ecu_generator_fill_success(binResponse, binRequest);
 
@@ -17,7 +16,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_CURRENT_DATA: {
             buffer_append(binResponse,
                 buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2,
-                cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
         } break;
 
         case OBD_SERVICE_PENDING_DTC:
@@ -25,7 +24,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_DTC: {
             buffer_append(binResponse,
                 buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1,
-                cycle_percent[binRequest->buffer[0]][0]));
+                state->cycle_percent[binRequest->buffer[0]][0]));
         } break;
 
         case OBD_SERVICE_CLEAR_DTC: {
@@ -46,7 +45,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         buffer_append(binResponse,
                             buffer_new_cycle(17,
-                            cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                            state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x03: {
@@ -56,7 +55,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x04: {
                         buffer_append(binResponse,
                             buffer_new_cycle(16,
-                            cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                            state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x05: {
@@ -66,7 +65,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x06: {
                         buffer_append(binResponse,
                             buffer_new_cycle(4,
-                            cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                            state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x07: {
@@ -76,7 +75,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x08: {
                         buffer_append(binResponse,
                             buffer_new_cycle(4,
-                            cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                            state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                     case 0x09: {
@@ -92,7 +91,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x0B: {
                         buffer_append(binResponse,
                             buffer_new_cycle(4,
-                            cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
+                            state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]));
                         break;
                     }
                 }
@@ -104,8 +103,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 
     int service_id = binRequest->buffer[0];
     int pid = 1 < binRequest->size ? binRequest->buffer[1] : 0;
-    cycle_percent[service_id][pid] += (100/gears);
-    cycle_percent[service_id][pid] %= 100;
+    state->cycle_percent[service_id][pid] += (100/gears);
+    state->cycle_percent[service_id][pid] %= 100;
     return binResponse;
 }
 static char * context_to_string(SimECUGenerator * this) {
