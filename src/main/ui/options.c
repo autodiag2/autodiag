@@ -338,72 +338,84 @@ static void launch_simulation_internal() {
     SimELM327 *elm327 = sim_elm327_new();
     bool configurationSuccess = true;
 
-    GList *rows = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
-
-    for (GList *iter = rows; iter != NULL; iter = iter->next) {
-        if ( iter == rows ) {
-            list_SimECU_empty((list_SimECU*) elm327->ecus);
-        }
-        GtkWidget *row = GTK_WIDGET(iter->data);
-        // children order: [0]=label_addr, [1]=combo_gen, [2]=contextEdit [3]=del_button
-        GList *children = gtk_container_get_children(GTK_CONTAINER(row));
-
-        GtkWidget *label_addr = GTK_WIDGET(g_list_nth_data(children, 0));
-        const char *addr_text = gtk_label_get_text(GTK_LABEL(label_addr));
-        unsigned int address = 0;
-        if ( sscanf(addr_text, "%x", &address) != 1 ) {
-            log_msg(LOG_ERROR, "should raise a popup telling incorrect address specified");
-            address = 0xE8;
-        }
-        SimECU *ecu = sim_ecu_new(address);
-
-        GtkWidget *combo_gen = GTK_WIDGET(g_list_nth_data(children, 1));
-
-        const char *type = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_gen));
-        if (!type) type = "random";
-
-        if (strcasecmp(type, "random") == 0) {
-            ecu->generator = sim_ecu_generator_new_random();
-        } else if (strcasecmp(type, "cycle") == 0) {
-            ecu->generator = sim_ecu_generator_new_cycle();
-        } else if (strcasecmp(type, "citroen_c5_x7") == 0) {
-            ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
-        } else if (strcasecmp(type, "gui") == 0) {
-            ecu->generator = sim_ecu_generator_new_gui();
-            char address[3];
-            sprintf(address, "%02hhX", ecu->address);
-            sim_ecu_generator_gui_set_context(ecu->generator, address);
-            g_idle_add(sim_ecu_generator_gui_show_gsource, ecu->generator->context);
-        } else if (strcasecmp(type, "replay") == 0) {
-            ecu->generator = sim_ecu_generator_new_replay();
-        } else {
-            log_msg(LOG_ERROR, "Unknown generator type: '%s'", type);
-            g_idle_add(sim_launch_set_status, gprintf("Unknown generator type: '%s'", type));
+    if ( gtk_toggle_button_get_active(gui->simulator.replay.enabled) ) {
+        final char * jsonContext = gtk_entry_get_text(gui->simulator.replay.file);
+        if ( strlen(jsonContext) == 0 ) {
             configurationSuccess = false;
-            break;
+            g_idle_add(sim_ecu_generator_gui_show_gsource, strdup("no JSON context provided"));
+        } else if ( sim_load_from_json(SIM(elm327), jsonContext) == GENERIC_FUNCTION_ERROR ) {
+            configurationSuccess = false;
+            g_idle_add(sim_ecu_generator_gui_show_gsource, strdup("Failed to load the sim"));
         }
-        GtkContainer * contextContainer = GTK_CONTAINER(g_list_nth_data(children, 2));
-        GList * container = gtk_container_get_children(contextContainer);
-        GtkEntry * contextEdit = container->data;
-        const gchar * context = gtk_entry_get_text(contextEdit);
-        if ( 0 < strlen(context) ) {
-            if ( ! ecu->generator->context_load_from_string(ecu->generator, (char*)context) ) {
-                g_idle_add(sim_launch_set_status, gprintf("Failed to set context '%s' on ecu %02hhX", context, ecu->address));
+    } else {
+        GList *rows = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
+    
+        for (GList *iter = rows; iter != NULL; iter = iter->next) {
+            if ( iter == rows ) {
+                list_SimECU_empty((list_SimECU*) elm327->ecus);
+            }
+            GtkWidget *row = GTK_WIDGET(iter->data);
+            // children order: [0]=label_addr, [1]=combo_gen, [2]=contextEdit [3]=del_button
+            GList *children = gtk_container_get_children(GTK_CONTAINER(row));
+    
+            GtkWidget *label_addr = GTK_WIDGET(g_list_nth_data(children, 0));
+            const char *addr_text = gtk_label_get_text(GTK_LABEL(label_addr));
+            unsigned int address = 0;
+            if ( sscanf(addr_text, "%x", &address) != 1 ) {
+                log_msg(LOG_ERROR, "should raise a popup telling incorrect address specified");
+                address = 0xE8;
+            }
+            SimECU *ecu = sim_ecu_new(address);
+    
+            GtkWidget *combo_gen = GTK_WIDGET(g_list_nth_data(children, 1));
+    
+            const char *type = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_gen));
+            if (!type) type = "random";
+    
+            if (strcasecmp(type, "random") == 0) {
+                ecu->generator = sim_ecu_generator_new_random();
+            } else if (strcasecmp(type, "cycle") == 0) {
+                ecu->generator = sim_ecu_generator_new_cycle();
+            } else if (strcasecmp(type, "citroen_c5_x7") == 0) {
+                ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+            } else if (strcasecmp(type, "gui") == 0) {
+                ecu->generator = sim_ecu_generator_new_gui();
+                char address[3];
+                sprintf(address, "%02hhX", ecu->address);
+                sim_ecu_generator_gui_set_context(ecu->generator, address);
+                g_idle_add(sim_ecu_generator_gui_show_gsource, ecu->generator->context);
+            } else if (strcasecmp(type, "replay") == 0) {
+                ecu->generator = sim_ecu_generator_new_replay();
+            } else {
+                log_msg(LOG_ERROR, "Unknown generator type: '%s'", type);
+                g_idle_add(sim_launch_set_status, gprintf("Unknown generator type: '%s'", type));
                 configurationSuccess = false;
                 break;
             }
-        } else {
-            if ( strcasecmp(type, "replay") == 0 ) {
-                g_idle_add(sim_launch_set_status, strdup("With replay generator, context is mandatory"));
-                configurationSuccess = false;
-                break;
+            GtkContainer * contextContainer = GTK_CONTAINER(g_list_nth_data(children, 2));
+            GList * container = gtk_container_get_children(contextContainer);
+            GtkEntry * contextEdit = container->data;
+            const gchar * context = gtk_entry_get_text(contextEdit);
+            if ( 0 < strlen(context) ) {
+                if ( ! ecu->generator->context_load_from_string(ecu->generator, (char*)context) ) {
+                    g_idle_add(sim_launch_set_status, gprintf("Failed to set context '%s' on ecu %02hhX", context, ecu->address));
+                    configurationSuccess = false;
+                    break;
+                }
+            } else {
+                if ( strcasecmp(type, "replay") == 0 ) {
+                    g_idle_add(sim_launch_set_status, strdup("With replay generator, context is mandatory"));
+                    configurationSuccess = false;
+                    break;
+                }
             }
+    
+            g_list_free(children);
+            list_SimECU_append((list_SimECU*) elm327->ecus,ecu);
         }
-
-        g_list_free(children);
-        list_SimECU_append((list_SimECU*) elm327->ecus,ecu);
+        g_list_free(rows);
     }
-    g_list_free(rows);
+
 
     if ( configurationSuccess ) {
         g_idle_add(sim_launch, elm327);
