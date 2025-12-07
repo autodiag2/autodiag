@@ -19,6 +19,7 @@ static void simulation_ecu_type_changed(GtkComboBoxText *combo, gpointer user_da
         gtk_container_remove(contextContainer, GTK_WIDGET(children->next->data));
     }
     gtk_entry_set_text(contextEdit, "");
+    gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "");
     if ( strcasecmp(generator, "gui") == 0 ) {
         gtk_widget_set_sensitive(GTK_WIDGET(contextEdit), false);
     } else {
@@ -307,11 +308,8 @@ void window_baud_rate_set_from_button(final GtkButton * button) {
     char* baud_rate_str = (char*)gtk_button_get_label(button);
     gtk_entry_set_text(gui->baudRateSelection, baud_rate_str);
 }
-
-static gboolean launch_simulation_set_pending_text(gpointer data) {
-    SimELM327 * elm327 = (SimELM327*)data;
-    gtk_label_set_text(gui->simulator.launchDesc, "Starting simulation ...");
-    return false;
+static gboolean sim_launch_set_status(gpointer data) {
+    gtk_label_set_text(gui->simulator.launchDesc, (char *)data);
 }
 static gboolean launch_simulation_update_gui(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
@@ -321,9 +319,8 @@ static gboolean launch_simulation_update_gui(gpointer data) {
     char * fmt = elm327->device_location == null ? 
             "Simulation not started ..." 
             : "Simulation started at '%s'";
-    char * simu_desc;
-    asprintf(&simu_desc,fmt,elm327->device_location);
-    gtk_label_set_text(gui->simulator.launchDesc, simu_desc);
+    char * simu_desc = gprintf(fmt,elm327->device_location);
+    sim_launch_set_status(simu_desc);
     free(simu_desc);
     
     set_device_location(elm327->device_location);
@@ -335,14 +332,13 @@ static void launch_simulation_internal() {
     gtk_spinner_start(gui->simulator.spinner);
 
     SimELM327 *elm327 = sim_elm327_new();
-    bool firstPass = true;    
+    bool configurationSuccess = true;
 
     GList *rows = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
 
     for (GList *iter = rows; iter != NULL; iter = iter->next) {
-        if ( firstPass ) {
+        if ( iter == rows ) {
             list_SimECU_empty((list_SimECU*) elm327->ecus);
-            firstPass = false;
         }
         GtkWidget *row = GTK_WIDGET(iter->data);
         // children order: [0]=label_addr, [1]=combo_gen, [2]=contextEdit [3]=del_button
@@ -378,7 +374,9 @@ static void launch_simulation_internal() {
             ecu->generator = sim_ecu_generator_new_replay();
         } else {
             log_msg(LOG_ERROR, "Unknown generator type: '%s'", type);
-            assert(false);
+            g_idle_add(sim_launch_set_status, gprintf("Unknown generator type: '%s'", type));
+            configurationSuccess = false;
+            break;
         }
         GtkContainer * contextContainer = GTK_CONTAINER(g_list_nth_data(children, 2));
         GList * container = gtk_container_get_children(contextContainer);
@@ -386,7 +384,15 @@ static void launch_simulation_internal() {
         const gchar * context = gtk_entry_get_text(contextEdit);
         if ( 0 < strlen(context) ) {
             if ( ! ecu->generator->context_load_from_string(ecu->generator, (char*)context) ) {
-                log_msg(LOG_WARNING, "Failed to set context '%s' on ecu %02hhX", context, ecu->address);
+                g_idle_add(sim_launch_set_status, gprintf("Failed to set context '%s' on ecu %02hhX", context, ecu->address));
+                configurationSuccess = false;
+                break;
+            }
+        } else {
+            if ( strcasecmp(type, "replay") == 0 ) {
+                g_idle_add(sim_launch_set_status, strdup("With replay generator, context is mandatory"));
+                configurationSuccess = false;
+                break;
             }
         }
 
@@ -395,10 +401,12 @@ static void launch_simulation_internal() {
     }
     g_list_free(rows);
 
-    sim_elm327_loop_as_daemon(elm327);
-    g_idle_add(launch_simulation_set_pending_text, elm327);
-    sim_elm327_loop_daemon_wait_ready(elm327);
-    g_idle_add(launch_simulation_update_gui, elm327);
+    if ( configurationSuccess ) {
+        sim_elm327_loop_as_daemon(elm327);
+        g_idle_add(sim_launch_set_status, strdup("Starting simulation ..."));
+        sim_elm327_loop_daemon_wait_ready(elm327);
+        g_idle_add(launch_simulation_update_gui, elm327);
+    }
 }
 
 static void launch_simulation_clean_up_routine(void *arg) {
