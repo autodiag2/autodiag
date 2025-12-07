@@ -14,7 +14,7 @@ static void switch_tabs(GtkNotebook *notebook, GtkWidget *page, guint page_num, 
 
 static void show() {
     set_manuals_directory();
-    gtk_widget_show_now(GTK_WIDGET(gui->window));
+    gtk_window_show_ensure_ontop(GTK_WIDGET(gui->window));
 }
 
 static void open_manuals() {

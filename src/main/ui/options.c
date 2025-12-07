@@ -295,7 +295,7 @@ static void set_device_location(char * location) {
 }
 
 static void show_window() {
-    gtk_widget_show_now (gui->window);
+    gtk_window_show_ensure_ontop(gui->window);
     list_serial_refresh();
     fill_vehicle_infos();
     recorder_set_status("");

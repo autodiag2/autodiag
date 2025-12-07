@@ -73,5 +73,9 @@ static int get_container_child_count(GtkContainer *container) {
     g_list_free(children);
     return count;
 }
+/**
+ * A tweaked show that ensure the window is displayed ontop.
+ */
+void gtk_window_show_ensure_ontop(GtkWidget * window);
 
 #endif

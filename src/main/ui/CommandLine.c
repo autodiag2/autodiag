@@ -155,7 +155,7 @@ void command_line_generic_send_command_from_button(final GtkButton * button) {
 }
 
 static void show() {
-   gtk_widget_show_now (gui->window);
+   gtk_window_show_ensure_ontop(gui->window);
    gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
 }
 static void send_custom_command() {

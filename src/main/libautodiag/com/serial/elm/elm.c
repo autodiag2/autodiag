@@ -217,7 +217,7 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
     do {
         elm->send(CAST_DEVICE(elm), testerOrder);
         elm->clear_data(CAST_DEVICE(elm));
-        final int detectionResult = elm->recv(elm);
+        final int detectionResult = elm->recv(CAST_DEVICE(elm));
         if ( detectionResult == DEVICE_RECV_DATA ) {
             sanityCheck = true;
         } else {

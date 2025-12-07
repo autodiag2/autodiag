@@ -18,7 +18,7 @@ static void hide() {
 }
 
 static void show() {
-    gtk_widget_show_on_main_thread(gui->window);
+    gtk_window_show_ensure_ontop(gui->window);
 }
 
 static void show_clear_confirm() {

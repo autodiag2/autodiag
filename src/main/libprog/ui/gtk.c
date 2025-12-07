@@ -45,3 +45,20 @@ bool gtk_label_printf(GtkLabel *label, const char *format, ...) {
     va_end(ap);
     return result;
 }
+static gboolean present_window_cleaner(gpointer mainWindow) {
+    final int ms = 1000;
+    usleep(20 * ms);
+    gtk_window_set_keep_above(GTK_WINDOW(mainWindow), false);
+    return false;
+}
+static gboolean present_window(gpointer data) {
+    GtkWidget * window = GTK_WIDGET(data);
+    gtk_widget_show(window);
+    gtk_window_set_keep_above(GTK_WINDOW(window), true);
+    g_idle_add(present_window_cleaner, (gpointer)window);
+    gtk_window_present(GTK_WINDOW(window));
+    return false;
+}
+void gtk_window_show_ensure_ontop(GtkWidget * window) {
+    gdk_threads_add_idle(G_SOURCE_FUNC(&present_window),window);
+}

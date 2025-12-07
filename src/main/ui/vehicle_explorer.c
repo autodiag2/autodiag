@@ -742,7 +742,7 @@ static void refresh_changed (GtkCheckMenuItem *checkmenuitem, gpointer user_data
     }
 }
 static void show_window() {
-    gtk_widget_show_now (gui->window);
+    gtk_window_show_ensure_ontop(gui->window);
     gtk_check_menu_item_set_active(gui->menuBar.autoRefresh,config.vehicleExplorer.autoRefresh);
     refresh_one_time();
     refresh_changed(gui->menuBar.autoRefresh,null);
