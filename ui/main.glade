@@ -8795,6 +8795,24 @@ What can be done:
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <object class="GtkButton" id="options-recorder-export">
+                                    <property name="label" translatable="yes">Export</property>
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="receives-default">True</property>
+                                    <property name="tooltip-text" translatable="yes">Export as json file (can be loaded back by the simulation).</property>
+                                    <property name="margin-start">5</property>
+                                    <property name="margin-end">5</property>
+                                    <property name="margin-top">5</property>
+                                    <property name="margin-bottom">5</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
                               </object>
                               <packing>
                                 <property name="expand">False</property>

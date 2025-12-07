@@ -50,6 +50,7 @@ typedef struct {
         GtkCheckButton * enabled;
         GtkEntry * file;
         GtkFileChooserButton * fileChooser;
+        GtkButton * export;
     } recorder;
 
 } OptionsGui;

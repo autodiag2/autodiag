@@ -89,7 +89,12 @@ static void simulation_ecu_add(char *address, char *generator) {
     gtk_box_pack_start(container, row, FALSE, FALSE, 2);
     gtk_widget_show_all(row);
 }
-
+static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
+    const char * filepath = gtk_entry_get_text(gui->recorder.file);
+    if ( ! record_to_json_file(filepath) ) {
+        log_msg(LOG_ERROR, "Failed to export to %s ...", filepath);
+    }
+}
 static void simutation_add_clicked(GtkButton *button, gpointer user_data) {
     const char *addr_text = gtk_entry_get_text(gui->simulator.ecus.address);
     char *gen_text = gtk_combo_box_text_get_active_text(gui->simulator.ecus.generator);
@@ -485,7 +490,8 @@ void module_init_options(GtkBuilder *builder) {
             .recorder = {
                 .enabled = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-recorder-enabled")),
                 .file = GTK_ENTRY(gtk_builder_get_object(builder, "options-recorder-file")),
-                .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-recorder-file-chooser"))
+                .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-recorder-file-chooser")),
+                .export = GTK_BUTTON(gtk_builder_get_object(builder,"options-recorder-export"))
             }
         };
         *gui = g;
@@ -499,6 +505,7 @@ void module_init_options(GtkBuilder *builder) {
         g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simutation_add_clicked), builder);
+        g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null);
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL);
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
