@@ -311,9 +311,13 @@ void window_baud_rate_set_from_button(final GtkButton * button) {
 static gboolean sim_launch_set_status(gpointer data) {
     gtk_label_set_text(gui->simulator.launchDesc, (char *)data);
 }
-static gboolean launch_simulation_update_gui(gpointer data) {
+static gboolean sim_launch(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
+    sim_elm327_loop_as_daemon(elm327);
+    sim_launch_set_status(strdup("Starting simulation ..."));
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    
     list_serial_refresh();
 
     char * fmt = elm327->device_location == null ? 
@@ -402,10 +406,7 @@ static void launch_simulation_internal() {
     g_list_free(rows);
 
     if ( configurationSuccess ) {
-        sim_elm327_loop_as_daemon(elm327);
-        g_idle_add(sim_launch_set_status, strdup("Starting simulation ..."));
-        sim_elm327_loop_daemon_wait_ready(elm327);
-        g_idle_add(launch_simulation_update_gui, elm327);
+        g_idle_add(sim_launch, elm327);
     }
 }
 
