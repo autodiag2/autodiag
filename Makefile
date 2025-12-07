@@ -9,7 +9,7 @@ OBJS_PROGS = $(filter-out output/obj/main/libautodiag/%.o,$(filter-out output/ob
 BINS_PROGS = $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c))
 
 # Library shared object
-OBJS_LIB = $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
+OBJS_LIB = output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
 BIN_LIB := $(BIN_LIB_NAME)
 PYTHON_INSTALL_FOLDER_ROOT = pyautodiag/autodiag
 PYTHON_INSTALL_FOLDER_LIB = $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
@@ -87,6 +87,12 @@ output/obj/main/%.o:
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+
+output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
+	@-echo "Compiling ($^) -> $@"
+	@-printf "  "
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
 output/obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
