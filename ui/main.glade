@@ -8468,6 +8468,7 @@ What can be done:
                                           <item translatable="yes">cycle</item>
                                           <item translatable="yes">citroen_c5_x7</item>
                                           <item translatable="yes">gui</item>
+                                          <item translatable="yes">replay</item>
                                         </items>
                                       </object>
                                       <packing>

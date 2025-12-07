@@ -2,8 +2,47 @@
 #include "ui/main.h"
 
 static OptionsGui *gui = null;
+static void on_file_chosen(GtkFileChooserButton *btn, gpointer user_data) {
+    GtkEntry *entry = GTK_ENTRY(user_data);
+    char *path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(btn));
+    if (path) {
+        gtk_entry_set_text(entry, path);
+        g_free(path);
+    }
+}
+static void simulation_ecu_type_changed(GtkComboBoxText *combo, gpointer user_data) {
+    GtkContainer * contextContainer = GTK_CONTAINER(user_data);
+    GList * children = gtk_container_get_children(contextContainer);
+    GtkEntry *contextEdit = GTK_ENTRY(children->data);
+    gchar *generator = gtk_combo_box_text_get_active_text(combo);
+    if ( children->next != null ) {
+        gtk_container_remove(contextContainer, GTK_WIDGET(children->next->data));
+    }
+    gtk_entry_set_text(contextEdit, "");
+    if ( strcasecmp(generator, "gui") == 0 ) {
+        gtk_widget_set_sensitive(GTK_WIDGET(contextEdit), false);
+    } else {
+        gtk_widget_set_sensitive(GTK_WIDGET(contextEdit), true);
+        if ( strcasecmp(generator, "random") == 0 ) {
+            gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "1");
+        } else if (strcasecmp(generator, "cycle") == 0) {
+            gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "10");
+        } else if ( strcasecmp(generator, "citroen_c5_x7") == 0) {
+            gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "1");
+        } else if ( strcasecmp(generator, "replay") == 0 ) {
+            gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "com.json");
+            GtkWidget *btn = gtk_file_chooser_button_new("Select file", GTK_FILE_CHOOSER_ACTION_OPEN);
+            g_signal_connect(btn, "file-set", G_CALLBACK(on_file_chosen), contextEdit);
+            gtk_container_add(contextContainer, btn);
+            gtk_widget_show_all(GTK_WIDGET(btn));
+        } else {
+            log_msg(LOG_WARNING, "Generator %s not handled", generator);
+        }
+    }
+    g_list_free(children);
+}
 
-static void simutation_add_ecu(char *address, char *generator) {
+static void simulation_ecu_add(char *address, char *generator) {
     GtkBox * container = gui->simulator.ecus.container;
     GtkWidget *row = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 
@@ -21,22 +60,29 @@ static void simutation_add_ecu(char *address, char *generator) {
     GtkWidget *label_addr = gtk_label_new(addr_text);
     gtk_widget_set_halign(label_addr, GTK_ALIGN_START);
 
+    GtkBox * contextContainer = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0));
+    GtkEntry *contextEdit = GTK_ENTRY(gtk_entry_new());
+    gtk_container_add(GTK_CONTAINER(contextContainer), GTK_WIDGET(contextEdit));
+
     GtkWidget *combo_gen = gtk_combo_box_text_new();
-    g_signal_connect(combo_gen, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-    char generators[][50] = {"random", "cycle", "citroen_c5_x7", "gui"};
-    int generators_len = 4;
+    g_signal_connect(combo_gen, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null);
+    g_signal_connect(combo_gen, "changed", G_CALLBACK(simulation_ecu_type_changed), contextContainer);
+    char generators[][50] = {"random", "cycle", "citroen_c5_x7", "gui", "replay"};
+    int generators_len = 5;
     for(int i = 0; i < generators_len; i ++) {
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combo_gen), generators[i]);
         if ( strcmp(generator, generators[i]) == 0 ) {
             gtk_combo_box_set_active(GTK_COMBO_BOX(combo_gen), i);
         }
     }
+    simulation_ecu_type_changed(GTK_COMBO_BOX_TEXT(combo_gen), contextContainer);
 
     GtkWidget *del_button = gtk_button_new_with_label("Delete");
     g_signal_connect_swapped(del_button, "clicked", G_CALLBACK(gtk_widget_destroy), row);
 
     gtk_box_pack_start(GTK_BOX(row), label_addr, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(row), combo_gen, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(row), GTK_WIDGET(contextContainer), TRUE, TRUE, 0);
     gtk_box_pack_end(GTK_BOX(row), del_button, FALSE, FALSE, 0);
 
     gtk_box_pack_start(container, row, FALSE, FALSE, 2);
@@ -69,7 +115,7 @@ static void simutation_add_clicked(GtkButton *button, gpointer user_data) {
         addr_text = strdup(new_addr);
     }
 
-    simutation_add_ecu((char *)addr_text, gen_text);
+    simulation_ecu_add((char *)addr_text, gen_text);
     free(gen_text);
 }
 
@@ -254,7 +300,7 @@ static void show_window() {
         gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
     g_list_free(children);
-    simutation_add_ecu("E8", "random");
+    simulation_ecu_add("E8", "random");
 }
 
 void window_baud_rate_set_from_button(final GtkButton * button) {
@@ -299,7 +345,7 @@ static void launch_simulation_internal() {
             firstPass = false;
         }
         GtkWidget *row = GTK_WIDGET(iter->data);
-        // children order: [0]=label_addr, [1]=combo_gen, [2]=del_button
+        // children order: [0]=label_addr, [1]=combo_gen, [2]=contextEdit [3]=del_button
         GList *children = gtk_container_get_children(GTK_CONTAINER(row));
 
         GtkWidget *label_addr = GTK_WIDGET(g_list_nth_data(children, 0));
@@ -328,8 +374,20 @@ static void launch_simulation_internal() {
             sprintf(address, "%02hhX", ecu->address);
             sim_ecu_generator_gui_set_context(ecu->generator, address);
             g_idle_add(sim_ecu_generator_gui_show_gsource, ecu->generator->context);
+        } else if (strcasecmp(type, "replay") == 0) {
+            ecu->generator = sim_ecu_generator_new_replay();
         } else {
             log_msg(LOG_ERROR, "Unknown generator type: '%s'", type);
+            assert(false);
+        }
+        GtkContainer * contextContainer = GTK_CONTAINER(g_list_nth_data(children, 2));
+        GList * container = gtk_container_get_children(contextContainer);
+        GtkEntry * contextEdit = container->data;
+        const gchar * context = gtk_entry_get_text(contextEdit);
+        if ( 0 < strlen(context) ) {
+            if ( ! ecu->generator->context_load_from_string(ecu->generator, (char*)context) ) {
+                log_msg(LOG_WARNING, "Failed to set context '%s' on ecu %02hhX", context, ecu->address);
+            }
         }
 
         g_list_free(children);
