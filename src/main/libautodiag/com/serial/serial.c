@@ -357,7 +357,7 @@ char * serial_describe_communication_layer(final Serial * serial) {
     asprintf(&res,"Serial (%d bauds)", serial->baud_rate);
     return res;
 }
-void serial_clear_data(final Serial* serial) {
+static void clear_data(final Serial* serial) {
     buffer_recycle(serial->recv_buffer);
 }
 void serial_lock(final Serial * port) {
@@ -396,7 +396,7 @@ void serial_init(final Serial* serial) {
     serial->guess_response = CAST_SERIAL_GUESS_RESPONSE(serial_guess_response);
     serial->lock = CAST_DEVICE_LOCK(serial_lock);
     serial->unlock = CAST_DEVICE_UNLOCK(serial_unlock);
-    serial->clear_data = CAST_DEVICE_CLEAR_DATA(serial_clear_data);
+    serial->clear_data = CAST_DEVICE_CLEAR_DATA(clear_data);
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     #if defined OS_WINDOWS
