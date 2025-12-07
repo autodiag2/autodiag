@@ -101,6 +101,9 @@ dependencies: $(SOURCES)
 
 -include dependencies.mk
 
+srcDependencies:
+	cp cJSON/cJSON.c src/main/libautodiag/
+
 clean:
 	rm -rf output/obj/
 	rm -fr pyautodiag/build
@@ -210,6 +213,7 @@ help:
 	@-echo " uninstallPython	- uninstall data from the python package"
 	@-echo " coverage     		- recompile project with coverage information included"
 	@-echo " dependencies 		- update make dependencies"
+	@-echo " srcDependencies    - update src dependencies (to be compat with win builds)"
 	@-echo "Software management"
 	@-echo " distDebian   		- package for debian"
 	@-echo " distWindows  		- package in an installer for windows"
