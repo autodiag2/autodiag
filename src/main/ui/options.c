@@ -105,7 +105,7 @@ static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
         recorder_set_status(gprintf("Failed to export to %s ...", filepath));
     }
 }
-static void simutation_add_clicked(GtkButton *button, gpointer user_data) {
+static void simulation_add_clicked(GtkButton *button, gpointer user_data) {
     const char *addr_text = gtk_entry_get_text(gui->simulator.ecus.address);
     char *gen_text = gtk_combo_box_text_get_active_text(gui->simulator.ecus.generator);
     if (gen_text == NULL) {
@@ -517,7 +517,7 @@ void module_init_options(GtkBuilder *builder) {
         g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
         g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simutation_add_clicked), builder);
+        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simulation_add_clicked), builder);
         g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null);
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
         g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL);
