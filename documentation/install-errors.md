@@ -7,3 +7,11 @@ Specify the correct location of gsettings schemas
 echo "export GSETTINGS_SCHEMA_DIR=/opt/homebrew/share/glib-2.0/schemas/" >> ~/.bashrc && \
  source ~/.bashrc
 ```
+#### Debian
+```
+(autodiag:43964): Gtk-WARNING **: 14:46:37.393: Error loading theme icon 'application-exit' for stock: Icon 'application-exit' not present in theme Yaru
+````
+Installed theme is missing some icons, install an other icon theme
+```bash
+sudo apt install gnome-icon-theme-symbolic
+```
