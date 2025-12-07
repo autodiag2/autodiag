@@ -35,12 +35,23 @@ typedef struct {
             GtkEntry * address;
             GtkComboBoxText * generator;
         } ecus;
+        struct {
+            GtkCheckButton * enabled;
+            GtkEntry * file;
+            GtkFileChooserButton * fileChooser;
+        } replay;
     } simulator;
     struct {
         GtkComboBoxText *manufacturer;
         GtkComboBoxText *engine;
         GtkEntry *vin;
     } vehicleInfos;
+    struct {
+        GtkCheckButton * enabled;
+        GtkEntry * file;
+        GtkFileChooserButton * fileChooser;
+    } recorder;
+
 } OptionsGui;
 
 
