@@ -297,7 +297,7 @@ static void show_window() {
     fill_vehicle_infos();
     recorder_set_status("");
     sim_launch_set_status("");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), config.recorder.enabled);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), false);
     gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
