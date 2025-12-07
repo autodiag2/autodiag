@@ -226,6 +226,7 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
             if ( elm->recv(CAST_DEVICE(elm)) != SERIAL_RESPONSE_OK ) {
                 log_msg(LOG_WARNING, "Cannot set the protocol correctly");
             }
+            elm->protocol = protocol;
             protocol ++;
         }
     } while ( ! sanityCheck && protocol <= protocol_max_value);

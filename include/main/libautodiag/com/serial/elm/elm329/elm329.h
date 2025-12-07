@@ -17,12 +17,6 @@ typedef enum {
 
 typedef struct {
     ELMDevice;
-    /**
-     * Protocol used to communicate on that interface, some interfaces could communicate with multiple protocols.<br />
-     * This data represent only the protocol currently in use.<br />
-     * e.g. ISO 15765-4 CAN (11-bit ID, 500 kBit/s)<br />
-     */
-    ELM329_PROTO protocol;
 } ELM329Device;
 
 /**

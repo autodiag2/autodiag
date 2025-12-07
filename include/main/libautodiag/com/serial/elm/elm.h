@@ -17,6 +17,12 @@ typedef struct {
      * Mainly send at commands to prepare interface.
      */
     bool (*configure)(final Device* elm);
+    /**
+     * Protocol used to communicate on that interface, some interfaces could communicate with multiple protocols.<br />
+     * This data represent only the protocol currently in use.<br />
+     * e.g. ISO 15765-4 CAN (11-bit ID, 500 kBit/s)<br />
+     */
+    int protocol;
 } ELMDevice;
 
 #define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)

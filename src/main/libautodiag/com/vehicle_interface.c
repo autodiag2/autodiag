@@ -260,8 +260,10 @@ void viface_discover_vehicle(VehicleIFace* iface) {
     }
     if ( iface->uds_enabled && iface->vehicle->vin->size == 0 ) {
         final list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
-        assert(result->size == 1);
-        iface->vehicle->vin = buffer_copy(result->list[0]);
+        assert(result->size <= 1);
+        if ( 0 < result->size ) {
+            iface->vehicle->vin = buffer_copy(result->list[0]);
+        }
     }
     if ( 0 < iface->vehicle->vin->size ) {
         viface_fill_infos_from_vin(iface);
