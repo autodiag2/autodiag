@@ -373,7 +373,7 @@ static void launch_simulation_internal() {
     
         for (GList *iter = rows; iter != NULL; iter = iter->next) {
             if ( iter == rows ) {
-                list_SimECU_empty((list_SimECU*) elm327->ecus);
+                list_SimECU_empty(elm327->ecus);
             }
             GtkWidget *row = GTK_WIDGET(iter->data);
             // children order: [0]=label_addr, [1]=combo_gen, [2]=contextEdit [3]=del_button
@@ -432,7 +432,7 @@ static void launch_simulation_internal() {
             }
     
             g_list_free(children);
-            list_SimECU_append((list_SimECU*) elm327->ecus,ecu);
+            list_SimECU_append(elm327->ecus,ecu);
         }
         g_list_free(rows);
     }

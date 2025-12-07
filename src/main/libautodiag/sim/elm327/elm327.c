@@ -297,7 +297,7 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
-    elm327->ecus = (struct list_SimECU*) list_SimECU_new();
+    elm327->ecus = list_SimECU_new();
     final SimECU *ecu = sim_ecu_new(0xE8);
     list_SimECU_append(LIST_SIM_ECU(elm327->ecus),ecu);
     elm327->implementation->loop_thread = null;

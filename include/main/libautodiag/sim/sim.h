@@ -1,15 +1,13 @@
 #ifndef __SIM_H
 #define __SIM_H
 
-#include "libautodiag/sim/ecu/generator.h"
-
-struct list_SimECU;
+#include "libautodiag/sim/ecu/ecu.h"
 
 typedef struct {
     /**
      * Holds the list of ECUs in this simulation
      */
-    struct list_SimECU * ecus;
+    list_SimECU * ecus;
 } Sim;
 
 #define SIM(var) ((Sim*)var)
