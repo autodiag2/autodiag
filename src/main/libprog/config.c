@@ -116,6 +116,7 @@ char *config_try_make_config_file() {
 bool config_reset() {
     config_initiated_check();
     config = DEFAULT_CONFIG;
+    config_init();
     return config_store();
 }
 

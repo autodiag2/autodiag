@@ -122,12 +122,6 @@ void * module_init_main_deferred(void *ignored) {
 }
 void module_init_main() {
     if ( mainGui == null ) {
-        config_init();
-        config_load();
-        
-        if ( ! log_is_env_set() ) {
-            log_set_level(config.log.level);
-        }
 
         char * ui_dir = installation_folder_resolve("ui"), *mainUiPath, *mainCSSPath;
         if ( ui_dir == null ) {

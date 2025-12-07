@@ -41,6 +41,12 @@ gboolean autodiag_present_window(gpointer mainWindow) {
 int main (int argc, char *argv[]) {
 
     log_set_from_env();
+    config_init();
+    config_load();
+    
+    if ( ! log_is_env_set() ) {
+        log_set_level(config.log.level);
+    }
     
     argForEach() {
         if ( argIs("help") || argIs("--help") || argIs("-h") ) {
