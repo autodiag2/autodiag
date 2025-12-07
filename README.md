@@ -37,16 +37,16 @@ In first time autodiag will focus on ELM based devices.
 This software rely on OBD2 and UDS to diagnose your vehicle, from the settings you can configure which data protocol to use.   
 GPL licence will allow both buisnesses and individual to use the software.  
 
-# Quick guide to read codes
-1. Buy [ELM327 adaptater](https://www.amazon.fr/elm327-usb/s?k=elm327+usb)
+# Quick guide to read codes with ELM327
+1. Buy ELM327 adaptater[USB](https://www.amazon.fr/elm327-usb/s?k=elm327+usb) or [Bluetooth](https://www.amazon.fr/s?k=elm327+bluetooth)
 2. Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
 3. Start the car and plug adaptater
 4. Launch autodiag
 #### Debian based
-5. Select /dev/ttyUSB0 device
+5. Select /dev/ttyUSB0 device or /dev/rfcomm0 (for bluetooth)
 #### Windows
-5. Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
-6. Select the right COM port
+5. If ELM327 USB: Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
+6. Select the right COM port eg. COM5
 <br /><br />
 
 7. Read codes
@@ -60,8 +60,10 @@ OSs:<br />
  - windows<br />
  - macOS<br />
 <br />
-Devices:    ELM320 ELM322 ELM323 ELM327 ELM329<br />
-Standards:  ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS  
+
+Devices:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELM320 ELM322 ELM323 ELM327 ELM329<br />
+Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS<br />
+Communication: Bluetooth USB
 
 # Developer documentation
 See [here](/documentation/DEV.md)
