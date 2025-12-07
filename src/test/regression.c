@@ -18,6 +18,7 @@ bool testUDS();
 bool testReplay();
 bool testRecorder(VehicleIFace* iface);
 bool testSimUDS();
+bool testCycle();
 
 int main(int argc, char **argv) {
 
@@ -48,6 +49,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testSimUDS, null);
     runTestMaybe(testSimELM327, null);
     runTestMaybe(testSim, null);
+    runTestMaybe(testCycle, null);
 
     viface_close(iface);
     viface_free(iface);
