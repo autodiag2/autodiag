@@ -2,6 +2,14 @@
 #include "ui/main.h"
 
 static OptionsGui *gui = null;
+static gboolean recorder_set_status(gpointer data) {
+    gtk_label_set_text(gui->recorder.status, (char *)data);
+    return true;
+}
+static gboolean sim_launch_set_status(gpointer data) {
+    gtk_label_set_text(gui->simulator.launchDesc, (char *)data);
+    return true;
+}
 static void on_file_chosen(GtkFileChooserButton *btn, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     char *path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(btn));
@@ -91,8 +99,8 @@ static void simulation_ecu_add(char *address, char *generator) {
 }
 static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
     const char * filepath = gtk_entry_get_text(gui->recorder.file);
-    if ( ! record_to_json_file(filepath) ) {
-        log_msg(LOG_ERROR, "Failed to export to %s ...", filepath);
+    if ( ! record_to_json_file((char*)filepath) ) {
+        recorder_set_status(gprintf("Failed to export to %s ...", filepath));
     }
 }
 static void simutation_add_clicked(GtkButton *button, gpointer user_data) {
@@ -164,7 +172,7 @@ static void* save_internal(void *arg) {
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);
     }
-    config.recorder.enabled = gtk_toggle_button_get_active(gui->recorder.enabled);
+    config.recorder.enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled));
     config.recorder.filepath = strdup(gtk_entry_get_text(gui->recorder.file));
     config.main.adaptater_detailled_settings_showned = gtk_toggle_button_get_active(gui->mainGui.advancedLinkDetails);
     config.commandLine.autoScrollEnabled = gtk_toggle_button_get_active(gui->commandLineGui.outputAutoScroll);
@@ -270,7 +278,7 @@ static void fill_vehicle_infos() {
 static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
     cancel();
-    return TRUE;
+    return true;
 }
 static void set_device_location(char * location) {
     gtk_entry_set_text(gui->device_location, location);
@@ -287,7 +295,9 @@ static void show_window() {
     gtk_widget_show_now (gui->window);
     list_serial_refresh();
     fill_vehicle_infos();
-    gtk_toggle_button_set_active(gui->recorder.enabled, config.recorder.enabled);
+    recorder_set_status("");
+    sim_launch_set_status("");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), config.recorder.enabled);
     gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
@@ -317,9 +327,6 @@ void window_baud_rate_set_from_button(final GtkButton * button) {
     char* baud_rate_str = (char*)gtk_button_get_label(button);
     gtk_entry_set_text(gui->baudRateSelection, baud_rate_str);
 }
-static gboolean sim_launch_set_status(gpointer data) {
-    gtk_label_set_text(gui->simulator.launchDesc, (char *)data);
-}
 static gboolean sim_launch(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
@@ -347,8 +354,8 @@ static void launch_simulation_internal() {
     SimELM327 *elm327 = sim_elm327_new();
     bool configurationSuccess = true;
 
-    if ( gtk_toggle_button_get_active(gui->simulator.replay.enabled) ) {
-        final char * jsonContext = gtk_entry_get_text(gui->simulator.replay.file);
+    if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->simulator.replay.enabled)) ) {
+        final char * jsonContext = (char*)gtk_entry_get_text(gui->simulator.replay.file);
         if ( strlen(jsonContext) == 0 ) {
             configurationSuccess = false;
             g_idle_add(sim_ecu_generator_gui_show_gsource, strdup("no JSON context provided"));
@@ -491,7 +498,8 @@ void module_init_options(GtkBuilder *builder) {
                 .enabled = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-recorder-enabled")),
                 .file = GTK_ENTRY(gtk_builder_get_object(builder, "options-recorder-file")),
                 .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-recorder-file-chooser")),
-                .export = GTK_BUTTON(gtk_builder_get_object(builder,"options-recorder-export"))
+                .export = GTK_BUTTON(gtk_builder_get_object(builder,"options-recorder-export")),
+                .status = GTK_LABEL(gtk_builder_get_object(builder,"options-recorder-status"))
             }
         };
         *gui = g;
