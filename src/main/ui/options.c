@@ -99,7 +99,9 @@ static void simulation_ecu_add(char *address, char *generator) {
 }
 static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
     const char * filepath = gtk_entry_get_text(gui->recorder.file);
-    if ( ! record_to_json_file((char*)filepath) ) {
+    if ( record_to_json_file((char*)filepath) ) {
+        recorder_set_status(gprintf("Export saved to %s", filepath));
+    } else {
         recorder_set_status(gprintf("Failed to export to %s ...", filepath));
     }
 }
