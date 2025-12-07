@@ -79,7 +79,8 @@ bool elm327_configure(final ELM327Device* elm327) {
             serial_query_at_command((Serial*)elm327,"d1");
         }
         serial_query_at_command((Serial*)elm327,"h%d",true);
-        return elm_ensure_protocol_config_success((ELMDevice*)elm327, ELM327_PROTO_USER2_CAN);
+        elm_ensure_protocol_config_success((ELMDevice*)elm327, ELM327_PROTO_USER2_CAN);
+        return true;
     }
     return false;
 }
