@@ -51,9 +51,9 @@ void module_init_documentation(GtkBuilder *builder) {
         gtk_label_set_text(g.about.version,APP_VERSION);
         gtk_label_set_text(g.about.maintainer,APP_MAINTAINER);
         gtk_text_buffer_set_text (g.about.descriptionText, APP_DESC, strlen(APP_DESC));
-        g_signal_connect(G_OBJECT(g.tabber),"switch-page",G_CALLBACK(switch_tabs),NULL);
-        g_signal_connect(G_OBJECT(g.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);
-        g_signal_connect(G_OBJECT(g.fileChooser),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL);        
+        assert(0 != g_signal_connect(G_OBJECT(g.tabber),"switch-page",G_CALLBACK(switch_tabs),NULL));
+        assert(0 != g_signal_connect(G_OBJECT(g.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL));
+        assert(0 != g_signal_connect(G_OBJECT(g.fileChooser),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL));        
         gtk_builder_add_callback_symbol(builder,"show-window-documentation",&show);
         gtk_builder_add_callback_symbol(builder,"documentation-open-manuals",&open_manuals);
     }

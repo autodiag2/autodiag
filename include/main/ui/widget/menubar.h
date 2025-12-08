@@ -50,7 +50,7 @@ static void menubar_data_filter_by_register(const ECU *ecu){ \
         gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.filter_by_menu),filter_check); \
         gtk_widget_show(filter_check); \
         g_object_set_data(G_OBJECT(filter_check),"ecu",(gpointer)ecu); \
-        g_signal_connect(filter_check,"toggled",G_CALLBACK(menubar_data_filter_by_on_filter_check_toggled),gui->menuBar.data.all); \
+        assert(0 != g_signal_connect(filter_check,"toggled",G_CALLBACK(menubar_data_filter_by_on_filter_check_toggled),gui->menuBar.data.all)); \
     }else gtk_menu_item_set_label(GTK_MENU_ITEM(filter_check),displayLabel); \
     free(displayLabel); \
 } \
@@ -59,7 +59,7 @@ static void menubar_data_all(GtkMenuItem *item,gpointer user_data){ \
 }
 
 #define MENUBAR_DATA_CONNECT() \
-    g_signal_connect(gui->menuBar.data.all, "activate", G_CALLBACK(menubar_data_all), null); \
+    assert(0 != g_signal_connect(gui->menuBar.data.all, "activate", G_CALLBACK(menubar_data_all), null)); \
     gui->menuBar.data.filter_by_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(gui->menuBar.data.filter_by)); \
     ehh_register(config.ephemere.iface->vehicle->internal.events.onECURegister, menubar_data_filter_by_register); \
     ehh_register(config.ephemere.iface->vehicle->internal.events.onFilterChange, menubar_data_filter_by_filter_change); \

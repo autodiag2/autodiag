@@ -356,11 +356,11 @@ void module_init_read_codes(GtkBuilder *builder) {
         *gui = g;
         gtk_check_menu_item_set_active(gui->menuBar.filtered, false);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-go-back-main-menu",&hide);
-        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),null);
-        g_signal_connect(G_OBJECT(gui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),null));
+        assert(0 != g_signal_connect(G_OBJECT(gui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         error_feedback_windows_init(gui->errorFeedback);
-        g_signal_connect(G_OBJECT(gui->noObdData),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
-        g_signal_connect(G_OBJECT(gui->menuBar.showECUsBuffer.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        assert(0 != g_signal_connect(G_OBJECT(gui->noObdData),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
+        assert(0 != g_signal_connect(G_OBJECT(gui->menuBar.showECUsBuffer.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         gtk_builder_add_callback_symbol(builder,"show-window-read-codes",&show);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-read-codes",&read_codes);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-clear-codes",&show_clear_confirm);

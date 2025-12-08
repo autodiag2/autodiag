@@ -197,9 +197,9 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
         .vin = GTK_ENTRY(gtk_builder_get_object(builder,"vin"))
     };
 
-    g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
-    g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL);
-    g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), simGui);
+    assert(0 != g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
+    assert(0 != g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
+    assert(0 != g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), simGui));
 
     counter_init_modifiable(GTK_PROGRESS_BAR(simGui->data.vehicleSpeed),"counter_85_2_255_0_0_255.png", true);
     counter_init_modifiable(GTK_PROGRESS_BAR(simGui->data.coolantTemperature),"gaugehalf_225_5_255_0_0_255.png", true);

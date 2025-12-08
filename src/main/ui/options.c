@@ -41,7 +41,7 @@ static void simulation_ecu_type_changed(GtkComboBoxText *combo, gpointer user_da
         } else if ( strcasecmp(generator, "replay") == 0 ) {
             gtk_entry_set_placeholder_text(GTK_ENTRY(contextEdit), "com.json");
             GtkWidget *btn = gtk_file_chooser_button_new("Select file", GTK_FILE_CHOOSER_ACTION_OPEN);
-            g_signal_connect(btn, "file-set", G_CALLBACK(on_file_chosen), contextEdit);
+            assert(0 != g_signal_connect(btn, "file-set", G_CALLBACK(on_file_chosen), contextEdit));
             gtk_container_add(contextContainer, btn);
             gtk_widget_show_all(GTK_WIDGET(btn));
         } else {
@@ -74,8 +74,8 @@ static void simulation_ecu_add(char *address, char *generator) {
     gtk_container_add(GTK_CONTAINER(contextContainer), GTK_WIDGET(contextEdit));
 
     GtkWidget *combo_gen = gtk_combo_box_text_new();
-    g_signal_connect(combo_gen, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null);
-    g_signal_connect(combo_gen, "changed", G_CALLBACK(simulation_ecu_type_changed), contextContainer);
+    assert(0 != g_signal_connect(combo_gen, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+    assert(0 != g_signal_connect(combo_gen, "changed", G_CALLBACK(simulation_ecu_type_changed), contextContainer));
     char generators[][50] = {"random", "cycle", "citroen_c5_x7", "gui", "replay"};
     int generators_len = 5;
     for(int i = 0; i < generators_len; i ++) {
@@ -87,7 +87,7 @@ static void simulation_ecu_add(char *address, char *generator) {
     simulation_ecu_type_changed(GTK_COMBO_BOX_TEXT(combo_gen), contextContainer);
 
     GtkWidget *del_button = gtk_button_new_with_label("Delete");
-    g_signal_connect_swapped(del_button, "clicked", G_CALLBACK(gtk_widget_destroy), row);
+    assert(0 != g_signal_connect_swapped(del_button, "clicked", G_CALLBACK(gtk_widget_destroy), row));
 
     gtk_box_pack_start(GTK_BOX(row), label_addr, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(row), combo_gen, TRUE, TRUE, 0);
@@ -510,18 +510,18 @@ void module_init_options(GtkBuilder *builder) {
         *gui = g;
 
         db_vehicle_load_in_memory();
-        g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file);
-        g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file);
-        g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location);
-        g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL);
-        g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simulation_add_clicked), builder);
-        g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null);
+        assert(0 != g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file));
+        assert(0 != g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file));
+        assert(0 != g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location));
+        assert(0 != g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simulation_add_clicked), builder));
+        assert(0 != g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null));
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
-        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL);
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL));
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&save);

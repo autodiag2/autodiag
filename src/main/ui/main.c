@@ -173,7 +173,7 @@ void module_init_main() {
                                     GTK_STYLE_PROVIDER_PRIORITY_USER);
         }
 
-        g_signal_connect(G_OBJECT(mainGui->window),"delete-event",G_CALLBACK(main_onclose),NULL);
+        assert(0 != g_signal_connect(G_OBJECT(mainGui->window),"delete-event",G_CALLBACK(main_onclose),NULL));
         gtk_builder_add_callback_symbol(builder,"window-root-quit",&module_shutdown_main);
 
         module_init_documentation(builder);        

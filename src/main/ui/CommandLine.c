@@ -224,7 +224,7 @@ static void vehicle_add_pid_buttons() {
         asprintf(&label,"01%02X",pid);
         GtkWidget* widget = GTK_WIDGET(gtk_button_new_with_label(label));
         if ( vehicle_set_tooltip_text(GTK_BUTTON(widget)) ) {
-            g_signal_connect(G_OBJECT(widget),"clicked",G_CALLBACK(command_line_generic_send_command_from_button),null);
+            assert(0 != g_signal_connect(G_OBJECT(widget),"clicked",G_CALLBACK(command_line_generic_send_command_from_button),null));
             int columni = pid % rowSize;
             if ( columni == 0 ) {
                 gtk_grid_insert_row (gui->vehicleOBDCodes, ++rowi);
@@ -265,10 +265,10 @@ void module_init_command_line(final GtkBuilder *builder) {
         *gui = g;
         vehicle_add_pid_buttons();
         gtk_text_view_set_buffer(gui->output.frame, gui->output.text);
-        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
-        g_signal_connect(gui->customCommandInput, "key-press-event", G_CALLBACK(input_line_keypress), NULL);
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
+        assert(0 != g_signal_connect(gui->customCommandInput, "key-press-event", G_CALLBACK(input_line_keypress), NULL));
         error_feedback_windows_init(gui->errorFeedback);
-        g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(gui->output.window)),"changed",G_CALLBACK(output_scrollbar_size_changed),null);        
+        assert(0 != g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(gui->output.window)),"changed",G_CALLBACK(output_scrollbar_size_changed),null));        
         gtk_builder_add_callback_symbol(builder,"show-window-command-line",&show);
         gtk_builder_add_callback_symbol(builder,"window-command-line-custom-send_clicked",&send_custom_command);
         gtk_builder_add_callback_symbol(builder,"window-command-line-clear_output_clicked",&output_clear);

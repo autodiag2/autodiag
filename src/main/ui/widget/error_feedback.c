@@ -31,6 +31,6 @@ bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface
 }
 
 void error_feedback_windows_init(final ErrorFeedbackWindows ws) {
-    g_signal_connect(G_OBJECT(ws.obd),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
-    g_signal_connect(G_OBJECT(ws.serial),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+    assert(0 != g_signal_connect(G_OBJECT(ws.obd),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
+    assert(0 != g_signal_connect(G_OBJECT(ws.serial),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
 }

@@ -697,7 +697,7 @@ static void* graphs_add_daemon(void *arg) {
                 return null;
             }
         }
-        g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraph));
+        assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraph)));
         gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(gui->graphs.list), active_index);
 
         final int col = graph_count % 2;
@@ -778,7 +778,7 @@ static void expander_activate(GtkExpander* expander, gpointer data) {
 static void expanders_default_state(GtkWidget *widget, gpointer data) {
     final const char * name = gtk_widget_get_name(widget);
     if ( strcmp(name,"GtkExpander") == 0 ) {
-        g_signal_connect(G_OBJECT(widget),"activate",G_CALLBACK(expander_activate),NULL);
+        assert(0 != g_signal_connect(G_OBJECT(widget),"activate",G_CALLBACK(expander_activate),NULL));
         gtk_container_foreach(
             GTK_CONTAINER(gtk_bin_get_child(GTK_BIN(widget))),
             expanders_default_state, null
@@ -908,10 +908,10 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
         counter_init_with(g.engine.fuel.pressure,"gaugehalf_225_5_255_0_0_255.png");
         counter_init_with(g.engine.fuel.rail.pressure,"gaugehalf_225_5_255_0_0_255.png");        
         expanders_default_state((GtkWidget*)gui->engine.expandableSection,null);
-        g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL);
-        g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL));
+        assert(0 != g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         error_feedback_windows_init(gui->errorFeedback);
-        g_signal_connect(G_OBJECT(gui->genericErrorFeedback),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null);
+        assert(0 != g_signal_connect(G_OBJECT(gui->genericErrorFeedback),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-generic-error-feedback-ok",&generic_error_feedback_ok);
         gtk_builder_add_callback_symbol(builder, "vehicle-explorer-graphs-reset-data", &graphs_reset_data);
         gtk_builder_add_callback_symbol(builder,"vehicle-explorer-graphs-add",&graphs_add);
