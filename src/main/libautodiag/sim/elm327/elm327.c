@@ -658,8 +658,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                     SIM_ELM327_REPLY(false, "%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
                 } else {
                     elm327->baud_rate = previous_baud_rate;
+                    SIM_ELM327_REPLY_GENERIC("%s", "");
                 }
-                SIM_ELM327_REPLY_GENERIC("");
             }
         }
     } else if AT_PARSE("bi") {
