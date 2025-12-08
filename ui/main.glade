@@ -8566,7 +8566,7 @@ What can be done:
                                           </packing>
                                         </child>
                                         <child>
-                                          <object class="GtkFileChooserButton">
+                                          <object class="GtkFileChooserButton" id="options-simulation-replay-chooser">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
                                             <property name="margin-start">5</property>
