@@ -7,7 +7,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         byte emitter_address = buffer_extract_0(bin_buffer); 
         
         final Buffer * address = buffer_new(); 
-        buffer_append_bytes(address,&emitter_address,1); 
+        buffer_append_byte(address,emitter_address); 
         final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
         buffer_free(address); 
         
