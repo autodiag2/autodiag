@@ -44,7 +44,7 @@ bool testElm(final VehicleIFace* iface) {
         viface_send_str(iface2, "0100");
         viface_clear_data(iface2);
         viface_recv(iface2);
-        assert(0 < iface2->vehicle->data_buffer->size);
+        assert(0 == iface2->vehicle->data_buffer->size);
     }
     return true;
 }

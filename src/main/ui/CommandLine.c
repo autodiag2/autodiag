@@ -98,6 +98,7 @@ static void * send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
     final Serial * port = list_serial_get_selected();
     if ( ! error_feedback_serial(gui->errorFeedback,port) ) {
+        serial_lock(port);
         buffer_recycle(port->recv_buffer);
         {
             char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
@@ -130,6 +131,7 @@ static void * send_command_wait_response_internal(final void * arg) {
                 }
             }
         }
+        serial_unlock(port);
     }
     pthread_exit(0);
 }
