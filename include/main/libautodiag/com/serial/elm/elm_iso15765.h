@@ -10,7 +10,15 @@ int oneHex(char c);
     switch(elm->guess_response(ptr)) { \
         case DEVICE_RECV_DATA: { \
             log_msg(LOG_INFO, "Parsing one CAN message"); \
+            if ( strlen(ptr) < id_sz_chars ) { \
+                log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                return false; \
+            } \
             memcpy(id_ascii,ptr,id_sz_chars); \
+            if ( strlen(ptr) < (id_sz_chars + elm->printing_of_spaces) ) { \
+                log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                return false; \
+            } \
             ptr += id_sz_chars + elm->printing_of_spaces; \
             \
             final Buffer * address = buffer_from_ascii_hex_n((char*)id_ascii,id_sz_chars); \
@@ -22,6 +30,10 @@ int oneHex(char c);
             buffer_free(address); \
             Iso15765Conversation *conversation = list_Iso15765Conversation_find(conversations, current_ecu); \
             \
+            if ( strlen(ptr) < 1 ) { \
+                log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                return false; \
+            } \
             final Iso15765FrameType frame_type = oneHex(*ptr); \
             ptr ++; \
             \
@@ -36,6 +48,10 @@ int oneHex(char c);
             switch(frame_type) { \
                 case Iso15765SingleFrame: { \
                     log_msg(LOG_DEBUG, "single frame"); \
+                    if ( strlen(ptr) < (1 + elm->printing_of_spaces) ) { \
+                        log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                        return false; \
+                    } \
                     final int data_bytes = oneHex(*ptr); \
                     ptr += 1 + elm->printing_of_spaces; \
                     conversation = iso15765_init_conversation(data_bytes); \
@@ -44,6 +60,10 @@ int oneHex(char c);
                 } break; \
                 case Iso15765FirstFrame: { \
                     log_msg(LOG_DEBUG, "first frame"); \
+                    if ( strlen(ptr) < (3 + elm->printing_of_spaces * 2) ) { \
+                        log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                        return false; \
+                    } \
                     final int data_bytes = (oneHex(*ptr) << 8) + (oneHex(*(ptr+1+elm->printing_of_spaces)) << 4) + oneHex(*(ptr+2+elm->printing_of_spaces)); \
                     ptr += 3 + elm->printing_of_spaces * 2; \
                     conversation = iso15765_init_conversation(data_bytes); \
@@ -51,6 +71,10 @@ int oneHex(char c);
                     list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765ConsecutiveFrame: { \
+                    if ( strlen(ptr) < (1 + elm->printing_of_spaces) ) { \
+                        log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                        return false; \
+                    } \
                     if ( conversation == null ) { \
                         log_msg(LOG_ERROR, "Conversation has not started properly"); \
                         final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
@@ -96,6 +120,10 @@ int oneHex(char c);
                     case Iso15765ConsecutiveFrame: \
                     case Iso15765FirstFrame: { \
                             int sz = conversation->current_data_length; \
+                            if ( bin_buffer->size < sz ) { \
+                                log_msg(LOG_ERROR, "Incoming frame is too short"); \
+                                return false; \
+                            } \
                             memcpy(conversation->data->buffer + position_in_buffer,bin_buffer->buffer,sz); \
                             conversation->remaining_data_bytes_to_receive -= sz; \
                             if ( conversation->remaining_data_bytes_to_receive == 0 ) { \
