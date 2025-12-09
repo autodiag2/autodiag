@@ -41,6 +41,7 @@ make
 ```bash
 export TOOLCHAIN=x86_64-w64-mingw32-
 export TOOLCHAIN=i686-w64-mingw32-
+export TOOLCHAIN=aarch64-linux-gnu-
 make compile_lib
 ```
 ## Run
