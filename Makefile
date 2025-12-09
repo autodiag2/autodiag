@@ -53,15 +53,6 @@ coverage: veryclean compile_tests
 	./output/bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
-output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
-
-$(BIN_LIB): $(OBJS_LIB)
-	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
-	mkdir -p output/bin/
-	cp "$@" output/bin/
-
 uninstallPython:
 	-rm -f $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	-rm -fr $(PYTHON_INSTALL_FOLDER_DATA)
@@ -82,11 +73,17 @@ output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
 
-output/obj/main/%.o:
+output/obj/main/ui/%.o output/obj/main/libprog/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+
+output/obj/main/%.o:
+	@-echo "Compiling ($^) -> $@"
+	@-printf "  "
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
 output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
 	@-echo "Compiling ($^) -> $@"
@@ -97,6 +94,15 @@ output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
 output/obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+
+output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
+
+$(BIN_LIB): $(OBJS_LIB)
+	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+	mkdir -p output/bin/
+	cp "$@" output/bin/
 
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
