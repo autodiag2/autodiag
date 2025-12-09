@@ -74,6 +74,7 @@ else ifeq ($(UNAME_S), Linux)
     SYSTEM := linux
     EXT := so
     CFLAGS_LIB_COMPILE := -shared
+    CFLAGS += -rdynamic
 else
     $(error OS unsupported)
 endif

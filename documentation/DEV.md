@@ -31,21 +31,28 @@ sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgt
 ```bash
 git clone --depth=1 https://github.com/autodiag2/autodiag && \
  cd autodiag && \
- git submodule update --init --recursive
+ git submodule update --init --recursive --depth=1
 ```
 ### Compiling
 ```bash
 make
 ```
+### Cross compiling
+```bash
+export TOOLCHAIN=x86_64-w64-mingw32-
+export TOOLCHAIN=i686-w64-mingw32-
+make compile_lib
+```
+## Run
+```bash
+make installDev
+./output/bin/autodiag
+./output/bin/elm327sim
+```
 ### Distribute
 Making the package is possible only on the target system, ie distDebian can be done only from a debian-like distro, same for others.
 ```bash
 make distDebian distWindows distMacOS
-```
-## Run
-```bash
-./output/bin/autodiag
-./output/bin/elm327sim
 ```
 
 # Python package
