@@ -62,7 +62,7 @@ OSs:<br />
 <br />
 
 Devices:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELM320 ELM322 ELM323 ELM327 ELM329<br />
-Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS<br />
+Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS CAN CAN-TP KWP2000<br />
 Communication: Bluetooth USB
 
 # Developer documentation
