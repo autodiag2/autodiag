@@ -233,7 +233,12 @@ static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src)
         }
         protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
         if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+            assert(3 <= strlen(protocolSpecificHeader));
             protocolSpecificHeader ++;
+            if ( elm327->printing_of_spaces ) {
+                *(protocolSpecificHeader+1) = *protocolSpecificHeader;
+                protocolSpecificHeader ++;
+            }
         }
     } else {
         protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);

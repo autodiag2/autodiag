@@ -119,7 +119,7 @@ void ensureDisplayWithSpacesIsCorrect() {
     viface_clear_data(iface);
     iface->device->recv(iface->device);
     buffer_ensure_termination(serial->recv_buffer);
-    assert(strstr(serial->recv_buffer, "7E8") != null);
+    assert(strstr(serial->recv_buffer->buffer, "7E8") != null);
 }
 void ensureReplayCommands() {
     SimELM327* elm327 = sim_elm327_new();       
