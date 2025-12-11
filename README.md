@@ -55,15 +55,14 @@ GPL licence will allow both buisnesses and individual to use the software.
 See [here](/documentation/install-errors.md)
 
 # Compatibility
-OSs:<br />
- - debian based<br />
- - windows<br />
- - macOS<br />
-<br />
+| Component      | Debian-based Linux | Windows | macOS  |
+|----------------|--------------------|---------|--------|
+| Software       | ✔️                 | ✔️       | ✔️     |
+| ELM USB        | ✔️                 | ✔️       | ❌     |
+| ELM Bluetooth  | ✔️                 | ✔️       | ❌     |
 
 Devices:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELM320 ELM322 ELM323 ELM327 ELM329<br />
-Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS CAN CAN-TP KWP2000<br />
-Communication: Bluetooth USB
+Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS CAN CAN-TP KWP2000
 
 # Developer documentation
 See [here](/documentation/DEV.md)
