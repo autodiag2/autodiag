@@ -106,7 +106,6 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
             deviceConfigured = false;
         } else {
             deviceConfigured = device->configure((Device*)device);
-            free(*port);
         }
         free(response);
     }
