@@ -743,8 +743,16 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             success = false;
         }
         if ( success ) {
-            elm327->protocolRunning = p;
-            elm327->nvm.protocol = elm327->protocolRunning;
+            if ( p == 0 ) {
+                log_msg(LOG_DEBUG, "resetting to the default factory setting");
+                elm327->protocolRunning = SIM_ELM327_DEFAULT_PROTO;
+                elm327->protocol_is_auto_running = true;
+                elm327->nvm.protocol = elm327->protocolRunning;
+                elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
+            } else {
+                elm327->protocolRunning = p;
+                elm327->nvm.protocol = elm327->protocolRunning;
+            }
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("tp") {

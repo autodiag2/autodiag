@@ -21,7 +21,7 @@ bool testSimUDS();
 bool testCycle();
 
 int main(int argc, char **argv) {
-
+    sim_elm327_non_volatile_wipe_out();
     printf(" ==== REGRESSION TEST ==== \n");
 
     log_set_from_env();
@@ -55,6 +55,6 @@ int main(int argc, char **argv) {
     viface_free(iface);
 
     printf(" ==== REGRESSION END ====\n");
-
+    sim_elm327_non_volatile_wipe_out();
     return 0;
 }
