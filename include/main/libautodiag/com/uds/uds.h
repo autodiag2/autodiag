@@ -169,6 +169,21 @@ int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed);
  */
 bool uds_clear_dtcs(final VehicleIFace * iface);
 
+typedef enum {
+    UDS_RESET_HARD                = 0x01, /* Hard Reset */
+    UDS_RESET_KEY_OFF_ON          = 0x02, /* Key Off/On Reset */
+    UDS_RESET_SOFT                = 0x03, /* Soft Reset */
+    UDS_RESET_ENABLE_RPSD         = 0x04, /* Enable Rapid Power Shut Down */
+    UDS_RESET_DISABLE_RPSD        = 0x05, /* Disable Rapid Power Shut Down */
+    /* 0x06–0x3F ISO/SAE Reserved */
+    /* 0x40–0x5F Vehicle Manufacturer Specific (OEM) */
+    /* 0x60–0x7E System Supplier Specific */
+    UDS_RESET_RESERVED_07         = 0x07  /* ISO/SAE Reserved */
+} uds_reset_type;
+
+const char *uds_reset_type_to_string(uds_reset_type v);
+bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type);
+
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
 #endif

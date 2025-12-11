@@ -1,5 +1,54 @@
 #include "libautodiag/com/uds/uds.h"
 
+const char *uds_reset_type_to_string(uds_reset_type v) {
+    if (v == UDS_RESET_HARD) return "Hard Reset";
+    if (v == UDS_RESET_KEY_OFF_ON) return "Key Off On Reset";
+    if (v == UDS_RESET_SOFT) return "Soft Reset";
+    if (v == UDS_RESET_ENABLE_RPSD) return "Enable Rapid Power Shut Down";
+    if (v == UDS_RESET_DISABLE_RPSD) return "Disable Rapid Power Shut Down";
+    if (v == UDS_RESET_RESERVED_07) return "ISO/SAE Reserved";
+
+    if (0x06 < v && v < 0x40) return "ISO/SAE Reserved";
+    if (0x40 <= v && v < 0x60) return "OEM Specific";
+    if (0x60 <= v && v < 0x7F) return "System Supplier Specific";
+
+    return "Undefined";
+}
+
+bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type) {
+    bool result = bool_unset;
+    if ( ! uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
+        return false;
+    }
+    viface_lock(iface);
+    viface_send(iface, buffer_from_ints( 
+        UDS_SERVICE_ECU_RESET, type
+    ));
+    viface_clear_data(iface);
+    viface_recv(iface);
+    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
+        final ECU * ecu = iface->vehicle->ecus[i];
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            final Buffer * data = ecu->data_buffer->list[j];
+            if ( result == bool_unset ) {
+                result = true;
+            }
+            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                log_msg(LOG_DEBUG, "negative response found: ");
+                buffer_dump(data);
+                result &= false;
+            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                result &= true;
+            } else {
+                log_msg(LOG_WARNING, "Unknown byte at first");
+                buffer_dump(data);
+            }
+        }
+    }
+    viface_unlock(iface);
+    return result == bool_unset ? false : result;
+}
+
 bool uds_clear_dtcs(final VehicleIFace * iface) {
     bool result = bool_unset;
     if ( ! uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {

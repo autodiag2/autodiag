@@ -320,6 +320,15 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
+        case UDS_SERVICE_ECU_RESET: {
+            if ( 1 < binRequest->size ) {
+                final byte resetType = binRequest->buffer[0];
+                uds_reset_default_session(state);
+                buffer_append_byte(binResponse, resetType);
+            } else {
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        }
     }
     return binResponse;
 }
