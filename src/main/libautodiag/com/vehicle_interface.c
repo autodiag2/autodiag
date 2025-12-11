@@ -266,6 +266,11 @@ void viface_discover_vehicle(VehicleIFace* iface) {
         }
     }
     if ( 0 < iface->vehicle->vin->size ) {
+        if ( 17 != iface->vehicle->vin->size ) {
+            log_msg(LOG_WARNING, "Non standard VIN detected: size=%d content=%s", iface->vehicle->vin->size, buffer_to_ascii(iface->vehicle->vin));
+        }
+        // If the manufacturer return it in a non standard way
+        buffer_slice_non_alphanum(iface->vehicle->vin);
         viface_fill_infos_from_vin(iface);
     }
 }

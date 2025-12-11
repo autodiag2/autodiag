@@ -5,10 +5,8 @@ bool saej1979_vehicle_info_is_pid_supported(final VehicleIFace* iface, final int
 }
 
 #define saej1979_vehicle_info_discover_vin_iterator(data) \
-    if ( 17 == data->size ) { \
+    if ( 0 < data->size ) { \
         iface->vehicle->vin = buffer_copy(data); \
-    } else { \
-        log_msg(LOG_ERROR, "Incorrect VIN: size=%d content=%s", data->size, buffer_to_ascii(data)); \
     }
 
 SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(

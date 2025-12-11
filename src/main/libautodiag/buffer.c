@@ -1,4 +1,5 @@
 #include "libautodiag/buffer.h"
+#include "libautodiag/lib.h"
 
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
     assert(cmp1 != null);
@@ -265,6 +266,17 @@ Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n) {
         result->buffer[result->size++] = (byte)vals[i];
     }
     return result;
+}
+void buffer_slice_non_alphanum(final Buffer *buffer) {
+    int offset = 0;
+    for(int i = 0; i < buffer->size; i++) {
+        if ( ! ascii_is_alphanum(buffer->buffer[i]) ) {
+            offset ++;
+            continue;
+        }
+        buffer->buffer[i-offset] = buffer->buffer[i];
+    }
+    buffer->size -= 1;
 }
 char * buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {

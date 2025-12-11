@@ -13,6 +13,7 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "libautodiag/lang/list.h"
 
 char * ascii_escape_breaking_chars(char *str);
+bool ascii_is_alphanum(uint8_t c);
 
 /**
  * Generic return values for functions.
