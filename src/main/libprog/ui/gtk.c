@@ -53,7 +53,7 @@ static gboolean present_window_cleaner(gpointer window) {
 }
 static gboolean present_window(gpointer data) {
     GtkWidget * window = GTK_WIDGET(data);
-    gtk_widget_show(window);
+    gtk_widget_show_now(GTK_WIDGET(window));
     gtk_window_set_keep_above(GTK_WINDOW(window), true);
     g_idle_add(present_window_cleaner, (gpointer)window);
     gtk_window_present(GTK_WINDOW(window));
