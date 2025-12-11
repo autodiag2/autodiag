@@ -108,6 +108,19 @@ void testSimELM327_1() {
         }        
     }
 }
+void ensureDisplayWithSpacesIsCorrect() {
+    SimELM327* elm327 = sim_elm327_new();       
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = port_open(strdup(elm327->device_location));
+    final Serial * serial = iface->device;
+    assert(elm327_printing_of_spaces(iface->device, true));
+    iface->device->send(iface->device, "0100");
+    viface_clear_data(iface);
+    iface->device->recv(iface->device);
+    buffer_ensure_termination(serial->recv_buffer);
+    assert(strstr(serial->recv_buffer, "7E8") != null);
+}
 void ensureReplayCommands() {
     SimELM327* elm327 = sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
@@ -147,6 +160,7 @@ void incomplete_string_return_after_20_secs() {
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
 bool testSimELM327() {
+    ensureDisplayWithSpacesIsCorrect();
     //incomplete_string_return_after_20_secs();
     anyCommandShouldReplyUnknown();
     ensureReplayCommands();
