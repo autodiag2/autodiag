@@ -34,6 +34,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
+                    case 0xC0:
+                    case 0xA0:
+                    case 0x80:
+                    case 0x60:
+                    case 0x40:
+                    case 0x20:
                     case 0x00: {
                         buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
                         break;
