@@ -133,8 +133,14 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
     }
     return serial_describe_communication_layer((Serial *)elm329);
 }
-
+bool elm329_reset_protocol(final ELM327Device* elm329) {
+    final char * command = at_command("sp0");
+    final bool result = (3 <= elm329->send(CAST_DEVICE(elm329), command));
+    buffer_recycle(elm329->recv_buffer);
+    return ( elm329->recv(CAST_DEVICE(elm329)) == SERIAL_RESPONSE_OK );
+}
 bool elm329_configure(final ELM329Device* elm329) {
+    elm329_reset_protocol(elm329);
     elm329->protocol = elm329_get_current_protocol(elm329);
     if ( elm329->protocol != ELM329_PROTO_NONE ) {
         if ( ! serial_query_at_command((Serial*)elm329,"s%d",false) ) {

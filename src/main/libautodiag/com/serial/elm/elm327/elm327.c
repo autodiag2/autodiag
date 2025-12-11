@@ -68,7 +68,16 @@ bool elm327_protocol_is_j1939(final ELM327_PROTO protocol) {
             protocol == ELM327_PROTO_USER1_CAN ||
             protocol == ELM327_PROTO_USER2_CAN;
 }
+
+bool elm327_reset_protocol(final ELM327Device* elm327) {
+    final char * command = at_command("sp0");
+    final bool result = (3 <= elm327->send(CAST_DEVICE(elm327), command));
+    buffer_recycle(elm327->recv_buffer);
+    return ( elm327->recv(CAST_DEVICE(elm327)) == SERIAL_RESPONSE_OK );
+}
+
 bool elm327_configure(final ELM327Device* elm327) {
+    elm327_reset_protocol(elm327);
     elm327->protocol = elm327_get_current_protocol(elm327);
     if ( elm327->protocol != ELM327_PROTO_NONE ) {
         if ( ! elm327_printing_of_spaces(elm327,false) ) {

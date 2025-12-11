@@ -26,12 +26,12 @@ typedef struct Device {
     char * type;
     /**
      * Send a string with the device
-     * @return number of bytes sent or DEVICE_SEND_ERROR on error
+     * @return number of bytes sent or DEVICE_ERROR on error
      */
     int (*send)(final struct Device* device, const char *command);
     /**
      * Receive data with the device
-     * @return implementation dependent value DEVICE_RECV_ERROR on error
+     * @return implementation dependent value DEVICE_ERROR on error
      */
     int  (*recv)(final struct Device* device);
     /**
