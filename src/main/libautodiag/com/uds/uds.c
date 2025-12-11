@@ -1,5 +1,8 @@
 #include "libautodiag/com/uds/uds.h"
 
+bool uds_security_access(final VehicleIFace * iface, int level) {
+    return uds_security_access_ecu_generator_citroen_c5_x7(iface);
+}
 const char *uds_reset_type_to_string(uds_reset_type v) {
     if (v == UDS_RESET_HARD) return "Hard Reset";
     if (v == UDS_RESET_KEY_OFF_ON) return "Key Off On Reset";
