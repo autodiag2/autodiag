@@ -27,6 +27,15 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_CURRENT_DATA: {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
+                    case 0xC0:
+                    case 0xA0:
+                    case 0x80:
+                    case 0x60:
+                    case 0x40:
+                    case 0x20:
+                    case 0x00: {
+                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                    } break;
                     case 0x01: {
                         gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
                         Buffer* status = buffer_new();
@@ -96,6 +105,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
+                    case 0x00: {
+                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                    } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         const gchar * vin = gtk_entry_get_text(gui->vin);
                         if ( 0 < strlen(vin) ) {

@@ -278,7 +278,7 @@ bool testSimELM327() {
         viface_send_str(iface, "0900");
         viface_clear_data(iface);
         viface_recv(iface);
-        assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFF")));
+        assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFFFF")));
     }
     {
         SimELM327* elm327 = sim_elm327_new();       

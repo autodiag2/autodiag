@@ -125,7 +125,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFF"));
+                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                         break;
                     }
                     case 0x01: {
