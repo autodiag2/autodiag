@@ -26,15 +26,14 @@ PRINT_MODULAR(sim_elm327_cli_help,
     "\n"
 )
 
-
-void sim_elm327_cli_display_protocols() {
+static void display_protocols() {
     printf("Supported protocols:\n");
     for(int p = 0x1; p <= 0xC; p += 1) {
         printf("%1x : %s\n", p, elm327_protocol_to_string(p));
     }
 }
 
-void sim_elm327_cli_display_help() {
+static void display_help() {
     sim_elm327_cli_help("");
 }
 
@@ -50,7 +49,7 @@ typedef struct {
     bool * proto_is_auto;
 } ELM327SimData;
 
-void *sim_elm327_daemon(void *d) {
+static void *launch(void *d) {
     ELM327SimData* da = d;
     ELM327SimData data = *da;
     sim_elm327_loop_as_daemon(data.sim);
@@ -79,7 +78,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
     
     argForEach() {
         if ( argIs("-h") || argIs("--help") || argIs("help") ) {
-            sim_elm327_cli_display_help();
+            display_help();
             return 0;
         } else if argIs("--clear-nvm") {
             sim_elm327_non_volatile_wipe_out();
@@ -95,7 +94,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             } else if ( sscanf(arg,"%02hhx", &ecu_address) == 1 ) {
                 list_SimECU_append(sim->ecus,sim_ecu_new(ecu_address));                    
             } else {
-                sim_elm327_cli_display_help();
+                display_help();
                 return 1;
             }
         } else if argIs("-p") {
@@ -103,7 +102,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             char * arg = argCurrent();
             int p;
             if ( arg == null ) {
-                sim_elm327_cli_display_protocols();
+                display_protocols();
                 return 0;
             } else if ( sscanf(arg,"A%1x", &p) == 1 ) {
                 proto = (ELM327_PROTO *)intdup(p);
@@ -112,7 +111,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 proto = (ELM327_PROTO *)intdup(p);
                 proto_is_auto = intdup(false);
             } else {
-                sim_elm327_cli_display_help();
+                display_help();
                 return 1;
             }
         } else if argIs("-l") {
@@ -219,7 +218,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
         .proto_is_auto = proto_is_auto
     };
     pthread_t simThread;
-    pthread_create(&simThread, null, &sim_elm327_daemon, &data);
+    pthread_create(&simThread, null, &launch, &data);
 
     if ( 0 < guis->size ) {
         gtk_main();
