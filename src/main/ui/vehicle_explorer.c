@@ -903,10 +903,10 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
 
         gui = (vehicleExplorerGui*)malloc(sizeof(vehicleExplorerGui));
         (*gui) = g;
-        counter_init_with(g.engine.vehicleSpeed,"counter_85_2_255_0_0_255.png");
-        counter_init_with(g.engine.speed,"counter_85_2_255_0_0_255.png");
-        counter_init_with(g.engine.fuel.pressure,"gaugehalf_225_5_255_0_0_255.png");
-        counter_init_with(g.engine.fuel.rail.pressure,"gaugehalf_225_5_255_0_0_255.png");        
+        counter_init_with(GTK_WIDGET(g.engine.vehicleSpeed),"counter_85_2_255_0_0_255.png");
+        counter_init_with(GTK_WIDGET(g.engine.speed),"counter_85_2_255_0_0_255.png");
+        counter_init_with(GTK_WIDGET(g.engine.fuel.pressure),"gaugehalf_225_5_255_0_0_255.png");
+        counter_init_with(GTK_WIDGET(g.engine.fuel.rail.pressure),"gaugehalf_225_5_255_0_0_255.png");        
         expanders_default_state((GtkWidget*)gui->engine.expandableSection,null);
         assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL));
         assert(0 != g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));

@@ -220,15 +220,15 @@ gboolean counter_on_motion_notify(GtkWidget *widget, GdkEventMotion event, gpoin
     return TRUE;
 }
 
-GtkProgressBar* counter_init(GtkProgressBar* bar) {
+GtkWidget* counter_init(GtkWidget* bar) {
     return counter_init_with(bar,"counter_85_2_255_0_0_255.png");
 }
-GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName) {
-    return counter_init_modifiable(bar,pngName, false);
+GtkWidget* counter_init_with(GtkWidget* widget, char *pngName) {
+    return counter_init_modifiable(widget,pngName, false);
 }
-GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool isModifiable) {
-    assert(bar != null);
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_REL_FILE_PATH_KEY,
+GtkWidget* counter_init_modifiable(GtkWidget* widget, char *pngName, bool isModifiable) {
+    assert(widget != null);
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_REL_FILE_PATH_KEY,
                             strdup(pngName), 
                             &counter_destroy_progress_bar_allocations
                             );
@@ -269,52 +269,52 @@ GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool
             }            
         }
     }
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE,
                         intdup(throttle_length_on_pict), 
                         &counter_destroy_progress_bar_allocations
                         );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_WIDTH,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_WIDTH,
                             doubledup(throttle_width * 1.0), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_R,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_R,
                             doubledup(throttle_r/255.0), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_G,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_G,
                             doubledup(throttle_g/255.0), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_B,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_B,
                             doubledup(throttle_b/255.0), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_A,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_A,
                             doubledup(throttle_a/255.0), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_X,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_X,
                             intdup(throttle_offset_on_pict_x), 
                             &counter_destroy_progress_bar_allocations
                             );
-    g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y,
+    g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_OFFSET_ON_PICT_Y,
                             intdup(throttle_offset_on_pict_y), 
                             &counter_destroy_progress_bar_allocations
                             );
-    assert(0 != g_signal_connect (G_OBJECT (bar), "draw", G_CALLBACK (counter_draw_callback), NULL));  
+    assert(0 != g_signal_connect (G_OBJECT (widget), "draw", G_CALLBACK (counter_draw_callback), NULL));  
     if ( isModifiable ) {
-        g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_DRAGGING,
+        g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_DRAGGING,
             intdup(0), 
             &counter_destroy_progress_bar_allocations
         );
-        g_object_set_data_full (G_OBJECT(bar), COUNTER_KEY_THROTTLE_FRACTION,
+        g_object_set_data_full (G_OBJECT(widget), COUNTER_KEY_THROTTLE_FRACTION,
             doubledup(0), 
             &counter_destroy_progress_bar_allocations
         );
-        assert(0 != g_signal_connect(G_OBJECT (bar), "button-press-event", G_CALLBACK(counter_on_button_press), NULL));
-        assert(0 != g_signal_connect(G_OBJECT (bar), "button-release-event", G_CALLBACK(counter_on_button_release), NULL));
-        assert(0 != g_signal_connect(G_OBJECT (bar), "motion-notify-event", G_CALLBACK(counter_on_motion_notify), NULL));
-        gtk_widget_add_events(GTK_WIDGET(bar), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
+        assert(0 != g_signal_connect(G_OBJECT (widget), "button-press-event", G_CALLBACK(counter_on_button_press), NULL));
+        assert(0 != g_signal_connect(G_OBJECT (widget), "button-release-event", G_CALLBACK(counter_on_button_release), NULL));
+        assert(0 != g_signal_connect(G_OBJECT (widget), "motion-notify-event", G_CALLBACK(counter_on_motion_notify), NULL));
+        gtk_widget_add_events(GTK_WIDGET(widget), GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK);
     }
-    return bar;
+    return widget;
 }

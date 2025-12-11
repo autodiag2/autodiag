@@ -571,7 +571,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
         SIM_ELM327_REPLY_ATI();
     } else if AT_PARSE("rv") {
-        SIM_ELM327_REPLY_GENERIC("%.2f",elm327->voltage);
+        SIM_ELM327_REPLY_GENERIC("13.5");
     } else if AT_PARSE("rtr") {
         SIM_ELM327_REPLY_OK();                                
     } else if AT_PARSE("rd") {

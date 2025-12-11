@@ -5,7 +5,7 @@
 #include "libprog/config.h"
 #include "libautodiag/math.h"
 
-GtkProgressBar* counter_init(GtkProgressBar* bar);
+GtkWidget* counter_init(GtkWidget* bar);
 /**
  * pngName encoded as: compteur_C_W_R_G_B_A_X_Y.png
  * C: throttle length in pixels on the image of the counter
@@ -17,8 +17,8 @@ GtkProgressBar* counter_init(GtkProgressBar* bar);
  * X: X-offset in pixels off the throttle center on the image of the counter with (0,0) at bottom left
  * Y: Y-offset in pixels off the throttle center on the image of the counter with (0,0) at bottom left
  */
-GtkProgressBar* counter_init_with(GtkProgressBar* bar, char *pngName);
-GtkProgressBar* counter_init_modifiable(GtkProgressBar* bar, char *pngName, bool isModifiable);
+GtkWidget* counter_init_with(GtkWidget* bar, char *pngName);
+GtkWidget* counter_init_modifiable(GtkWidget* bar, char *pngName, bool isModifiable);
 /**
  * Percent is in [0;1]
  */
