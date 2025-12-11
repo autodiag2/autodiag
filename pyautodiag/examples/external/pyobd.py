@@ -2,6 +2,8 @@ import obd
 import sys
 from obd import OBDStatus
 
+obd.logger.setLevel(obd.logging.DEBUG)
+
 if len(sys.argv) < 2:
     print(f"usage {sys.argv[0]} <block file>")
     exit(1)
