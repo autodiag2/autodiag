@@ -7,7 +7,9 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/ecu/generator.h"
-#include "libprog/sim_ecu_generator_gui.h"
+#ifndef COMPILE_NON_UI
+#   include "libprog/sim_ecu_generator_gui.h"
+#endif
 #include "libautodiag/sim/sim.h"
 
 int sim_elm327_cli_main(int argc, char **argv);

@@ -22,7 +22,9 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
     " elm327sim -g random -c 1234           : use the seed 1234 for generating random numbers\n"
     " elm327sim -g cycle -c 10              : number of gears used in the cycle\n"
+#ifndef COMPILE_NON_UI
     " elm327sim -g gui                      : default ecu with gui value generator\n"
+#endif
     "\n"
 )
 
@@ -36,12 +38,13 @@ static void display_protocols() {
 static void display_help() {
     sim_elm327_cli_help("");
 }
-
-int SimECUGeneratorGui_cmp(SimECUGeneratorGui*g1, SimECUGeneratorGui*g2) {
-    return g1 - g2;
-}
-AD_LIST_H(SimECUGeneratorGui)
-AD_LIST_SRC(SimECUGeneratorGui)
+#ifndef COMPILE_NON_UI
+    int SimECUGeneratorGui_cmp(SimECUGeneratorGui*g1, SimECUGeneratorGui*g2) {
+        return g1 - g2;
+    }
+    AD_LIST_H(SimECUGeneratorGui)
+    AD_LIST_SRC(SimECUGeneratorGui)
+#endif
 
 typedef struct {
     SimELM327* sim;
@@ -74,8 +77,10 @@ int sim_elm327_cli_main(int argc, char **argv) {
     SimELM327* sim = sim_elm327_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
-    list_SimECUGeneratorGui * guis = list_SimECUGeneratorGui_new();
-    
+    #ifndef COMPILE_NON_UI
+        list_SimECUGeneratorGui * guis = list_SimECUGeneratorGui_new();
+    #endif
+
     argForEach() {
         if ( argIs("-h") || argIs("--help") || argIs("help") ) {
             display_help();
@@ -139,7 +144,9 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("random\n");
                 printf("cycle\n");
                 printf("citroen_c5_x7\n");
-                printf("gui\n");
+                #ifndef COMPILE_NON_UI
+                    printf("gui\n");
+                #endif
                 printf("replay\n");
                 return 0;
             } else if ( strcasecmp(arg, "random") == 0 ) {
@@ -150,13 +157,15 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 generator = sim_ecu_generator_new_citroen_c5_x7();
             } else if (strcasecmp(arg,"replay") == 0 ) {
                 generator = sim_ecu_generator_new_replay();
-            } else if ( strcasecmp(arg,"gui") == 0 ) {
-                generator = sim_ecu_generator_new_gui();
-                char address[3];
-                sprintf(address, "%02hhX", target_ecu->address);
-                list_SimECUGeneratorGui_append(guis, 
-                    sim_ecu_generator_gui_set_context(generator, address)
-                );
+            #ifndef COMPILE_NON_UI
+                } else if ( strcasecmp(arg,"gui") == 0 ) {
+                    generator = sim_ecu_generator_new_gui();
+                    char address[3];
+                    sprintf(address, "%02hhX", target_ecu->address);
+                    list_SimECUGeneratorGui_append(guis, 
+                        sim_ecu_generator_gui_set_context(generator, address)
+                    );
+            #endif
             } else {
                 log_msg(LOG_ERROR, "Unknown generator %s, rerun without argument to see available generators", arg);
                 return 1;
@@ -207,10 +216,12 @@ int sim_elm327_cli_main(int argc, char **argv) {
             return 1;
         }
     }
-    for(int i = 0; i < guis->size; i ++) {
-        SimECUGeneratorGui *simGui = guis->list[i];
-        sim_ecu_generator_gui_show(simGui);
-    }
+    #ifndef COMPILE_NON_UI
+        for(int i = 0; i < guis->size; i ++) {
+            SimECUGeneratorGui *simGui = guis->list[i];
+            sim_ecu_generator_gui_show(simGui);
+        }
+    #endif
 
     ELM327SimData data = {
         .sim = sim,
@@ -220,13 +231,17 @@ int sim_elm327_cli_main(int argc, char **argv) {
     pthread_t simThread;
     pthread_create(&simThread, null, &launch, &data);
 
-    if ( 0 < guis->size ) {
-        gtk_main();
-    } else {
+    #ifdef COMPILE_NON_UI
         pthread_join(simThread, null);
-    }
+    #else
+        if ( 0 < guis->size ) {
+            gtk_main();
+        } else {
+            pthread_join(simThread, null);
+        }
+        list_SimECUGeneratorGui_free(guis);
+    #endif
 
-    list_SimECUGeneratorGui_free(guis);
     return 0;
 }
 
