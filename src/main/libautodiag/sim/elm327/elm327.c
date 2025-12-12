@@ -984,15 +984,6 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     log_msg(LOG_INFO, "sim running on %s", elm327->device_location);
 
-    #ifdef OS_WINDOWS
-    #elif defined OS_POSIX
-        final POLLFD fileDescriptor = {
-            .fd = elm327->implementation->fd,
-            .events = POLLIN
-        };
-    #else
-    #   warning OS unsupported
-    #endif
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
     while(true) {
