@@ -4,24 +4,38 @@ include app.mk
 INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 # Programs
-SOURCES_PROGS = $(call rwildcard,src/main/,*.c)
-OBJS_PROGS = $(filter-out output/obj/main/libautodiag/%.o,$(filter-out output/obj/main/prog/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
-BINS_PROGS = $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c))
+SOURCES_PROGS := $(call rwildcard,src/main/,*.c)
+ifneq (,$(findstring compat,$(MAKECMDGOALS)))
+	OBJS_PROGS := $(call filterout-multi, \
+		output/obj/main/libprog/ui/%.o output/obj/main/ui/%.o \
+		output/obj/main/libprog/sim_ecu_generator_gui.o output/obj/main/libautodiag/%.o \
+		output/obj/main/prog/%.o, \
+		$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)) \
+	)
+	CFLAGS += -DCOMPILE_NON_UI
+else
+	OBJS_PROGS := $(call filterout-multi, \
+		output/obj/main/libautodiag/%.o \
+		output/obj/main/prog/%.o, \
+		$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)) \
+	)
+endif
+BINS_PROGS := $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c))
 
 # Library shared object
-OBJS_LIB = output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
+OBJS_LIB := output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
 BIN_LIB := $(BIN_LIB_NAME)
-PYTHON_INSTALL_FOLDER_ROOT = pyautodiag/autodiag
-PYTHON_INSTALL_FOLDER_LIB = $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
-PYTHON_INSTALL_FOLDER_DATA = $(PYTHON_INSTALL_FOLDER_ROOT)/data/
+PYTHON_INSTALL_FOLDER_ROOT := pyautodiag/autodiag
+PYTHON_INSTALL_FOLDER_LIB := $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
+PYTHON_INSTALL_FOLDER_DATA := $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
-SOURCES_TESTS = $(call rwildcard,src/test/,*.c)
-OBJS_TESTS = $(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o)))
-BINS_TESTS = output/bin/regression
+SOURCES_TESTS := $(call rwildcard,src/test/,*.c)
+OBJS_TESTS := $(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o)))
+BINS_TESTS := output/bin/regression
 
-SOURCES = $(SOURCES_PROGS) $(SOURCES_TESTS)
-OBJS = $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
+SOURCES := $(SOURCES_PROGS) $(SOURCES_TESTS)
+OBJS := $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
 
 CFLAGS_TESTS = -I src/testFixtures/
 CFLAGS_COVERAGE = 
@@ -36,6 +50,8 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
+
+compile_progs_compat: output/bin/elm327sim_compat
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
@@ -69,10 +85,6 @@ installPythonDev: _installPython
 	ln -s $(PWD)/$(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	ln -s $(PWD)/data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
-output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
-
 output/obj/main/ui/%.o output/obj/main/libprog/%.o:
 	@-echo "Compiling ($^) -> $@"
 	@-printf "  "
@@ -94,6 +106,14 @@ output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
 output/obj/test/%.o:
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+
+output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
+
+output/bin/elm327sim_compat: src/main/prog/elm327sim.c $(OBJS_PROGS) $(BIN_LIB)
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) -o '$@' $^ $(CFLAGS_LIBS)
 
 output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
@@ -207,29 +227,30 @@ doc:
 	@-echo "Documentation generated in output/doc/html/index.html"
 help:
 	@-echo "Development setup"
-	@-echo " install      		- copy files"
-	@-echo " installDev 		- using symlinks"
-	@-echo " uninstall    		- delete previous installation"
-	@-echo " run          		- run the software"
-	@-echo " runDebug     		- run with debug flags"
-	@-echo " runTest      		- run regression test"
-	@-echo " compile_progs  	- compile progs"
-	@-echo " release_progs  	- compile progs with debugging info removed"
-	@-echo " compile_tests 		- compile tests"
-	@-echo " compile_lib  		- compile the library"
-	@-echo " installPython		- install data in the python package"
-	@-echo " installPythonDev	- same but using symlinks"
-	@-echo " uninstallPython	- uninstall data from the python package"
-	@-echo " coverage     		- recompile project with coverage information included"
-	@-echo " dependencies 		- update make dependencies"
+	@-echo " install      			- copy files"
+	@-echo " installDev 			- using symlinks"
+	@-echo " uninstall    			- delete previous installation"
+	@-echo " run          			- run the software"
+	@-echo " runDebug     			- run with debug flags"
+	@-echo " runTest      			- run regression test"
+	@-echo " compile_progs  		- compile progs"
+	@-echo " compile_progs_compat	- compile progs maximizing compatibility"
+	@-echo " release_progs  		- compile progs with debugging info removed"
+	@-echo " compile_tests 			- compile tests"
+	@-echo " compile_lib  			- compile the library"
+	@-echo " installPython			- install data in the python package"
+	@-echo " installPythonDev		- same but using symlinks"
+	@-echo " uninstallPython		- uninstall data from the python package"
+	@-echo " coverage     			- recompile project with coverage information included"
+	@-echo " dependencies 			- update make dependencies"
 	@-echo "Software management"
-	@-echo " distDebian   		- package for debian"
-	@-echo " distWindows  		- package in an installer for windows"
-	@-echo " distMacOS    		- package as DMG for macOS"
-	@-echo " newVersion   		- create a new version"
-	@-echo " doc 		 		- generate documentation"
+	@-echo " distDebian   			- package for debian"
+	@-echo " distWindows  			- package in an installer for windows"
+	@-echo " distMacOS    			- package as DMG for macOS"
+	@-echo " newVersion   			- create a new version"
+	@-echo " doc 		 			- generate documentation"
 	@-echo "Configuration variables"
-	@-echo " TOOLCHAIN           - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
-	@-echo " INSTALL_DATA_FOLDER - where to install application data"
-	@-echo " INSTALL_BIN_FOLDER  - where to install application binaries"
+	@-echo " TOOLCHAIN           	- prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
+	@-echo " INSTALL_DATA_FOLDER 	- where to install application data"
+	@-echo " INSTALL_BIN_FOLDER  	- where to install application binaries"
 
