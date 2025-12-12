@@ -32,6 +32,7 @@ void list_serial_free();
  * @return NULL if not found
  */
 Serial * list_serial_find_by_location(final char * location);
+Serial * list_serial_add_if_not_in_by_location(char * location);
 
 void serial_set_location(final Serial * port, final char *location);
 bool list_serial_remove(final Serial * element);
