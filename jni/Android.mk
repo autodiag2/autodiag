@@ -13,6 +13,7 @@ LOCAL_MODULE := libautodiag
 LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/
 LOCAL_SRC_FILES := ../cJSON/cJSON.c $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(ROOT)/src/main/libautodiag/,*.c))
 LOCAL_CFLAGS := $(CFLAGS)
+LOCAL_LDLIBS += -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -25,4 +26,5 @@ SRC_FILES_LIBPROG := $(call filterout-multi, \
 LOCAL_SRC_FILES := $(SRC_FILES_LIBPROG) ../src/main/prog/elm327sim.c
 LOCAL_CFLAGS := $(CFLAGS)
 LOCAL_SHARED_LIBRARIES := libautodiag
+LOCAL_LDLIBS += -llog
 include $(BUILD_EXECUTABLE)

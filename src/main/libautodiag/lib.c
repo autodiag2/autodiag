@@ -26,11 +26,6 @@ int compat_vasprintf(char **ret, const char *fmt, va_list ap) {
     if (!*ret) return -1;
     return vsnprintf(*ret, len + 1, fmt, ap);
 }
-bool ascii_is_alphanum(uint8_t c) {
-    return (c >= '0' && c <= '9') ||
-           (c >= 'A' && c <= 'Z') ||
-           (c >= 'a' && c <= 'z');
-}
 char * ascii_escape_breaking_chars(char *str) {
     size_t len = strlen(str);
     char *res = malloc(len * 4 + 1);

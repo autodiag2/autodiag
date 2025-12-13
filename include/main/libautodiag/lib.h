@@ -13,8 +13,11 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "libautodiag/lang/list.h"
 
 char * ascii_escape_breaking_chars(char *str);
-bool ascii_is_alphanum(uint8_t c);
-
+static bool ascii_is_alphanum(char c) {
+    return (c >= '0' && c <= '9') ||
+           (c >= 'A' && c <= 'Z') ||
+           (c >= 'a' && c <= 'z');
+}
 /**
  * Generic return values for functions.
  */
