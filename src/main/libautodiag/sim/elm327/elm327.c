@@ -823,6 +823,17 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     }
     return commandReconized;
 }
+#ifdef OS_POSIX
+#   include <fcntl.h>
+#   include <errno.h>
+    int is_connected(int fd) {
+        int flags = fcntl(fd, F_GETFL, 0);
+        if (flags == -1 && errno == EBADF) {
+            return 0; // Socket/file descriptor is closed
+        }
+        return 1; // Socket/file descriptor is open
+    }
+#endif
 
 void sim_elm327_loop(SimELM327 * elm327) {
 
@@ -933,7 +944,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
 
-            elm327->implementation->handle = server_fd;
+            elm327->implementation->handle = -1;
+            elm327->implementation->server_fd = server_fd;
             char loc[64];
             snprintf(loc, sizeof(loc), "127.0.0.1:%d", base_port + i);
             elm327->device_location = strdup(loc);
@@ -953,6 +965,19 @@ void sim_elm327_loop(SimELM327 * elm327) {
         buffer_recycle(recv_buffer);
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
+        }
+        if ( strcasecmp(elm327->device_type, "loopback") == 0 && ! is_connected(elm327->implementation->handle) ) {
+            #ifdef OS_POSIX
+                struct sockaddr_in addr;
+                socklen_t addr_len = sizeof(addr);
+                
+                elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                
+                if (elm327->implementation->handle == -1) {
+                    perror("accept");
+                    return;
+                }
+            #endif
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");

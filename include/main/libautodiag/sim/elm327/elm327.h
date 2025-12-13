@@ -29,6 +29,7 @@ typedef struct {
         HANDLE handle;
     #elif defined OS_POSIX
         int handle;
+        int server_fd;
     #else
     #   warning OS unsupported
     #endif
