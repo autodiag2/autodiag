@@ -827,11 +827,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
 #   include <fcntl.h>
 #   include <errno.h>
     int is_connected(int fd) {
-        int flags = fcntl(fd, F_GETFL, 0);
-        if (flags == -1 && errno == EBADF) {
-            return 0; // Socket/file descriptor is closed
+        char buf;
+        ssize_t ret = recv(fd, &buf, 1, MSG_PEEK);
+        if (ret == 0) return 0; // connection closed by peer
+        if (ret == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
+            return 0; // error, consider disconnected
         }
-        return 1; // Socket/file descriptor is open
+        return 1; // data available, connection alive
     }
 #endif
 
