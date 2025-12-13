@@ -1,8 +1,7 @@
 LOCAL_PATH := $(call my-dir)
 ROOT := $(LOCAL_PATH)/../
-rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2)) $(wildcard $1$2)
-
 include $(ROOT)/app.mk
+include $(ROOT)/common.mk
 
 CFLAGS = -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument
 CFLAGS += -DCOMPILE_COMPAT
@@ -13,5 +12,11 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := libautodiag
 LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/
 LOCAL_SRC_FILES := ../cJSON/cJSON.c $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(ROOT)/src/main/libautodiag/,*.c))
+LOCAL_CFLAGS := $(CFLAGS)
+include $(BUILD_SHARED_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := elm327sim
+LOCAL_C_INCLUDES := $(ROOT)/include/main/
 LOCAL_CFLAGS := $(CFLAGS)
 include $(BUILD_SHARED_LIBRARY)
