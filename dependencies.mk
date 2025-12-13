@@ -4,7 +4,18 @@ output/obj/main/libautodiag/buffer.o: src/main/libautodiag/buffer.c \
   include/main/libautodiag/string.h \
   include/main/libautodiag/lang/object.h \
   include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/byte.h include/main/libautodiag/math.h
+  include/main/libautodiag/byte.h include/main/libautodiag/math.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/file.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/libautodiag/byte.o: src/main/libautodiag/byte.c \
   include/main/libautodiag/byte.h include/main/libautodiag/string.h \
   include/main/libautodiag/lang/lang.h \
@@ -1096,6 +1107,23 @@ output/obj/main/libautodiag/installation.o: \
   include/main/libautodiag/lang/list.h include/main/libautodiag/buffer.h \
   include/main/libautodiag/log.h include/main/libautodiag/byte.h \
   include/main/libautodiag/math.h
+output/obj/main/libautodiag/jni/sim/elm327/elm327.o: \
+  src/main/libautodiag/jni/sim/elm327/elm327.c \
+  include/main/libautodiag/jni/sim/elm327/elm327.h \
+  include/main/libautodiag/compile_target.h
+output/obj/main/libautodiag/jni/tmp_file.o: \
+  src/main/libautodiag/jni/tmp_file.c \
+  include/main/libautodiag/jni/tmp_file.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/list.h \
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/string.h
 output/obj/main/libautodiag/lang/hashmap_common.o: \
   src/main/libautodiag/lang/hashmap_common.c \
   include/main/libautodiag/lang/hashmap_common.h \
@@ -1581,16 +1609,15 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   src/main/libautodiag/sim/elm327/bus.c \
   include/main/libautodiag/sim/elm327/bus.h \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/lib.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/log.h \
+  include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/list.h \
   include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lang/lang.h \
-  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/string.h \
-  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
   include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
   include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
-  include/main/libautodiag/initools.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
@@ -1640,16 +1667,15 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
 output/obj/main/libautodiag/sim/elm327/elm327.o: \
   src/main/libautodiag/sim/elm327/elm327.c \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/lib.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/log.h \
+  include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/list.h \
   include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lang/lang.h \
-  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/string.h \
-  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
   include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
   include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
-  include/main/libautodiag/initools.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
@@ -1996,16 +2022,15 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   src/main/libprog/sim_ecu_generator_gui.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
-  include/main/libautodiag/lib.h \
+  include/main/libautodiag/thread.h include/main/libautodiag/log.h \
+  include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/list.h \
   include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lang/lang.h \
-  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/string.h \
-  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
   include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
   include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
-  include/main/libautodiag/initools.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
