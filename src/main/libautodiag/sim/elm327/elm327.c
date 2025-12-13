@@ -966,7 +966,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
         }
-        if ( strcasecmp(elm327->device_type, "loopback") == 0 && ! is_connected(elm327->implementation->handle) ) {
+        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "loopback") == 0 && ! is_connected(elm327->implementation->handle) ) {
             #ifdef OS_POSIX
                 struct sockaddr_in addr;
                 socklen_t addr_len = sizeof(addr);
