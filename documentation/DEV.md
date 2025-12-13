@@ -38,6 +38,17 @@ git clone --depth=1 https://github.com/autodiag2/autodiag && \
 make
 ```
 ### Cross compiling
+#### From macOS to Android
+Install the toolchain or with [.dmg](https://dl.google.com/android/repository/android-ndk-r29-darwin.dmg)
+```bash
+brew install android-ndk
+```
+Setup and compile
+```bash
+export TOOLCHAIN=
+make compile_lib
+```
+#### From any to any
 ```bash
 export TOOLCHAIN=x86_64-w64-mingw32-
 export TOOLCHAIN=i686-w64-mingw32-

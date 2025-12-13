@@ -10,10 +10,7 @@ LOCAL_C_INCLUDES := $(ROOT)/include/main $(ROOT)/cJSON/
 SRCDIR := $(ROOT)/src/main/libautodiag/
 LOCAL_SRC_FILES := $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(SRCDIR),*.c))
 
-$(info LOCAL_SRC_FILES = $(LOCAL_SRC_FILES))
-$(info LOCAL_PATH = $(LOCAL_PATH))
-$(info LOCAL_C_INCLUDES = $(LOCAL_C_INCLUDES))
-
-LOCAL_CFLAGS := -DCOMPILE_COMPAT
+LOCAL_CFLAGS += -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument
+LOCAL_CFLAGS += -DCOMPILE_COMPAT
 
 include $(BUILD_SHARED_LIBRARY)
