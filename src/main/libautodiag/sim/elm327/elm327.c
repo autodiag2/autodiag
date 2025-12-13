@@ -6,9 +6,88 @@ void sim_elm327_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
 }
 
+int sim_write(void *handle, int timeout_ms, byte * data, unsigned int data_len) {
+    assert(handle != null);
+    assert(data != null);
+    final int poll_result = file_pool_write(handle, timeout_ms);
+    if ( poll_result <= 0 ) {
+        log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+        return -1;
+    }
+    #if defined OS_WINDOWS
+        DWORD bytes_written = 0;
+        if (!WriteFile(*((HANDLE*)handle), data, data_len, &bytes_written, null)) {
+            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+            return -1;
+        }
+        return bytes_written;
+    #elif defined OS_POSIX
+        int bytes_written = write(*((int*)handle), data, data_len);
+        if ( bytes_written == -1 ) {
+            perror("write");
+        }
+        return bytes_written;
+    #else
+    #   warning OS unsupported
+    #endif
+    return -1;
+}
+int sim_read(void *handle, int timeout_ms, Buffer * readed) {
+    assert(handle != null);
+    assert(readed != null);
+    buffer_ensure_capacity(readed, 500);
+    #ifdef OS_WINDOWS
+        if ( ! ConnectNamedPipe(*handle, null) ) {
+            DWORD err = GetLastError();
+            if ( err == ERROR_PIPE_CONNECTED ) {
+                log_msg(LOG_DEBUG, "pipe already connected");
+            } else {
+                if ( err == ERROR_NO_DATA ) {
+                    log_msg(LOG_ERROR, "pipe closed");
+                } else {
+                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                }
+                return false;
+            }
+        }
+        if ( file_pool_read(handle, null, timeout_ms) == -1 ) {
+            log_msg(LOG_ERROR, "Error while pooling");
+            return -1;
+        }
+        DWORD readedBytes = 0;
+        final int success = ReadFile(*((HANDLE*)handle), readed->buffer, readed->size_allocated-1, &readedBytes, 0);
+        if ( ! success ) {
+            log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
+            return -1;
+        }
+        if ( UINT_MAX < readedBytes ) {
+            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", buffer->size);
+            return -1;
+        }
+        readed->size = readedBytes;
+        return readedBytes;
+    #elif defined OS_POSIX
+        int res = file_pool_read(handle, null, timeout_ms);
+        if ( res == -1 ) {
+            log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+            return -1;
+        }
+        int rv = read(*((int*)handle),readed->buffer,readed->size_allocated-1);
+        if ( rv == -1 ) {
+            log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+            return -1;
+        }
+        readed->size = rv;
+        return rv;
+    #else
+    #   warning OS unsupported
+    #endif
+    return -1;
+}
+
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
     elm327->activity_monitor_count = 0x00;
-    while(elm327->activity_monitor_count != 0xFF && elm327->implementation.activity_monitor_thread != null) {
+    while(elm327->activity_monitor_count != 0xFF && elm327->implementation->activity_monitor_thread != null) {
         elm327->activity_monitor_count++;
         usleep(655e3);
         if ( elm327->activity_monitor_timeout < elm327->activity_monitor_count ) {
@@ -22,28 +101,10 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                     asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                    #if defined OS_WINDOWS
-                        final int poll_result = file_pool_write(&elm327->implementation->pipe_handle, elm327->implementation->timeout_ms);
-                        if ( poll_result <= 0 ) {
-                            log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-                            return;
-                        }
-                        DWORD bytes_written = 0;
-                        if (!WriteFile(elm327->implementation->pipe_handle, act_alert, strlen(act_alert), &bytes_written, null)) {
-                            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-                        }
-                    #elif defined OS_POSIX
-                        final int poll_result = file_pool_write(&elm327->implementation->fd, elm327->implementation->timeout_ms);
-                        if ( poll_result <= 0 ) {
-                            log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-                            return;
-                        }
-                        if ( write(elm327->implementation->fd,act_alert,strlen(act_alert)) == -1 ) {
-                            perror("write");
-                        }
-                    #else
-                    #   warning OS unsupported
-                    #endif
+                    if ( sim_write(&elm327->implementation->handle,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
+                        return;
+                    }
+
                     free(act_alert);
                 }
             }
@@ -352,50 +413,9 @@ bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327) {
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
-    #ifdef OS_WINDOWS
-        if ( ! ConnectNamedPipe(elm327->implementation->pipe_handle, null) ) {
-            DWORD err = GetLastError();
-            if ( err == ERROR_PIPE_CONNECTED ) {
-                log_msg(LOG_DEBUG, "pipe already connected");
-            } else {
-                if ( err == ERROR_NO_DATA ) {
-                    log_msg(LOG_ERROR, "pipe closed");
-                } else {
-                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                }
-                return false;
-            }
-        }
-        if ( file_pool_read(&elm327->implementation->pipe_handle, null, SERIAL_DEFAULT_TIMEOUT) == -1 ) {
-            log_msg(LOG_ERROR, "Error while pooling");
-            return false;
-        }
-        DWORD readedBytes = 0;
-        final int success = ReadFile(elm327->implementation->pipe_handle, buffer->buffer, buffer->size_allocated-1, &readedBytes, 0);
-        if ( ! success ) {
-            log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
-            return false;
-        }
-        if ( UINT_MAX < readedBytes ) {
-            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", buffer->size);
-            return false;
-        }
-        buffer->size = readedBytes;
-    #elif defined OS_POSIX
-        int res = file_pool_read(&elm327->implementation->fd, null, SERIAL_DEFAULT_TIMEOUT);
-        if ( res == -1 ) {
-            log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-            return false;
-        }
-        int rv = read(elm327->implementation->fd,buffer->buffer,buffer->size_allocated-1);
-        if ( rv == -1 ) {
-            log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-            return false;
-        }
-        buffer->size = rv;
-    #else
-    #   warning OS unsupported
-    #endif
+    if ( sim_read(&elm327->implementation->handle, timeout, buffer) == -1 ) {
+        return false;
+    }
     buffer_ensure_termination(buffer);
     return true;
 }
@@ -417,20 +437,9 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     free(serial_response);
     log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
 
-    #ifdef OS_WINDOWS
-        DWORD bytes_written = 0;
-        if (!WriteFile(elm327->implementation->pipe_handle, response, strlen(response), &bytes_written, null)) {
-            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-            return false;
-        }
-    #elif defined OS_POSIX
-        if ( write(elm327->implementation->fd,response,strlen(response)) == -1 ) {
-            perror("write");
-            return false;
-        }
-    #else
-    #   warning OS unsupported
-    #endif
+    if ( sim_write(&elm327->implementation->handle, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
+        return false;
+    }
     free(response);
     return true;
 }
@@ -954,9 +963,9 @@ void sim_elm327_loop(SimELM327 * elm327) {
     #endif
 
     #ifdef OS_WINDOWS
-        elm327->implementation->pipe_handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
-        elm327->implementation->fd = -1;
+        elm327->implementation->handle = -1;
     #else
     #   warning OS unsupported
     #endif
@@ -964,10 +973,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     #ifdef OS_WINDOWS
         elm327->device_location = strdup(pipeName);
-        elm327->implementation->pipe_handle = hPipe;
+        elm327->implementation->handle = hPipe;
     #elif defined OS_POSIX
         elm327->device_location = strdup(ptsname(fd));
-        elm327->implementation->fd = fd;
+        elm327->implementation->handle = fd;
     #else
     #   warning OS unsupported
     #endif
@@ -976,7 +985,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
-    while(elm327->implementation.loop_thread != null) {
+    while(elm327->implementation->loop_thread != null) {
         buffer_recycle(recv_buffer);
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;

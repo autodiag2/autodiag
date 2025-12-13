@@ -22,9 +22,9 @@ typedef struct {
     bool loop_ready;
     int timeout_ms;
     #ifdef OS_WINDOWS
-        HANDLE pipe_handle;
+        HANDLE handle;
     #elif defined OS_POSIX
-        int fd;
+        int handle;
     #else
     #   warning OS unsupported
     #endif
