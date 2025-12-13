@@ -6,9 +6,13 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include "libautodiag/thread.h"
 #include <unistd.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <errno.h>
+#include "libautodiag/thread.h"
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 #include "libautodiag/sim/ecu/ecu.h"
@@ -32,6 +36,13 @@ typedef struct {
 
 typedef struct _SimELM327 {
     Sim;
+    /**
+     * For example:
+     *  pseudo tty for unix, named pipe for windows: local
+     *  loopback interface: loopback
+     * let to null the sim choose automatically the kind of emulation.
+     */
+    char * device_type;
     SimELM327Implementation* implementation;
 	char * eol;
 	bool echo;

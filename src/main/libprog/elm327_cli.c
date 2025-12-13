@@ -60,7 +60,7 @@ static void *launch(void *d) {
     if ( data.sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {
-        printf("Simulation running on %s\n", data.sim->device_location);
+        printf("%s\n", data.sim->device_location);
         if ( data.proto != null ) {
             data.sim->protocolRunning = *data.proto;
         }

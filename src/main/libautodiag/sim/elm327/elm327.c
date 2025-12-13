@@ -276,6 +276,7 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
+    elm327->device_type = null;
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->ecus = list_SimECU_new();
     final SimECU *ecu = sim_ecu_new(0xE8);
@@ -824,80 +825,122 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
 }
 
 void sim_elm327_loop(SimELM327 * elm327) {
-    #ifdef OS_WINDOWS
-        #define MAX_ATTEMPTS 20
 
-        char pipeName[256];
-
-        HANDLE hPipe;
-        int i;
-        for (i = 0; i < MAX_ATTEMPTS; i++) {
-            snprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\" SERIAL_AD_LIST_PIPE_PREFIX "%d", i);
-
-            // Création du pipe nommé
-            hPipe = CreateNamedPipeA(
-                pipeName,             // Nom du pipe
-                PIPE_ACCESS_DUPLEX,    // Lecture/écriture
-                PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
-                1,
-                1024,                  // Taille buffer sortie
-                1024,                  // Taille buffer entrée
-                0,                     // Timeout par défaut
-                NULL                   // Sécurité par défaut
-            );
-
-            if (hPipe != INVALID_HANDLE_VALUE) {
-                log_msg(LOG_INFO, "Pipe créé: %s", pipeName);
-                break;
-            }
-
-            DWORD err = GetLastError();
-            if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS || err == ERROR_PIPE_BUSY) {
-                log_msg(LOG_INFO, "Pipe %s existe déjà, tentative suivante...", pipeName);
-                continue;
-            } else {
-                log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
-                break;
-            }
-        }
-        if ( i == MAX_ATTEMPTS ) {
-            log_msg(LOG_ERROR, "No valid slot found");
-            return;
-        }
-
-    #elif defined OS_POSIX
-        int fd = posix_openpt(O_RDWR);
-        if ( fd == -1 ) {
-            perror("openpt");
-            return;
-        }
-        if ( grantpt(fd) == -1 ) {
-            perror("grantpt");
-            return;
-        }
-        if ( unlockpt(fd) == -1 ) {
-            perror("unlockpt");
-            return;
-        }
-    #else
-    #   warning OS unsupported
-    #endif
-
-    #ifdef OS_WINDOWS
-        elm327->implementation->handle = INVALID_HANDLE_VALUE;
-    #elif defined OS_POSIX
-        elm327->implementation->handle = -1;
-    #else
-    #   warning OS unsupported
-    #endif
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
     #ifdef OS_WINDOWS
-        elm327->device_location = strdup(pipeName);
-        elm327->implementation->handle = hPipe;
+    
+        if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
+            #define MAX_ATTEMPTS 20
+            char pipeName[256];
+    
+            HANDLE hPipe;
+            int i;
+            for (i = 0; i < MAX_ATTEMPTS; i++) {
+                snprintf(pipeName, sizeof(pipeName), "\\\\.\\pipe\\" SERIAL_AD_LIST_PIPE_PREFIX "%d", i);
+    
+                // Création du pipe nommé
+                hPipe = CreateNamedPipeA(
+                    pipeName,             // Nom du pipe
+                    PIPE_ACCESS_DUPLEX,    // Lecture/écriture
+                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT, // Mode byte et bloquant
+                    1,
+                    1024,                  // Taille buffer sortie
+                    1024,                  // Taille buffer entrée
+                    0,                     // Timeout par défaut
+                    NULL                   // Sécurité par défaut
+                );
+    
+                if (hPipe != INVALID_HANDLE_VALUE) {
+                    log_msg(LOG_INFO, "Pipe créé: %s", pipeName);
+                    break;
+                }
+    
+                DWORD err = GetLastError();
+                if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS || err == ERROR_PIPE_BUSY) {
+                    log_msg(LOG_INFO, "Pipe %s existe déjà, tentative suivante...", pipeName);
+                    continue;
+                } else {
+                    log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
+                    break;
+                }
+            }
+            if ( i == MAX_ATTEMPTS ) {
+                log_msg(LOG_ERROR, "No valid slot found");
+                return;
+            }
+            elm327->device_location = strdup(pipeName);
+            elm327->implementation->handle = hPipe;
+        } else {
+            log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
+            return;
+        }
     #elif defined OS_POSIX
-        elm327->device_location = strdup(ptsname(fd));
-        elm327->implementation->handle = fd;
+        if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
+            int fd = posix_openpt(O_RDWR);
+            if ( fd == -1 ) {
+                perror("openpt");
+                return;
+            }
+            if ( grantpt(fd) == -1 ) {
+                perror("grantpt");
+                return;
+            }
+            if ( unlockpt(fd) == -1 ) {
+                perror("unlockpt");
+                return;
+            }
+            elm327->device_location = strdup(ptsname(fd));
+            elm327->implementation->handle = fd;
+        } else if ( strcasecmp(elm327->device_type, "loopback") == 0 ) {
+            int server_fd = -1;
+            struct sockaddr_in addr = {0};
+            addr.sin_family = AF_INET;
+            addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+
+            int base_port = 12345;
+            int max_tries = 10;
+            int optval = 1;
+            int i;
+
+            for (i = 0; i < max_tries; i++) {
+                int port = base_port + i;
+                server_fd = socket(AF_INET, SOCK_STREAM, 0);
+                if (server_fd == -1) {
+                    perror("socket");
+                    return;
+                }
+
+                setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+                addr.sin_port = htons(port);
+                if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
+                    // success
+                    if (listen(server_fd, 5) == -1) {
+                        perror("listen");
+                        close(server_fd);
+                        return;
+                    }
+                    break;
+                }
+                // failed to bind
+                close(server_fd);
+                server_fd = -1;
+            }
+
+            if (server_fd == -1) {
+                fprintf(stderr, "Failed to bind any port in range %d-%d\n", base_port, base_port + max_tries - 1);
+                return;
+            }
+
+            elm327->implementation->handle = server_fd;
+            char loc[64];
+            snprintf(loc, sizeof(loc), "127.0.0.1:%d", base_port + i);
+            elm327->device_location = strdup(loc);
+        } else {
+            log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
+            return;
+        }
     #else
     #   warning OS unsupported
     #endif

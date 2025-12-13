@@ -37,6 +37,7 @@ class Sim(Structure):
 class SimELM327(Structure):
     _fields_ = [
         ("sim", Sim),
+        ("device_type", c_char_p),
         ("implementation", POINTER(SimELM327Implementation)),
         ("eol", char_p),
         ("echo", bool),
