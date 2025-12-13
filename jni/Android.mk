@@ -17,6 +17,12 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := elm327sim
-LOCAL_C_INCLUDES := $(ROOT)/include/main/
+LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/
+SRC_FILES_LIBPROG := $(call filterout-multi, \
+	..//src/main/libprog/sim_ecu_generator_gui.c \
+	..//src/main/libprog/ui/% \
+	,$(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(ROOT)/src/main/libprog,*.c)))
+LOCAL_SRC_FILES := $(SRC_FILES_LIBPROG) ../src/main/prog/elm327sim.c
 LOCAL_CFLAGS := $(CFLAGS)
-include $(BUILD_SHARED_LIBRARY)
+LOCAL_SHARED_LIBRARIES := libautodiag
+include $(BUILD_EXECUTABLE)
