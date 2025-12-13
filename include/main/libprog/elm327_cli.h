@@ -7,7 +7,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/ecu/generator.h"
-#ifndef COMPILE_NON_UI
+#ifndef COMPILE_COMPAT
 #   include "libprog/sim_ecu_generator_gui.h"
 #endif
 #include "libautodiag/sim/sim.h"

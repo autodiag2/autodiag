@@ -12,7 +12,7 @@ ifneq (,$(findstring compat,$(MAKECMDGOALS)))
 		output/obj/main/prog/%.o, \
 		$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)) \
 	)
-	CFLAGS += -DCOMPILE_NON_UI
+	CFLAGS += -DCOMPILE_COMPAT
 else
 	OBJS_PROGS := $(call filterout-multi, \
 		output/obj/main/libautodiag/%.o \

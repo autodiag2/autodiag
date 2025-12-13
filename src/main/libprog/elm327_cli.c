@@ -22,7 +22,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
     " elm327sim -g random -c 1234           : use the seed 1234 for generating random numbers\n"
     " elm327sim -g cycle -c 10              : number of gears used in the cycle\n"
-#ifndef COMPILE_NON_UI
+#ifndef COMPILE_COMPAT
     " elm327sim -g gui                      : default ecu with gui value generator\n"
 #endif
     "\n"
@@ -38,7 +38,7 @@ static void display_protocols() {
 static void display_help() {
     sim_elm327_cli_help("");
 }
-#ifndef COMPILE_NON_UI
+#ifndef COMPILE_COMPAT
     int SimECUGeneratorGui_cmp(SimECUGeneratorGui*g1, SimECUGeneratorGui*g2) {
         return g1 - g2;
     }
@@ -77,7 +77,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
     SimELM327* sim = sim_elm327_new();
     ELM327_PROTO *proto = null;
     bool * proto_is_auto = null;
-    #ifndef COMPILE_NON_UI
+    #ifndef COMPILE_COMPAT
         list_SimECUGeneratorGui * guis = list_SimECUGeneratorGui_new();
     #endif
 
@@ -144,7 +144,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("random\n");
                 printf("cycle\n");
                 printf("citroen_c5_x7\n");
-                #ifndef COMPILE_NON_UI
+                #ifndef COMPILE_COMPAT
                     printf("gui\n");
                 #endif
                 printf("replay\n");
@@ -157,7 +157,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 generator = sim_ecu_generator_new_citroen_c5_x7();
             } else if (strcasecmp(arg,"replay") == 0 ) {
                 generator = sim_ecu_generator_new_replay();
-            #ifndef COMPILE_NON_UI
+            #ifndef COMPILE_COMPAT
                 } else if ( strcasecmp(arg,"gui") == 0 ) {
                     generator = sim_ecu_generator_new_gui();
                     char address[3];
@@ -216,7 +216,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             return 1;
         }
     }
-    #ifndef COMPILE_NON_UI
+    #ifndef COMPILE_COMPAT
         for(int i = 0; i < guis->size; i ++) {
             SimECUGeneratorGui *simGui = guis->list[i];
             sim_ecu_generator_gui_show(simGui);
@@ -231,7 +231,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
     pthread_t simThread;
     pthread_create(&simThread, null, &launch, &data);
 
-    #ifdef COMPILE_NON_UI
+    #ifdef COMPILE_COMPAT
         pthread_join(simThread, null);
     #else
         if ( 0 < guis->size ) {
