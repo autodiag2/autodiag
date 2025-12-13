@@ -7,7 +7,7 @@ JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIE
     if (!elm327) {
         return null;
     }
-    elm327->device_type = strdup("loopback");
+    elm327->device_type = strdup("socket");
 
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);

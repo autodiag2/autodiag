@@ -839,7 +839,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
 #endif
 
 void sim_elm327_loop(SimELM327 * elm327) {
-
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
     #ifdef OS_WINDOWS
@@ -906,52 +905,60 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
             elm327->device_location = strdup(ptsname(fd));
             elm327->implementation->handle = fd;
-        } else if ( strcasecmp(elm327->device_type, "loopback") == 0 ) {
-            int server_fd = -1;
-            struct sockaddr_in addr = {0};
-            addr.sin_family = AF_INET;
-            addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        } else if ( strcasecmp(elm327->device_type, "socket") == 0 ) {
+            #ifdef OS_ANDROID
+            #   include <sys/un.h>
+                int server_fd = -1;
+                struct sockaddr_un addr = {0};
+                int max_tries = 10;
+                int optval = 1;
+                int i;
 
-            int base_port = 12345;
-            int max_tries = 10;
-            int optval = 1;
-            int i;
+                strncpy(addr.sun_path, "/data/data/com.autodiag.elm327emu/files/socket", sizeof(addr.sun_path) - 1);
+                addr.sun_family = AF_LOCAL;
 
-            for (i = 0; i < max_tries; i++) {
-                int port = base_port + i;
-                server_fd = socket(AF_INET, SOCK_STREAM, 0);
+                for (i = 0; i < max_tries; i++) {
+                    // Optional: if you want to vary socket name per try:
+                    // snprintf(addr.sun_path, sizeof(addr.sun_path), "/data/data/com.example.app/tmp/socket_%d", i);
+
+                    server_fd = socket(AF_LOCAL, SOCK_STREAM, 0);
+                    if (server_fd == -1) {
+                        log_msg(LOG_ERROR, strerror(errno));
+                        perror("socket");
+                        return;
+                    }
+
+                    unlink(addr.sun_path); // remove existing socket file if any
+
+                    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+                    if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
+                        if (listen(server_fd, 5) == -1) {
+                            perror("listen");
+                            close(server_fd);
+                            return;
+                        }
+                        break;
+                    }
+
+                    close(server_fd);
+                    server_fd = -1;
+                }
+
                 if (server_fd == -1) {
-                    perror("socket");
+                    log_msg(LOG_ERROR, "Failed to bind UNIX socket\n");
                     return;
                 }
 
-                setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-
-                addr.sin_port = htons(port);
-                if (bind(server_fd, (struct sockaddr *)&addr, sizeof(addr)) == 0) {
-                    // success
-                    if (listen(server_fd, 5) == -1) {
-                        perror("listen");
-                        close(server_fd);
-                        return;
-                    }
-                    break;
-                }
-                // failed to bind
-                close(server_fd);
-                server_fd = -1;
-            }
-
-            if (server_fd == -1) {
-                log_msg(LOG_ERROR, "Failed to bind any port in range %d-%d\n", base_port, base_port + max_tries - 1);
+                elm327->implementation->handle = -1;
+                elm327->implementation->server_fd = server_fd;
+                char loc[108];
+                snprintf(loc, sizeof(loc), "%s", addr.sun_path);
+                elm327->device_location = strdup(loc);
+            #else
+                log_msg(LOG_ERROR, "Socket not supported");
                 return;
-            }
-
-            elm327->implementation->handle = -1;
-            elm327->implementation->server_fd = server_fd;
-            char loc[64];
-            snprintf(loc, sizeof(loc), "127.0.0.1:%d", base_port + i);
-            elm327->device_location = strdup(loc);
+            #endif
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
             return;
@@ -964,12 +971,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
+
     while(elm327->implementation->loop_thread != null) {
         buffer_recycle(recv_buffer);
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
         }
-        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "loopback") == 0 && ! is_connected(elm327->implementation->handle) ) {
+        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "socket") == 0 && ! is_connected(elm327->implementation->handle) ) {
             #ifdef OS_POSIX
                 struct sockaddr_in addr;
                 socklen_t addr_len = sizeof(addr);

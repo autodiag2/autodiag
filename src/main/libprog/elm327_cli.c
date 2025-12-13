@@ -125,7 +125,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             char * arg = argCurrent();
             bool type_unknown = true;
             if ( arg != null ) {
-                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"loopback") == 0 ) {
+                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"socket") == 0 ) {
                     type_unknown = false;
                 } else {
                     printf("Type: '%s' Unknown\n", arg);
