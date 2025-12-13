@@ -15,6 +15,10 @@
 #   define OS_APPLE
 #endif
 
+#if defined __ANDROID__
+#   define OS_ANDROID
+#endif
+
 #if defined __unix__ || defined __APPLE__
 #   define OS_UNIX
 #   include <unistd.h>

@@ -10,3 +10,8 @@ void thread_allocate_and_start(pthread_t** t, void*ptr) {
         }
     }
 }
+#ifdef OS_ANDROID
+    int pthread_cancel(pthread_t thread) {
+        return 0;
+    }
+#endif

@@ -53,9 +53,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
 }
 
 void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
-    if ( elm327->implementation->activity_monitor_thread != null ) {
-        //pthread_cancel(*elm327->implementation->activity_monitor_thread);
-    }
+    THREAD_CANCEL( elm327->implementation->activity_monitor_thread);
     elm327->implementation->activity_monitor_thread = (pthread_t*)malloc(sizeof(pthread_t));
     if ( pthread_create(elm327->implementation->activity_monitor_thread, NULL,
                           (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
@@ -307,14 +305,8 @@ SimELM327* sim_elm327_new() {
     return elm327;
 }
 void sim_elm327_destroy(SimELM327 * elm327) {
-    if ( elm327->implementation->activity_monitor_thread != null ) {
-        //pthread_cancel(*elm327->implementation->activity_monitor_thread);
-        elm327->implementation->activity_monitor_thread = null;
-    }
-    if ( elm327->implementation->loop_thread != null ) {
-        //pthread_cancel(*elm327->implementation->loop_thread);
-        elm327->implementation->loop_thread = null;
-    }
+    THREAD_CANCEL(elm327->implementation->activity_monitor_thread);
+    THREAD_CANCEL(elm327->implementation->loop_thread);
     elm327->implementation->loop_ready = false;
     free(elm327->implementation);
     free(elm327->eol);
@@ -333,9 +325,7 @@ void sim_elm327_destroy(SimELM327 * elm327) {
     free(elm327);
 }
 void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
-    if ( elm327->implementation->loop_thread != null ) {
-        //pthread_cancel(*elm327->implementation->loop_thread);
-    }
+    THREAD_CANCEL(elm327->implementation->loop_thread);
     elm327->implementation->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
     if ( pthread_create(elm327->implementation->loop_thread, NULL,
                           (void *(*) (void *)) sim_elm327_loop, (void *)elm327) != 0 ) {

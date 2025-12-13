@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <pthread.h>
+#include "libautodiag/thread.h"
 #include <unistd.h>
 #include <string.h>
 #include "libautodiag/lib.h"

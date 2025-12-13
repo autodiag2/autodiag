@@ -14,10 +14,13 @@ void thread_allocate_and_start(pthread_t** t, void*ptr);
     pthread_cleanup_pop(1); \
     return null; \
 }
+#ifdef OS_ANDROID
+    int pthread_cancel(pthread_t thread);
+#endif
 
 #define THREAD_CANCEL(thread) \
     if ( thread != null ) { \
-        //pthread_cancel(*thread); \
+        pthread_cancel(*thread); \
         free(thread); \
         thread = null; \
     }
