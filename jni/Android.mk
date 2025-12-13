@@ -7,9 +7,9 @@ include $(CLEAR_VARS)
 rwildcard = $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2)) $(wildcard $1$2)
 
 LOCAL_MODULE := libautodiag
-LOCAL_C_INCLUDES := $(ROOT)/include/main $(ROOT)/cJSON/
-SRCDIR := $(ROOT)/src/main/libautodiag/
-LOCAL_SRC_FILES := ../cJSON/cJSON.c $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(SRCDIR),*.c))
+LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/
+SRC_LIB := ../cJSON/cJSON.c $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(ROOT)/src/main/libautodiag/,*.c))
+LOCAL_SRC_FILES := $(SRC_LIB)
 
 LOCAL_CFLAGS += -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument
 LOCAL_CFLAGS += -DCOMPILE_COMPAT
