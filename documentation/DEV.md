@@ -45,8 +45,7 @@ brew install android-ndk
 ```
 Setup and compile
 ```bash
-export TOOLCHAIN=
-make compile_lib
+ndk-build
 ```
 #### From any to any
 ```bash
