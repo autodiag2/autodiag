@@ -133,7 +133,7 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
     }
     return serial_describe_communication_layer((Serial *)elm329);
 }
-bool elm329_reset_protocol(final ELM327Device* elm329) {
+bool elm329_reset_protocol(final ELM329Device* elm329) {
     final char * command = at_command("sp0");
     final bool result = (3 <= elm329->send(CAST_DEVICE(elm329), command));
     buffer_recycle(elm329->recv_buffer);
