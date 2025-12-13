@@ -8,7 +8,7 @@ void sim_elm327_go_low_power() {
 
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
     elm327->activity_monitor_count = 0x00;
-    while(elm327->activity_monitor_count != 0xFF) {
+    while(elm327->activity_monitor_count != 0xFF && elm327->implementation.activity_monitor_thread != null) {
         elm327->activity_monitor_count++;
         usleep(655e3);
         if ( elm327->activity_monitor_timeout < elm327->activity_monitor_count ) {
@@ -53,7 +53,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
 }
 
 void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
-    THREAD_CANCEL( elm327->implementation->activity_monitor_thread);
+    THREAD_CANCEL(elm327->implementation->activity_monitor_thread);
     elm327->implementation->activity_monitor_thread = (pthread_t*)malloc(sizeof(pthread_t));
     if ( pthread_create(elm327->implementation->activity_monitor_thread, NULL,
                           (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
@@ -976,7 +976,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
-    while(true) {
+    while(elm327->implementation.loop_thread != null) {
         buffer_recycle(recv_buffer);
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
