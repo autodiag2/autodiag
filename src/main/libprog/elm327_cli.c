@@ -11,6 +11,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " -p Ah                     : set protocol to automatic, h\n"
     " -l                        : list level of logging\n"
     " -l level                  : set level of logging\n"
+    " -t type                   : set the type of simulating\n"
     " -g                        : list available generators\n"
     " -g generator              : set the generator of values\n"
     " -c context                : context for the generator\n"
@@ -118,6 +119,25 @@ int sim_elm327_cli_main(int argc, char **argv) {
             } else {
                 display_help();
                 return 1;
+            }
+        } else if argIs("-t") {
+            argNext();
+            char * arg = argCurrent();
+            bool type_unknown = true;
+            if ( arg != null ) {
+                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"loopback") == 0 ) {
+                    type_unknown = false;
+                } else {
+                    printf("Type: '%s' Unknown\n", arg);
+                }
+            }
+            if ( type_unknown || arg == null ) {
+                printf("Available types of simulating:\n");
+                printf("local\n");
+                printf("loopback\n");
+                return 0;
+            } else {
+                sim->device_type = strdup(arg);
             }
         } else if argIs("-l") {
             argNext();

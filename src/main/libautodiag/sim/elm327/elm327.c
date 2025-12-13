@@ -929,7 +929,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
 
             if (server_fd == -1) {
-                fprintf(stderr, "Failed to bind any port in range %d-%d\n", base_port, base_port + max_tries - 1);
+                log_msg(LOG_ERROR, "Failed to bind any port in range %d-%d\n", base_port, base_port + max_tries - 1);
                 return;
             }
 
