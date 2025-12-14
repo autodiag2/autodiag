@@ -59,7 +59,7 @@ See [here](/documentation/install-errors.md)
 |----------------|--------------------|---------|--------|---------|
 | libautodiag    | ✔️                 | ✔️       | ✔️     | ✔️      |
 | autodiag       | ✔️                 | ✔️       | ✔️     | ❌      |
-| elm327sim      | ✔️                 | ✔️       | ✔️     | ❌      |
+| elm327sim      | ✔️                 | ✔️       | ✔️     | ✔️      |
 | ELM USB        | ✔️                 | ✔️       | ❌     | ❌      |
 | ELM Bluetooth  | ✔️                 | ✔️       | ❌     | ✔️      |
 
