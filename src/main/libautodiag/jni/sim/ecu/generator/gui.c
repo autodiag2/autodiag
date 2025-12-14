@@ -11,6 +11,7 @@
     static jmethodID mid_dtc;
     static jmethodID mid_ecu;
     static jmethodID mid_vin;
+    static jmethodID mid_dtcs;
 
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         JNIEnv *env;
@@ -29,6 +30,7 @@
         mid_dtc   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
         mid_ecu   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
         mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "()Ljava/lang/String;");
+        mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "()[Ljava/lang/String;");
 
         return JNI_VERSION_1_6;
     }
@@ -47,8 +49,8 @@
         int speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_speed);
         int temp  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_temp);
         int rpm   = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_rpm);
-        int mil   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil);
-        int dtc   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc);
+        bool mil   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil);
+        bool dtc   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc);
 
         jstring ecu_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
@@ -56,9 +58,80 @@
         const char *ecu = (*env)->GetStringUTFChars(env, ecu_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
 
+        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
+
+        jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
+
         final Buffer *binResponse = buffer_new();
         sim_ecu_generator_fill_success(binResponse, binRequest);
         switch(binRequest->buffer[0]) {
+            case OBD_SERVICE_SHOW_DTC: {
+                if ( ! dtc ) {
+                    for (jsize i = 0; i < dtc_count; i++) {
+                        jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
+                        const char *dtc = (*env)->GetStringUTFChars(env, s, 0);
+
+                        Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
+                        if ( dtc_bin == null ) {
+                            log_msg(LOG_ERROR, "invalid dtc found");
+                        } else {
+                            buffer_append(binResponse, dtc_bin);
+                        }
+                        
+                        (*env)->ReleaseStringUTFChars(env, s, dtc);
+                        (*env)->DeleteLocalRef(env, s);
+                    }
+                }
+            } break;
+            case OBD_SERVICE_SHOW_CURRENT_DATA: {
+                if ( 1 < binRequest->size ) {            
+                    switch(binRequest->buffer[1]) {
+                        case 0xC0:
+                        case 0xA0:
+                        case 0x80:
+                        case 0x60:
+                        case 0x40:
+                        case 0x20:
+                        case 0x00: {
+                            buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        } break;
+                        case 0x01: {
+                            bool is_checked = mil;
+                            Buffer* status = buffer_new();
+                            buffer_padding(status, 4, 0x00);
+                            if ( ! dtc ) {
+                                status->buffer[0] = dtc_count;
+                                status->buffer[0] |= is_checked << 7;
+                            }
+                            buffer_append(binResponse, status);
+                        } break;
+                        case 0x05: {
+                            int coolant_temp_abs = temp - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                            byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                            double percent = (1.0 * coolant_temp_abs) / span;
+                            int value = percent * span;
+                            buffer_append_byte(binResponse, (byte)(value));
+                        } break;
+                        case 0x0C: {
+                            int rpm_abs = rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
+                            double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
+                            double percent = (1.0 * rpm_abs) / span;
+                            int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
+                            byte bA = (0xFF00 & value) >> 8;
+                            byte bB = 0xFF & value;
+                            buffer_append_byte(binResponse, bA);
+                            buffer_append_byte(binResponse, bB);
+                        } break;
+                        case 0x0D: {
+                            int speed_abs = speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
+                            byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
+                            double percent = (1.0 * speed_abs) / span;
+                            int value = percent * span;
+                            buffer_append_byte(binResponse, (byte)value);
+                        } break;
+                    }
+                }
+            } break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
                 if ( 1 < binRequest->size ) {            
                     switch(binRequest->buffer[1]) {
