@@ -60,12 +60,12 @@ bool buffer_equals(final Buffer * b1, final Buffer * b2);
 /**
  * Only accept full ascii buffer, do not take in account OBD specific like printing of spaces.
  */
-Buffer* buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size);
+Buffer* buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size);
 /**
  * assuming ascii is null terminated
  */
-Buffer* buffer_from_ascii_hex(char * ascii_hex);
-Buffer* buffer_from_ascii(char *ascii);
+Buffer* buffer_from_ascii_hex(const char * ascii_hex);
+Buffer* buffer_from_ascii(const char *ascii);
 Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n);
 #define buffer_from_ints(...) \
     buffer_from_ints_arr((unsigned int[]){ __VA_ARGS__ }, \

@@ -208,7 +208,7 @@ bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
 }
 AD_LIST_SRC_FIND(Buffer, Buffer*, buffer_find_comparator)
 
-Buffer * buffer_from_ascii_hex_n(char * ascii_hex, unsigned int size) {
+Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size) {
     assert(ascii_hex != null);
     Buffer * bin = buffer_new();
     char *ascii_internal;
@@ -249,14 +249,14 @@ void buffer_padding(final Buffer * buffer, final unsigned int padding_until, fin
     }
     buffer->size += remaining_size_to_pad;
 }
-Buffer* buffer_from_ascii(char *ascii) {
+Buffer* buffer_from_ascii(const char *ascii) {
     Buffer * result = buffer_new();
     buffer_ensure_capacity(result, strlen(ascii));
     memcpy(result->buffer,ascii,strlen(ascii));
     result->size = strlen(ascii);
     return result;
 }
-Buffer* buffer_from_ascii_hex(char * ascii_hex) {
+Buffer* buffer_from_ascii_hex(const char * ascii_hex) {
     return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
 Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n) {

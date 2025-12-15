@@ -1,6 +1,8 @@
 #ifndef __SIM_ELM327_H
 #define __SIM_ELM327_H
 
+#include "libautodiag/compile_target.h"
+
 #ifdef OS_POSIX
 #   include <arpa/inet.h>
 #   include <sys/socket.h>
@@ -19,6 +21,7 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/sim.h"
+#include "libautodiag/jni/target_device.h"
 
 #define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
