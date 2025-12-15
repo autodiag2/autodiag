@@ -1,6 +1,6 @@
 #include "libautodiag/jni/sim/elm327/elm327.h"
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
-#include "libautodiag/jni/tmp_file.h"
+#include "libautodiag/jni/target_device.h"
 
 #ifdef OS_ANDROID
 static SimELM327 *sim = null;
@@ -15,7 +15,7 @@ JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIE
     log_set_level(LOG_DEBUG);
     
     const char *nativePath = (*env)->GetStringUTFChars(env, path, null);
-    jni_tmp_dir_set(strdup(nativePath));
+    jni_data_dir_set(strdup(nativePath));
     (*env)->ReleaseStringUTFChars(env, path, nativePath);
 
     SimELM327 *sim = jni_sim_elm327_get();

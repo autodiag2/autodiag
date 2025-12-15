@@ -58,12 +58,14 @@ char * sim_elm327_non_volatile_get_filename() {
         asprintf(&path, "%s" PATH_FOLDER_DELIM "sim_memory.txt", tempPath);
         return path;
     #elif defined OS_ANDROID
-        #include "libautodiag/jni/tmp_file.h"
+        #include "libautodiag/jni/target_device.h"
         char *path;
-        asprintf(&path, "%s/sim_memory.txt", jni_tmp_dir_get());
+        asprintf(&path, "%s/sim_memory.txt", jni_data_dir_get());
         return path;
     #elif defined OS_POSIX
-        return strdup("/tmp/sim_memory.txt");
+        const char *tmp = getenv("TMPDIR");
+        if (!tmp) tmp = "/tmp";
+        return gprintf("%s/sim_memory.txt", tmp);
     #else
     #   warning OS unsupported
     #endif

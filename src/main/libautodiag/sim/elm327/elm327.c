@@ -914,7 +914,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 int optval = 1;
                 int i;
 
-                char *socketFreeFound = file_get_next_free("/data/data/com.autodiag.elm327emu/files/socket");
+                char *socketFreeFound = file_get_next_free(gprintf("%s/socket", jni_data_dir_get()));
                 if ( socketFreeFound == null ) {
                     log_msg(LOG_ERROR, "error while getting the socket");
                     return;
