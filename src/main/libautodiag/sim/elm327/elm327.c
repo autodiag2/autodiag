@@ -826,7 +826,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
 #ifdef OS_POSIX
 #   include <fcntl.h>
 #   include <errno.h>
-    int is_connected(int fd) {
+    static int is_connected(int fd) {
         char buf;
         ssize_t ret = recv(fd, &buf, 1, MSG_PEEK);
         if (ret == 0) return 0; // connection closed by peer
@@ -983,16 +983,18 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
         }
-        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "socket") == 0 && ! is_connected(elm327->implementation->handle) ) {
+        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "socket") == 0 ) {
             #ifdef OS_POSIX
-                struct sockaddr_in addr;
-                socklen_t addr_len = sizeof(addr);
-                
-                elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                
-                if (elm327->implementation->handle == -1) {
-                    perror("accept");
-                    return;
+                if ( ! is_connected(elm327->implementation->handle) ) {
+                    struct sockaddr_in addr;
+                    socklen_t addr_len = sizeof(addr);
+                    
+                    elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                    
+                    if (elm327->implementation->handle == -1) {
+                        perror("accept");
+                        return;
+                    }
                 }
             #endif
         }
