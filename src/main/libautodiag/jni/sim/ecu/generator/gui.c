@@ -12,6 +12,7 @@
     static jmethodID mid_ecu_name;
     static jmethodID mid_vin;
     static jmethodID mid_dtcs;
+    static jmethodID mid_set_dtc_cleared;
 
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         JNIEnv *env;
@@ -31,7 +32,12 @@
         mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
         mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "()Ljava/lang/String;");
         mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "()[Ljava/lang/String;");
-
+        mid_set_dtc_cleared = (*env)->GetStaticMethodID(
+            env,
+            g_libautodiag,
+            "setDtcCleared",
+            "(Z)V"
+        );
         return JNI_VERSION_1_6;
     }
 
@@ -65,6 +71,15 @@
         final Buffer *binResponse = buffer_new();
         sim_ecu_generator_fill_success(binResponse, binRequest);
         switch(binRequest->buffer[0]) {
+            case OBD_SERVICE_CLEAR_DTC: {
+                (*env)->CallStaticVoidMethod(
+                    env,
+                    g_libautodiag,
+                    mid_set_dtc_cleared,
+                    JNI_TRUE
+                );
+                log_msg(LOG_DEBUG, "Clearing DTCs");
+            } break;
             case OBD_SERVICE_SHOW_DTC: {
                 if ( ! dtc_cleared ) {
                     for (jsize i = 0; i < dtc_count; i++) {
