@@ -984,7 +984,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             elm327->implementation->loop_ready = true;
         }
         if ( elm327->device_type != null && strcasecmp(elm327->device_type, "socket") == 0 ) {
-            #ifdef OS_POSIX
+            #ifdef OS_ANDROID
                 if ( ! is_connected(elm327->implementation->handle) ) {
                     struct sockaddr_in addr;
                     socklen_t addr_len = sizeof(addr);
