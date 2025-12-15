@@ -10,7 +10,10 @@
 
 SimELM327* jni_sim_elm327_get();
 JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path);
-
+JNIEXPORT void JNICALL Java_com_autodiag_elm327emu_libautodiag_setProtocol(JNIEnv *env, jobject thiz, jint protocol);
+JNIEXPORT jobjectArray JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocols(JNIEnv *env, jobject thiz);
+JNIEXPORT jint JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz);
 
 #endif
+
 #endif
