@@ -2,13 +2,17 @@
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
 
 #ifdef OS_ANDROID
-
+static SimELM327 *sim = null;
+SimELM327* jni_sim_elm327_get() {
+    if ( sim == null ) {
+        sim = sim_elm327_new();
+    }
+    assert(sim != null);
+    return sim;
+}
 JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz) {
     log_set_level(LOG_DEBUG);
-    SimELM327 *sim = sim_elm327_new();
-    if (!sim) {
-        return null;
-    }
+    SimELM327 *sim = jni_sim_elm327_get();
     sim->device_type = strdup("socket");
 
     assert(0 < LIST_SIM_ECU(sim->ecus)->size);
