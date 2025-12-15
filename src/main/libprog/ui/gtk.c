@@ -28,20 +28,29 @@ GTK_GENERATE_PROGRESS_BAR_FILL(int,gtk_progress_bar_fill_from_int)
 GTK_GENERATE_PROGRESS_BAR_FILL(double,gtk_progress_bar_fill_from_double)
 GTK_GENERATE_PROGRESS_BAR_FILL(int,gtk_progress_bar_fill)
 
-bool gtk_label_printf(GtkLabel *label, const char *format, ...) {
+bool gtk_widget_printf(GtkWidget *widget, const char *format, ...) {
     va_list ap;
-    final bool result;
+    bool result;
     va_start(ap, format);
 
     char *txt;
-    if ( compat_vasprintf(&txt, format, ap) == -1 ) {
-        log_msg(LOG_ERROR, "Fill label impossible");
+    if (compat_vasprintf(&txt, format, ap) == -1) {
+        log_msg(LOG_ERROR, "Fill widget impossible");
         result = false;
     } else {
-        gtk_label_set_text(label, txt);
+        if (GTK_IS_LABEL(widget)) {
+            gtk_label_set_text(GTK_LABEL(widget), txt);
+            result = true;
+        } else if (GTK_IS_ENTRY(widget)) {
+            gtk_entry_set_text(GTK_ENTRY(widget), txt);
+            result = true;
+        } else {
+            log_msg(LOG_ERROR, "Unsupported widget type");
+            result = false;
+        }
         free(txt);
-        result = true;
     }
+
     va_end(ap);
     return result;
 }

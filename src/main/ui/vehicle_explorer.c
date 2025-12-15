@@ -184,7 +184,7 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_fuel_rate,
 static gboolean saej1979_data_ecu_voltage_gsource(gpointer data) {
     double *currentECUvoltage = data;
     if ( *currentECUvoltage != SAEJ1979_DATA_ECU_VOLTAGE_ERROR ) {
-        gtk_label_printf(gui->engine.ecu.voltage,
+        gtk_widget_printf(GTK_WIDGET(gui->engine.ecu.voltage),
             "%.3f V", *currentECUvoltage
         );
     }    
@@ -195,7 +195,7 @@ static gboolean saej1979_data_ecu_voltage_gsource(gpointer data) {
 static gboolean saej1979_data_seconds_since_engine_start_gsource(gpointer data) {
     int *secondsSinceStart = data;
     if ( *secondsSinceStart != SAEJ1979_DATA_SECONDS_SINCE_ENGINE_START_ERROR ) {
-        gtk_label_printf(gui->engine.secondsSinceStart,
+        gtk_widget_printf(GTK_WIDGET(gui->engine.secondsSinceStart),
             "%d secs", *secondsSinceStart
         );
     }    
@@ -230,7 +230,7 @@ VH_REFRESH_GRAPH_GSOURCE_SYM(refresh) {
 static gboolean saej1979_data_fuel_system_status_gsource(gpointer data) {
     char *status = data;
     if ( status != null ) {
-        gtk_label_printf(gui->engine.fuel.status,
+        gtk_widget_printf(GTK_WIDGET(gui->engine.fuel.status),
             "%s", status
         );
     }    
@@ -242,7 +242,7 @@ static gboolean saej1979_data_fuel_system_status_gsource(gpointer data) {
     static gboolean saej1979_data_oxygen_sensor_voltage_##sensor_i##_gsource(gpointer data) { \
         double *volts = data; \
         if ( volts != null ) { \
-            gtk_label_printf(gui->engine.oxSensors.sensor_##sensor_i.voltage, \
+            gtk_widget_printf(GTK_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.voltage), \
                 "%.2f V", *volts \
             );        \
         } \
@@ -252,7 +252,7 @@ static gboolean saej1979_data_fuel_system_status_gsource(gpointer data) {
     static gboolean saej1979_data_oxygen_sensor_current_##sensor_i##_gsource(gpointer data) { \
         int *current = data; \
         if ( current != null ) { \
-            gtk_label_printf(gui->engine.oxSensors.sensor_##sensor_i.current, \
+            gtk_widget_printf(GTK_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.current), \
                 "%d mA", *current \
             );        \
         } \
@@ -262,7 +262,7 @@ static gboolean saej1979_data_fuel_system_status_gsource(gpointer data) {
     static gboolean saej1979_data_oxygen_sensor_air_fuel_equiv_ratio_##sensor_i##_gsource(gpointer data) { \
         double *ratio = data; \
         if ( ratio != null ) { \
-            gtk_label_printf(gui->engine.oxSensors.sensor_##sensor_i.ratio, \
+            gtk_widget_printf(GTK_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.ratio), \
                 "%.2f ratio", *ratio \
             );        \
         } \

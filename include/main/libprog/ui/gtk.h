@@ -65,7 +65,7 @@ gboolean gtk_widget_generic_onclose(GtkWidget *dialog, GdkEvent *event, gpointer
 GTK_GENERATE_HEADER_PROGRESS_BAR_FILL(int,gtk_progress_bar_fill_from_int);
 GTK_GENERATE_HEADER_PROGRESS_BAR_FILL(double,gtk_progress_bar_fill_from_double);
 GTK_GENERATE_HEADER_PROGRESS_BAR_FILL(int,gtk_progress_bar_fill);
-bool gtk_label_printf(GtkLabel *label, const char *format, ...);
+bool gtk_widget_printf(GtkWidget *widget, const char *format, ...);
 
 static int get_container_child_count(GtkContainer *container) {
     GList *children = gtk_container_get_children(container);
