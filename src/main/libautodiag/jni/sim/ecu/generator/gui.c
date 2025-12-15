@@ -4,12 +4,12 @@
 
     static JavaVM *g_vm;
     static jclass g_libautodiag;
-    static jmethodID mid_speed;
-    static jmethodID mid_temp;
-    static jmethodID mid_rpm;
-    static jmethodID mid_mil;
-    static jmethodID mid_dtc;
-    static jmethodID mid_ecu;
+    static jmethodID mid_vehicle_speed;
+    static jmethodID mid_coolant_temperature;
+    static jmethodID mid_engine_rpm;
+    static jmethodID mid_mil_status;
+    static jmethodID mid_dtc_cleared;
+    static jmethodID mid_ecu_name;
     static jmethodID mid_vin;
     static jmethodID mid_dtcs;
 
@@ -23,12 +23,12 @@
         jclass cls = (*env)->FindClass(env, "com/autodiag/elm327emu/libautodiag");
         g_libautodiag = (*env)->NewGlobalRef(env, cls);
 
-        mid_speed = (*env)->GetStaticMethodID(env, g_libautodiag, "getVehicleSpeed", "()I");
-        mid_temp  = (*env)->GetStaticMethodID(env, g_libautodiag, "getCoolantTemp", "()I");
-        mid_rpm   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEngineRpm", "()I");
-        mid_mil   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "()Z");
-        mid_dtc   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
-        mid_ecu   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
+        mid_vehicle_speed = (*env)->GetStaticMethodID(env, g_libautodiag, "getVehicleSpeed", "()I");
+        mid_coolant_temperature  = (*env)->GetStaticMethodID(env, g_libautodiag, "getCoolantTemp", "()I");
+        mid_engine_rpm   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEngineRpm", "()I");
+        mid_mil_status   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "()Z");
+        mid_dtc_cleared   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
+        mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
         mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "()Ljava/lang/String;");
         mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "()[Ljava/lang/String;");
 
@@ -46,16 +46,16 @@
     static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         JNIEnv *env = get_env();
 
-        int speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_speed);
-        int temp  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_temp);
-        int rpm   = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_rpm);
-        bool mil   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil);
-        bool dtc   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc);
+        int vehicle_speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_vehicle_speed);
+        int coolant_temperature  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_coolant_temperature);
+        int engine_rpm   = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_engine_rpm);
+        bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status);
+        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
 
-        jstring ecu_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu);
+        jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
 
-        const char *ecu = (*env)->GetStringUTFChars(env, ecu_j, 0);
+        const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
 
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
@@ -66,7 +66,7 @@
         sim_ecu_generator_fill_success(binResponse, binRequest);
         switch(binRequest->buffer[0]) {
             case OBD_SERVICE_SHOW_DTC: {
-                if ( ! dtc ) {
+                if ( ! dtc_cleared ) {
                     for (jsize i = 0; i < dtc_count; i++) {
                         jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
                         const char *dtc = (*env)->GetStringUTFChars(env, s, 0);
@@ -96,26 +96,26 @@
                             buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                         } break;
                         case 0x01: {
-                            bool is_checked = mil;
+                            bool is_checked = mil_status;
                             Buffer* status = buffer_new();
                             buffer_padding(status, 4, 0x00);
-                            if ( ! dtc ) {
+                            if ( ! dtc_cleared ) {
                                 status->buffer[0] = dtc_count;
                                 status->buffer[0] |= is_checked << 7;
                             }
                             buffer_append(binResponse, status);
                         } break;
                         case 0x05: {
-                            int coolant_temp_abs = temp - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                            int coolant_coolant_temperature_abs = coolant_temperature - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                             byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                            double percent = (1.0 * coolant_temp_abs) / span;
+                            double percent = (1.0 * coolant_coolant_temperature_abs) / span;
                             int value = percent * span;
                             buffer_append_byte(binResponse, (byte)(value));
                         } break;
                         case 0x0C: {
-                            int rpm_abs = rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
+                            int engine_rpm_abs = engine_rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
                             double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
-                            double percent = (1.0 * rpm_abs) / span;
+                            double percent = (1.0 * engine_rpm_abs) / span;
                             int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
                             byte bA = (0xFF00 & value) >> 8;
                             byte bB = 0xFF & value;
@@ -123,9 +123,9 @@
                             buffer_append_byte(binResponse, bB);
                         } break;
                         case 0x0D: {
-                            int speed_abs = speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
+                            int vehicle_speed_abs = vehicle_speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
                             byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
-                            double percent = (1.0 * speed_abs) / span;
+                            double percent = (1.0 * vehicle_speed_abs) / span;
                             int value = percent * span;
                             buffer_append_byte(binResponse, (byte)value);
                         } break;
@@ -176,7 +176,7 @@
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                            final Buffer * name = buffer_from_ascii(ecu);
+                            final Buffer * name = buffer_from_ascii(ecu_name);
                             buffer_padding(name, 20, 0x00);
                             buffer_append(binResponse, name);
                             break;
@@ -191,7 +191,7 @@
                 }
             } break;
         }
-        (*env)->ReleaseStringUTFChars(env, ecu_j, ecu);
+        (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
         (*env)->ReleaseStringUTFChars(env, vin_j, vin);
         return binResponse;
     }
