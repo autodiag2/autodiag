@@ -54,3 +54,34 @@ bool mkdir_p(char *_path) {
     free(path);
     return rv;
 }
+
+char *file_get_next_free(const char *filepath) {
+    struct stat st;
+    size_t len = snprintf(null, 0, "%s", filepath);
+    char *path = malloc(len + 1);
+    if (!path)
+        return null;
+
+    snprintf(path, len + 1, "%s", filepath);
+
+    if (stat(path, &st) != 0)
+        return path;
+
+    free(path);
+
+    for (int i = 1; i < 1000; i++) {
+        len = snprintf(null, 0, "%s.%d", filepath, i);
+        path = malloc(len + 1);
+        if (!path)
+            return null;
+
+        snprintf(path, len + 1, "%s.%d", filepath, i);
+
+        if (stat(path, &st) != 0)
+            return path;
+
+        free(path);
+    }
+
+    return null;
+}

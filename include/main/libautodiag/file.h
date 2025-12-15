@@ -5,6 +5,7 @@
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/stat.h>
+#include <string.h>
 #if defined OS_WINDOWS
 #   include <unistd.h>
 #   define FILE_EOL "\n"
@@ -89,3 +90,8 @@ bool file_read_lines(char *fileName,bool func(Buffer * line, void*data), void *d
  * path must be absolute under windows.
  */
 bool mkdir_p(char *_path);
+
+/**
+ * Starting filepath if not available filepath.1, filepath.2, ...
+ */
+char *file_get_next_free(const char *filepath);

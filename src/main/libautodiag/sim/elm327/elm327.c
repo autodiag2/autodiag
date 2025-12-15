@@ -836,30 +836,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         }
         return 1; // data available, connection alive
     }
-    #include <sys/stat.h>
-    #include <string.h>
-    #include <stdio.h>
-
-    int socket_path_next_free(const char *base, char *out, size_t out_size) {
-        struct stat st;
-
-        if (snprintf(out, out_size, "%s", base) >= (int)out_size)
-            return -1;
-
-        if (stat(out, &st) != 0)
-            return 0;
-
-        for (int i = 1; i < 1000; i++) {
-            if (snprintf(out, out_size, "%s.%d", base, i) >= (int)out_size)
-                return -1;
-
-            if (stat(out, &st) != 0)
-                return 0;
-        }
-
-        return -1;
-    }
-
 #endif
 
 void sim_elm327_loop(SimELM327 * elm327) {
@@ -938,11 +914,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 int optval = 1;
                 int i;
 
-                const char socketPathBase[] = "/data/data/com.autodiag.elm327emu/files/socket";
-                if ( socket_path_next_free(socketPathBase, addr.sun_path, sizeof(addr.sun_path) - 1) == -1 ) {
+                char *socketFreeFound = file_get_next_free("/data/data/com.autodiag.elm327emu/files/socket");
+                if ( socketFreeFound == null ) {
                     log_msg(LOG_ERROR, "error while getting the socket");
                     return;
                 }
+                strncpy(addr.sun_path, socketFreeFound, sizeof(addr.sun_path) - 1);
+                free(socketFreeFound);
                 addr.sun_family = AF_LOCAL;
 
                 for (i = 0; i < max_tries; i++) {
