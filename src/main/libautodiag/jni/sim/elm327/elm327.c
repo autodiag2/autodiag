@@ -1,5 +1,6 @@
 #include "libautodiag/jni/sim/elm327/elm327.h"
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
+#include "libautodiag/jni/tmp_file.h"
 
 #ifdef OS_ANDROID
 static SimELM327 *sim = null;
