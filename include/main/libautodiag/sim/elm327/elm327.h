@@ -3,11 +3,6 @@
 
 #include "libautodiag/compile_target.h"
 
-#ifdef OS_POSIX
-#   include <arpa/inet.h>
-#   include <sys/socket.h>
-#   include <netinet/in.h>
-#endif
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +11,11 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#ifdef OS_POSIX
+#   include <arpa/inet.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#endif
 #include "libautodiag/thread.h"
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"

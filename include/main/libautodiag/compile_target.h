@@ -21,6 +21,7 @@
 
 #if defined __unix__ || defined __APPLE__
 #   define OS_UNIX
+#   define _GNU_SOURCE         /* See feature_test_macros(7) */
 #   include <unistd.h>
 #   if defined _POSIX_VERSION || defined _POSIX_C_SOURCE || defined _POSIX_SOURCE
 #       define OS_POSIX
