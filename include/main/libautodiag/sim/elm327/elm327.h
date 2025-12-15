@@ -1,6 +1,11 @@
 #ifndef __SIM_ELM327_H
 #define __SIM_ELM327_H
 
+#ifdef OS_POSIX
+#   include <arpa/inet.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#endif
 #define _GNU_SOURCE         /* See feature_test_macros(7) */
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +13,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <errno.h>
 #include "libautodiag/thread.h"
 #include "libautodiag/lib.h"

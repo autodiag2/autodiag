@@ -32,7 +32,7 @@ int sim_read(void *handle, int timeout_ms, Buffer * readed) {
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
     #ifdef OS_WINDOWS
-        if ( ! ConnectNamedPipe(*handle, null) ) {
+        if ( ! ConnectNamedPipe(*((HANDLE*)handle), null) ) {
             DWORD err = GetLastError();
             if ( err == ERROR_PIPE_CONNECTED ) {
                 log_msg(LOG_DEBUG, "pipe already connected");
@@ -56,7 +56,7 @@ int sim_read(void *handle, int timeout_ms, Buffer * readed) {
             return -1;
         }
         if ( UINT_MAX < readedBytes ) {
-            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", buffer->size);
+            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", readed->size);
             return -1;
         }
         readed->size = readedBytes;
