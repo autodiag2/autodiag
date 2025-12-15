@@ -1217,7 +1217,8 @@ output/obj/main/libautodiag/jni/sim/elm327/elm327.o: \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
-  include/main/libautodiag/com/uds/uds_service_read_dtc.h
+  include/main/libautodiag/com/uds/uds_service_read_dtc.h \
+  include/main/libautodiag/jni/tmp_file.h
 output/obj/main/libautodiag/jni/tmp_file.o: \
   src/main/libautodiag/jni/tmp_file.c \
   include/main/libautodiag/jni/tmp_file.h \
