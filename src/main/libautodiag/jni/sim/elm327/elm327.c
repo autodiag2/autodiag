@@ -76,6 +76,7 @@ Java_com_autodiag_elm327emu_libautodiag_setProtocol(
         return;
 
     sim->protocolRunning = protocol;
+    sim->nvm.protocol = protocol;
 }
 JNIEXPORT jint JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz) {
     SimELM327 *sim = jni_sim_elm327_get();
