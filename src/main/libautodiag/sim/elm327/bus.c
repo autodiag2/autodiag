@@ -344,7 +344,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     }
                     char *elmFrameStr;
                     asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
-                        header, elm327->printing_of_spaces ? " " : "", 
+                        header == null ? "" : header, (header != null && elm327->printing_of_spaces) ? " " : "", 
                         elm_ascii_from_bin(elm327->printing_of_spaces, frame), elm327->eol
                     );
                     free(ecuResponse);
