@@ -3,13 +3,13 @@
 #include "libautodiag/jni/target_device.h"
 
 #ifdef OS_ANDROID
-static SimELM327 *sim = null;
+static SimELM327 *_sim = null;
 SimELM327* jni_sim_elm327_get() {
-    if ( sim == null ) {
-        sim = sim_elm327_new();
+    if ( _sim == null ) {
+        _sim = sim_elm327_new();
     }
-    assert(sim != null);
-    return sim;
+    assert(_sim != null);
+    return _sim;
 }
 JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path) {
     log_set_level(LOG_DEBUG);
