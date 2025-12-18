@@ -11,7 +11,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " -p Ah                     : set protocol to automatic, h\n"
     " -l                        : list level of logging\n"
     " -l level                  : set level of logging\n"
-    " -t type                   : set the type of simulating\n"
+    " -t type                   : set the simulation type (local (COMPORT/tty), socket (For Android), network (ELM327 WiFi))\n"
     " -g                        : list available generators\n"
     " -g generator              : set the generator of values\n"
     " -c context                : context for the generator\n"
