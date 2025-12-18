@@ -354,8 +354,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     } else {
         asprintf(&response,"%s%s", serial_response, elm327->eol);
     }
-    log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
-    usleep(50e3);
+    sim_prevent_read_himself(elm327->implementation);
     free(serial_response);
     log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
 
