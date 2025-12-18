@@ -823,20 +823,29 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     }
     return commandReconized;
 }
-#ifdef OS_POSIX
-#   include <fcntl.h>
-#   include <errno.h>
-    static int is_connected(int fd) {
-        char buf;
-        ssize_t ret = recv(fd, &buf, 1, MSG_PEEK);
-        if (ret == 0) return 0; // connection closed by peer
+
+static int is_connected(sock_t handle) {
+    char buf;
+    ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
+    if (ret == 0) return 0; // connection closed by peer
+    #ifdef OS_WINDOWS
+        if (ret == SOCKET_ERROR) {
+            int err = WSAGetLastError();
+            if (err == WSAEWOULDBLOCK) return 1;
+            return 0;
+        }
+    #elif defined OS_POSIX
+    #   include <fcntl.h>
+    #   include <errno.h>
         if (ret == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
             return 0; // error, consider disconnected
         }
-        return 1; // data available, connection alive
-    }
-#endif
+    #else
+    #   warning Unsupported OS
+    #endif
+    return 1; // data available, connection alive
+}
 
 void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
@@ -893,8 +902,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             assert(boundPort != -1);
+            elm327->implementation->handle = INVALID_HANDLE_VALUE;
+            elm327->implementation->client_socket = -1;
+            elm327->implementation->server_fd = serverFD;
             asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
-            log_msg(LOG_DEBUG,"TODO handle the network for windows");
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
             return;
@@ -1008,27 +1019,30 @@ void sim_elm327_loop(SimELM327 * elm327) {
         }
         if ( elm327->device_type != null ) {
             if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
-                #ifdef OS_POSIX
+                struct sockaddr_in addr;
+                #ifdef OS_WINDOWS
+                    if ( ! is_connected(elm327->implementation->client_socket) ) {
+                        int addr_len = sizeof(addr);
+                        elm327->implementation->client_socket = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                        if (elm327->implementation->client_socket == -1) {
+                            perror("accept");
+                            return;
+                        }
+                #elif defined OS_POSIX
                     if ( ! is_connected(elm327->implementation->handle) ) {
-                        struct sockaddr_in addr;
-                        #ifdef OS_WINDOWS
-                            int addr_len = sizeof(addr);
-                        #else
-                            socklen_t addr_len = sizeof(addr);
-                        #endif
-                        
+                        socklen_t addr_len = sizeof(addr);
                         elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                        
                         if (elm327->implementation->handle == -1) {
                             perror("accept");
                             return;
-                        } else {
-                            char * location = sim_elm327_network_location(addr);
-                            log_msg(LOG_INFO, "Client %s connected", location);
-                            free(location);
                         }
-                    }
+                #else
+                #   warning Unsupported OS
                 #endif
+                        char * location = sim_elm327_network_location(addr);
+                        log_msg(LOG_INFO, "Client %s connected", location);
+                        free(location);
+                    }
             }
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
