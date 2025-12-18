@@ -5,6 +5,8 @@
 #include "libautodiag/compile_target.h"
 
 #ifdef OS_WINDOWS
+#   include <winsock2.h>
+#   include <ws2tcpip.h>
 #   include <windows.h>
     bool isComPort(HANDLE file);
 #endif

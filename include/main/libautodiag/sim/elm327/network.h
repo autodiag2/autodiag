@@ -4,8 +4,6 @@
 #include "libautodiag/lib.h"
 
 #ifdef OS_WINDOWS
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
 #   pragma comment(lib, "Ws2_32.lib")
     typedef SOCKET sock_t;
 #   define close_sock closesocket
