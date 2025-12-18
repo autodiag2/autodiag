@@ -16,6 +16,29 @@ char *strndup(const char *s, size_t n) {
         return res;
     }
 }
+char *strsep(char **stringp, const char *delim) {
+    char *start = *stringp;
+    char *p;
+
+    if (start == NULL) return NULL;
+
+    p = start;
+    while (*p) {
+        const char *d = delim;
+        while (*d) {
+            if (*p == *d) {
+                *p = '\0';
+                *stringp = p + 1;
+                return start;
+            }
+            d++;
+        }
+        p++;
+    }
+
+    *stringp = NULL;
+    return start;
+}
 
 #endif
 

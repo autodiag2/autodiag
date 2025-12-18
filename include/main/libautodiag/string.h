@@ -12,6 +12,7 @@
 #   include <stdlib.h>
     char *strdup(const char *s);
     char *strndup(const char *s, size_t n);
+    char *strsep(char **stringp, const char *delim);
 #endif
 
 bool strbeginwith(char *str, char *begin);
