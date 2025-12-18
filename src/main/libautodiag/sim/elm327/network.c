@@ -35,7 +35,7 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
     return -1;
 }
 
-int start_inet_server_any(int *bound_port) {
+int sim_elm327_network_start(int *bound_port) {
     #ifdef OS_WINDOWS
         WSADATA wsa;
         if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return -1;
@@ -63,7 +63,7 @@ int start_inet_server_any(int *bound_port) {
     return (int)server_fd;
 }
 
-char * network_client_location(struct sockaddr_in caddr) {
+char * sim_elm327_network_location(struct sockaddr_in caddr) {
 
     char ip[50] = {0};
         inet_ntop(AF_INET, &caddr.sin_addr, ip, 49);

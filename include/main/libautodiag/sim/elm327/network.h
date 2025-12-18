@@ -23,7 +23,7 @@
 
 #define ELM327_NETWORK_PORT 35000
 #define ELM327_CONNECTION_BACKLOG 10
-int start_inet_server_any(int *bound_port);
-char * network_client_location(struct sockaddr_in caddr);
+int sim_elm327_network_start(int *bound_port);
+char * sim_elm327_network_location(struct sockaddr_in caddr);
 
 #endif

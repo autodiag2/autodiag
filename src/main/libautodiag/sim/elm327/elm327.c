@@ -886,10 +886,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             elm327->implementation->handle = hPipe;
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = start_inet_server_any(&boundPort);
+            int serverFD = sim_elm327_network_start(&boundPort);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("start_inet_server_any");
+                perror("sim_elm327_network_start");
                 return;
             }
             assert(boundPort != -1);
@@ -978,10 +978,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             #endif
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = start_inet_server_any(&boundPort);
+            int serverFD = sim_elm327_network_start(&boundPort);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("start_inet_server_any");
+                perror("sim_elm327_network_start");
                 return;
             }
             assert(boundPort != -1);
@@ -1023,7 +1023,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                             perror("accept");
                             return;
                         } else {
-                            char * location = network_client_location(addr);
+                            char * location = sim_elm327_network_location(addr);
                             log_msg(LOG_INFO, "Client %s connected", location);
                             free(location);
                         }
