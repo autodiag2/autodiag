@@ -22,6 +22,7 @@
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/sim.h"
 #include "libautodiag/jni/target_device.h"
+#include "libautodiag/sim/elm327/network.h"
 
 #define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 

@@ -1717,15 +1717,15 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   src/main/libautodiag/sim/elm327/bus.c \
   include/main/libautodiag/sim/elm327/bus.h \
   include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/compile_target.h \
   include/main/libautodiag/thread.h include/main/libautodiag/log.h \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
-  include/main/libautodiag/lang/list.h \
-  include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
-  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/lib.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
@@ -1771,19 +1771,21 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/sim/elm327/elm327.o: \
   src/main/libautodiag/sim/elm327/elm327.c \
   include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/compile_target.h \
   include/main/libautodiag/thread.h include/main/libautodiag/log.h \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
-  include/main/libautodiag/lang/list.h \
-  include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
-  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/lib.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
@@ -1829,8 +1831,31 @@ output/obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/elm327/bus.h
+output/obj/main/libautodiag/sim/elm327/network.o: \
+  src/main/libautodiag/sim/elm327/network.c \
+  include/main/libautodiag/sim/elm327/network.h \
+  include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/libautodiag/sim/elm327/nvm.o: \
   src/main/libautodiag/sim/elm327/nvm.c \
   include/main/libautodiag/sim/elm327/nvm.h \
@@ -1889,7 +1914,9 @@ output/obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/sim/sim.h
+  include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h
 output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/ecu/ecu.h \
@@ -1947,6 +1974,8 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/string.o: src/main/libautodiag/string.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
@@ -2072,6 +2101,8 @@ output/obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2130,15 +2161,15 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   src/main/libprog/sim_ecu_generator_gui.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/compile_target.h \
   include/main/libautodiag/thread.h include/main/libautodiag/log.h \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
-  include/main/libautodiag/lang/list.h \
-  include/main/libautodiag/compile_target.h \
-  include/main/libautodiag/lib.h include/main/libautodiag/byte.h \
-  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
-  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
-  include/main/libautodiag/dirent.h include/main/libautodiag/initools.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/lib.h \
+  include/main/libautodiag/byte.h include/main/libautodiag/file.h \
+  include/main/libautodiag/buffer.h include/main/libautodiag/math.h \
+  include/main/libautodiag/poll.h include/main/libautodiag/dirent.h \
+  include/main/libautodiag/initools.h \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
@@ -2184,6 +2215,8 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2363,6 +2396,8 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -2426,6 +2461,8 @@ output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2599,6 +2636,8 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -2664,6 +2703,8 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/main.h \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
@@ -2732,6 +2773,8 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -2903,6 +2946,8 @@ output/obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/obd/obd.o: \
   src/test/libautodiag/com/obd/obd.c src/testFixtures/libTest.h \
@@ -2961,6 +3006,8 @@ output/obj/test/libautodiag/com/obd/obd.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/obd/saej1979.o: \
   src/test/libautodiag/com/obd/saej1979.c src/testFixtures/libTest.h \
@@ -3019,6 +3066,8 @@ output/obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/com/obd/saej1979/saej1979.h
 output/obj/test/libautodiag/com/recorder.o: \
@@ -3078,6 +3127,8 @@ output/obj/test/libautodiag/com/recorder.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/elm/elm.o: \
   src/test/libautodiag/com/serial/elm/elm.c src/testFixtures/libTest.h \
@@ -3136,6 +3187,8 @@ output/obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   src/test/libautodiag/com/serial/elm/elm327/elm327.c \
@@ -3195,6 +3248,8 @@ output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/serial_list.o: \
   src/test/libautodiag/com/serial/serial_list.c \
@@ -3254,6 +3309,8 @@ output/obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/serial.o: \
   src/test/libautodiag/com/serial/serial.c src/testFixtures/libTest.h \
@@ -3312,6 +3369,8 @@ output/obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/uds/uds.o: \
   src/test/libautodiag/com/uds/uds.c src/testFixtures/libTest.h \
@@ -3370,6 +3429,8 @@ output/obj/test/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   src/testFixtures/libTest.h \
@@ -3428,6 +3489,8 @@ output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   src/testFixtures/libTest.h \
@@ -3486,6 +3549,8 @@ output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   src/testFixtures/libTest.h \
@@ -3544,6 +3609,8 @@ output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/model/iso3779.o: \
   src/test/libautodiag/model/iso3779.c src/testFixtures/libTest.h \
@@ -3602,6 +3669,8 @@ output/obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   src/test/libautodiag/sim/ecu/generator/cycle.c \
@@ -3661,6 +3730,8 @@ output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   src/test/libautodiag/sim/ecu/generator/replay.c \
@@ -3720,6 +3791,8 @@ output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/elm327/sim.o: \
   src/test/libautodiag/sim/elm327/sim.c src/testFixtures/libTest.h \
@@ -3778,6 +3851,8 @@ output/obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/elm327/uds.o: \
   src/test/libautodiag/sim/elm327/uds.c src/testFixtures/libTest.h \
@@ -3836,6 +3911,8 @@ output/obj/test/libautodiag/sim/elm327/uds.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   src/testFixtures/libTest.h \
@@ -3894,6 +3971,8 @@ output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libprog/config.o: src/test/libprog/config.c \
   src/testFixtures/libTest.h \
@@ -3952,6 +4031,8 @@ output/obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/regression.o: src/test/regression.c \
   src/testFixtures/libTest.h \
@@ -4010,4 +4091,6 @@ output/obj/test/regression.o: src/test/regression.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
