@@ -11,7 +11,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " -p Ah                     : set protocol to automatic, h\n"
     " -l                        : list level of logging\n"
     " -l level                  : set level of logging\n"
-    " -t type                   : set the simulation type (local (COMPORT/tty), socket (For Android), network (ELM327 WiFi))\n"
+    " -t type                   : set the simulation type\n"
     " -g                        : list available generators\n"
     " -g generator              : set the generator of values\n"
     " -c context                : context for the generator\n"
@@ -133,9 +133,9 @@ int sim_elm327_cli_main(int argc, char **argv) {
             }
             if ( type_unknown || arg == null ) {
                 printf("Available types of simulating:\n");
-                printf("local\n");
-                printf("socket\n");
-                printf("network\n");
+                printf("local (ELM327 USB/Bluetooth)\n");
+                printf("socket (For Android)\n");
+                printf("network (ELM327 WiFi)\n");
                 return 0;
             } else {
                 sim->device_type = strdup(arg);
