@@ -4,23 +4,36 @@
 int sim_write(void * implPtr, int timeout_ms, byte * data, unsigned int data_len) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
-    void * handle = &(impl->handle);
-    assert(handle != null);
     assert(data != null);
-    final int poll_result = file_pool_write(handle, timeout_ms);
-    if ( poll_result <= 0 ) {
-        log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-        return -1;
-    }
-    #if defined OS_WINDOWS
-        DWORD bytes_written = 0;
-        if (!WriteFile(*((HANDLE*)handle), data, data_len, &bytes_written, null)) {
-            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+    #ifdef OS_WINDOWS
+        if (impl->client_socket != INVALID_SOCKET) {
+            int ret = send(impl->client_socket, (const char*)data, (int)data_len, 0);
+            if (ret == SOCKET_ERROR) {
+                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                return -1;
+            }
+            return ret;
+        } else {
+            assert(impl->handle != INVALID_HANDLE_VALUE);
+            final int poll_result = file_pool_write(&impl->handle, timeout_ms);
+            if ( poll_result <= 0 ) {
+                log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+                return -1;
+            }
+            DWORD bytes_written = 0;
+            if (!WriteFile(impl->handle, data, data_len, &bytes_written, null)) {
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                return -1;
+            }
+            return bytes_written;
+        }
+    #elif defined OS_POSIX
+        final int poll_result = file_pool_write(&impl->handle, timeout_ms);
+        if ( poll_result <= 0 ) {
+            log_msg(LOG_WARNING, "timeout reached waiting for the other end");
             return -1;
         }
-        return bytes_written;
-    #elif defined OS_POSIX
-        int bytes_written = write(*((int*)handle), data, data_len);
+        int bytes_written = write(impl->handle, data, data_len);
         if ( bytes_written == -1 ) {
             perror("write");
         }
@@ -33,48 +46,67 @@ int sim_write(void * implPtr, int timeout_ms, byte * data, unsigned int data_len
 int sim_read(void * implPtr, int timeout_ms, Buffer * readed) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
-    assert(impl != null);
-    void * handle = &(impl->handle);
-    assert(handle != null);
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
     #ifdef OS_WINDOWS
-        if ( ! ConnectNamedPipe(*((HANDLE*)handle), null) ) {
-            DWORD err = GetLastError();
-            if ( err == ERROR_PIPE_CONNECTED ) {
-                log_msg(LOG_DEBUG, "pipe already connected");
-            } else {
-                if ( err == ERROR_NO_DATA ) {
-                    log_msg(LOG_ERROR, "pipe closed");
+        if (impl->client_socket != INVALID_SOCKET) {
+            fd_set rfds;
+            FD_ZERO(&rfds);
+            FD_SET(impl->client_socket, &rfds);
+
+            struct timeval tv;
+            tv.tv_sec = timeout_ms / 1000;
+            tv.tv_usec = (timeout_ms % 1000) * 1000;
+
+            int sel = select(0, &rfds, null, null, &tv);
+            if (sel <= 0) return -1;
+
+            int ret = recv(impl->client_socket,
+                        (char*)readed->buffer,
+                        readed->size_allocated - 1,
+                        0);
+
+            if (ret <= 0) return -1;
+            readed->size = ret;
+            return ret;
+        } else {
+            if ( ! ConnectNamedPipe(impl->handle, null) ) {
+                DWORD err = GetLastError();
+                if ( err == ERROR_PIPE_CONNECTED ) {
+                    log_msg(LOG_DEBUG, "pipe already connected");
                 } else {
-                    log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                    if ( err == ERROR_NO_DATA ) {
+                        log_msg(LOG_ERROR, "pipe closed");
+                    } else {
+                        log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                    }
+                    return false;
                 }
-                return false;
             }
+            if ( file_pool_read(&impl->handle, null, timeout_ms) == -1 ) {
+                log_msg(LOG_ERROR, "Error while pooling");
+                return -1;
+            }
+            DWORD readedBytes = 0;
+            final int success = ReadFile(impl->handle, readed->buffer, readed->size_allocated-1, &readedBytes, 0);
+            if ( ! success ) {
+                log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
+                return -1;
+            }
+            if ( UINT_MAX < readedBytes ) {
+                log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", readed->size);
+                return -1;
+            }
+            readed->size = readedBytes;
+            return readedBytes;
         }
-        if ( file_pool_read(handle, null, timeout_ms) == -1 ) {
-            log_msg(LOG_ERROR, "Error while pooling");
-            return -1;
-        }
-        DWORD readedBytes = 0;
-        final int success = ReadFile(*((HANDLE*)handle), readed->buffer, readed->size_allocated-1, &readedBytes, 0);
-        if ( ! success ) {
-            log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
-            return -1;
-        }
-        if ( UINT_MAX < readedBytes ) {
-            log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", readed->size);
-            return -1;
-        }
-        readed->size = readedBytes;
-        return readedBytes;
     #elif defined OS_POSIX
-        int res = file_pool_read(handle, null, timeout_ms);
+        int res = file_pool_read(&impl->handle, null, timeout_ms);
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
             return -1;
         }
-        int rv = read(*((int*)handle),readed->buffer,readed->size_allocated-1);
+        int rv = read(impl->handle,readed->buffer,readed->size_allocated-1);
         if ( rv == -1 ) {
             log_msg(LOG_ERROR, "read error: %s", strerror(errno));
             return -1;

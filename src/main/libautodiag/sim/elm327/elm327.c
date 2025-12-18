@@ -828,7 +828,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
     #ifdef OS_WINDOWS
-    
+        elm327->implementation->handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->client_socket = INVALID_SOCKET;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             #define MAX_ATTEMPTS 20
             char pipeName[256];
@@ -879,8 +880,6 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             assert(boundPort != -1);
-            elm327->implementation->handle = INVALID_HANDLE_VALUE;
-            elm327->implementation->client_socket = -1;
             elm327->implementation->server_fd = serverFD;
             asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
         } else {
@@ -888,6 +887,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
             return;
         }
     #elif defined OS_POSIX
+        elm327->implementation->handle = -1;
+        elm327->implementation->server_fd = -1;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             int fd = posix_openpt(O_RDWR);
             if ( fd == -1 ) {
@@ -955,7 +956,6 @@ void sim_elm327_loop(SimELM327 * elm327) {
                     return;
                 }
 
-                elm327->implementation->handle = -1;
                 elm327->implementation->server_fd = server_fd;
                 char loc[108];
                 snprintf(loc, sizeof(loc), "%s", addr.sun_path);
@@ -973,7 +973,6 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             assert(boundPort != -1);
-            elm327->implementation->handle = -1;
             elm327->implementation->server_fd = serverFD;
             asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
         } else {
