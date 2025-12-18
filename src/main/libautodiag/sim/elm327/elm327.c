@@ -22,7 +22,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                     asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
                     log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                    if ( sim_write(&elm327->implementation->handle,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
+                    if ( sim_write(elm327->implementation,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
                         return;
                     }
 
@@ -335,7 +335,7 @@ bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327) {
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
-    if ( sim_read(&elm327->implementation->handle, timeout, buffer) == -1 ) {
+    if ( sim_read(elm327->implementation, timeout, buffer) == -1 ) {
         return false;
     }
     buffer_ensure_termination(buffer);
@@ -359,7 +359,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     free(serial_response);
     log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
 
-    if ( sim_write(&elm327->implementation->handle, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
+    if ( sim_write(elm327->implementation, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
         return false;
     }
     free(response);
@@ -824,7 +824,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     return commandReconized;
 }
 
-static int is_connected(sock_t handle) {
+static int is_connected(SimELM327Implementation * impl) {
+    #ifdef OS_WINDOWS
+        sock_t handle = impl->client_socket;
+    #elif defined OS_POSIX
+        sock_t handle = impl->handle;
+    #else
+    #   warning Unsupported OS
+    #endif
     char buf;
     ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
     if (ret == 0) return 0; // connection closed by peer
@@ -1020,29 +1027,28 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( elm327->device_type != null ) {
             if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
                 struct sockaddr_in addr;
-                #ifdef OS_WINDOWS
-                    if ( ! is_connected(elm327->implementation->client_socket) ) {
+                if ( ! is_connected(elm327->implementation) ) {
+                    #ifdef OS_WINDOWS
                         int addr_len = sizeof(addr);
                         elm327->implementation->client_socket = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
                         if (elm327->implementation->client_socket == -1) {
                             perror("accept");
                             return;
                         }
-                #elif defined OS_POSIX
-                    if ( ! is_connected(elm327->implementation->handle) ) {
+                    #elif defined OS_POSIX
                         socklen_t addr_len = sizeof(addr);
                         elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
                         if (elm327->implementation->handle == -1) {
                             perror("accept");
                             return;
                         }
-                #else
-                #   warning Unsupported OS
-                #endif
-                        char * location = sim_elm327_network_location(addr);
-                        log_msg(LOG_INFO, "Client %s connected", location);
-                        free(location);
-                    }
+                    #else
+                    #   warning Unsupported OS
+                    #endif
+                    char * location = sim_elm327_network_location(addr);
+                    log_msg(LOG_INFO, "Client %s connected", location);
+                    free(location);
+                }
             }
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {

@@ -18,8 +18,8 @@ typedef struct {
  * @param sim sim into which to load the context (eg ELM327 sim)
  */
 int sim_load_from_json(Sim * sim, char * json_context);
-int sim_write(void *handle, int timeout_ms, byte * data, unsigned int data_len);
-int sim_read(void *handle, int timeout_ms, Buffer * readed);
+int sim_write(void *implPtr, int timeout_ms, byte * data, unsigned int data_len);
+int sim_read(void *implPtr, int timeout_ms, Buffer * readed);
 
 #include "libautodiag/sim/elm327/elm327.h"
 

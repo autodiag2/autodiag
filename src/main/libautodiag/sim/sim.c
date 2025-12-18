@@ -1,7 +1,10 @@
 #include "libautodiag/sim/sim.h"
+#include "libautodiag/sim/elm327/elm327.h"
 
-
-int sim_write(void *handle, int timeout_ms, byte * data, unsigned int data_len) {
+int sim_write(void * implPtr, int timeout_ms, byte * data, unsigned int data_len) {
+    assert(implPtr != null);
+    SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
+    void * handle = &(impl->handle);
     assert(handle != null);
     assert(data != null);
     final int poll_result = file_pool_write(handle, timeout_ms);
@@ -27,7 +30,11 @@ int sim_write(void *handle, int timeout_ms, byte * data, unsigned int data_len) 
     #endif
     return -1;
 }
-int sim_read(void *handle, int timeout_ms, Buffer * readed) {
+int sim_read(void * implPtr, int timeout_ms, Buffer * readed) {
+    assert(implPtr != null);
+    SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
+    assert(impl != null);
+    void * handle = &(impl->handle);
     assert(handle != null);
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
