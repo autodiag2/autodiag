@@ -9,7 +9,11 @@
 #include "libautodiag/sim/elm327/elm327.h"
 
 SimELM327* jni_sim_elm327_get();
-JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path);
+/**
+ * @param path to a writable location on device
+ * @param kind socket, network (for wifi server)
+ */
+JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path, jstring kind);
 JNIEXPORT void JNICALL Java_com_autodiag_elm327emu_libautodiag_setProtocol(JNIEnv *env, jobject thiz, jint protocol);
 JNIEXPORT jobjectArray JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocols(JNIEnv *env, jobject thiz);
 JNIEXPORT jint JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz);

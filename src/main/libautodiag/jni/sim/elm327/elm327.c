@@ -11,15 +11,19 @@ SimELM327* jni_sim_elm327_get() {
     assert(_sim != null);
     return _sim;
 }
-JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path) {
+JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path, jstring kind) {
     log_set_level(LOG_DEBUG);
     
     const char *nativePath = (*env)->GetStringUTFChars(env, path, null);
     jni_data_dir_set(strdup(nativePath));
     (*env)->ReleaseStringUTFChars(env, path, nativePath);
 
+    const char *kindStr = (*env)->GetStringUTFChars(env, kind, null);
+
     SimELM327 *sim = jni_sim_elm327_get();
-    sim->device_type = strdup("socket");
+    sim->device_type = strdup(kindStr);
+
+    (*env)->ReleaseStringUTFChars(env, kind, kindStr);
 
     assert(0 < LIST_SIM_ECU(sim->ecus)->size);
     final SimECU * target_ecu = LIST_SIM_ECU(sim->ecus)->list[LIST_SIM_ECU(sim->ecus)->size - 1];
