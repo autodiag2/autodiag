@@ -824,36 +824,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     return commandReconized;
 }
 
-static int is_connected(SimELM327Implementation * impl) {
-    #ifdef OS_WINDOWS
-        sock_t handle = impl->client_socket;
-    #elif defined OS_POSIX
-        sock_t handle = impl->handle;
-    #else
-    #   warning Unsupported OS
-    #endif
-    char buf;
-    ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
-    if (ret == 0) return 0; // connection closed by peer
-    #ifdef OS_WINDOWS
-        if (ret == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) return 1;
-            return 0;
-        }
-    #elif defined OS_POSIX
-    #   include <fcntl.h>
-    #   include <errno.h>
-        if (ret == -1) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
-            return 0; // error, consider disconnected
-        }
-    #else
-    #   warning Unsupported OS
-    #endif
-    return 1; // data available, connection alive
-}
-
 void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
@@ -1027,7 +997,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( elm327->device_type != null ) {
             if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
                 struct sockaddr_in addr;
-                if ( ! is_connected(elm327->implementation) ) {
+                if ( ! sim_elm327_network_is_connected(elm327->implementation) ) {
                     #ifdef OS_WINDOWS
                         int addr_len = sizeof(addr);
                         elm327->implementation->client_socket = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);

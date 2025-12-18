@@ -23,5 +23,6 @@
 #define ELM327_CONNECTION_BACKLOG 10
 int sim_elm327_network_start(int *bound_port);
 char * sim_elm327_network_location(struct sockaddr_in caddr);
+int sim_elm327_network_is_connected(void * implPtr);
 
 #endif
