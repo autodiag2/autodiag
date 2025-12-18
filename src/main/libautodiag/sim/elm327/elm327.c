@@ -884,6 +884,17 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
             elm327->device_location = strdup(pipeName);
             elm327->implementation->handle = hPipe;
+        } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
+            int boundPort = -1;
+            int serverFD = start_inet_server_any(&boundPort);
+            if ( serverFD == -1 ) {
+                log_msg(LOG_ERROR, "Failed to start server");
+                perror("start_inet_server_any");
+                return;
+            }
+            assert(boundPort != -1);
+            asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
+            log_msg(LOG_DEBUG,"TODO handle the network for windows");
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
             return;
@@ -965,6 +976,18 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 log_msg(LOG_ERROR, "Socket not supported");
                 return;
             #endif
+        } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
+            int boundPort = -1;
+            int serverFD = start_inet_server_any(&boundPort);
+            if ( serverFD == -1 ) {
+                log_msg(LOG_ERROR, "Failed to start server");
+                perror("start_inet_server_any");
+                return;
+            }
+            assert(boundPort != -1);
+            elm327->implementation->handle = -1;
+            elm327->implementation->server_fd = serverFD;
+            asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
             return;
@@ -983,20 +1006,30 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( elm327->implementation->loop_ready == false ) {
             elm327->implementation->loop_ready = true;
         }
-        if ( elm327->device_type != null && strcasecmp(elm327->device_type, "socket") == 0 ) {
-            #ifdef OS_ANDROID
-                if ( ! is_connected(elm327->implementation->handle) ) {
-                    struct sockaddr_in addr;
-                    socklen_t addr_len = sizeof(addr);
-                    
-                    elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    
-                    if (elm327->implementation->handle == -1) {
-                        perror("accept");
-                        return;
+        if ( elm327->device_type != null ) {
+            if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
+                #ifdef OS_POSIX
+                    if ( ! is_connected(elm327->implementation->handle) ) {
+                        struct sockaddr_in addr;
+                        #ifdef OS_WINDOWS
+                            int addr_len = sizeof(addr);
+                        #else
+                            socklen_t addr_len = sizeof(addr);
+                        #endif
+                        
+                        elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                        
+                        if (elm327->implementation->handle == -1) {
+                            perror("accept");
+                            return;
+                        } else {
+                            char * location = network_client_location(addr);
+                            log_msg(LOG_INFO, "Client %s connected", location);
+                            free(location);
+                        }
                     }
-                }
-            #endif
+                #endif
+            }
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");

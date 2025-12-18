@@ -35,7 +35,7 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
     return -1;
 }
 
-int start_inet_server_any(int preferred_port, int backlog, int *bound_port) {
+int start_inet_server_any(int *bound_port) {
     #ifdef OS_WINDOWS
         WSADATA wsa;
         if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return -1;
@@ -44,7 +44,7 @@ int start_inet_server_any(int preferred_port, int backlog, int *bound_port) {
     sock_t server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) return -1;
 
-    if (bind_any_available_port(server_fd, preferred_port, 32, bound_port) < 0) {
+    if (bind_any_available_port(server_fd, ELM327_NETWORK_PORT, 32, bound_port) < 0) {
         close_sock(server_fd);
         #ifdef OS_WINDOWS
             WSACleanup();
@@ -52,7 +52,7 @@ int start_inet_server_any(int preferred_port, int backlog, int *bound_port) {
         return -1;
     }
 
-    if (listen(server_fd, backlog) < 0) {
+    if (listen(server_fd, ELM327_CONNECTION_BACKLOG) < 0) {
         close_sock(server_fd);
         #ifdef OS_WINDOWS
             WSACleanup();
@@ -63,20 +63,10 @@ int start_inet_server_any(int preferred_port, int backlog, int *bound_port) {
     return (int)server_fd;
 }
 
-sock_t accept_client(sock_t server_fd, char *client_ip, int ip_len, int *client_port) {
-    struct sockaddr_in caddr;
-    #ifdef OS_WINDOWS
-        int len = sizeof(caddr);
-    #else
-        socklen_t len = sizeof(caddr);
-    #endif
-    sock_t cfd = accept(server_fd, (struct sockaddr *)&caddr, &len);
-    if (cfd < 0) return -1;
+char * network_client_location(struct sockaddr_in caddr) {
 
-    if (client_ip && ip_len > 0)
-        inet_ntop(AF_INET, &caddr.sin_addr, client_ip, ip_len);
-    if (client_port)
-        *client_port = ntohs(caddr.sin_port);
+    char ip[50] = {0};
+        inet_ntop(AF_INET, &caddr.sin_addr, ip, 49);
 
-    return cfd;
+    return gprintf("%s:%d", ip, ntohs(caddr.sin_port));
 }

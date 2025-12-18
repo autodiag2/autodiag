@@ -125,7 +125,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
             char * arg = argCurrent();
             bool type_unknown = true;
             if ( arg != null ) {
-                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"socket") == 0 ) {
+                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"socket") == 0 || strcasecmp(arg,"network") == 0 ) {
                     type_unknown = false;
                 } else {
                     printf("Type: '%s' Unknown\n", arg);
@@ -134,7 +134,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
             if ( type_unknown || arg == null ) {
                 printf("Available types of simulating:\n");
                 printf("local\n");
-                printf("loopback\n");
+                printf("socket\n");
+                printf("network\n");
                 return 0;
             } else {
                 sim->device_type = strdup(arg);

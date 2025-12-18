@@ -8,8 +8,8 @@
 #   include <ws2tcpip.h>
 #   pragma comment(lib, "Ws2_32.lib")
     typedef SOCKET sock_t;
+#   define close_sock closesocket
 #else
-#   define OS_POSIX
 #   include <unistd.h>
 #   include <errno.h>
 #   include <string.h>
@@ -17,9 +17,13 @@
 #   include <netinet/in.h>
 #   include <sys/socket.h>
     typedef int sock_t;
+#   include <unistd.h>
+#   define close_sock close
 #endif
 
-int start_inet_server_any(int preferred_port, int backlog, int *bound_port);
-sock_t accept_client(sock_t server_fd, char *client_ip, int ip_len, int *client_port);
+#define ELM327_NETWORK_PORT 35000
+#define ELM327_CONNECTION_BACKLOG 10
+int start_inet_server_any(int *bound_port);
+char * network_client_location(struct sockaddr_in caddr);
 
 #endif
