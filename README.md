@@ -38,15 +38,17 @@ This software rely on OBD2 and UDS to diagnose your vehicle, from the settings y
 GPL licence will allow both buisnesses and individual to use the software.  
 
 # Quick guide to read codes with ELM327
-1. Buy ELM327 adaptater[USB](https://www.amazon.fr/elm327-usb/s?k=elm327+usb) or [Bluetooth](https://www.amazon.fr/s?k=elm327+bluetooth)
+1. Buy ELM327 adaptater [USB](https://www.amazon.fr/elm327-usb/s?k=elm327+usb) or [Bluetooth](https://www.amazon.fr/s?k=elm327+bluetooth) or [Wifi](https://www.amazon.fr/s?k=elm327+wifi) (this one more recommended)
 2. Download autodiag from [releases](https://github.com/autodiag2/autodiag/releases)
 3. Start the car and plug adaptater
 4. Launch autodiag
 #### Debian based
-5. Select /dev/ttyUSB0 device or /dev/rfcomm0 (for bluetooth)
+5. Select /dev/ttyUSB0 (ELM USB) or /dev/rfcomm0 (ELM Bluetooth) or ip address (ELM Wifi)
 #### Windows
 5. If ELM327 USB: Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
-6. Select the right COM port eg. COM5
+6. Select the right COM port eg. COM5 (ELM USB, Bluetooth) or the ip address (ELM Wifi)
+#### MacOS
+5. Set the ip address of adapter
 <br /><br />
 
 7. Read codes
@@ -62,6 +64,7 @@ See [here](/documentation/install-errors.md)
 | elm327sim      | ✔️                 | ✔️       | ✔️     | ✔️      |
 | ELM USB        | ✔️                 | ✔️       | ❌     | ❌      |
 | ELM Bluetooth  | ✔️                 | ✔️       | ❌     | ✔️      |
+| ELM Wifi       | ✔️                 | ✔️       | ✔️     | ✔️      |
 
 Devices:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELM320 ELM322 ELM323 ELM327 ELM329<br />
 Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS CAN CAN-TP KWP2000
