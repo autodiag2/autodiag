@@ -236,10 +236,13 @@ bool list_serial_remove(final Serial * element) {
         return true;
     }
 }
-void list_serial_remove_undetected() {
+void list_serial_remove_undetected(bool except_network) {
     for(int i = 0; i < list_serial.size; i++) {
         Serial * serial = list_serial.list[i];
         if ( ! serial->detected ) {
+            if ( except_network && strstr(serial->location,":") != null ) {
+                continue;
+            }
             if ( i == list_serial_selected ) {
                 list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
             }
@@ -272,7 +275,9 @@ void list_serial_fill() {
     #   warning Unsupported OS
     #endif
 
-    list_serial_remove_undetected();
+    // This may free the device after it has been openned so disabling for now
+    // So function like thread_viface_cleanup_routine use the device after it has been removed/free by this list
+    //list_serial_remove_undetected(true);
     if ( selected_serial_path != null ) {
         free(selected_serial_path);
     }

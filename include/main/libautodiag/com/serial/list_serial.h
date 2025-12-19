@@ -37,5 +37,5 @@ Serial * list_serial_add_if_not_in_by_location(char * location);
 void serial_set_location(final Serial * port, final char *location);
 bool list_serial_remove(final Serial * element);
 void list_serial_set_to_undetected();
-void list_serial_remove_undetected();
+void list_serial_remove_undetected(bool except_network);
 #endif
