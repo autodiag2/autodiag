@@ -222,18 +222,44 @@ bool serial_location_is_network(final Serial *port) {
         return false;
     }
 
-    static const char *pattern =
-        "^[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]{1,5})?$";
+    const char *s = port->location;
+    int dots = 0;
 
-    regex_t re;
-    if (regcomp(&re, pattern, REG_EXTENDED | REG_NOSUB) != 0) {
-        return false;
+    while (*s) {
+        if (isdigit((unsigned char)*s)) {
+            int v = 0;
+            while (isdigit((unsigned char)*s)) {
+                v = v * 10 + (*s - '0');
+                if (v > 255) return false;
+                s++;
+            }
+            if (*s == '.') {
+                dots++;
+                s++;
+            } else {
+                break;
+            }
+        } else {
+            return false;
+        }
     }
 
-    int ok = regexec(&re, port->location, 0, null, 0) == 0;
-    regfree(&re);
+    if (dots != 3) return false;
 
-    return ok;
+    if (*s == ':') {
+        s++;
+        int p = 0;
+        int digits = 0;
+        while (isdigit((unsigned char)*s)) {
+            p = p * 10 + (*s - '0');
+            if (p > 65535) return false;
+            s++;
+            digits++;
+        }
+        if (digits == 0) return false;
+    }
+
+    return *s == '\0';
 }
 
 int serial_open(final Serial * port) {

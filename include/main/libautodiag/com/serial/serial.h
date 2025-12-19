@@ -15,7 +15,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <regex.h>
 #include "libautodiag/string.h"
 #include <unistd.h>
 #include <errno.h>
