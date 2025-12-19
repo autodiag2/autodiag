@@ -91,16 +91,16 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
     if ( response == null ) {
         deviceConfigured = false;
     } else {
-        if ( strncmp(response, "ELM329",strlen("ELM329")) == 0 ) {
+        if (strstr(response, "ELM329") != null) {
             device = CAST_ELM_DEVICE(elm329_new_from_serial(*port));
-        } else if ( strncmp(response, "ELM327",strlen("ELM327")) == 0 ) {
-            device = CAST_ELM_DEVICE((Device*)elm327_new_from_serial(*port));
-        } else if ( strncmp(response, "ELM323",strlen("ELM323")) == 0 ) {
-            device = CAST_ELM_DEVICE((Device*)elm323_new_from_serial(*port));
-        } else if ( strncmp(response, "ELM322",strlen("ELM322")) == 0 ) {
-            device = CAST_ELM_DEVICE((Device*)elm322_new_from_serial(*port));
-        } else if ( strncmp(response, "ELM320",strlen("ELM320")) == 0 ) {
-            device = CAST_ELM_DEVICE((Device*)elm320_new_from_serial(*port));
+        } else if (strstr(response, "ELM327") != null) {
+            device = CAST_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
+        } else if (strstr(response, "ELM323") != null) {
+            device = CAST_ELM_DEVICE((Device *)elm323_new_from_serial(*port));
+        } else if (strstr(response, "ELM322") != null) {
+            device = CAST_ELM_DEVICE((Device *)elm322_new_from_serial(*port));
+        } else if (strstr(response, "ELM320") != null) {
+            device = CAST_ELM_DEVICE((Device *)elm320_new_from_serial(*port));
         }
         if ( device == null ) {
             deviceConfigured = false;
