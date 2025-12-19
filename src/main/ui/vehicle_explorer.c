@@ -8,7 +8,7 @@ static pthread_mutex_t graphs_mutex;
 MENUBAR_DATA_ALL_IN_ONE
 
 static void button_click_clean_up_routine(void *arg) {
-    obd_thread_cleanup_routine(arg);
+    thread_viface_cleanup_routine(arg);
     gtk_spinner_stop(gui->refreshIcon);
 }
 
@@ -397,7 +397,7 @@ static bool refresh_dynamic_internal() {
 }
 
 static void* refresh_dynamic_daemon(void *arg) {
-    pthread_cleanup_push(obd_thread_cleanup_routine, null);
+    pthread_cleanup_push(thread_viface_cleanup_routine, null);
     const struct timespec req = {
         .tv_sec = config.vehicleExplorer.refreshRateS,
         .tv_nsec = (config.vehicleExplorer.refreshRateS - ((int)config.vehicleExplorer.refreshRateS)) * 1000000000

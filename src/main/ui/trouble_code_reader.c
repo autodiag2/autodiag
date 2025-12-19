@@ -26,7 +26,7 @@ static void show_clear_confirm() {
 }
 
 static void button_click_clean_up_routine(void *arg) {
-    obd_thread_cleanup_routine(arg);
+    thread_viface_cleanup_routine(arg);
     gtk_spinner_stop(gui->actionWaitIcon);
 }
 

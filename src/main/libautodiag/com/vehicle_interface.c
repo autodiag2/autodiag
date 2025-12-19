@@ -68,10 +68,14 @@ VehicleIFace* viface_new() {
 }
 
 void viface_lock(final VehicleIFace* iface) {
+    assert(iface != null);
+    assert(iface->device != null);
     iface->device->lock(iface->device);
 }
 
 void viface_unlock(final VehicleIFace* iface) {
+    assert(iface != null);
+    assert(iface->device != null);
     iface->device->unlock(iface->device);
 }
 

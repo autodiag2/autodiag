@@ -449,7 +449,7 @@ static void launch_simulation_internal() {
 }
 
 static void launch_simulation_clean_up_routine(void *arg) {
-    obd_thread_cleanup_routine(arg);
+    thread_viface_cleanup_routine(arg);
     gtk_spinner_stop(gui->simulator.spinner);
 }
 
