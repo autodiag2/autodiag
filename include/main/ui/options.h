@@ -40,6 +40,7 @@ typedef struct {
             GtkEntry * file;
             GtkFileChooserButton * fileChooser;
         } replay;
+        GtkCheckButton * networkSim;
     } simulator;
     struct {
         GtkComboBoxText *manufacturer;

@@ -335,6 +335,11 @@ void window_baud_rate_set_from_button(final GtkButton * button) {
 static gboolean sim_launch(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
+    if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->simulator.networkSim)) ) {
+        elm327->device_type = strdup("network");
+    } else {
+        elm327->device_type = strdup("local");
+    }
     sim_elm327_loop_as_daemon(elm327);
     sim_launch_set_status(strdup("Starting simulation ..."));
     sim_elm327_loop_daemon_wait_ready(elm327);
@@ -492,7 +497,8 @@ void module_init_options(GtkBuilder *builder) {
                     .enabled = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-simulation-replay-enabled")),
                     .file = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-replay-file")),
                     .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-simulation-replay-chooser"))
-                }
+                },
+                .networkSim = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-simulation-network-sim-enabled"))
             },
             .vehicleInfos = {
                 .manufacturer = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
