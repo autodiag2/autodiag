@@ -47,15 +47,27 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        if ( isComPort(port->implementation->connexion_handle) ) {
-            PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+        if (isSocketHandle(port->implementation->connexion_handle)) {
+            SOCKET s = (SOCKET)port->implementation->connexion_handle;
+
+            int sent = send(s, (const char *)tx_buf, bytes_to_send, 0);
+            if (sent <= 0 || sent != bytes_to_send) {
+                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                serial_close(port);
+                return DEVICE_ERROR;
+            }
+            bytes_sent = sent;
+        } else {
+            if ( isComPort(port->implementation->connexion_handle) ) {
+                PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            }
+            if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                serial_close(port);
+                return DEVICE_ERROR;
+            }            
+            bytes_sent = (int) bytes_written;
         }
-        if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
-            log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-            serial_close(port);
-            return DEVICE_ERROR;
-        }            
-        bytes_sent = (int) bytes_written;
         if (bytes_sent != bytes_to_send) {
             log_msg(LOG_ERROR, "Error while writting to the serial");
             serial_close(port);
@@ -112,18 +124,36 @@ int serial_recv_internal(final Serial * port) {
                 
                 while(0 < res && 0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
-                    if ( ReadFile(port->implementation->connexion_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
-                        if( readLen == bytes_readed ) {
-                            port->recv_buffer->size += bytes_readed;
-                            if ( log_has_level(LOG_DEBUG) ) {
-                                module_debug(MODULE_SERIAL "Serial data received");
-                                buffer_dump(port->recv_buffer);
-                            }
+                    if (isSocketHandle(port->implementation->connexion_handle)) {
+                        SOCKET s = (SOCKET)port->implementation->connexion_handle;
+                        int r = recv(
+                            s,
+                            (char *)port->recv_buffer->buffer + port->recv_buffer->size,
+                            readLen,
+                            0
+                        );
+
+                        if (r > 0) {
+                            port->recv_buffer->size += r;
                         } else {
-                            log_msg(LOG_ERROR, "ReadFile error");
+                            log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
+                            serial_close(port);
+                            return DEVICE_ERROR;
                         }
                     } else {
-                        log_msg(LOG_ERROR, "ReadFile error 2");
+                        if ( ReadFile(port->implementation->connexion_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
+                            if( readLen == bytes_readed ) {
+                                port->recv_buffer->size += bytes_readed;
+                                if ( log_has_level(LOG_DEBUG) ) {
+                                    module_debug(MODULE_SERIAL "Serial data received");
+                                    buffer_dump(port->recv_buffer);
+                                }
+                            } else {
+                                log_msg(LOG_ERROR, "ReadFile error");
+                            }
+                        } else {
+                            log_msg(LOG_ERROR, "ReadFile error 2");
+                        }
                     }
                     res = file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
                     if ( res == -1 ) {
