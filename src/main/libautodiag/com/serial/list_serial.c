@@ -181,9 +181,9 @@ void list_serial_free() {
                                 final Serial * serial = list_serial_add_if_not_in_by_location(serial_path);
                                 serial->detected = true;
                                 if ( access(serial_path,R_OK|W_OK) == 0 ) {
-                                    module_debug(MODULE_SERIAL "    All permissions granted");
+                                    log_msg(LOG_DEBUG, "%s: All permissions granted", serial_path);
                                 } else {
-                                    module_debug(MODULE_SERIAL "    Missing permissions");
+                                    log_msg(LOG_DEBUG, "%s: Missing permissions", serial_path);
                                 }
                                 if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
                                     if ( selected_serial_path != null && strcmp(selected_serial_path,serial_path) == 0 ) {
