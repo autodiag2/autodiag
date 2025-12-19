@@ -39,6 +39,7 @@ CGLAGS_GUI      = `pkg-config --cflags gtk+-3.0`
 CFLAGS          = -I include/main/ -I cJSON/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
 CFLAGS_LIBS     = -lpthread -lm
 CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
+COMPILE_NEED_OBJS       = false
 
 UNAME_S := $(shell uname -s)
 UNAME_M := $(shell uname -m)
@@ -60,12 +61,14 @@ else ifneq (,$(findstring x86_64-w64-mingw32-,$(TOOLCHAIN)))
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
     CFLAGS_LIBS += -lsetupapi -lws2_32
+    COMPILE_NEED_OBJS = true
 else ifneq (,$(findstring i686-w64-mingw32-,$(TOOLCHAIN)))
     SYSTEM := windows
     MACHINE := i686
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
     CFLAGS_LIBS += -lsetupapi -lws2_32
+    COMPILE_NEED_OBJS = true
 else ifeq ($(UNAME_S),Darwin)
     SYSTEM := darwin
     EXT := dylib

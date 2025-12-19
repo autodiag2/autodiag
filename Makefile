@@ -113,7 +113,11 @@ output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 
 output/bin/elm327sim_compat: src/main/prog/elm327sim.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) -o '$@' $^ $(CFLAGS_LIBS)
+	if $(COMPILE_NEED_OBJS) ; then \
+		$(CC) $(CFLAGS) -o '$@' $(OBJS_LIB) $^ $(CFLAGS_LIBS) ; \
+	else \
+		$(CC) $(CFLAGS) -o '$@' $^ ; \
+	fi
 
 output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
