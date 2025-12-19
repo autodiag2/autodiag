@@ -8088,12 +8088,13 @@ What can be done:
                                 <property name="margin-end">5</property>
                                 <property name="margin-top">5</property>
                                 <property name="margin-bottom">5</property>
+                                <property name="hexpand">True</property>
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkBox">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
-                                    <property name="halign">start</property>
+                                    <property name="hexpand">True</property>
                                     <property name="spacing">20</property>
                                     <child>
                                       <object class="GtkBox">
@@ -8107,7 +8108,7 @@ What can be done:
                                           <object class="GtkLabel" id="window-options-serial-list-title">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="label" translatable="yes">Serial Port:</property>
+                                            <property name="label" translatable="yes">Device location:</property>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -8119,10 +8120,10 @@ What can be done:
                                           <object class="GtkEntry" id="options-device-location">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="placeholder-text" translatable="yes">/dev/ttyUSB0 COM1</property>
+                                            <property name="placeholder-text" translatable="yes">/dev/ttyUSB0 COM1 127.0.0.1:35000</property>
                                           </object>
                                           <packing>
-                                            <property name="expand">False</property>
+                                            <property name="expand">True</property>
                                             <property name="fill">True</property>
                                             <property name="position">1</property>
                                           </packing>
@@ -8158,8 +8159,8 @@ What can be done:
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">False</property>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
@@ -8176,12 +8177,40 @@ What can be done:
                                     <property name="can-focus">False</property>
                                     <property name="margin-top">5</property>
                                     <property name="margin-bottom">5</property>
+                                    <property name="hexpand">True</property>
                                     <property name="spacing">5</property>
                                     <child>
-                                      <object class="GtkLabel">
+                                      <object class="GtkBox">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="label" translatable="yes">Baud Rate:</property>
+                                        <property name="orientation">vertical</property>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">Baud Rate:</property>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkLabel">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="label" translatable="yes">(only for non network dev)</property>
+                                            <style>
+                                              <class name="text-secondary"/>
+                                            </style>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">True</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
@@ -8198,7 +8227,7 @@ What can be done:
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">1</property>
+                                        <property name="position">2</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -8212,7 +8241,7 @@ What can be done:
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">2</property>
+                                        <property name="position">3</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -8226,7 +8255,7 @@ What can be done:
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">3</property>
+                                        <property name="position">4</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -8240,7 +8269,7 @@ What can be done:
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">4</property>
+                                        <property name="position">5</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -8254,19 +8283,19 @@ What can be done:
                                       <packing>
                                         <property name="expand">False</property>
                                         <property name="fill">True</property>
-                                        <property name="position">5</property>
+                                        <property name="position">6</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">False</property>
+                                    <property name="expand">True</property>
                                     <property name="fill">True</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">False</property>
+                                <property name="expand">True</property>
                                 <property name="fill">True</property>
                                 <property name="position">3</property>
                               </packing>
