@@ -47,9 +47,9 @@ typedef enum {
 typedef struct {
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
 #if defined OS_WINDOWS
-    HANDLE connexion_handle;
+    HANDLE handle;
 #elif defined OS_POSIX
-    int fdtty;
+    int handle;
     struct termios oldtio,newtio;
 #else
 #   warning Unsupported OS

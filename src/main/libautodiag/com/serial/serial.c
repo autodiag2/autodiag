@@ -16,12 +16,12 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     #if defined OS_WINDOWS
-        if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
+        if (port->implementation->handle == INVALID_HANDLE_VALUE) {
             port->status = SERIAL_STATE_NOT_OPEN;
             return DEVICE_ERROR;
         }
     #elif defined OS_POSIX
-        if (port->implementation->fdtty < 0) {
+        if (port->implementation->handle < 0) {
             port->status = SERIAL_STATE_NOT_OPEN;
             return DEVICE_ERROR;
         }
@@ -31,9 +31,9 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     int bytes_sent = 0;
     int write_len_rv = 0;
     #if defined OS_WINDOWS
-        final int poll_result = file_pool_write(&port->implementation->connexion_handle, port->timeout);
+        final int poll_result = file_pool_write(&port->implementation->handle, port->timeout);
     #elif defined OS_POSIX
-        final int poll_result = file_pool_write(&port->implementation->fdtty, port->timeout);
+        final int poll_result = file_pool_write(&port->implementation->handle, port->timeout);
     #else
     #   warning OS unsupported
     #endif
@@ -47,8 +47,8 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        if (isSocketHandle(port->implementation->connexion_handle)) {
-            SOCKET s = (SOCKET)port->implementation->connexion_handle;
+        if (isSocketHandle(port->implementation->handle)) {
+            SOCKET s = (SOCKET)port->implementation->handle;
 
             int sent = send(s, (const char *)tx_buf, bytes_to_send, 0);
             if (sent <= 0 || sent != bytes_to_send) {
@@ -58,10 +58,10 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
             }
             bytes_sent = sent;
         } else {
-            if ( isComPort(port->implementation->connexion_handle) ) {
-                PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            if ( isComPort(port->implementation->handle) ) {
+                PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             }
-            if (!WriteFile(port->implementation->connexion_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
+            if (!WriteFile(port->implementation->handle, tx_buf, bytes_to_send, &bytes_written, null)) {
                 log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                 serial_close(port);
                 return DEVICE_ERROR;
@@ -74,14 +74,14 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
             return DEVICE_ERROR;
         }
     #elif defined OS_POSIX
-        bytes_sent = write(port->implementation->fdtty,tx_buf,bytes_to_send);
+        bytes_sent = write(port->implementation->handle,tx_buf,bytes_to_send);
         if ( bytes_sent != bytes_to_send ) {
             perror(port->location);
             log_msg(LOG_ERROR, "Error while writting to the serial");
             serial_close(port);
             return DEVICE_ERROR;
         } else {
-            tcflush(port->implementation->fdtty, TCIFLUSH);
+            tcflush(port->implementation->handle, TCIFLUSH);
         }
     
     #else
@@ -107,14 +107,14 @@ int serial_recv_internal(final Serial * port) {
     } else {
         final unsigned int initial_buffer_sz = port->recv_buffer->size;
         #if defined OS_WINDOWS
-            if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
+            if (port->implementation->handle == INVALID_HANDLE_VALUE) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
             } else {        
                 DWORD bytes_readed = 0;
 
                 int readLen = 0;
-                int res = file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout);
+                int res = file_pool_read(&port->implementation->handle, &readLen, port->timeout);
 
                 if ( res == -1 ) {
                     log_msg(LOG_ERROR, "Error while polling");
@@ -124,8 +124,8 @@ int serial_recv_internal(final Serial * port) {
                 
                 while(0 < res && 0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
-                    if (isSocketHandle(port->implementation->connexion_handle)) {
-                        SOCKET s = (SOCKET)port->implementation->connexion_handle;
+                    if (isSocketHandle(port->implementation->handle)) {
+                        SOCKET s = (SOCKET)port->implementation->handle;
                         int r = recv(
                             s,
                             (char *)port->recv_buffer->buffer + port->recv_buffer->size,
@@ -141,7 +141,7 @@ int serial_recv_internal(final Serial * port) {
                             return DEVICE_ERROR;
                         }
                     } else {
-                        if ( ReadFile(port->implementation->connexion_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
+                        if ( ReadFile(port->implementation->handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
                             if( readLen == bytes_readed ) {
                                 port->recv_buffer->size += bytes_readed;
                                 if ( log_has_level(LOG_DEBUG) ) {
@@ -155,7 +155,7 @@ int serial_recv_internal(final Serial * port) {
                             log_msg(LOG_ERROR, "ReadFile error 2");
                         }
                     }
-                    res = file_pool_read(&port->implementation->connexion_handle, &readLen, port->timeout_seq);
+                    res = file_pool_read(&port->implementation->handle, &readLen, port->timeout_seq);
                     if ( res == -1 ) {
                         log_msg(LOG_ERROR, "Error while polling");
                     } else if ( res == 0 ) {
@@ -164,16 +164,16 @@ int serial_recv_internal(final Serial * port) {
                 }
             }
         #elif defined OS_POSIX
-            if (port->implementation->fdtty < 0) {
+            if (port->implementation->handle < 0) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
             } else {
                 int block_sz = 64;
-                int res = file_pool_read(&port->implementation->fdtty, null, port->timeout);
+                int res = file_pool_read(&port->implementation->handle, null, port->timeout);
                 if ( 0 < res ) {
-                    while( 0 < res && port->implementation->fdtty != -1 ) {
+                    while( 0 < res && port->implementation->handle != -1 ) {
                         buffer_ensure_capacity(port->recv_buffer, block_sz);
-                        final int bytes_readed = read(port->implementation->fdtty, port->recv_buffer->buffer + port->recv_buffer->size, block_sz);
+                        final int bytes_readed = read(port->implementation->handle, port->recv_buffer->buffer + port->recv_buffer->size, block_sz);
                         if( 0 < bytes_readed ) {
                             port->recv_buffer->size += bytes_readed;
                         } else if ( bytes_readed == 0 ) {
@@ -182,7 +182,7 @@ int serial_recv_internal(final Serial * port) {
                             perror("read");
                             break;
                         }
-                        res = file_pool_read(&port->implementation->fdtty, null, port->timeout_seq);
+                        res = file_pool_read(&port->implementation->handle, null, port->timeout_seq);
                     }
                     if ( log_has_level(LOG_DEBUG) ) {
                         module_debug(MODULE_SERIAL "Serial data received");
@@ -234,8 +234,8 @@ int serial_open(final Serial * port) {
 
         #if defined OS_WINDOWS
 
-            port->implementation->connexion_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-            if (port->implementation->connexion_handle == INVALID_HANDLE_VALUE) {
+            port->implementation->handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            if (port->implementation->handle == INVALID_HANDLE_VALUE) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
@@ -243,7 +243,7 @@ int serial_open(final Serial * port) {
                 log_msg(LOG_DEBUG, "Openning port: %s", port->location);
             }
             
-            if ( isComPort(port->implementation->connexion_handle) ) {
+            if ( isComPort(port->implementation->handle) ) {
                 #define TX_TIMEOUT_MULTIPLIER    0
                 #define TX_TIMEOUT_CONSTANT      1000
 
@@ -253,9 +253,9 @@ int serial_open(final Serial * port) {
     
                 ZeroMemory(&dcb, sizeof(DCB));
                 dcb.DCBlength = sizeof(DCB);
-                if (!GetCommState(port->implementation->connexion_handle, &dcb)) {
+                if (!GetCommState(port->implementation->handle, &dcb)) {
                     log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
-                    CloseHandle(port->implementation->connexion_handle);
+                    CloseHandle(port->implementation->handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
                 dcb.BaudRate = port->baud_rate;
@@ -272,9 +272,9 @@ int serial_open(final Serial * port) {
                 dcb.fDsrSensitivity = FALSE;
                 dcb.fErrorChar = FALSE;
                 dcb.fAbortOnError = FALSE;
-                if (!SetCommState(port->implementation->connexion_handle, &dcb)) {
+                if (!SetCommState(port->implementation->handle, &dcb)) {
                     log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
-                    CloseHandle(port->implementation->connexion_handle);
+                    CloseHandle(port->implementation->handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
 
@@ -284,37 +284,37 @@ int serial_open(final Serial * port) {
                 timeouts.ReadTotalTimeoutConstant = port->timeout;
                 timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
                 timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-                if (!SetCommTimeouts(port->implementation->connexion_handle, &timeouts)) {
+                if (!SetCommTimeouts(port->implementation->handle, &timeouts)) {
                     log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
-                    CloseHandle(port->implementation->connexion_handle);
+                    CloseHandle(port->implementation->handle);
                     return GENERIC_FUNCTION_ERROR;
                 }
 
                 // Hack to get around Windows 2000 multiplying timeout values by 15
-                GetCommTimeouts(port->implementation->connexion_handle, &timeouts);
+                GetCommTimeouts(port->implementation->handle, &timeouts);
                 if (TX_TIMEOUT_MULTIPLIER > 0) {
                     timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
                 }
                 if (TX_TIMEOUT_CONSTANT > 0) {
                     timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
                 }
-                SetCommTimeouts(port->implementation->connexion_handle, &timeouts);
+                SetCommTimeouts(port->implementation->handle, &timeouts);
 
                 // If the port is Bluetooth, make sure device is active
-                PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-                WriteFile(port->implementation->connexion_handle, "?\r", 2, &bytes_written, 0);
-                PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                WriteFile(port->implementation->handle, "?\r", 2, &bytes_written, 0);
+                PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 if (bytes_written != 2) { // If Tx timeout occured
                     log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
-                    CloseHandle(port->implementation->connexion_handle);
+                    CloseHandle(port->implementation->handle);
                     port->status = SERIAL_STATE_OPEN_ERROR;
                     return GENERIC_FUNCTION_ERROR;
                 }
             }
 
         #elif defined OS_POSIX
-            port->implementation->fdtty = open(port->location, O_RDWR | O_NOCTTY);
-            if (port->implementation->fdtty < 0) {
+            port->implementation->handle = open(port->location, O_RDWR | O_NOCTTY);
+            if (port->implementation->handle < 0) {
                 perror(port->location);
                 if ( errno == ENOENT ) {
                     port->status = SERIAL_STATE_DISCONNECTED;
@@ -326,7 +326,7 @@ int serial_open(final Serial * port) {
                 return GENERIC_FUNCTION_ERROR;
             }
 
-            tcgetattr(port->implementation->fdtty, &(port->implementation->oldtio)); /* save current port settings */
+            tcgetattr(port->implementation->handle, &(port->implementation->oldtio)); /* save current port settings */
 
             bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
 
@@ -347,8 +347,8 @@ int serial_open(final Serial * port) {
             port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
             port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
-            tcflush(port->implementation->fdtty, TCIFLUSH);
-            tcsetattr(port->implementation->fdtty,TCSANOW,&(port->implementation->newtio));
+            tcflush(port->implementation->handle, TCIFLUSH);
+            tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->newtio));
         #else
         #   warning Unsupported OS            
         #endif
@@ -366,15 +366,15 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                if ( isComPort(port->implementation->connexion_handle) ) {
-                    PurgeComm(port->implementation->connexion_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                if ( isComPort(port->implementation->handle) ) {
+                    PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
                 }
-                CloseHandle(port->implementation->connexion_handle);
-                port->implementation->connexion_handle = INVALID_HANDLE_VALUE;
+                CloseHandle(port->implementation->handle);
+                port->implementation->handle = INVALID_HANDLE_VALUE;
             #elif defined OS_POSIX
-                tcsetattr(port->implementation->fdtty,TCSANOW,&(port->implementation->oldtio)); /* restore old port settings */
-                close(port->implementation->fdtty);
-                port->implementation->fdtty = -1;
+                tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->oldtio)); /* restore old port settings */
+                close(port->implementation->handle);
+                port->implementation->handle = -1;
             #else
             #   warning Unsupported OS
             #endif
@@ -430,9 +430,9 @@ void serial_init(final Serial* serial) {
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     #if defined OS_WINDOWS
-        serial->implementation->connexion_handle = INVALID_HANDLE_VALUE;
+        serial->implementation->handle = INVALID_HANDLE_VALUE;
     #elif defined OS_POSIX
-        serial->implementation->fdtty = -1;
+        serial->implementation->handle = -1;
     #else
     #   warning Unsupported OS
     #endif
