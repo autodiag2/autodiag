@@ -217,6 +217,25 @@ int serial_recv_internal(final Serial * port) {
 
 GEN_SERIAL_RECV(serial_recv,Serial,SERIAL_RECV_ITERATOR)
 
+bool serial_location_is_network(final Serial *port) {
+    if (port == null || port->location == null) {
+        return false;
+    }
+
+    static const char *pattern =
+        "^[0-9]{1,3}(\\.[0-9]{1,3}){3}(:[0-9]{1,5})?$";
+
+    regex_t re;
+    if (regcomp(&re, pattern, REG_EXTENDED | REG_NOSUB) != 0) {
+        return false;
+    }
+
+    int ok = regexec(&re, port->location, 0, null, 0) == 0;
+    regfree(&re);
+
+    return ok;
+}
+
 int serial_open(final Serial * port) {
     if ( port == null ) {
         log_msg(LOG_INFO, "Open: Cannot open since not serial port info given");
@@ -230,11 +249,61 @@ int serial_open(final Serial * port) {
             return GENERIC_FUNCTION_ERROR;
         }
 
-        assert(0 <= port->baud_rate);
+        const char *addr = port->location;
+        char host[500];
+        char port_str[8] = "35000";
+        if ( serial_location_is_network(port) ) {
+            const char *colon = strchr(addr, ':');
+            if (colon) {
+                size_t len = colon - addr;
+                if (len >= sizeof(host)) return GENERIC_FUNCTION_ERROR;
+                memcpy(host, addr, len);
+                host[len] = 0;
+                strncpy(port_str, colon + 1, sizeof(port_str) - 1);
+            } else {
+                strncpy(host, addr, sizeof(host) - 1);
+            }
+        }
 
         #if defined OS_WINDOWS
+            if ( serial_location_is_network(port) ) {
+                WSADATA wsa;
+                if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+                    log_msg(LOG_ERROR, "WSAStartup failed");
+                    return GENERIC_FUNCTION_ERROR;
+                }
 
-            port->implementation->handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+                SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+                if (s == INVALID_SOCKET) {
+                    log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
+                    WSACleanup();
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                struct sockaddr_in sa;
+                ZeroMemory(&sa, sizeof(sa));
+                sa.sin_family = AF_INET;
+                sa.sin_port = htons((u_short)atoi(port_str));
+
+                if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+                    log_msg(LOG_ERROR, "invalid address: %s", host);
+                    closesocket(s);
+                    WSACleanup();
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
+                    log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
+                    closesocket(s);
+                    WSACleanup();
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                port->implementation->handle = (HANDLE)s;
+                log_msg(LOG_DEBUG, "Opening TCP connection: %s", port->location);
+            } else {
+                port->implementation->handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+            }
             if (port->implementation->handle == INVALID_HANDLE_VALUE) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
                 port->status = SERIAL_STATE_OPEN_ERROR;
@@ -244,6 +313,7 @@ int serial_open(final Serial * port) {
             }
             
             if ( isComPort(port->implementation->handle) ) {
+                assert(0 <= port->baud_rate);
                 #define TX_TIMEOUT_MULTIPLIER    0
                 #define TX_TIMEOUT_CONSTANT      1000
 
@@ -313,42 +383,70 @@ int serial_open(final Serial * port) {
             }
 
         #elif defined OS_POSIX
-            port->implementation->handle = open(port->location, O_RDWR | O_NOCTTY);
-            if (port->implementation->handle < 0) {
-                perror(port->location);
-                if ( errno == ENOENT ) {
-                    port->status = SERIAL_STATE_DISCONNECTED;
-                } else if ( errno == EPERM ) {
-                    port->status = SERIAL_STATE_MISSING_PERM;
-                } else {
-                    port->status = SERIAL_STATE_OPEN_ERROR;
+            if (serial_location_is_network(port)) {
+                int fd = socket(AF_INET, SOCK_STREAM, 0);
+                if (fd < 0) {
+                    perror("socket");
+                    return GENERIC_FUNCTION_ERROR;
                 }
-                return GENERIC_FUNCTION_ERROR;
+
+                struct sockaddr_in sa;
+                bzero(&sa, sizeof(sa));
+                sa.sin_family = AF_INET;
+                sa.sin_port = htons(atoi(port_str));
+
+                if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+                    perror("inet_pton");
+                    close(fd);
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+                    perror("connect");
+                    close(fd);
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                port->implementation->handle = fd;
+            } else {
+                assert(0 <= port->baud_rate);
+                port->implementation->handle = open(port->location, O_RDWR | O_NOCTTY);
+                if (port->implementation->handle < 0) {
+                    perror(port->location);
+                    if ( errno == ENOENT ) {
+                        port->status = SERIAL_STATE_DISCONNECTED;
+                    } else if ( errno == EPERM ) {
+                        port->status = SERIAL_STATE_MISSING_PERM;
+                    } else {
+                        port->status = SERIAL_STATE_OPEN_ERROR;
+                    }
+                    return GENERIC_FUNCTION_ERROR;
+                }
+
+                tcgetattr(port->implementation->handle, &(port->implementation->oldtio)); /* save current port settings */
+
+                bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
+
+                cfsetspeed(&(port->implementation->newtio), port->baud_rate);
+
+                cfmakeraw(&(port->implementation->newtio));
+                port->implementation->newtio.c_cflag |= (CLOCAL | CREAD);
+
+                // No parity (8N1):
+                port->implementation->newtio.c_cflag &= ~PARENB;
+                port->implementation->newtio.c_cflag &= ~CSTOPB;
+                port->implementation->newtio.c_cflag &= ~CSIZE;
+                port->implementation->newtio.c_cflag |= CS8;
+
+                // disable hardware flow control
+                port->implementation->newtio.c_cflag &= ~CRTSCTS ;
+
+                port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
+                port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
+
+                tcflush(port->implementation->handle, TCIFLUSH);
+                tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->newtio));
             }
-
-            tcgetattr(port->implementation->handle, &(port->implementation->oldtio)); /* save current port settings */
-
-            bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
-
-            cfsetspeed(&(port->implementation->newtio), port->baud_rate);
-
-            cfmakeraw(&(port->implementation->newtio));
-            port->implementation->newtio.c_cflag |= (CLOCAL | CREAD);
-
-            // No parity (8N1):
-            port->implementation->newtio.c_cflag &= ~PARENB;
-            port->implementation->newtio.c_cflag &= ~CSTOPB;
-            port->implementation->newtio.c_cflag &= ~CSIZE;
-            port->implementation->newtio.c_cflag |= CS8;
-
-            // disable hardware flow control
-            port->implementation->newtio.c_cflag &= ~CRTSCTS ;
-
-            port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-            port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
-
-            tcflush(port->implementation->handle, TCIFLUSH);
-            tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->newtio));
         #else
         #   warning Unsupported OS            
         #endif
