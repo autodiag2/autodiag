@@ -464,15 +464,26 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                if ( isComPort(port->implementation->handle) ) {
+                if (isSocketHandle(port->implementation->handle)) {
+                    SOCKET s = (SOCKET)port->implementation->handle;
+                    shutdown(s, SD_BOTH);
+                    closesocket(s);
+                } else if ( isComPort(port->implementation->handle) ) {
                     PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+                    CloseHandle(port->implementation->handle);
                 }
-                CloseHandle(port->implementation->handle);
                 port->implementation->handle = INVALID_HANDLE_VALUE;
             #elif defined OS_POSIX
-                tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->oldtio)); /* restore old port settings */
-                close(port->implementation->handle);
-                port->implementation->handle = -1;
+                if (port->implementation->handle >= 0) {
+                    if (!serial_location_is_network(port)) {
+                        tcsetattr(port->implementation->handle,
+                                TCSANOW,
+                                &port->implementation->oldtio);
+                    }
+                    shutdown(port->implementation->handle, SHUT_RDWR);
+                    close(port->implementation->handle);
+                    port->implementation->handle = -1;
+                }
             #else
             #   warning Unsupported OS
             #endif
