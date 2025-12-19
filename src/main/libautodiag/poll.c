@@ -13,29 +13,33 @@ int file_pool_read(void *handle, int *readLen_rv, int timeout_ms) {
         int sleep_length_ms = 20;
         final int max_tries = timeout_ms / sleep_length_ms ;
         int tries = 0;
-        if ( isSocketHandle(connection_handle) ) {
-            SOCKET s = (SOCKET)connection_handle;
-            
-            WSAPOLLFD pfd = {
-                .fd = s,
-                .events = POLLRDNORM
-            };
-            
-            int res = WSAPoll(&pfd, 1, timeout_ms);
-            if (res <= 0) {
-                return res;
-            }
+        #ifndef OS_POSIX
+            if ( isSocketHandle(connection_handle) ) {
+                SOCKET s = (SOCKET)connection_handle;
+                
+                WSAPOLLFD pfd = {
+                    .fd = s,
+                    .events = POLLRDNORM
+                };
+                
+                int res = WSAPoll(&pfd, 1, timeout_ms);
+                if (res <= 0) {
+                    return res;
+                }
 
-            if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
-                return -1;
-            }
+                if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                    return -1;
+                }
 
-            u_long avail = 0;
-            if (ioctlsocket(s, FIONREAD, &avail) != 0) {
-                return -1;
-            }
-            readLen = avail;
-        } else if ( isComPort(connection_handle) ) {
+                u_long avail = 0;
+                if (ioctlsocket(s, FIONREAD, &avail) != 0) {
+                    return -1;
+                }
+                readLen = avail;
+            } else 
+        #endif
+        
+        if ( isComPort(connection_handle) ) {
             for(tries = 0; tries < max_tries && readLen == 0; tries++) {
                 DWORD errors;
                 COMSTAT stat = {0};
@@ -99,25 +103,28 @@ int file_pool_write(void *handle, int timeout_ms) {
             int sleep_length_ms = 20;
             final int max_tries = timeout_ms / sleep_length_ms ;
             int tries = 0;
-            if ( isSocketHandle(connection_handle) ) {
-                SOCKET s = (SOCKET)connection_handle;
+            #ifndef OS_POSIX
+                if ( isSocketHandle(connection_handle) ) {
+                    SOCKET s = (SOCKET)connection_handle;
 
-                WSAPOLLFD pfd = {
-                    .fd = s,
-                    .events = POLLWRNORM
-                };
+                    WSAPOLLFD pfd = {
+                        .fd = s,
+                        .events = POLLWRNORM
+                    };
 
-                int res = WSAPoll(&pfd, 1, timeout_ms);
-                if (res <= 0) {
-                    return res;
-                }
-                if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
-                    return -1;
-                }
-                if (pfd.revents & POLLWRNORM) {
-                    return res;
-                }
-            } else if (isComPort(connection_handle)) {
+                    int res = WSAPoll(&pfd, 1, timeout_ms);
+                    if (res <= 0) {
+                        return res;
+                    }
+                    if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                        return -1;
+                    }
+                    if (pfd.revents & POLLWRNORM) {
+                        return res;
+                    }
+                } else 
+            #endif
+            if (isComPort(connection_handle)) {
                 for(tries = 0; tries < max_tries; tries++) {
                     COMSTAT stat = {0};
                     DWORD errors = 0;

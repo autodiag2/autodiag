@@ -5,11 +5,15 @@
 #include "libautodiag/compile_target.h"
 
 #ifdef OS_WINDOWS
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
+#   ifndef OS_POSIX
+#       include <winsock2.h>
+#       include <ws2tcpip.h>
+#   endif
 #   include <windows.h>
     bool isComPort(HANDLE file);
-    int isSocketHandle(HANDLE h);
+#   ifndef OS_POSIX
+        int isSocketHandle(HANDLE h);
+#   endif
 #endif
 
 #endif

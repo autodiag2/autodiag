@@ -47,17 +47,20 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        if (isSocketHandle(port->implementation->handle)) {
-            SOCKET s = (SOCKET)port->implementation->handle;
+        #ifndef OS_POSIX
+            if (isSocketHandle(port->implementation->handle)) {
+                SOCKET s = (SOCKET)port->implementation->handle;
 
-            int sent = send(s, (const char *)tx_buf, bytes_to_send, 0);
-            if (sent <= 0 || sent != bytes_to_send) {
-                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
-                serial_close(port);
-                return DEVICE_ERROR;
-            }
-            bytes_sent = sent;
-        } else {
+                int sent = send(s, (const char *)tx_buf, bytes_to_send, 0);
+                if (sent <= 0 || sent != bytes_to_send) {
+                    log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                    serial_close(port);
+                    return DEVICE_ERROR;
+                }
+                bytes_sent = sent;
+            } else 
+        #endif
+        {
             if ( isComPort(port->implementation->handle) ) {
                 PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             }
@@ -124,23 +127,26 @@ int serial_recv_internal(final Serial * port) {
                 
                 while(0 < res && 0 < readLen) {
                     buffer_ensure_capacity(port->recv_buffer, readLen);
-                    if (isSocketHandle(port->implementation->handle)) {
-                        SOCKET s = (SOCKET)port->implementation->handle;
-                        int r = recv(
-                            s,
-                            (char *)port->recv_buffer->buffer + port->recv_buffer->size,
-                            readLen,
-                            0
-                        );
+                    #ifndef OS_POSIX
+                        if (isSocketHandle(port->implementation->handle)) {
+                            SOCKET s = (SOCKET)port->implementation->handle;
+                            int r = recv(
+                                s,
+                                (char *)port->recv_buffer->buffer + port->recv_buffer->size,
+                                readLen,
+                                0
+                            );
 
-                        if (r > 0) {
-                            port->recv_buffer->size += r;
-                        } else {
-                            log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
-                            serial_close(port);
-                            return DEVICE_ERROR;
-                        }
-                    } else {
+                            if (r > 0) {
+                                port->recv_buffer->size += r;
+                            } else {
+                                log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
+                                serial_close(port);
+                                return DEVICE_ERROR;
+                            }
+                        } else 
+                    #endif
+                    {
                         if ( ReadFile(port->implementation->handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
                             if( readLen == bytes_readed ) {
                                 port->recv_buffer->size += bytes_readed;
@@ -292,41 +298,46 @@ int serial_open(final Serial * port) {
         }
 
         #if defined OS_WINDOWS
+            port->implementation->handle == INVALID_HANDLE_VALUE;
             if ( serial_location_is_network(port) ) {
-                WSADATA wsa;
-                if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-                    log_msg(LOG_ERROR, "WSAStartup failed");
-                    return GENERIC_FUNCTION_ERROR;
-                }
+                #ifdef OS_POSIX
+                    log_msg(LOG_ERROR, "Unsupported under msys2");
+                #else
+                    WSADATA wsa;
+                    if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+                        log_msg(LOG_ERROR, "WSAStartup failed");
+                        return GENERIC_FUNCTION_ERROR;
+                    }
 
-                SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-                if (s == INVALID_SOCKET) {
-                    log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
+                    SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+                    if (s == INVALID_SOCKET) {
+                        log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
+                        WSACleanup();
+                        return GENERIC_FUNCTION_ERROR;
+                    }
 
-                struct sockaddr_in sa;
-                ZeroMemory(&sa, sizeof(sa));
-                sa.sin_family = AF_INET;
-                sa.sin_port = htons((u_short)atoi(port_str));
+                    struct sockaddr_in sa;
+                    ZeroMemory(&sa, sizeof(sa));
+                    sa.sin_family = AF_INET;
+                    sa.sin_port = htons((u_short)atoi(port_str));
 
-                if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
-                    log_msg(LOG_ERROR, "invalid address: %s", host);
-                    closesocket(s);
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
+                    if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+                        log_msg(LOG_ERROR, "invalid address: %s", host);
+                        closesocket(s);
+                        WSACleanup();
+                        return GENERIC_FUNCTION_ERROR;
+                    }
 
-                if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
-                    log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
-                    closesocket(s);
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
+                    if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
+                        log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
+                        closesocket(s);
+                        WSACleanup();
+                        return GENERIC_FUNCTION_ERROR;
+                    }
 
-                port->implementation->handle = (HANDLE)s;
-                log_msg(LOG_DEBUG, "Opening TCP connection: %s", port->location);
+                    port->implementation->handle = (HANDLE)s;
+                    log_msg(LOG_DEBUG, "Opening TCP connection: %s", port->location);
+                #endif
             } else {
                 port->implementation->handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             }
@@ -490,11 +501,14 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                if (isSocketHandle(port->implementation->handle)) {
-                    SOCKET s = (SOCKET)port->implementation->handle;
-                    shutdown(s, SD_BOTH);
-                    closesocket(s);
-                } else if ( isComPort(port->implementation->handle) ) {
+                #ifndef OS_POSIX
+                    if (isSocketHandle(port->implementation->handle)) {
+                        SOCKET s = (SOCKET)port->implementation->handle;
+                        shutdown(s, SD_BOTH);
+                        closesocket(s);
+                    } else 
+                #endif
+                if ( isComPort(port->implementation->handle) ) {
                     PurgeComm(port->implementation->handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
                     CloseHandle(port->implementation->handle);
                 }
