@@ -21,7 +21,14 @@
 #include "libautodiag/com/device.h"
 #include "libautodiag/lib.h"
 #include <ctype.h>
-
+#if defined OS_POSIX
+#   include <sys/types.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
+#   include <unistd.h>
+#   include <errno.h>
+#endif
 #if defined OS_WINDOWS
 #   include "libautodiag/windows.h"
 #elif defined OS_POSIX
