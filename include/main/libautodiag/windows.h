@@ -9,6 +9,7 @@
 #   include <ws2tcpip.h>
 #   include <windows.h>
     bool isComPort(HANDLE file);
+    int isSocketHandle(HANDLE h);
 #endif
 
 #endif
