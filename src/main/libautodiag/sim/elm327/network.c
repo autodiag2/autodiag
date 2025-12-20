@@ -74,7 +74,7 @@ char * sim_elm327_network_location(struct sockaddr_in caddr) {
     return gprintf("%s:%d", ip, ntohs(caddr.sin_port));
 }
 
-int sim_elm327_network_is_connected(void * implPtr) {
+bool sim_elm327_network_is_connected(void * implPtr) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
     #ifdef OS_POSIX
@@ -83,29 +83,35 @@ int sim_elm327_network_is_connected(void * implPtr) {
         #else        
             sock_t handle = impl->handle;
         #endif
+        if ( handle == -1 ) {
+            return false;
+        }
     #elif defined OS_WINDOWS
         sock_t handle = impl->client_socket;
+        if ( handle == INVALID_SOCKET ) {
+            return false;
+        }
     #else
     #   warning Unsupported OS
     #endif
     char buf;
     ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
-    if (ret == 0) return 0; // connection closed by peer
+    if (ret == 0) return false; // connection closed by peer
     #if defined OS_POSIX
     #   include <fcntl.h>
     #   include <errno.h>
         if (ret == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
-            return 0; // error, consider disconnected
+            return false; // error, consider disconnected
         }
     #elif defined OS_WINDOWS
         if (ret == SOCKET_ERROR) {
             int err = WSAGetLastError();
             if (err == WSAEWOULDBLOCK) return 1;
-            return 0;
+            return false;
         }
     #else
     #   warning Unsupported OS
     #endif
-    return 1; // data available, connection alive
+    return true; // data available, connection alive
 }
