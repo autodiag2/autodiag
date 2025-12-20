@@ -3,7 +3,7 @@
 
 #include "libautodiag/lib.h"
 
-#ifdef OS_WINDOWS
+#if defined(OS_WINDOWS) && !defined(OS_POSIX)
 #   pragma comment(lib, "Ws2_32.lib")
     typedef SOCKET sock_t;
 #   define close_sock closesocket
