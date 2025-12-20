@@ -49,12 +49,12 @@ ifeq ($(OS),Windows_NT)
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi -lws2_32
+    CFLAGS_LIBS += -lsetupapi
 else ifneq (,$(findstring MINGW64_NT,$(UNAME_S)))
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi -lws2_32
+    CFLAGS_LIBS += -lsetupapi
 else ifneq (,$(findstring x86_64-w64-mingw32-,$(TOOLCHAIN)))
     SYSTEM := windows
     MACHINE := x86_64
