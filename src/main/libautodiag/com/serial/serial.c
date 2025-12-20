@@ -72,8 +72,6 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
                     log_msg(LOG_ERROR, "Error while writting to the serial");
                     serial_close(port);
                     return DEVICE_ERROR;
-                } else {
-                    tcflush(port->implementation->connection_handle, TCIFLUSH);
                 }
             } else
         #else

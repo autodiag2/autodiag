@@ -9,7 +9,8 @@
 
 #ifdef OS_WINDOWS
 #   include "libautodiag/windows.h"
-#elif defined OS_POSIX
+#endif
+#if defined OS_POSIX
 #   include <sys/ioctl.h>
 #   include <poll.h>
     typedef struct pollfd POLLFD;
