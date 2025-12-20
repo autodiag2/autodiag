@@ -68,7 +68,9 @@
 
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
 
+        final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         final Buffer *binResponse = buffer_new();
+        bool useParent = true;
         sim_ecu_generator_fill_success(binResponse, binRequest);
         switch(binRequest->buffer[0]) {
             case OBD_SERVICE_CLEAR_DTC: {
@@ -79,6 +81,7 @@
                     JNI_TRUE
                 );
                 log_msg(LOG_DEBUG, "Clearing DTCs");
+                useParent = false;
             } break;
             case OBD_SERVICE_SHOW_DTC: {
                 if ( ! dtc_cleared ) {
@@ -97,6 +100,7 @@
                         (*env)->DeleteLocalRef(env, s);
                     }
                 }
+                useParent = false;
             } break;
             case OBD_SERVICE_SHOW_CURRENT_DATA: {
                 if ( 1 < binRequest->size ) {            
@@ -109,6 +113,7 @@
                         case 0x20:
                         case 0x00: {
                             buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            useParent = false;
                         } break;
                         case 0x01: {
                             bool is_checked = mil_status;
@@ -119,6 +124,7 @@
                                 status->buffer[0] |= is_checked << 7;
                             }
                             buffer_append(binResponse, status);
+                            useParent = false;
                         } break;
                         case 0x05: {
                             int coolant_coolant_temperature_abs = coolant_temperature - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
@@ -126,6 +132,7 @@
                             double percent = (1.0 * coolant_coolant_temperature_abs) / span;
                             int value = percent * span;
                             buffer_append_byte(binResponse, (byte)(value));
+                            useParent = false;
                         } break;
                         case 0x0C: {
                             int engine_rpm_abs = engine_rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
@@ -136,6 +143,7 @@
                             byte bB = 0xFF & value;
                             buffer_append_byte(binResponse, bA);
                             buffer_append_byte(binResponse, bB);
+                            useParent = false;
                         } break;
                         case 0x0D: {
                             int vehicle_speed_abs = vehicle_speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
@@ -143,6 +151,7 @@
                             double percent = (1.0 * vehicle_speed_abs) / span;
                             int value = percent * span;
                             buffer_append_byte(binResponse, (byte)value);
+                            useParent = false;
                         } break;
                     }
                 }
@@ -152,52 +161,64 @@
                     switch(binRequest->buffer[1]) {
                         case 0x00: {
                             buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            useParent = false;
                             break;
                         }
                         case 0x01: {
                             buffer_append_byte(binResponse, 0x05);
+                            useParent = false;
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                            buffer_append(binResponse,buffer_from_ascii(vin));                
+                            buffer_append(binResponse,buffer_from_ascii(vin));   
+                            useParent = false;             
                             break;
                         }
                         case 0x03: {
                             buffer_append_byte(binResponse,0x01);
+                            useParent = false;
                             break;
                         }
                         case 0x04: {
-                            buffer_append(binResponse,buffer_new_random(16));                
+                            buffer_append(binResponse,buffer_new_random(16));  
+                            useParent = false;
                             break;
                         }
                         case 0x05: {
                             buffer_append_byte(binResponse,0x01);
+                            useParent = false;
                             break;
                         }
                         case 0x06: {
                             buffer_append(binResponse,buffer_new_random(4));
+                            useParent = false;
                             break;
                         }
                         case 0x07: {
                             buffer_append_byte(binResponse,0x01);
+                            useParent = false;
                             break;
                         }
                         case 0x08: {
                             buffer_append(binResponse,buffer_new_random(4));
+                            useParent = false;
                             break;
                         }
                         case 0x09: {
                             buffer_append_byte(binResponse,0x01);
+                            useParent = false;
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                             final Buffer * name = buffer_from_ascii(ecu_name);
                             buffer_padding(name, 20, 0x00);
                             buffer_append(binResponse, name);
+                            useParent = false;
                             break;
                         }
                         case 0x0B: {
                             buffer_append(binResponse,buffer_new_random(4));
+                            useParent = false;
                             break;
                         }
                     }
@@ -208,6 +229,9 @@
         }
         (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
         (*env)->ReleaseStringUTFChars(env, vin_j, vin);
+        if ( useParent ) {
+            return parent->response(parent, binRequest);
+        }
         return binResponse;
     }
     static char * context_to_string(SimECUGenerator * this) {
@@ -222,7 +246,7 @@
         generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
         generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
         generator->type = strdup("GUI");
-        generator->state = null;
+        generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;
     }
