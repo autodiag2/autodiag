@@ -1,5 +1,35 @@
 #include "libautodiag/poll.h"
 
+int file_pool_read_posix(int handle, int *readLen_rv, int timeout_ms) {
+    if ( readLen_rv != null ) {
+        *readLen_rv = 0;
+    }
+    #ifdef OS_POSIX
+        struct pollfd fileDescriptor = {
+            .fd = handle,
+            .events = POLLIN
+        };
+        int ret = poll(&fileDescriptor, 1, timeout_ms);
+        if ( ret > 0 ) {
+            if ( fileDescriptor.revents & POLLIN ) {
+                if (readLen_rv != null) {
+                    int available = 0;
+                    if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
+                        *readLen_rv = available;
+                    } else {
+                        *readLen_rv = 0;
+                    }
+                }
+            } else {
+                ret = -1;
+            }
+        }
+        return ret;
+    #else
+        return -1;
+    #endif
+}
+
 int file_pool_read(void *handle, int *readLen_rv, int timeout_ms) {
     if ( readLen_rv != null ) {
         *readLen_rv = 0;
@@ -71,26 +101,24 @@ int file_pool_read(void *handle, int *readLen_rv, int timeout_ms) {
         }
         return 1;
     #elif defined OS_POSIX
-        struct pollfd fileDescriptor = {
-            .fd = *((int*)handle),
-            .events = POLLIN
+        return file_pool_read_posix(*((int*)handle), readLen_rv, timeout_ms);
+    #endif
+}
+int file_pool_write_posix(int handle, int timeout_ms) {
+    #ifdef OS_POSI
+        struct pollfd pfd = {
+            .fd     = handle,
+            .events = POLLOUT
         };
-        int ret = poll(&fileDescriptor, 1, timeout_ms);
-        if ( ret > 0 ) {
-            if ( fileDescriptor.revents & POLLIN ) {
-                if (readLen_rv != null) {
-                    int available = 0;
-                    if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
-                        *readLen_rv = available;
-                    } else {
-                        *readLen_rv = 0;
-                    }
-                }
-            } else {
+        int ret = poll(&pfd, 1, timeout_ms);
+        if (0 < ret) {
+            if ( ! ( pfd.revents & POLLOUT ) ) {
                 ret = -1;
             }
         }
         return ret;
+    #else
+        return -1;
     #endif
 }
 
@@ -147,16 +175,6 @@ int file_pool_write(void *handle, int timeout_ms) {
             return 0;
         }
     #elif defined OS_POSIX
-        struct pollfd pfd = {
-            .fd     = *((int*)handle),
-            .events = POLLOUT
-        };
-        int ret = poll(&pfd, 1, timeout_ms);
-        if (0 < ret) {
-            if ( ! ( pfd.revents & POLLOUT ) ) {
-                ret = -1;
-            }
-        }
-        return ret;
+        return file_pool_write_posix(*((int*)handle), timeout_ms);
     #endif
 }

@@ -21,5 +21,7 @@
  */
 int file_pool_read(void *handle, int *readLen, int timeout_ms);
 int file_pool_write(void *handle, int timeout_ms);
+int file_pool_write_posix(int handle, int timeout_ms);
+int file_pool_read_posix(int handle, int *readLen_rv, int timeout_ms);
 
 #endif

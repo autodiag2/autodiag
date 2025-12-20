@@ -17,7 +17,7 @@ int sim_write(void * implPtr, int timeout_ms, byte * data, unsigned int data_len
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
             if (impl->network_handle != -1) {
-                final int poll_result = file_pool_write(&impl->network_handle, timeout_ms);
+                final int poll_result = file_pool_write_posix(impl->network_handle, timeout_ms);
                 if ( poll_result <= 0 ) {
                     log_msg(LOG_WARNING, "timeout reached waiting for the other end");
                     return -1;
@@ -74,7 +74,7 @@ int sim_read(void * implPtr, int timeout_ms, Buffer * readed) {
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
             if ( impl->network_handle != -1 ) {
-                int res = file_pool_read(&impl->network_handle, null, timeout_ms);
+                int res = file_pool_read_posix(impl->network_handle, null, timeout_ms);
                 if ( res == -1 ) {
                     log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
                     return -1;

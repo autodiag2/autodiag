@@ -16,6 +16,15 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     #if defined OS_WINDOWS
+        #ifdef OS_POSIX
+            if ( port->implementation->connection_handle == -1 ) {
+                port->status = SERIAL_STATE_NOT_OPEN;
+                return DEVICE_ERROR;
+            }
+            if ( port->implementation->connection_handle != -1 ) {
+
+            } else
+        #endif
         if (port->implementation->handle == INVALID_HANDLE_VALUE) {
             port->status = SERIAL_STATE_NOT_OPEN;
             return DEVICE_ERROR;
@@ -30,10 +39,18 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #endif
     int bytes_sent = 0;
     int write_len_rv = 0;
+    int poll_result = -1;
     #if defined OS_WINDOWS
-        final int poll_result = file_pool_write(&port->implementation->handle, port->timeout);
+        #ifdef OS_POSIX
+            if ( port->implementation->connection_handle != -1 ) {
+                poll_result = file_pool_write_posix(port->implementation->connection_handle, port->timeout);
+            } else 
+        #endif
+        {
+            poll_result = file_pool_write(&port->implementation->handle, port->timeout);
+        }
     #elif defined OS_POSIX
-        final int poll_result = file_pool_write(&port->implementation->handle, port->timeout);
+        poll_result = file_pool_write(&port->implementation->handle, port->timeout);
     #else
     #   warning OS unsupported
     #endif
@@ -47,7 +64,19 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        #ifndef OS_POSIX
+        #ifdef OS_POSIX
+            if ( port->implementation->connection_handle != -1 ) {
+                bytes_sent = write(port->implementation->connection_handle,tx_buf,bytes_to_send);
+                if ( bytes_sent != bytes_to_send ) {
+                    perror(port->location);
+                    log_msg(LOG_ERROR, "Error while writting to the serial");
+                    serial_close(port);
+                    return DEVICE_ERROR;
+                } else {
+                    tcflush(port->implementation->connection_handle, TCIFLUSH);
+                }
+            } else
+        #else
             if (isSocketHandle(port->implementation->handle)) {
                 SOCKET s = (SOCKET)port->implementation->handle;
 
@@ -110,6 +139,37 @@ int serial_recv_internal(final Serial * port) {
     } else {
         final unsigned int initial_buffer_sz = port->recv_buffer->size;
         #if defined OS_WINDOWS
+            #ifdef OS_POSIX
+                if ( port->implementation->connection_handle != -1 ) {
+                    int block_sz = 64;
+                    int res = file_pool_read_posix(port->implementation->connection_handle, null, port->timeout);
+                    if ( 0 < res ) {
+                        while( 0 < res && port->implementation->connection_handle != -1 ) {
+                            buffer_ensure_capacity(port->recv_buffer, block_sz);
+                            final int bytes_readed = read(port->implementation->connection_handle, port->recv_buffer->buffer + port->recv_buffer->size, block_sz);
+                            if( 0 < bytes_readed ) {
+                                port->recv_buffer->size += bytes_readed;
+                            } else if ( bytes_readed == 0 ) {
+                                break;
+                            } else {
+                                perror("read");
+                                break;
+                            }
+                            res = file_pool_read_posix(port->implementation->connection_handle, null, port->timeout_seq);
+                        }
+                        if ( log_has_level(LOG_DEBUG) ) {
+                            module_debug(MODULE_SERIAL "Serial data received");
+                            buffer_dump(port->recv_buffer);
+                        }
+                    } else if ( res == -1 ) {
+                        perror("poll");
+                    } else if ( res == 0 ) {
+                        log_msg(LOG_DEBUG, "Timeout while reading data");
+                    } else {
+                        log_msg(LOG_ERROR, "unexpected happen on serial line");
+                    }
+                } else
+            #endif
             if (port->implementation->handle == INVALID_HANDLE_VALUE) {
                port->status = SERIAL_STATE_NOT_OPEN;
                return DEVICE_ERROR;
@@ -299,9 +359,35 @@ int serial_open(final Serial * port) {
 
         #if defined OS_WINDOWS
             port->implementation->handle == INVALID_HANDLE_VALUE;
+            #if defined OS_POSIX
+                port->implementation->connection_handle = -1;
+            #endif
             if ( serial_location_is_network(port) ) {
                 #ifdef OS_POSIX
-                    log_msg(LOG_ERROR, "Unsupported under msys2");
+                    int fd = socket(AF_INET, SOCK_STREAM, 0);
+                    if (fd < 0) {
+                        perror("socket");
+                        return GENERIC_FUNCTION_ERROR;
+                    }
+
+                    struct sockaddr_in sa;
+                    bzero(&sa, sizeof(sa));
+                    sa.sin_family = AF_INET;
+                    sa.sin_port = htons(atoi(port_str));
+
+                    if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+                        perror("inet_pton");
+                        close(fd);
+                        return GENERIC_FUNCTION_ERROR;
+                    }
+
+                    if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+                        perror("connect");
+                        close(fd);
+                        return GENERIC_FUNCTION_ERROR;
+                    }
+
+                    port->implementation->connection_handle = fd;
                 #else
                     WSADATA wsa;
                     if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
@@ -501,7 +587,13 @@ void serial_close(final Serial * port) {
     } else {
         if (port->status == SERIAL_STATE_READY) {
             #if defined OS_WINDOWS
-                #ifndef OS_POSIX
+                #ifdef OS_POSIX
+                    if (port->implementation->connection_handle >= 0) {
+                        shutdown(port->implementation->connection_handle, SHUT_RDWR);
+                        close(port->implementation->connection_handle);
+                        port->implementation->connection_handle = -1;
+                    } else
+                #else
                     if (isSocketHandle(port->implementation->handle)) {
                         SOCKET s = (SOCKET)port->implementation->handle;
                         shutdown(s, SD_BOTH);
@@ -580,6 +672,9 @@ void serial_init(final Serial* serial) {
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     #if defined OS_WINDOWS
         serial->implementation->handle = INVALID_HANDLE_VALUE;
+        #ifdef OS_POSIX
+            serial->implementation->connection_handle = -1;
+        #endif
     #elif defined OS_POSIX
         serial->implementation->handle = -1;
     #else

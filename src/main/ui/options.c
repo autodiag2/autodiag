@@ -304,9 +304,6 @@ static void show_window() {
     if ( config.recorder.filepath ) {
         gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
     }
-    #ifdef OS_WINDOWS
-        gtk_widget_set_sensitive(GTK_WIDGET(gui->simulator.networkSim), false);
-    #endif
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);

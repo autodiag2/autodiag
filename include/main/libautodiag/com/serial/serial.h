@@ -55,6 +55,9 @@ typedef struct {
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
 #if defined OS_WINDOWS
     HANDLE handle;
+    #ifdef OS_POSIX
+        int connection_handle;
+    #endif
 #elif defined OS_POSIX
     int handle;
     struct termios oldtio,newtio;
