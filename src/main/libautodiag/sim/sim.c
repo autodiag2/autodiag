@@ -15,13 +15,27 @@ int sim_write(void * implPtr, int timeout_ms, byte * data, unsigned int data_len
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
     assert(data != null);
     #ifdef OS_WINDOWS
-        if (impl->client_socket != INVALID_SOCKET) {
-            int ret = send(impl->client_socket, (const char*)data, (int)data_len, 0);
-            if (ret == SOCKET_ERROR) {
-                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
-                return -1;
-            }
-            return ret;
+        #ifdef OS_POSIX
+            if (impl->network_handle != -1) {
+                final int poll_result = file_pool_write(&impl->network_handle, timeout_ms);
+                if ( poll_result <= 0 ) {
+                    log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+                    return -1;
+                }
+                int bytes_written = write(impl->network_handle, data, data_len);
+                if ( bytes_written == -1 ) {
+                    perror("write");
+                }
+                return bytes_written;
+        #else
+            if (impl->client_socket != INVALID_SOCKET) {
+                int ret = send(impl->client_socket, (const char*)data, (int)data_len, 0);
+                if (ret == SOCKET_ERROR) {
+                    log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                    return -1;
+                }
+                return ret;
+        #endif
         } else {
             assert(impl->handle != INVALID_HANDLE_VALUE);
             final int poll_result = file_pool_write(&impl->handle, timeout_ms);
@@ -58,27 +72,45 @@ int sim_read(void * implPtr, int timeout_ms, Buffer * readed) {
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
     #ifdef OS_WINDOWS
-        if (impl->client_socket != INVALID_SOCKET) {
-            fd_set rfds;
-            FD_ZERO(&rfds);
-            FD_SET(impl->client_socket, &rfds);
+        #ifdef OS_POSIX
+            if ( impl->network_handle != -1 ) {
+                int res = file_pool_read(&impl->network_handle, null, timeout_ms);
+                if ( res == -1 ) {
+                    log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+                    return -1;
+                }
+                int rv = read(impl->network_handle,readed->buffer,readed->size_allocated-1);
+                if ( rv == -1 ) {
+                    log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+                    return -1;
+                }
+                readed->size = rv;
+                return rv;
+            }
+        #else
+            if (impl->client_socket != INVALID_SOCKET) {
+                fd_set rfds;
+                FD_ZERO(&rfds);
+                FD_SET(impl->client_socket, &rfds);
 
-            struct timeval tv;
-            tv.tv_sec = timeout_ms / 1000;
-            tv.tv_usec = (timeout_ms % 1000) * 1000;
+                struct timeval tv;
+                tv.tv_sec = timeout_ms / 1000;
+                tv.tv_usec = (timeout_ms % 1000) * 1000;
 
-            int sel = select(0, &rfds, null, null, &tv);
-            if (sel <= 0) return -1;
+                int sel = select(0, &rfds, null, null, &tv);
+                if (sel <= 0) return -1;
 
-            int ret = recv(impl->client_socket,
-                        (char*)readed->buffer,
-                        readed->size_allocated - 1,
-                        0);
+                int ret = recv(impl->client_socket,
+                            (char*)readed->buffer,
+                            readed->size_allocated - 1,
+                            0);
 
-            if (ret <= 0) return -1;
-            readed->size = ret;
-            return ret;
-        } else {
+                if (ret <= 0) return -1;
+                readed->size = ret;
+                return ret;
+            }
+        #endif
+        else {
             if ( ! ConnectNamedPipe(impl->handle, null) ) {
                 DWORD err = GetLastError();
                 if ( err == ERROR_PIPE_CONNECTED ) {

@@ -829,9 +829,11 @@ void sim_elm327_loop(SimELM327 * elm327) {
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
             elm327->implementation->network_handle = -1;
+            elm327->implementation->client_socket = -1;
+        #else
+            elm327->implementation->client_socket = INVALID_SOCKET;
         #endif
         elm327->implementation->handle = INVALID_HANDLE_VALUE;
-        elm327->implementation->client_socket = INVALID_SOCKET;
         elm327->implementation->server_fd = -1;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             #define MAX_ATTEMPTS 20
