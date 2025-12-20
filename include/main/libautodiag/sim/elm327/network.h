@@ -3,11 +3,7 @@
 
 #include "libautodiag/lib.h"
 
-#if defined(OS_WINDOWS) && !defined(OS_POSIX)
-#   pragma comment(lib, "Ws2_32.lib")
-    typedef SOCKET sock_t;
-#   define close_sock closesocket
-#else
+#if defined OS_POSIX
 #   include <unistd.h>
 #   include <errno.h>
 #   include <string.h>
@@ -17,6 +13,10 @@
     typedef int sock_t;
 #   include <unistd.h>
 #   define close_sock close
+#elif defined OS_WINDOWS
+#   pragma comment(lib, "Ws2_32.lib")
+    typedef SOCKET sock_t;
+#   define close_sock closesocket
 #endif
 
 #define ELM327_NETWORK_PORT 35000

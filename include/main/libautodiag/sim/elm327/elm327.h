@@ -32,7 +32,11 @@ typedef struct {
     bool loop_ready;
     int timeout_ms;
     #ifdef OS_WINDOWS
-        HANDLE handle;
+        #ifdef OS_POSIX
+            int handle;
+        #else
+            HANDLE handle;
+        #endif
         int server_fd;
         sock_t client_socket;
     #elif defined OS_POSIX

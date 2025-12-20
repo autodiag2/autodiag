@@ -5,10 +5,12 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
     struct sockaddr_in addr;
     int opt = 1;
 
-    #ifdef OS_WINDOWS
+    #ifdef OS_POSIX
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    #elif defined OS_WINDOWS
         setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (const char *)&opt, sizeof(opt));
     #else
-        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    #   warning OS Unsupported
     #endif
 
     memset(&addr, 0, sizeof(addr));
@@ -37,7 +39,7 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
 }
 
 int sim_elm327_network_start(int *bound_port) {
-    #ifdef OS_WINDOWS
+    #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;
         if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return -1;
     #endif
@@ -47,7 +49,7 @@ int sim_elm327_network_start(int *bound_port) {
 
     if (bind_any_available_port(server_fd, ELM327_NETWORK_PORT, 32, bound_port) < 0) {
         close_sock(server_fd);
-        #ifdef OS_WINDOWS
+        #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
             WSACleanup();
         #endif
         return -1;
@@ -55,7 +57,7 @@ int sim_elm327_network_start(int *bound_port) {
 
     if (listen(server_fd, ELM327_CONNECTION_BACKLOG) < 0) {
         close_sock(server_fd);
-        #ifdef OS_WINDOWS
+        #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
             WSACleanup();
         #endif
         return -1;
@@ -75,28 +77,28 @@ char * sim_elm327_network_location(struct sockaddr_in caddr) {
 int sim_elm327_network_is_connected(void * implPtr) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
-    #ifdef OS_WINDOWS
-        sock_t handle = impl->client_socket;
-    #elif defined OS_POSIX
+    #ifdef OS_POSIX
         sock_t handle = impl->handle;
+    #elif defined OS_WINDOWS
+        sock_t handle = impl->client_socket;
     #else
     #   warning Unsupported OS
     #endif
     char buf;
     ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
     if (ret == 0) return 0; // connection closed by peer
-    #ifdef OS_WINDOWS
-        if (ret == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) return 1;
-            return 0;
-        }
-    #elif defined OS_POSIX
+    #if defined OS_POSIX
     #   include <fcntl.h>
     #   include <errno.h>
         if (ret == -1) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
             return 0; // error, consider disconnected
+        }
+    #elif defined OS_WINDOWS
+        if (ret == SOCKET_ERROR) {
+            int err = WSAGetLastError();
+            if (err == WSAEWOULDBLOCK) return 1;
+            return 0;
         }
     #else
     #   warning Unsupported OS
