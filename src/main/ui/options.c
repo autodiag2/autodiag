@@ -332,6 +332,43 @@ void window_baud_rate_set_from_button(final GtkButton * button) {
     char* baud_rate_str = (char*)gtk_button_get_label(button);
     gtk_entry_set_text(gui->baudRateSelection, baud_rate_str);
 }
+static int is_ip_address(const char *s) {
+    int dots = 0;
+    int digits = 0;
+
+    while (*s && *s != ':') {
+        if (*s == '.') {
+            dots++;
+            digits = 0;
+        } else if (isdigit((unsigned char)*s)) {
+            digits++;
+            if (digits > 3)
+                return 0;
+        } else {
+            return 0;
+        }
+        s++;
+    }
+    return (dots == 3);
+}
+char * normalize_device_location(char *device_location) {
+    char ip[32];
+    char port[16];
+    
+    if (!device_location)
+        return null;
+    
+    /* IP:PORT ? */
+    char * result = null;
+    if (sscanf(device_location, "%31[^:]:%15s", ip, port) == 2) {
+        if (is_ip_address(ip)) {
+            if (strcmp(ip, "0.0.0.0") == 0) {
+                asprintf(&result, "127.0.0.1:%s", port);
+            }
+        }
+    }
+    return result == null ? strdup(device_location) : result;
+}
 static gboolean sim_launch(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
@@ -352,8 +389,8 @@ static gboolean sim_launch(gpointer data) {
     char * simu_desc = gprintf(fmt,elm327->device_location);
     sim_launch_set_status(simu_desc);
     free(simu_desc);
-    
-    set_device_location(elm327->device_location);
+
+    set_device_location(normalize_device_location(elm327->device_location));
 
     return false;
 }
