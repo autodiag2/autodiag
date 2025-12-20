@@ -14,11 +14,13 @@ int file_pool_read_posix(int handle, int *readLen_rv, int timeout_ms) {
             if ( fileDescriptor.revents & POLLIN ) {
                 if (readLen_rv != null) {
                     int available = 0;
-                    if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
-                        *readLen_rv = available;
-                    } else {
-                        *readLen_rv = 0;
-                    }
+                    #ifndef OS_WINDOWS
+                        if (ioctl(fileDescriptor.fd, FIONREAD, &available) == 0) {
+                            *readLen_rv = available;
+                        } else {
+                            *readLen_rv = 0;
+                        }
+                    #endif
                 }
             } else {
                 ret = -1;

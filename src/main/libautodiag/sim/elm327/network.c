@@ -78,7 +78,11 @@ int sim_elm327_network_is_connected(void * implPtr) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
     #ifdef OS_POSIX
-        sock_t handle = impl->handle;
+        #ifdef OS_WINDOWS
+            sock_t handle = impl->network_handle;
+        #else        
+            sock_t handle = impl->handle;
+        #endif
     #elif defined OS_WINDOWS
         sock_t handle = impl->client_socket;
     #else
