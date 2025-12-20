@@ -121,7 +121,7 @@ int sim_read(void * implPtr, int timeout_ms, Buffer * readed) {
                     } else {
                         log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
                     }
-                    return false;
+                    return -1;
                 }
             }
             if ( file_pool_read(&impl->handle, null, timeout_ms) == -1 ) {
