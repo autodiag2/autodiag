@@ -425,15 +425,24 @@ int serial_open(final Serial * port) {
             } else {
                 port->implementation->handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
             }
-            if (port->implementation->handle == INVALID_HANDLE_VALUE) {
+            if (
+                #ifdef OS_POSIX
+                    port->implementation->connection_handle == -1 &&
+                #endif
+                port->implementation->handle == INVALID_HANDLE_VALUE
+            ) {
                 log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
-            } else {
-                log_msg(LOG_DEBUG, "Openning port: %s", port->location);
             }
+            log_msg(LOG_DEBUG, "Openning port: %s", port->location);
             
-            if ( isComPort(port->implementation->handle) ) {
+            if (
+                #ifdef OS_POSIX
+                    port->implementation->connection_handle == -1 &&
+                #endif 
+                isComPort(port->implementation->handle) 
+            ) {
                 assert(0 <= port->baud_rate);
                 #define TX_TIMEOUT_MULTIPLIER    0
                 #define TX_TIMEOUT_CONSTANT      1000
