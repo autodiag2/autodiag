@@ -107,7 +107,7 @@ int file_pool_read(void *handle, int *readLen_rv, int timeout_ms) {
     #endif
 }
 int file_pool_write_posix(int handle, int timeout_ms) {
-    #ifdef OS_POSI
+    #ifdef OS_POSIX
         struct pollfd pfd = {
             .fd     = handle,
             .events = POLLOUT
