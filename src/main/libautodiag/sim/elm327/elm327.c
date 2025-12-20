@@ -284,6 +284,21 @@ SimELM327* sim_elm327_new() {
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
     elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
+    #ifdef OS_WINDOWS
+        #ifdef OS_POSIX
+            elm327->implementation->network_handle = -1;
+            elm327->implementation->client_socket = -1;
+        #else
+            elm327->implementation->client_socket = INVALID_SOCKET;
+        #endif
+        elm327->implementation->handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->server_fd = -1;
+    #elif defined OS_POSIX
+        elm327->implementation->handle = -1;
+        elm327->implementation->server_fd = -1;
+    #else
+    #   warning OS unsupported
+    #endif
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
     return elm327;
 }
