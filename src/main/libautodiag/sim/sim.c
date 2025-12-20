@@ -4,15 +4,8 @@
 void sim_prevent_read_himself(void * implPtr) {
     assert(implPtr != null);
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
-    bool result = bool_unset;
-    #ifdef OS_WINDOWS
-        result = (impl->client_socket == INVALID_SOCKET) || (impl->handle != INVALID_HANDLE_VALUE);
-    #elif defined OS_POSIX
-        result = (impl->server_fd == -1);
-    #else
-    #   warning Unsupported OS
-    #endif
-    if ( result || result == bool_unset ) {
+    bool result = (impl->server_fd == -1);
+    if ( result ) {
         log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
         usleep(50e3);
     }

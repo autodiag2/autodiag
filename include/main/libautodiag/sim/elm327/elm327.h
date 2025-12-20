@@ -33,10 +33,9 @@ typedef struct {
     int timeout_ms;
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            int handle;
-        #else
-            HANDLE handle;
+            int network_handle;
         #endif
+        HANDLE handle;
         int server_fd;
         sock_t client_socket;
     #elif defined OS_POSIX
