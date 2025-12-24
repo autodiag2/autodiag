@@ -18,7 +18,7 @@ UDS_DTC * UDS_DTC_new() {
     dtc->description = list_DTC_DESCRIPTION_new();
     dtc->detection_method = list_object_string_new();
     list_object_string_append(dtc->detection_method, object_string_new_from("UDS"));
-    dtc->to_string = CAST_DTC_TO_STRING(UDS_DTC_to_string);
+    dtc->to_string = AD_DTC_TO_STRING(UDS_DTC_to_string);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
     return dtc;
@@ -137,7 +137,7 @@ list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * fil
     return dtcs;
 }
 void uds_dtc_dump(final UDS_DTC * dtc) {
-    log_msg(LOG_DEBUG, "%s", dtc->to_string(CAST_DTC(dtc)));
+    log_msg(LOG_DEBUG, "%s", dtc->to_string(AD_DTC(dtc)));
 }
 
 char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted) {

@@ -66,7 +66,7 @@ static VehicleIFace* port_open(char *device_location) {
     printf("open port %s\n", device_location);
     final Serial * serial = serial_new();
     serial->location = strdup(device_location);
-    return viface_open_from_device(CAST_DEVICE(serial));
+    return viface_open_from_device(AD_DEVICE(serial));
 }
 
 static VehicleIFace* port_parse_open(int argc, char **argv) {

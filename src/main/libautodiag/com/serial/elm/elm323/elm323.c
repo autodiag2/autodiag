@@ -42,12 +42,12 @@ bool elm323_configure(final ELM323Device* elm323) {
 GEN_SERIAL_RECV(elm323_recv,ELM323Device,ELM323_RECV_ITERATOR)
 
 void elm323_init(ELM323Device* d) {
-    d->send = CAST_DEVICE_SEND(serial_send);
-    d->recv = CAST_DEVICE_RECV(elm323_recv);
-    d->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm323_describe_communication_layer);
-    d->parse_data = CAST_DEVICE_PARSE_DATA(elm_standard_obd_message_parse_response);
-    d->guess_response = CAST_SERIAL_GUESS_RESPONSE(elm323_guess_response);
-    d->configure = CAST_ELM_DEVICE_CONFIGURE(elm323_configure);
+    d->send = AD_DEVICE_SEND(serial_send);
+    d->recv = AD_DEVICE_RECV(elm323_recv);
+    d->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm323_describe_communication_layer);
+    d->parse_data = AD_DEVICE_PARSE_DATA(elm_standard_obd_message_parse_response);
+    d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm323_guess_response);
+    d->configure = AD_ELM_DEVICE_CONFIGURE(elm323_configure);
     d->printing_of_spaces = true;
 }
 

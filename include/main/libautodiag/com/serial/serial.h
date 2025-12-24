@@ -84,8 +84,8 @@ typedef struct {
     int (*guess_response)(char *ptr);
     SerialImplementation* implementation;
 } Serial;
-#define CAST_SERIAL(var) ((Serial*)var)
-#define CAST_SERIAL_GUESS_RESPONSE(var) ((int (*)(char* ptr))var)
+#define AD_SERIAL(var) ((Serial*)var)
+#define AD_SERIAL_GUESS_RESPONSE(var) ((int (*)(char* ptr))var)
 
 /**
  * Responses defined by Hayes command set:

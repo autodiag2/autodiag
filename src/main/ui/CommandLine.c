@@ -115,12 +115,12 @@ static void * send_command_wait_response_internal(final void * arg) {
         if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.raw)) ) {
             result = serial_send_internal(port, command, strlen(command));
         } else {
-            result = port->send(CAST_DEVICE(port), command);
+            result = port->send(AD_DEVICE(port), command);
         }
         if ( result == DEVICE_ERROR ) {
             error_feedback_serial(gui->errorFeedback,port);                
         } else {
-            port->recv(CAST_DEVICE(port));
+            port->recv(AD_DEVICE(port));
             {
                 final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
                 if ( result == null ) {

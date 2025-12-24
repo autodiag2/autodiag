@@ -110,7 +110,7 @@ static gboolean set_list_dtc_gsource(gpointer data) {
     }
     if ( list_dtc != null ) {
         AD_LIST_FOREACH(list_dtc,DTC,dtc,
-            char * dtc_string = dtc->to_string(CAST_DTC(dtc));
+            char * dtc_string = dtc->to_string(AD_DTC(dtc));
             GtkWidget *label = gtk_label_new(dtc_string);
             g_object_set_data(G_OBJECT(label), "dtc", dtc);
             gtk_container_add((GtkContainer*)gui->dtc.list,label);

@@ -25,8 +25,8 @@ typedef struct {
     int protocol;
 } ELMDevice;
 
-#define CAST_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
-#define CAST_ELM_DEVICE(var) ((ELMDevice*)var)
+#define AD_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
+#define AD_ELM_DEVICE(var) ((ELMDevice*)var)
 
 #define ELM_RESPONSE_UNKNOWN                 0xF00
 

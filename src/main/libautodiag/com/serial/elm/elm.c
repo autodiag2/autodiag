@@ -40,7 +40,7 @@ int elm_linefeeds(final Serial * port, final bool state) {
     if ( serial_send_at_command(port, "l%d", state) ) {
         port->eol =  strdup(state ? "\r\n" : "\r");
         buffer_recycle(port->recv_buffer);
-        if ( port->recv(CAST_DEVICE(port)) == SERIAL_RESPONSE_OK ) {
+        if ( port->recv(AD_DEVICE(port)) == SERIAL_RESPONSE_OK ) {
             return state;
         } else {
             port->eol = original_eol;        
@@ -92,18 +92,18 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
         deviceConfigured = false;
     } else {
         if (strstr(response, "ELM329") != null) {
-            device = CAST_ELM_DEVICE(elm329_new_from_serial(*port));
+            device = AD_ELM_DEVICE(elm329_new_from_serial(*port));
         } else if (strstr(response, "ELM327") != null) {
-            device = CAST_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
+            device = AD_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
         } else if (strstr(response, "ELM323") != null) {
-            device = CAST_ELM_DEVICE((Device *)elm323_new_from_serial(*port));
+            device = AD_ELM_DEVICE((Device *)elm323_new_from_serial(*port));
         } else if (strstr(response, "ELM322") != null) {
-            device = CAST_ELM_DEVICE((Device *)elm322_new_from_serial(*port));
+            device = AD_ELM_DEVICE((Device *)elm322_new_from_serial(*port));
         } else if (strstr(response, "ELM320") != null) {
-            device = CAST_ELM_DEVICE((Device *)elm320_new_from_serial(*port));
+            device = AD_ELM_DEVICE((Device *)elm320_new_from_serial(*port));
         } else {
             log_msg(LOG_DEBUG, "Device type unknown, trying as ELM327");
-            device = CAST_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
+            device = AD_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
         }
         if ( device == null ) {
             deviceConfigured = false;
@@ -223,15 +223,15 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
     final int second = 1000;
     elm->timeout = 10 * second;
     do {
-        elm->send(CAST_DEVICE(elm), testerOrder);
-        elm->clear_data(CAST_DEVICE(elm));
-        final int detectionResult = elm->recv(CAST_DEVICE(elm));
+        elm->send(AD_DEVICE(elm), testerOrder);
+        elm->clear_data(AD_DEVICE(elm));
+        final int detectionResult = elm->recv(AD_DEVICE(elm));
         if ( detectionResult == DEVICE_RECV_DATA ) {
             sanityCheck = true;
         } else {
-            elm->send(CAST_DEVICE(elm), at_command("tp %x", protocol));
-            elm->clear_data(CAST_DEVICE(elm));
-            if ( elm->recv(CAST_DEVICE(elm)) != SERIAL_RESPONSE_OK ) {
+            elm->send(AD_DEVICE(elm), at_command("tp %x", protocol));
+            elm->clear_data(AD_DEVICE(elm));
+            if ( elm->recv(AD_DEVICE(elm)) != SERIAL_RESPONSE_OK ) {
                 log_msg(LOG_WARNING, "Cannot set the protocol correctly");
             }
             elm->protocol = protocol;

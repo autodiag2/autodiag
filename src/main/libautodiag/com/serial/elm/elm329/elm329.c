@@ -56,9 +56,9 @@ int elm329_guess_response(final char * buffer) {
 
 ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     final char * command = at_command("dpn");
-    final bool result = (3 <= elm329->send(CAST_DEVICE(elm329), command));
+    final bool result = (3 <= elm329->send(AD_DEVICE(elm329), command));
     buffer_recycle(elm329->recv_buffer);
-    elm329->recv(CAST_DEVICE(elm329));
+    elm329->recv(AD_DEVICE(elm329));
 
     ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
     SERIAL_BUFFER_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)
@@ -135,9 +135,9 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
 }
 bool elm329_reset_protocol(final ELM329Device* elm329) {
     final char * command = at_command("sp0");
-    final bool result = (3 <= elm329->send(CAST_DEVICE(elm329), command));
+    final bool result = (3 <= elm329->send(AD_DEVICE(elm329), command));
     buffer_recycle(elm329->recv_buffer);
-    return ( elm329->recv(CAST_DEVICE(elm329)) == SERIAL_RESPONSE_OK );
+    return ( elm329->recv(AD_DEVICE(elm329)) == SERIAL_RESPONSE_OK );
 }
 bool elm329_configure(final ELM329Device* elm329) {
     elm329_reset_protocol(elm329);
@@ -158,13 +158,13 @@ bool elm329_configure(final ELM329Device* elm329) {
 }
 
 void elm329_init(ELM329Device* d) {
-    d->send = CAST_DEVICE_SEND(elm329_send);
-    d->recv = CAST_DEVICE_RECV(elm329_recv);
-    d->describe_communication_layer = CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm329_describe_communication_layer);
-    d->parse_data = CAST_DEVICE_PARSE_DATA(elm329_obd_data_parse);
+    d->send = AD_DEVICE_SEND(elm329_send);
+    d->recv = AD_DEVICE_RECV(elm329_recv);
+    d->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm329_describe_communication_layer);
+    d->parse_data = AD_DEVICE_PARSE_DATA(elm329_obd_data_parse);
     d->protocol = ELM329_PROTO_NONE;
-    d->guess_response = CAST_SERIAL_GUESS_RESPONSE(elm329_guess_response);
-    d->configure = CAST_ELM_DEVICE_CONFIGURE(elm329_configure);
+    d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm329_guess_response);
+    d->configure = AD_ELM_DEVICE_CONFIGURE(elm329_configure);
     d->printing_of_spaces = true;
 }
 

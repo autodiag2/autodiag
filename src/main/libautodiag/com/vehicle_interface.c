@@ -105,8 +105,8 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
             viface_open_abort(iface);
             return false;
         }
-        iface->device = CAST_DEVICE(elm);
-        iface->device->unlock(CAST_DEVICE(iface->device));
+        iface->device = AD_DEVICE(elm);
+        iface->device->unlock(AD_DEVICE(iface->device));
     } else {
         log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);
         viface_open_abort(iface);

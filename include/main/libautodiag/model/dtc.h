@@ -71,8 +71,8 @@ typedef struct {
     list_object_string * detection_method;
 } DTC;
 
-#define CAST_DTC(var) ((struct DTC*)var)
-#define CAST_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
+#define AD_DTC(var) ((struct DTC*)var)
+#define AD_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
 
 AD_LIST_H(DTC)
 void list_DTC_append_list(list_DTC * list, list_DTC * another);

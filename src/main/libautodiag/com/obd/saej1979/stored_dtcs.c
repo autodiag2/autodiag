@@ -3,7 +3,7 @@
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
     dtc->description = list_DTC_DESCRIPTION_new();
-    dtc->to_string = CAST_DTC_TO_STRING(saej1979_dtc_to_string);
+    dtc->to_string = AD_DTC_TO_STRING(saej1979_dtc_to_string);
     dtc->ecu = null;
     dtc->detection_method = list_object_string_new();
     return dtc;

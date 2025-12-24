@@ -6,17 +6,17 @@
 /**
  * Define a device that interface with the vehicle
  */
-#define CAST_DEVICE_SEND(var) ((int (*)(final Device*, const char*))var)
-#define CAST_DEVICE_RECV(var) ((int (*)(final Device*))var)
-#define CAST_DEVICE_OPEN(var) ((void (*)(final Device*))var)
-#define CAST_DEVICE_CLOSE(var) ((void (*)(final Device*))var)
-#define CAST_DEVICE_DESCRIBE_COMMUNICATION_LAYER(var) ((char* (*)(final Device*))var)
-#define CAST_DEVICE_PARSE_DATA(var) ((bool (*)(final Device*, final Vehicle*))var)
-#define CAST_DEVICE_SET_FILTER_BY_ADDRESS(var) ((bool (*)(final Device*, final list_Buffer*))var)
-#define CAST_DEVICE_CLEAR_DATA(var) ((void (*)(final Device*))var)
-#define CAST_DEVICE_LOCK(var) ((void (*)(final Device*))var)
-#define CAST_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
-#define CAST_DEVICE(arg) ((struct Device*)arg)
+#define AD_DEVICE_SEND(var) ((int (*)(final Device*, const char*))var)
+#define AD_DEVICE_RECV(var) ((int (*)(final Device*))var)
+#define AD_DEVICE_OPEN(var) ((void (*)(final Device*))var)
+#define AD_DEVICE_CLOSE(var) ((void (*)(final Device*))var)
+#define AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(var) ((char* (*)(final Device*))var)
+#define AD_DEVICE_PARSE_DATA(var) ((bool (*)(final Device*, final Vehicle*))var)
+#define AD_DEVICE_SET_FILTER_BY_ADDRESS(var) ((bool (*)(final Device*, final list_Buffer*))var)
+#define AD_DEVICE_CLEAR_DATA(var) ((void (*)(final Device*))var)
+#define AD_DEVICE_LOCK(var) ((void (*)(final Device*))var)
+#define AD_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
+#define AD_DEVICE(arg) ((struct Device*)arg)
 typedef struct Device {
     /**
      * This is very similar to describing the communication layer, except that it holds

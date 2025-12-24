@@ -77,11 +77,11 @@ int serial_cli_main(int argc, char *argv[]) {
         printf("> ");
         fgets(command, sizeof(command), stdin);
         command[strlen(command)-1] = 0;
-        if ( serial->send(CAST_DEVICE(serial), command) == DEVICE_ERROR ) {
+        if ( serial->send(AD_DEVICE(serial), command) == DEVICE_ERROR ) {
             printf("Error while sending the command '%s'\n", command);
         } else {
-            serial->clear_data(CAST_DEVICE(serial));
-            serial->recv(CAST_DEVICE(serial));
+            serial->clear_data(AD_DEVICE(serial));
+            serial->recv(AD_DEVICE(serial));
             {
                 final char * result = bytes_to_hexdump(serial->recv_buffer->buffer, serial->recv_buffer->size);
                 if ( result == null ) {
