@@ -101,6 +101,9 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
             device = CAST_ELM_DEVICE((Device *)elm322_new_from_serial(*port));
         } else if (strstr(response, "ELM320") != null) {
             device = CAST_ELM_DEVICE((Device *)elm320_new_from_serial(*port));
+        } else {
+            log_msg(LOG_DEBUG, "Device type unknown, trying as ELM327");
+            device = CAST_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
         }
         if ( device == null ) {
             deviceConfigured = false;
