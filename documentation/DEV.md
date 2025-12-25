@@ -70,6 +70,7 @@ make distDebian distWindows distMacOS
 See [here](/pyautodiag/README.md)
 
 # Alternative simulator
+### [ELM327-emulator](https://github.com/Ircama/ELM327-emulator)
 ```bash
 python3 -m pip install ELM327-emulator
 python3 -m elm
