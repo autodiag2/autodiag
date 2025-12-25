@@ -213,8 +213,10 @@ bool config_load() {
 void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
-    list_serial_add_if_not_in_by_location(config.com.serial.device_location);
-    list_serial_set_selected_by_location(config.com.serial.device_location);
+    if ( config.com.serial.device_location != null ) {
+        list_serial_add_if_not_in_by_location(config.com.serial.device_location);
+        list_serial_set_selected_by_location(config.com.serial.device_location);
+    }
     final Serial * port = list_serial_get_selected();
     if ( port == null ) {
         list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;

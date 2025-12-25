@@ -24,6 +24,7 @@ Serial * list_serial_add_if_not_in(Serial * element) {
 }
 
 Serial * list_serial_add_if_not_in_by_location(char * location) {
+    assert(location != null);
     Serial * serial = list_serial_find_by_location(location);
     if ( serial == null ) {
         list_Serial_append(&list_serial, serial_new());
