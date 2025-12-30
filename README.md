@@ -1,3 +1,7 @@
+[![Workflow](https://github.com/autodiag2/autodiag/actions/workflows/build_application.yml/badge.svg?event=push)](https://github.com/autodiag2/autodiag/actions)
+[![License](https://img.shields.io/github/license/autodiag2/autodiag)](https://github.com/autodiag2/autodiag/blob/main/LICENSE)
+[![Release](https://img.shields.io/github/v/release/autodiag2/autodiag)](https://github.com/autodiag2/autodiag/releases)
+
 # autodiag
 Automotive diagnostic software with many protocols
 
