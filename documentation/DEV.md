@@ -75,3 +75,57 @@ See [here](/pyautodiag/README.md)
 python3 -m pip install ELM327-emulator
 python3 -m elm
 ```
+
+# Dev under debian (with the dev package)
+
+ - Download the libautodiag and libautodiag-dev from [releases](https://github.com/autodiag2/autodiag/releases)
+ - Install them
+   ```bash
+    dpkg -i libautodiag_39_arm64.deb libautodiag-dev_39_arm64.deb
+   ```
+ Sample app:
+   ```c
+    #include <libautodiag/lib.h>
+    #include <libautodiag/com/serial/serial.h>
+    #include <libautodiag/com/obd/obd.h>
+    #include <stdio.h>
+    #include <string.h>
+
+    int main(int argc, char ** argv) {
+        char * device_location = NULL;
+        if ( 1 < argc ) {
+                device_location = argv[1];
+        } else {
+                assert(argc == 1);
+                printf("Usage: %s <device location pseudo tty, network>\n", argv[0]);
+                return 1;
+        }
+        final Serial * serial = serial_new();
+        serial->location = strdup(device_location);
+        printf("serial selected location: %s\n", serial->location);
+        VehicleIFace * viface = viface_open_from_device(AD_DEVICE(serial));
+
+        viface_send(viface, buffer_from_ascii_hex("0100"));
+        viface_clear_data(viface);
+        viface_recv(viface);
+
+        printf("received: \n");
+        for(int i = 0; i < viface->vehicle->data_buffer->size; i++) {
+                char * received = buffer_to_hex_string(viface->vehicle->data_buffer->list[i]);
+                printf(" - %s\n", received);
+        }
+
+        return 0;
+    }
+   ```
+   Compile and run:
+   ```bash
+    gcc test.c -lautodiag -fms-extensions
+    ./output/bin/elm327sim &
+    ./a.out /dev/pts/3
+   ```
+   Output:
+   ```
+   received: 
+    - 4100ffffffffff
+   ```
