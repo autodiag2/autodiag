@@ -3,8 +3,17 @@ Maintainer: autodiag
 Build-Depends: build-essential, devscripts, libgtk-3-0, libgtk-3-dev, git, tzdata
 Homepage: https://github.com/autodiag2/autodiag/
 
+Package: libautodiag
+Section: libs
+Priority: optional
+Architecture: any
+Depends: libc6
+Description: libautodiag shared library
+ Shared core library for autodiag.
+Homepage: https://github.com/autodiag2/autodiag/
+
 Package: autodiag
-Depends: libc6, libgtk-3-0
+Depends: libc6, libgtk-3-0, libautodiag
 Section: electronics
 Priority: optional
 Architecture: any

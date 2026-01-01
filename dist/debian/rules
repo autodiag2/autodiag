@@ -1,48 +1,61 @@
 #!/usr/bin/make -f
 
 SRC_ROOT=$(CURDIR)/../
-
 include $(SRC_ROOT)/app.mk
 
 PKG_SRC_DIR=$(SRC_ROOT)/dist/debian/
-BUILD_DIR=$(PKG_SRC_DIR)/$(APP_NAME)/
-BUILD_BIN=$(BUILD_DIR)/usr/bin/
-BUILD_SHARE=$(BUILD_DIR)/usr/share/$(APP_NAME)
-BUILD_LIB=$(BUILD_DIR)/usr/lib/
+
+APP_BUILD_DIR=$(PKG_SRC_DIR)/autodiag/
+LIB_BUILD_DIR=$(PKG_SRC_DIR)/libautodiag/
+
+APP_BIN=$(APP_BUILD_DIR)/usr/bin/
+APP_SHARE=$(APP_BUILD_DIR)/usr/share/autodiag
 BUILDINFO_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).buildinfo
 CHANGES_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).changes
+
+LIB_LIB=$(LIB_BUILD_DIR)/usr/lib/
+LIB_SHARE=$(LIB_BUILD_DIR)/usr/share/libautodiag
+LIB_SHARE_COMPAT=$(LIB_BUILD_DIR)/usr/share/autodiag
 
 build:
 	cd $(SRC_ROOT) && make default
 
 binary:
-	mkdir -p $(BUILD_DIR) $(BUILD_LIB) $(BUILD_BIN) $(BUILD_SHARE) $(BUILD_DIR)/DEBIAN/
+	mkdir -p \
+		$(APP_BUILD_DIR)/DEBIAN $(APP_BIN) $(APP_SHARE) \
+		$(LIB_BUILD_DIR)/DEBIAN $(LIB_LIB) $(LIB_SHARE) $(LIB_SHARE_COMPAT)
 
 	for f in $(SRC_ROOT)/output/bin/*; do \
 		case "$$f" in \
-			*.so|*.deb|*.changes|*.buildinfo) continue ;; \
-			*) install -m 755 "$$f" $(BUILD_BIN) ;; \
+			*.so|*.deb|*.changes|*.buildinfo) ;; \
+			*) install -m 755 "$$f" $(APP_BIN) ;; \
 		esac \
 	done
 
 	for f in $(SRC_ROOT)/output/bin/*.so; do \
-		install -m 644 "$$f" $(BUILD_LIB) ; \
+		install -m 644 "$$f" $(LIB_LIB) ; \
 	done
 
-	cp -r $(SRC_ROOT)/ui $(BUILD_SHARE)
-	cp -r $(SRC_ROOT)/media $(BUILD_SHARE)
-	cp -r $(SRC_ROOT)/data/data $(BUILD_SHARE)
-	chmod 777 $(BUILD_SHARE)/*
+	cp -r $(SRC_ROOT)/data/data $(LIB_SHARE_COMPAT)
 
-	dpkg-gencontrol -P$(BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" -DDescription="Car scantool`echo \"\\n$(APP_DESC)\" | sed 's/\\n/\n/g'`" -v$(APP_VERSION) -USource -O$(BUILD_DIR)/DEBIAN/control
+	cp -r $(SRC_ROOT)/ui $(APP_SHARE)
+	cp -r $(SRC_ROOT)/media $(APP_SHARE)
+	chmod -R 755 $(APP_SHARE)
+
+	dpkg-gencontrol -P$(LIB_BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" \
+		-plibautodiag -v$(APP_VERSION) -USource -O$(LIB_BUILD_DIR)/DEBIAN/control
+	dpkg-deb --build $(LIB_BUILD_DIR) $(SRC_ROOT)/output/bin/
+
+	dpkg-gencontrol -P$(APP_BUILD_DIR) -c$(PKG_SRC_DIR)/control -DMaintainer="$(APP_MAINTAINER)" \
+		-DDescription="Car scantool`echo \"\\n$(APP_DESC)\" | sed 's/\\n/\n/g'`" \
+		-pautodiag -v$(APP_VERSION) -USource -O$(APP_BUILD_DIR)/DEBIAN/control
 	rm -f $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
 	ln -s $(SRC_ROOT)/$(BUILDINFO_FILENAME) $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
-	dpkg-deb --build $(BUILD_DIR) $(SRC_ROOT)/output/bin/
+	dpkg-deb --build $(APP_BUILD_DIR) $(SRC_ROOT)/output/bin/
 
-clean:
-	
+clean: done
 done:
-	rm -fr $(BUILD_DIR)
-	rm $(PKG_SRC_DIR)/files
+	rm -fr $(APP_BUILD_DIR) $(LIB_BUILD_DIR)
+	rm -f $(PKG_SRC_DIR)/files
 	rm -f $(SRC_ROOT)/output/bin/$(BUILDINFO_FILENAME)
 	rm -f $(SRC_ROOT)/$(BUILDINFO_FILENAME)
