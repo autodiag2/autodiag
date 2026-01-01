@@ -12,6 +12,15 @@ Description: libautodiag shared library
  Shared core library for autodiag.
 Homepage: https://github.com/autodiag2/autodiag/
 
+Package: libautodiag-dev
+Section: libdevel
+Priority: optional
+Architecture: any
+Depends: libautodiag, libc6
+Description: libautodiag development files
+ Development headers for libautodiag.
+Homepage: https://github.com/autodiag2/autodiag/
+
 Package: autodiag
 Depends: libc6, libgtk-3-0, libautodiag
 Section: electronics

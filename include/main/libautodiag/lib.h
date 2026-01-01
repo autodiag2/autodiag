@@ -1,6 +1,11 @@
 #ifndef __LIB_H
 #define __LIB_H
 
+// To stay compat with libautodiag-dev
+#ifndef APP_NAME
+#define APP_NAME "autodiag"
+#endif
+
 #include <string.h>
 #define _GNU_SOURCE
 #include <stdio.h>
