@@ -79,19 +79,16 @@ bool elm327_reset_protocol(final ELM327Device* elm327) {
 bool elm327_configure(final ELM327Device* elm327) {
     elm327_reset_protocol(elm327);
     elm327->protocol = elm327_get_current_protocol(elm327);
-    if ( elm327->protocol != ELM327_PROTO_NONE ) {
-        if ( ! elm327_printing_of_spaces(elm327,false) ) {
-            log_msg(LOG_ERROR, "Error during printing of spaces");
-        }
-        if ( elm327_is_can(elm327) ) {
-            elm327_set_auto_formatting(elm327,true);
-            serial_query_at_command((Serial*)elm327,"d1");
-        }
-        serial_query_at_command((Serial*)elm327,"h%d",true);
-        elm_ensure_protocol_config_success((ELMDevice*)elm327, ELM327_PROTO_USER2_CAN);
-        return true;
+    if ( ! elm327_printing_of_spaces(elm327,false) ) {
+        log_msg(LOG_ERROR, "Error during printing of spaces");
     }
-    return false;
+    if ( elm327_is_can(elm327) ) {
+        elm327_set_auto_formatting(elm327,true);
+        serial_query_at_command((Serial*)elm327,"d1");
+    }
+    serial_query_at_command((Serial*)elm327,"h%d",true);
+    elm_ensure_protocol_config_success((ELMDevice*)elm327, ELM327_PROTO_USER2_CAN);
+    return true;
 }
 char* elm327_protocol_to_string(final ELM327_PROTO proto) {
     switch(proto) {
