@@ -3,7 +3,12 @@
 [![Release](https://img.shields.io/github/v/release/autodiag2/autodiag)](https://github.com/autodiag2/autodiag/releases)
 
 # autodiag
-Automotive diagnostic software with many protocols
+Automotive diagnostic software with many protocols.
+ - Read the codes through OBD/UDS.
+ - Read sensors values.
+ - Curve sensors values.
+ - Simulate ELM327 devices with a high degree of accuracy (even not very usefull features ^^).
+ - Record and replay exchange with vehicle.
 
 <table>
   <tr>
@@ -19,27 +24,6 @@ Automotive diagnostic software with many protocols
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors-graph.png"></td>
   </tr>
 </table>
-
-# Why
-Repairing modern vehicle is not always easy due to lake of free tools. The need for expensive hardware block us from repairing vehicles and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to repair and diagnose your vehicle.  
-This is a light approach to fix vehicle because it reduces the amount of hardware required to work on it, only have to buy a small elm adaptater.
-Some scantools are already avaliable on the market:
-  - [ScanTool.net](https://github.com/RJSzynal/ScanTool.net) : reliable but require recompilation to add new manufacturer DTC list. Also the gui is not ruly smooth.
-
-Autodiag will be a simple scantool for desktop computer that allow to:
-  - read DTCs: with both manufacturer specific definition and generic one
-  - clear MIL: this clear the malfunction lamp on the car
-  - read sensors data: real time data retrieving and graphing
-
-It is mostly inspired from scantool.net but with a revisited GUI written in GTK, possibility to add DTC manufacturer specific after compilation.
-
-# How 
-With low level c language everything is possible.  
-With unit test, the software will be reliable.  
-With open source everyone will benefit from the effort.  
-In first time autodiag will focus on ELM based devices.   
-This software rely on OBD2 and UDS to diagnose your vehicle, from the settings you can configure which data protocol to use.   
-GPL licence will allow both buisnesses and individual to use the software.  
 
 # Quick guide to read codes with ELM327
 1. Buy ELM327 adaptater [USB](https://www.amazon.fr/elm327-usb/s?k=elm327+usb) or [Bluetooth](https://www.amazon.fr/s?k=elm327+bluetooth) or [Wifi](https://www.amazon.fr/s?k=elm327+wifi) (this one more recommended)
@@ -72,6 +56,27 @@ See [here](/documentation/install-errors.md)
 
 Devices:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ELM320 ELM322 ELM323 ELM327 ELM329<br />
 Standards:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ISO3779 SAEJ1979/ISO15031-5 ISO15031-6 ISO3780 ISO3166-1 ISO15765 ISO14229 OBD2 UDS CAN CAN-TP KWP2000
+
+# Why
+Repairing modern vehicle is not always easy due to lake of free tools. The need for expensive hardware block us from repairing vehicles and even small buisness that do not have money to afford tools and dive into the automotive world. So there is a need for tools that are not as complete as manufacturer official ones but enough powerfull to repair and diagnose your vehicle.  
+This is a light approach to fix vehicle because it reduces the amount of hardware required to work on it, only have to buy a small elm adaptater.
+Some scantools are already avaliable on the market:
+  - [ScanTool.net](https://github.com/RJSzynal/ScanTool.net) : reliable but require recompilation to add new manufacturer DTC list. Also the gui is not ruly smooth.
+
+Autodiag will be a simple scantool for desktop computer that allow to:
+  - read DTCs: with both manufacturer specific definition and generic one
+  - clear MIL: this clear the malfunction lamp on the car
+  - read sensors data: real time data retrieving and graphing
+
+It is mostly inspired from scantool.net but with a revisited GUI written in GTK, possibility to add DTC manufacturer specific after compilation.
+
+# How 
+With low level c language everything is possible.  
+With unit test, the software will be reliable.  
+With open source everyone will benefit from the effort.  
+In first time autodiag will focus on ELM based devices.   
+This software rely on OBD2 and UDS to diagnose your vehicle, from the settings you can configure which data protocol to use.   
+GPL licence will allow both buisnesses and individual to use the software.  
 
 # Developer documentation
 See [here](/documentation/DEV.md)
