@@ -189,6 +189,8 @@ bool fuzzSimELM327() {
         viface_recv(iface);
     }
     for(int i = 0; i < 1000; i ++) {
+        printf("\rFuzzing ELM327 %d/1000", i);
+        fflush(stdout);
         int sz_rand = rand() % 0x10;
         Buffer * buffer = buffer_new_random(sz_rand);
         viface_send(iface, buffer);
@@ -196,6 +198,7 @@ bool fuzzSimELM327() {
         buffer_free(buffer);
         viface_recv(iface);
     }
+    printf("\n");
     viface_close(iface);
     return true;
 }

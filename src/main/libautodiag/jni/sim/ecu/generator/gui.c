@@ -51,6 +51,9 @@
 
     static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         JNIEnv *env = get_env();
+        if ( binRequest->size == 0 ) {
+            return buffer_new();
+        }
 
         int vehicle_speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_vehicle_speed);
         int coolant_temperature  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_coolant_temperature);

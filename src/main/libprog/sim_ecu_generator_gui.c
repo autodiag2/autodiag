@@ -21,6 +21,9 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     final Buffer *binResponse = buffer_new();
+    if ( binRequest->size == 0 ) {
+        return binResponse;
+    }
     sim_ecu_generator_fill_success(binResponse, binRequest);
     
     switch(binRequest->buffer[0]) {

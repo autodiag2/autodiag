@@ -76,6 +76,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
     GState * state = (GState*)generator->state;
     final Buffer *binResponse = buffer_new();
+    if ( binRequest->size == 0 ) {
+        return binResponse;
+    }
     sim_ecu_generator_fill_success(binResponse, binRequest);
     start_or_update_session_timer(state);
     unsigned * seed = generator->context;
