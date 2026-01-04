@@ -174,6 +174,22 @@ void incomplete_string_return_after_20_secs() {
     assert(serial_recv_internal(serial) > 0);
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
+bool fuzzSimELM327() {
+    SimELM327* elm327 = sim_elm327_new();     
+    elm327->device_type = strdup("network");  
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = port_open(strdup(elm327->device_location));
+    for(int i = 0; i < 1000; i ++) {
+        Buffer * buffer = buffer_new_random(2 * 8);
+        viface_send(iface, buffer);
+        viface_clear_data(iface);
+        buffer_free(buffer);
+        viface_recv(iface);
+    }
+    viface_close(iface);
+    return true;
+}
 bool testSimELM327() {
     ensureWithoutHeadersDontSendNull();
     ensureDisplayWithSpacesIsCorrect();

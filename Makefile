@@ -31,8 +31,8 @@ PYTHON_INSTALL_FOLDER_DATA := $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
 SOURCES_TESTS := $(call rwildcard,src/test/,*.c)
-OBJS_TESTS := $(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o)))
-BINS_TESTS := output/bin/regression
+OBJS_TESTS := $(subst output/obj/test/fuzz.o,,$(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o))))
+BINS_TESTS := output/bin/regression output/bin/fuzz
 
 SOURCES := $(SOURCES_PROGS) $(SOURCES_TESTS)
 OBJS := $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
@@ -153,6 +153,9 @@ runDebug: default
 runTest: ./output/bin/regression
 	./output/bin/regression $(args)
 
+tests: $(BINS_TESTS)
+	@-echo "Tests: $^"
+
 info:
 	@-echo "OBJS=$(OBJS)"
 	@-echo "OBJS_TESTS=$(OBJS_TESTS)"
@@ -242,6 +245,7 @@ help:
 	@-echo " release_progs            - compile progs with debugging info removed"
 	@-echo " compile_tests            - compile tests"
 	@-echo " compile_lib              - compile the library"
+	@-echo " tests                    - compile tests"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"
 	@-echo " uninstallPython          - uninstall data from the python package"
