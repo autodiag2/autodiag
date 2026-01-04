@@ -74,7 +74,11 @@
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         final Buffer *binResponse = buffer_new();
         bool useParent = true;
-        sim_ecu_generator_fill_success(binResponse, binRequest);
+        if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
+            (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
+            (*env)->ReleaseStringUTFChars(env, vin_j, vin);
+            return buffer_new();
+        }
         switch(binRequest->buffer[0]) {
             case OBD_SERVICE_CLEAR_DTC: {
                 (*env)->CallStaticVoidMethod(

@@ -21,7 +21,7 @@ void sim_ecu_generator_fill_nrc(Buffer * binResponse, final Buffer * binRequest,
     buffer_append_byte(binResponse, binRequest->buffer[0]);
     buffer_append_byte(binResponse, nrc);
 }
-void sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
+bool sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
     assert(binResponse != null);
     assert(binRequest != null);
     assert(0 < binRequest->size);
@@ -38,7 +38,9 @@ void sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
                 buffer_append_byte(binResponse, binRequest->buffer[1]);
             } else {
                 buffer_recycle(binResponse);
+                return false;
             }
             break;
     }
+    return true;
 }

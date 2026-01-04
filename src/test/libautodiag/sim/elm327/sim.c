@@ -188,7 +188,7 @@ bool fuzzSimELM327() {
         buffer_free(buffer);
         viface_recv(iface);
     }
-    int fuzz_iterations = 100000;
+    int fuzz_iterations = 10000000;
     for(int i = 0; i < fuzz_iterations; i ++) {
         printf("\rFuzzing ELM327 %d/%d", i, fuzz_iterations);
         fflush(stdout);

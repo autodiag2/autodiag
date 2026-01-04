@@ -12,7 +12,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     if ( binRequest->size == 0 ) {
         return binResponse;
     }
-    sim_ecu_generator_fill_success(binResponse, binRequest);
+    if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
+        return buffer_new();
+    }
 
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:

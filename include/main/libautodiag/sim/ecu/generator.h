@@ -44,7 +44,7 @@ typedef struct SimECUGenerator {
 } SimECUGenerator;
 
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, Buffer * binRequest, byte nrc);
-void sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest);
+bool sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest);
 SimECUGenerator* sim_ecu_generator_new_cycle();
 SimECUGenerator* sim_ecu_generator_new_random();
 SimECUGenerator * sim_ecu_generator_new();
