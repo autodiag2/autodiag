@@ -34,8 +34,11 @@ void sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
         case OBD_SERVICE_SHOW_CURRENT_DATA:
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
-            assert(1 < binRequest->size);
-            buffer_append_byte(binResponse, binRequest->buffer[1]);
+            if ( 1 < binRequest->size ) {
+                buffer_append_byte(binResponse, binRequest->buffer[1]);
+            } else {
+                buffer_recycle(binResponse);
+            }
             break;
     }
 }

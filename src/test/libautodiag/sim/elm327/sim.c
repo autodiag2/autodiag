@@ -188,8 +188,9 @@ bool fuzzSimELM327() {
         buffer_free(buffer);
         viface_recv(iface);
     }
-    for(int i = 0; i < 1000; i ++) {
-        printf("\rFuzzing ELM327 %d/1000", i);
+    int fuzz_iterations = 100000;
+    for(int i = 0; i < fuzz_iterations; i ++) {
+        printf("\rFuzzing ELM327 %d/%d", i, fuzz_iterations);
         fflush(stdout);
         int sz_rand = rand() % 0x10;
         Buffer * buffer = buffer_new_random(sz_rand);
