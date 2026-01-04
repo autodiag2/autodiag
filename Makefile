@@ -30,9 +30,10 @@ PYTHON_INSTALL_FOLDER_LIB := $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
 PYTHON_INSTALL_FOLDER_DATA := $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
-SOURCES_TESTS := $(call rwildcard,src/test/,*.c)
-OBJS_TESTS := $(subst output/obj/test/fuzz.o,,$(subst output/obj/test/regression.o,,$(subst src/test/,output/obj/test/,$(SOURCES_TESTS:.c=.o))))
 BINS_TESTS := output/bin/regression output/bin/fuzz
+SOURCES_TESTS := $(call rwildcard,src/test/,*.c)
+OBJS_TESTS := $(patsubst src/test/%.c,output/obj/test/%.o,$(SOURCES_TESTS))
+OBJS_TESTS := $(filter-out $(patsubst output/bin/%,output/obj/test/%.o,$(BINS_TESTS)),$(OBJS_TESTS))
 
 SOURCES := $(SOURCES_PROGS) $(SOURCES_TESTS)
 OBJS := $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
