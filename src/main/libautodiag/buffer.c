@@ -291,7 +291,7 @@ char * buffer_to_ascii(final Buffer *buffer) {
     }
 }
 char* buffer_to_hex_string(Buffer *buffer) {
-    if ( buffer == null ) {
+    if ( buffer == null || buffer->size == 0 ) {
         return strdup("");
     } else {
         return bytes_to_hex_string(buffer->buffer, buffer->size);

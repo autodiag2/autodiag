@@ -180,8 +180,17 @@ bool fuzzSimELM327() {
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
+    {
+        int sz_rand = 0x0F;
+        Buffer * buffer = buffer_new_random(sz_rand);
+        viface_send(iface, buffer);
+        viface_clear_data(iface);
+        buffer_free(buffer);
+        viface_recv(iface);
+    }
     for(int i = 0; i < 1000; i ++) {
-        Buffer * buffer = buffer_new_random(2 * 8);
+        int sz_rand = rand() % 0x10;
+        Buffer * buffer = buffer_new_random(sz_rand);
         viface_send(iface, buffer);
         viface_clear_data(iface);
         buffer_free(buffer);
