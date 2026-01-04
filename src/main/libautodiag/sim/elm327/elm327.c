@@ -7,42 +7,44 @@ void sim_elm327_go_low_power() {
 }
 
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
-    elm327->activity_monitor_count = 0x00;
-    while(elm327->activity_monitor_count != 0xFF && elm327->implementation->activity_monitor_thread != null) {
-        elm327->activity_monitor_count++;
-        usleep(655e3);
-        if ( elm327->activity_monitor_timeout < elm327->activity_monitor_count ) {
-            byte b = SIM_ELM327_PP_GET(elm327,0x0F);
-            if ( bitRetrieve(b,7) ) {
-                if ( bitRetrieve(b,5) ) {
-                    sim_elm327_go_low_power();
-                }
-                if ( bitRetrieve(b,3) ) {
-                    char *act_alert;
-                    asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
-                    log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
-
-                    if ( sim_write(elm327->implementation,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
-                        return;
+    while(true) {
+        elm327->activity_monitor_count = 0x00;
+        while(elm327->activity_monitor_count != 0xFF && elm327->implementation->activity_monitor_thread_launched) {
+            elm327->activity_monitor_count++;
+            usleep(655e3);
+            if ( elm327->activity_monitor_timeout < elm327->activity_monitor_count ) {
+                byte b = SIM_ELM327_PP_GET(elm327,0x0F);
+                if ( bitRetrieve(b,7) ) {
+                    if ( bitRetrieve(b,5) ) {
+                        sim_elm327_go_low_power();
                     }
+                    if ( bitRetrieve(b,3) ) {
+                        char *act_alert;
+                        asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
+                        log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                    free(act_alert);
+                        if ( sim_write(elm327->implementation,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
+                            return;
+                        }
+
+                        free(act_alert);
+                    }
                 }
+                break;
             }
-            break;
         }
+        usleep(20e3);
     }
 }
 
 void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
-    THREAD_CANCEL(elm327->implementation->activity_monitor_thread);
-    elm327->implementation->activity_monitor_thread = (pthread_t*)malloc(sizeof(pthread_t));
-    if ( pthread_create(elm327->implementation->activity_monitor_thread, NULL,
-                          (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
-                          (void *)elm327) != 0 ) {
-        log_msg(LOG_ERROR, "thread creation error");
-        elm327->implementation->activity_monitor_thread = null;
-        exit(EXIT_FAILURE);
+    if ( ! elm327->implementation->activity_monitor_thread_launched ) {
+        if ( pthread_create(&elm327->implementation->activity_monitor_thread, NULL,
+                              (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
+                              (void *)elm327) != 0 ) {
+            log_msg(LOG_ERROR, "thread creation error (activity monitor)");
+            exit(EXIT_FAILURE);
+        }
     }
 }
 
@@ -237,8 +239,8 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     }
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
+    elm327->implementation->activity_monitor_thread_launched = false;
     elm327->activity_monitor_count = 0x00;
-    elm327->implementation->activity_monitor_thread = null;
     int secs = bitRetrieve(SIM_ELM327_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
     elm327->receive_address = null;
@@ -303,7 +305,7 @@ SimELM327* sim_elm327_new() {
     return elm327;
 }
 void sim_elm327_destroy(SimELM327 * elm327) {
-    THREAD_CANCEL(elm327->implementation->activity_monitor_thread);
+    pthread_cancel(elm327->implementation->activity_monitor_thread);
     THREAD_CANCEL(elm327->implementation->loop_thread);
     elm327->implementation->loop_ready = false;
     free(elm327->implementation);
