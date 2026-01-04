@@ -1,7 +1,7 @@
 #include "libTest.h"
 
 bool testCycle() {
-    SimELM327* elm327 = sim_elm327_new();
+    SimELM327* elm327 = test_sim_elm327_new();
     SimECUGenerator * generator = sim_ecu_generator_new_cycle();
     LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = generator;
     generator->context_load_from_string(generator, "10");

@@ -26,7 +26,7 @@ bool testElm(final VehicleIFace* iface) {
         }
     }
     {
-        SimELM327* elm327 = sim_elm327_new();
+        SimELM327* elm327 = test_sim_elm327_new();
         LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);

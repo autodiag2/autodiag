@@ -2,7 +2,7 @@
 #include "libautodiag/sim/sim.h"
 
 bool testSim() {
-    SimELM327* elm327 = sim_elm327_new();
+    SimELM327* elm327 = test_sim_elm327_new();
     assert(sim_load_from_json(SIM(elm327), 
         "["
             "{"

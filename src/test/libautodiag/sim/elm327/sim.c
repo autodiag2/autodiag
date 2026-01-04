@@ -2,7 +2,7 @@
 
 void testSimELM327_1() {
 
-    SimELM327* elm327 = sim_elm327_new();
+    SimELM327* elm327 = test_sim_elm327_new();
     list_SimECU_append(elm327->ecus,sim_ecu_new(0xE9));
     list_SimECU_append(elm327->ecus,sim_ecu_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
@@ -109,7 +109,7 @@ void testSimELM327_1() {
     }
 }
 void ensureDisplayWithSpacesIsCorrect() {
-    SimELM327* elm327 = sim_elm327_new();       
+    SimELM327* elm327 = test_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -122,7 +122,7 @@ void ensureDisplayWithSpacesIsCorrect() {
     assert(strstr(serial->recv_buffer->buffer, "7E8") != null);
 }
 void ensureWithoutHeadersDontSendNull() {
-    SimELM327* elm327 = sim_elm327_new();       
+    SimELM327* elm327 = test_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -137,7 +137,7 @@ void ensureWithoutHeadersDontSendNull() {
     assert(strstr(serial->recv_buffer->buffer, "null") == null);
 }
 void ensureReplayCommands() {
-    SimELM327* elm327 = sim_elm327_new();       
+    SimELM327* elm327 = test_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -150,7 +150,7 @@ void ensureReplayCommands() {
     assert(iface->vehicle->data_buffer->size == 2);
 }
 void anyCommandShouldReplyUnknown() {
-    SimELM327* elm327 = sim_elm327_new();       
+    SimELM327* elm327 = test_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -162,7 +162,7 @@ void anyCommandShouldReplyUnknown() {
     assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
 }
 void incomplete_string_return_after_20_secs() {
-    SimELM327* elm327 = sim_elm327_new();       
+    SimELM327* elm327 = test_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -175,7 +175,7 @@ void incomplete_string_return_after_20_secs() {
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
 bool fuzzSimELM327() {
-    SimELM327* elm327 = sim_elm327_new();     
+    SimELM327* elm327 = test_sim_elm327_new();     
     elm327->device_type = strdup("network");  
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
@@ -211,7 +211,7 @@ bool testSimELM327() {
     ensureReplayCommands();
     {
         log_msg(LOG_INFO, "Random generate gives different values over two different runs");
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -226,7 +226,7 @@ bool testSimELM327() {
         assert(buffer_cmp(response, serial->recv_buffer) != 0);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -241,7 +241,7 @@ bool testSimELM327() {
         assert(strstr(serial->recv_buffer->buffer, "<DATA ERROR") != null);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -253,7 +253,7 @@ bool testSimELM327() {
         assert(strstr(serial->recv_buffer->buffer, "?") != null);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -271,7 +271,7 @@ bool testSimELM327() {
         assert(strstr(serial->recv_buffer->buffer, "4902") != null);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -290,7 +290,7 @@ bool testSimELM327() {
     }
     testSimELM327_1();
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -305,7 +305,7 @@ bool testSimELM327() {
         assert(viface_recv(iface) != VIFACE_RECV_ERROR);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -315,7 +315,7 @@ bool testSimELM327() {
         printf("recv=%d\n", recv);
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));
@@ -326,7 +326,7 @@ bool testSimELM327() {
         assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFFFF")));
     }
     {
-        SimELM327* elm327 = sim_elm327_new();       
+        SimELM327* elm327 = test_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = port_open(strdup(elm327->device_location));

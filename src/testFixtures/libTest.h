@@ -68,17 +68,13 @@ static VehicleIFace* port_open(char *device_location) {
     serial->location = strdup(device_location);
     return viface_open_from_device(AD_DEVICE(serial));
 }
-
-static VehicleIFace* port_parse_open(int argc, char **argv) {
-    char * device_location = "/dev/pts/2";
-    if ( 1 < argc ) {
-        device_location = argv[1];
-    }
-    return port_open(device_location);
-}
-
-static char* start_elm327_simulation_with_ecus(SimECU *first) {
+static SimELM327 * test_sim_elm327_new() {
     SimELM327* elm327 = sim_elm327_new();
+    elm327->device_type = strdup("network");
+    return elm327;
+}
+static char* start_elm327_simulation_with_ecus(SimECU *first) {
+    SimELM327* elm327 = test_sim_elm327_new();
     if ( first != null ) {
         LIST_SIM_ECU(elm327->ecus)->list[0] = first;
     }
