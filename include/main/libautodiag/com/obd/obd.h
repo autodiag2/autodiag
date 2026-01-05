@@ -74,6 +74,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
                     if ( expected_pid == pid ) { \
                         handler(data_copy); \
                     } \
+                    buffer_free(data_copy); \
                 } \
             } \
         } \
