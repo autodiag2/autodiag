@@ -350,6 +350,9 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     free(ecuResponse);
                     ecuResponse = elmFrameStr;
                 }
+
+                list_Buffer_empty(frames);
+                free(frames);
             }
 
             Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);

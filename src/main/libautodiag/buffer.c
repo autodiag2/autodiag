@@ -201,7 +201,7 @@ void buffer_recycle(Buffer * buffer) {
 int Buffer_cmp(Buffer* e1, Buffer* e2) {
     return buffer_cmp(e1, e2);
 }
-AD_LIST_SRC(Buffer)
+AD_LIST_SRC(Buffer);
 AD_LIST_SRC_EMPTY(Buffer, buffer_free)
 bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
     return buffer_cmp(b1, b2) == 0;

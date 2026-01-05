@@ -210,6 +210,10 @@ int viface_recv(final VehicleIFace* iface) {
                                 case OBD_SERVICE_CLEAR_DTC: list_Buffer_append(ecu->obd_service.clear_dtc, data_copy); break;
                                 case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: list_Buffer_append(ecu->obd_service.request_vehicle_information, data_copy); break;
                                 case OBD_SERVICE_PERMANENT_DTC: list_Buffer_append(ecu->obd_service.permanent_dtc, data_copy); break;
+                                default:
+                                    log_msg(LOG_WARNING, "Received data for unknown OBD service ID: 0x%02X", service_id);
+                                    buffer_free(data_copy);
+                                    break;
                             }
                         }
                     } else {
