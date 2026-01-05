@@ -190,6 +190,8 @@ bool fuzzSimELM327() {
         viface_recv(iface);
     }
     int fuzz_iterations = 10000000;
+    uint64_t t_rate_start = now_ns();
+    int rate_count = 0;
     for(int i = 0; i < fuzz_iterations; i ++) {
         printf("\rFuzzing ELM327 %d/%d", i, fuzz_iterations);
         fflush(stdout);
@@ -199,6 +201,17 @@ bool fuzzSimELM327() {
         viface_clear_data(iface);
         buffer_free(buffer);
         viface_recv(iface);
+        rate_count++;
+        if ((rate_count % 1000) == 0) {
+            uint64_t t_now = now_ns();
+            double elapsed_s = (double)(t_now - t_rate_start) / 1e9;
+            double qps = rate_count / elapsed_s;
+
+            printf("\nrate: %.2f queries/s\n", qps);
+
+            t_rate_start = t_now;
+            rate_count = 0;
+        }
     }
     printf("\n");
     viface_close(iface);
