@@ -89,13 +89,15 @@
 
 #define AD_LIST_H_FREE(element_type) void list_##element_type##_free(list_##element_type* list)
 #define AD_LIST_SRC_FREE(element_type, free) AD_LIST_H_FREE(element_type) { \
-   if (list->list != null ) {\
+   if (list->list != null ) { \
         free; \
-        for(int i = 0; i < list->size; i ++) {\
-            free(list->list[i]);\
-        }\
-        free(list->list);\
-        list->size = 0;\
+        for(int i = 0; i < list->size; i ++) { \
+            if ( list->list[i] != null ) { \
+                free(list->list[i]); \
+            } \
+        } \
+        free(list->list); \
+        list->size = 0; \
     } \
 }
 
