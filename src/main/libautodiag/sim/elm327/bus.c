@@ -282,9 +282,11 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             final Buffer * requestHeader = request_header(elm327, ecu, dataRequest);
             buffer_append(binRequest, requestHeader);
             buffer_append(binRequest, dataRequest);
+            buffer_free(requestHeader);
 
             char * errorCauseReturn;
             final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest, &errorCauseReturn);
+            buffer_free(binRequest);
             if ( extractedDataRequest == null ) {
                 response = errorCauseReturn;
                 break;
@@ -306,6 +308,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     }
                 }
             }
+            buffer_free(extractedDataRequest);
             if ( ecuResponse == null && 0 < dataResponse->size ) {
                 list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
 
@@ -354,6 +357,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 list_Buffer_empty(frames);
                 free(frames);
             }
+            buffer_free(dataResponse);
 
             Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -387,6 +391,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             buffer_ensure_capacity(elm327->obd_buffer,sz);
             memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
             elm327->obd_buffer->size = sz;
+            buffer_free(response_header_bin);
 
             if ( ecuResponse != null ) {
                 char * tmpResponseResult;
