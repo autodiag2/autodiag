@@ -268,7 +268,6 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
         char * end_ptr = strstr(hex_string_request,elm327->eol);
         elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
         log_msg(LOG_DEBUG, "TODO: handle multiple data request");
-        
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
 
@@ -410,7 +409,8 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             double part = 1;
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) && 
                     elm327->vehicle_response_timeout_adaptive ) {
-                part = rand() / (1.0 * RAND_MAX);
+                final int adaptive_response_should_be_quicker_than_default = 5;
+                part = ( rand() / (1.0 * RAND_MAX) ) / adaptive_response_should_be_quicker_than_default;
             }
             useconds_t timeout_usec = elm327->vehicle_response_timeout * 1e3 * part;
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {

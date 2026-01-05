@@ -174,6 +174,7 @@ void incomplete_string_return_after_20_secs() {
     assert(serial_recv_internal(serial) > 0);
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
 }
+
 bool fuzzSimELM327() {
     SimELM327* elm327 = test_sim_elm327_new();     
     elm327->device_type = strdup("network");  

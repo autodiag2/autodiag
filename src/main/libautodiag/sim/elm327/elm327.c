@@ -7,6 +7,7 @@ void sim_elm327_go_low_power() {
 }
 
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
+    elm327->implementation->activity_monitor_thread_launched = true;
     while(true) {
         elm327->activity_monitor_count = 0x00;
         while(elm327->activity_monitor_count != 0xFF && elm327->implementation->activity_monitor_thread_launched) {
@@ -239,7 +240,10 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     }
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
-    elm327->implementation->activity_monitor_thread_launched = false;
+    if ( elm327->implementation->activity_monitor_thread_launched ) {
+        pthread_cancel(elm327->implementation->activity_monitor_thread);
+        elm327->implementation->activity_monitor_thread_launched = false;
+    }
     elm327->activity_monitor_count = 0x00;
     int secs = bitRetrieve(SIM_ELM327_PP_GET(elm327,0x0F), 4) ? 150 : 30;
     elm327->activity_monitor_timeout = (secs / 0.65536) - 1;
@@ -301,6 +305,7 @@ SimELM327* sim_elm327_new() {
     #else
     #   warning OS unsupported
     #endif
+    elm327->implementation->activity_monitor_thread_launched = false;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
     return elm327;
 }
@@ -383,7 +388,13 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     return true;
 }
 char *lastBinCommand = null;
-bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite) {
+static void set_last_bin_command(char * command) {
+    if ( lastBinCommand != null ) {
+        free(lastBinCommand);
+    }
+    lastBinCommand = strdup(command);
+}
+bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite, bool * modifyNvm) {
     char * serial_request_escaped = ascii_escape_breaking_chars(serial_request);
     log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", serial_request_escaped, strlen(serial_request));
     free(serial_request_escaped);
@@ -762,7 +773,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             }
             char *maskCmd;
             asprintf(&maskCmd,"atcm %s", mask);
-            sim_elm327_command_and_protocol_interpreter(elm327, maskCmd, true);
+            sim_elm327_command_and_protocol_interpreter(elm327, maskCmd, true, null);
             free(maskCmd);
 
             char filter[9];
@@ -772,7 +783,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             }
             char *filterCmd;
             asprintf(&filterCmd,"atcf %s", filter);            
-            sim_elm327_command_and_protocol_interpreter(elm327, filterCmd, true);
+            sim_elm327_command_and_protocol_interpreter(elm327, filterCmd, true, null);
             free(filterCmd);
         } else {
             elm327->can.mask = buffer_new();
@@ -821,7 +832,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             } else {
                 char * response = sim_elm327_bus(elm327,serial_request);
                 if ( response != null ) {
-                    lastBinCommand = strdup(serial_request);
+                    set_last_bin_command(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }
@@ -834,14 +845,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 } else {
                     char * response = sim_elm327_bus(elm327,serial_request);
                     if ( response != null ) {
-                        lastBinCommand = strdup(serial_request);
+                        set_last_bin_command(serial_request);
                         SIM_ELM327_REPLY_GENERIC("%s", response);
                     }                
                 }
             } else {
                 char * response = sim_elm327_bus(elm327,serial_request);
                 if ( response != null ) {
-                    lastBinCommand = strdup(serial_request);
+                    set_last_bin_command(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                 }
             }
@@ -1020,6 +1031,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
+    bool shouldWriteNvm = false;
 
     while(elm327->implementation->loop_thread != null) {
         buffer_recycle(recv_buffer);
@@ -1065,22 +1077,22 @@ void sim_elm327_loop(SimELM327 * elm327) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");
             return;
         }
-
         if ( recv_buffer->size <= 1 ) {
             continue;
         }
         char * buffer_str = ascii_escape_breaking_chars((char*)recv_buffer->buffer);
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
-
-        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, (char*)recv_buffer->buffer, false) ) {
+        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, (char*)recv_buffer->buffer, false, &shouldWriteNvm) ) {
             if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true) ) {
                 log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
                 return;
             }
         }
         
-        sim_elm327_non_volatile_memory_store(elm327);                
+        if ( shouldWriteNvm ) {
+            sim_elm327_non_volatile_memory_store(elm327);
+        }
     }
 
 }
