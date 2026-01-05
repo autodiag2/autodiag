@@ -329,6 +329,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                             header = gprintf("%d:", frame_idx);
                         }
                     }
+                    buffer_free(headerBin);
                     if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
                             byte pci_0 = buffer_extract_0(frame);
@@ -346,10 +347,12 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                         }
                     }
                     char *elmFrameStr;
+                    char *elmFrameDataStr = elm_ascii_from_bin(elm327->printing_of_spaces, frame);
                     asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
                         header == null ? "" : header, (header != null && elm327->printing_of_spaces) ? " " : "", 
-                        elm_ascii_from_bin(elm327->printing_of_spaces, frame), elm327->eol
+                        elmFrameDataStr, elm327->eol
                     );
+                    free(elmFrameDataStr);
                     free(ecuResponse);
                     ecuResponse = elmFrameStr;
                 }

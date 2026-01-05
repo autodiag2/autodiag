@@ -585,7 +585,9 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         #endif
         int sz = elm327->obd_buffer->size;
         elm327->obd_buffer->size = elm327->obd_buffer->size_allocated;
-        SIM_ELM327_REPLY_GENERIC("%02x%s%s", sz, hasSpaces ? " " : "", elm_ascii_from_bin(hasSpaces,elm327->obd_buffer));
+        char * obd_buffer_str = elm_ascii_from_bin(hasSpaces,elm327->obd_buffer);
+        SIM_ELM327_REPLY_GENERIC("%02x%s%s", sz, hasSpaces ? " " : "", obd_buffer_str);
+        free(obd_buffer_str);
         elm327->obd_buffer->size = sz;
     } else if AT_PARSE("brd") {
         int baud_rate_divisor = 0;
