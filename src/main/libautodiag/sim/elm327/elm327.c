@@ -372,8 +372,9 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
         asprintf(&response,"%s%s", serial_response, elm327->eol);
     }
     sim_prevent_read_himself(elm327->implementation);
-    free(serial_response);
-    log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
+    char * resp_str = ascii_escape_breaking_chars(response);
+    log_msg(LOG_DEBUG, "sending back %s", resp_str);
+    free(resp_str);
 
     if ( sim_write(elm327->implementation, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
         return false;
@@ -383,7 +384,9 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
 }
 char *lastBinCommand = null;
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite) {
-    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", ascii_escape_breaking_chars(serial_request), strlen(serial_request));
+    char * serial_request_escaped = ascii_escape_breaking_chars(serial_request);
+    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", serial_request_escaped, strlen(serial_request));
+    free(serial_request_escaped);
     char * command_reduced = serial_at_reduce(serial_request);
     int last_index;
     bool commandReconized = false;
@@ -395,12 +398,17 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             char *serial_response; \
             asprintf(&serial_response, __VA_ARGS__); \
             if ( ! sim_elm327_reply(elm327, serial_request, serial_response, isGeneric) ) { \
+                char * serial_request_str = ascii_escape_breaking_chars(serial_request); \
+                char * serial_response_str = ascii_escape_breaking_chars(serial_response); \
                 log_msg(LOG_ERROR, "Error while trying to reply to the command '%s' by '%s'", \
-                    ascii_escape_breaking_chars(serial_request), \
-                    ascii_escape_breaking_chars(serial_response) \
+                    serial_request_str, \
+                    serial_response_str \
                 ); \
+                free(serial_request_str); \
+                free(serial_response_str); \
                 exit(1); \
             } \
+            free(serial_response); \
         } \
         commandReconized = true;
     #define SIM_ELM327_REPLY_GENERIC(...) \
@@ -837,6 +845,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             }
         }
     }
+    free(command_reduced);
     return commandReconized;
 }
 
@@ -1058,10 +1067,12 @@ void sim_elm327_loop(SimELM327 * elm327) {
         if ( recv_buffer->size <= 1 ) {
             continue;
         }
-        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", ascii_escape_breaking_chars((char*)recv_buffer->buffer), recv_buffer->size);
+        char * buffer_str = ascii_escape_breaking_chars((char*)recv_buffer->buffer);
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
+        free(buffer_str);
 
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, (char*)recv_buffer->buffer, false) ) {
-            if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, strdup(ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset]), true) ) {
+            if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true) ) {
                 log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
                 return;
             }
