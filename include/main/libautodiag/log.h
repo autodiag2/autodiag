@@ -33,8 +33,8 @@ extern Logger logger;
 
 #if defined OS_ANDROID
 #   include <android/log.h>
-#   define log_msg(level, ...) \
-        __android_log_print(ANDROID_LOG_INFO, "autodiag", "%s", __VA_ARGS__)
+//#   define log_msg(level, ...) __android_log_print(ANDROID_LOG_INFO, "autodiag", "%s", __VA_ARGS__)
+#   define log_msg(level, msg, ...) 
 #else
 #   define log_msg(level, msg, ...) \
         log_msg_internal(level, __FILE__, __LINE__, msg, ##__VA_ARGS__)
