@@ -97,7 +97,7 @@ char *config_try_make_config_file() {
                 if ( chmod(configFile,0x600) != 0 ) {
                     final FILE * file = fopen(configFile, "w");
                     if ( file == null ) {
-                        perror("fopen");
+                        perror("config_try_make_config_file: fopen");
                         log_msg(LOG_ERROR, "Cannot write the config '%s'", configFile);
                     } else {
                         fclose(file);

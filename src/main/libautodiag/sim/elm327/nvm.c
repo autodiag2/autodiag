@@ -86,7 +86,7 @@ bool sim_elm327_non_volatile_memory_store(SimELM327 * elm327) {
     if ( elm327->isMemoryEnabled ) {
         final FILE * file = fopen(sim_elm327_non_volatile_get_filename(), "w");
         if ( file == null ) {
-            perror("fopen");
+            perror("sim_elm327_non_volatile_memory_store: fopen");
             return false;
         }
         fprintf(file,"nvm.user_memory=%d" FILE_EOL, elm327->nvm.user_memory);

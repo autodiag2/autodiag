@@ -36,7 +36,7 @@
 #define FILE_READ_LINES_WITH(fileName,handler,handlerFunc, handlerData) \
     FILE * file = fopen(fileName, "r"); \
     if ( file == null ) { \
-        perror("fopen"); \
+        perror("FILE_READ_LINES_WITH: fopen"); \
         return false; \
     } else { \
         char eol[] = FILE_EOL;  \
