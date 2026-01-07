@@ -101,16 +101,16 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     buffer_padding(status, 4, 0x00);
                     status->buffer[0] = state->obd.dtcs->size;
                     status->buffer[0] |= state->obd.mil_on << 7;
-                    buffer_append(binResponse, status);
+                    buffer_append_melt(binResponse, status);
                     generic_behaviour = false;
                 }
             }
             if ( generic_behaviour ) {
-                buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+                buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
             }
         } break;
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+            buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
         case OBD_SERVICE_SHOW_DTC: {
             for(int i = 0; i < state->obd.dtcs->size; i++) {
@@ -120,7 +120,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             }
         } break;
         case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
-            buffer_append(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
+            buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state->obd.dtcs);
@@ -130,7 +130,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                         break;
                     }
                     case 0x01: {
@@ -146,7 +146,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x04: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(16, seed));                
+                        buffer_append_melt(binResponse,buffer_new_random_with_seed(16, seed));                
                         break;
                     }
                     case 0x05: {
@@ -154,7 +154,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x06: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
@@ -162,7 +162,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         break;
                     }
                     case 0x08: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
@@ -172,11 +172,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         final Buffer * name = buffer_from_ascii("ECU citroen C5 X7");
                         buffer_padding(name, 20, 0x00);
-                        buffer_append(binResponse, name);
+                        buffer_append_melt(binResponse, name);
                         break;
                     }
                     case 0x0B: {
-                        buffer_append(binResponse,buffer_new_random_with_seed(4, seed));
+                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }
@@ -192,7 +192,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     state->uds.session_type = binRequest->buffer[1];
                 }
                 buffer_append_byte(binResponse, state->uds.session_type);
-                buffer_append(binResponse, buffer_from_ints( 
+                buffer_append_melt(binResponse, buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
             }
@@ -204,7 +204,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 } else {
                     for(unsigned int i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
-                        buffer_append(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
+                        buffer_append_melt(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
                         switch(did) {
                             case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: {
                                 buffer_append_byte(binResponse, state->uds.session_type);

@@ -39,7 +39,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x40:
                     case 0x20:
                     case 0x00: {
-                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                     } break;
                     case 0x01: {
                         gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
@@ -52,7 +52,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             g_list_free(ptr);
                             status->buffer[0] |= is_checked << 7;
                         }
-                        buffer_append(binResponse, status);
+                        buffer_append_melt(binResponse, status);
                     } break;
                     case 0x05: {
                         gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
@@ -96,7 +96,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
-                                buffer_append(binResponse, dtc_bin);
+                                buffer_append_melt(binResponse, dtc_bin);
                             }
                         } else {
                             g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
@@ -111,14 +111,14 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                     } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         const gchar * vin = gtk_entry_get_text(gui->vin);
                         if ( 0 < strlen(vin) ) {
                             final Buffer * vinBuffer = buffer_from_ascii((char*)vin);
                             buffer_padding(vinBuffer, 17, 0x00);
-                            buffer_append(binResponse, vinBuffer);
+                            buffer_append_melt(binResponse, vinBuffer);
                         }
                     } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
@@ -126,7 +126,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         if ( 0 < strlen(ecuName) ) {
                             final Buffer * name = buffer_from_ascii((char*)ecuName);
                             buffer_padding(name, 20, 0x00);
-                            buffer_append(binResponse, name);
+                            buffer_append_melt(binResponse, name);
                         }
                     } break;
                 }

@@ -50,6 +50,10 @@ void buffer_left_shift(final Buffer * buffer, final unsigned int shift);
  */
 void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size);
 void buffer_append(final Buffer * dest, final Buffer * src);
+/**
+ * Same as buffer_append but destroys the src buffer.
+ */
+void buffer_append_melt(final Buffer * dest, final Buffer * src);
 void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned int size);
 void buffer_append_byte(final Buffer * dest, final byte b);
 void buffer_append_str(final Buffer* dest, final char *data);

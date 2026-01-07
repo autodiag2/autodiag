@@ -151,6 +151,10 @@ void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned 
     memcpy(dest->buffer, data, size);
     dest->size += size;
 }
+void buffer_append_melt(final Buffer * dest, final Buffer * src) {
+    buffer_append(dest, src);
+    buffer_free(src);
+}
 void buffer_append(final Buffer * dest, final Buffer * src) {
     assert(src != null);
     assert(dest != null);
