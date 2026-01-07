@@ -245,7 +245,10 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     )
 
 #define saej1979_data_status_iterator(data) \
-    if ( 3 < data->size ) result = data->buffer;
+    if ( 3 < data->size ) { \
+        result = (byte*)malloc(sizeof(byte) * data->size); \
+        memcpy(result, data->buffer, sizeof(byte) * data->size); \
+    }
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         byte*,
                         saej1979_data_status,
@@ -260,7 +263,6 @@ AD_LIST_SRC(SAEJ1979_DATA_Test)
 
 list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
     list_SAEJ1979_DATA_Test *list = list_SAEJ1979_DATA_Test_new();
-
     byte * buffer = data_accessor(iface,useFreezedData);
     if ( buffer != null ) {
         byte B = buffer[1];
@@ -296,8 +298,8 @@ list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, 
                 list_SAEJ1979_DATA_Test_append(list, data);
             }
         }
+        free(buffer);
     }
-
     return list;
 }
 
@@ -1457,7 +1459,10 @@ bool saej1979_egt_sensor_present(final VehicleIFace* iface, bool useFreezedData,
     return bitRetrieve(b, sensor_i - 1);
 }
 #define saej1979_egt_sensor_temperature_iterator(data) \
-    if ( 8 < data->size ) result = data->buffer;
+    if ( 8 < data->size ) { \
+        result = (byte*)malloc(sizeof(byte) * data->size); \
+        memcpy(result, data->buffer, sizeof(byte) * data->size); \
+    }
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
         byte*,saej1979_egt_sensor_temperature_bank_1,
         "78",

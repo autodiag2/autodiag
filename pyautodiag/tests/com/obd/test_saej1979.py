@@ -69,6 +69,7 @@ def test_saej1979():
     assert "ompression" in saej1979.engine_type_str()
 
     tests = saej1979.tests()
+    assert tests.contents.size == 2
     test = tests.contents.list[0].contents
     print(f"test {test.name.decode()} is {test.completed}")
     assert test.completed == 1
