@@ -431,7 +431,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
 
     if ( lastBinCommand != null && strlen(serial_request) == 1 && serial_request[0] == '\r' ) {
-        serial_request = lastBinCommand;
+        serial_request = strdup(lastBinCommand);
     }
     if AT_PARSE("al") {
         SIM_ELM327_REPLY_OK();
@@ -834,6 +834,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 if ( response != null ) {
                     set_last_bin_command(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
+                    free(response);
                 }
             }
         } else {
@@ -847,6 +848,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                     if ( response != null ) {
                         set_last_bin_command(serial_request);
                         SIM_ELM327_REPLY_GENERIC("%s", response);
+                        free(response);
                     }                
                 }
             } else {
@@ -854,6 +856,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 if ( response != null ) {
                     set_last_bin_command(serial_request);
                     SIM_ELM327_REPLY_GENERIC("%s", response);
+                    free(response);
                 }
             }
         }

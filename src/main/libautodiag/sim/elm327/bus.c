@@ -218,6 +218,7 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
         final Buffer * protocolHeader = response_header(elm327, ecu, ELM327_CAN_28_BITS_DEFAULT_PRIO);
         buffer_prepend(responseBodyChunk, protocolHeader);
         list_Buffer_append(result, responseBodyChunk);
+        buffer_free(protocolHeader);
     }
     return result;
 }
@@ -227,11 +228,13 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
 static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src) {
     Buffer * header = buffer_copy(header_src);
     char *protocolSpecificHeader = null;
+    char *protocolSpecificHeaderFreeLocation = null;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327->can.extended_addressing ) {
             buffer_append_byte(header, elm327->can.extended_addressing_target_address);
         }
         protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
+        protocolSpecificHeaderFreeLocation = protocolSpecificHeader;
         if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
             assert(3 <= strlen(protocolSpecificHeader));
             protocolSpecificHeader ++;
@@ -242,11 +245,20 @@ static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src)
         }
     } else {
         protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
+        protocolSpecificHeaderFreeLocation = protocolSpecificHeader;
     }
     if ( protocolSpecificHeader[strlen(protocolSpecificHeader)-1] == ' ' ) {
         protocolSpecificHeader[strlen(protocolSpecificHeader)-1] = 0x00;
     }
-    return protocolSpecificHeader; 
+    buffer_free(header);
+    char * result = null;
+    if ( protocolSpecificHeader != null ) {
+        result = strdup(protocolSpecificHeader); 
+    }
+    if ( protocolSpecificHeaderFreeLocation != null ) {
+        free(protocolSpecificHeaderFreeLocation);
+    }
+    return result;
 }
 
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
@@ -351,6 +363,9 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                         header == null ? "" : header, (header != null && elm327->printing_of_spaces) ? " " : "", 
                         elmFrameDataStr, elm327->eol
                     );
+                    if ( header != null ) {
+                        free(header);
+                    }
                     free(elmFrameDataStr);
                     free(ecuResponse);
                     ecuResponse = elmFrameStr;
@@ -405,6 +420,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 response = tmpResponseResult;
             }
         }
+        buffer_free(dataRequest);
         if ( response == null ) {
             double part = 1;
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) && 
