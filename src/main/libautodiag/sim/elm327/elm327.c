@@ -395,6 +395,7 @@ static void set_last_bin_command(char * command) {
     lastBinCommand = strdup(command);
 }
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite, bool * modifyNvm) {
+    assert(serial_request != null);
     char * serial_request_escaped = ascii_escape_breaking_chars(serial_request);
     log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", serial_request_escaped, strlen(serial_request));
     free(serial_request_escaped);
@@ -431,6 +432,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
 
     if ( lastBinCommand != null && strlen(serial_request) == 1 && serial_request[0] == '\r' ) {
+        free(serial_request);
         serial_request = strdup(lastBinCommand);
     }
     if AT_PARSE("al") {
@@ -774,7 +776,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             char *maskCmd;
             asprintf(&maskCmd,"atcm %s", mask);
             sim_elm327_command_and_protocol_interpreter(elm327, maskCmd, true, null);
-            free(maskCmd);
 
             char filter[9];
             filter[strlen(received_address)] = 0;
@@ -784,7 +785,6 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             char *filterCmd;
             asprintf(&filterCmd,"atcf %s", filter);            
             sim_elm327_command_and_protocol_interpreter(elm327, filterCmd, true, null);
-            free(filterCmd);
         } else {
             elm327->can.mask = buffer_new();
             elm327->can.filter = buffer_new();
@@ -862,6 +862,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         }
     }
     free(command_reduced);
+    free(serial_request);
     return commandReconized;
 }
 
@@ -1086,7 +1087,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
         char * buffer_str = ascii_escape_breaking_chars((char*)recv_buffer->buffer);
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
-        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, (char*)recv_buffer->buffer, false, &shouldWriteNvm) ) {
+        
+        if ( ! sim_elm327_command_and_protocol_interpreter(elm327, strdup((char*)recv_buffer->buffer), false, &shouldWriteNvm) ) {
             if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true) ) {
                 log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
                 return;

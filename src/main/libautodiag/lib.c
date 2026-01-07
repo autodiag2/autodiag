@@ -27,6 +27,7 @@ int compat_vasprintf(char **ret, const char *fmt, va_list ap) {
     return vsnprintf(*ret, len + 1, fmt, ap);
 }
 char * ascii_escape_breaking_chars(char *str) {
+    assert(str != null);
     size_t len = strlen(str);
     char *res = malloc(len * 4 + 1);
     char *p = res;
