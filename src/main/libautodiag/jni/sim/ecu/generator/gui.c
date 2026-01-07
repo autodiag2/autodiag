@@ -100,7 +100,7 @@
                         if ( dtc_bin == null ) {
                             log_msg(LOG_ERROR, "invalid dtc found");
                         } else {
-                            buffer_append(binResponse, dtc_bin);
+                            buffer_append_melt(binResponse, dtc_bin);
                         }
                         
                         (*env)->ReleaseStringUTFChars(env, s, dtc);
@@ -119,7 +119,7 @@
                         case 0x40:
                         case 0x20:
                         case 0x00: {
-                            buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                             useParent = false;
                         } break;
                         case 0x01: {
@@ -130,7 +130,7 @@
                                 status->buffer[0] = dtc_count;
                                 status->buffer[0] |= is_checked << 7;
                             }
-                            buffer_append(binResponse, status);
+                            buffer_append_melt(binResponse, status);
                             useParent = false;
                         } break;
                         case 0x05: {
@@ -167,7 +167,7 @@
                 if ( 1 < binRequest->size ) {            
                     switch(binRequest->buffer[1]) {
                         case 0x00: {
-                            buffer_append(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
                             useParent = false;
                             break;
                         }
@@ -177,7 +177,7 @@
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                            buffer_append(binResponse,buffer_from_ascii(vin));   
+                            buffer_append_melt(binResponse,buffer_from_ascii(vin));   
                             useParent = false;             
                             break;
                         }
@@ -187,7 +187,7 @@
                             break;
                         }
                         case 0x04: {
-                            buffer_append(binResponse,buffer_new_random(16));  
+                            buffer_append_melt(binResponse,buffer_new_random(16));  
                             useParent = false;
                             break;
                         }
@@ -197,7 +197,7 @@
                             break;
                         }
                         case 0x06: {
-                            buffer_append(binResponse,buffer_new_random(4));
+                            buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }
@@ -207,7 +207,7 @@
                             break;
                         }
                         case 0x08: {
-                            buffer_append(binResponse,buffer_new_random(4));
+                            buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }
@@ -219,12 +219,12 @@
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                             final Buffer * name = buffer_from_ascii(ecu_name);
                             buffer_padding(name, 20, 0x00);
-                            buffer_append(binResponse, name);
+                            buffer_append_melt(binResponse, name);
                             useParent = false;
                             break;
                         }
                         case 0x0B: {
-                            buffer_append(binResponse,buffer_new_random(4));
+                            buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }
