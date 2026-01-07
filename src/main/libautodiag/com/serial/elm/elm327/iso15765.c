@@ -30,7 +30,6 @@ bool elm327_protocol_is_can_29_bits_id(final ELM327_PROTO proto) {
 bool elm327_is_can_29_bits_id(final ELM327Device* elm327) {
     return elm327_protocol_is_can_29_bits_id(elm327->protocol);
 }
-
 bool elm327_iso15765_parse_response(final ELM327Device* elm327, final Vehicle* vehicle) {
     assert(elm327->eol != null);
     log_msg(LOG_WARNING, "Assuming auto formatting on");
@@ -46,14 +45,12 @@ bool elm327_iso15765_parse_response(final ELM327Device* elm327, final Vehicle* v
     final byte id_ascii[id_sz_chars+1];
     id_ascii[id_sz_chars] = 0;
 
-    final ELMDevice* elm = (ELMDevice*)elm327;
     final list_Iso15765Conversation* conversations = list_Iso15765Conversation_new();
-    SERIAL_BUFFER_ITERATE(elm,ELM_ISO15765_PARSE_RESPONSE_ITERATOR)
+    bool result = elm_iso15765_parse_response_internal(elm327, conversations, id_ascii, id_sz_chars, vehicle);
     for(int i = 0; i < conversations->size; i++) {
-        final Iso15765Conversation* conv = conversations->list[i];
-        iso15765_conversation_free(conv);
+        iso15765_conversation_free(conversations->list[i]);
         conversations->list[i] = null;
     }
     list_Iso15765Conversation_free(conversations);
-    return true;
+    return result;
 }

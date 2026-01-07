@@ -3,6 +3,7 @@
 
 #include "libautodiag/lib.h"
 #include "libautodiag/math.h"
+#include "libautodiag/com/can/iso15765.h"
 
 int oneHex(char c);
 
@@ -148,5 +149,7 @@ int oneHex(char c);
             break; \
         } \
     }
-    
+
+bool elm_iso15765_parse_response_internal(final void* elm_arg, list_Iso15765Conversation* conversations, char * id_ascii, int id_sz_chars, void * vehicle_arg);
+
 #endif
