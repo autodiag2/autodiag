@@ -11,7 +11,7 @@ SimELM327* jni_sim_elm327_get() {
     assert(_sim != null);
     return _sim;
 }
-JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path, jstring kind) {
+JNIEXPORT jstring JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path, jstring kind) {
     log_set_level(LOG_DEBUG);
     
     const char *nativePath = (*env)->GetStringUTFChars(env, path, null);
@@ -40,7 +40,7 @@ JNIEXPORT jstring JNICALL Java_com_autodiag_elm327emu_libautodiag_launchEmu(JNIE
     return (*env)->NewStringUTF(env, sim->device_location);
 }
 JNIEXPORT jobjectArray JNICALL
-Java_com_autodiag_elm327emu_libautodiag_getProtocols(
+Java_com_github_autodiag2_elm327emu_libautodiag_getProtocols(
     JNIEnv *env,
     jobject thiz
 ) {
@@ -70,7 +70,7 @@ Java_com_autodiag_elm327emu_libautodiag_getProtocols(
     return array;
 }
 JNIEXPORT void JNICALL
-Java_com_autodiag_elm327emu_libautodiag_setProtocol(
+Java_com_github_autodiag2_elm327emu_libautodiag_setProtocol(
     JNIEnv *env,
     jobject thiz,
     jint protocol
@@ -82,7 +82,7 @@ Java_com_autodiag_elm327emu_libautodiag_setProtocol(
     sim->protocolRunning = protocol;
     sim->nvm.protocol = protocol;
 }
-JNIEXPORT jint JNICALL Java_com_autodiag_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz) {
+JNIEXPORT jint JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz) {
     SimELM327 *sim = jni_sim_elm327_get();
     if (!sim)
         return -1;

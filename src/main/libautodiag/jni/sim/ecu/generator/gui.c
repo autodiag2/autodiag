@@ -21,7 +21,7 @@
         if ((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK)
             return JNI_ERR;
 
-        jclass cls = (*env)->FindClass(env, "com/autodiag/elm327emu/libautodiag");
+        jclass cls = (*env)->FindClass(env, "com/github/autodiag2/elm327emu/libautodiag");
         g_libautodiag = (*env)->NewGlobalRef(env, cls);
 
         mid_vehicle_speed = (*env)->GetStaticMethodID(env, g_libautodiag, "getVehicleSpeed", "()I");
