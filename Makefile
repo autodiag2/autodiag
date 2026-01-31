@@ -4,39 +4,39 @@ include app.mk
 INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 # Programs
-SOURCES_PROGS := $(call rwildcard,src/main/,*.c)
+SOURCES_PROGS := $(sort $(call rwildcard,src/main/,*.c))
 ifneq (,$(findstring compat,$(MAKECMDGOALS)))
-	OBJS_PROGS := $(call filterout-multi, \
+	OBJS_PROGS := $(sort $(call filterout-multi, \
 		output/obj/main/libprog/ui/%.o output/obj/main/ui/%.o \
 		output/obj/main/libprog/sim_ecu_generator_gui.o output/obj/main/libautodiag/%.o \
 		output/obj/main/prog/%.o, \
 		$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)) \
-	)
+	))
 	CFLAGS += -DCOMPILE_COMPAT
 else
-	OBJS_PROGS := $(call filterout-multi, \
+	OBJS_PROGS := $(sort $(call filterout-multi, \
 		output/obj/main/libautodiag/%.o \
 		output/obj/main/prog/%.o, \
 		$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)) \
-	)
+	))
 endif
-BINS_PROGS := $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c))
+BINS_PROGS := $(sort $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c)))
 
 # Library shared object
-OBJS_LIB := output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o)))
+OBJS_LIB := $(sort output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
 BIN_LIB := $(BIN_LIB_NAME)
 PYTHON_INSTALL_FOLDER_ROOT := pyautodiag/autodiag
 PYTHON_INSTALL_FOLDER_LIB := $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
 PYTHON_INSTALL_FOLDER_DATA := $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
-BINS_TESTS := output/bin/regression output/bin/fuzz
-SOURCES_TESTS := $(call rwildcard,src/test/,*.c)
-OBJS_TESTS := $(patsubst src/test/%.c,output/obj/test/%.o,$(SOURCES_TESTS))
-OBJS_TESTS := $(filter-out $(patsubst output/bin/%,output/obj/test/%.o,$(BINS_TESTS)),$(OBJS_TESTS))
+BINS_TESTS := $(sort output/bin/regression output/bin/fuzz)
+SOURCES_TESTS := $(sort $(call rwildcard,src/test/,*.c))
+OBJS_TESTS := $(sort $(patsubst src/test/%.c,output/obj/test/%.o,$(SOURCES_TESTS)))
+OBJS_TESTS := $(sort $(filter-out $(patsubst output/bin/%,output/obj/test/%.o,$(BINS_TESTS)),$(OBJS_TESTS)))
 
-SOURCES := $(SOURCES_PROGS) $(SOURCES_TESTS)
-OBJS := $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB)
+SOURCES := $(sort $(SOURCES_PROGS) $(SOURCES_TESTS))
+OBJS := $(sort $(OBJS_PROGS) $(OBJS_TESTS) $(OBJS_LIB))
 
 CFLAGS_TESTS = -I src/testFixtures/
 CFLAGS_COVERAGE = 
