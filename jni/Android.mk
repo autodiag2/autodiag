@@ -19,6 +19,14 @@ LOCAL_SRC_FILES := $(sort \
 LOCAL_CFLAGS := $(CFLAGS)
 LOCAL_LDLIBS += -llog
 LOCAL_LDFLAGS += -Wl,--build-id=none
+LOCAL_CFLAGS += -fno-profile-generate -fno-profile-use
+LOCAL_CFLAGS += -fno-bolt
+LOCAL_CFLAGS += -fno-mlgo
+LOCAL_CFLAGS += -fno-lto
+LOCAL_LDFLAGS += -fno-lto
+LOCAL_CFLAGS += \
+  -fno-ident \
+  -fno-record-gcc-switches
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -33,5 +41,13 @@ LOCAL_SRC_FILES := $(sort $(SRC_FILES_LIBPROG) ../src/main/prog/elm327sim.c)
 LOCAL_CFLAGS := $(CFLAGS)
 LOCAL_SHARED_LIBRARIES := libautodiag
 LOCAL_LDLIBS += -llog
-LOCAL_LDFLAGS += -Wl,--build-id=none
+LOCAL_LDFLAGS += -Wl,--build-id=
+LOCAL_CFLAGS += -fno-profile-generate -fno-profile-use
+LOCAL_CFLAGS += -fno-bolt
+LOCAL_CFLAGS += -fno-mlgo
+LOCAL_CFLAGS += -fno-lto
+LOCAL_LDFLAGS += -fno-lto
+LOCAL_CFLAGS += \
+  -fno-ident \
+  -fno-record-gcc-switches
 include $(BUILD_EXECUTABLE)
