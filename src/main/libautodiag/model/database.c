@@ -24,8 +24,12 @@ bool db_vehicle_description_parser(char * funcData, char *key, char *value) {
     } else if ( strcasecmp(key,"ecu") == 0 ) {
         log_msg(LOG_ERROR, "Need to set the ecu model to: %s", value);
         return true;
+    } else if ( strcasecmp(key,"years") == 0 ) {
+        log_msg(LOG_DEBUG, "TODO: implement years=%s", value);
+        return true;
     }
-    return false;
+    log_msg(LOG_WARNING, "Unknown vehicle key in desc.ini key=%s value=%s\n", key, value);
+    return true;
 }
 Vehicle* db_vehicle_load_from_database(char * directory) {
     assert(directory != null);
