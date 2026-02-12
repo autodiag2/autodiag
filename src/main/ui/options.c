@@ -294,40 +294,6 @@ static void set_device_location(char * location) {
     }
 }
 
-static void show_window() {
-    gtk_window_show_ensure_ontop(gui->window);
-    list_serial_refresh();
-    fill_vehicle_infos();
-    recorder_set_status("");
-    sim_launch_set_status("");
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), false);
-    if ( config.recorder.filepath ) {
-        gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
-    }
-    gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
-    gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
-    gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
-    gtk_combo_box_set_active(GTK_COMBO_BOX(gui->logLevel), config.log.level);
-    char * txt;
-    asprintf(&txt,"%d", config.com.serial.baud_rate);
-    gtk_entry_set_text(gui->baudRateSelection,txt);
-    free(txt);
-    if ( config.com.serial.device_location != null ) {
-        set_device_location(config.com.serial.device_location);
-    }
-    char * text;
-    asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
-    gtk_entry_set_text(gui->vehicleExplorerGui.refreshRateS, text);
-    free(text);
-
-    GList *children = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
-    for (GList *iter = children; iter != NULL; iter = iter->next) {
-        gtk_widget_destroy(GTK_WIDGET(iter->data));
-    }
-    g_list_free(children);
-    simulation_ecu_add("E8", "random");
-}
-
 void window_baud_rate_set_from_button(final GtkButton * button) {
     char* baud_rate_str = (char*)gtk_button_get_label(button);
     gtk_entry_set_text(gui->baudRateSelection, baud_rate_str);
@@ -501,7 +467,7 @@ static void launch_simulation() {
     thread_allocate_and_start(&gui->simulator.launchThread,&launch_simulation_daemon);
 }
 
-void module_init_options(GtkBuilder *builder) {
+static void init(GtkBuilder *builder) {
     if ( gui == null ) {
         gui = (OptionsGui*)malloc(sizeof(OptionsGui));
         OptionsGui g = {
@@ -568,16 +534,63 @@ void module_init_options(GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&save);
-        gtk_builder_add_callback_symbol(builder,"show-window-options",&show_window);
         gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&list_serial_refresh);
     } else {
     
     }
 }
 
-void module_shutdown_options() {
+static void end() {
     if ( gui != null ) {
         free(gui);
-    }   
+        gui = null;
+    }
 }
 
+static void show() {
+    gtk_window_show_ensure_ontop(gui->window);
+    list_serial_refresh();
+    fill_vehicle_infos();
+    recorder_set_status("");
+    sim_launch_set_status("");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled), false);
+    if ( config.recorder.filepath ) {
+        gtk_entry_set_text(gui->recorder.file, config.recorder.filepath);
+    }
+    gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
+    gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
+    gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(gui->logLevel), config.log.level);
+    char * txt;
+    asprintf(&txt,"%d", config.com.serial.baud_rate);
+    gtk_entry_set_text(gui->baudRateSelection,txt);
+    free(txt);
+    if ( config.com.serial.device_location != null ) {
+        set_device_location(config.com.serial.device_location);
+    }
+    char * text;
+    asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);
+    gtk_entry_set_text(gui->vehicleExplorerGui.refreshRateS, text);
+    free(text);
+
+    GList *children = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
+    for (GList *iter = children; iter != NULL; iter = iter->next) {
+        gtk_widget_destroy(GTK_WIDGET(iter->data));
+    }
+    g_list_free(children);
+    simulation_ecu_add("E8", "random");
+}
+
+static void hide() {
+    hide_window();
+}
+
+mod_gui * mod_gui_options_new() {
+    mod_gui * mg = (mod_gui*)malloc(sizeof(mod_gui));
+    mg->init = init;
+    mg->end = end;
+    mg->name = strdup("Settings");
+    mg->show = show;
+    mg->hide = hide;
+    return mg;
+}

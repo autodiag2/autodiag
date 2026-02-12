@@ -156,10 +156,6 @@ void command_line_generic_send_command_from_button(final GtkButton * button) {
     g_idle_add(send_command_from_button_gsource, (gpointer)button);
 }
 
-static void show() {
-   gtk_window_show_ensure_ontop(gui->window);
-   gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
-}
 static void send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
     if ( -1 == commandHistoryIndex || strcmp(commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data, command) != 0 ) {
@@ -244,7 +240,7 @@ static void vehicle_add_pid_buttons() {
     }
 }
 
-void module_init_command_line(final GtkBuilder *builder) {
+static void init(final GtkBuilder *builder) {
     if ( gui == null ) {
         commandHistory = list_object_string_new();
         gui = (CommandLineGui*)malloc(sizeof(CommandLineGui));
@@ -271,7 +267,6 @@ void module_init_command_line(final GtkBuilder *builder) {
         assert(0 != g_signal_connect(gui->customCommandInput, "key-press-event", G_CALLBACK(input_line_keypress), NULL));
         error_feedback_windows_init(gui->errorFeedback);
         assert(0 != g_signal_connect(G_OBJECT(gtk_scrolled_window_get_vadjustment(gui->output.window)),"changed",G_CALLBACK(output_scrollbar_size_changed),null));        
-        gtk_builder_add_callback_symbol(builder,"show-window-command-line",&show);
         gtk_builder_add_callback_symbol(builder,"window-command-line-custom-send_clicked",&send_custom_command);
         gtk_builder_add_callback_symbol(builder,"window-command-line-clear_output_clicked",&output_clear);
         gtk_builder_add_callback_symbol(builder,"send_command_from_button",G_CALLBACK(&command_line_generic_send_command_from_button));
@@ -282,8 +277,28 @@ void module_init_command_line(final GtkBuilder *builder) {
     }
 }
 
-void module_shutdown_command_line() {
+static void end() {
     if ( gui != null ) {
         free(gui);
+        gui = null;
     }
+}
+
+static void show() {
+    gtk_window_show_ensure_ontop(GTK_WIDGET(gui->window));
+    gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
+}
+
+static void hide() {
+
+}
+
+mod_gui * mod_gui_command_line_new() {
+    mod_gui * mg = (mod_gui*)malloc(sizeof(mod_gui));
+    mg->init = init;
+    mg->end = end;
+    mg->name = strdup("Command Line");
+    mg->show = show;
+    mg->hide = hide;
+    return mg;
 }

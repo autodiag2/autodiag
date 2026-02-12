@@ -5,6 +5,7 @@
 
 #include "main.h"
 #include "ui.h"
+#include "ui_mod.h"
 #include "libautodiag/com/obd/obd.h"
 #include "ui/widget/menubar.h"
 
@@ -60,7 +61,7 @@ typedef struct {
     } menuBar;
 } TroubleCodeReaderGui;
 
-void module_init_read_codes(GtkBuilder *builder);
+mod_gui * mod_gui_read_codes_new();
 
 #define trouble_code_reader_error_feedback_obd(iface) \
     error_feedback_obd(gui->errorFeedback,iface,list_serial_get_selected())

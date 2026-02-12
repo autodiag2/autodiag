@@ -12,11 +12,6 @@ static void switch_tabs(GtkNotebook *notebook, GtkWidget *page, guint page_num, 
     set_manuals_directory();
 }
 
-static void show() {
-    set_manuals_directory();
-    gtk_window_show_ensure_ontop(GTK_WIDGET(gui->window));
-}
-
 static void open_manuals() {
     GSList *list = gtk_file_chooser_get_uris(gui->fileChooser);
     for(GSList *ptr = list; ptr != null; ptr = ptr->next) {
@@ -29,7 +24,7 @@ static void open_manuals() {
     }
 }
 
-void module_init_documentation(GtkBuilder *builder) {
+static void init(GtkBuilder *builder) {
     if ( gui == null ) {
         gui = (DocumentationGui *)malloc(sizeof(DocumentationGui));
         DocumentationGui g = {
@@ -54,7 +49,33 @@ void module_init_documentation(GtkBuilder *builder) {
         assert(0 != g_signal_connect(G_OBJECT(g.tabber),"switch-page",G_CALLBACK(switch_tabs),NULL));
         assert(0 != g_signal_connect(G_OBJECT(g.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL));
         assert(0 != g_signal_connect(G_OBJECT(g.fileChooser),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),NULL));        
-        gtk_builder_add_callback_symbol(builder,"show-window-documentation",&show);
         gtk_builder_add_callback_symbol(builder,"documentation-open-manuals",&open_manuals);
     }
+}
+
+
+static void end() {
+    if ( gui != null ) {
+        free(gui);
+        gui = null;
+    }
+}
+
+static void show() {
+    set_manuals_directory();
+    gtk_window_show_ensure_ontop(GTK_WIDGET(gui->window));
+}
+
+static void hide() {
+
+}
+
+mod_gui * mod_gui_documentation_new() {
+    mod_gui * mg = (mod_gui*)malloc(sizeof(mod_gui));
+    mg->init = init;
+    mg->end = end;
+    mg->name = strdup("Documentation");
+    mg->show = show;
+    mg->hide = hide;
+    return mg;
 }

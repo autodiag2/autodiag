@@ -13,13 +13,6 @@ static void clear_dtc_description() {
 static bool filtered_dtc_state() {
     return gtk_check_menu_item_get_active(gui->menuBar.filtered);    
 }
-static void hide() {
-    gtk_widget_hide_on_main_thread(gui->window);
-}
-
-static void show() {
-    gtk_window_show_ensure_ontop(gui->window);
-}
 
 static void show_clear_confirm() {
     gtk_widget_show_on_main_thread(gui->clear.confirm);
@@ -298,7 +291,10 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
         free(explanation);
     }
 }
-void module_init_read_codes(GtkBuilder *builder) {
+static void hide() {
+    gtk_widget_hide_on_main_thread(gui->window);
+}
+static void init(GtkBuilder *builder) {
     if ( gui == null ) {
         module_debug_init(MODULE_CODES_READER);
         gui = (TroubleCodeReaderGui*)malloc(sizeof(TroubleCodeReaderGui));
@@ -361,7 +357,6 @@ void module_init_read_codes(GtkBuilder *builder) {
         error_feedback_windows_init(gui->errorFeedback);
         assert(0 != g_signal_connect(G_OBJECT(gui->noObdData),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         assert(0 != g_signal_connect(G_OBJECT(gui->menuBar.showECUsBuffer.window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
-        gtk_builder_add_callback_symbol(builder,"show-window-read-codes",&show);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-read-codes",&read_codes);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-clear-codes",&show_clear_confirm);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-dtc-selected",G_CALLBACK(&dtc_selected));
@@ -381,4 +376,23 @@ void module_init_read_codes(GtkBuilder *builder) {
     } else {
         module_debug(MODULE_CODES_READER, "Module already initialized");
     }
+}
+static void end() {
+    if ( gui != null ) {
+        free(gui);
+        gui = null;
+    }
+}
+
+static void show() {
+    gtk_window_show_ensure_ontop(gui->window);
+}
+mod_gui * mod_gui_read_codes_new() {
+    mod_gui * mg = (mod_gui*)malloc(sizeof(mod_gui));
+    mg->init = init;
+    mg->end = end;
+    mg->name = strdup("Read Codes");
+    mg->show = show;
+    mg->hide = hide;
+    return mg;
 }

@@ -39,7 +39,7 @@ typedef struct {
         GtkLabel *year;
         GtkLabel *vin;
     } vehicle;
-    GtkBox *mod_launcher;
+    GtkGrid *mod_launcher;
 } MainGui;
 
 extern MainGui *mainGui;

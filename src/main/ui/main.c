@@ -2,11 +2,13 @@
 
 MainGui *mainGui = null;
 static list_mod_gui * mods = null;
+static int mod_launcher_last_cols = -1;
 
 void module_shutdown_main() {
     module_shutdown_serial();
-    module_shutdown_options();
-    module_shutdown_command_line();
+    for(int i = 0; i < mods->size; i++) {
+        mods->list[i]->end();
+    }
     gtk_main_quit();
 }
 
@@ -121,6 +123,119 @@ void * module_init_main_deferred(void *ignored) {
     refresh_usb_adaptater_state_internal(null);
     return null;
 }
+static GtkWidget *grid_child_at(GtkGrid *grid, int col, int row) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(grid));
+    for (GList *l = children; l; l = l->next) {
+        GtkWidget *w = GTK_WIDGET(l->data);
+        int left = 0, top = 0, width = 0, height = 0;
+        gtk_container_child_get(GTK_CONTAINER(grid), w,
+                                "left-attach", &left,
+                                "top-attach", &top,
+                                "width", &width,
+                                "height", &height,
+                                NULL);
+        if (left <= col && col < left + width && top <= row && row < top + height) {
+            g_list_free(children);
+            return w;
+        }
+    }
+    g_list_free(children);
+    return NULL;
+}
+static void grid_next_free_cell(GtkGrid *grid, int cols, int *io_col, int *io_row) {
+    int col = *io_col;
+    int row = *io_row;
+    for (;;) {
+        if (cols < 1) cols = 1;
+        if (col >= cols) { col = 0; row++; }
+
+        if (grid_child_at(grid, col, row) == NULL) {
+            *io_col = col;
+            *io_row = row;
+            return;
+        }
+        col++;
+    }
+}
+static int grid_compute_max_cols(GtkWidget *grid, int fallback_cols, int item_min_w, int spacing) {
+    int w = gtk_widget_get_allocated_width(grid);
+    if (w <= 1) return (fallback_cols < 1) ? 1 : fallback_cols;
+
+    int cols = (w + spacing) / (item_min_w + spacing);
+    if (cols < 1) cols = 1;
+    return cols;
+}
+
+static void grid_clear_children_tagged(GtkWidget *grid) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(grid));
+    for (GList *l = children; l; l = l->next) {
+        GtkWidget *w = GTK_WIDGET(l->data);
+        if (g_object_get_data(G_OBJECT(w), "autolayout_dynamic") != NULL) {
+            g_object_ref(w);
+            gtk_container_remove(GTK_CONTAINER(grid), w);
+        }
+    }
+    g_list_free(children);
+}
+static void populate_mod_launcher_grid(GtkWidget *grid, list_mod_gui *mods) {
+    const int fallback_cols = 3;
+    const int item_min_w = 160;
+    const int spacing = 10;
+
+    gtk_grid_set_column_spacing(GTK_GRID(grid), spacing);
+    gtk_grid_set_row_spacing(GTK_GRID(grid), spacing);
+    gtk_widget_set_margin_start(grid, 10);
+    gtk_widget_set_margin_end(grid, 10);
+    gtk_widget_set_margin_top(grid, 10);
+    gtk_widget_set_margin_bottom(grid, 10);
+
+    int cols = grid_compute_max_cols(grid, fallback_cols, item_min_w, spacing);
+    if (cols < 1) cols = 1;
+
+    grid_clear_children_tagged(grid);
+
+    int i = 0;
+    for (int mi = 0; mi < mods->size; mi++) {
+        mod_gui *m = mods->list[mi];
+
+        int col = i % cols;
+        int row = i / cols;
+        grid_next_free_cell(GTK_GRID(grid), cols, &col, &row);
+
+        GtkWidget *launcher = gtk_button_new_with_label(m->name);
+        g_object_set_data(G_OBJECT(launcher), "autolayout_dynamic", (gpointer)1);
+
+        gtk_widget_set_size_request(launcher, item_min_w, -1);
+        gtk_widget_set_hexpand(launcher, TRUE);
+        gtk_widget_set_halign(launcher, GTK_ALIGN_FILL);
+        
+        gtk_grid_attach(GTK_GRID(grid), launcher, col, row, 1, 1);
+        g_signal_connect(G_OBJECT(launcher), "clicked", G_CALLBACK(m->show), NULL);
+        gtk_widget_show(launcher);
+
+        i++;
+    }
+
+    gtk_widget_show_all(grid);
+    gtk_widget_queue_resize(grid);
+}
+
+static void mod_launcher_on_size_allocate(GtkWidget *grid, GdkRectangle *alloc, gpointer user_data) {
+    list_mod_gui *mods = (list_mod_gui*)user_data;
+
+    const int fallback_cols = 3;
+    const int item_min_w = 160;
+    const int spacing = 10;
+
+    int cols = grid_compute_max_cols(grid, fallback_cols, item_min_w, spacing);
+    if (cols < 1) cols = 1;
+
+    if (cols == mod_launcher_last_cols) return;
+    mod_launcher_last_cols = cols;
+
+    populate_mod_launcher_grid(grid, mods);
+}
+
 void module_init_main() {
     if ( mainGui == null ) {
 
@@ -154,7 +269,7 @@ void module_init_main() {
                 .year = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-year")),
                 .vin = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-vin"))
             },
-            .mod_launcher = GTK_BOX(gtk_builder_get_object(builder, "root-actions"))
+            .mod_launcher = GTK_GRID(gtk_builder_get_object(builder, "root-actions"))
         };
                             
         mainGui = (MainGui*)malloc(sizeof(MainGui));
@@ -178,24 +293,22 @@ void module_init_main() {
         assert(0 != g_signal_connect(G_OBJECT(mainGui->window),"delete-event",G_CALLBACK(main_onclose),NULL));
         gtk_builder_add_callback_symbol(builder,"window-root-quit",&module_shutdown_main);
 
-        module_init_documentation(builder);        
-        module_init_read_codes(builder);
-        module_init_options(builder);
         module_init_serial();
-        module_init_command_line(builder);
         
         mods = list_mod_gui_new();
         list_mod_gui_append(mods, mod_gui_dyno_new());
         list_mod_gui_append(mods, mod_gui_vehicle_explorer_new());
+        list_mod_gui_append(mods, mod_gui_options_new());
+        list_mod_gui_append(mods, mod_gui_command_line_new());
+        list_mod_gui_append(mods, mod_gui_read_codes_new());
+        list_mod_gui_append(mods, mod_gui_documentation_new());
 
         list_mod_gui_build(mods, builder);
-        for(int i = 0; i < mods->size; i++) {
-            mod_gui * m = mods->list[i];
-            GtkButton * launcher = GTK_BUTTON(gtk_button_new_with_label(m->name));
-            gtk_box_pack_start(GTK_BOX(gui.mod_launcher), GTK_WIDGET(launcher), false, false, 0);
-            gtk_widget_show(GTK_WIDGET(launcher));
-            g_signal_connect(G_OBJECT(launcher),  "clicked", G_CALLBACK(m->show), NULL);
-        }
+        
+        g_signal_connect(G_OBJECT(mainGui->mod_launcher), "size-allocate",
+                     G_CALLBACK(mod_launcher_on_size_allocate), mods);
+
+        populate_mod_launcher_grid(GTK_WIDGET(mainGui->mod_launcher), mods);
 
         gtk_builder_connect_signals (builder, NULL);
         g_object_unref (G_OBJECT (builder));

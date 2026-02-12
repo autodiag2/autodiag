@@ -4,6 +4,7 @@
 #define MODULE_OPTIONS "Options", 
 
 #include "ui.h"
+#include "ui_mod.h"
 #include <stdlib.h>
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/model/database.h"
@@ -57,8 +58,6 @@ typedef struct {
 
 } OptionsGui;
 
-
-void module_init_options(GtkBuilder *builder);
-void module_shutdown_options();
+mod_gui * mod_gui_options_new();
 
 #endif

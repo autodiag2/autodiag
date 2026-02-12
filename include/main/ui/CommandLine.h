@@ -4,6 +4,7 @@
 #define MODULE_COMMAND_LINE "CommandLine",
 
 #include "ui.h"
+#include "ui_mod.h"
 #include "libautodiag/com/serial/serial.h"
 #include "libautodiag/com/serial/list_serial.h"
 #include "libautodiag/buffer.h"
@@ -27,6 +28,6 @@ typedef struct {
 } CommandLineGui;
 
 void command_line_generic_send_command_from_button(final GtkButton * button);
-void module_init_command_line(GtkBuilder *builder);
-void module_shutdown_command_line();
+mod_gui * mod_gui_command_line_new();
+
 #endif

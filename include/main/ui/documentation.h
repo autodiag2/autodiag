@@ -2,6 +2,7 @@
 #define __DOCUMENTATION_H
 
 #include "ui.h"
+#include "ui_mod.h"
 
 typedef struct {
     GtkWindow *window;
@@ -17,6 +18,6 @@ typedef struct {
     } about;
 } DocumentationGui;
 
-void module_init_documentation(GtkBuilder *builder);
+mod_gui * mod_gui_documentation_new();
 
 #endif
