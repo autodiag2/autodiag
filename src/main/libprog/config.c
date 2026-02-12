@@ -153,7 +153,15 @@ bool config_store() {
     }
     return res;
 }
+static double config_strtod(char * value) {
+    char *tmp = strdup(value);
+    for (char *p = tmp; *p; p++)
+        if (*p == ',') *p = '.';
 
+    double d = strtod(tmp, NULL);
+    free(tmp);
+    return d;
+}
 static bool config_load_parser(char * funcData, char *key, char *value) {
     config_initiated_check();
     if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
@@ -178,13 +186,13 @@ static bool config_load_parser(char * funcData, char *key, char *value) {
         config.recorder.filepath = strdup(value);
         return true;
     } else if ( strcasecmp(key,"vehicleExplorer.refreshRateS") == 0 ) {
-        config.vehicleExplorer.refreshRateS = strtod(value,null);
+        config.vehicleExplorer.refreshRateS = config_strtod(value);
         return true;
     } else if ( strcasecmp(key,"vehicleExplorer.autoRefresh") == 0 ) {
-        config.vehicleExplorer.autoRefresh = strtod(value,null);        
+        config.vehicleExplorer.autoRefresh = config_strtod(value);        
         return true;
     } else if ( strcasecmp(key, "log.level") == 0 ) {
-        config.log.level = strtod(value,null);        
+        config.log.level = config_strtod(value);        
         return true;
     } else if ( strcasecmp(key, "vehicleInfos.vin") == 0 ) {
         config.vehicleInfos.vin = strdup(value);
