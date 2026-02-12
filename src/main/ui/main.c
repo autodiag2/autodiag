@@ -1,6 +1,7 @@
 #include "ui/main.h"
 
 MainGui *mainGui = null;
+static list_mod_gui * mods = null;
 
 void module_shutdown_main() {
     module_shutdown_serial();
@@ -152,7 +153,8 @@ void module_init_main() {
                 .country = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-country")),
                 .year = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-year")),
                 .vin = GTK_LABEL(gtk_builder_get_object(builder, "window-root-vehicle-vin"))
-            }
+            },
+            .mod_launcher = GTK_BOX(gtk_builder_get_object(builder, "root-actions"))
         };
                             
         mainGui = (MainGui*)malloc(sizeof(MainGui));
@@ -182,6 +184,19 @@ void module_init_main() {
         module_init_serial();
         module_init_command_line(builder);
         module_init_vehicle_explorer(builder);
+        
+        mods = list_mod_gui_new();
+        mod_gui * dyno_mod = mod_gui_dyno_new();
+        list_mod_gui_append(mods, dyno_mod);
+
+        list_mod_gui_build(mods, builder);
+        for(int i = 0; i < mods->size; i++) {
+            mod_gui * m = mods->list[i];
+            GtkButton * launcher = GTK_BUTTON(gtk_button_new_with_label(m->name));
+            gtk_box_pack_start(GTK_BOX(gui.mod_launcher), GTK_WIDGET(launcher), false, false, 0);
+            gtk_widget_show(GTK_WIDGET(launcher));
+            g_signal_connect(G_OBJECT(launcher),  "clicked", G_CALLBACK(m->show), NULL);
+        }
 
         gtk_builder_connect_signals (builder, NULL);
         g_object_unref (G_OBJECT (builder));

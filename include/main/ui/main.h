@@ -19,6 +19,7 @@
 #include "CommandLine.h"
 #include "vehicle_explorer.h"
 #include "documentation.h"
+#include "dyno.h"
 
 typedef struct {
     GtkWidget *window;
@@ -38,6 +39,7 @@ typedef struct {
         GtkLabel *year;
         GtkLabel *vin;
     } vehicle;
+    GtkBox *mod_launcher;
 } MainGui;
 
 extern MainGui *mainGui;
