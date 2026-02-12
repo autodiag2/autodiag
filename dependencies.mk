@@ -2408,8 +2408,9 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
-  include/main/ui/options.h include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/ui/trouble_code_reader.h include/main/ui/ui_mod.h \
+  include/main/ui/widget/menubar.h include/main/ui/options.h \
+  include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2422,8 +2423,8 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h include/main/ui/ui_mod.h \
-  include/main/libprog/serial_cli.h include/main/libprog/elm327_cli.h
+  include/main/ui/dyno.h include/main/libprog/serial_cli.h \
+  include/main/libprog/elm327_cli.h
 output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libprog/elm327_cli.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -2538,7 +2539,8 @@ output/obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/libautodiag/com/serial/elm/elm323/../elm.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
-  include/main/ui/widget/error_feedback.h include/main/libprog/config.h
+  include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
+  include/main/ui/ui_mod.h
 output/obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/ui/documentation.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -2591,7 +2593,8 @@ output/obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/libautodiag/com/serial/elm/elm323/../elm.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
-  include/main/ui/widget/error_feedback.h include/main/libprog/config.h
+  include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
+  include/main/ui/ui_mod.h
 output/obj/main/ui/dyno.o: src/main/ui/dyno.c include/main/ui/dyno.h \
   include/main/ui/ui.h include/main/libprog/ui/gtk_wrapper.h \
   include/main/libprog/ui/gtk.h \
@@ -2700,8 +2703,9 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
-  include/main/ui/options.h include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/ui/trouble_code_reader.h include/main/ui/ui_mod.h \
+  include/main/ui/widget/menubar.h include/main/ui/options.h \
+  include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2714,7 +2718,7 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h include/main/ui/ui_mod.h
+  include/main/ui/dyno.h
 output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/ui/options.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -2768,7 +2772,7 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/ui/ui_mod.h include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2782,7 +2786,7 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h include/main/ui/ui_mod.h
+  include/main/ui/dyno.h
 output/obj/main/ui/trouble_code_reader.o: \
   src/main/ui/trouble_code_reader.c \
   include/main/ui/trouble_code_reader.h include/main/ui/main.h \
@@ -2838,7 +2842,8 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/options.h include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/ui/options.h include/main/ui/ui_mod.h \
+  include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
@@ -2851,8 +2856,7 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/widget/menubar.h \
-  include/main/ui/documentation.h include/main/ui/dyno.h \
-  include/main/ui/ui_mod.h
+  include/main/ui/documentation.h include/main/ui/dyno.h
 output/obj/main/ui/ui_mod.o: src/main/ui/ui_mod.c \
   include/main/ui/ui_mod.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -2959,8 +2963,8 @@ output/obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/libprog/ui/counter.h include/main/libprog/ui/graph_data.h \
-  include/main/ui/widget/menubar.h
+  include/main/ui/ui_mod.h include/main/libprog/ui/counter.h \
+  include/main/libprog/ui/graph_data.h include/main/ui/widget/menubar.h
 output/obj/main/ui/widget/error_feedback.o: \
   src/main/ui/widget/error_feedback.c \
   include/main/ui/widget/error_feedback.h include/main/libautodiag/lib.h \
