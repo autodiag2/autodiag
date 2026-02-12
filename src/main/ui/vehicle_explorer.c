@@ -859,21 +859,59 @@ static void graphs_reset_curve_data_clicked(GtkButton *btn, gpointer unused) {
     }
     pthread_mutex_unlock(&graphs_mutex);
 }
+static void graphs_remove_graph_clicked(GtkButton *btn, gpointer unused) {
+    pthread_mutex_lock(&graphs_mutex);
+
+    Graph *graph = g_object_get_data(G_OBJECT(btn), "graph_ptr");
+    GtkWidget *graph_box = g_object_get_data(G_OBJECT(btn), "graph_box");
+    if (!graph || !graph_box) {
+        pthread_mutex_unlock(&graphs_mutex);
+        return;
+    }
+
+    if (graphs) {
+        for (unsigned int i = 0; i < graphs->size; i++) {
+            if (graphs->list[i] == graph) {
+                for (unsigned int j = i + 1; j < graphs->size; j++)
+                    graphs->list[j - 1] = graphs->list[j];
+                graphs->size--;
+                break;
+            }
+        }
+    }
+
+    pthread_mutex_unlock(&graphs_mutex);
+
+    gtk_widget_destroy(graph_box);
+}
 
 static void graph_attach_controls(GtkWidget *container, Graph *graph) {
     GtkWidget *h = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
     GtkWidget *b_add = gtk_button_new_with_label("Add curve");
     GtkWidget *b_rm  = gtk_button_new_with_label("Remove curve");
     GtkWidget *b_rst = gtk_button_new_with_label("Reset data");
+    GtkWidget *b_del = gtk_button_new_with_label("Remove graph");
+
     g_object_set_data(G_OBJECT(b_add), "graph_ptr", graph);
     g_object_set_data(G_OBJECT(b_rm),  "graph_ptr", graph);
     g_object_set_data(G_OBJECT(b_rst), "graph_ptr", graph);
+    g_object_set_data(G_OBJECT(b_del), "graph_ptr", graph);
+
+    g_object_set_data(G_OBJECT(b_add), "graph_box", container);
+    g_object_set_data(G_OBJECT(b_rm),  "graph_box", container);
+    g_object_set_data(G_OBJECT(b_rst), "graph_box", container);
+    g_object_set_data(G_OBJECT(b_del), "graph_box", container);
+
     g_signal_connect(G_OBJECT(b_add), "clicked", G_CALLBACK(graphs_add_curve_clicked), NULL);
     g_signal_connect(G_OBJECT(b_rm),  "clicked", G_CALLBACK(graphs_remove_curve_clicked), NULL);
     g_signal_connect(G_OBJECT(b_rst), "clicked", G_CALLBACK(graphs_reset_curve_data_clicked), NULL);
+    g_signal_connect(G_OBJECT(b_del), "clicked", G_CALLBACK(graphs_remove_graph_clicked), NULL);
+
     gtk_box_pack_start(GTK_BOX(h), b_add, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(h), b_rm,  FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(h), b_rst, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(h), b_del, FALSE, FALSE, 0);
+
     gtk_box_pack_start(GTK_BOX(container), h, FALSE, FALSE, 0);
 }
 
@@ -904,7 +942,6 @@ static void *graphs_add_daemon(void *arg) {
         graph_attach_controls(vbox, graph);
 
         assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraph)));
-        gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(gui->graphs.list), active_index);
 
         final int col = graph_count % 2;
         final int row = graph_count / 2;
