@@ -183,11 +183,10 @@ void module_init_main() {
         module_init_options(builder);
         module_init_serial();
         module_init_command_line(builder);
-        module_init_vehicle_explorer(builder);
         
         mods = list_mod_gui_new();
-        mod_gui * dyno_mod = mod_gui_dyno_new();
-        list_mod_gui_append(mods, dyno_mod);
+        list_mod_gui_append(mods, mod_gui_dyno_new());
+        list_mod_gui_append(mods, mod_gui_vehicle_explorer_new());
 
         list_mod_gui_build(mods, builder);
         for(int i = 0; i < mods->size; i++) {

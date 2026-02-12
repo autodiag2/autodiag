@@ -4,6 +4,7 @@
 #define MODULE_VEHICLE_DIAGNOSTIC "Vehicle Diagnostic",
 
 #include "ui.h"
+#include "ui_mod.h"
 #include "libautodiag/com/obd/obd.h"
 #include "libprog/config.h"
 #include "libprog/ui/counter.h"
@@ -98,9 +99,9 @@ typedef struct {
     GtkMessageDialog * genericErrorFeedback;
 } vehicleExplorerGui;
 
-void module_init_vehicle_explorer(final GtkBuilder *builder);
-
 #define vehicle_explorer_error_feedback_obd(iface) \
  error_feedback_obd(gui->errorFeedback,iface,list_serial_get_selected())
+
+mod_gui * mod_gui_vehicle_explorer_new();
 
 #endif

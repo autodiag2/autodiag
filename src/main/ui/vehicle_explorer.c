@@ -1000,13 +1000,6 @@ static void refresh_changed(GtkCheckMenuItem *checkmenuitem, gpointer user_data)
     }
 }
 
-static void show_window() {
-    gtk_window_show_ensure_ontop(gui->window);
-    gtk_check_menu_item_set_active(gui->menuBar.autoRefresh, config.vehicleExplorer.autoRefresh);
-    refresh_one_time();
-    refresh_changed(gui->menuBar.autoRefresh, null);
-}
-
 static gboolean expander_show_child(gpointer data) {
     GtkWidget *widget = (GtkWidget*)data;
     if (!gtk_widget_get_realized(widget)) gtk_widget_realize(widget);
@@ -1057,7 +1050,7 @@ static void generic_error_feedback_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->genericErrorFeedback));
 }
 
-void module_init_vehicle_explorer(final GtkBuilder *builder) {
+static void init(final GtkBuilder *builder) {
     if (gui != null) {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
         return;
@@ -1184,11 +1177,38 @@ void module_init_vehicle_explorer(final GtkBuilder *builder) {
     gtk_builder_add_callback_symbol(builder, "vehicle-explorer-generic-error-feedback-ok", &generic_error_feedback_ok);
     gtk_builder_add_callback_symbol(builder, "vehicle-explorer-graphs-reset-data", &graphs_reset_data);
     gtk_builder_add_callback_symbol(builder, "vehicle-explorer-graphs-add", &graphs_add);
-    gtk_builder_add_callback_symbol(builder, "show-window-vehicle-explorer", &show_window);
     gtk_builder_add_callback_symbol(builder, "window-vehicle-explorer-global-refresh-click", &refresh_one_time_with_spinner);
     gtk_builder_add_callback_symbol(builder, "window-vehicle-explorer-global-refresh-changed", G_CALLBACK(&refresh_changed));
     gtk_builder_add_callback_symbol(builder, "vehicle-explorer-freeze-frame-error-ok", G_CALLBACK(&freeze_frame_error_ok));
     gtk_builder_add_callback_symbol(builder, "window-vehicle-explorer-data-freeze-frame", &data_freeze_frame);
 
     MENUBAR_DATA_CONNECT()
+}
+
+static void end() {
+    if ( gui != null ) {
+        free(gui);
+        gui = null;
+    }
+}
+
+static void show() {
+    gtk_window_show_ensure_ontop(gui->window);
+    gtk_check_menu_item_set_active(gui->menuBar.autoRefresh, config.vehicleExplorer.autoRefresh);
+    refresh_one_time();
+    refresh_changed(gui->menuBar.autoRefresh, null);
+}
+
+static void hide() {
+
+}
+
+mod_gui * mod_gui_vehicle_explorer_new() {
+    mod_gui * mg = (mod_gui*)malloc(sizeof(mod_gui));
+    mg->init = init;
+    mg->end = end;
+    mg->name = strdup("Vehicle Explorer");
+    mg->show = show;
+    mg->hide = hide;
+    return mg;
 }

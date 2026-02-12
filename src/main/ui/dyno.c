@@ -48,7 +48,7 @@ static void show() {
 }
 
 static void hide() {
-    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(onclose), NULL));
+
 }
 
 mod_gui * mod_gui_dyno_new() {
