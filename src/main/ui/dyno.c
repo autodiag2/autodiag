@@ -5,8 +5,8 @@ static DynoGui *gui = null;
 static pthread_t *dyno_thread = null;
 static pthread_mutex_t dyno_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-static gboolean dyno_running = FALSE;
-static gboolean dyno_request_stop = FALSE;
+static gboolean dyno_running = false;
+static gboolean dyno_request_stop = false;
 
 static list_Graph *dyno_graphs = null;
 
@@ -75,7 +75,7 @@ static void curve_color(unsigned int i, double *r, double *g, double *b) {
 static gboolean graph_refresh_gsource(gpointer data) {
     Graph *g = (Graph*)data;
     if (g && g->widget) gtk_widget_queue_draw(g->widget);
-    return FALSE;
+    return false;
 }
 
 static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
@@ -83,7 +83,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
 
     char *graph_title = (char*)user_data;
     Graph *graph = dyno_graphs ? list_Graph_get_by_title(dyno_graphs, graph_title) : null;
-    if (!graph) { pthread_mutex_unlock(&dyno_mutex); return FALSE; }
+    if (!graph) { pthread_mutex_unlock(&dyno_mutex); return false; }
 
     GtkAllocation a;
     gtk_widget_get_allocation(widget, &a);
@@ -107,8 +107,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     cairo_show_text(cr, graph->title);
 
     double min_val = 0, max_val = 0, min_x = 0, max_x = 0;
-    gboolean has = FALSE;
-
+    gboolean has = false;
     for (unsigned int si = 0; graph->series && si < graph->series->size; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size < 1) continue;
@@ -118,7 +117,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
             if (!has) {
                 min_val = max_val = d->data;
                 min_x = max_x = d->time;
-                has = TRUE;
+                has = true;
             } else {
                 if (d->data < min_val) min_val = d->data;
                 if (max_val < d->data) max_val = d->data;
@@ -139,7 +138,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
                          (height + te2.height) / 2 - te2.y_bearing);
         cairo_show_text(cr, msg);
         pthread_mutex_unlock(&dyno_mutex);
-        return FALSE;
+        return false;
     }
 
     if (min_val == max_val) { min_val -= 0.5; max_val += 0.5; }
@@ -272,7 +271,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     }
 
     pthread_mutex_unlock(&dyno_mutex);
-    return FALSE;
+    return false;
 }
 
 static void dyno_graph_add_series_point(Graph *g, unsigned int si, double x, double y) {
@@ -315,7 +314,7 @@ static gboolean dyno_ui_tick(gpointer unused) {
     if (dyno_samples.n < 1) {
         dyno_update_labels_locked(0, 0, 0, 0, 0);
         pthread_mutex_unlock(&dyno_mutex);
-        return TRUE;
+        return true;
     }
     DynoSample s = dyno_samples.v[dyno_samples.n - 1];
     double t_s = (dyno_samples.v[dyno_samples.n - 1].t_ms - dyno_samples.v[0].t_ms) / 1000.0;
@@ -342,22 +341,30 @@ static gboolean dyno_ui_tick(gpointer unused) {
 
     dyno_update_labels_locked(t_s, s.speed_kmh, s.rpm, p_kw, tq_nm);
     pthread_mutex_unlock(&dyno_mutex);
-    return TRUE;
+    return true;
 }
 
 static void dyno_build_results_from_samples() {
+    pthread_mutex_lock(&dyno_mutex);
     Graph *g_speed = dyno_get_graph("Speed (time)");
     Graph *g_rpm   = dyno_get_graph("RPM (time)");
     Graph *g_pwr   = dyno_get_graph("Power (rpm)");
     Graph *g_tq    = dyno_get_graph("Torque (rpm)");
-    if (!g_speed || !g_rpm || !g_pwr || !g_tq) return;
+
+    if (!g_speed || !g_rpm || !g_pwr || !g_tq) {
+        pthread_mutex_unlock(&dyno_mutex);
+        return;
+    }
 
     dyno_graph_reset(g_speed);
     dyno_graph_reset(g_rpm);
     dyno_graph_reset(g_pwr);
     dyno_graph_reset(g_tq);
 
-    if (dyno_samples.n < 2) return;
+    if (dyno_samples.n < 2) {
+        pthread_mutex_unlock(&dyno_mutex);
+        return;
+    }
 
     double t0 = dyno_samples.v[0].t_ms;
 
@@ -393,25 +400,25 @@ static void dyno_build_results_from_samples() {
         if (0 < rpm && isfinite(p_kw)) dyno_graph_add_series_point(g_pwr, 0, rpm, p_kw);
         if (0 < rpm && isfinite(tq_nm)) dyno_graph_add_series_point(g_tq, 0, rpm, tq_nm);
     }
-
     g_idle_add(graph_refresh_gsource, g_speed);
     g_idle_add(graph_refresh_gsource, g_rpm);
     g_idle_add(graph_refresh_gsource, g_pwr);
     g_idle_add(graph_refresh_gsource, g_tq);
+    pthread_mutex_unlock(&dyno_mutex);
 }
 
 static void *dyno_thread_main(void *unused) {
 
     pthread_mutex_lock(&dyno_mutex);
-    dyno_running = TRUE;
-    dyno_request_stop = FALSE;
+    dyno_running = true;
+    dyno_request_stop = false;
     dyno_samples_clear();
     pthread_mutex_unlock(&dyno_mutex);
 
     VehicleIFace *iface = config.ephemere.iface;
     if ( ! iface ) {
         pthread_mutex_lock(&dyno_mutex);
-        dyno_running = FALSE;
+        dyno_running = false;
         pthread_mutex_unlock(&dyno_mutex);
         return null;
     }
@@ -457,7 +464,7 @@ static void *dyno_thread_main(void *unused) {
     }
 
     pthread_mutex_lock(&dyno_mutex);
-    dyno_running = FALSE;
+    dyno_running = false;
     pthread_mutex_unlock(&dyno_mutex);
 
     g_idle_add((GSourceFunc)dyno_build_results_from_samples, null);
@@ -483,16 +490,15 @@ static void dyno_start_clicked(GtkButton *b, gpointer unused) {
 
 static void dyno_stop_clicked(GtkButton *b, gpointer unused) {
     pthread_mutex_lock(&dyno_mutex);
-    dyno_request_stop = TRUE;
+    dyno_request_stop = true;
     pthread_mutex_unlock(&dyno_mutex);
     gtk_spinner_stop(gui->status.spinner);
 }
 
 static void dyno_reset_clicked(GtkButton *b, gpointer unused) {
     pthread_mutex_lock(&dyno_mutex);
-    dyno_request_stop = TRUE;
+    dyno_request_stop = true;
     dyno_samples_clear();
-    pthread_mutex_unlock(&dyno_mutex);
 
     Graph *g_speed = dyno_get_graph("Speed (time)");
     Graph *g_rpm   = dyno_get_graph("RPM (time)");
@@ -502,6 +508,7 @@ static void dyno_reset_clicked(GtkButton *b, gpointer unused) {
     if (g_rpm) dyno_graph_reset(g_rpm);
     if (g_pwr) dyno_graph_reset(g_pwr);
     if (g_tq) dyno_graph_reset(g_tq);
+    pthread_mutex_unlock(&dyno_mutex);
 
     if (g_speed) g_idle_add(graph_refresh_gsource, g_speed);
     if (g_rpm)   g_idle_add(graph_refresh_gsource, g_rpm);
@@ -517,11 +524,11 @@ static GtkWidget *dyno_make_graph_box(char *title) {
     gtk_container_add(GTK_CONTAINER(frame), v);
 
     GtkWidget *lab = gtk_label_new(title);
-    gtk_box_pack_start(GTK_BOX(v), lab, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(v), lab, false, false, 0);
 
     GtkWidget *da = gtk_drawing_area_new();
     gtk_widget_set_size_request(da, 320, 240);
-    gtk_box_pack_start(GTK_BOX(v), da, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(v), da, true, true, 0);
 
     Graph *g = graph_new(da, title, (char*)unit_for_metric_title(title));
     if (!g->series) g->series = list_GraphSeries_new();
@@ -561,10 +568,10 @@ static void dyno_build_gui_widgets() {
     gtk_container_add(GTK_CONTAINER(root), outer);
 
     GtkWidget *top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
-    gtk_box_pack_start(GTK_BOX(outer), top, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(outer), top, false, false, 0);
 
     GtkWidget *params = gtk_frame_new("Parameters");
-    gtk_box_pack_start(GTK_BOX(top), params, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(top), params, false, false, 0);
 
     GtkWidget *pg = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(pg), 6);
@@ -587,7 +594,7 @@ static void dyno_build_gui_widgets() {
     gtk_grid_attach(GTK_GRID(pg), GTK_WIDGET(gui->params.sample_hz), 1, 1, 1, 1);
 
     GtkWidget *actions = gtk_frame_new("Actions");
-    gtk_box_pack_start(GTK_BOX(top), actions, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(top), actions, true, true, 0);
 
     GtkWidget *ab = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
     gtk_widget_set_margin_start(ab, 10);
@@ -600,15 +607,15 @@ static void dyno_build_gui_widgets() {
     gui->actions.btn_stop  = GTK_BUTTON(gtk_button_new_with_label("Stop"));
     gui->actions.btn_reset = GTK_BUTTON(gtk_button_new_with_label("Reset"));
 
-    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_start), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_stop), FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_reset), FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_start), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_stop), false, false, 0);
+    gtk_box_pack_start(GTK_BOX(ab), GTK_WIDGET(gui->actions.btn_reset), false, false, 0);
 
     gui->status.spinner = GTK_SPINNER(gtk_spinner_new());
-    gtk_box_pack_end(GTK_BOX(ab), GTK_WIDGET(gui->status.spinner), FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(ab), GTK_WIDGET(gui->status.spinner), false, false, 0);
 
     GtkWidget *status = gtk_frame_new("Live");
-    gtk_box_pack_start(GTK_BOX(outer), status, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(outer), status, false, false, 0);
 
     GtkWidget *sg = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(sg), 6);
@@ -642,7 +649,7 @@ static void dyno_build_gui_widgets() {
     gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_tq), 3, 2, 1, 1);
 
     GtkWidget *graphs_frame = gtk_frame_new("Graphs");
-    gtk_box_pack_start(GTK_BOX(outer), graphs_frame, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(outer), graphs_frame, true, true, 0);
 
     GtkWidget *gg = gtk_grid_new();
     gtk_grid_set_row_spacing(GTK_GRID(gg), 10);
@@ -674,7 +681,7 @@ static void dyno_build_gui_widgets() {
 
 static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     gtk_widget_hide(GTK_WIDGET(gui->window));
-    return TRUE;
+    return true;
 }
 
 static void init(final GtkBuilder *builder) {
@@ -708,7 +715,7 @@ static void init(final GtkBuilder *builder) {
 
 static void end() {
     pthread_mutex_lock(&dyno_mutex);
-    dyno_request_stop = TRUE;
+    dyno_request_stop = true;
     pthread_mutex_unlock(&dyno_mutex);
 
     if (dyno_thread) {

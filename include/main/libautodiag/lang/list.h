@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "libautodiag/lang/lang.h"
 
 #define AD_LIST_FREE_CONTIGUOUS(list)\
@@ -114,6 +115,9 @@
 #define AD_LIST_H_APPEND(element_type) void list_##element_type##_append(list_##element_type * list, element_type* value) 
 #define AD_LIST_SRC_APPEND(element_type) AD_LIST_H_APPEND(element_type) { \
     list->list = (element_type**)realloc(list->list, sizeof(element_type*) * (++list->size)); \
+    if ( list->list == null ) { \
+        exit(1); \
+    } \
     list->list[list->size-1] = value; \
 }
 
