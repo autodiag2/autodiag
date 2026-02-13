@@ -109,7 +109,7 @@ static gboolean set_list_dtc_gsource(gpointer data) {
             gtk_container_add((GtkContainer*)gui->dtc.list,label);
             gtk_widget_show(label);
             free(dtc_string);
-        )
+        );
     }
     return false;
 }
@@ -165,8 +165,8 @@ static void read_codes_daemon_internal() {
                         }
                     }
                 }
-                list_DTC_free(list_dtc_obd);
-                list_DTC_free(list_dtc_uds);
+                AD_LIST_FREE_SOFT(list_dtc_obd);
+                AD_LIST_FREE_SOFT(list_dtc_uds);
                 if ( 0 < list_dtc_buffer->size ) {
                     list_dtc = list_dtc_buffer;
                 }

@@ -102,6 +102,14 @@
         free(list); \
     } \
 }
+#define AD_LIST_FREE_SOFT(list_token_name) \
+    if ( list_token_name != null ) { \
+        if ( list_token_name->list != null ) { \
+            free(list_token_name->list); \
+            list_token_name->list = null; \
+        } \
+        free(list_token_name); \
+    }
 
 #define AD_LIST_H_APPEND(element_type) void list_##element_type##_append(list_##element_type * list, element_type* value) 
 #define AD_LIST_SRC_APPEND(element_type) AD_LIST_H_APPEND(element_type) { \
