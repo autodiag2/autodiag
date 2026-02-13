@@ -47,28 +47,42 @@ bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *valu
     }    
     return false;
 }
+static char * _nvm_filepath_override = null;
+void sim_elm327_nvm_override(char *path) {
+    if ( _nvm_filepath_override ) {
+        free(_nvm_filepath_override);
+    }
+    if ( 0 < strlen(path) ) {
+        _nvm_filepath_override = strdup(path);
+    }
+}
 char * sim_elm327_non_volatile_get_filename() {
-    #ifdef OS_WINDOWS
-    #   include "libautodiag/windows.h"
-        char tempPath[MAX_PATH];
-        if ( ! GetTempPath(MAX_PATH, tempPath) ) {
-            log_msg(LOG_ERROR, "failed to get the temp path");
-        }
-        char * path;
-        asprintf(&path, "%s" PATH_FOLDER_DELIM "sim_memory.txt", tempPath);
-        return path;
-    #elif defined OS_ANDROID
-        #include "libautodiag/jni/target_device.h"
-        char *path;
-        asprintf(&path, "%s/sim_memory.txt", jni_data_dir_get());
-        return path;
-    #elif defined OS_POSIX
-        const char *tmp = getenv("TMPDIR");
-        if (!tmp) tmp = "/tmp";
-        return gprintf("%s/sim_memory.txt", tmp);
-    #else
-    #   warning OS unsupported
-    #endif
+    if ( _nvm_filepath_override != null ) {
+        return strdup(_nvm_filepath_override);
+    } else {
+        const char * sim_filename = "sim_memory.ini";
+        #ifdef OS_WINDOWS
+        #   include "libautodiag/windows.h"
+            char tempPath[MAX_PATH];
+            if ( ! GetTempPath(MAX_PATH, tempPath) ) {
+                log_msg(LOG_ERROR, "failed to get the temp path");
+            }
+            char * path;
+            asprintf(&path, "%s" PATH_FOLDER_DELIM "%s", tempPath, sim_filename);
+            return path;
+        #elif defined OS_ANDROID
+            #include "libautodiag/jni/target_device.h"
+            char *path;
+            asprintf(&path, "%s/%s", jni_data_dir_get(), sim_filename);
+            return path;
+        #elif defined OS_POSIX
+            const char *tmp = getenv("TMPDIR");
+            if (!tmp) tmp = "/tmp";
+            return gprintf("%s/%s", tmp, sim_filename);
+        #else
+        #   warning OS unsupported
+        #endif
+    } 
 }
 bool sim_elm327_non_volatile_wipe_out() {
     unlink(sim_elm327_non_volatile_get_filename());

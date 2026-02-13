@@ -18,5 +18,6 @@ typedef enum {
 bool sim_elm327_non_volatile_memory_load(SimELM327 * elm327, final int load_mask);
 bool sim_elm327_non_volatile_memory_store(SimELM327 * elm327);
 bool sim_elm327_non_volatile_wipe_out();
+void sim_elm327_nvm_override(char *path);
 
 #endif

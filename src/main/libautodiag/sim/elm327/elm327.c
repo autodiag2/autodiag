@@ -430,6 +430,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     #define SIM_ELM327_ATI "ELM327 v2.1"
     #define SIM_ELM327_REPLY_ATI() \
         SIM_ELM327_REPLY_GENERIC(SIM_ELM327_ATI);
+    #define SIM_ELM327_SIGNAL_NVM_CHANGE() *modifyNvm = true;
 
     if ( lastBinCommand != null && strlen(serial_request) == 1 && serial_request[0] == '\r' ) {
         free(serial_request);
@@ -590,6 +591,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 }
             }
         }
+        SIM_ELM327_SIGNAL_NVM_CHANGE();
     } else if AT_PARSE("bd") {
         #ifdef EMULATE_ELM327_v1_5
             bool hasSpaces = true;
@@ -679,6 +681,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     } else if AT_PARSE("sd") {
         if ( sscanf(AT_DATA_START, "%02hhX", &elm327->nvm.user_memory) == 1 ) {
             SIM_ELM327_REPLY_OK();
+            SIM_ELM327_SIGNAL_NVM_CHANGE();
         }
     } else if AT_PARSE("m") {
         if ( sscanf(AT_DATA_START,"%d", &elm327->isMemoryEnabled) == 1 ) {
@@ -714,6 +717,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 elm327->nvm.protocol = elm327->protocolRunning;
             }
             SIM_ELM327_REPLY_OK();
+            SIM_ELM327_SIGNAL_NVM_CHANGE();
         }
     } else if AT_PARSE("tp") {
         short unsigned int p;

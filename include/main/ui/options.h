@@ -42,6 +42,7 @@ typedef struct {
             GtkFileChooserButton * fileChooser;
         } replay;
         GtkCheckButton * networkSim;
+        GtkEntry * nvm_override;
     } simulator;
     struct {
         GtkComboBoxText *manufacturer;

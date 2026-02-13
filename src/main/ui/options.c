@@ -65,7 +65,7 @@ static void simulation_ecu_add(char *address, char *generator) {
     gtk_widget_set_margin_end(row, 5);
 
     char addr_text[16];
-    snprintf(addr_text, sizeof(addr_text), "%02X", (unsigned char)strtoul(address, NULL, 16));
+    snprintf(addr_text, sizeof(addr_text), "%02X", (unsigned char)strtoul(address, null, 16));
     GtkWidget *label_addr = gtk_label_new(addr_text);
     gtk_widget_set_halign(label_addr, GTK_ALIGN_START);
 
@@ -108,21 +108,21 @@ static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
 static void simulation_add_clicked(GtkButton *button, gpointer user_data) {
     const char *addr_text = gtk_entry_get_text(gui->simulator.ecus.address);
     char *gen_text = gtk_combo_box_text_get_active_text(gui->simulator.ecus.generator);
-    if (gen_text == NULL) {
+    if (gen_text == null) {
         gen_text = strdup("random");
     }
 
-    if (addr_text == NULL || strcmp(addr_text, "") == 0) {
+    if (addr_text == null || strcmp(addr_text, "") == 0) {
         GtkBox *container = gui->simulator.ecus.container;
         GList *children = gtk_container_get_children(GTK_CONTAINER(container));
-        GtkWidget *last = g_list_last(children) ? g_list_last(children)->data : NULL;
+        GtkWidget *last = g_list_last(children) ? g_list_last(children)->data : null;
         char new_addr[16] = "E8";
         if (last) {
             GList *last_row_children = gtk_container_get_children(GTK_CONTAINER(last));
-            GtkWidget *label = last_row_children ? last_row_children->data : NULL;
+            GtkWidget *label = last_row_children ? last_row_children->data : null;
             if (GTK_IS_LABEL(label)) {
                 const char *label_text = gtk_label_get_text(GTK_LABEL(label));
-                unsigned long val = strtoul(label_text, NULL, 16);
+                unsigned long val = strtoul(label_text, null, 16);
                 snprintf(new_addr, sizeof(new_addr), "%02lX", (val + 1) & 0xFF);
             }
             g_list_free(last_row_children);
@@ -148,6 +148,10 @@ static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
     gtk_entry_set_text(entry, text ? text : "");
+}
+static void on_nvm_override_changed(GtkEntry *entry, gpointer user_data) {
+    const gchar * text = gtk_entry_get_text(entry);
+    sim_elm327_nvm_override((char *)text);    
 }
 static void* save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
@@ -219,7 +223,7 @@ static void list_serial_refresh() {
         gtk_combo_box_text_remove_all(gui->serialList);
         for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
             final Serial * port = list_serial.list[serial_i];
-            gtk_combo_box_text_append(gui->serialList,NULL,port->location);
+            gtk_combo_box_text_append(gui->serialList,null,port->location);
             if ( port == list_serial_get_selected() ) {
                 gtk_combo_box_set_active((GtkComboBox *)gui->serialList,serial_i);
                 gtk_entry_set_text(gui->device_location, port->location);
@@ -231,8 +235,8 @@ static void fill_vehicle_infos() {
     gtk_combo_box_text_remove_all(gui->vehicleInfos.manufacturer);
     gtk_combo_box_text_remove_all(gui->vehicleInfos.engine);
 
-    gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, NULL, "");
-    gtk_combo_box_text_append(gui->vehicleInfos.engine, NULL, "");
+    gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, null, "");
+    gtk_combo_box_text_append(gui->vehicleInfos.engine, null, "");
 
     GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
     GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
@@ -246,7 +250,7 @@ static void fill_vehicle_infos() {
 
         if (vehicle->manufacturer != null && !g_hash_table_contains(manufacturers, vehicle->manufacturer)) {
             g_hash_table_add(manufacturers, vehicle->manufacturer);
-            gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, NULL, vehicle->manufacturer);
+            gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, null, vehicle->manufacturer);
             if (( iface->state == VIFaceState_READY ) && iface->vehicle->manufacturer != null) {
                 if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
                     manufacturer_active_i = manufacturer_i;
@@ -257,7 +261,7 @@ static void fill_vehicle_infos() {
 
         if (vehicle->engine != null && !g_hash_table_contains(engines, vehicle->engine)) {
             g_hash_table_add(engines, vehicle->engine);
-            gtk_combo_box_text_append(gui->vehicleInfos.engine, NULL, vehicle->engine);
+            gtk_combo_box_text_append(gui->vehicleInfos.engine, null, vehicle->engine);
             if (iface != null && iface->vehicle->engine != null) {
                 if (strcmp(iface->vehicle->engine, vehicle->engine) == 0) {
                     engine_active_i = engine_i;
@@ -379,7 +383,7 @@ static void launch_simulation_internal() {
     } else {
         GList *rows = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
     
-        for (GList *iter = rows; iter != NULL; iter = iter->next) {
+        for (GList *iter = rows; iter != null; iter = iter->next) {
             if ( iter == rows ) {
                 list_SimECU_empty(elm327->ecus);
             }
@@ -462,7 +466,6 @@ THREAD_WRITE_DAEMON(
         launch_simulation_clean_up_routine, gui->simulator.launchThread
 )
 
-
 static void launch_simulation() {
     thread_allocate_and_start(&gui->simulator.launchThread,&launch_simulation_daemon);
 }
@@ -501,7 +504,8 @@ static void init(GtkBuilder *builder) {
                     .file = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-replay-file")),
                     .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-simulation-replay-chooser"))
                 },
-                .networkSim = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-simulation-network-sim-enabled"))
+                .networkSim = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-simulation-network-sim-enabled")),
+                .nvm_override = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-nvm-override"))
             },
             .vehicleInfos = {
                 .manufacturer = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
@@ -519,18 +523,19 @@ static void init(GtkBuilder *builder) {
         *gui = g;
 
         db_vehicle_load_in_memory();
+        assert(0 != g_signal_connect(gui->simulator.nvm_override, "changed", G_CALLBACK(on_nvm_override_changed), null));
         assert(0 != g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file));
         assert(0 != g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file));
         assert(0 != g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location));
-        assert(0 != g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
-        assert(0 != g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
-        assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
-        assert(0 != g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
-        assert(0 != g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), NULL));
+        assert(0 != g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simulation_add_clicked), builder));
         assert(0 != g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null));
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
-        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),NULL));
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),null));
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&save);
@@ -574,7 +579,7 @@ static void show() {
     free(text);
 
     GList *children = gtk_container_get_children(GTK_CONTAINER(gui->simulator.ecus.container));
-    for (GList *iter = children; iter != NULL; iter = iter->next) {
+    for (GList *iter = children; iter != null; iter = iter->next) {
         gtk_widget_destroy(GTK_WIDGET(iter->data));
     }
     g_list_free(children);
