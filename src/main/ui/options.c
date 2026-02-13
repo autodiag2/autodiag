@@ -156,6 +156,32 @@ static void on_nvm_override_changed(GtkEntry *entry, gpointer user_data) {
     const gchar * text = gtk_entry_get_text(entry);
     sim_elm327_nvm_override((char *)text);    
 }
+static void recovery_mode() {
+    VehicleIFace * iface = config.ephemere.iface;
+    viface_close(iface);
+    config_initiated_check();
+    if ( config.com.serial.device_location != null ) {
+        list_serial_add_if_not_in_by_location(config.com.serial.device_location);
+        list_serial_set_selected_by_location(config.com.serial.device_location);
+    }
+    final Serial * serial = list_serial_get_selected();
+    if ( serial == null ) {
+        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+    } else {
+        serial->baud_rate = config.com.serial.baud_rate;
+        viface_recorder_reset(iface);
+        viface_recorder_set_state(iface, false);
+
+        if ( serial->status != SERIAL_STATE_READY ) {
+            if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
+                log_msg(LOG_ERROR, "Error while openning serial port");
+                return;
+            }
+        }
+        iface->device = AD_DEVICE(serial);
+        iface->state = VIFaceState_READY;
+    }
+}
 static void* save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
     serial_close_selected();
@@ -189,7 +215,11 @@ static void* save_internal(void *arg) {
     config.vehicleExplorer.refreshRateS = strtod(gtk_entry_get_text(gui->vehicleExplorerGui.refreshRateS), null);
     config.vehicleInfos.vin = strdup(gtk_entry_get_text(gui->vehicleInfos.vin));
     config_store();
-    config_onchange();
+    if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->recoveryMode)) ) {
+        recovery_mode();
+    } else {
+        config_onchange();
+    }
     final VehicleIFace * iface = config.ephemere.iface;
     if ( iface->state == VIFaceState_READY ) {
         viface_fill_infos_from_vin(iface);
@@ -482,6 +512,7 @@ static void init(GtkBuilder *builder) {
             .serialList = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-serial-list")),
             .device_location = GTK_ENTRY(gtk_builder_get_object(builder, "options-device-location")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
+            .recoveryMode = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"options-recovery-mode")),
             .mainGui = {
                 .advancedLinkDetails = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details"))
             },

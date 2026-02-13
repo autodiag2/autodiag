@@ -240,4 +240,3 @@ void config_onchange() {
         }
     }
 }
-
