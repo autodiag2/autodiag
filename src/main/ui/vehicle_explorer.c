@@ -4,6 +4,7 @@ static vehicleExplorerGui *gui = null;
 static pthread_t *refresh_dynamic_thread = null;
 static list_Graph *graphs = null;
 static pthread_mutex_t graphs_mutex;
+static bool graphs_should_refresh = false;
 
 MENUBAR_DATA_ALL_IN_ONE
 
@@ -369,6 +370,7 @@ static void list_Graph_append_data_for_series(Graph *g, unsigned int series_idx,
 
 static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
     if (!graphs) return;
+    if (!graphs_should_refresh) return;
 
     for (unsigned int gi = 0; gi < graphs->size; gi++) {
         Graph *g = graphs->list[gi];
@@ -1012,6 +1014,10 @@ static void expander_show_childs(GtkWidget *widget, gpointer data) {
 
 static void expander_activate(GtkExpander *expander, gpointer data) {
     final bool state = gtk_expander_get_expanded(expander);
+    final const char * expander_name = gtk_expander_get_label(expander);
+    if ( strcasecmp("graphs", expander_name) == 0 ) {
+        graphs_should_refresh = !state;
+    }
     if (!state) {
         gtk_container_foreach((GtkContainer*)expander, expander_show_childs, null);
     }
