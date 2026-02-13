@@ -8,6 +8,7 @@
 #include "libprog/ui/counter.h"
 #include "libprog/ui/graph_data.h"
 #include "ui/widget/menubar.h"
+#include "libautodiag/thread.h"
 
 typedef struct {
     struct {
@@ -17,9 +18,26 @@ typedef struct {
             GtkWidget *filter_by_menu;
         } data;
     } menuBar;
-    GtkButton *toggle;
     GtkWindow *window;
     ErrorFeedbackWindows errorFeedback;
+    struct {
+        GtkLabel * lbl_state;
+        GtkLabel * lbl_time;
+        GtkLabel * lbl_speed;
+        GtkLabel * lbl_rpm;
+        GtkLabel * lbl_pwr;
+        GtkLabel * lbl_tq;
+        GtkSpinner * spinner;
+    } status;
+    struct {
+        GtkSpinButton * mass_kg;
+        GtkSpinButton * sample_hz;
+    } params;
+    struct {
+        GtkButton * btn_start;
+        GtkButton * btn_stop;
+        GtkButton * btn_reset;
+    } actions;
 } DynoGui;
 
 mod_gui * mod_gui_dyno_new();
