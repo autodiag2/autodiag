@@ -42,4 +42,7 @@ typedef struct {
 
 mod_gui * mod_gui_dyno_new();
 
+#define dyno_error_feedback_obd(iface) \
+ error_feedback_obd(gui->errorFeedback,iface,list_serial_get_selected())
+
 #endif

@@ -416,7 +416,7 @@ static void *dyno_thread_main(void *unused) {
     pthread_mutex_unlock(&dyno_mutex);
 
     VehicleIFace *iface = config.ephemere.iface;
-    if ( ! iface ) {
+    if ( ! iface || dyno_error_feedback_obd(iface) ) {
         pthread_mutex_lock(&dyno_mutex);
         dyno_running = false;
         pthread_mutex_unlock(&dyno_mutex);
@@ -433,6 +433,9 @@ static void *dyno_thread_main(void *unused) {
         gboolean stop = dyno_request_stop;
         pthread_mutex_unlock(&dyno_mutex);
         if (stop) break;
+        if ( dyno_error_feedback_obd(iface) ) {
+            break;
+        }
 
         double t_ms = dyno_now_ms();
 
