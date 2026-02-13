@@ -43,6 +43,7 @@ typedef struct {
         } replay;
         GtkCheckButton * networkSim;
         GtkEntry * nvm_override;
+        GtkButton * nvm_clear;
     } simulator;
     struct {
         GtkComboBoxText *manufacturer;

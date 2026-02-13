@@ -105,6 +105,9 @@ static void recorder_export_clicked(GtkButton *button, gpointer user_data) {
         recorder_set_status(gprintf("Failed to export to %s ...", filepath));
     }
 }
+static void simulation_nvm_clear_clicked(GtkButton *button, gpointer user_data) {
+    sim_elm327_non_volatile_wipe_out();
+}
 static void simulation_add_clicked(GtkButton *button, gpointer user_data) {
     const char *addr_text = gtk_entry_get_text(gui->simulator.ecus.address);
     char *gen_text = gtk_combo_box_text_get_active_text(gui->simulator.ecus.generator);
@@ -505,7 +508,8 @@ static void init(GtkBuilder *builder) {
                     .fileChooser = GTK_FILE_CHOOSER_BUTTON(gtk_builder_get_object(builder, "options-simulation-replay-chooser"))
                 },
                 .networkSim = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "options-simulation-network-sim-enabled")),
-                .nvm_override = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-nvm-override"))
+                .nvm_override = GTK_ENTRY(gtk_builder_get_object(builder, "options-simulation-nvm-override")),
+                .nvm_clear = GTK_BUTTON(gtk_builder_get_object(builder, "options-simulation-nvm-clear"))
             },
             .vehicleInfos = {
                 .manufacturer = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-vehicle-manufacturer")),
@@ -532,6 +536,7 @@ static void init(GtkBuilder *builder) {
         assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.simulator.nvm_clear, "clicked", G_CALLBACK(simulation_nvm_clear_clicked), builder));
         assert(0 != g_signal_connect(g.simulator.ecus.add, "clicked", G_CALLBACK(simulation_add_clicked), builder));
         assert(0 != g_signal_connect(g.recorder.export, "clicked", G_CALLBACK(recorder_export_clicked), null));
         gtk_builder_add_callback_symbol(builder,"window-options-baud-rate-set-from-button",G_CALLBACK(&window_baud_rate_set_from_button));
