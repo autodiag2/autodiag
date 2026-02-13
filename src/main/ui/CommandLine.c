@@ -290,7 +290,7 @@ static void show() {
 }
 
 static void hide() {
-
+    gtk_widget_hide(GTK_WIDGET(gui->window));
 }
 
 mod_gui * mod_gui_command_line_new() {

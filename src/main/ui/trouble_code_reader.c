@@ -225,14 +225,6 @@ THREAD_WRITE_DAEMON(
         button_click_clean_up_routine, gui->clear.thread
 )
 
-static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-    log_msg(LOG_DEBUG, "Close event received");
-    THREAD_CANCEL(gui->read.thread);
-    THREAD_CANCEL(gui->clear.thread);
-    THREAD_CANCEL(gui->menuBar.showECUsBuffer.thread);
-    return gtk_widget_generic_onclose(dialog,event,unused);
-}
-
 static void confirm_cancel() {
     gtk_widget_hide(gui->clear.confirm);
 }
@@ -292,6 +284,9 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
     }
 }
 static void hide() {
+    THREAD_CANCEL(gui->read.thread);
+    THREAD_CANCEL(gui->clear.thread);
+    THREAD_CANCEL(gui->menuBar.showECUsBuffer.thread);
     gtk_widget_hide_on_main_thread(gui->window);
 }
 static void init(GtkBuilder *builder) {
@@ -352,7 +347,7 @@ static void init(GtkBuilder *builder) {
         *gui = g;
         gtk_check_menu_item_set_active(gui->menuBar.filtered, false);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-go-back-main-menu",&hide);
-        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(onclose),null));
+        assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(hide),null));
         assert(0 != g_signal_connect(G_OBJECT(gui->clear.confirm),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         error_feedback_windows_init(gui->errorFeedback);
         assert(0 != g_signal_connect(G_OBJECT(gui->noObdData),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));

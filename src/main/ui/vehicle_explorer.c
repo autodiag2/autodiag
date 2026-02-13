@@ -134,13 +134,6 @@ static void data_freeze_frame() {
     thread_allocate_and_start(&gui->menuBar.freeze_frame_thread, &data_freeze_frame_daemon);
 }
 
-static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-    module_debug(MODULE_VEHICLE_DIAGNOSTIC "Close event received");
-    THREAD_CANCEL(refresh_dynamic_thread);
-    gtk_widget_hide(gui->window);
-    return true;
-}
-
 #define VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(sym,type,min,max,error,format,bar) \
     static GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(sym##_gsource,type,min,max,error,format,bar)
 
@@ -1049,7 +1042,10 @@ static void expanders_default_state(GtkWidget *widget, gpointer data) {
 static void generic_error_feedback_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->genericErrorFeedback));
 }
-
+static void hide() {
+    THREAD_CANCEL(refresh_dynamic_thread);
+    gtk_widget_hide(gui->window);
+}
 static void init(final GtkBuilder *builder) {
     if (gui != null) {
         module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
@@ -1168,7 +1164,7 @@ static void init(final GtkBuilder *builder) {
 
     expanders_default_state((GtkWidget*)gui->engine.expandableSection, null);
 
-    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(onclose), NULL));
+    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(hide), NULL));
     assert(0 != g_signal_connect(G_OBJECT(g.menuBar.freeze_frame_error_popup), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), null));
 
     error_feedback_windows_init(gui->errorFeedback);
@@ -1197,10 +1193,6 @@ static void show() {
     gtk_check_menu_item_set_active(gui->menuBar.autoRefresh, config.vehicleExplorer.autoRefresh);
     refresh_one_time();
     refresh_changed(gui->menuBar.autoRefresh, null);
-}
-
-static void hide() {
-
 }
 
 mod_gui * mod_gui_vehicle_explorer_new() {

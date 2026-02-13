@@ -679,11 +679,6 @@ static void dyno_build_gui_widgets() {
     gtk_widget_show_all(outer);
 }
 
-static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-    gtk_widget_hide(GTK_WIDGET(gui->window));
-    return true;
-}
-
 static void init(final GtkBuilder *builder) {
     if (gui != null) {
         log_msg(LOG_WARNING, "Already init dyno mod");
@@ -704,7 +699,7 @@ static void init(final GtkBuilder *builder) {
     gui = (DynoGui*)malloc(sizeof(DynoGui));
     (*gui) = g;
 
-    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(onclose), null));
+    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), null));
 
     error_feedback_windows_init(gui->errorFeedback);
 
@@ -744,6 +739,7 @@ static void show() {
 }
 
 static void hide() {
+    gtk_widget_hide(GTK_WIDGET(gui->window));
 }
 
 mod_gui *mod_gui_dyno_new() {
