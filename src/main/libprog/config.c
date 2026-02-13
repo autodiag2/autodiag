@@ -2,6 +2,7 @@
 
 #define _DEFAULT_CONFIG { \
     .com = { \
+        .connectAtStartup = true, \
         .serial = { \
             .baud_rate = SERIAL_DEFAULT_BAUD_RATE, \
             .device_location = null \
@@ -135,6 +136,7 @@ bool config_store() {
             if ( config.com.serial.device_location != null && strcmp("",config.com.serial.device_location)!=0) {
                 fprintf(file,"com.serial.device_location=%s" FILE_EOL, config.com.serial.device_location);
             }
+            fprintf(file, "com.connectAtStartup=%d" FILE_EOL, config.com.connectAtStartup);
             fprintf(file,"main.adaptater_detailled_settings_showned=%d" FILE_EOL, config.main.adaptater_detailled_settings_showned);
             fprintf(file,"commandLine.autoScrollEnabled=%d" FILE_EOL, config.commandLine.autoScrollEnabled);
             fprintf(file,"commandLine.showTimestamp=%d" FILE_EOL, config.commandLine.showTimestamp);
@@ -166,6 +168,9 @@ static bool config_load_parser(char * funcData, char *key, char *value) {
     config_initiated_check();
     if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
         config.com.serial.baud_rate = atoi(value);
+        return true;
+    } else if ( strcasecmp(key,"com.connectAtStartup") == 0 ) {
+        config.com.connectAtStartup = atoi(value);
         return true;
     } else if ( strcasecmp(key,"com.serial.device_location") == 0 ) {
         config.com.serial.device_location = strdup(value);

@@ -203,6 +203,7 @@ static void* save_internal(void *arg) {
     } else {
         config.com.serial.baud_rate = baud_rate;
     }
+    config.com.connectAtStartup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup));
     config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(gui->logLevel));
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);
@@ -513,6 +514,7 @@ static void init(GtkBuilder *builder) {
             .device_location = GTK_ENTRY(gtk_builder_get_object(builder, "options-device-location")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
             .recoveryMode = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"options-recovery-mode")),
+            .connectAtStartup = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"options-connect-at-startup")),
             .mainGui = {
                 .advancedLinkDetails = GTK_TOGGLE_BUTTON(gtk_builder_get_object(builder,"window-options-gui-show-advanced-link-details"))
             },
@@ -601,6 +603,7 @@ static void show() {
     gtk_toggle_button_set_active(gui->mainGui.advancedLinkDetails, config.main.adaptater_detailled_settings_showned);
     gtk_toggle_button_set_active(gui->commandLineGui.outputAutoScroll, config.commandLine.autoScrollEnabled);
     gtk_toggle_button_set_active(gui->commandLineGui.showTimestamp, config.commandLine.showTimestamp);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup), config.com.connectAtStartup);
     gtk_combo_box_set_active(GTK_COMBO_BOX(gui->logLevel), config.log.level);
     char * txt;
     asprintf(&txt,"%d", config.com.serial.baud_rate);

@@ -119,7 +119,9 @@ void refresh_usb_adaptater_state() {
 }
 
 void * module_init_main_deferred(void *ignored) {
-    config_onchange();
+    if ( config.com.connectAtStartup ) {
+        config_onchange();
+    }
     refresh_usb_adaptater_state_internal(null);
     return null;
 }

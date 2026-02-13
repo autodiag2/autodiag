@@ -17,6 +17,7 @@ typedef struct {
     GtkEntry *baudRateSelection;
     GtkComboBoxText *logLevel;
     GtkCheckButton *recoveryMode;
+    GtkCheckButton *connectAtStartup;
     struct {
         GtkToggleButton * advancedLinkDetails;
     } mainGui;

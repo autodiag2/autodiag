@@ -23,6 +23,8 @@ typedef struct {
             // port name as showned in options screen
             char *device_location;
         } serial;
+        // Did we attempt to connect at startup
+        bool connectAtStartup;
     } com;
     struct {
         LogLevel level;
