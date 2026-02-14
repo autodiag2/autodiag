@@ -10,7 +10,7 @@ static int doip_recv(final object_DoIPDevice * device) {
         if (device->implementation->handle < 0) {
             return DEVICE_ERROR;
         } else {
-            int res = file_pool_read(&device->implementation->handle, &readLen, device->timeout);
+            int res = file_pool_read_posix(device->implementation->handle, &readLen, device->timeout);
             if ( 0 < res ) {
                 buffer_ensure_capacity(device->recv_buffer, readLen);
                 final int bytes_readed = read(device->implementation->handle, device->recv_buffer->buffer + device->recv_buffer->size, readLen);
