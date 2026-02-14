@@ -40,7 +40,6 @@ typedef struct {
 typedef struct _SimDoIp {
     Sim;
     DoIpImplementation * implementation;
-    char * device_location;
 } SimDoIp;
 
 #define DOIP_NETWORK_PORT 13400

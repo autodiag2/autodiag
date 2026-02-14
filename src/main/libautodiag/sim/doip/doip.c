@@ -2,12 +2,9 @@
 
 SimDoIp * sim_doip_new() {
     SimDoIp * sim = (SimDoIp*)malloc(sizeof(SimDoIp));
+    sim_init_with_defaults((Sim*)sim);
     sim->type = strdup("doip");
-    sim->ecus = list_SimECU_new();
     sim->implementation = (DoIpImplementation*)malloc(sizeof(DoIpImplementation));
-    final SimECU *ecu = sim_ecu_new(0xE8);
-    list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
-    sim->device_location = null;
     return sim;
 }
 

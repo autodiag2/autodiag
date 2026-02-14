@@ -3,6 +3,13 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
+void sim_init_with_defaults(Sim *sim) {
+    sim->ecus = list_SimECU_new();
+    final SimECU *ecu = sim_ecu_new(0xE8);
+    list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
+    sim->device_location = null;
+}
+
 void sim_prevent_read_himself(Sim * sim) {
     assert(sim != null);
     if ( strcasecmp(sim->type, "elm327") == 0 ) {

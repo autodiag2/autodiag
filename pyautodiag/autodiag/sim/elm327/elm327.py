@@ -33,7 +33,8 @@ class NVMSettings(Structure):
 class Sim(Structure):
     _fields_ = [
         ("ecus", POINTER(list_SimECU)),
-        ("type", c_char_p)
+        ("type", c_char_p),
+        ("device_location", c_char_p)
     ]
 class SimELM327(Structure):
     _fields_ = [
@@ -48,7 +49,6 @@ class SimELM327(Structure):
         ("printing_of_headers", c_int),
         ("dev_description", char_p),
         ("dev_identifier", char_p),
-        ("device_location", char_p),
         ("voltage", c_double),
         ("voltageFactory", c_double),
         ("baud_rate", c_int),

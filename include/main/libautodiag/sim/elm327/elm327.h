@@ -65,7 +65,6 @@ typedef struct _SimELM327 {
 	bool printing_of_headers;
     char *dev_description;
     char *dev_identifier;
-    char *device_location;
     double voltage;
     double voltageFactory;
     /**

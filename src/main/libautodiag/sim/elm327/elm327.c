@@ -282,12 +282,10 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
+    sim_init_with_defaults((Sim*)elm327);
     elm327->type = strdup("elm327");
     elm327->device_type = null;
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
-    elm327->ecus = list_SimECU_new();
-    final SimECU *ecu = sim_ecu_new(0xE8);
-    list_SimECU_append(LIST_SIM_ECU(elm327->ecus),ecu);
     elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
     elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
@@ -313,6 +311,8 @@ SimELM327* sim_elm327_new() {
 void sim_elm327_destroy(SimELM327 * elm327) {
     pthread_cancel(elm327->implementation->activity_monitor_thread);
     THREAD_CANCEL(elm327->implementation->loop_thread);
+    free(elm327->implementation->loop_thread);
+    elm327->implementation->loop_thread = null;
     elm327->implementation->loop_ready = false;
     free(elm327->implementation);
     free(elm327->eol);
@@ -336,6 +336,7 @@ void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
     if ( pthread_create(elm327->implementation->loop_thread, NULL,
                           (void *(*) (void *)) sim_elm327_loop, (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
+        free(elm327->implementation->loop_thread);
         elm327->implementation->loop_thread = null;
         exit(EXIT_FAILURE);
     }

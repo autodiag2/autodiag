@@ -12,6 +12,7 @@ typedef struct {
      * elm327, doip
      */
     char * type;
+    char * device_location;
 } Sim;
 
 #define SIM(var) ((Sim*)var)
@@ -29,6 +30,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
  * if we don't make a wait cause the next read to read it-self not the reply of client.
  */
 void sim_prevent_read_himself(Sim *sim);
+void sim_init_with_defaults(Sim *sim);
 
 #include "libautodiag/sim/elm327/elm327.h"
 
