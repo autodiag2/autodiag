@@ -32,7 +32,8 @@ class NVMSettings(Structure):
 
 class Sim(Structure):
     _fields_ = [
-        ("ecus", POINTER(list_SimECU))
+        ("ecus", POINTER(list_SimECU)),
+        ("type", c_char_p)
     ]
 class SimELM327(Structure):
     _fields_ = [

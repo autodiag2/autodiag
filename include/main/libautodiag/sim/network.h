@@ -1,5 +1,5 @@
-#ifndef __SIM_ELM327_NETWORK_H
-#define __SIM_ELM327_NETWORK_H
+#ifndef __SIM_NETWOK_H
+#define __SIM_NETWOK_H
 
 #include "libautodiag/lib.h"
 
@@ -19,9 +19,8 @@
 #   define close_sock closesocket
 #endif
 
-#include "libautodiag/sim/network.h"
-
-#define ELM327_NETWORK_PORT 35000
-bool sim_elm327_network_is_connected(void * implPtr);
+#define NETWORK_BACKLOG 10
+int network_start(int *bound_port, int start_port);
+char * network_location(struct sockaddr_in caddr);
 
 #endif

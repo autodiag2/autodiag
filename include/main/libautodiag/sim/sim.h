@@ -8,6 +8,10 @@ typedef struct {
      * Holds the list of ECUs in this simulation
      */
     list_SimECU * ecus;
+    /**
+     * elm327, doip
+     */
+    char * type;
 } Sim;
 
 #define SIM(var) ((Sim*)var)
@@ -18,13 +22,13 @@ typedef struct {
  * @param sim sim into which to load the context (eg ELM327 sim)
  */
 int sim_load_from_json(Sim * sim, char * json_context);
-int sim_write(void *implPtr, int timeout_ms, byte * data, unsigned int data_len);
-int sim_read(void *implPtr, int timeout_ms, Buffer * readed);
+int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len);
+int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
 /**
  * Namedpipes for windows for instance,
  * if we don't make a wait cause the next read to read it-self not the reply of client.
  */
-void sim_prevent_read_himself(void * implPtr);
+void sim_prevent_read_himself(Sim *sim);
 
 #include "libautodiag/sim/elm327/elm327.h"
 

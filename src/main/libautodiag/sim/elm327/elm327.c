@@ -24,7 +24,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                         asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
                         log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                        if ( sim_write(elm327->implementation,elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
+                        if ( sim_write((Sim*)elm327, elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
                             return;
                         }
 
@@ -282,6 +282,7 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
 
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
+    elm327->type = strdup("elm327");
     elm327->device_type = null;
     elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->ecus = list_SimECU_new();
@@ -357,7 +358,7 @@ bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327) {
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
-    if ( sim_read(elm327->implementation, timeout, buffer) == -1 ) {
+    if ( sim_read((Sim*)elm327, timeout, buffer) == -1 ) {
         return false;
     }
     buffer_ensure_termination(buffer);
@@ -376,12 +377,12 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     } else {
         asprintf(&response,"%s%s", serial_response, elm327->eol);
     }
-    sim_prevent_read_himself(elm327->implementation);
+    sim_prevent_read_himself((Sim*)elm327);
     char * resp_str = ascii_escape_breaking_chars(response);
     log_msg(LOG_DEBUG, "sending back %s", resp_str);
     free(resp_str);
 
-    if ( sim_write(elm327->implementation, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
+    if ( sim_write((Sim*)elm327, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
         return false;
     }
     free(response);
@@ -925,10 +926,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             elm327->implementation->handle = hPipe;
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = sim_elm327_network_start(&boundPort);
+            int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("sim_elm327_network_start");
+                perror("network_start");
                 return;
             }
             assert(boundPort != -1);
@@ -1018,10 +1019,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             #endif
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = sim_elm327_network_start(&boundPort);
+            int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("sim_elm327_network_start");
+                perror("network_start");
                 return;
             }
             assert(boundPort != -1);
@@ -1075,7 +1076,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                     #else
                     #   warning Unsupported OS
                     #endif
-                    char * location = sim_elm327_network_location(addr);
+                    char * location = network_location(addr);
                     log_msg(LOG_INFO, "Client %s connected", location);
                     free(location);
                 }
