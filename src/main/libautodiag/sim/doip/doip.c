@@ -4,10 +4,11 @@ SimDoIp * sim_doip_new() {
     SimDoIp * sim = (SimDoIp*)malloc(sizeof(SimDoIp));
     sim_init_with_defaults((Sim*)sim);
     sim->type = strdup("doip");
-    sim->implementation = (DoIpImplementation*)malloc(sizeof(DoIpImplementation));
-    sim->implementation->loop_thread = null;
-    sim->implementation->loop_ready = false;
-    sim->implementation->timeout_ms = 5000;
+    DoIpImplementation * impl = (DoIpImplementation*)malloc(sizeof(DoIpImplementation));
+    impl->loop_thread = null;
+    impl->loop_ready = false;
+    impl->timeout_ms = 5000;
+    sim->implementation = (SimImplementation*)impl;
     return sim;
 }
 
@@ -53,24 +54,24 @@ bool sim_doip_network_is_connected(void * implPtr) {
     return true; // data available, connection alive
 }
 void sim_doip_destroy(SimDoIp *sim) {
-    THREAD_CANCEL(sim->implementation->loop_thread);
-    free(sim->implementation->loop_thread);
-    sim->implementation->loop_thread = null;
-    sim->implementation->loop_ready = false;
+    THREAD_CANCEL(((DoIpImplementation*)sim->implementation)->loop_thread);
+    free(((DoIpImplementation*)sim->implementation)->loop_thread);
+    ((DoIpImplementation*)sim->implementation)->loop_thread = null;
+    ((DoIpImplementation*)sim->implementation)->loop_ready = false;
 }
 void sim_doip_loop_as_daemon(SimDoIp * sim) {
-    THREAD_CANCEL(sim->implementation->loop_thread);
-    sim->implementation->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
-    if ( pthread_create(sim->implementation->loop_thread, NULL,
+    THREAD_CANCEL(((DoIpImplementation*)sim->implementation)->loop_thread);
+    ((DoIpImplementation*)sim->implementation)->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
+    if ( pthread_create(((DoIpImplementation*)sim->implementation)->loop_thread, NULL,
                           (void *(*) (void *)) sim_doip_loop, (void *)sim) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
-        free(sim->implementation->loop_thread);
-        sim->implementation->loop_thread = null;
+        free(((DoIpImplementation*)sim->implementation)->loop_thread);
+        ((DoIpImplementation*)sim->implementation)->loop_thread = null;
         exit(EXIT_FAILURE);
     }
 }
 bool sim_doip_loop_daemon_wait_ready(SimDoIp *sim) {
-    return sim_loop_daemon_wait_ready(&sim->implementation->loop_ready);
+    return sim_loop_daemon_wait_ready(&((DoIpImplementation*)sim->implementation)->loop_ready);
 }
 static uint16_t be16_u(const byte *p) {
     return (uint16_t)(((uint16_t)p[0] << 8) | (uint16_t)p[1]);
@@ -111,7 +112,7 @@ static object_DoIPDiagMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Bu
 static bool doip_send_diag(SimDoIp *sim, object_DoIPDiagMessage *m) {
     Buffer *out = doip_diag_message_serialize(m);
     if (!out) return false;
-    if ( sim_write((Sim*)sim, sim->implementation->timeout_ms, out->buffer, out->size) == -1 ) {
+    if ( sim_write((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, out->buffer, out->size) == -1 ) {
         log_msg(LOG_ERROR, "Error while sending");
         return false;
     }
@@ -139,7 +140,7 @@ static bool doip_send_simple(SimDoIp *sim, object_DoIPMessage *m) {
 
     if (0 < plen) memcpy(out.buffer + 8, m->payload_raw->buffer, (size_t)plen);
 
-    if ( sim_write((Sim*)sim, sim->implementation->timeout_ms, out.buffer, out.size) == -1 ) {
+    if ( sim_write((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, out.buffer, out.size) == -1 ) {
         free(out.buffer);
         log_msg(LOG_ERROR, "Error while sending");
         return false;
@@ -242,12 +243,12 @@ static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
 void sim_doip_loop(SimDoIp * sim) {
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            sim->implementation->handle = -1;
-            sim->implementation->client_socket = -1;
+            ((DoIpImplementation*)sim->implementation)->handle = -1;
+            ((DoIpImplementation*)sim->implementation)->client_socket = -1;
         #else
-            sim->implementation->client_socket = INVALID_SOCKET;
+            ((DoIpImplementation*)sim->implementation)->client_socket = INVALID_SOCKET;
         #endif
-        sim->implementation->server_fd = -1;
+        ((DoIpImplementation*)sim->implementation)->server_fd = -1;
         int boundPort = -1;
         int serverFD = network_start(&boundPort, DOIP_NETWORK_PORT);
         if ( serverFD == -1 ) {
@@ -256,11 +257,11 @@ void sim_doip_loop(SimDoIp * sim) {
             return;
         }
         assert(boundPort != -1);
-        sim->implementation->server_fd = serverFD;
+        ((DoIpImplementation*)sim->implementation)->server_fd = serverFD;
         asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
     #elif defined OS_POSIX
-        sim->implementation->handle = -1;
-        sim->implementation->server_fd = -1;
+        ((DoIpImplementation*)sim->implementation)->handle = -1;
+        ((DoIpImplementation*)sim->implementation)->server_fd = -1;
         int boundPort = -1;
         int serverFD = network_start(&boundPort, DOIP_NETWORK_PORT);
         if ( serverFD == -1 ) {
@@ -269,7 +270,7 @@ void sim_doip_loop(SimDoIp * sim) {
             return;
         }
         assert(boundPort != -1);
-        sim->implementation->server_fd = serverFD;
+        ((DoIpImplementation*)sim->implementation)->server_fd = serverFD;
         asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
     #else
     #   warning OS unsupported
@@ -279,32 +280,32 @@ void sim_doip_loop(SimDoIp * sim) {
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
 
-    while(sim->implementation->loop_thread != null) {
+    while(((DoIpImplementation*)sim->implementation)->loop_thread != null) {
         buffer_recycle(recv_buffer);
-        if (!sim->implementation->loop_ready) sim->implementation->loop_ready = true;
+        if (!((DoIpImplementation*)sim->implementation)->loop_ready) ((DoIpImplementation*)sim->implementation)->loop_ready = true;
 
         struct sockaddr_in addr;
 
-        if ( ! sim_doip_network_is_connected(sim->implementation) ) {
+        if ( ! sim_doip_network_is_connected(((DoIpImplementation*)sim->implementation)) ) {
             #if defined OS_POSIX
                 socklen_t addr_len = sizeof(addr);
                 #ifdef OS_WINDOWS
-                    sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    if (sim->implementation->handle == -1) {
+                    ((DoIpImplementation*)sim->implementation)->handle = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                    if (((DoIpImplementation*)sim->implementation)->handle == -1) {
                         perror("accept");
                         return;
                     }
                 #else
-                    sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    if (sim->implementation->handle == -1) {
+                    ((DoIpImplementation*)sim->implementation)->handle = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                    if (((DoIpImplementation*)sim->implementation)->handle == -1) {
                         perror("accept");
                         return;
                     }
                 #endif
             #elif defined OS_WINDOWS
                 int addr_len = sizeof(addr);
-                sim->implementation->client_socket = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                if (sim->implementation->client_socket == -1) {
+                ((DoIpImplementation*)sim->implementation)->client_socket = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                if (((DoIpImplementation*)sim->implementation)->client_socket == -1) {
                     perror("accept");
                     return;
                 }
@@ -316,7 +317,7 @@ void sim_doip_loop(SimDoIp * sim) {
             free(location);
         }
 
-        if ( sim_read((Sim*)sim, sim->implementation->timeout_ms, recv_buffer) == -1 ) {
+        if ( sim_read((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, recv_buffer) == -1 ) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");
             return;
         }

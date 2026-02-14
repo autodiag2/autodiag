@@ -61,8 +61,9 @@ static void *launch(void *d) {
         if ( data.proto_is_auto != null ) {
             data.sim->protocol_is_auto_running = *data.proto_is_auto;
         }
-        if ( data.sim->implementation->loop_thread != null ) {
-            pthread_join(*data.sim->implementation->loop_thread, NULL);
+        SimELM327Implementation * impl = (SimELM327Implementation*)data.sim->implementation;
+        if ( impl->loop_thread != null ) {
+            pthread_join(*impl->loop_thread, NULL);
         }
     }
     return null;

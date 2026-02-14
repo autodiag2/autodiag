@@ -27,22 +27,14 @@
 #define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
 
 typedef struct {
+    SimImplementation;
     pthread_t activity_monitor_thread;
     bool activity_monitor_thread_launched;
     pthread_t * loop_thread;
     bool loop_ready;
     int timeout_ms;
-    #ifdef OS_POSIX
-        int handle;
-    #endif
     #ifdef OS_WINDOWS
         HANDLE win_handle;
-        int server_fd;
-        sock_t client_socket;
-    #elif defined OS_POSIX
-        int server_fd;
-    #else
-    #   warning OS unsupported
     #endif
 } SimELM327Implementation;
 
@@ -55,7 +47,6 @@ typedef struct _SimELM327 {
      * let to null the sim choose automatically the kind of emulation.
      */
     char * device_type;
-    SimELM327Implementation* implementation;
 	char * eol;
 	bool echo;
 	ELM327_PROTO protocolRunning;

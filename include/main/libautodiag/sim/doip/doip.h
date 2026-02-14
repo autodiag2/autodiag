@@ -23,17 +23,7 @@
 #include "libautodiag/sim/sim.h"
 
 typedef struct {
-    #ifdef OS_POSIX
-        int handle;
-    #endif
-    #ifdef OS_WINDOWS
-        int server_fd;
-        sock_t client_socket;
-    #elif defined OS_POSIX
-        int server_fd;
-    #else
-    #   warning OS unsupported
-    #endif
+    SimImplementation;
     pthread_t* loop_thread;
     bool loop_ready;
     /**
@@ -44,7 +34,6 @@ typedef struct {
 
 typedef struct _SimDoIp {
     Sim;
-    DoIpImplementation * implementation;
 } SimDoIp;
 
 #define DOIP_NETWORK_PORT 13400

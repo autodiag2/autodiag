@@ -7,10 +7,10 @@ void sim_elm327_go_low_power() {
 }
 
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
-    elm327->implementation->activity_monitor_thread_launched = true;
+    ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched = true;
     while(true) {
         elm327->activity_monitor_count = 0x00;
-        while(elm327->activity_monitor_count != 0xFF && elm327->implementation->activity_monitor_thread_launched) {
+        while(elm327->activity_monitor_count != 0xFF && ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched) {
             elm327->activity_monitor_count++;
             usleep(655e3);
             if ( elm327->activity_monitor_timeout < elm327->activity_monitor_count ) {
@@ -24,7 +24,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                         asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
                         log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
 
-                        if ( sim_write((Sim*)elm327, elm327->implementation->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
+                        if ( sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
                             return;
                         }
 
@@ -39,8 +39,8 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
 }
 
 void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
-    if ( ! elm327->implementation->activity_monitor_thread_launched ) {
-        if ( pthread_create(&elm327->implementation->activity_monitor_thread, NULL,
+    if ( ! ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched ) {
+        if ( pthread_create(&((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread, NULL,
                               (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
                               (void *)elm327) != 0 ) {
             log_msg(LOG_ERROR, "thread creation error (activity monitor)");
@@ -240,9 +240,9 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     }
     elm327->obd_buffer = buffer_new();
     buffer_ensure_capacity(elm327->obd_buffer,12);
-    if ( elm327->implementation->activity_monitor_thread_launched ) {
-        pthread_cancel(elm327->implementation->activity_monitor_thread);
-        elm327->implementation->activity_monitor_thread_launched = false;
+    if ( ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched ) {
+        pthread_cancel(((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread);
+        ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched = false;
     }
     elm327->activity_monitor_count = 0x00;
     int secs = bitRetrieve(SIM_ELM327_PP_GET(elm327,0x0F), 4) ? 150 : 30;
@@ -285,36 +285,33 @@ SimELM327* sim_elm327_new() {
     sim_init_with_defaults((Sim*)elm327);
     elm327->type = strdup("elm327");
     elm327->device_type = null;
-    elm327->implementation = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
-    elm327->implementation->loop_thread = null;
-    elm327->implementation->loop_ready = false;
-    elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
+    elm327->implementation = (SimImplementation*)malloc(sizeof(SimELM327Implementation));
+    ((SimELM327Implementation*)elm327->implementation)->loop_thread = null;
+    ((SimELM327Implementation*)elm327->implementation)->loop_ready = false;
+    ((SimELM327Implementation*)elm327->implementation)->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
+    #ifdef OS_POSIX
+        ((SimELM327Implementation*)elm327->implementation)->handle = -1;
+        ((SimELM327Implementation*)elm327->implementation)->server_fd = -1;
+    #endif
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            elm327->implementation->handle = -1;
-            elm327->implementation->client_socket = -1;
+            ((SimELM327Implementation*)elm327->implementation)->client_socket = -1;
         #else
-            elm327->implementation->client_socket = INVALID_SOCKET;
+            ((SimELM327Implementation*)elm327->implementation)->client_socket = INVALID_SOCKET;
         #endif
-        elm327->implementation->win_handle = INVALID_HANDLE_VALUE;
-        elm327->implementation->server_fd = -1;
-    #elif defined OS_POSIX
-        elm327->implementation->handle = -1;
-        elm327->implementation->server_fd = -1;
-    #else
-    #   warning OS unsupported
+        ((SimELM327Implementation*)elm327->implementation)->win_handle = INVALID_HANDLE_VALUE;
     #endif
-    elm327->implementation->activity_monitor_thread_launched = false;
+    ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched = false;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
     return elm327;
 }
 void sim_elm327_destroy(SimELM327 * elm327) {
-    pthread_cancel(elm327->implementation->activity_monitor_thread);
-    THREAD_CANCEL(elm327->implementation->loop_thread);
-    free(elm327->implementation->loop_thread);
-    elm327->implementation->loop_thread = null;
-    elm327->implementation->loop_ready = false;
-    free(elm327->implementation);
+    pthread_cancel(((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread);
+    THREAD_CANCEL(((SimELM327Implementation*)elm327->implementation)->loop_thread);
+    free(((SimELM327Implementation*)elm327->implementation)->loop_thread);
+    ((SimELM327Implementation*)elm327->implementation)->loop_thread = null;
+    ((SimELM327Implementation*)elm327->implementation)->loop_ready = false;
+    free(((SimELM327Implementation*)elm327->implementation));
     free(elm327->eol);
     free(elm327->dev_description);
     free(elm327->dev_identifier);
@@ -331,18 +328,18 @@ void sim_elm327_destroy(SimELM327 * elm327) {
     free(elm327);
 }
 void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
-    THREAD_CANCEL(elm327->implementation->loop_thread);
-    elm327->implementation->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
-    if ( pthread_create(elm327->implementation->loop_thread, NULL,
+    THREAD_CANCEL(((SimELM327Implementation*)elm327->implementation)->loop_thread);
+    ((SimELM327Implementation*)elm327->implementation)->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
+    if ( pthread_create(((SimELM327Implementation*)elm327->implementation)->loop_thread, NULL,
                           (void *(*) (void *)) sim_elm327_loop, (void *)elm327) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
-        free(elm327->implementation->loop_thread);
-        elm327->implementation->loop_thread = null;
+        free(((SimELM327Implementation*)elm327->implementation)->loop_thread);
+        ((SimELM327Implementation*)elm327->implementation)->loop_thread = null;
         exit(EXIT_FAILURE);
     }
 }
 bool sim_elm327_loop_daemon_wait_ready(SimELM327 *sim) {
-    return sim_loop_daemon_wait_ready(&sim->implementation->loop_ready);
+    return sim_loop_daemon_wait_ready(&((SimELM327Implementation*)sim->implementation)->loop_ready);
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
@@ -370,7 +367,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     log_msg(LOG_DEBUG, "sending back %s", resp_str);
     free(resp_str);
 
-    if ( sim_write((Sim*)elm327, elm327->implementation->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
+    if ( sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
         return false;
     }
     free(response);
@@ -864,13 +861,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            elm327->implementation->handle = -1;
-            elm327->implementation->client_socket = -1;
+            ((SimELM327Implementation*)elm327->implementation)->handle = -1;
+            ((SimELM327Implementation*)elm327->implementation)->client_socket = -1;
         #else
-            elm327->implementation->client_socket = INVALID_SOCKET;
+            ((SimELM327Implementation*)elm327->implementation)->client_socket = INVALID_SOCKET;
         #endif
-        elm327->implementation->win_handle = INVALID_HANDLE_VALUE;
-        elm327->implementation->server_fd = -1;
+        ((SimELM327Implementation*)elm327->implementation)->win_handle = INVALID_HANDLE_VALUE;
+        ((SimELM327Implementation*)elm327->implementation)->server_fd = -1;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             #define MAX_ATTEMPTS 20
             char pipeName[256];
@@ -911,7 +908,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             elm327->device_location = strdup(pipeName);
-            elm327->implementation->win_handle = hPipe;
+            ((SimELM327Implementation*)elm327->implementation)->win_handle = hPipe;
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
             int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
@@ -921,15 +918,15 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             assert(boundPort != -1);
-            elm327->implementation->server_fd = serverFD;
+            ((SimELM327Implementation*)elm327->implementation)->server_fd = serverFD;
             asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
             return;
         }
     #elif defined OS_POSIX
-        elm327->implementation->handle = -1;
-        elm327->implementation->server_fd = -1;
+        ((SimELM327Implementation*)elm327->implementation)->handle = -1;
+        ((SimELM327Implementation*)elm327->implementation)->server_fd = -1;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             int fd = posix_openpt(O_RDWR);
             if ( fd == -1 ) {
@@ -945,7 +942,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             elm327->device_location = strdup(ptsname(fd));
-            elm327->implementation->handle = fd;
+            ((SimELM327Implementation*)elm327->implementation)->handle = fd;
         } else if ( strcasecmp(elm327->device_type, "socket") == 0 ) {
             #ifdef OS_ANDROID
             #   include <sys/un.h>
@@ -997,7 +994,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                     return;
                 }
 
-                elm327->implementation->server_fd = server_fd;
+                ((SimELM327Implementation*)elm327->implementation)->server_fd = server_fd;
                 char loc[108];
                 snprintf(loc, sizeof(loc), "%s", addr.sun_path);
                 elm327->device_location = strdup(loc);
@@ -1014,7 +1011,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             assert(boundPort != -1);
-            elm327->implementation->server_fd = serverFD;
+            ((SimELM327Implementation*)elm327->implementation)->server_fd = serverFD;
             asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
         } else {
             log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
@@ -1030,34 +1027,34 @@ void sim_elm327_loop(SimELM327 * elm327) {
     buffer_ensure_capacity(recv_buffer, 100);
     bool shouldWriteNvm = false;
 
-    while(elm327->implementation->loop_thread != null) {
+    while(((SimELM327Implementation*)elm327->implementation)->loop_thread != null) {
         buffer_recycle(recv_buffer);
-        if ( elm327->implementation->loop_ready == false ) {
-            elm327->implementation->loop_ready = true;
+        if ( ((SimELM327Implementation*)elm327->implementation)->loop_ready == false ) {
+            ((SimELM327Implementation*)elm327->implementation)->loop_ready = true;
         }
         if ( elm327->device_type != null ) {
             if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
                 struct sockaddr_in addr;
-                if ( ! sim_elm327_network_is_connected(elm327->implementation) ) {
+                if ( ! sim_elm327_network_is_connected(((SimELM327Implementation*)elm327->implementation)) ) {
                     #if defined OS_POSIX
                         socklen_t addr_len = sizeof(addr);
                         #ifdef OS_WINDOWS
-                            elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                            if (elm327->implementation->handle == -1) {
+                            ((SimELM327Implementation*)elm327->implementation)->handle = accept(((SimELM327Implementation*)elm327->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                            if (((SimELM327Implementation*)elm327->implementation)->handle == -1) {
                                 perror("accept");
                                 return;
                             }
                         #else
-                            elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                            if (elm327->implementation->handle == -1) {
+                            ((SimELM327Implementation*)elm327->implementation)->handle = accept(((SimELM327Implementation*)elm327->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                            if (((SimELM327Implementation*)elm327->implementation)->handle == -1) {
                                 perror("accept");
                                 return;
                             }
                         #endif
                     #elif defined OS_WINDOWS
                         int addr_len = sizeof(addr);
-                        elm327->implementation->client_socket = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                        if (elm327->implementation->client_socket == -1) {
+                        ((SimELM327Implementation*)elm327->implementation)->client_socket = accept(((SimELM327Implementation*)elm327->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
+                        if (((SimELM327Implementation*)elm327->implementation)->client_socket == -1) {
                             perror("accept");
                             return;
                         }

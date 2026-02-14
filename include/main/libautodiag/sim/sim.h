@@ -2,6 +2,21 @@
 #define __SIM_H
 
 #include "libautodiag/sim/ecu/ecu.h"
+#include "libautodiag/compile_target.h"
+
+typedef struct {
+    #ifdef OS_POSIX
+        int handle;
+    #endif
+    #ifdef OS_WINDOWS
+        int server_fd;
+        sock_t client_socket;
+    #elif defined OS_POSIX
+        int server_fd;
+    #else
+    #   warning OS unsupported
+    #endif
+} SimImplementation;
 
 typedef struct {
     /**
@@ -13,6 +28,7 @@ typedef struct {
      */
     char * type;
     char * device_location;
+    SimImplementation * implementation;
 } Sim;
 
 #define SIM(var) ((Sim*)var)

@@ -30,14 +30,15 @@ static void display_help() {
 
 static void *launch(void *d) {
     SimDoIp * sim = (SimDoIp*)d;
+    DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
     sim_doip_loop_as_daemon(sim);
     sim_doip_loop_daemon_wait_ready(sim);
     if ( sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {
         printf("%s\n", sim->device_location);
-        if ( sim->implementation->loop_thread != null ) {
-            pthread_join(*sim->implementation->loop_thread, NULL);
+        if ( impl->loop_thread != null ) {
+            pthread_join(*impl->loop_thread, NULL);
         }
     }
     return null;
