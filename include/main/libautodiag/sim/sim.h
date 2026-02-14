@@ -33,5 +33,6 @@ void sim_prevent_read_himself(Sim *sim);
 void sim_init_with_defaults(Sim *sim);
 
 #include "libautodiag/sim/elm327/elm327.h"
+#include "libautodiag/sim/doip/doip.h"
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __ELM327_CLI_H
-#define __ELM327_CLI_H
+#ifndef __DOIP_CLI_H
+#define __DOIP_CLI_H
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -7,9 +7,9 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/ecu/generator.h"
-#include "libprog/cli_helpers.h"
 #include "libautodiag/sim/sim.h"
+#include "libprog/cli_helpers.h"
 
-int sim_elm327_cli_main(int argc, char **argv);
+int sim_doip_cli_main(int argc, char **argv);
 
 #endif

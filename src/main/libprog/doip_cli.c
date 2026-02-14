@@ -1,76 +1,52 @@
-#include "libprog/elm327_cli.h"
+#include "libprog/doip_cli.h"
 
-PRINT_MODULAR(sim_elm327_cli_help,
+PRINT_MODULAR(sim_doip_cli_help,
     "\n"
-    "ELM327 simulator\n"
+    "DoIP simulator\n"
     "\n"
     " -h                        : display this help\n"
     " -e hh                     : add an ecu to the simulation with address hh\n"
-    " -p                        : list protocols\n"
-    " -p h                      : set protocol to h\n"
-    " -p Ah                     : set protocol to automatic, h\n"
     " -l                        : list level of logging\n"
     " -l level                  : set level of logging\n"
-    " -t type                   : set the simulation type\n"
     " -g                        : list available generators\n"
     " -g generator              : set the generator of values\n"
     " -c context                : context for the generator\n"
-    " --clear-nvm               : delete the file storing nvm (pps, protocol)\n"
     " --load-from-json jsoncxt  : clear previously defined simulation definition and\n"
     "                             and load ecus, generators from the json provided (text, filepath)\n"
     "\n"
     "Examples:\n"
-    " elm327sim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
-    " elm327sim -g random -c 1234           : use the seed 1234 for generating random numbers\n"
-    " elm327sim -g cycle -c 10              : number of gears used in the cycle\n"
+    " doipsim -g cycle -e EA -g random    : default ecu E8 cycle generator, EA ecu random generator\n"
+    " doipsim -g random -c 1234           : use the seed 1234 for generating random numbers\n"
+    " doipsim -g cycle -c 10              : number of gears used in the cycle\n"
 #ifndef COMPILE_COMPAT
-    " elm327sim -g gui                      : default ecu with gui value generator\n"
+    " doipsim -g gui                      : default ecu with gui value generator\n"
 #endif
     "\n"
 )
 
-static void display_protocols() {
-    printf("Supported protocols:\n");
-    for(int p = 0x1; p <= 0xC; p += 1) {
-        printf("%1x : %s\n", p, elm327_protocol_to_string(p));
-    }
-}
-
 static void display_help() {
-    sim_elm327_cli_help("");
+    sim_doip_cli_help("");
 }
-
-typedef struct {
-    SimELM327* sim;
-    ELM327_PROTO *proto;
-    bool * proto_is_auto;
-} ELM327SimData;
 
 static void *launch(void *d) {
-    ELM327SimData* da = d;
-    ELM327SimData data = *da;
-    sim_elm327_loop_as_daemon(data.sim);
-    sim_elm327_loop_daemon_wait_ready(data.sim);
+    SimDoIp * sim = (SimDoIp*)d;
+    sim_doip_loop(sim);
+    //sim_elm327_loop_daemon_wait_ready(data.sim);
+    // TODO
+    /*
     if ( data.sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {
         printf("%s\n", data.sim->device_location);
-        if ( data.proto != null ) {
-            data.sim->protocolRunning = *data.proto;
-        }
-        if ( data.proto_is_auto != null ) {
-            data.sim->protocol_is_auto_running = *data.proto_is_auto;
-        }
         if ( data.sim->implementation->loop_thread != null ) {
             pthread_join(*data.sim->implementation->loop_thread, NULL);
         }
     }
+    */
     return null;
 }
-int sim_elm327_cli_main(int argc, char **argv) {
-    SimELM327* sim = sim_elm327_new();
-    ELM327_PROTO *proto = null;
-    bool * proto_is_auto = null;
+int sim_doip_cli_main(int argc, char **argv) {
+    SimDoIp* sim = sim_doip_new();
     #ifndef COMPILE_COMPAT
         list_SimECUGeneratorGui * guis = list_SimECUGeneratorGui_new();
     #endif
@@ -78,10 +54,6 @@ int sim_elm327_cli_main(int argc, char **argv) {
     argForEach() {
         if ( argIs("-h") || argIs("--help") || argIs("help") ) {
             display_help();
-            return 0;
-        } else if argIs("--clear-nvm") {
-            sim_elm327_non_volatile_wipe_out();
-            printf("NVM deleted\n");
             return 0;
         } else if argIs("-e") {
             argNext();
@@ -95,43 +67,6 @@ int sim_elm327_cli_main(int argc, char **argv) {
             } else {
                 display_help();
                 return 1;
-            }
-        } else if argIs("-p") {
-            argNext();
-            char * arg = argCurrent();
-            int p;
-            if ( arg == null ) {
-                display_protocols();
-                return 0;
-            } else if ( sscanf(arg,"A%1x", &p) == 1 ) {
-                proto = (ELM327_PROTO *)intdup(p);
-                proto_is_auto = intdup(true);
-            } else if ( sscanf(arg,"%1x", &p) == 1 ) {
-                proto = (ELM327_PROTO *)intdup(p);
-                proto_is_auto = intdup(false);
-            } else {
-                display_help();
-                return 1;
-            }
-        } else if argIs("-t") {
-            argNext();
-            char * arg = argCurrent();
-            bool type_unknown = true;
-            if ( arg != null ) {
-                if ( strcasecmp(arg, "local") == 0 || strcasecmp(arg,"socket") == 0 || strcasecmp(arg,"network") == 0 ) {
-                    type_unknown = false;
-                } else {
-                    printf("Type: '%s' Unknown\n", arg);
-                }
-            }
-            if ( type_unknown || arg == null ) {
-                printf("Available types of simulating:\n");
-                printf("local (ELM327 USB/Bluetooth)\n");
-                printf("socket (For Android)\n");
-                printf("network (ELM327 WiFi)\n");
-                return 0;
-            } else {
-                sim->device_type = strdup(arg);
             }
         } else if argIs("-l") {
             argNext();
@@ -237,13 +172,8 @@ int sim_elm327_cli_main(int argc, char **argv) {
         }
     #endif
 
-    ELM327SimData data = {
-        .sim = sim,
-        .proto = proto,
-        .proto_is_auto = proto_is_auto
-    };
     pthread_t simThread;
-    pthread_create(&simThread, null, &launch, &data);
+    pthread_create(&simThread, null, &launch, sim);
 
     #ifdef COMPILE_COMPAT
         pthread_join(simThread, null);
@@ -258,4 +188,3 @@ int sim_elm327_cli_main(int argc, char **argv) {
 
     return 0;
 }
-

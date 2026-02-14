@@ -1,6 +1,7 @@
 #include "ui/main.h"
 #include "libprog/serial_cli.h"
 #include "libprog/elm327_cli.h"
+#include "libprog/doip_cli.h"
 
 static void display_help() {
     printf(
@@ -17,7 +18,7 @@ static void display_help() {
            "  data path    : display app data\n"
            "\n"
            " Simulation order:\n"
-           "  sim elm327 [elm327sim args] : run sim\n"
+           "  sim <type> [sim args] : run sim\n"
            "\n"
            " Gui order:\n"
            "  gui [gui args] : run the gui\n"
@@ -27,7 +28,12 @@ static void display_help() {
            "\n"
            " Params:\n"
            " -l [log level]    : set or list the log level\n"
-            "\n"
+           "\n"
+           "Example:\n"
+           " autodiag sim elm327\n"
+           " autodiag sim doip\n"
+           " autodiag gui\n"
+           "\n"
     );
 }
 static void display_gui_help() {
@@ -75,8 +81,16 @@ int main (int argc, char *argv[]) {
             ABORT_WITH_HELP()
         } else if argIs("sim") {
             argNext()
-            if argIs("elm327") {
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("Available sims:\n");
+                printf(" elm327\n");
+                printf(" doip\n");
+                return 0;
+            } else if argIs("elm327") {
                 return sim_elm327_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
+            } else if argIs("doip") {
+                return sim_doip_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
             }
            ABORT_WITH_HELP()
         } else if argIs("gui") {
