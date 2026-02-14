@@ -35,6 +35,12 @@ typedef struct {
     #else
     #   warning OS unsupported
     #endif
+    pthread_t* loop_thread;
+    bool loop_ready;
+    /**
+     * Read & write timeout ms
+     */
+    int timeout_ms;
 } DoIpImplementation;
 
 typedef struct _SimDoIp {
@@ -45,5 +51,8 @@ typedef struct _SimDoIp {
 #define DOIP_NETWORK_PORT 13400
 SimDoIp * sim_doip_new();
 void sim_doip_loop(SimDoIp * doip);
+void sim_doip_destroy(SimDoIp *sim);
+void sim_doip_loop_as_daemon(SimDoIp * sim);
+bool sim_doip_loop_daemon_wait_ready(SimDoIp *sim);
 
 #endif

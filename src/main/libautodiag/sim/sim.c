@@ -9,7 +9,23 @@ void sim_init_with_defaults(Sim *sim) {
     list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
     sim->device_location = null;
 }
-
+bool sim_loop_daemon_wait_ready(bool * var) {
+    assert(var != null);
+    final int timeout_ms = 10000;
+    final int step_ms = 20;
+    final int step_n = timeout_ms / step_ms;
+    int i = 0;
+    for(; i < step_n && *var == false; i++) {
+        usleep(step_ms * 1e3);
+    }
+    if ( i == step_n ) {
+        log_msg(LOG_ERROR, "timeout while waiting for sim to be ready");
+        return false;
+    } else {
+        usleep(step_ms * 1e3);
+        return true;
+    }
+}
 void sim_prevent_read_himself(Sim * sim) {
     assert(sim != null);
     if ( strcasecmp(sim->type, "elm327") == 0 ) {

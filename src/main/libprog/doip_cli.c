@@ -30,19 +30,16 @@ static void display_help() {
 
 static void *launch(void *d) {
     SimDoIp * sim = (SimDoIp*)d;
-    sim_doip_loop(sim);
-    //sim_elm327_loop_daemon_wait_ready(data.sim);
-    // TODO
-    /*
-    if ( data.sim->device_location == null ) {
+    sim_doip_loop_as_daemon(sim);
+    sim_doip_loop_daemon_wait_ready(sim);
+    if ( sim->device_location == null ) {
         log_msg(LOG_WARNING, "Simulation not started");
     } else {
-        printf("%s\n", data.sim->device_location);
-        if ( data.sim->implementation->loop_thread != null ) {
-            pthread_join(*data.sim->implementation->loop_thread, NULL);
+        printf("%s\n", sim->device_location);
+        if ( sim->implementation->loop_thread != null ) {
+            pthread_join(*sim->implementation->loop_thread, NULL);
         }
     }
-    */
     return null;
 }
 int sim_doip_cli_main(int argc, char **argv) {

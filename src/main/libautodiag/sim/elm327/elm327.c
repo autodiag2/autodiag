@@ -341,21 +341,8 @@ void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
         exit(EXIT_FAILURE);
     }
 }
-bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327) {
-    final int timeout_ms = 10000;
-    final int step_ms = 20;
-    final int step_n = timeout_ms / step_ms;
-    int i = 0;
-    for(; i < step_n && elm327->implementation->loop_ready == false; i++) {
-        usleep(step_ms * 1e3);
-    }
-    if ( i == step_n ) {
-        log_msg(LOG_ERROR, "timeout while waiting for sim to be ready");
-        return false;
-    } else {
-        usleep(step_ms * 1e3);
-        return true;
-    }
+bool sim_elm327_loop_daemon_wait_ready(SimELM327 *sim) {
+    return sim_loop_daemon_wait_ready(&sim->implementation->loop_ready);
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {

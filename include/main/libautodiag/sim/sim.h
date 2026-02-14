@@ -31,6 +31,10 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
  */
 void sim_prevent_read_himself(Sim *sim);
 void sim_init_with_defaults(Sim *sim);
+/**
+ * Wait for a flag to be ready
+ */
+bool sim_loop_daemon_wait_ready(bool * var);
 
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/doip/doip.h"
