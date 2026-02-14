@@ -1,13 +1,11 @@
 #ifndef __COM_DOIP_H
 #define __COM_DOIP_H
 
-#include "libautodiag/lib.h"
+/**
+ * ISO 13400
+ */
 
-OBJECT_H(DoIPPayload,
-    Buffer * src_addr;
-    Buffer * dst_addr;
-    Buffer * data;
-);
+#include "libautodiag/lib.h"
 
 typedef enum {
     DOIP_GENERIC_HEADER_NACK            = 0x0000, /* Generic DoIP header negative acknowledgment */
@@ -27,19 +25,27 @@ typedef enum {
     DOIP_DIAGNOSTIC_MESSAGE_ACK         = 0x8002, /* Diagnostic message positive ACK */
     DOIP_DIAGNOSTIC_MESSAGE_NACK        = 0x8003  /* Diagnostic message negative ACK */
 } DoIpPayloadType;
-
 OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
     DoIpPayloadType payload_type;
     int payload_length;
-    object_DoIPPayload * payload;
+    Buffer * payload_raw;
+)
+OBJECT_H(DoIPDiagMessage,
+    object_DoIPMessage;
+    struct {
+        Buffer * src_addr;
+        Buffer * dst_addr;
+        Buffer * data;
+    } payload;
 )
 
 #define DOIP_PROTOCOL_VERSION_CURRENT 0x02
 
-object_DoIPMessage * object_DoIPMessage_new();
-object_DoIPMessage *doip_parse_message(const Buffer *in);
-Buffer *doip_serialize_message(const object_DoIPMessage *msg);
+object_DoIPDiagMessage * object_DoIPDiagMessage_new();
+object_DoIPDiagMessage *doip_diag_message_parse(const Buffer *in);
+Buffer *doip_diag_message_serialize(const object_DoIPDiagMessage *msg);
+object_DoIPMessage * doip_message_parse(const Buffer * in);
 
 #endif

@@ -18,7 +18,7 @@
 #endif
 #include "libautodiag/thread.h"
 #include "libautodiag/lib.h"
-#include "libautodiag/com/serial/elm/elm327/elm327.h"
+#include "libautodiag/com/doip/doip.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/sim.h"
 
