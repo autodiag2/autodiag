@@ -307,6 +307,9 @@ void buffer_slice_non_alphanum(final Buffer *buffer) {
     }
     buffer->size -= 1;
 }
+char * buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
+    return ascii_escape_breaking_chars_n(buffer->buffer, buffer->size);
+}
 char * buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {
         return strdup("");

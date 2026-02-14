@@ -83,6 +83,7 @@ char* buffer_to_hex_string(Buffer *buffer);
  * Convert buffer to ascii string.
  */
 char * buffer_to_ascii(final Buffer *buffer);
+char * buffer_to_ascii_espace_breaking_chars(Buffer * buffer);
 
 AD_LIST_H(Buffer);
 AD_LIST_H_FIND(Buffer, Buffer*);

@@ -18,6 +18,11 @@ int asprintf(char **strp, const char *fmt, ...);
 #include "libautodiag/lang/list.h"
 
 char * ascii_escape_breaking_chars(char *str);
+/**
+ * For not 0 terminated strings
+ */
+char * ascii_escape_breaking_chars_n(char *str, size_t len);
+
 static bool ascii_is_alphanum(char c) {
     return (c >= '0' && c <= '9') ||
            (c >= 'A' && c <= 'Z') ||

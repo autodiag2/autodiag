@@ -321,9 +321,12 @@ void sim_doip_loop(SimDoIp * sim) {
             return;
         }
 
-        if (recv_buffer->size < 8) continue;
+        if (recv_buffer->size < 8) {
+            log_msg(LOG_WARNING, "Received message appears truncated (len: %d)", recv_buffer->size);
+            continue;
+        }
 
-        char *buffer_str = ascii_escape_breaking_chars((char*)recv_buffer->buffer);
+        char * buffer_str = buffer_to_ascii_espace_breaking_chars(recv_buffer);
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
 
