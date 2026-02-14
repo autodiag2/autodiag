@@ -101,6 +101,10 @@ Buffer * buffer_new_cycle(unsigned int sz, int percent);
  * Remove the first byte of the buffer.
  */
 byte buffer_extract_0(final Buffer* buffer);
+/**
+ * return a copy of the buffer in input, from and to from+sz (excluded)
+ */
+Buffer * buffer_slice(final Buffer *buffer, int from, int sz);
 
 /**
  * Get free space in the buffer.

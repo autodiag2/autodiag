@@ -1,6 +1,31 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/lib.h"
 
+Buffer * buffer_slice(final Buffer *buffer, int from, int sz) {
+    if (!buffer) return null;
+    if (!buffer->buffer) return null;
+    if (from < 0) return null;
+    if (sz < 0) return null;
+    if (buffer->size < from + sz) return null;
+
+    Buffer *out = (Buffer*)malloc(sizeof(Buffer));
+    if (!out) return null;
+
+    out->size = sz;
+    out->buffer = null;
+
+    if (0 < sz) {
+        out->buffer = (byte*)malloc((size_t)sz);
+        if (!out->buffer) {
+            free(out);
+            return null;
+        }
+        memcpy(out->buffer, buffer->buffer + from, (size_t)sz);
+    }
+
+    return out;
+}
+
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
     assert(cmp1 != null);
     assert(ascii_hex != null);

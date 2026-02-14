@@ -19,6 +19,7 @@ bool testReplay();
 bool testRecorder(VehicleIFace* iface);
 bool testSimUDS();
 bool testCycle();
+bool testDOIP();
 
 int main(int argc, char **argv) {
     sim_elm327_non_volatile_wipe_out();
@@ -32,6 +33,7 @@ int main(int argc, char **argv) {
     runTestMaybe(testGlobals,null);
     runTestMaybe(testSimELM327,null);
     runTestMaybe(testISO3779,null);
+    runTestMaybe(testDOIP, null);
     
     final VehicleIFace* iface = port_open(start_elm327_simulation());
 
