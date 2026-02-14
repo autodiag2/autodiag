@@ -47,13 +47,13 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len) {
         assert(data != null);
         #ifdef OS_WINDOWS
             #ifdef OS_POSIX
-                if (impl->network_handle != -1) {
-                    final int poll_result = file_pool_write_posix(impl->network_handle, timeout_ms);
+                if (impl->handle != -1) {
+                    final int poll_result = file_pool_write_posix(impl->handle, timeout_ms);
                     if ( poll_result <= 0 ) {
                         log_msg(LOG_WARNING, "timeout reached waiting for the other end");
                         return -1;
                     }
-                    int bytes_written = write(impl->network_handle, data, data_len);
+                    int bytes_written = write(impl->handle, data, data_len);
                     if ( bytes_written == -1 ) {
                         perror("write");
                     }
@@ -68,14 +68,14 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len) {
                     return ret;
             #endif
             } else {
-                assert(impl->handle != INVALID_HANDLE_VALUE);
-                final int poll_result = file_pool_write(&impl->handle, timeout_ms);
+                assert(impl->win_handle != INVALID_HANDLE_VALUE);
+                final int poll_result = file_pool_write(&impl->win_handle, timeout_ms);
                 if ( poll_result <= 0 ) {
                     log_msg(LOG_WARNING, "timeout reached waiting for the other end");
                     return -1;
                 }
                 DWORD bytes_written = 0;
-                if (!WriteFile(impl->handle, data, data_len, &bytes_written, null)) {
+                if (!WriteFile(impl->win_handle, data, data_len, &bytes_written, null)) {
                     log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                     return -1;
                 }
@@ -100,13 +100,13 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len) {
         DoIpImplementation * impl = doip->implementation;
         #ifdef OS_WINDOWS
             #ifdef OS_POSIX
-                if (impl->network_handle != -1) {
-                    final int poll_result = file_pool_write_posix(impl->network_handle, timeout_ms);
+                if (impl->handle != -1) {
+                    final int poll_result = file_pool_write_posix(impl->handle, timeout_ms);
                     if ( poll_result <= 0 ) {
                         log_msg(LOG_WARNING, "timeout reached waiting for the other end");
                         return -1;
                     }
-                    int bytes_written = write(impl->network_handle, data, data_len);
+                    int bytes_written = write(impl->handle, data, data_len);
                     if ( bytes_written == -1 ) {
                         perror("write");
                     }
@@ -152,13 +152,13 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
         buffer_ensure_capacity(readed, 500);
         #ifdef OS_WINDOWS
             #ifdef OS_POSIX
-                if ( impl->network_handle != -1 ) {
-                    int res = file_pool_read_posix(impl->network_handle, null, timeout_ms);
+                if ( impl->handle != -1 ) {
+                    int res = file_pool_read_posix(impl->handle, null, timeout_ms);
                     if ( res == -1 ) {
                         log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
                         return -1;
                     }
-                    int rv = read(impl->network_handle,readed->buffer,readed->size_allocated-1);
+                    int rv = read(impl->handle,readed->buffer,readed->size_allocated-1);
                     if ( rv == -1 ) {
                         log_msg(LOG_ERROR, "read error: %s", strerror(errno));
                         return -1;
@@ -190,7 +190,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
                 }
             #endif
             else {
-                if ( ! ConnectNamedPipe(impl->handle, null) ) {
+                if ( ! ConnectNamedPipe(impl->win_handle, null) ) {
                     DWORD err = GetLastError();
                     if ( err == ERROR_PIPE_CONNECTED ) {
                         log_msg(LOG_DEBUG, "pipe already connected");
@@ -203,12 +203,12 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
                         return -1;
                     }
                 }
-                if ( file_pool_read(&impl->handle, null, timeout_ms) == -1 ) {
+                if ( file_pool_read(&impl->win_handle, null, timeout_ms) == -1 ) {
                     log_msg(LOG_ERROR, "Error while pooling");
                     return -1;
                 }
                 DWORD readedBytes = 0;
-                final int success = ReadFile(impl->handle, readed->buffer, readed->size_allocated-1, &readedBytes, 0);
+                final int success = ReadFile(impl->win_handle, readed->buffer, readed->size_allocated-1, &readedBytes, 0);
                 if ( ! success ) {
                     log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
                     return -1;
@@ -243,13 +243,13 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
         buffer_ensure_capacity(readed, 500);
         #ifdef OS_WINDOWS
             #ifdef OS_POSIX
-                if ( impl->network_handle != -1 ) {
-                    int res = file_pool_read_posix(impl->network_handle, null, timeout_ms);
+                if ( impl->handle != -1 ) {
+                    int res = file_pool_read_posix(impl->handle, null, timeout_ms);
                     if ( res == -1 ) {
                         log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
                         return -1;
                     }
-                    int rv = read(impl->network_handle,readed->buffer,readed->size_allocated-1);
+                    int rv = read(impl->handle,readed->buffer,readed->size_allocated-1);
                     if ( rv == -1 ) {
                         log_msg(LOG_ERROR, "read error: %s", strerror(errno));
                         return -1;

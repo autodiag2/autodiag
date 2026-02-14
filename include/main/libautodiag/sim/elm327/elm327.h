@@ -32,15 +32,14 @@ typedef struct {
     pthread_t * loop_thread;
     bool loop_ready;
     int timeout_ms;
+    #ifdef OS_POSIX
+        int handle;
+    #endif
     #ifdef OS_WINDOWS
-        #ifdef OS_POSIX
-            int network_handle;
-        #endif
-        HANDLE handle;
+        HANDLE win_handle;
         int server_fd;
         sock_t client_socket;
     #elif defined OS_POSIX
-        int handle;
         int server_fd;
     #else
     #   warning OS unsupported

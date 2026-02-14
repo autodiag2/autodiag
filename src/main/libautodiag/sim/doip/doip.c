@@ -16,7 +16,7 @@ bool sim_doip_network_is_connected(void * implPtr) {
     DoIpImplementation * impl = (DoIpImplementation*)implPtr;
     #ifdef OS_POSIX
         #ifdef OS_WINDOWS
-            sock_t handle = impl->network_handle;
+            sock_t handle = impl->handle;
         #else        
             sock_t handle = impl->handle;
         #endif
@@ -242,7 +242,7 @@ static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
 void sim_doip_loop(SimDoIp * sim) {
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            sim->implementation->network_handle = -1;
+            sim->implementation->handle = -1;
             sim->implementation->client_socket = -1;
         #else
             sim->implementation->client_socket = INVALID_SOCKET;
@@ -289,8 +289,8 @@ void sim_doip_loop(SimDoIp * sim) {
             #if defined OS_POSIX
                 socklen_t addr_len = sizeof(addr);
                 #ifdef OS_WINDOWS
-                    sim->implementation->network_handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    if (sim->implementation->network_handle == -1) {
+                    sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                    if (sim->implementation->handle == -1) {
                         perror("accept");
                         return;
                     }

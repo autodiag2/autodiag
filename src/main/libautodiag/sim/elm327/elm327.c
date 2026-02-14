@@ -291,12 +291,12 @@ SimELM327* sim_elm327_new() {
     elm327->implementation->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            elm327->implementation->network_handle = -1;
+            elm327->implementation->handle = -1;
             elm327->implementation->client_socket = -1;
         #else
             elm327->implementation->client_socket = INVALID_SOCKET;
         #endif
-        elm327->implementation->handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->win_handle = INVALID_HANDLE_VALUE;
         elm327->implementation->server_fd = -1;
     #elif defined OS_POSIX
         elm327->implementation->handle = -1;
@@ -864,12 +864,12 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            elm327->implementation->network_handle = -1;
+            elm327->implementation->handle = -1;
             elm327->implementation->client_socket = -1;
         #else
             elm327->implementation->client_socket = INVALID_SOCKET;
         #endif
-        elm327->implementation->handle = INVALID_HANDLE_VALUE;
+        elm327->implementation->win_handle = INVALID_HANDLE_VALUE;
         elm327->implementation->server_fd = -1;
         if ( elm327->device_type == null || strcasecmp(elm327->device_type, "local") == 0 ) {
             #define MAX_ATTEMPTS 20
@@ -911,7 +911,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 return;
             }
             elm327->device_location = strdup(pipeName);
-            elm327->implementation->handle = hPipe;
+            elm327->implementation->win_handle = hPipe;
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
             int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
@@ -1042,8 +1042,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
                     #if defined OS_POSIX
                         socklen_t addr_len = sizeof(addr);
                         #ifdef OS_WINDOWS
-                            elm327->implementation->network_handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-                            if (elm327->implementation->network_handle == -1) {
+                            elm327->implementation->handle = accept(elm327->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                            if (elm327->implementation->handle == -1) {
                                 perror("accept");
                                 return;
                             }

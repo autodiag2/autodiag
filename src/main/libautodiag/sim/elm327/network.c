@@ -6,7 +6,7 @@ bool sim_elm327_network_is_connected(void * implPtr) {
     SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
     #ifdef OS_POSIX
         #ifdef OS_WINDOWS
-            sock_t handle = impl->network_handle;
+            sock_t handle = impl->win_handle;
         #else        
             sock_t handle = impl->handle;
         #endif

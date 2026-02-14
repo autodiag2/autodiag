@@ -23,14 +23,13 @@
 #include "libautodiag/sim/sim.h"
 
 typedef struct {
+    #ifdef OS_POSIX
+        int handle;
+    #endif
     #ifdef OS_WINDOWS
-        #ifdef OS_POSIX
-            int network_handle;
-        #endif
         int server_fd;
         sock_t client_socket;
     #elif defined OS_POSIX
-        int handle;
         int server_fd;
     #else
     #   warning OS unsupported
