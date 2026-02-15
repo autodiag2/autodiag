@@ -13,5 +13,5 @@ emulation.sim.ecus.contents.list[0].contents.set_generator(cycleGen)
 emulation.loop(daemon=True)
 
 serial = Serial()
-serial.set_location(emulation.device_location)
+serial.set_location(emulation.sim.device_location)
 iface = VehicleIFace.open_from_device(serial)

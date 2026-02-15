@@ -133,7 +133,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     #endif
     if ( strcasecmp(sim->type,"elm327") == 0 ) {
         SimELM327 * elm327 = (SimELM327*)sim;
-        SimELM327Implementation * impl = elm327->implementation;        
+        SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;        
         #ifdef OS_WINDOWS
             if ( ! ConnectNamedPipe(impl->win_handle, null) ) {
                 DWORD err = GetLastError();

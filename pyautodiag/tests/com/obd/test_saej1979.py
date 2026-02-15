@@ -54,7 +54,7 @@ def test_saej1979():
     emulation.loop(daemon=True)
 
     serial = Serial()
-    serial.set_location(emulation.device_location)
+    serial.set_location(emulation.sim.device_location)
     iface = VehicleIFace.open_from_device(serial)
 
     saej1979 = SAEJ1979(iface)

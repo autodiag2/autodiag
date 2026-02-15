@@ -40,7 +40,7 @@ class Serial(Structure):
             location = location.decode()
         if not isinstance(location, str):
             raise TypeError("location must be a string")
-        self.location = location.encode()
+        self.device.location = location.encode()
 
     def init(self):
         lib.serial_init.argtypes = [POINTER(Serial)]
@@ -93,7 +93,7 @@ class Serial(Structure):
         print(f"  echo: {self.echo}")
         print(f"  baud_rate: {self.baud_rate}")
         print(f"  status: {self.status}")
-        print(f"  location: {self.location.decode('utf-8') if self.location else None}")
+        print(f"  location: {self.device.location.decode('utf-8') if self.device.location else None}")
         print(f"  eol: {self.eol.decode('utf-8') if self.eol else None}")
         print(f"  timeout: {self.timeout}")
         print(f"  timeout_seq: {self.timeout_seq}")

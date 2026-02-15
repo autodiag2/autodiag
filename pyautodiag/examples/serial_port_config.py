@@ -9,7 +9,7 @@ emulation.loop(daemon=True)
 
 log_set_level(LOG_DEBUG)
 serial = Serial()
-serial.set_location(emulation.device_location)
+serial.set_location(emulation.sim.device_location)
 serial.open()
 serial.send("ATE0")
 serial.recv()

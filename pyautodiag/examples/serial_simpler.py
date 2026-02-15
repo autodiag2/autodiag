@@ -14,7 +14,7 @@ try:
 except SerialException as exception:
     print(exception)
 
-ser = Serial(emulation.device_location.decode(), 9600, timeout=1)
+ser = Serial(emulation.sim.device_location.decode(), 9600, timeout=1)
 
 ser.write(b'ATI\r')
 data = ser.read_until(b'>')

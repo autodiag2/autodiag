@@ -9,7 +9,7 @@ emulation.set_ecu_and_generator(0xE8, GeneratorCitroenC5X7())
 emulation.loop(daemon=True)
 
 serial = Serial()
-serial.set_location(emulation.device_location)
+serial.set_location(emulation.sim.device_location)
 iface = VehicleIFace.open_from_device(serial)
 print(f"vin={iface.vehicle.contents.vin.contents.to_ascii()}")
 print(f"country={iface.vehicle.contents.country.decode()}")

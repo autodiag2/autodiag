@@ -26,10 +26,10 @@ assert emulation.get_ecu(0xE9) is not None
 
 emulation.loop(daemon=True)
 
-print(f"Simulation started at: {emulation.device_location}")
+print(f"Simulation started at: {emulation.sim.device_location}")
 
 serial = Serial()
-serial.set_location(emulation.device_location)
+serial.set_location(emulation.sim.device_location)
 iface = VehicleIFace.open_from_device(serial)
 iface.clear_data()
 iface.send("0101")

@@ -9,9 +9,9 @@ def test_serial():
     serial = Serial()
     location = "abcd"
     serial.set_location(location)
-    assert serial.location.decode() == location
+    assert serial.device.location.decode() == location
 
-    serial.set_location(emulation.device_location)
+    serial.set_location(emulation.sim.device_location)
     assert serial.open() == 0
 
     serial.close()
