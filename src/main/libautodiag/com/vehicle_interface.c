@@ -1,6 +1,7 @@
 #include "libautodiag/com/vehicle_interface.h"
 #include "libautodiag/com/serial/elm/elm.h"
 #include "libautodiag/com/uds/uds.h"
+#include "libautodiag/com/doip/doip.h"
 
 void viface_recorder_reset(final VehicleIFace* iface) {
     record_clear();
@@ -97,7 +98,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
                 return false;
             }
         }
-        serial_lock(serial);
+        device->lock(AD_DEVICE(device));
         ELMDevice * elm = elm_open_from_serial(serial);
         if ( elm == null ) {
             log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
@@ -106,6 +107,20 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
             return false;
         }
         iface->device = AD_DEVICE(elm);
+        iface->device->unlock(AD_DEVICE(iface->device));
+    } else if ( strcmp(device->type,"doip") == 0 ) {
+        object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
+        if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
+            device->open((Device*)device);
+            if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
+                log_msg(LOG_ERROR, "Error while openning doip device");
+                viface_open_abort(iface);
+                return false;
+            }
+        }
+        doip_device->lock(AD_DEVICE(doip_device));
+        log_msg(LOG_DEBUG, "TODO: Device initialization");
+        iface->device = AD_DEVICE(doip_device);
         iface->device->unlock(AD_DEVICE(iface->device));
     } else {
         log_msg(LOG_ERROR, "Unknown device type: %s aborting", device->type);

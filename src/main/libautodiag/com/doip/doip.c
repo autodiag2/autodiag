@@ -29,7 +29,6 @@ object_DoIPDiagMessage *object_DoIPDiagMessage_new() {
     msg->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
     msg->inv_protocol_version = (byte)~msg->protocol_version;
     msg->payload_type = DOIP_DIAGNOSTIC_MESSAGE;
-    msg->payload_length = 0;
     msg->payload_raw = NULL;
 
     msg->payload.src_addr = NULL;
@@ -37,6 +36,51 @@ object_DoIPDiagMessage *object_DoIPDiagMessage_new() {
     msg->payload.data = NULL;
 
     return msg;
+}
+object_DoIPDiagMessage* object_DoIPDiagMessage_assign(object_DoIPDiagMessage * to, object_DoIPDiagMessage * from) {
+    assert(to != null);
+    assert(from != null);
+    to->protocol_version = from->protocol_version;
+    to->inv_protocol_version = from->inv_protocol_version;
+    to->payload_type = from->payload_type;
+    if ( to->payload_raw != null ) {
+        buffer_free(to->payload_raw);
+    }
+    to->payload_raw = buffer_copy(from->payload_raw);
+    if ( to->payload.src_addr != null ) {
+        buffer_free(to->payload.src_addr);
+    }
+    to->payload.src_addr = buffer_copy(from->payload.src_addr);
+    if ( to->payload.dst_addr != null ) {
+        buffer_free(to->payload.dst_addr);
+    }
+    to->payload.dst_addr = buffer_copy(from->payload.dst_addr);
+    if ( to->payload.data != null ) {
+        buffer_free(to->payload.data);
+    }
+    to->payload.data = buffer_copy(from->payload.data);
+    return to;
+}
+void object_DoIPDiagMessage_free(object_DoIPDiagMessage *msg) {
+    if ( msg != null ) {
+        if ( msg->payload_raw != null ) {
+            buffer_free(msg->payload_raw);
+            msg->payload_raw = null;
+        }
+        if ( msg->payload.src_addr != null ) {
+            buffer_free(msg->payload.src_addr);
+            msg->payload.src_addr = null;
+        }
+        if ( msg->payload.dst_addr != null ) {
+            buffer_free(msg->payload.dst_addr);
+            msg->payload.dst_addr = null;
+        }
+        if ( msg->payload.data != null ) {
+            buffer_free(msg->payload.data);
+            msg->payload.data = null;
+        }
+        free(msg);
+    }
 }
 object_DoIPMessage * doip_message_parse(const Buffer * in) {
     if (!in || !in->buffer) return NULL;
@@ -61,7 +105,6 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     msg->protocol_version = ver;
     msg->inv_protocol_version = inv;
     msg->payload_type = (DoIpPayloadType)ptype;
-    msg->payload_length = plen;
     msg->payload_raw = buffer_slice((Buffer*)in, 8, plen);
 
     return msg;
@@ -95,7 +138,6 @@ object_DoIPDiagMessage *doip_diag_message_parse(const Buffer *in) {
     msg->protocol_version = ver;
     msg->inv_protocol_version = inv;
     msg->payload_type = (DoIpPayloadType)ptype;
-    msg->payload_length = plen;
 
     msg->payload_raw = buffer_slice((Buffer*)in, 8, plen);
 
@@ -111,7 +153,6 @@ void doip_diag_message_dump(object_DoIPDiagMessage * msg) {
         log_msg(LOG_DEBUG, "diag message: {");
         log_msg(LOG_DEBUG, "    version: %02hhX", msg->protocol_version);
         log_msg(LOG_DEBUG, "    payload_type: %04X", msg->payload_type);
-        log_msg(LOG_DEBUG, "    payload_length: %08X", msg->payload_length);
         log_msg(LOG_DEBUG, "    from: %s", buffer_to_hex_string(msg->payload.src_addr));
         log_msg(LOG_DEBUG, "    to: %s", buffer_to_hex_string(msg->payload.dst_addr));
         log_msg(LOG_DEBUG, "    payload: %s", buffer_to_hex_string(msg->payload.data));

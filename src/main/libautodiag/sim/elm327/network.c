@@ -10,7 +10,7 @@ bool sim_elm327_network_is_connected(void * implPtr) {
         #else        
             sock_t handle = impl->handle;
         #endif
-        if ( handle == -1 ) {
+        if ( handle < 0 ) {
             return false;
         }
     #elif defined OS_WINDOWS

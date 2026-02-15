@@ -21,7 +21,7 @@ bool sim_doip_network_is_connected(void * implPtr) {
         #else        
             sock_t handle = impl->handle;
         #endif
-        if ( handle == -1 ) {
+        if ( handle < 0 ) {
             return false;
         }
     #elif defined OS_WINDOWS
@@ -93,7 +93,6 @@ static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data)
     m->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
     m->inv_protocol_version = (byte)~m->protocol_version;
     m->payload_type = t;
-    m->payload_length = data ? data->size : 0;
     m->payload_raw = data ? buffer_slice((Buffer*)data, 0, data->size) : NULL;
     return m;
 }
@@ -106,7 +105,6 @@ static object_DoIPDiagMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Bu
     m->payload.src_addr = buf_u16be(src);
     m->payload.dst_addr = buf_u16be(dst);
     m->payload.data = data_protocol ? buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL;
-    m->payload_length = 4 + (data_protocol ? data_protocol->size : 0);
     return m;
 }
 static bool doip_send_diag(SimDoIp *sim, object_DoIPDiagMessage *m) {
@@ -228,10 +226,12 @@ static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
         SimECU *ecu = sim->ecus->list[i];
         if (ecu->address != msg->payload.dst_addr->buffer[1]) continue;
 
-        Buffer *uds_resp = sim_ecu_response(ecu, msg->payload.data);
-        if (!uds_resp) return 1;
+        log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
+        Buffer *data_protocol = sim_ecu_response(ecu, msg->payload.data);
+        if (!data_protocol) return 1;
 
-        object_DoIPDiagMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, uds_resp);
+        log_msg(LOG_DEBUG, "Sending back %s", buffer_to_hex_string(data_protocol));
+        object_DoIPDiagMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
         if (!doip_resp) return 0;
         if (!doip_send_diag(sim, doip_resp)) return 0;
         return 1;
@@ -287,6 +287,7 @@ void sim_doip_loop(SimDoIp * sim) {
         struct sockaddr_in addr;
 
         if ( ! sim_doip_network_is_connected(((DoIpImplementation*)sim->implementation)) ) {
+            log_msg(LOG_DEBUG, "Waiting for a client to connect");
             #if defined OS_POSIX
                 socklen_t addr_len = sizeof(addr);
                 #ifdef OS_WINDOWS
@@ -332,16 +333,23 @@ void sim_doip_loop(SimDoIp * sim) {
         free(buffer_str);
 
         object_DoIPMessage *hdr = doip_message_parse(recv_buffer);
-        if (!hdr) continue;
+        if (!hdr) {
+            log_msg(LOG_DEBUG, "Unabled to parse incoming data : '%s'", recv_buffer);
+            continue;
+        }
 
         if (hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE ||
             hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE_ACK ||
             hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE_NACK) {
 
             object_DoIPDiagMessage *dmsg = doip_diag_message_parse(recv_buffer);
+            log_msg(LOG_DEBUG, "Sim received '%s'", buffer_to_hex_string(recv_buffer));
             if (!dmsg) continue;
             if (dmsg->payload_type == DOIP_DIAGNOSTIC_MESSAGE) {
-                if (!handle_diag(sim, dmsg)) return;
+                if (!handle_diag(sim, dmsg)) {
+                    log_msg(LOG_DEBUG, "diag message has not responded");
+                    continue;
+                }
             }
             continue;
         }

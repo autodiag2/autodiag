@@ -502,7 +502,7 @@ int serial_open(final Serial * port) {
 }
 void serial_close(final Serial * port) {
     if ( port == null || port->status != SERIAL_STATE_READY ) {
-        log_msg(LOG_INFO, "Open: No serial currently selected");
+        log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
     #if defined OS_POSIX

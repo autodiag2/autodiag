@@ -48,5 +48,10 @@ OBJECT_H(DoIPDevice,
     Buffer * recv_buffer;       // buffer for input data
     DeviceDoIPStatus status;    // state of the device
 );
-
+/**
+ * Use this to send/recv anything else other than diag messages.
+ */
+int doip_send_internal(final object_DoIPDevice * device, const char * command);
+int doip_recv_internal(final object_DoIPDevice * device);
+void doip_close(final object_DoIPDevice * device);
 #endif

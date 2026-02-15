@@ -29,7 +29,6 @@ OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
     DoIpPayloadType payload_type;
-    int payload_length;
     Buffer * payload_raw;
 )
 OBJECT_H(DoIPDiagMessage,

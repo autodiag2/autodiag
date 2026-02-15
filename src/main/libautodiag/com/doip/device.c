@@ -1,9 +1,9 @@
 #include "libautodiag/com/doip/device.h"
+#include "libautodiag/com/doip/doip.h"
 
-
-static void doip_close(final object_DoIPDevice * device) {
-    if ( device == null || device->status != DEVICE_DOIP_STATUS_NOT_OPEN ) {
-        log_msg(LOG_INFO, "Open: No serial currently selected");
+void doip_close(final object_DoIPDevice * device) {
+    if ( device == null || device->status != DEVICE_DOIP_STATUS_OPEN ) {
+        log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
     assert(device_location_is_network((Device*)device));
@@ -162,9 +162,16 @@ static void doip_lock(final object_DoIPDevice* device) {
 static void doip_unlock(final object_DoIPDevice* device) {
     pthread_mutex_unlock(&device->implementation->lock_mutex);
 }
-
 static int doip_send(final object_DoIPDevice * device, const char * command) {
+    object_DoIPDiagMessage * msg = object_DoIPDiagMessage_new();
+    msg->payload.dst_addr = buffer_from_ascii_hex("07E8");
+    msg->payload.src_addr = buffer_from_ascii_hex("0000");
+    msg->payload.data = buffer_from_ascii_hex(command);
+    return doip_send_internal(device, buffer_to_hex_string(doip_diag_message_serialize(msg)));
+}
+int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     assert(command != null);
+
     Buffer * request = buffer_from_ascii_hex(command);
     if ( request == null ) {
         request = buffer_from_ascii(command);
@@ -173,6 +180,7 @@ static int doip_send(final object_DoIPDevice * device, const char * command) {
         log_msg(LOG_DEBUG, "Sending");
         buffer_dump(request);
     }
+
     #ifdef OS_POSIX
         if (device->implementation->handle < 0) {
             device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
@@ -233,6 +241,17 @@ static int doip_send(final object_DoIPDevice * device, const char * command) {
     return bytes_sent;
 }
 static int doip_recv(final object_DoIPDevice * device) {
+    int result = doip_recv_internal(device);
+    if ( result <= 0 ) {
+        return result;
+    }
+    object_DoIPDiagMessage * msg = doip_diag_message_parse(device->recv_buffer);
+    buffer_recycle(device->recv_buffer);
+    buffer_slice_append(device->recv_buffer, msg->payload.data, 0, msg->payload.data->size);
+    object_DoIPDiagMessage_free(msg);
+    return result;
+}
+int doip_recv_internal(final object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
     #if defined OS_POSIX
         if (device->implementation->handle < 0) {
@@ -263,7 +282,7 @@ static int doip_recv(final object_DoIPDevice * device) {
             log_msg(LOG_ERROR, "unexpected happen on doip line");
         }
     #elif defined OS_WINDOWS
-        if (device->implementation->win_handle < INVALID_HANDLE_VALUE) {
+        if (device->implementation->win_handle == INVALID_HANDLE_VALUE) {
             device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
             return DEVICE_ERROR;
         }

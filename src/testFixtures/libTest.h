@@ -67,6 +67,12 @@ static VehicleIFace* tf_serial_open(char *device_location) {
     serial->location = strdup(device_location);
     return viface_open_from_device(AD_DEVICE(serial));
 }
+static VehicleIFace* tf_doip_open(char *device_location) {
+    printf("open doip %s\n", device_location);
+    final object_DoIPDevice * device = object_DoIPDevice_new();
+    device->location = strdup(device_location);
+    return viface_open_from_device(AD_DEVICE(device));
+}
 static char* tf_sim_doip_start_with_ecu(SimECU *first) {
     SimDoIp* sim = sim_doip_new();
     if ( first != null ) {
@@ -77,7 +83,9 @@ static char* tf_sim_doip_start_with_ecu(SimECU *first) {
     return strdup(sim->device_location);
 }
 static char * tf_sim_doip_start() {
-    return tf_sim_doip_start_with_ecu(null);
+    SimECU * ecu = sim_ecu_new(0xE8);
+    ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+    return tf_sim_doip_start_with_ecu(ecu);
 }
 static SimELM327 * tf_sim_elm327_new() {
     SimELM327* elm327 = sim_elm327_new();
