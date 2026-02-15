@@ -144,6 +144,11 @@ static char* doip_describe_communication_layer(final object_DoIPDevice* device) 
 }
 
 static bool doip_parse_data(final object_DoIPDevice* device, final Vehicle* vehicle) {
+    final Buffer * address = buffer_slice(device->recv_buffer, 0, DOIP_DIAG_MESSAGE_ADDR_SZ); 
+    buffer_left_shift(device->recv_buffer, DOIP_DIAG_MESSAGE_ADDR_SZ);
+    final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
+    buffer_free(address); 
+    list_Buffer_append(ecu->data_buffer,buffer_copy(device->recv_buffer));
     return true;
 }
 
@@ -242,14 +247,18 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
 }
 static int doip_recv(final object_DoIPDevice * device) {
     int result = doip_recv_internal(device);
-    if ( result <= 0 ) {
-        return result;
+    if ( result == DEVICE_ERROR ) {
+        return DEVICE_ERROR;
+    }
+    if ( result == 0 ) {
+        return DEVICE_RECV_NULL;
     }
     object_DoIPDiagMessage * msg = doip_diag_message_parse(device->recv_buffer);
     buffer_recycle(device->recv_buffer);
+    buffer_append(device->recv_buffer, msg->payload.src_addr);
     buffer_slice_append(device->recv_buffer, msg->payload.data, 0, msg->payload.data->size);
     object_DoIPDiagMessage_free(msg);
-    return result;
+    return DEVICE_RECV_DATA;
 }
 int doip_recv_internal(final object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;

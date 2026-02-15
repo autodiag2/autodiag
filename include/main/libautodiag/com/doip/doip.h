@@ -25,12 +25,14 @@ typedef enum {
     DOIP_DIAGNOSTIC_MESSAGE_ACK         = 0x8002, /* Diagnostic message positive ACK */
     DOIP_DIAGNOSTIC_MESSAGE_NACK        = 0x8003  /* Diagnostic message negative ACK */
 } DoIpPayloadType;
+
 OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
     DoIpPayloadType payload_type;
     Buffer * payload_raw;
 )
+#define DOIP_DIAG_MESSAGE_ADDR_SZ 2
 OBJECT_H(DoIPDiagMessage,
     object_DoIPMessage;
     struct {
