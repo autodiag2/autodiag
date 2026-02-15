@@ -21,11 +21,9 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
             return DEVICE_ERROR;
         }
     #endif
-    #if defined OS_WINDOWS
+    #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            if ( port->implementation->handle != -1 ) {
-
-            } else
+            else
         #endif
         if (port->implementation->win_handle == INVALID_HANDLE_VALUE) {
             port->status = SERIAL_STATE_NOT_OPEN;
@@ -35,19 +33,15 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     int bytes_sent = 0;
     int write_len_rv = 0;
     int poll_result = -1;
-    #if defined OS_WINDOWS
-        #ifdef OS_POSIX
-            if ( port->implementation->handle != -1 ) {
-                poll_result = file_pool_write_posix(port->implementation->handle, port->timeout);
-            } else 
-        #endif
-        {
+    #ifdef OS_POSIX
+        if ( port->implementation->handle != -1 ) {
+            poll_result = file_pool_write_posix(port->implementation->handle, port->timeout);
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        if ( port->implementation->win_handle != INVALID_HANDLE_VALUE ) {
             poll_result = file_pool_write(&port->implementation->win_handle, port->timeout);
         }
-    #elif defined OS_POSIX
-        poll_result = file_pool_write(&port->implementation->handle, port->timeout);
-    #else
-    #   warning OS unsupported
     #endif
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");

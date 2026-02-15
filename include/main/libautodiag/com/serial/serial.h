@@ -71,7 +71,6 @@ typedef struct {
     bool echo;                  // Not part of the serial standard but defined here for convenience
     int baud_rate;              // RS232 speed in bauds
     SerialStatus status;
-    char *location;             // location of the device accross OSs
     char *eol;                  // Not part of the serial standard but defined here for convenience
     int timeout;                // timeout in ms before considering no reply from the remote
     int timeout_seq;            // timeout in ms for burst reception

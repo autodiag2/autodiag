@@ -1,8 +1,78 @@
 #include "libautodiag/com/doip/device.h"
 
 static int doip_send(final object_DoIPDevice * device, const char * command) {
-    // TODO : find an alternative with buffers
-    return 0;
+    Buffer * request = buffer_from_ascii_hex(command);
+    if ( request == null ) {
+        request = buffer_from_ascii(command);
+    }
+    if ( log_has_level(LOG_DEBUG) ) {
+        log_msg(LOG_DEBUG, "Sending");
+        buffer_dump(request);
+    }
+    #ifdef OS_POSIX
+        if (device->implementation->handle < 0) {
+            return DEVICE_ERROR;
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        #ifdef OS_POSIX
+            else
+        #endif
+        if (device->implementation->win_handle == INVALID_HANDLE_VALUE) {
+            return DEVICE_ERROR;
+        }
+    #endif
+    int bytes_sent = 0;
+    int write_len_rv = 0;
+    int poll_result = -1;
+    #ifdef OS_POSIX
+        if ( device->implementation->handle != -1 ) {
+            poll_result = file_pool_write_posix(device->implementation->handle, device->timeout);
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        if ( device->implementation->win_handle != INVALID_HANDLE_VALUE ) {
+            poll_result = file_pool_write(&device->implementation->win_handle, device->timeout);
+        }
+    #endif
+    if ( poll_result == -1 ) {
+        log_msg(LOG_ERROR, "Error while polling");
+        return DEVICE_ERROR;
+    } else if ( poll_result == 0 ) {
+        log_msg(LOG_ERROR, "Timeout while polling for write");
+        return 0;
+    }
+    #ifdef OS_POSIX
+        if ( device->implementation->handle != -1 ) {
+            bytes_sent = write(device->implementation->handle,request->buffer,request->size);
+            if ( bytes_sent != request->size ) {
+                perror("device write");
+                log_msg(LOG_ERROR, "Error while writting to the doip");
+                return DEVICE_ERROR;
+            }
+            return bytes_sent;
+        }
+    #endif
+
+    #if defined OS_WINDOWS
+        DWORD bytes_written;
+
+        if (isSocketHandle(device->implementation->win_handle)) {
+            SOCKET s = (SOCKET)device->implementation->win_handle;
+
+            int sent = send(s, (const char *)request->buffer, request->size, 0);
+            if (sent <= 0 || sent != request->size) {
+                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                return DEVICE_ERROR;
+            }
+            bytes_sent = sent;
+        }
+        if (bytes_sent != request->size) {
+            log_msg(LOG_ERROR, "Error while writting to the doip");
+            return DEVICE_ERROR;
+        }
+    #endif
+    return bytes_sent;
 }
 static int doip_recv(final object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
@@ -31,7 +101,7 @@ static int doip_recv(final object_DoIPDevice * device) {
             } else if ( res == 0 ) {
                 log_msg(LOG_DEBUG, "Timeout while reading data");
             } else {
-                log_msg(LOG_ERROR, "unexpected happen on serial line");
+                log_msg(LOG_ERROR, "unexpected happen on doip line");
             }
         }
     #elif defined OS_WINDOWS
@@ -77,6 +147,7 @@ object_DoIPDevice * object_DoIPDevice_new() {
     #if defined OS_POSIX
         device->implementation->handle = -1;
     #endif
+    device->location = null;
     device->send = AD_DEVICE_SEND(doip_send);
     device->recv = AD_DEVICE_RECV(doip_recv);
     return device;

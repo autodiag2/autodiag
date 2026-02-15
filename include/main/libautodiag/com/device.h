@@ -25,6 +25,10 @@ typedef struct Device {
      */
     char * type;
     /**
+     * location of the device accross OSs
+     */
+    char *location;
+    /**
      * Send a string with the device
      * @return number of bytes sent or DEVICE_ERROR on error
      */

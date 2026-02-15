@@ -17,7 +17,6 @@ class Serial(Structure):
         ("echo", bool),
         ("baud_rate", c_int),
         ("status", SerialStatus),
-        ("location", char_p),
         ("eol", char_p),
         ("timeout", c_int),
         ("timeout_seq", c_int),
