@@ -50,6 +50,7 @@ See [here](/documentation/install-errors.md)
 | libautodiag    | ✔️                 | ✔️       | ✔️     | ✔️      |
 | autodiag       | ✔️                 | ✔️       | ✔️     | ❌      |
 | elm327sim      | ✔️                 | ✔️       | ✔️     | ✔️      |
+| doipsim        | ✔️                 | ✔️       | ✔️     | ✔️      |
 | ELM USB        | ✔️                 | ✔️       | ❌     | ❌      |
 | ELM Bluetooth  | ✔️                 | ✔️       | ❌     | ✔️      |
 | ELM Wifi       | ✔️                 | ✔️       | ✔️     | ✔️      |

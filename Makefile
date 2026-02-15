@@ -52,7 +52,7 @@ default: compile_progs
 
 release_progs: compile_progs
 
-compile_progs_compat: output/bin/elm327sim_compat
+compile_progs_compat: output/bin/elm327sim_compat output/bin/doipsim_compat
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
@@ -112,7 +112,7 @@ output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
 
-output/bin/elm327sim_compat: src/main/prog/elm327sim.c $(OBJS_PROGS) $(BIN_LIB)
+output/bin/%_compat: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
 	if $(COMPILE_NEED_OBJS) ; then \
 		$(CC) $(CFLAGS) -o '$@' $(OBJS_LIB) $^ $(CFLAGS_LIBS) ; \

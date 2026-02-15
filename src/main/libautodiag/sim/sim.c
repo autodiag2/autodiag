@@ -38,9 +38,9 @@ void sim_prevent_read_himself(Sim * sim) {
 }
 int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len) {
     assert(sim != null);
+    SimImplementation * impl = sim->implementation;
     #ifdef OS_POSIX
         if (sim->implementation->handle != -1) {
-            SimImplementation * impl = sim->implementation;
             final int poll_result = file_pool_write_posix(impl->handle, timeout_ms);
             if ( poll_result <= 0 ) {
                 log_msg(LOG_WARNING, "timeout reached waiting for the other end");
@@ -92,6 +92,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     assert(sim != null);
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
+    SimImplementation * impl = sim->implementation;
     #ifdef OS_POSIX
         if ( sim->implementation->handle != -1 ) {
             int res = file_pool_read_posix(sim->implementation->handle, null, timeout_ms);

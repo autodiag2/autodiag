@@ -11,6 +11,7 @@ SolidCompression=yes
 [Files]
 Source: "..\..\output\bin\autodiag.exe";               DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\output\bin\elm327sim.exe";              DestDir: "{app}"; Flags: ignoreversion
+Source: "..\..\output\bin\doipsim.exe";                DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\output\bin\*.dll";                      DestDir: "{app}"; Flags: ignoreversion
 Source: "..\..\data\data\*";                    DestDir: "{app}\data\"; Flags: ignoreversion recursesubdirs
 Source: "..\..\ui\*";                           DestDir: "{app}\ui\"; Flags: ignoreversion recursesubdirs
