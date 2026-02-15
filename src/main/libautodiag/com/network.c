@@ -1,4 +1,11 @@
-#include "libautodiag/sim/network.h"
+#include "libautodiag/com/network.h"
+
+char * network_location(struct sockaddr_in caddr) {
+    char ip[50] = {0};
+        inet_ntop(AF_INET, &caddr.sin_addr, ip, 49);
+
+    return gprintf("%s:%d", ip, ntohs(caddr.sin_port));
+}
 
 static int bind_any_available_port(sock_t server_fd, int start_port, int max_tries, int *out_port) {
     struct sockaddr_in addr;
@@ -63,12 +70,4 @@ int network_tcp_start(int *bound_port, int start_port) {
     }
 
     return (int)server_fd;
-}
-
-char * network_location(struct sockaddr_in caddr) {
-
-    char ip[50] = {0};
-        inet_ntop(AF_INET, &caddr.sin_addr, ip, 49);
-
-    return gprintf("%s:%d", ip, ntohs(caddr.sin_port));
 }

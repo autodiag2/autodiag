@@ -1,5 +1,5 @@
-#ifndef __SIM_NETWOK_H
-#define __SIM_NETWOK_H
+#ifndef __COM_NETWORK_H
+#define __COM_NETWORK_H
 
 #include "libautodiag/lib.h"
 
@@ -20,7 +20,7 @@
 #endif
 
 #define NETWORK_BACKLOG 10
-int network_tcp_start(int *bound_port, int start_port);
 char * network_location(struct sockaddr_in caddr);
+int network_tcp_start(int *bound_port, int start_port);
 
 #endif

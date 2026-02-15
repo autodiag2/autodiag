@@ -3,7 +3,7 @@
 
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/compile_target.h"
-#include "libautodiag/sim/network.h"
+#include "libautodiag/com/network.h"
 
 typedef struct {
     #ifdef OS_POSIX
