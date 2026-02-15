@@ -2,7 +2,7 @@
 
 bool testElm(final VehicleIFace* iface) {
     {
-        VehicleIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = tf_fake_can_iface();
         ELMDevice * elm = (ELMDevice *)tmp->device;
         elm->printing_of_spaces = false;
         Buffer * buffer = buffer_new();
@@ -14,7 +14,7 @@ bool testElm(final VehicleIFace* iface) {
         }
     }
     {
-        VehicleIFace* tmp = fake_can_iface();
+        VehicleIFace* tmp = tf_fake_can_iface();
         ELMDevice * elm = (ELMDevice *)tmp->device;        
         elm->printing_of_spaces = true;
         Buffer * buffer = buffer_new();
@@ -26,11 +26,11 @@ bool testElm(final VehicleIFace* iface) {
         }
     }
     {
-        SimELM327* elm327 = test_sim_elm327_new();
+        SimELM327* elm327 = tf_sim_elm327_new();
         LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface2 = port_open(strdup(elm327->device_location));
+        final VehicleIFace* iface2 = tf_serial_open(strdup(elm327->device_location));
         ELM327Device * device = (ELM327Device*)iface2->device;
         if ( device->protocol < ELM327_PROTO_ISO_15765_4_CAN_1 ) {
             device->send(device, "attp 6");

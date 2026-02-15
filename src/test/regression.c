@@ -26,31 +26,31 @@ int main(int argc, char **argv) {
     printf(" ==== REGRESSION TEST ==== \n");
 
     log_set_from_env();
-    initLibTest();
+    tf_init();
 
-    runTestMaybe(testHashMap, null);
-    runTestMaybe(testBuffer,null);
-    runTestMaybe(testGlobals,null);
-    runTestMaybe(testSimELM327,null);
-    runTestMaybe(testISO3779,null);
-    runTestMaybe(testDOIP, null);
+    runIfSelected(testHashMap, null);
+    runIfSelected(testBuffer,null);
+    runIfSelected(testGlobals,null);
+    runIfSelected(testSimELM327,null);
+    runIfSelected(testISO3779,null);
+    runIfSelected(testDOIP, null);
     
-    final VehicleIFace* iface = port_open(start_elm327_simulation());
+    final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start());
 
-    runTestMaybe(testIniTools, iface);
-    runTestMaybe(testELM327, iface);
-    runTestMaybe(testSerial, iface);
-    runTestMaybe(testOBD, iface);
-    runTestMaybe(testCarDatabaseLoad, iface);
-    runTestMaybe(testSerialListOperations, iface);
-    runTestMaybe(testSAEJ1979, iface);
-    runTestMaybe(testElm, iface);
-    runTestMaybe(testRecorder, iface);
-    runTestMaybe(testReplay, null);
-    runTestMaybe(testUDS, null);
-    runTestMaybe(testSimUDS, null);
-    runTestMaybe(testSim, null);
-    runTestMaybe(testCycle, null);
+    runIfSelected(testIniTools, iface);
+    runIfSelected(testELM327, iface);
+    runIfSelected(testSerial, iface);
+    runIfSelected(testOBD, iface);
+    runIfSelected(testCarDatabaseLoad, iface);
+    runIfSelected(testSerialListOperations, iface);
+    runIfSelected(testSAEJ1979, iface);
+    runIfSelected(testElm, iface);
+    runIfSelected(testRecorder, iface);
+    runIfSelected(testReplay, null);
+    runIfSelected(testUDS, null);
+    runIfSelected(testSimUDS, null);
+    runIfSelected(testSim, null);
+    runIfSelected(testCycle, null);
 
     viface_close(iface);
     viface_free(iface);

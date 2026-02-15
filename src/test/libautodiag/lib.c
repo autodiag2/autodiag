@@ -14,7 +14,7 @@ bool testGlobals() {
         buffer_ensure_termination(buffer);
         char * ptr = strstr(result,"\n");
         int c = (void*)ptr - (void*)result;
-        testOutput(result);
+        tf_test_output(result);
         assert(c >= 20);
         assert(strlen(ptr) >= 20);
     }

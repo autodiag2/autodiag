@@ -1,5 +1,5 @@
-#ifndef __COM_DOIP_H
-#define __COM_DOIP_H
+#ifndef __COM_DOIP_DEVICE_H
+#define __COM_DOIP_DEVICE_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/device.h"
@@ -47,6 +47,6 @@ OBJECT_H(DoIPDevice,
     int timeout;                // timeout in ms before considering no reply from the remote
     Buffer * recv_buffer;       // buffer for input data
     DeviceDoIPStatus status;    // state of the device
-)
+);
 
 #endif

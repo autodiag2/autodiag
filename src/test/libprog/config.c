@@ -16,7 +16,7 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
     dtc->data[2] = 0x00;
     
     dtc_desc_fill_from_codes_file(dtc, dtc_desc);
-    testOutput("codes filled for citroen");
+    tf_test_output("codes filled for citroen");
     dtc_description_dump(dtc_desc);
     assert(dtc_desc != null);
     return true;

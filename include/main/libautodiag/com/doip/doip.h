@@ -47,5 +47,8 @@ object_DoIPDiagMessage * object_DoIPDiagMessage_new();
 object_DoIPDiagMessage *doip_diag_message_parse(const Buffer *in);
 Buffer *doip_diag_message_serialize(const object_DoIPDiagMessage *msg);
 object_DoIPMessage * doip_message_parse(const Buffer * in);
+void doip_diag_message_dump(object_DoIPDiagMessage * msg);
+
+#include "libautodiag/com/doip/device.h"
 
 #endif

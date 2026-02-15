@@ -164,6 +164,7 @@ static void doip_unlock(final object_DoIPDevice* device) {
 }
 
 static int doip_send(final object_DoIPDevice * device, const char * command) {
+    assert(command != null);
     Buffer * request = buffer_from_ascii_hex(command);
     if ( request == null ) {
         request = buffer_from_ascii(command);
@@ -302,7 +303,9 @@ static int doip_recv(final object_DoIPDevice * device) {
 object_DoIPDevice * object_DoIPDevice_new() {
     object_DoIPDevice * device = (object_DoIPDevice*)malloc(sizeof(object_DoIPDevice));
     device->type = strdup(DOIP_DEVICE_TYPE);
+    device->timeout = 1000;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
+    device->recv_buffer = buffer_new();
     #if defined OS_WINDOWS
         device->implementation->win_handle = INVALID_HANDLE_VALUE;
     #endif

@@ -105,7 +105,19 @@ object_DoIPDiagMessage *doip_diag_message_parse(const Buffer *in) {
 
     return msg;
 }
-
+void doip_diag_message_dump(object_DoIPDiagMessage * msg) {
+    assert(msg != null);
+    if ( log_has_level(LOG_DEBUG) ) {
+        log_msg(LOG_DEBUG, "diag message: {");
+        log_msg(LOG_DEBUG, "    version: %02hhX", msg->protocol_version);
+        log_msg(LOG_DEBUG, "    payload_type: %04X", msg->payload_type);
+        log_msg(LOG_DEBUG, "    payload_length: %08X", msg->payload_length);
+        log_msg(LOG_DEBUG, "    from: %s", buffer_to_hex_string(msg->payload.src_addr));
+        log_msg(LOG_DEBUG, "    to: %s", buffer_to_hex_string(msg->payload.dst_addr));
+        log_msg(LOG_DEBUG, "    payload: %s", buffer_to_hex_string(msg->payload.data));
+        log_msg(LOG_DEBUG, "}");
+    }
+}
 Buffer *doip_diag_message_serialize(const object_DoIPDiagMessage *msg) {
     if (!msg) return NULL;
 
@@ -124,15 +136,10 @@ Buffer *doip_diag_message_serialize(const object_DoIPDiagMessage *msg) {
     int plen = 4 + dsz;
     int out_sz = 8 + plen;
 
-    Buffer *out = (Buffer*)malloc(sizeof(Buffer));
-    if (!out) return NULL;
+    Buffer *out = buffer_new();
 
+    buffer_ensure_capacity(out, out_sz);
     out->size = out_sz;
-    out->buffer = (byte*)malloc((size_t)out_sz);
-    if (!out->buffer) {
-        free(out);
-        return NULL;
-    }
 
     byte *p = (byte*)out->buffer;
 

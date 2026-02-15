@@ -5,7 +5,7 @@
 bool testUDS() {
     SimECU * ecu = sim_ecu_new(0xE8);
     ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
-    final VehicleIFace* iface = port_open(start_elm327_simulation_with_ecus(ecu));
+    final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start_with_ecu(ecu));
     {
         assert(uds_request_session_cond(iface, UDS_SESSION_DEFAULT));
         assert(uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC));

@@ -24,7 +24,7 @@ bool testBuffer() {
         buffer->buffer[2] = 0x02;
         buffer->size = 3;
         char* ascii = buffer_to_hex_string(buffer);
-        testOutput(ascii);
+        tf_test_output(ascii);
         assert(strcmp(ascii,"000102")==0);
     }
     testLeftShift();

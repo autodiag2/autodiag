@@ -9,28 +9,28 @@ bool testSAEJ1979(VehicleIFace* iface) {
     {
         for(int i = 0; i < 5; i++) {
             int result = saej1979_data_vehicle_speed(iface, false);
-            testOutput("current vehicle speed: %d km/h", result);
+            tf_test_output("current vehicle speed: %d km/h", result);
             assert(SAEJ1979_DATA_VEHICLE_SPEED_ERROR != result);
         }
     }
     {
         int result = saej1979_data_fuel_pressure(iface, false);
-        testOutput("engine fuel pressure: %d kPa", result);
+        tf_test_output("engine fuel pressure: %d kPa", result);
         assert(SAEJ1979_DATA_FUEL_PRESSURE_ERROR != result);
     }
     {
         double result = saej1979_data_maf_air_flow_rate(iface, false);
-        testOutput("current maf air flow rate: %.2f g/s", result);
+        tf_test_output("current maf air flow rate: %.2f g/s", result);
         assert(SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR != result);
     }
     {
         double result = saej1979_data_throttle_position(iface, false);
-        testOutput("current throttle position: %.2f", result);
+        tf_test_output("current throttle position: %.2f", result);
         assert(SAEJ1979_DATA_THROTTLE_POSITION_ERROR != result);
     }
     {
         int result = saej1979_data_engine_coolant_temperature(iface, false);
-        testOutput("engine coolant temperature: %d °C", result);
+        tf_test_output("engine coolant temperature: %d °C", result);
         assert(result != SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR);
     }
     {

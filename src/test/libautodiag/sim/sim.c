@@ -2,7 +2,7 @@
 #include "libautodiag/sim/sim.h"
 
 bool testSim() {
-    SimELM327* elm327 = test_sim_elm327_new();
+    SimELM327* elm327 = tf_sim_elm327_new();
     assert(sim_load_from_json(SIM(elm327), 
         "["
             "{"
@@ -39,7 +39,7 @@ bool testSim() {
     ) == GENERIC_FUNCTION_SUCCESS );
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = port_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     assert(LIST_SIM_ECU(elm327->ecus)->size == 2);
     viface_lock(iface);
     viface_send_str(iface, "0101");

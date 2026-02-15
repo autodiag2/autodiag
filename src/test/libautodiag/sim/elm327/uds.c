@@ -1,11 +1,11 @@
 #include "libTest.h"
 
 bool testSimUDS() {
-    SimELM327* elm327 = test_sim_elm327_new();
+    SimELM327* elm327 = tf_sim_elm327_new();
     LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = port_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     {
         viface_send(iface, buffer_from_ints(
             UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
