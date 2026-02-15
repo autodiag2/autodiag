@@ -77,7 +77,7 @@ typedef struct {
     Buffer * recv_buffer;       // buffer for input data
     bool detected;              // did the serial port has been detected during the previous scan
     /**
-     * Guess error responses and specicial response sent back by
+     * Guess error responses and special response sent back by
      * the adaptater
      */
     int (*guess_response)(char *ptr);

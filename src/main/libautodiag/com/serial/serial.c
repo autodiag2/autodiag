@@ -15,17 +15,22 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         module_debug(MODULE_SERIAL "Sending");
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
-    #ifdef OS_POSIX
-        if (port->implementation->handle < 0) {
+    #ifdef OS_WINDOWS
+        #ifdef OS_POSIX
+            if ( port->implementation != -1 ) {
+
+            } else
+        #endif
+        if (port->implementation->win_handle == INVALID_HANDLE_VALUE) {
             port->status = SERIAL_STATE_NOT_OPEN;
             return DEVICE_ERROR;
         }
-    #endif
-    #ifdef OS_WINDOWS
         #ifdef OS_POSIX
             else
         #endif
-        if (port->implementation->win_handle == INVALID_HANDLE_VALUE) {
+    #endif
+    #ifdef OS_POSIX
+        if (port->implementation->handle < 0) {
             port->status = SERIAL_STATE_NOT_OPEN;
             return DEVICE_ERROR;
         }

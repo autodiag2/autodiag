@@ -20,11 +20,18 @@ typedef struct {
 #endif
 } DoIPDeviceImplementation;
 
+typedef enum {
+    DEVICE_DOIP_STATUS_OPEN,
+    DEVICE_DOIP_STATUS_NOT_OPEN,
+    DEVICE_DOIP_STATUS_ERROR
+} DeviceDoIPStatus;
+
 OBJECT_H(DoIPDevice,
     Device;
     DoIPDeviceImplementation * implementation;
     int timeout;                // timeout in ms before considering no reply from the remote
     Buffer * recv_buffer;       // buffer for input data
+    DeviceDoIPStatus status;    // state of the device
 )
 
 #endif
