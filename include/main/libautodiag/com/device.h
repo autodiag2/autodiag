@@ -1,6 +1,7 @@
 #ifndef __DEVICE_H
 #define __DEVICE_H
 
+#include <ctype.h>
 #include "libautodiag/model/vehicle.h"
 
 /**
@@ -92,5 +93,9 @@ typedef struct Device {
  * eg The wanted OBD data is not available
  */
 #define DEVICE_RECV_DATA_UNAVAILABLE -4
+/**
+ * If network location is an ip addresse + port
+ */
+bool device_location_is_network(final Device *device);
 
 #endif

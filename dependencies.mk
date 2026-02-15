@@ -45,6 +45,28 @@ output/obj/main/libautodiag/com/can/iso15765.o: \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/model/vehicle.h
+output/obj/main/libautodiag/com/device.o: \
+  src/main/libautodiag/com/device.c \
+  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/model/vehicle.h \
+  include/main/libautodiag/lib.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/list.h include/main/libautodiag/byte.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/lang/object.h include/main/libautodiag/log.h \
+  include/main/libautodiag/file.h include/main/libautodiag/buffer.h \
+  include/main/libautodiag/math.h include/main/libautodiag/poll.h \
+  include/main/libautodiag/dirent.h include/main/libautodiag/thread.h \
+  include/main/libautodiag/initools.h \
+  include/main/libautodiag/cli_tools.h \
+  include/main/libautodiag/installation.h \
+  include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/hashmap_common.h
 output/obj/main/libautodiag/com/doip/device.o: \
   src/main/libautodiag/com/doip/device.c \
   include/main/libautodiag/com/doip/device.h \

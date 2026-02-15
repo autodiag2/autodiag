@@ -240,9 +240,5 @@ void serial_reset_to_default(final Serial* serial);
  */
 char *serial_at_reduce(char *str);
 int serial_at_parse_reduced(char *reduced, char *atcmd);
-/**
- * If network location is an ip addresse + port
- */
-bool serial_location_is_network(final Serial *port);
 
 #endif

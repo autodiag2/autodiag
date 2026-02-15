@@ -3,6 +3,21 @@
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/device.h"
+#if defined OS_POSIX
+#   include <sys/types.h>
+#   include <sys/socket.h>
+#   include <netinet/in.h>
+#   include <arpa/inet.h>
+#   include <unistd.h>
+#   include <errno.h>
+#endif
+#if defined OS_WINDOWS
+#   include "libautodiag/windows.h"
+#elif defined OS_POSIX
+
+#else
+#   warning Unsupported OS
+#endif
 
 #define DOIP_DEVICE_TYPE "doip"
 

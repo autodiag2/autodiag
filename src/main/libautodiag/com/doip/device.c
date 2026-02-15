@@ -1,13 +1,144 @@
 #include "libautodiag/com/doip/device.h"
 
-static void doip_open(final object_DoIPDevice * device) {
-
-}
 
 static void doip_close(final object_DoIPDevice * device) {
-
+    if ( device == null || device->status != DEVICE_DOIP_STATUS_NOT_OPEN ) {
+        log_msg(LOG_INFO, "Open: No serial currently selected");
+        return;
+    } 
+    assert(device_location_is_network((Device*)device));
+    #if defined OS_POSIX
+        if (device->implementation->handle >= 0) {
+            shutdown(device->implementation->handle, SHUT_RDWR);
+            close(device->implementation->handle);
+        }
+        device->implementation->handle = -1;
+    #elif defined OS_WINDOWS
+        if (isSocketHandle(device->implementation->win_handle)) {
+            SOCKET s = (SOCKET)device->implementation->win_handle;
+            shutdown(s, SD_BOTH);
+            closesocket(s);
+        }
+        device->implementation->win_handle = INVALID_HANDLE_VALUE;
+    #endif
+    device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
 }
+static int doip_open_internal(final object_DoIPDevice * device) {
+    if ( device == null ) {
+        log_msg(LOG_INFO, "Open: Cannot open since no device info given");
+        return GENERIC_FUNCTION_ERROR;
+    } 
 
+    if (device->location == null) {
+        log_msg(LOG_DEBUG, "Open: Cannot open since no location on the device");
+        return GENERIC_FUNCTION_ERROR;
+    }
+
+    doip_close(device);
+    assert(device_location_is_network((Device*)device));
+
+    const char *addr = device->location;
+    char host[500];
+    char port_str[8] = "35000";
+    const char *colon = strchr(addr, ':');
+    if (colon) {
+        size_t len = colon - addr;
+        if (len >= sizeof(host)) return GENERIC_FUNCTION_ERROR;
+        memcpy(host, addr, len);
+        host[len] = 0;
+        strncpy(port_str, colon + 1, sizeof(port_str) - 1);
+    } else {
+        strncpy(host, addr, sizeof(host) - 1);
+    }
+
+    #ifdef OS_POSIX
+        device->implementation->handle = -1;
+    #endif
+    #ifdef OS_WINDOWS
+        device->implementation->win_handle == INVALID_HANDLE_VALUE;
+    #endif
+
+    #ifdef OS_POSIX
+        int fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (fd < 0) {
+            perror("socket");
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        struct sockaddr_in sa;
+        bzero(&sa, sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_port = htons(atoi(port_str));
+
+        if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+            perror("inet_pton");
+            close(fd);
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+            perror("connect");
+            close(fd);
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        device->implementation->handle = fd;
+    #elif defined OS_WINDOWS
+        WSADATA wsa;
+        if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+            log_msg(LOG_ERROR, "WSAStartup failed");
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if (s == INVALID_SOCKET) {
+            log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
+            WSACleanup();
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        struct sockaddr_in sa;
+        ZeroMemory(&sa, sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_port = htons((u_short)atoi(port_str));
+
+        if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+            log_msg(LOG_ERROR, "invalid address: %s", host);
+            closesocket(s);
+            WSACleanup();
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
+            log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
+            closesocket(s);
+            WSACleanup();
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        device->implementation->win_handle = (HANDLE)s;
+        log_msg(LOG_DEBUG, "Opening TCP connection: %s", device->location);
+        if (
+            device->implementation->win_handle == INVALID_HANDLE_VALUE
+        ) {
+            log_msg(LOG_WARNING, "Cannot open the device %s", device->location);
+            device->status = DEVICE_DOIP_STATUS_ERROR;
+            return GENERIC_FUNCTION_ERROR;
+        }
+        log_msg(LOG_DEBUG, "Openning device: %s", device->location);
+    #else
+    #   warning Unsupported OS            
+    #endif
+
+    device->status = DEVICE_DOIP_STATUS_OPEN;
+
+    log_msg(LOG_DEBUG, "DoIP device openned");
+
+    return GENERIC_FUNCTION_SUCCESS;
+}
+static void doip_open(final object_DoIPDevice * device) {
+    doip_open_internal(device);
+}
 static char* doip_describe_communication_layer(final object_DoIPDevice* device) {
     return strdup("DoIP");
 }
