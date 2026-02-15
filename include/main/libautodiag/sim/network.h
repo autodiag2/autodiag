@@ -20,7 +20,7 @@
 #endif
 
 #define NETWORK_BACKLOG 10
-int network_start(int *bound_port, int start_port);
+int network_tcp_start(int *bound_port, int start_port);
 char * network_location(struct sockaddr_in caddr);
 
 #endif

@@ -911,10 +911,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             ((SimELM327Implementation*)elm327->implementation)->win_handle = hPipe;
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
+            int serverFD = network_tcp_start(&boundPort, ELM327_NETWORK_PORT);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("network_start");
+                perror("network_tcp_start");
                 return;
             }
             assert(boundPort != -1);
@@ -1004,10 +1004,10 @@ void sim_elm327_loop(SimELM327 * elm327) {
             #endif
         } else if ( strcasecmp(elm327->device_type, "network") == 0 ) {
             int boundPort = -1;
-            int serverFD = network_start(&boundPort, ELM327_NETWORK_PORT);
+            int serverFD = network_tcp_start(&boundPort, ELM327_NETWORK_PORT);
             if ( serverFD == -1 ) {
                 log_msg(LOG_ERROR, "Failed to start server");
-                perror("network_start");
+                perror("network_tcp_start");
                 return;
             }
             assert(boundPort != -1);

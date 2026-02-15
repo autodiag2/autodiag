@@ -37,7 +37,7 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
     return -1;
 }
 
-int network_start(int *bound_port, int start_port) {
+int network_tcp_start(int *bound_port, int start_port) {
     #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;
         if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return -1;

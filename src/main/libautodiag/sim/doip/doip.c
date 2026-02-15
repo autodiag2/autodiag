@@ -241,40 +241,31 @@ static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
 }
 
 void sim_doip_loop(SimDoIp * sim) {
+    #ifdef OS_POSIX
+        sim->implementation->handle = -1;
+        sim->implementation->server_fd = -1;
+    #endif
     #ifdef OS_WINDOWS
         #ifdef OS_POSIX
-            ((DoIpImplementation*)sim->implementation)->handle = -1;
-            ((DoIpImplementation*)sim->implementation)->client_socket = -1;
+            sim->implementation->client_socket = -1;
         #else
-            ((DoIpImplementation*)sim->implementation)->client_socket = INVALID_SOCKET;
+            sim->implementation->client_socket = INVALID_SOCKET;
         #endif
-        ((DoIpImplementation*)sim->implementation)->server_fd = -1;
-        int boundPort = -1;
-        int serverFD = network_start(&boundPort, DOIP_NETWORK_PORT);
-        if ( serverFD == -1 ) {
-            log_msg(LOG_ERROR, "Failed to start server");
-            perror("doip network_start");
-            return;
-        }
-        assert(boundPort != -1);
-        ((DoIpImplementation*)sim->implementation)->server_fd = serverFD;
-        asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
-    #elif defined OS_POSIX
-        ((DoIpImplementation*)sim->implementation)->handle = -1;
-        ((DoIpImplementation*)sim->implementation)->server_fd = -1;
-        int boundPort = -1;
-        int serverFD = network_start(&boundPort, DOIP_NETWORK_PORT);
-        if ( serverFD == -1 ) {
-            log_msg(LOG_ERROR, "Failed to start server");
-            perror("doip: network_start");
-            return;
-        }
-        assert(boundPort != -1);
-        ((DoIpImplementation*)sim->implementation)->server_fd = serverFD;
-        asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
-    #else
-    #   warning OS unsupported
     #endif
+    int boundPort = -1;
+    int serverFD = network_tcp_start(&boundPort, DOIP_NETWORK_PORT);
+    if ( serverFD == -1 ) {
+        log_msg(LOG_ERROR, "Failed to start server");
+        perror("doip network_tcp_start");
+        return;
+    }
+    assert(boundPort != -1);
+    #if defined OS_POSIX || defined OS_WINDOWS
+        sim->implementation->server_fd = serverFD;
+    #else
+    #   warning Unsupported OS
+    #endif
+    asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
 
     log_msg(LOG_INFO, "sim running on %s", sim->device_location);
     final Buffer * recv_buffer = buffer_new();
@@ -290,23 +281,15 @@ void sim_doip_loop(SimDoIp * sim) {
             log_msg(LOG_DEBUG, "Waiting for a client to connect");
             #if defined OS_POSIX
                 socklen_t addr_len = sizeof(addr);
-                #ifdef OS_WINDOWS
-                    ((DoIpImplementation*)sim->implementation)->handle = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    if (((DoIpImplementation*)sim->implementation)->handle == -1) {
-                        perror("accept");
-                        return;
-                    }
-                #else
-                    ((DoIpImplementation*)sim->implementation)->handle = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
-                    if (((DoIpImplementation*)sim->implementation)->handle == -1) {
-                        perror("accept");
-                        return;
-                    }
-                #endif
+                sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                if (sim->implementation->handle == -1) {
+                    perror("accept");
+                    return;
+                }
             #elif defined OS_WINDOWS
                 int addr_len = sizeof(addr);
-                ((DoIpImplementation*)sim->implementation)->client_socket = accept(((DoIpImplementation*)sim->implementation)->server_fd, (struct sockaddr*)&addr, &addr_len);
-                if (((DoIpImplementation*)sim->implementation)->client_socket == -1) {
+                sim->implementation->client_socket = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
+                if (sim->implementation->client_socket == -1) {
                     perror("accept");
                     return;
                 }
