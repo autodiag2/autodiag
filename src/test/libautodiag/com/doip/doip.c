@@ -4,14 +4,12 @@
 bool testDOIP() {
     {
         Buffer * payload = buffer_from_ascii_hex("1000");
-        object_DoIPDiagMessage * msg = object_DoIPDiagMessage_new();
-        msg->payload_type = DOIP_DIAGNOSTIC_MESSAGE;
-        msg->payload.src_addr = buffer_from_ascii_hex("0000");
-        msg->payload.dst_addr = buffer_from_ascii_hex("07E8");
-        msg->payload.data = payload;
-        Buffer * serialized = doip_diag_message_serialize(msg);
-        object_DoIPDiagMessage * msg2 = doip_diag_message_parse(serialized);
-        Buffer * serialized2 = doip_diag_message_serialize(msg2);
+        object_DoIPMessage * msg = doip_diag_message(buffer_from_ascii_hex("07E8"), buffer_from_ascii_hex("0000"), payload);
+        Buffer * serialized = doip_message_serialize(msg);
+        assert(serialized != null);
+        object_DoIPMessage * msg2 = doip_message_parse(serialized);
+        Buffer * serialized2 = doip_message_serialize(msg2);
+        assert(serialized2 != null);
         assert(buffer_equals(serialized, serialized2));
         tf_test_output("Serialization is reflective");
     }
@@ -20,12 +18,10 @@ bool testDOIP() {
         object_DoIPDevice * device = object_DoIPDevice_new();
         device->location = location;
         device->open(device);
-        object_DoIPDiagMessage * msg = object_DoIPDiagMessage_new();
-        msg->payload.data = buffer_from_ascii_hex("1000");
-        msg->payload.dst_addr = buffer_from_ascii_hex("07E8");
-        msg->payload.src_addr = buffer_from_ascii_hex("0000");
-        doip_diag_message_dump(msg);
-        Buffer * serialized = doip_diag_message_serialize(msg);
+        Buffer * payload = buffer_from_ascii_hex("1000");
+        object_DoIPMessage * msg = doip_diag_message(buffer_from_ascii_hex("07E8"), buffer_from_ascii_hex("0000"), payload);
+        doip_message_dump(msg);
+        Buffer * serialized = doip_message_serialize(msg);
         char * serialized_str = buffer_to_hex_string(serialized);
         log_msg(LOG_DEBUG, "serialized: '%s'", serialized_str);
         doip_send_internal(device, serialized_str);

@@ -87,54 +87,16 @@ static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data)
     return m;
 }
 
-static object_DoIPDiagMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
-    object_DoIPDiagMessage *m = object_DoIPDiagMessage_new();
-    m->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
-    m->inv_protocol_version = (byte)~m->protocol_version;
-    m->payload_type = DOIP_DIAGNOSTIC_MESSAGE;
-    m->payload.src_addr = buf_u16be(src);
-    m->payload.dst_addr = buf_u16be(dst);
-    m->payload.data = data_protocol ? buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL;
-    return m;
+static object_DoIPMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
+    return doip_diag_message(buf_u16be(dst),buf_u16be(src),data_protocol ? buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
 }
-static bool doip_send_diag(SimDoIp *sim, object_DoIPDiagMessage *m) {
-    Buffer *out = doip_diag_message_serialize(m);
+static bool doip_send_msg(SimDoIp *sim, object_DoIPMessage *m) {
+    Buffer *out = doip_message_serialize(m);
     if (!out) return false;
     if ( sim_write((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, out->buffer, out->size) == -1 ) {
         log_msg(LOG_ERROR, "Error while sending");
         return false;
     }
-    return true;
-}
-static bool doip_send_simple(SimDoIp *sim, object_DoIPMessage *m) {
-    if (!m) return false;
-
-    int plen = (m->payload_raw ? m->payload_raw->size : 0);
-    int out_sz = 8 + plen;
-
-    Buffer out;
-    out.size = out_sz;
-    out.buffer = (byte*)malloc((size_t)out_sz);
-    if (!out.buffer) return false;
-
-    out.buffer[0] = m->protocol_version ? m->protocol_version : DOIP_PROTOCOL_VERSION_CURRENT;
-    out.buffer[1] = (byte)~out.buffer[0];
-    out.buffer[2] = (byte)(((int)m->payload_type >> 8) & 0xFF);
-    out.buffer[3] = (byte)((int)m->payload_type & 0xFF);
-    out.buffer[4] = (byte)((plen >> 24) & 0xFF);
-    out.buffer[5] = (byte)((plen >> 16) & 0xFF);
-    out.buffer[6] = (byte)((plen >> 8) & 0xFF);
-    out.buffer[7] = (byte)(plen & 0xFF);
-
-    if (0 < plen) memcpy(out.buffer + 8, m->payload_raw->buffer, (size_t)plen);
-
-    if ( sim_write((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, out.buffer, out.size) == -1 ) {
-        free(out.buffer);
-        log_msg(LOG_ERROR, "Error while sending");
-        return false;
-    }
-
-    free(out.buffer);
     return true;
 }
 
@@ -155,7 +117,7 @@ static int handle_routing_activation(SimDoIp *sim, object_DoIPMessage *req) {
     object_DoIPMessage *resp = mk_doip_simple(DOIP_ROUTING_ACTIVATION_RESPONSE, response);
     buffer_free(response);
     if (!resp) return 0;
-    return doip_send_simple(sim, resp);
+    return doip_send_msg(sim, resp);
 }
 
 static int handle_alive_check(SimDoIp *sim, object_DoIPMessage *req) {
@@ -170,7 +132,7 @@ static int handle_alive_check(SimDoIp *sim, object_DoIPMessage *req) {
     object_DoIPMessage *resp = mk_doip_simple(DOIP_ALIVE_CHECK_RESPONSE, response);
     buffer_free(response);
     if (!resp) return 0;
-    return doip_send_simple(sim, resp);
+    return doip_send_msg(sim, resp);
 }
 
 static int handle_entity_status(SimDoIp *sim) {
@@ -181,7 +143,7 @@ static int handle_entity_status(SimDoIp *sim) {
     object_DoIPMessage *resp = mk_doip_simple(DOIP_ENTITY_STATUS_RESPONSE, response);
     buffer_free(response);
     if (!resp) return 0;
-    return doip_send_simple(sim, resp);
+    return doip_send_msg(sim, resp);
 }
 
 static int handle_power_mode(SimDoIp *sim) {
@@ -192,28 +154,30 @@ static int handle_power_mode(SimDoIp *sim) {
     object_DoIPMessage *resp = mk_doip_simple(DOIP_DIAG_POWER_MODE_RESPONSE, response);
     buffer_free(response);
     if (!resp) return 0;
-    return doip_send_simple(sim, resp);
+    return doip_send_msg(sim, resp);
 }
 
-static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
-    if (!msg->payload.src_addr || !msg->payload.dst_addr) return 1;
-    if (msg->payload.src_addr->size < 2 || msg->payload.dst_addr->size < 2) return 1;
+static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
+    assert(msg->payload_type == DOIP_DIAGNOSTIC_MESSAGE);
+    object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag *)msg->payload;
+    if (!diag->src_addr || !diag->dst_addr) return 1;
+    if (diag->src_addr->size < 2 || diag->dst_addr->size < 2) return 1;
 
-    uint16_t tester = be16_u(msg->payload.src_addr->buffer);
-    assert(2 == msg->payload.dst_addr->size);
+    uint16_t tester = be16_u(diag->src_addr->buffer);
+    assert(2 == diag->dst_addr->size);
 
     for (int i = 0; i < sim->ecus->size; i++) {
         SimECU *ecu = sim->ecus->list[i];
-        if (ecu->address != msg->payload.dst_addr->buffer[1]) continue;
+        if (ecu->address != diag->dst_addr->buffer[1]) continue;
 
         log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
-        Buffer *data_protocol = sim_ecu_response(ecu, msg->payload.data);
+        Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
         if (!data_protocol) return 1;
 
         log_msg(LOG_DEBUG, "Sending back %s", buffer_to_hex_string(data_protocol));
-        object_DoIPDiagMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
+        object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
         if (!doip_resp) return 0;
-        if (!doip_send_diag(sim, doip_resp)) return 0;
+        if (!doip_send_msg(sim, doip_resp)) return 0;
         return 1;
     }
 
@@ -276,38 +240,35 @@ void sim_doip_loop(SimDoIp * sim) {
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
 
-        object_DoIPMessage *hdr = doip_message_parse(recv_buffer);
-        if (!hdr) {
-            log_msg(LOG_DEBUG, "Unabled to parse incoming data : '%s'", recv_buffer);
+        object_DoIPMessage *msg = doip_message_parse(recv_buffer);
+        if (!msg) {
+            log_msg(LOG_DEBUG, "Unabled to parse incoming data : '%s'", buffer_to_ascii_espace_breaking_chars(recv_buffer));
             continue;
         }
 
-        if (hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE ||
-            hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE_ACK ||
-            hdr->payload_type == DOIP_DIAGNOSTIC_MESSAGE_NACK) {
-
-            object_DoIPDiagMessage *dmsg = doip_diag_message_parse(recv_buffer);
-            log_msg(LOG_DEBUG, "Sim received '%s'", buffer_to_hex_string(recv_buffer));
-            if (!dmsg) continue;
-            if (dmsg->payload_type == DOIP_DIAGNOSTIC_MESSAGE) {
-                if (!handle_diag(sim, dmsg)) {
+        switch(msg->payload_type) {
+            case DOIP_DIAGNOSTIC_MESSAGE: {
+                log_msg(LOG_DEBUG, "Sim received '%s'", buffer_to_hex_string(recv_buffer));
+                if (!handle_diag(sim, msg)) {
                     log_msg(LOG_DEBUG, "diag message has not responded");
                     continue;
                 }
-            }
-            continue;
-        }
-
-        if (hdr->payload_type == DOIP_ROUTING_ACTIVATION_REQUEST) {
-            if (!handle_routing_activation(sim, hdr)) return;
-        } else if (hdr->payload_type == DOIP_ALIVE_CHECK_REQUEST) {
-            if (!handle_alive_check(sim, hdr)) return;
-        } else if (hdr->payload_type == DOIP_ENTITY_STATUS_REQUEST) {
-            if (!handle_entity_status(sim)) return;
-        } else if (hdr->payload_type == DOIP_DIAG_POWER_MODE_REQUEST) {
-            if (!handle_power_mode(sim)) return;
-        } else {
-            log_msg(LOG_ERROR, "Payload type 0x%04X not implemented", (int)hdr->payload_type);
+            } break;
+            case DOIP_ROUTING_ACTIVATION_REQUEST: {
+                if (!handle_routing_activation(sim, msg)) return;
+            } break;
+            case DOIP_ALIVE_CHECK_REQUEST: {
+                if (!handle_alive_check(sim, msg)) return;
+            } break;
+            case DOIP_ENTITY_STATUS_REQUEST: {
+                if (!handle_entity_status(sim)) return;
+            } break;
+            case DOIP_DIAG_POWER_MODE_REQUEST: {
+                if (!handle_power_mode(sim)) return;
+            } break;
+            default: {
+                log_msg(LOG_ERROR, "Payload type 0x%04X not implemented", (int)msg->payload_type);
+            } break;
         }
     }
 }

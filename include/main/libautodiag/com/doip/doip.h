@@ -26,29 +26,50 @@ typedef enum {
     DOIP_DIAGNOSTIC_MESSAGE_NACK        = 0x8003  /* Diagnostic message negative ACK */
 } DoIpPayloadType;
 
+typdef struct {
+
+} DoIPMessageDef;
+
 OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
     DoIpPayloadType payload_type;
     Buffer * payload_raw;
+    DoIPMessageDef * payload;
 )
-#define DOIP_DIAG_MESSAGE_ADDR_SZ 2
-OBJECT_H(DoIPDiagMessage,
-    object_DoIPMessage;
-    struct {
-        Buffer * src_addr;
-        Buffer * dst_addr;
-        Buffer * data;
-    } payload;
-)
-
 #define DOIP_PROTOCOL_VERSION_CURRENT 0x02
-
-object_DoIPDiagMessage * object_DoIPDiagMessage_new();
-object_DoIPDiagMessage *doip_diag_message_parse(const Buffer *in);
-Buffer *doip_diag_message_serialize(const object_DoIPDiagMessage *msg);
 object_DoIPMessage * doip_message_parse(const Buffer * in);
-void doip_diag_message_dump(object_DoIPDiagMessage * msg);
+Buffer * doip_message_serialize(const object_DoIPMessage * in);
+void doip_message_dump(final object_DoIPMessage * msg);
+void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType type);
+
+OBJECT_H(DoIPMessagePayloadDiag,
+    DoIPMessageDef;
+    Buffer * src_addr;
+    Buffer * dst_addr;
+    Buffer * data;
+)
+#define DOIP_MESSAGE_DIAG_ADDR_SZ 2
+object_DoIPMessagePayloadDiag * object_DoIPMessagePayloadDiag_new();
+object_DoIPMessage * doip_diag_message(Buffer * to, Buffer * from, Buffer * payload_data);
+
+typdef enum {
+    DOIP_MESSAGE_RAR_TYPE_DEFAULT = 0x00,
+    DOIP_MESSAGE_RAR_TYPE_WWH_OBD = 0x01,
+    DOIP_MESSAGE_RAR_TYPE_ISO_SAE_RESERVED = 0x02,
+    DOIP_MESSAGE_RAR_TYPE_CENTRAL_SECURITY = 0xE0,
+    DOIP_MESSAGE_RAR_TYPE_OEM = 0x00
+} DOIP_MESSAGE_RAR_TYPE;
+
+OBJECT_H(DoIPMessagePayloadRoutineActivationRequest,
+    DoIPMessageDef;
+    byte src_addr[2];
+    DOIP_MESSAGE_RAR_TYPE activation_type;
+    byte iso_reserved[4];
+    byte vendor_reserved[4];
+    Buffer * dst_addr;
+    Buffer * data;
+)
 
 #include "libautodiag/com/doip/device.h"
 

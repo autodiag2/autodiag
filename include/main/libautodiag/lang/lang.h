@@ -25,6 +25,7 @@
  #define bool_unset 2
 #endif
 
+#define typdef typedef
 typedef uint8_t byte;
 
 /**
