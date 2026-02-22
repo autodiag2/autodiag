@@ -72,5 +72,6 @@ int compat_vasprintf(char **ret, const char *fmt, va_list ap);
 #include "installation.h"
 #include "eventHandlerHolder.h"
 #include "libautodiag/lang/all.h"
+#include "libautodiag/time.h"
 
 #endif

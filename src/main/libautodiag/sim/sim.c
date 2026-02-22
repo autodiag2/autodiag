@@ -54,7 +54,7 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
         }
     #endif
     #ifdef OS_WINDOWS
-        if (impl->client_socket != INVALID_SOCKET) {
+        if (impl->client_socket != SOCK_T_INVALID) {
             int ret = send(impl->client_socket, (const char*)data, (int)data_len, 0);
             if (ret == SOCKET_ERROR) {
                 log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());

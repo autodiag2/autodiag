@@ -15,7 +15,8 @@ output/obj/main/libautodiag/buffer.o: src/main/libautodiag/buffer.c \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/byte.o: src/main/libautodiag/byte.c \
   include/main/libautodiag/byte.h include/main/libautodiag/string.h \
   include/main/libautodiag/lang/lang.h \
@@ -44,6 +45,7 @@ output/obj/main/libautodiag/com/can/iso15765.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/model/vehicle.h
 output/obj/main/libautodiag/com/device.o: \
   src/main/libautodiag/com/device.c \
@@ -66,7 +68,8 @@ output/obj/main/libautodiag/com/device.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/com/doip/device.o: \
   src/main/libautodiag/com/doip/device.c \
   include/main/libautodiag/com/doip/device.h \
@@ -88,7 +91,7 @@ output/obj/main/libautodiag/com/doip/device.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/device.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/doip/doip.h
 output/obj/main/libautodiag/com/doip/doip.o: \
@@ -112,6 +115,7 @@ output/obj/main/libautodiag/com/doip/doip.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h
@@ -134,7 +138,8 @@ output/obj/main/libautodiag/com/network.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/com/obd/iso15031/iso15031_6.o: \
   src/main/libautodiag/com/obd/iso15031/iso15031_6.c \
   include/main/libautodiag/com/obd/iso15031/iso15031_6.h \
@@ -155,7 +160,8 @@ output/obj/main/libautodiag/com/obd/iso15031/iso15031_6.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/com/obd/obd.o: \
   src/main/libautodiag/com/obd/obd.c \
   include/main/libautodiag/com/obd/obd.h \
@@ -179,6 +185,7 @@ output/obj/main/libautodiag/com/obd/obd.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -228,7 +235,7 @@ output/obj/main/libautodiag/com/obd/saej1979/data.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -284,6 +291,7 @@ output/obj/main/libautodiag/com/obd/saej1979/saej1979.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -337,6 +345,7 @@ output/obj/main/libautodiag/com/obd/saej1979/stored_dtcs.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -385,7 +394,7 @@ output/obj/main/libautodiag/com/obd/saej1979/vehicle_info.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -437,6 +446,7 @@ output/obj/main/libautodiag/com/recorder.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/model/vehicle.h cJSON/cJSON.h
 output/obj/main/libautodiag/com/serial/elm/elm.o: \
   src/main/libautodiag/com/serial/elm/elm.c \
@@ -461,6 +471,7 @@ output/obj/main/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/can/iso15765.h \
@@ -512,6 +523,7 @@ output/obj/main/libautodiag/com/serial/elm/elm320.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/can/iso15765.h \
@@ -562,6 +574,7 @@ output/obj/main/libautodiag/com/serial/elm/elm322.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm_iso15765.h \
   include/main/libautodiag/com/can/iso15765.h \
@@ -612,6 +625,7 @@ output/obj/main/libautodiag/com/serial/elm/elm323/elm323.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/list_serial.h \
   include/main/libautodiag/com/serial/elm/elm323/../elm_iso15765.h \
   include/main/libautodiag/com/can/iso15765.h \
@@ -663,6 +677,7 @@ output/obj/main/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -715,6 +730,7 @@ output/obj/main/libautodiag/com/serial/elm/elm327/iso15765.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -765,6 +781,7 @@ output/obj/main/libautodiag/com/serial/elm/elm329/elm329.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -817,6 +834,7 @@ output/obj/main/libautodiag/com/serial/elm/elm329/iso15765.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -864,6 +882,7 @@ output/obj/main/libautodiag/com/serial/elm/elm_iso15765.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/can/iso15765.h \
   include/main/libautodiag/com/can/can.h \
   include/main/libautodiag/model/vehicle.h \
@@ -917,7 +936,8 @@ output/obj/main/libautodiag/com/serial/list_serial.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/com/serial/serial.o: \
   src/main/libautodiag/com/serial/serial.c \
   include/main/libautodiag/com/serial/serial.h \
@@ -940,6 +960,7 @@ output/obj/main/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/list_serial.h
 output/obj/main/libautodiag/com/uds/uds.o: \
   src/main/libautodiag/com/uds/uds.c \
@@ -965,6 +986,7 @@ output/obj/main/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/model/iso3779.h \
@@ -1018,6 +1040,7 @@ output/obj/main/libautodiag/com/uds/uds_maps.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/model/iso3779.h \
@@ -1072,6 +1095,7 @@ output/obj/main/libautodiag/com/uds/uds_service_read_dtc.o: \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/model/iso3779.h \
@@ -1123,6 +1147,7 @@ output/obj/main/libautodiag/com/vehicle_interface.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/com/serial/elm/elm.h \
   include/main/libautodiag/com/serial/serial.h \
@@ -1219,7 +1244,7 @@ output/obj/main/libautodiag/jni/sim/ecu/generator/gui.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1274,7 +1299,7 @@ output/obj/main/libautodiag/jni/sim/elm327/elm327.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1358,7 +1383,8 @@ output/obj/main/libautodiag/lib.o: src/main/libautodiag/lib.c \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/log.o: src/main/libautodiag/log.c \
   include/main/libautodiag/log.h include/main/libautodiag/string.h \
   include/main/libautodiag/lang/lang.h \
@@ -1377,7 +1403,8 @@ output/obj/main/libautodiag/log.o: src/main/libautodiag/log.c \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/math.o: src/main/libautodiag/math.c \
   include/main/libautodiag/math.h
 output/obj/main/libautodiag/model/database.o: \
@@ -1400,6 +1427,7 @@ output/obj/main/libautodiag/model/database.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/model/vehicle.h
 output/obj/main/libautodiag/model/dtc.o: src/main/libautodiag/model/dtc.c \
   include/main/libautodiag/model/dtc.h \
@@ -1422,6 +1450,7 @@ output/obj/main/libautodiag/model/dtc.o: src/main/libautodiag/model/dtc.c \
   include/main/libautodiag/cli_tools.h \
   include/main/libautodiag/installation.h \
   include/main/libautodiag/eventHandlerHolder.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/model/database.h
 output/obj/main/libautodiag/model/iso3779.o: \
   src/main/libautodiag/model/iso3779.c \
@@ -1442,7 +1471,8 @@ output/obj/main/libautodiag/model/iso3779.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/model/vehicle.o: \
   src/main/libautodiag/model/vehicle.c \
   include/main/libautodiag/model/vehicle.h \
@@ -1463,7 +1493,8 @@ output/obj/main/libautodiag/model/vehicle.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libautodiag/poll.o: src/main/libautodiag/poll.c \
   include/main/libautodiag/poll.h \
   include/main/libautodiag/compile_target.h \
@@ -1491,6 +1522,7 @@ output/obj/main/libautodiag/sim/doip/doip.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/com/device.h \
@@ -1532,6 +1564,7 @@ output/obj/main/libautodiag/sim/doip/doip.o: \
   include/main/libautodiag/com/network.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/sim/ecu/ecu.o: \
   src/main/libautodiag/sim/ecu/ecu.c \
@@ -1555,7 +1588,7 @@ output/obj/main/libautodiag/sim/ecu/ecu.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1609,7 +1642,7 @@ output/obj/main/libautodiag/sim/ecu/generator.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1663,7 +1696,7 @@ output/obj/main/libautodiag/sim/ecu/generator/citroen_c5_x7.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1717,7 +1750,7 @@ output/obj/main/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1771,7 +1804,7 @@ output/obj/main/libautodiag/sim/ecu/generator/random.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1825,7 +1858,7 @@ output/obj/main/libautodiag/sim/ecu/generator/replay.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -1879,6 +1912,7 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -1920,6 +1954,7 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/main/libautodiag/sim/elm327/elm327.o: \
   src/main/libautodiag/sim/elm327/elm327.c \
@@ -1941,6 +1976,7 @@ output/obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -1982,6 +2018,7 @@ output/obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/elm327/bus.h
 output/obj/main/libautodiag/sim/elm327/network.o: \
@@ -2005,7 +2042,7 @@ output/obj/main/libautodiag/sim/elm327/network.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/network.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/network.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/obd/obd.h \
@@ -2069,6 +2106,7 @@ output/obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2110,7 +2148,8 @@ output/obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
-  include/main/libautodiag/jni/target_device.h
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h
 output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/ecu/ecu.h \
@@ -2133,7 +2172,7 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2169,6 +2208,7 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/com/network.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2183,6 +2223,9 @@ output/obj/main/libautodiag/thread.o: src/main/libautodiag/thread.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
   include/main/libautodiag/lang/list.h \
+  include/main/libautodiag/compile_target.h
+output/obj/main/libautodiag/time.o: src/main/libautodiag/time.c \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/compile_target.h
 output/obj/main/libautodiag/windows.o: src/main/libautodiag/windows.c \
   include/main/libautodiag/windows.h \
@@ -2207,6 +2250,7 @@ output/obj/main/libprog/cli_helpers.o: src/main/libprog/cli_helpers.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
@@ -2250,6 +2294,7 @@ output/obj/main/libprog/cli_helpers.o: src/main/libprog/cli_helpers.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2272,7 +2317,7 @@ output/obj/main/libprog/config.o: src/main/libprog/config.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2322,7 +2367,7 @@ output/obj/main/libprog/doip_cli.o: src/main/libprog/doip_cli.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/libautodiag/time.h include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2361,6 +2406,7 @@ output/obj/main/libprog/doip_cli.o: src/main/libprog/doip_cli.c \
   include/main/libautodiag/com/network.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2388,7 +2434,7 @@ output/obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/libautodiag/time.h include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2432,6 +2478,7 @@ output/obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2454,7 +2501,8 @@ output/obj/main/libprog/serial_cli.o: src/main/libprog/serial_cli.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libprog/config.h include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libprog/config.h \
+  include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2506,6 +2554,7 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h \
   include/main/libautodiag/com/serial/elm/elm327/elm327.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2547,6 +2596,7 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2570,7 +2620,8 @@ output/obj/main/libprog/ui/counter.o: src/main/libprog/ui/counter.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libprog/config.h include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libprog/config.h \
+  include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2620,7 +2671,7 @@ output/obj/main/libprog/ui/graph_data.o: src/main/libprog/ui/graph_data.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libprog/ui/gtk.h \
+  include/main/libautodiag/time.h include/main/libprog/ui/gtk.h \
   
 output/obj/main/libprog/ui/gtk.o: src/main/libprog/ui/gtk.c \
   include/main/libprog/ui/gtk.h \
@@ -2641,7 +2692,8 @@ output/obj/main/libprog/ui/gtk.o: src/main/libprog/ui/gtk.c \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/libprog/ui/gtk_wrapper.o: \
   src/main/libprog/ui/gtk_wrapper.c \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -2662,7 +2714,8 @@ output/obj/main/libprog/ui/gtk_wrapper.o: \
   include/main/libautodiag/lang/Int.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
-  include/main/libautodiag/lang/hashmap_common.h
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/time.h
 output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/ui/main.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -2684,7 +2737,7 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2730,6 +2783,7 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -2756,7 +2810,7 @@ output/obj/main/prog/doipsim.o: src/main/prog/doipsim.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/libautodiag/time.h include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2795,6 +2849,7 @@ output/obj/main/prog/doipsim.o: src/main/prog/doipsim.c \
   include/main/libautodiag/com/network.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2822,7 +2877,7 @@ output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/libautodiag/time.h include/main/libautodiag/sim/ecu/ecu.h \
   include/main/libautodiag/sim/ecu/generator.h \
   include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
@@ -2866,6 +2921,7 @@ output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/gtk.h \
   include/main/libprog/ui/counter.h include/main/libprog/config.h
@@ -2890,7 +2946,7 @@ output/obj/main/ui/CommandLine.o: src/main/ui/CommandLine.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2944,7 +3000,7 @@ output/obj/main/ui/documentation.o: src/main/ui/documentation.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -2998,7 +3054,7 @@ output/obj/main/ui/dyno.o: src/main/ui/dyno.c include/main/ui/dyno.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3053,7 +3109,7 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3099,6 +3155,7 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -3125,7 +3182,7 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3169,6 +3226,7 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/main.h \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
@@ -3198,7 +3256,7 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3243,6 +3301,7 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
@@ -3269,7 +3328,7 @@ output/obj/main/ui/ui_mod.o: src/main/ui/ui_mod.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3322,7 +3381,7 @@ output/obj/main/ui/vehicle_explorer.o: src/main/ui/vehicle_explorer.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
   include/main/libautodiag/com/vehicle_interface.h \
@@ -3376,7 +3435,7 @@ output/obj/main/ui/widget/error_feedback.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libprog/ui/gtk.h \
+  include/main/libautodiag/time.h include/main/libprog/ui/gtk.h \
   include/main/libautodiag/com/serial/serial.h \
   include/main/libautodiag/com/device.h \
   include/main/libautodiag/model/vehicle.h \
@@ -3429,7 +3488,7 @@ output/obj/test/fuzz.o: src/test/fuzz.c src/testFixtures/libTest.h \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3468,6 +3527,7 @@ output/obj/test/fuzz.o: src/test/fuzz.c src/testFixtures/libTest.h \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   src/testFixtures/libTest.h \
@@ -3491,7 +3551,7 @@ output/obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3530,6 +3590,7 @@ output/obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/doip/doip.o: \
   src/test/libautodiag/com/doip/doip.c src/testFixtures/libTest.h \
@@ -3553,7 +3614,7 @@ output/obj/test/libautodiag/com/doip/doip.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3592,6 +3653,7 @@ output/obj/test/libautodiag/com/doip/doip.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/obd/obd.o: \
   src/test/libautodiag/com/obd/obd.c src/testFixtures/libTest.h \
@@ -3615,7 +3677,7 @@ output/obj/test/libautodiag/com/obd/obd.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3654,6 +3716,7 @@ output/obj/test/libautodiag/com/obd/obd.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/obd/saej1979.o: \
   src/test/libautodiag/com/obd/saej1979.c src/testFixtures/libTest.h \
@@ -3677,7 +3740,7 @@ output/obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3716,6 +3779,7 @@ output/obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h \
   include/main/libautodiag/com/obd/saej1979/saej1979.h
 output/obj/test/libautodiag/com/recorder.o: \
@@ -3740,7 +3804,7 @@ output/obj/test/libautodiag/com/recorder.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3779,6 +3843,7 @@ output/obj/test/libautodiag/com/recorder.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/elm/elm.o: \
   src/test/libautodiag/com/serial/elm/elm.c src/testFixtures/libTest.h \
@@ -3802,7 +3867,7 @@ output/obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3841,6 +3906,7 @@ output/obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   src/test/libautodiag/com/serial/elm/elm327/elm327.c \
@@ -3865,7 +3931,7 @@ output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3904,6 +3970,7 @@ output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/serial.o: \
   src/test/libautodiag/com/serial/serial.c src/testFixtures/libTest.h \
@@ -3927,7 +3994,7 @@ output/obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -3966,6 +4033,7 @@ output/obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/serial/serial_list.o: \
   src/test/libautodiag/com/serial/serial_list.c \
@@ -3990,7 +4058,7 @@ output/obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4029,6 +4097,7 @@ output/obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/com/uds/uds.o: \
   src/test/libautodiag/com/uds/uds.c src/testFixtures/libTest.h \
@@ -4052,7 +4121,7 @@ output/obj/test/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4091,6 +4160,7 @@ output/obj/test/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   src/testFixtures/libTest.h \
@@ -4114,7 +4184,7 @@ output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4153,6 +4223,7 @@ output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   src/testFixtures/libTest.h \
@@ -4176,7 +4247,7 @@ output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4215,6 +4286,7 @@ output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   src/testFixtures/libTest.h \
@@ -4238,7 +4310,7 @@ output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4277,6 +4349,7 @@ output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/model/iso3779.o: \
   src/test/libautodiag/model/iso3779.c src/testFixtures/libTest.h \
@@ -4300,7 +4373,7 @@ output/obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4339,6 +4412,7 @@ output/obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   src/test/libautodiag/sim/ecu/generator/cycle.c \
@@ -4363,7 +4437,7 @@ output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4402,6 +4476,7 @@ output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   src/test/libautodiag/sim/ecu/generator/replay.c \
@@ -4426,7 +4501,7 @@ output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4465,6 +4540,7 @@ output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/elm327/sim.o: \
   src/test/libautodiag/sim/elm327/sim.c src/testFixtures/libTest.h \
@@ -4488,7 +4564,7 @@ output/obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4527,6 +4603,7 @@ output/obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/elm327/uds.o: \
   src/test/libautodiag/sim/elm327/uds.c src/testFixtures/libTest.h \
@@ -4550,7 +4627,7 @@ output/obj/test/libautodiag/sim/elm327/uds.o: \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4589,6 +4666,7 @@ output/obj/test/libautodiag/sim/elm327/uds.o: \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   src/testFixtures/libTest.h \
@@ -4612,7 +4690,7 @@ output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4651,6 +4729,7 @@ output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/libprog/config.o: src/test/libprog/config.c \
   src/testFixtures/libTest.h \
@@ -4674,7 +4753,7 @@ output/obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4713,6 +4792,7 @@ output/obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h
 output/obj/test/regression.o: src/test/regression.c \
   src/testFixtures/libTest.h \
@@ -4736,7 +4816,7 @@ output/obj/test/regression.o: src/test/regression.c \
   include/main/libautodiag/lang/Ptr.h \
   include/main/libautodiag/lang/hashmap.h \
   include/main/libautodiag/lang/hashmap_common.h \
-  include/main/libautodiag/com/obd/obd.h \
+  include/main/libautodiag/time.h include/main/libautodiag/com/obd/obd.h \
   include/main/libautodiag/com/vehicle_interface.h \
   include/main/libautodiag/com/recorder.h \
   include/main/libautodiag/model/iso3779.h \
@@ -4775,4 +4855,5 @@ output/obj/test/regression.o: src/test/regression.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
   include/main/libautodiag/sim/elm327/nvm.h

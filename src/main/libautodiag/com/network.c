@@ -64,6 +64,51 @@ sock_t network_udp_start(int *bound_port, int start_port) {
     return server_fd;
 }
 
+int network_udp_enable_broadcast(sock_t s) {
+    int yes = 1;
+    #ifdef OS_POSIX
+        return setsockopt(s, SOL_SOCKET, SO_BROADCAST, &yes, sizeof(yes));
+    #elif defined OS_WINDOWS
+        return setsockopt(s, SOL_SOCKET, SO_BROADCAST, (const char *)&yes, sizeof(yes));
+    #else
+    #   warning Unsupported OS
+    #endif
+    return -1;
+}
+
+int network_udp_set_reuseaddr(sock_t s) {
+    int yes = 1;
+    #ifdef OS_POSIX
+        return setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes));
+    #elif defined OS_WINDOWS
+        return setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (const char *)&yes, sizeof(yes));
+    #else
+    #   warning Unsupported OS
+    #endif
+    return -1;
+}
+int network_udp_wait_readable(sock_t s, int timeout_ms) {
+    fd_set rfds;
+    FD_ZERO(&rfds);
+    FD_SET(s, &rfds);
+
+    struct timeval tv;
+    tv.tv_sec = timeout_ms / 1000;
+    tv.tv_usec = (timeout_ms % 1000) * 1000;
+
+    #ifdef OS_POSIX
+        int nfds = (int)s + 1;
+        int r = select(nfds, &rfds, NULL, NULL, &tv);
+        return r;
+    #elif defined OS_WINDOWS
+        int r = select(0, &rfds, NULL, NULL, &tv);
+        return r;
+    #else
+    #   warning OS Unsupported
+        return -1;
+    #endif
+}
+
 sock_t network_tcp_start(int *bound_port, int start_port) {
     #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;
