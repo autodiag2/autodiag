@@ -67,8 +67,6 @@ OBJECT_H(DoIPMessagePayloadRoutineActivationRequest,
     DOIP_MESSAGE_RAR_TYPE activation_type;
     byte iso_reserved[4];
     byte vendor_reserved[4];
-    Buffer * dst_addr;
-    Buffer * data;
 )
 
 #include "libautodiag/com/doip/device.h"

@@ -27,6 +27,23 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
     msg->payload_raw = null;
     msg->payload = null;
 }
+object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_new() {
+    object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
+    if ( payload == null ) return null;
+    memset(payload, 0, sizeof(*payload));
+    payload->activation_type = DOIP_MESSAGE_RAR_TYPE_DEFAULT;
+    return payload;
+}
+void object_DoIPMessagePayloadRoutineActivationRequest_free(object_DoIPMessagePayloadRoutineActivationRequest* payload) {
+    if ( payload != null ) {
+        memset(payload, 0, sizeof(*payload));
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_assign(object_DoIPMessagePayloadRoutineActivationRequest * to, object_DoIPMessagePayloadRoutineActivationRequest *from) {
+    memcpy(to, from, sizeof(*to));
+    return to;
+}
 object_DoIPMessagePayloadDiag *object_DoIPMessagePayloadDiag_new() {
     object_DoIPMessagePayloadDiag *payload = (object_DoIPMessagePayloadDiag*)malloc(sizeof(object_DoIPMessagePayloadDiag));
     if (!payload) return null;
@@ -60,7 +77,10 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
         }
         switch(msg->payload_type) {
             case DOIP_DIAGNOSTIC_MESSAGE: {
-                object_DoIPMessagePayloadDiag_free(msg->payload);
+                object_DoIPMessagePayloadDiag_free((object_DoIPMessagePayloadDiag*)msg->payload);
+            } break;
+            case DOIP_ROUTING_ACTIVATION_REQUEST: {
+                object_DoIPMessagePayloadRoutineActivationRequest_free((object_DoIPMessagePayloadDiag*)msg->payload);
             } break;
             default: {
                 log_msg(LOG_DEBUG, "payload not implemented");
@@ -150,6 +170,15 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             diag->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
             diag->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
         } break;
+        case DOIP_ROUTING_ACTIVATION_REQUEST: {
+            object_DoIPMessagePayloadRoutineActivationRequest * rar = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
+            msg->payload = (DoIPMessageDef*)rar;
+            assert(11 <= msg->payload_raw->size);
+            memcpy(rar->src_addr, msg->payload_raw->buffer, 2);
+            rar->activation_type = msg->payload_raw->buffer[2];
+            memcpy(rar->iso_reserved, msg->payload_raw->buffer + 3, 4);
+            memcpy(rar->vendor_reserved, msg->payload_raw->buffer + 7, 4);
+        } break;
         default: {
             log_msg(LOG_DEBUG, "Parsing of payload type 0x%04X not implemented", ptype);
         } break;
@@ -162,14 +191,21 @@ void doip_message_dump(object_DoIPMessage * msg) {
     assert(msg != null);
     if ( log_has_level(LOG_DEBUG) ) {
         log_msg(LOG_DEBUG, "diag message: {");
-        log_msg(LOG_DEBUG, "    version: %02hhX", msg->protocol_version);
-        log_msg(LOG_DEBUG, "    payload_type: %04X", msg->payload_type);
+        log_msg(LOG_DEBUG, "    version: 0x%02hhX", msg->protocol_version);
+        log_msg(LOG_DEBUG, "    payload_type: 0x%04X", msg->payload_type);
         switch(msg->payload_type) {
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
                 log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
                 log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
                 log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
+            } break;
+            case DOIP_ROUTING_ACTIVATION_REQUEST: {
+                object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
+                log_msg(LOG_DEBUG, "    src_addr: 0x%02X%02X", payload->src_addr[0], payload->src_addr[1]);
+                log_msg(LOG_DEBUG, "    activation_type: 0x%02x", payload->activation_type);
+                log_msg(LOG_DEBUG, "    iso_reserved: 0x%02x%02x%02x%02x", payload->iso_reserved[0], payload->iso_reserved[1], payload->iso_reserved[2], payload->iso_reserved[3]);
+                log_msg(LOG_DEBUG, "    vendor_reserved: 0x%02x%02x%02x%02x", payload->vendor_reserved[0], payload->vendor_reserved[1], payload->vendor_reserved[2], payload->vendor_reserved[3]);
             } break;
         }
         log_msg(LOG_DEBUG, "}");
@@ -198,6 +234,10 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             }
             plen = 4 + dsz;
         } break;
+        case DOIP_ROUTING_ACTIVATION_REQUEST: {
+            object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
+            plen = 2 + 1 + 4 + 4;
+        } break;
         default: {
             log_msg(LOG_DEBUG, "Payload not implemented");
         } break;
@@ -219,13 +259,22 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
     doip__put_be16(p + 2, (int)msg->payload_type);
     doip__put_be32(p + 4, plen);
 
+    byte * payload_start = p + 8;
+
     switch(msg->payload_type) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
-            memcpy(p + 8, payload->src_addr->buffer, 2);
-            memcpy(p + 10, payload->dst_addr->buffer, 2);
+            memcpy(payload_start, payload->src_addr->buffer, 2);
+            memcpy(payload_start + 2, payload->dst_addr->buffer, 2);
             assert(payload->data->size <= (out_sz - 12));
-            memcpy(p + 12, payload->data->buffer, payload->data->size);
+            memcpy(payload_start + 4, payload->data->buffer, payload->data->size);
+        } break;
+        case DOIP_ROUTING_ACTIVATION_REQUEST: {
+            object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
+            memcpy(payload_start, payload->src_addr, 2);
+            *(payload_start + 2) = payload->activation_type;
+            memcpy(payload_start + 3, payload->iso_reserved, 4);
+            memcpy(payload_start + 7, payload->vendor_reserved, 4);
         } break;
         default: {
             log_msg(LOG_DEBUG, "payload not implemented");
