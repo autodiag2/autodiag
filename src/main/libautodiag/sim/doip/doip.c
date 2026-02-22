@@ -106,18 +106,17 @@ static int handle_routing_activation(SimDoIp *sim, object_DoIPMessage *req) {
         tester = be16_u(req->payload_raw->buffer);
     }
 
-    Buffer * response = buffer_new();
-    buffer_ensure_capacity(response, 13);
-    buffer_fill(response, 0x00);
+    object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
+    object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+    buffer_assign_be16(payload->tester, tester);
+    buffer_assign(payload->ecu, buffer_from_ascii_hex("0000"));
+    payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
+    payload->iso_reserved = buffer_new_random(4);
+    payload->oem_reserved = buffer_new_random(4);
 
-    response->buffer[0] = (byte)((tester >> 8) & 0xFF);
-    response->buffer[1] = (byte)(tester & 0xFF);
-    response->buffer[2] = 0x10;
-
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_ROUTING_ACTIVATION_RESPONSE, response);
-    buffer_free(response);
-    if (!resp) return 0;
-    return doip_send_msg(sim, resp);
+    final int res = doip_send_msg(sim, msg);
+    object_DoIPMessage_new(msg);
+    return res;
 }
 
 static int handle_alive_check(SimDoIp *sim, object_DoIPMessage *req) {

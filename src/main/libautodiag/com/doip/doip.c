@@ -26,6 +26,17 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
     msg->payload_type = type;
     msg->payload_raw = null;
     msg->payload = null;
+    switch(type) {
+        case DOIP_DIAGNOSTIC_MESSAGE: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadDiag_new();
+        } break;
+        case DOIP_ROUTING_ACTIVATION_REQUEST: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationRequest_new();
+        } break;
+        case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationResponse_new();
+        } break;
+    }
 }
 object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_new() {
     object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
@@ -67,6 +78,11 @@ object_DoIPMessage * object_DoIPMessage_assign(object_DoIPMessage * to, object_D
 object_DoIPMessage * object_DoIPMessage_new() {
     object_DoIPMessage * msg = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
     doip_message_init(msg, 0x00);
+    return msg;
+}
+object_DoIPMessage * doip_message_new(DoIpPayloadType type) {
+    object_DoIPMessage * msg = object_DoIPMessage_new();
+    doip_message_init(msg, type);
     return msg;
 }
 void object_DoIPMessage_free(object_DoIPMessage * msg) {

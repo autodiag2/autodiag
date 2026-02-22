@@ -51,6 +51,13 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
+void buffer_assign_be16(Buffer * buffer, uint16_t i) {
+    buffer_recycle(buffer);
+    buffer_ensure_capacity(buffer, 2);
+    buffer->buffer[0] = (i >> 8) & 0xFF;
+    buffer->buffer[1] = i & 0xFF;
+    buffer->size = 2;
+}
 void buffer_assign(Buffer * to, Buffer * from) {
     buffer_recycle(to);
     buffer_memcpy(to, from->buffer, from->size);

@@ -42,6 +42,10 @@ object_DoIPMessage * doip_message_parse(const Buffer * in);
 Buffer * doip_message_serialize(const object_DoIPMessage * in);
 void doip_message_dump(final object_DoIPMessage * msg);
 void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType type);
+/**
+ * Init with a given type of message
+ */
+object_DoIPMessage * doip_message_new(DoIpPayloadType type);
 
 OBJECT_H(DoIPMessagePayloadDiag,
     DoIPMessageDef;

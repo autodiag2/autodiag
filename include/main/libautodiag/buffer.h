@@ -30,6 +30,10 @@ Buffer * buffer_copy(Buffer* buffer);
  */
 void buffer_assign(Buffer * to, Buffer * from);
 /**
+ * Assign a big endian 16 bits to this buffer.
+ */
+void buffer_assign_be16(Buffer * buffer, uint16_t i);
+/**
  * Ensure that there is at least size space in the buffer free space
  */
 bool buffer_ensure_capacity(Buffer * buffer, unsigned size);
