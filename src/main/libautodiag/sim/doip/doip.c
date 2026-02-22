@@ -160,15 +160,24 @@ static int handle_power_mode(SimDoIp *sim) {
 static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     assert(msg->payload_type == DOIP_DIAGNOSTIC_MESSAGE);
     object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag *)msg->payload;
-    if (!diag->src_addr || !diag->dst_addr) return 1;
-    if (diag->src_addr->size < 2 || diag->dst_addr->size < 2) return 1;
+    if (!diag->src_addr || !diag->dst_addr) {
+        log_msg(LOG_ERROR, "issue with addressing");
+        return 1;
+    }
+    if (diag->src_addr->size < 2 || diag->dst_addr->size < 2) {
+        log_msg(LOG_ERROR, "issue with addressing 2");
+        return 1;
+    }
 
     uint16_t tester = be16_u(diag->src_addr->buffer);
     assert(2 == diag->dst_addr->size);
 
     for (int i = 0; i < sim->ecus->size; i++) {
         SimECU *ecu = sim->ecus->list[i];
-        if (ecu->address != diag->dst_addr->buffer[1]) continue;
+        if (ecu->address != diag->dst_addr->buffer[1]) {
+            log_msg(LOG_DEBUG, "Not addressed to this ecu, continuing");
+            continue;
+        }
 
         log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
         Buffer *data_protocol = sim_ecu_response(ecu, diag->data);

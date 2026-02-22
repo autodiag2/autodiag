@@ -73,8 +73,8 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
 object_DoIPMessage * doip_diag_message(Buffer * to, Buffer * from, Buffer * payload_data) {
     object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
     payload->data = buffer_copy(payload_data);
+    payload->src_addr = buffer_copy(from);
     payload->dst_addr = buffer_copy(to);
-    payload->dst_addr = buffer_copy(from);
     object_DoIPMessage * msg = object_DoIPMessage_new();
     msg->payload = (DoIPMessageDef*)payload;
     msg->payload_type = DOIP_DIAGNOSTIC_MESSAGE;
@@ -164,6 +164,14 @@ void doip_message_dump(object_DoIPMessage * msg) {
         log_msg(LOG_DEBUG, "diag message: {");
         log_msg(LOG_DEBUG, "    version: %02hhX", msg->protocol_version);
         log_msg(LOG_DEBUG, "    payload_type: %04X", msg->payload_type);
+        switch(msg->payload_type) {
+            case DOIP_DIAGNOSTIC_MESSAGE: {
+                object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
+                log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
+                log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
+            } break;
+        }
         log_msg(LOG_DEBUG, "}");
     }
 }
@@ -174,11 +182,20 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
     switch(msg->payload_type) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
-            if (!payload->src_addr || payload->src_addr->size != 2) return null;
-            if (!payload->dst_addr || payload->dst_addr->size != 2) return null;
+            if (!payload->src_addr || payload->src_addr->size != 2) {
+                log_msg(LOG_ERROR, "src addr incorrect");
+                return null;
+            }
+            if (!payload->dst_addr || payload->dst_addr->size != 2) {
+                log_msg(LOG_ERROR, "dst addr incorrect");
+                return null;
+            }
 
             int dsz = payload->data ? payload->data->size : 0;
-            if (dsz < 0) return null;
+            if (dsz < 0) {
+                log_msg(LOG_ERROR, "dsz incorrect");
+                return null;
+            }
             plen = 4 + dsz;
         } break;
         default: {
