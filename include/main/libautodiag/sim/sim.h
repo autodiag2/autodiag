@@ -9,13 +9,9 @@ typedef struct {
     #ifdef OS_POSIX
         int handle;
     #endif
+    sock_t server_fd;
     #ifdef OS_WINDOWS
-        int server_fd;
         sock_t client_socket;
-    #elif defined OS_POSIX
-        int server_fd;
-    #else
-    #   warning OS unsupported
     #endif
 } SimImplementation;
 

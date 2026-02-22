@@ -7,7 +7,8 @@ SimDoIp * sim_doip_new() {
     DoIpImplementation * impl = (DoIpImplementation*)malloc(sizeof(DoIpImplementation));
     impl->loop_thread = null;
     impl->loop_ready = false;
-    impl->timeout_ms = 5000;
+    impl->timeout_ms = SIM_DOIP_TIMEOUT_MS_RW;
+    impl->broadcast_time_ms = SIM_DOIP_TIMEOUT_MS_BROADCAST;
     sim->implementation = (SimImplementation*)impl;
     return sim;
 }
@@ -240,32 +241,64 @@ static int handle_diag(SimDoIp *sim, object_DoIPDiagMessage *msg) {
     return 1;
 }
 
+object_DoIPDiscoveryThreadData * object_DoIPDiscoveryThreadData_new() {
+    object_DoIPDiscoveryThreadData * o = (object_DoIPDiscoveryThreadData*)malloc(sizeof(object_DoIPDiscoveryThreadData));
+    o->sim = null;
+    o->handle = SOCK_T_INVALID;
+    return o;
+}
+
+void * sim_doip_discovery_loop(void *arg) {
+    object_DoIPDiscoveryThreadData * data = (object_DoIPDiscoveryThreadData*)arg;
+    SimDoIp * sim = data->sim;
+    sock_t handle = data->handle;
+    DoIpImplementation * implementation = ((DoIpImplementation*)sim->implementation);
+    while ( implementation->loop_thread != null ) {
+        usleep(implementation->broadcast_time_ms * 1000);
+        log_msg(LOG_DEBUG, "Should send a broadcast message");
+    }
+    return NULL;
+}
+
 void sim_doip_loop(SimDoIp * sim) {
+
+    int discovery_loop_port = -1;
+    sock_t discovery_loop_handle = network_udp_start(&discovery_loop_handle, DOIP_NETWORK_PORT);
+    if ( discovery_loop_handle == SOCK_T_INVALID ) {
+        log_msg(LOG_ERROR, "Failed to bind the discovery server");
+        perror("doip network_udp_start");
+        return;
+    }
+    log_msg(LOG_DEBUG, "Listening on UDP");
+    pthread_t discovery_thread;
+    object_DoIPDiscoveryThreadData * data = object_DoIPDiscoveryThreadData_new();
+    data->handle = discovery_loop_handle;
+    data->sim = sim;
+    pthread_create(&discovery_thread, NULL, sim_doip_discovery_loop, (void*)data);
+
     #ifdef OS_POSIX
-        sim->implementation->handle = -1;
-        sim->implementation->server_fd = -1;
+        sim->implementation->handle = SOCK_T_INVALID;
+        sim->implementation->server_fd = SOCK_T_INVALID;
     #endif
     #ifdef OS_WINDOWS
-        #ifdef OS_POSIX
-            sim->implementation->client_socket = -1;
-        #else
-            sim->implementation->client_socket = INVALID_SOCKET;
-        #endif
+        sim->implementation->client_socket = SOCK_T_INVALID;
     #endif
-    int boundPort = -1;
-    int serverFD = network_tcp_start(&boundPort, DOIP_NETWORK_PORT);
-    if ( serverFD == -1 ) {
+
+    int main_loop_port = -1;
+    sock_t serverFD = network_tcp_start(&main_loop_port, DOIP_NETWORK_PORT);
+    if ( serverFD == SOCK_T_INVALID ) {
         log_msg(LOG_ERROR, "Failed to start server");
         perror("doip network_tcp_start");
         return;
     }
-    assert(boundPort != -1);
+    log_msg(LOG_DEBUG, "Listening on TCP");
+    assert(main_loop_port != -1);
     #if defined OS_POSIX || defined OS_WINDOWS
         sim->implementation->server_fd = serverFD;
     #else
     #   warning Unsupported OS
     #endif
-    asprintf(&sim->device_location, "0.0.0.0:%d", boundPort);
+    asprintf(&sim->device_location, "0.0.0.0:%d", main_loop_port);
 
     log_msg(LOG_INFO, "sim running on %s", sim->device_location);
     final Buffer * recv_buffer = buffer_new();

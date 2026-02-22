@@ -44,21 +44,41 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
     return -1;
 }
 
-int network_tcp_start(int *bound_port, int start_port) {
+sock_t network_udp_start(int *bound_port, int start_port) {
     #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;
-        if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return -1;
+        if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return SOCK_T_INVALID;
     #endif
 
-    sock_t server_fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (server_fd < 0) return -1;
+    sock_t server_fd = socket(AF_INET, SOCK_DGRAM, 0);
+    if (server_fd < 0) return SOCK_T_INVALID;
 
     if (bind_any_available_port(server_fd, start_port, 32, bound_port) < 0) {
         close_sock(server_fd);
         #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
             WSACleanup();
         #endif
-        return -1;
+        return SOCK_T_INVALID;
+    }
+
+    return server_fd;
+}
+
+sock_t network_tcp_start(int *bound_port, int start_port) {
+    #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
+        WSADATA wsa;
+        if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return SOCK_T_INVALID;
+    #endif
+
+    sock_t server_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (server_fd < 0) return SOCK_T_INVALID;
+
+    if (bind_any_available_port(server_fd, start_port, 32, bound_port) < 0) {
+        close_sock(server_fd);
+        #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
+            WSACleanup();
+        #endif
+        return SOCK_T_INVALID;
     }
 
     if (listen(server_fd, NETWORK_BACKLOG) < 0) {
@@ -66,8 +86,8 @@ int network_tcp_start(int *bound_port, int start_port) {
         #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
             WSACleanup();
         #endif
-        return -1;
+        return SOCK_T_INVALID;
     }
 
-    return (int)server_fd;
+    return server_fd;
 }

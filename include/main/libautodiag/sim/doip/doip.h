@@ -30,11 +30,22 @@ typedef struct {
      * Read & write timeout ms
      */
     int timeout_ms;
+    /**
+     * Delay in ms between each broadcast
+     */
+    int broadcast_time_ms;
 } DoIpImplementation;
+#define SIM_DOIP_TIMEOUT_MS_RW 5000
+#define SIM_DOIP_TIMEOUT_MS_BROADCAST 2000
 
 typedef struct _SimDoIp {
     Sim;
 } SimDoIp;
+
+OBJECT_H(DoIPDiscoveryThreadData,
+    SimDoIp * sim;
+    sock_t handle;
+);
 
 #define DOIP_NETWORK_PORT 13400
 SimDoIp * sim_doip_new();
