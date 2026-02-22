@@ -1,6 +1,12 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/lib.h"
 
+void buffer_fill(final Buffer * buffer, final byte value) {
+    for(unsigned i = buffer->size; i < buffer->size_allocated; i++) {
+        buffer->buffer[i] = value;
+    }
+    buffer->size = buffer->size_allocated;
+}
 Buffer * buffer_slice(final Buffer *buffer, int from, int sz) {
     if (!buffer) return null;
     if (!buffer->buffer) return null;

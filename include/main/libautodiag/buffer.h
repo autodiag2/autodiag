@@ -27,6 +27,10 @@ bool buffer_ensure_capacity(Buffer * buffer, unsigned size);
  */
 void buffer_initialise(final Buffer * buffer, final byte value);
 /**
+ * For capacity allocated (free space size_allocated - size), fill with value.
+ */
+void buffer_fill(final Buffer * buffer, final byte value);
+/**
  * Append 0x00 to the buffer if not in
  */
 void buffer_ensure_termination(Buffer * buffer);

@@ -76,6 +76,7 @@ static Buffer *buf_u16be(uint16_t v) {
 }
 
 static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data) {
+    assert(data);
     object_DoIPMessage *m = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
     if (!m) return NULL;
     memset(m, 0, sizeof(*m));
@@ -143,63 +144,53 @@ static int handle_routing_activation(SimDoIp *sim, object_DoIPMessage *req) {
         tester = be16_u(req->payload_raw->buffer);
     }
 
-    Buffer pl;
-    pl.size = 13;
-    pl.buffer = (byte*)malloc((size_t)pl.size);
-    if (!pl.buffer) return 0;
-    memset(pl.buffer, 0, (size_t)pl.size);
+    Buffer * response = buffer_new();
+    buffer_ensure_capacity(response, 13);
+    buffer_fill(response, 0x00);
 
-    pl.buffer[0] = (byte)((tester >> 8) & 0xFF);
-    pl.buffer[1] = (byte)(tester & 0xFF);
-    pl.buffer[2] = 0x10;
-    pl.buffer[3] = 0x00;
+    response->buffer[0] = (byte)((tester >> 8) & 0xFF);
+    response->buffer[1] = (byte)(tester & 0xFF);
+    response->buffer[2] = 0x10;
 
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_ROUTING_ACTIVATION_RESPONSE, &pl);
-    free(pl.buffer);
+    object_DoIPMessage *resp = mk_doip_simple(DOIP_ROUTING_ACTIVATION_RESPONSE, response);
+    buffer_free(response);
     if (!resp) return 0;
     return doip_send_simple(sim, resp);
 }
 
 static int handle_alive_check(SimDoIp *sim, object_DoIPMessage *req) {
-    Buffer pl;
-    pl.size = 2;
-    pl.buffer = (byte*)malloc(2);
-    if (!pl.buffer) return 0;
-    pl.buffer[0] = 0x00;
-    pl.buffer[1] = 0x00;
+    Buffer * response = buffer_new();
+    buffer_ensure_capacity(response, 2);
+    buffer_fill(response, 0x00);
     if (req && req->payload_raw && 2 <= req->payload_raw->size) {
-        pl.buffer[0] = req->payload_raw->buffer[0];
-        pl.buffer[1] = req->payload_raw->buffer[1];
+        response->buffer[0] = req->payload_raw->buffer[0];
+        response->buffer[1] = req->payload_raw->buffer[1];
     }
 
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_ALIVE_CHECK_RESPONSE, &pl);
-    free(pl.buffer);
+    object_DoIPMessage *resp = mk_doip_simple(DOIP_ALIVE_CHECK_RESPONSE, response);
+    buffer_free(response);
     if (!resp) return 0;
     return doip_send_simple(sim, resp);
 }
 
 static int handle_entity_status(SimDoIp *sim) {
-    Buffer pl;
-    pl.size = 7;
-    pl.buffer = (byte*)malloc((size_t)pl.size);
-    if (!pl.buffer) return 0;
-    memset(pl.buffer, 0, (size_t)pl.size);
+    Buffer * response = buffer_new();
+    buffer_ensure_capacity(response, 7);
+    buffer_fill(response, 0x00);
 
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_ENTITY_STATUS_RESPONSE, &pl);
-    free(pl.buffer);
+    object_DoIPMessage *resp = mk_doip_simple(DOIP_ENTITY_STATUS_RESPONSE, response);
+    buffer_free(response);
     if (!resp) return 0;
     return doip_send_simple(sim, resp);
 }
 
 static int handle_power_mode(SimDoIp *sim) {
-    Buffer pl;
-    pl.size = 1;
-    pl.buffer = (byte*)malloc(1);
-    if (!pl.buffer) return 0;
-    pl.buffer[0] = 0x00;
+    Buffer * response = buffer_new();
+    buffer_ensure_capacity(response, 1);
+    buffer_fill(response, 0x00);
 
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_DIAG_POWER_MODE_RESPONSE, &pl);
-    free(pl.buffer);
+    object_DoIPMessage *resp = mk_doip_simple(DOIP_DIAG_POWER_MODE_RESPONSE, response);
+    buffer_free(response);
     if (!resp) return 0;
     return doip_send_simple(sim, resp);
 }

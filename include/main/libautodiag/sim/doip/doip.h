@@ -35,6 +35,7 @@ typedef struct {
      */
     int broadcast_time_ms;
 } DoIpImplementation;
+
 #define SIM_DOIP_TIMEOUT_MS_RW 5000
 #define SIM_DOIP_TIMEOUT_MS_BROADCAST 1000
 
