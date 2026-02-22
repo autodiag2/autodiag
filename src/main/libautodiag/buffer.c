@@ -51,12 +51,40 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
+void buffer_assign_be8(Buffer * buffer, uint8_t i) {
+    buffer_recycle(buffer);
+    buffer_ensure_capacity(buffer, 1);
+    buffer->buffer[0] = i & 0xFF;
+    buffer->size = 1;
+}
 void buffer_assign_be16(Buffer * buffer, uint16_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 2);
     buffer->buffer[0] = (i >> 8) & 0xFF;
     buffer->buffer[1] = i & 0xFF;
     buffer->size = 2;
+}
+void buffer_assign_be32(Buffer * buffer, uint32_t i) {
+    buffer_recycle(buffer);
+    buffer_ensure_capacity(buffer, 4);
+    buffer->buffer[0] = (i >> 24) & 0xFF;
+    buffer->buffer[1] = (i >> 16) & 0xFF;
+    buffer->buffer[2] = (i >> 8) & 0xFF;
+    buffer->buffer[3] = i & 0xFF;
+    buffer->size = 4;
+}
+void buffer_assign_be64(Buffer * buffer, uint32_t i) {
+    buffer_recycle(buffer);
+    buffer_ensure_capacity(buffer, 8);
+    buffer->buffer[0] = (i >> 56) & 0xFF;
+    buffer->buffer[1] = (i >> 48) & 0xFF;
+    buffer->buffer[2] = (i >> 40) & 0xFF;
+    buffer->buffer[3] = (i >> 32) & 0xFF;
+    buffer->buffer[4] = (i >> 24) & 0xFF;
+    buffer->buffer[5] = (i >> 16) & 0xFF;
+    buffer->buffer[6] = (i >> 8) & 0xFF;
+    buffer->buffer[7] = i & 0xFF;
+    buffer->size = 8;
 }
 void buffer_assign(Buffer * to, Buffer * from) {
     buffer_recycle(to);

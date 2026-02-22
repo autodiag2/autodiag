@@ -29,10 +29,13 @@ Buffer * buffer_copy(Buffer* buffer);
  * Produce exact copy but use an existing instance.
  */
 void buffer_assign(Buffer * to, Buffer * from);
+void buffer_assign_be8(Buffer * buffer, uint8_t i);
 /**
  * Assign a big endian 16 bits to this buffer.
  */
 void buffer_assign_be16(Buffer * buffer, uint16_t i);
+void buffer_assign_be32(Buffer * buffer, uint32_t i);
+void buffer_assign_be64(Buffer * buffer, uint32_t i);
 /**
  * Ensure that there is at least size space in the buffer free space
  */
