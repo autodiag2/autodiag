@@ -100,25 +100,6 @@ static bool doip_send_msg(SimDoIp *sim, object_DoIPMessage *m) {
     return true;
 }
 
-static int handle_routing_activation(SimDoIp *sim, object_DoIPMessage *req) {
-    uint16_t tester = 0x0E80;
-    if (req && req->payload_raw && 2 <= req->payload_raw->size) {
-        tester = be16_u(req->payload_raw->buffer);
-    }
-
-    object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
-    object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
-    buffer_assign_be16(payload->tester, tester);
-    buffer_assign(payload->ecu, buffer_from_ascii_hex("0000"));
-    payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
-    payload->iso_reserved = buffer_new_random(4);
-    payload->oem_reserved = buffer_new_random(4);
-
-    final int res = doip_send_msg(sim, msg);
-    object_DoIPMessage_new(msg);
-    return res;
-}
-
 static int handle_alive_check(SimDoIp *sim, object_DoIPMessage *req) {
     Buffer * response = buffer_new();
     buffer_ensure_capacity(response, 2);
@@ -263,7 +244,18 @@ void sim_doip_loop(SimDoIp * sim) {
                 }
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
-                if (!handle_routing_activation(sim, msg)) return;
+                object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
+
+                object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
+                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+                buffer_memcpy(payload->tester, reqPayload->src_addr, sizeof(reqPayload->src_addr));
+                buffer_assign(payload->ecu, buffer_from_ascii_hex("0000"));
+                payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
+                payload->iso_reserved = buffer_new_random(4);
+                payload->oem_reserved = buffer_new_random(4);
+
+                final int res = doip_send_msg(sim, reply);
+                object_DoIPMessage_free(reply);
             } break;
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 log_msg(LOG_DEBUG, "This message is not supposed to be sent by the tester, ignoring...");
