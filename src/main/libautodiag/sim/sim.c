@@ -3,6 +3,15 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
+SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
+    for (int i = 0; i < sim->ecus->size; i++) {
+        SimECU *ecu = sim->ecus->list[i];
+        if ( address == ecu->address ) {
+            return ecu;
+        }
+    }
+    return null;
+}
 void sim_init_with_defaults(Sim *sim) {
     sim->ecus = list_SimECU_new();
     final SimECU *ecu = sim_ecu_new(0xE8);

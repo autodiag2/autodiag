@@ -52,6 +52,10 @@ void sim_init_with_defaults(Sim *sim);
  * Wait for a flag to be ready
  */
 bool sim_loop_daemon_wait_ready(bool * var);
+/**
+ * Search for an ECU by its address, return null if not found
+ */
+SimECU * sim_search_ecu_by_address(Sim *sim, byte address);
 
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/doip/doip.h"

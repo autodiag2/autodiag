@@ -212,6 +212,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             case UDS_DID_VIN: {
                                 buffer_append(binResponse, state->vin);
                             } break;
+                            default: {
+                                buffer_append(binResponse, buffer_new_random_with_seed(10, seed));
+                            } break;
                         }
                     }
                 }

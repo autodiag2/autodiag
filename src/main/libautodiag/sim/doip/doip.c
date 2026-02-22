@@ -153,23 +153,27 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     uint16_t tester = be16_u(diag->src_addr->buffer);
     assert(2 == diag->dst_addr->size);
 
-    for (int i = 0; i < sim->ecus->size; i++) {
-        SimECU *ecu = sim->ecus->list[i];
-        if (ecu->address != diag->dst_addr->buffer[1]) {
-            log_msg(LOG_DEBUG, "Not addressed to this ecu, continuing");
-            continue;
+    SimECU *ecu = sim_search_ecu_by_address((Sim*)sim, diag->dst_addr->buffer[diag->dst_addr->size-1]);
+    if ( ecu == null ) {
+        if ( sim->ecus->size == 1 ) {
+            log_msg(LOG_DEBUG, "Diag message was addressed to a different ECU, never mind continuing ...");
+            ecu = sim->ecus->list[0];
         }
-
-        log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
-        Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
-        if (!data_protocol) return 1;
-
-        log_msg(LOG_DEBUG, "Sending back %s", buffer_to_hex_string(data_protocol));
-        object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
-        if (!doip_resp) return 0;
-        if (!doip_send_msg(sim, doip_resp)) return 0;
+    }
+    
+    if ( ecu == null ) {
+        log_msg(LOG_WARNING, "No ECU found for address %02hhX, ignoring diag message (should send NACK)", diag->dst_addr->buffer[1]);
         return 1;
     }
+
+    log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
+    Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
+    if (!data_protocol) return 1;
+
+    log_msg(LOG_DEBUG, "Sending back %s", buffer_to_hex_string(data_protocol));
+    object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
+    if (!doip_resp) return 0;
+    if (!doip_send_msg(sim, doip_resp)) return 0;
 
     return 1;
 }
