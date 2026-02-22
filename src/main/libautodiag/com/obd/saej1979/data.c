@@ -207,7 +207,7 @@ unsigned short saej1979_data_buffer_get_short(final Buffer* buffer) {
     return (unsigned short)buffer->buffer[0] * 256 + buffer->buffer[1];
 } 
 
-unsigned int saej1979_data_buffer_get_uint(final Buffer* buffer) {
+unsigned saej1979_data_buffer_get_uint(final Buffer* buffer) {
     assert(3 < buffer->size);
     return (buffer->buffer[0] >> 24) + (buffer->buffer[1] >> 16) + (buffer->buffer[2] >> 8) + buffer->buffer[3];
 }

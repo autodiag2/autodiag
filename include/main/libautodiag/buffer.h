@@ -10,8 +10,8 @@
 #include "math.h"
 
 typedef struct {
-    unsigned int size_allocated;
-    unsigned int size;
+    unsigned size_allocated;
+    unsigned size;
     byte *buffer;
 } Buffer;
 
@@ -21,7 +21,7 @@ Buffer * buffer_copy(Buffer* buffer);
 /**
  * Ensure that there is at least size space in the buffer free space
  */
-bool buffer_ensure_capacity(Buffer * buffer, unsigned int size);
+bool buffer_ensure_capacity(Buffer * buffer, unsigned size);
 /**
  * Set the value for all members
  */
@@ -39,7 +39,7 @@ void buffer_recycle(Buffer * buffer);
 /**
  * Make a left shift on the buffer (remove the first n bytes)
  */
-void buffer_left_shift(final Buffer * buffer, final unsigned int shift);
+void buffer_left_shift(final Buffer * buffer, final unsigned shift);
 /**
  * Extract part of a buffer into an other
  * [index;index+size[ if size = 0, index excluded
@@ -48,32 +48,32 @@ void buffer_left_shift(final Buffer * buffer, final unsigned int shift);
  * @param index start index
  * @param size size to slice
  */
-void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size);
+void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned index, final unsigned size);
 void buffer_append(final Buffer * dest, final Buffer * src);
 /**
  * Same as buffer_append but destroys the src buffer.
  */
 void buffer_append_melt(final Buffer * dest, final Buffer * src);
-void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned int size);
+void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned size);
 void buffer_append_byte(final Buffer * dest, final byte b);
 void buffer_append_str(final Buffer* dest, final char *data);
 void buffer_prepend_byte(final Buffer* dest, final byte b);
 void buffer_prepend(final Buffer* dest, final Buffer * src);
-void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned int size);
+void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned size);
 bool buffer_equals(final Buffer * b1, final Buffer * b2);
 /**
  * Only accept full ascii buffer, do not take in account OBD specific like printing of spaces.
  */
-Buffer* buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size);
+Buffer* buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size);
 /**
  * assuming ascii is null terminated
  */
 Buffer* buffer_from_ascii_hex(const char * ascii_hex);
 Buffer* buffer_from_ascii(const char *ascii);
-Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n);
+Buffer* buffer_from_ints_arr(const unsigned *vals, size_t n);
 #define buffer_from_ints(...) \
-    buffer_from_ints_arr((unsigned int[]){ __VA_ARGS__ }, \
-                       sizeof((unsigned int[]){ __VA_ARGS__ })/sizeof(unsigned int))
+    buffer_from_ints_arr((unsigned[]){ __VA_ARGS__ }, \
+                       sizeof((unsigned[]){ __VA_ARGS__ })/sizeof(unsigned))
 /**
  * Get an ascii hex the given data.
  * Without spaces.
@@ -92,12 +92,12 @@ void list_Buffer_dump(final list_Buffer* list);
 /**
  * Obtain a new buffer with bytes initialized to random value
  */
-Buffer * buffer_new_random(unsigned int sz);
+Buffer * buffer_new_random(unsigned sz);
 /**
  * Same but with a seed ensuring sequence replayability
  */
-Buffer * buffer_new_random_with_seed(unsigned int sz, unsigned int * seed);
-Buffer * buffer_new_cycle(unsigned int sz, int percent);
+Buffer * buffer_new_random_with_seed(unsigned sz, unsigned * seed);
+Buffer * buffer_new_cycle(unsigned sz, int percent);
 /**
  * Remove the first byte of the buffer.
  */
@@ -116,7 +116,7 @@ int buffer_get_free_space(Buffer * buffer);
  */
 int buffer_cmp(final Buffer *buf1, final Buffer *buf2);
 bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2);
-void buffer_padding(final Buffer * buffer, unsigned int until, final byte pad);
+void buffer_padding(final Buffer * buffer, unsigned until, final byte pad);
 void buffer_slice_non_alphanum(final Buffer *buffer);
 
 #define __PPARG_N(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N

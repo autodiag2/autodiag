@@ -18,8 +18,8 @@ typedef struct {
 
 typedef struct {
     DynoSample *v;
-    unsigned int n;
-    unsigned int cap;
+    unsigned n;
+    unsigned cap;
 } DynoSamples;
 
 static DynoSamples dyno_samples = {0};
@@ -35,7 +35,7 @@ static void dyno_samples_clear() {
 
 static void dyno_samples_push(double t_ms, double speed_kmh, double rpm) {
     if (dyno_samples.cap <= dyno_samples.n) {
-        unsigned int nc = dyno_samples.cap ? dyno_samples.cap * 2u : 512u;
+        unsigned nc = dyno_samples.cap ? dyno_samples.cap * 2u : 512u;
         DynoSample *nv = realloc(dyno_samples.v, (size_t)nc * sizeof(*nv));
         if (!nv) return;
         dyno_samples.v = nv;
@@ -58,7 +58,7 @@ static const char *unit_for_metric_title(const char *title) {
     return "";
 }
 
-static void curve_color(unsigned int i, double *r, double *g, double *b) {
+static void curve_color(unsigned i, double *r, double *g, double *b) {
     if (i == 0) { *r = 1.0; *g = 0.0; *b = 0.0; return; }
     if (i == 1) { *r = 0.0; *g = 0.0; *b = 1.0; return; }
     static const double pal[][3] = {
@@ -68,7 +68,7 @@ static void curve_color(unsigned int i, double *r, double *g, double *b) {
         {0.0, 0.6, 0.6},
         {0.3, 0.3, 0.3},
     };
-    unsigned int k = (i - 2) % (sizeof(pal)/sizeof(pal[0]));
+    unsigned k = (i - 2) % (sizeof(pal)/sizeof(pal[0]));
     *r = pal[k][0]; *g = pal[k][1]; *b = pal[k][2];
 }
 
@@ -108,10 +108,10 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
 
     double min_val = 0, max_val = 0, min_x = 0, max_x = 0;
     gboolean has = false;
-    for (unsigned int si = 0; graph->series && si < graph->series->size; si++) {
+    for (unsigned si = 0; graph->series && si < graph->series->size; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size < 1) continue;
-        for (unsigned int i = 0; i < s->data->size; i++) {
+        for (unsigned i = 0; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             if (!d) continue;
             if (!has) {
@@ -225,7 +225,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
         cairo_show_text(cr, buf);
     }
 
-    for (unsigned int si = 0; graph->series && si < graph->series->size; si++) {
+    for (unsigned si = 0; graph->series && si < graph->series->size; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size < 2) continue;
 
@@ -239,7 +239,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
         double y0 = (double)(height - margin_bottom) - (d0->data - min_val) * y_scale;
         cairo_move_to(cr, x0, y0);
 
-        for (unsigned int i = 1; i < s->data->size; i++) {
+        for (unsigned i = 1; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             double x = margin_left + (d->time - min_x) * x_scale;
             double y = (double)(height - margin_bottom) - (d->data - min_val) * y_scale;
@@ -250,7 +250,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
 
     cairo_set_font_size(cr, 9.0);
     double ly = margin_top + 10;
-    for (unsigned int si = 0; graph->series && si < graph->series->size; si++) {
+    for (unsigned si = 0; graph->series && si < graph->series->size; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s) continue;
         double rr, gg, bb;
@@ -274,7 +274,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     return false;
 }
 
-static void dyno_graph_add_series_point(Graph *g, unsigned int si, double x, double y) {
+static void dyno_graph_add_series_point(Graph *g, unsigned si, double x, double y) {
     if (!g || !g->series || g->series->size <= si) return;
     GraphSeries *s = g->series->list[si];
     if (!s) return;
@@ -288,7 +288,7 @@ static void dyno_graph_add_series_point(Graph *g, unsigned int si, double x, dou
 
 static void dyno_graph_reset(Graph *g) {
     if (!g || !g->series) return;
-    for (unsigned int si = 0; si < g->series->size; si++) {
+    for (unsigned si = 0; si < g->series->size; si++) {
         GraphSeries *s = g->series->list[si];
         if (!s) continue;
         if (s->data) list_GraphData_free(s->data);
@@ -368,7 +368,7 @@ static void dyno_build_results_from_samples() {
 
     double t0 = dyno_samples.v[0].t_ms;
 
-    for (unsigned int i = 0; i < dyno_samples.n; i++) {
+    for (unsigned i = 0; i < dyno_samples.n; i++) {
         DynoSample s = dyno_samples.v[i];
         double t_s = (s.t_ms - t0) / 1000.0;
 
@@ -376,7 +376,7 @@ static void dyno_build_results_from_samples() {
         dyno_graph_add_series_point(g_rpm,   0, t_s, s.rpm);
     }
 
-    for (unsigned int i = 1; i < dyno_samples.n; i++) {
+    for (unsigned i = 1; i < dyno_samples.n; i++) {
         DynoSample a = dyno_samples.v[i - 1];
         DynoSample b = dyno_samples.v[i];
 

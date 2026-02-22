@@ -52,7 +52,7 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
 void sim_elm327_debug(final SimELM327 * elm327) {
     printf("SimELM327: {\n");
     printf("    ecus %p (list: %p, size: %d): {\n", elm327->ecus, LIST_SIM_ECU(elm327->ecus)->list, LIST_SIM_ECU(elm327->ecus)->size);
-    for(unsigned int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
+    for(unsigned i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
         SimECU * sim_ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
         SimECUGenerator * generator = sim_ecu->generator;
         printf("        ecu: %p {\n", sim_ecu);
@@ -680,7 +680,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         sscanf(AT_DATA_START, "%02hhX", &elm327->testerAddress);
         SIM_ELM327_REPLY_OK();                    
     } else if AT_PARSE("sp") {
-        short unsigned int p;
+        short unsigned p;
         bool success = true;
         if ( sscanf(AT_DATA_START, "a%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
@@ -706,7 +706,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             SIM_ELM327_SIGNAL_NVM_CHANGE();
         }
     } else if AT_PARSE("tp") {
-        short unsigned int p;
+        short unsigned p;
         bool success = true;
         if ( sscanf(AT_DATA_START, "a%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;

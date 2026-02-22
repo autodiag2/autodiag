@@ -427,7 +427,7 @@ static void launch_simulation_internal() {
     
             GtkWidget *label_addr = GTK_WIDGET(g_list_nth_data(children, 0));
             const char *addr_text = gtk_label_get_text(GTK_LABEL(label_addr));
-            unsigned int address = 0;
+            unsigned address = 0;
             if ( sscanf(addr_text, "%x", &address) != 1 ) {
                 log_msg(LOG_ERROR, "should raise a popup telling incorrect address specified");
                 address = 0xE8;

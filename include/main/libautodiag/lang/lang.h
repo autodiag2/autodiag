@@ -4,6 +4,8 @@
 #ifndef __LANG_H
 #define __LANG_H
 
+#include <stdint.h>
+
 #define final
 #define null NULL
 #ifndef TRUE
@@ -23,7 +25,7 @@
  #define bool_unset 2
 #endif
 
-typedef unsigned char byte;
+typedef uint8_t byte;
 
 /**
  * reverse bits in a byte. 0x80 became 0x01

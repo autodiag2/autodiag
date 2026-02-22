@@ -1,7 +1,7 @@
 #include "libautodiag/math.h"
 
-int math_rand_r(unsigned int *seed) {
-    unsigned int next = *seed;
+int math_rand_r(unsigned *seed) {
+    unsigned next = *seed;
     int result;
 
     next *= 1103515245;

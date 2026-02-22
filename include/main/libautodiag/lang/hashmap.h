@@ -17,13 +17,13 @@
 #define HASHMAP_SRC_FREE(key_type, value_type) OBJECT_H_FREE(hashmap_##key_type##_##value_type) { \
     if ( object == null ) return; \
     if ( object->keys != null ) { \
-        for(unsigned int i = 0; i < object->size; i++) { \
+        for(unsigned i = 0; i < object->size; i++) { \
             object_##key_type##_free(object->keys[i]); \
         } \
         object->keys = null; \
     } \
     if ( object->values != null ) { \
-        for(unsigned int i = 0; i < object->size; i++) { \
+        for(unsigned i = 0; i < object->size; i++) { \
             object_##value_type##_free(object->values[i]); \
         } \
         object->values = null; \
@@ -34,7 +34,7 @@
 #define HASHMAP_H_GET(key_type, value_type) OBJECT(value_type) * object_hashmap_##key_type##_##value_type##_get(HASHMAP(key_type,value_type) * hm, OBJECT(key_type) *key)
 #define HASHMAP_SRC_GET(key_type, value_type) HASHMAP_H_GET(key_type, value_type) { \
     assert(hm != null); \
-    for(unsigned int i = 0; i < hm->size; i++) { \
+    for(unsigned i = 0; i < hm->size; i++) { \
         if ( object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
             return hm->values[i]; \
         } \
@@ -45,7 +45,7 @@
 #define HASHMAP_SRC_SET(key_type, value_type) HASHMAP_H_SET(key_type, value_type) { \
     assert(hm != null); \
     bool found = false; \
-    for(unsigned int i = 0; i < hm->size; i++) { \
+    for(unsigned i = 0; i < hm->size; i++) { \
         if ( object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
             hm->values[i] = value; \
             found = true; \
@@ -63,7 +63,7 @@
 #define HASHMAP_H_CLEAR(key_type, value_type) void object_hashmap_##key_type##_##value_type##_clear(object_hashmap_##key_type##_##value_type * hm)
 #define HASHMAP_SRC_CLEAR(key_type, value_type) HASHMAP_H_CLEAR(key_type, value_type) { \
     assert(hm != null); \
-    for(unsigned int i = 0; i < hm->size; i++) { \
+    for(unsigned i = 0; i < hm->size; i++) { \
         object_##key_type##_free(hm->keys[i]); \
         object_##value_type##_free(hm->values[i]); \
     } \
@@ -78,7 +78,7 @@
     OBJECT_H(hashmap_##key_type##_##value_type, \
         OBJECT(key_type) ** keys; \
         OBJECT(value_type) ** values; \
-        unsigned int size; \
+        unsigned size; \
     ); \
     HASHMAP_H_SET(key_type, value_type); \
     HASHMAP_H_GET(key_type, value_type); \

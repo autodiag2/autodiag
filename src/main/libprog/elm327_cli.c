@@ -199,14 +199,14 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                 generator->context = context; 
                 if ( sscanf(arg, "%u", context) != 1 ) {
-                    printf("Expected unsigned int context for random generator, context is used as the seed\n");
+                    printf("Expected unsigned context for random generator, context is used as the seed\n");
                     return 1;
                 }
             } else if ( strcasecmp(generator->type, "cycle") == 0 ) {
                 unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                 generator->context = context; 
                 if ( sscanf(arg, "%u", context) != 1 ) {
-                    printf("Expected unsigned int number of gears for cycle of generator\n");
+                    printf("Expected unsigned number of gears for cycle of generator\n");
                     return 1;
                 }
             } else if ( strcasecmp(generator->type, "replay") == 0 ) {

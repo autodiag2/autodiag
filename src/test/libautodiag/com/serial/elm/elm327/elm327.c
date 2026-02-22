@@ -37,9 +37,9 @@ bool testELM327(VehicleIFace* iface) {
         assert(tmp->vehicle->ecus_len == 2);
         
         bool found = false;
-        for(unsigned int i = 0; i < tmp->vehicle->ecus_len; i++) {
+        for(unsigned i = 0; i < tmp->vehicle->ecus_len; i++) {
             final ECU* ecu = tmp->vehicle->ecus[i];
-            for(unsigned int j = 0; j < ecu->data_buffer->size; j++) {
+            for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 if ( 14 == data->size ) {
                     found = true;

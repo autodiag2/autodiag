@@ -6,9 +6,13 @@
 #include "libautodiag/com/network.h"
 
 typedef struct {
-    #ifdef OS_POSIX
-        int handle;
-    #endif
+    /**
+     * Handle for one connection
+     */
+    sock_t handle;
+    /**
+     * Master handle that produce handles
+     */
     sock_t server_fd;
     #ifdef OS_WINDOWS
         sock_t client_socket;
@@ -36,7 +40,7 @@ typedef struct {
  * @param sim sim into which to load the context (eg ELM327 sim)
  */
 int sim_load_from_json(Sim * sim, char * json_context);
-int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len);
+int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len);
 int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
 /**
  * Namedpipes for windows for instance,

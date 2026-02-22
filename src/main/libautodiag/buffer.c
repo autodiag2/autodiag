@@ -36,7 +36,7 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
         return strncmp(cmp1,ascii_hex,strlen(cmp1)) == 0;
     }
     assert(strlen(cmp1) == strlen(cmp2));
-    for(unsigned int i = 0; i < strlen(cmp1); i++) {
+    for(unsigned i = 0; i < strlen(cmp1); i++) {
         if ( cmp1[i] <= ascii_hex[i] && ascii_hex[i] <= cmp2[i] ) {
             continue;
         } else {
@@ -49,34 +49,34 @@ int buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     if ( buf1->size != buf2->size ) {
         return -1;
     }
-    for(unsigned int i = 0; i < buf1->size; i++) {
+    for(unsigned i = 0; i < buf1->size; i++) {
         if ( buf1->buffer[i] != buf2->buffer[i] ) {
             return i;
         }
     }
     return 0;
 }
-Buffer * buffer_new_cycle(unsigned int sz, int percent) {
+Buffer * buffer_new_cycle(unsigned sz, int percent) {
     assert(0 <= percent && percent <= 100);
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);
-    for(unsigned int i = 0; i < sz; i++) {
+    for(unsigned i = 0; i < sz; i++) {
         buffer->buffer[i] = (byte)((percent / 100.0) * 0xFF);
     }
     buffer->size = sz;
     return buffer;
 }
-Buffer * buffer_new_random_with_seed(unsigned int sz, unsigned int * seed) {
+Buffer * buffer_new_random_with_seed(unsigned sz, unsigned * seed) {
     Buffer * buffer = buffer_new();
     buffer_ensure_capacity(buffer, sz);
-    for(unsigned int i = 0; i < sz; i++) {
+    for(unsigned i = 0; i < sz; i++) {
         buffer->buffer[i] = (byte)math_rand_r(seed);
     }
     buffer->size = sz;
     return buffer;
 }
-Buffer * buffer_new_random(unsigned int sz) {
-    unsigned int seed = rand();
+Buffer * buffer_new_random(unsigned sz) {
+    unsigned seed = rand();
     return buffer_new_random_with_seed(sz, &seed);
 }
 
@@ -87,7 +87,7 @@ byte buffer_extract_0(final Buffer * buffer) {
     return b0;
 }
 
-void buffer_left_shift(final Buffer * buffer, final unsigned int shift) {
+void buffer_left_shift(final Buffer * buffer, final unsigned shift) {
     assert(shift <= buffer->size);
     for(int i = shift; i < buffer->size; i++) {
         buffer->buffer[i-shift] = buffer->buffer[i];
@@ -129,10 +129,10 @@ int buffer_get_free_space(Buffer * buffer) {
     return buffer->size_allocated - buffer->size;
 }
 
-bool buffer_ensure_capacity(Buffer * buffer, unsigned int size) {
+bool buffer_ensure_capacity(Buffer * buffer, unsigned size) {
     assert(buffer != null);
     assert(0 <= size);
-    final unsigned int remaining_space = buffer_get_free_space(buffer);
+    final unsigned remaining_space = buffer_get_free_space(buffer);
     if ( size <= remaining_space ) {
         return false;
     } else {
@@ -146,7 +146,7 @@ void buffer_initialise(final Buffer * buffer, final byte value) {
         buffer->buffer[i] = value;
     }
 }
-void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned int index, final unsigned int size) {
+void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned index, final unsigned size) {
     assert(size <= src->size);
     assert(dest != null);
     assert(src != null);
@@ -163,14 +163,14 @@ void buffer_prepend(final Buffer* dest, final Buffer * src) {
     assert(dest != null);
     buffer_prepend_bytes(dest, src->buffer, src->size);
 }
-void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned int size) {
+void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned size) {
     if ( size == 0 ) {
         return;
     }
     assert(dest != null);
     assert(data != null);
     buffer_ensure_capacity(dest, size);
-    for(unsigned int i = dest->size_allocated - 1; size <= i; i--) {
+    for(unsigned i = dest->size_allocated - 1; size <= i; i--) {
         dest->buffer[i] = dest->buffer[i-size];
     }
     memcpy(dest->buffer, data, size);
@@ -185,7 +185,7 @@ void buffer_append(final Buffer * dest, final Buffer * src) {
     assert(dest != null);
     buffer_append_bytes(dest, src->buffer, src->size);
 }
-void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned int size) {
+void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned size) {
     buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, data, size);
     dest->size += size;
@@ -237,7 +237,7 @@ bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
 }
 AD_LIST_SRC_FIND(Buffer, Buffer*, buffer_find_comparator)
 
-Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size) {
+Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     assert(ascii_hex != null);
     Buffer * bin = buffer_new();
     char *ascii_internal;
@@ -250,9 +250,9 @@ Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size) {
     char hex[3];
     hex[2] = 0;
     buffer_ensure_capacity(bin,size/2);
-    for (unsigned int i = 0; i < size; i += 2) {
+    for (unsigned i = 0; i < size; i += 2) {
         memcpy(hex, ascii_internal+i, 2);
-        for(unsigned int j = 0; j < 2; j++) {
+        for(unsigned j = 0; j < 2; j++) {
             if ( 'A' <= hex[j] && hex[j] <= 'F' || 
                  'a' <= hex[j] && hex[j] <= 'f' || 
                  '0' <= hex[j] && hex[j] <= '9' 
@@ -269,11 +269,11 @@ Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned int size) {
     free(ascii_internal);
     return bin;
 }
-void buffer_padding(final Buffer * buffer, final unsigned int padding_until, final byte pad) {
+void buffer_padding(final Buffer * buffer, final unsigned padding_until, final byte pad) {
     assert(buffer != null);
-    final unsigned int remaining_size_to_pad = max(padding_until - buffer->size, 0);
+    final unsigned remaining_size_to_pad = max(padding_until - buffer->size, 0);
     buffer_ensure_capacity(buffer, remaining_size_to_pad);
-    for(unsigned int i = buffer->size; i < padding_until; i++) {
+    for(unsigned i = buffer->size; i < padding_until; i++) {
         buffer->buffer[i] = pad;
     }
     buffer->size += remaining_size_to_pad;
@@ -288,7 +288,7 @@ Buffer* buffer_from_ascii(const char *ascii) {
 Buffer* buffer_from_ascii_hex(const char * ascii_hex) {
     return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
-Buffer* buffer_from_ints_arr(const unsigned int *vals, size_t n) {
+Buffer* buffer_from_ints_arr(const unsigned *vals, size_t n) {
     Buffer *result = buffer_new();
     for (size_t i = 0; i < n; i++) {
         buffer_ensure_capacity(result, result->size + 1);

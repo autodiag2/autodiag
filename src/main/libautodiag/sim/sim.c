@@ -36,11 +36,11 @@ void sim_prevent_read_himself(Sim * sim) {
         usleep(50e3);
     }
 }
-int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned int data_len) {
+int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
     assert(sim != null);
     SimImplementation * impl = sim->implementation;
     #ifdef OS_POSIX
-        if (sim->implementation->handle != -1) {
+        if (sim->implementation->handle != SOCK_T_INVALID) {
             final int poll_result = file_pool_write_posix(impl->handle, timeout_ms);
             if ( poll_result <= 0 ) {
                 log_msg(LOG_WARNING, "timeout reached waiting for the other end");
@@ -110,7 +110,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
         }
     #endif
     #ifdef OS_WINDOWS
-        if (impl->client_socket != INVALID_SOCKET) {
+        if (impl->client_socket != SOCK_T_INVALID) {
             fd_set rfds;
             FD_ZERO(&rfds);
             FD_SET(impl->client_socket, &rfds);

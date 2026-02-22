@@ -195,13 +195,13 @@ int viface_recv(final VehicleIFace* iface) {
     log_msg(LOG_DEBUG, "Storing in the corresponding service");
     Vehicle * v = iface->vehicle;
     if ( 0 < v->ecus_len ) {
-        for(unsigned int i = 0; i < v->ecus_len; i++) {
+        for(unsigned i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
             vehicle_ecu_empty_duplicated_info(ecu);
             if ( 0 < v->internal.filter->size && ! list_Buffer_contains(v->internal.filter, ecu->address) ) {
                 list_Buffer_empty(ecu->data_buffer);
             } else {
-                for(unsigned int j = 0; j < ecu->data_buffer->size; j++) {
+                for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {
                         viface_event_emit_on_response(iface, ecu, data);

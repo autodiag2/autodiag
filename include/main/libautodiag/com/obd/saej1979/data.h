@@ -27,7 +27,7 @@ type symbol(final VehicleIFace* iface, bool useFreezedData) { \
 char *saej1979_data_pid_code_to_str(final unsigned char pid);
 
 unsigned short saej1979_data_buffer_get_short(final Buffer* buffer);
-unsigned int saej1979_data_buffer_get_uint(final Buffer* buffer);
+unsigned saej1979_data_buffer_get_uint(final Buffer* buffer);
 
 #define saej1979_data_generic_one_byte_percentage_iterator(data) \
     if ( 0 < data->size ) \

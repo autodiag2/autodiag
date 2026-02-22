@@ -342,7 +342,7 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
         glist = glist->next;
     }
     list_SAEJ1979_DATA_Test *testsList = data;
-    for (unsigned int i = 0; i < testsList->size; i++) {
+    for (unsigned i = 0; i < testsList->size; i++) {
         SAEJ1979_DATA_Test *test = testsList->list[i];
         GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
         gtk_container_add(GTK_CONTAINER(box), gtk_label_new(test->name));
@@ -355,7 +355,7 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
     return false;
 }
 
-static void list_Graph_append_data_for_series(Graph *g, unsigned int series_idx, double value) {
+static void list_Graph_append_data_for_series(Graph *g, unsigned series_idx, double value) {
     if (!g || !g->series) return;
     if (g->series->size <= series_idx) return;
 
@@ -372,12 +372,12 @@ static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
     if (!graphs) return;
     if (!graphs_should_refresh) return;
 
-    for (unsigned int gi = 0; gi < graphs->size; gi++) {
+    for (unsigned gi = 0; gi < graphs->size; gi++) {
         Graph *g = graphs->list[gi];
         if (!g || !g->series) continue;
         if (!VH_SHOULD_REFRESH_WIDGET(g->widget)) continue;
 
-        for (unsigned int si = 0; si < g->series->size; si++) {
+        for (unsigned si = 0; si < g->series->size; si++) {
             GraphSeries *s = g->series->list[si];
             if (!s) continue;
             double err = metric_error(s->type);
@@ -509,7 +509,7 @@ static void refresh_one_time_with_spinner() {
     pthread_create(&t1, null, &refresh_one_time_with_spinner_daemon, t);
 }
 
-static void curve_color(unsigned int i, double *r, double *g, double *b) {
+static void curve_color(unsigned i, double *r, double *g, double *b) {
     if (i == 0) { *r = 1.0; *g = 0.0; *b = 0.0; return; }
     if (i == 1) { *r = 0.0; *g = 0.0; *b = 1.0; return; }
     static const double pal[][3] = {
@@ -519,7 +519,7 @@ static void curve_color(unsigned int i, double *r, double *g, double *b) {
         {0.0, 0.6, 0.6},
         {0.3, 0.3, 0.3},
     };
-    unsigned int k = (i - 2) % (sizeof(pal)/sizeof(pal[0]));
+    unsigned k = (i - 2) % (sizeof(pal)/sizeof(pal[0]));
     *r = pal[k][0]; *g = pal[k][1]; *b = pal[k][2];
 }
 static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
@@ -539,7 +539,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     const int axis_gap = 40;
     const int plot_right_pad = 10;
 
-    const unsigned int series_n = (graph->series ? graph->series->size : 0);
+    const unsigned series_n = (graph->series ? graph->series->size : 0);
 
     cairo_set_source_rgb(cr, 1, 1, 1);
     cairo_paint(cr);
@@ -555,7 +555,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     bool has_any = false;
     double min_time = 0, max_time = 0;
 
-    for (unsigned int si = 0; si < series_n; si++) {
+    for (unsigned si = 0; si < series_n; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size == 0) continue;
         GraphData *d0 = s->data->list[0];
@@ -564,7 +564,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
             max_time = d0->time;
             has_any = true;
         }
-        for (unsigned int i = 0; i < s->data->size; i++) {
+        for (unsigned i = 0; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             if (d->time < min_time) min_time = d->time;
             if (max_time < d->time) max_time = d->time;
@@ -647,7 +647,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     cairo_move_to(cr, plot_right - 60, height - 5);
     cairo_show_text(cr, "time (ms)");
 
-    for (unsigned int si = 0; si < series_n; si++) {
+    for (unsigned si = 0; si < series_n; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size == 0) continue;
 
@@ -656,7 +656,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
 
         double s_min = s->data->list[0]->data;
         double s_max = s->data->list[0]->data;
-        for (unsigned int i = 1; i < s->data->size; i++) {
+        for (unsigned i = 1; i < s->data->size; i++) {
             double v = s->data->list[i]->data;
             if (v < s_min) s_min = v;
             if (s_max < v) s_max = v;
@@ -716,7 +716,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
         double y0 = (double)plot_bottom - (d0->data - s_min) * y_scale;
         cairo_move_to(cr, x0, y0);
 
-        for (unsigned int i = 1; i < s->data->size; i++) {
+        for (unsigned i = 1; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             double x = (double)plot_left;
             if (min_time < max_time) x += (d->time - min_time) * x_scale;
@@ -728,7 +728,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
 
     cairo_set_font_size(cr, 9.0);
     double ly = plot_top + 10;
-    for (unsigned int si = 0; si < series_n; si++) {
+    for (unsigned si = 0; si < series_n; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s) continue;
 
@@ -825,7 +825,7 @@ static void graphs_remove_curve_clicked(GtkButton *btn, gpointer unused) {
     pthread_mutex_lock(&graphs_mutex);
     Graph *graph = g_object_get_data(G_OBJECT(btn), "graph_ptr");
     if (graph && graph->series) {
-        unsigned int idx = graph->series->size - 1;
+        unsigned idx = graph->series->size - 1;
         GraphSeries *s = graph->series->list[idx];
         graph->series->size--;
         if (s) {
@@ -843,7 +843,7 @@ static void graphs_reset_curve_data_clicked(GtkButton *btn, gpointer unused) {
     pthread_mutex_lock(&graphs_mutex);
     Graph *graph = g_object_get_data(G_OBJECT(btn), "graph_ptr");
     if (graph && graph->series) {
-        for (unsigned int si = 0; si < graph->series->size; si++) {
+        for (unsigned si = 0; si < graph->series->size; si++) {
             GraphSeries *s = graph->series->list[si];
             if (!s) continue;
             list_GraphData_free(s->data);
@@ -865,9 +865,9 @@ static void graphs_remove_graph_clicked(GtkButton *btn, gpointer unused) {
     }
 
     if (graphs) {
-        for (unsigned int i = 0; i < graphs->size; i++) {
+        for (unsigned i = 0; i < graphs->size; i++) {
             if (graphs->list[i] == graph) {
-                for (unsigned int j = i + 1; j < graphs->size; j++)
+                for (unsigned j = i + 1; j < graphs->size; j++)
                     graphs->list[j - 1] = graphs->list[j];
                 graphs->size--;
                 break;
@@ -962,10 +962,10 @@ static void *graphs_reset_data_daemon(void *arg) {
     pthread_mutex_lock(&graphs_mutex);
 
     if (graphs) {
-        for (unsigned int gi = 0; gi < graphs->size; gi++) {
+        for (unsigned gi = 0; gi < graphs->size; gi++) {
             Graph *g = graphs->list[gi];
             if (!g || !g->series) continue;
-            for (unsigned int si = 0; si < g->series->size; si++) {
+            for (unsigned si = 0; si < g->series->size; si++) {
                 GraphSeries *s = g->series->list[si];
                 if (!s) continue;
                 list_GraphData_free(s->data);

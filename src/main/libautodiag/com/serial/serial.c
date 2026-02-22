@@ -118,7 +118,7 @@ int serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     } else {
-        final unsigned int initial_buffer_sz = port->recv_buffer->size;
+        final unsigned initial_buffer_sz = port->recv_buffer->size;
         #ifdef OS_POSIX
             if ( port->implementation->handle != -1 ) {
                 int block_sz = 64;
