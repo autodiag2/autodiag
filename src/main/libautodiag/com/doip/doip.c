@@ -80,7 +80,10 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
                 object_DoIPMessagePayloadDiag_free((object_DoIPMessagePayloadDiag*)msg->payload);
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
-                object_DoIPMessagePayloadRoutineActivationRequest_free((object_DoIPMessagePayloadDiag*)msg->payload);
+                object_DoIPMessagePayloadRoutineActivationRequest_free((object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload);
+            } break;
+            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+                object_DoIPMessagePayloadRoutineActivationResponse_free((object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload);
             } break;
             default: {
                 log_msg(LOG_DEBUG, "payload not implemented");
@@ -163,7 +166,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
 
     switch(ptype) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
-            object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag*)malloc(sizeof(object_DoIPMessagePayloadDiag));
+            object_DoIPMessagePayloadDiag * diag = object_DoIPMessagePayloadDiag_new();
             msg->payload = (DoIPMessageDef*)diag;
             assert(4 <= msg->payload_raw->size);
             diag->src_addr = buffer_slice(msg->payload_raw, 0, 2);
@@ -171,13 +174,23 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             diag->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
         } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
-            object_DoIPMessagePayloadRoutineActivationRequest * rar = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
+            object_DoIPMessagePayloadRoutineActivationRequest * rar = object_DoIPMessagePayloadRoutineActivationRequest_new();
             msg->payload = (DoIPMessageDef*)rar;
             assert(11 <= msg->payload_raw->size);
             memcpy(rar->src_addr, msg->payload_raw->buffer, 2);
             rar->activation_type = msg->payload_raw->buffer[2];
             memcpy(rar->iso_reserved, msg->payload_raw->buffer + 3, 4);
             memcpy(rar->vendor_reserved, msg->payload_raw->buffer + 7, 4);
+        } break;
+        case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+            object_DoIPMessagePayloadRoutineActivationResponse * rar = object_DoIPMessagePayloadRoutineActivationResponse_new();
+            msg->payload = (DoIPMessageDef*)rar;
+            assert(13 <= msg->payload_raw->size);
+            buffer_memcpy(rar->tester, msg->payload_raw->buffer, 2);
+            buffer_memcpy(rar->ecu, msg->payload_raw->buffer+2, 2);
+            rar->code = msg->payload_raw->buffer[4];
+            buffer_memcpy(rar->iso_reserved, msg->payload_raw->buffer+5, 4);
+            buffer_memcpy(rar->oem_reserved, msg->payload_raw->buffer+9, 4);
         } break;
         default: {
             log_msg(LOG_DEBUG, "Parsing of payload type 0x%04X not implemented", ptype);
@@ -206,6 +219,17 @@ void doip_message_dump(object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    activation_type: 0x%02x", payload->activation_type);
                 log_msg(LOG_DEBUG, "    iso_reserved: 0x%02x%02x%02x%02x", payload->iso_reserved[0], payload->iso_reserved[1], payload->iso_reserved[2], payload->iso_reserved[3]);
                 log_msg(LOG_DEBUG, "    vendor_reserved: 0x%02x%02x%02x%02x", payload->vendor_reserved[0], payload->vendor_reserved[1], payload->vendor_reserved[2], payload->vendor_reserved[3]);
+            } break;
+            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+                log_msg(LOG_DEBUG, "    tester: 0x%s", buffer_to_hex_string(payload->tester));
+                log_msg(LOG_DEBUG, "    ecu: 0x%s", buffer_to_hex_string(payload->ecu));
+                log_msg(LOG_DEBUG, "    code: 0x%02X", payload->code);
+                log_msg(LOG_DEBUG, "    iso_reserved: 0x%s", buffer_to_hex_string(payload->iso_reserved));
+                log_msg(LOG_DEBUG, "    oem_reserved: 0x%s", buffer_to_hex_string(payload->oem_reserved));
+            } break;
+            default: {
+
             } break;
         }
         log_msg(LOG_DEBUG, "}");
@@ -237,6 +261,10 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
             plen = 2 + 1 + 4 + 4;
+        } break;
+        case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+            object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+            plen = 2 + 2 + 1 + 4 + 4;
         } break;
         default: {
             log_msg(LOG_DEBUG, "Payload not implemented");
@@ -276,10 +304,103 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             memcpy(payload_start + 3, payload->iso_reserved, 4);
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
         } break;
+        case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+            object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+            assert(2 <= payload->tester->size);
+            memcpy(payload_start, payload->tester->buffer, 2);
+            assert(2 <= payload->ecu->size);
+            memcpy(payload_start + 2, payload->ecu->buffer, 2);
+            assert(payload->code != DOIP_MESSAGE_RARES_CODE_UNKNOWN);
+            payload_start[4] = payload->code;
+            assert(4 <= payload->iso_reserved->size);
+            memcpy(payload_start + 5, payload->iso_reserved->buffer, 4);
+            assert(4 <= payload->oem_reserved->size);
+            memcpy(payload_start + 9, payload->oem_reserved->buffer, 4);
+        } break;
         default: {
             log_msg(LOG_DEBUG, "payload not implemented");
         } break;
     }
 
     return out;
+}
+
+char *doip_message_rares_code_to_string(unsigned code) {
+    switch (code) {
+        case DOIP_MESSAGE_RARES_CODE_UNKNOWN_SOURCE_ADDRESS:
+            return strdup("Routing activation denied due to unknown source address");
+        case DOIP_MESSAGE_RARES_CODE_ALL_SOCKETS_REGISTERED_AND_ACTIVE:
+            return strdup("Routing activation denied because all TCP_DATA sockets are active");
+        case DOIP_MESSAGE_RARES_CODE_DIFFERENT_SA_ON_ALREADY_ACTIVATED_SOCKET:
+            return strdup("Routing activation denied: different source address on active socket");
+        case DOIP_MESSAGE_RARES_CODE_SA_ALREADY_ACTIVE_ON_DIFFERENT_SOCKET:
+            return strdup("Routing activation denied: source address already active elsewhere");
+        case DOIP_MESSAGE_RARES_CODE_MISSING_AUTHENTICATION:
+            return strdup("Routing activation denied due to missing authentication");
+        case DOIP_MESSAGE_RARES_CODE_REJECTED_CONFIRMATION:
+            return strdup("Routing activation denied due to rejected confirmation");
+        case DOIP_MESSAGE_RARES_CODE_UNSUPPORTED_ROUTING_ACTIVATION_TYPE:
+            return strdup("Routing activation denied: unsupported activation type");
+        case DOIP_MESSAGE_RARES_CODE_SUCCESS:
+            return strdup("Routing successfully activated");
+        case DOIP_MESSAGE_RARES_CODE_CONFIRMATION_REQUIRED:
+            return strdup("Routing activation pending confirmation");
+        case DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_LOW:
+        case DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_MID:
+        case DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_HIGH:
+            return strdup("Reserved ISO 13400 range");
+        case DOIP_MESSAGE_RARES_CODE_OEM_SPECIFIC:
+            return strdup("Vehicle manufacturer specific");
+        default:
+            return strdup("Unknown routing activation response code");
+    }
+}
+
+DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n) {
+    switch (rares_n) {
+        case 0x00: return DOIP_MESSAGE_RARES_CODE_UNKNOWN_SOURCE_ADDRESS;
+        case 0x01: return DOIP_MESSAGE_RARES_CODE_ALL_SOCKETS_REGISTERED_AND_ACTIVE;
+        case 0x02: return DOIP_MESSAGE_RARES_CODE_DIFFERENT_SA_ON_ALREADY_ACTIVATED_SOCKET;
+        case 0x03: return DOIP_MESSAGE_RARES_CODE_SA_ALREADY_ACTIVE_ON_DIFFERENT_SOCKET;
+        case 0x04: return DOIP_MESSAGE_RARES_CODE_MISSING_AUTHENTICATION;
+        case 0x05: return DOIP_MESSAGE_RARES_CODE_REJECTED_CONFIRMATION;
+        case 0x06: return DOIP_MESSAGE_RARES_CODE_UNSUPPORTED_ROUTING_ACTIVATION_TYPE;
+        case 0x10: return DOIP_MESSAGE_RARES_CODE_SUCCESS;
+        case 0x11: return DOIP_MESSAGE_RARES_CODE_CONFIRMATION_REQUIRED;
+    }
+
+    if (0x07 <= rares_n && rares_n <= 0x0F) return DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_LOW;
+    if (0x12 <= rares_n && rares_n <= 0xDF) return DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_MID;
+    if (0xE0 <= rares_n && rares_n <= 0xFE) return DOIP_MESSAGE_RARES_CODE_OEM_SPECIFIC;
+    if (rares_n == 0xFF) return DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_HIGH;
+
+    return DOIP_MESSAGE_RARES_CODE_UNKNOWN;
+}
+
+object_DoIPMessagePayloadRoutineActivationResponse * object_DoIPMessagePayloadRoutineActivationResponse_assign(object_DoIPMessagePayloadRoutineActivationResponse * to, object_DoIPMessagePayloadRoutineActivationResponse * from) {
+    to->tester = buffer_copy(from->tester);
+    to->ecu = buffer_copy(from->ecu);
+    to->code = from->code;
+    buffer_assign(to->iso_reserved, from->iso_reserved);
+    buffer_assign(to->oem_reserved, from->oem_reserved);
+    return to;
+}
+
+object_DoIPMessagePayloadRoutineActivationResponse* object_DoIPMessagePayloadRoutineActivationResponse_new() {
+    object_DoIPMessagePayloadRoutineActivationResponse * r = (object_DoIPMessagePayloadRoutineActivationResponse*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationResponse));
+    r->tester = buffer_new();
+    r->ecu = buffer_new();
+    r->code = DOIP_MESSAGE_RARES_CODE_UNKNOWN;
+    r->iso_reserved = buffer_new();
+    r->oem_reserved = buffer_new();
+    return r;
+}
+void object_DoIPMessagePayloadRoutineActivationResponse_free(object_DoIPMessagePayloadRoutineActivationResponse * r) {
+    if ( r != null ) {
+        buffer_free(r->tester);
+        buffer_free(r->ecu);
+        buffer_free(r->iso_reserved);
+        buffer_free(r->oem_reserved);
+        free(r);
+    }
 }

@@ -266,6 +266,9 @@ void sim_doip_loop(SimDoIp * sim) {
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 if (!handle_routing_activation(sim, msg)) return;
             } break;
+            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+                log_msg(LOG_DEBUG, "This message is not supposed to be sent by the tester, ignoring...");
+            } break;
             case DOIP_ALIVE_CHECK_REQUEST: {
                 if (!handle_alive_check(sim, msg)) return;
             } break;

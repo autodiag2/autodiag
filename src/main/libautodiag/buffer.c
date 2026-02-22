@@ -51,6 +51,10 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
+void buffer_assign(Buffer * to, Buffer * from) {
+    buffer_recycle(to);
+    buffer_memcpy(to, from->buffer, from->size);
+}
 int buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     if ( buf1->size != buf2->size ) {
         return -1;
@@ -108,7 +112,11 @@ Buffer * buffer_new() {
     buffer->buffer = null;
     return buffer;
 }
-
+void buffer_memcpy(Buffer * buffer, void * src, int sz) {
+    buffer_ensure_capacity(buffer, sz);
+    memcpy(buffer->buffer, src, sz);
+    buffer->size = sz;
+}
 Buffer * buffer_copy(Buffer* buffer) {
     assert(buffer != null);
     Buffer * b = buffer_new();
@@ -119,14 +127,15 @@ Buffer * buffer_copy(Buffer* buffer) {
 }
 
 void buffer_free(Buffer * buffer) {
-    assert(buffer != null);
-    if ( buffer->buffer != null ) {
-        free(buffer->buffer);
-        buffer->buffer = null;
+    if ( buffer != null ) {
+        if ( buffer->buffer != null ) {
+            free(buffer->buffer);
+            buffer->buffer = null;
+        }
+        buffer->size_allocated = 0;
+        buffer->size = 0;
+        free(buffer);
     }
-    buffer->size_allocated = 0;
-    buffer->size = 0;
-    free(buffer);
 }
 
 int buffer_get_free_space(Buffer * buffer) {

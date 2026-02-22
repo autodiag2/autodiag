@@ -69,6 +69,46 @@ OBJECT_H(DoIPMessagePayloadRoutineActivationRequest,
     byte vendor_reserved[4];
 )
 
+typedef enum {
+    DOIP_MESSAGE_RARES_CODE_UNKNOWN_SOURCE_ADDRESS                   = 0x00,
+    DOIP_MESSAGE_RARES_CODE_ALL_SOCKETS_REGISTERED_AND_ACTIVE        = 0x01,
+    DOIP_MESSAGE_RARES_CODE_DIFFERENT_SA_ON_ALREADY_ACTIVATED_SOCKET = 0x02,
+    DOIP_MESSAGE_RARES_CODE_SA_ALREADY_ACTIVE_ON_DIFFERENT_SOCKET    = 0x03,
+    DOIP_MESSAGE_RARES_CODE_MISSING_AUTHENTICATION                   = 0x04,
+    DOIP_MESSAGE_RARES_CODE_REJECTED_CONFIRMATION                    = 0x05,
+    DOIP_MESSAGE_RARES_CODE_UNSUPPORTED_ROUTING_ACTIVATION_TYPE      = 0x06,
+
+    DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_LOW                   = 0x07,
+
+    DOIP_MESSAGE_RARES_CODE_SUCCESS                                  = 0x10,
+    DOIP_MESSAGE_RARES_CODE_CONFIRMATION_REQUIRED                    = 0x11,
+
+    DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_MID                   = 0x12,
+
+    DOIP_MESSAGE_RARES_CODE_OEM_SPECIFIC                             = 0xE0,
+
+    DOIP_MESSAGE_RARES_CODE_RESERVED_ISO_13400_HIGH                  = 0xFF,
+
+    DOIP_MESSAGE_RARES_CODE_UNKNOWN                                  = 0x100
+} DOIP_MESSAGE_RARES_CODE;
+
+/**
+ * String explanation of code
+ */
+char *doip_message_rares_code_to_string(unsigned code);
+/**
+ * Raw approximative of the code
+ */
+DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n);
+
+OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
+    Buffer * tester;
+    Buffer * ecu;
+    unsigned code;
+    Buffer * iso_reserved;
+    Buffer * oem_reserved;
+)
+
 #include "libautodiag/com/doip/device.h"
 
 #endif

@@ -17,7 +17,18 @@ typedef struct {
 
 Buffer * buffer_new();
 void buffer_free(Buffer * buffer);
+/**
+ * memcpy of the target into buffer (not appending copying at pointer)
+ */
+void buffer_memcpy(Buffer * buffer, void * src, int sz);
+/**
+ * Produce exact copy of one buffer as a new instance.
+ */
 Buffer * buffer_copy(Buffer* buffer);
+/**
+ * Produce exact copy but use an existing instance.
+ */
+void buffer_assign(Buffer * to, Buffer * from);
 /**
  * Ensure that there is at least size space in the buffer free space
  */
