@@ -139,6 +139,7 @@ static int handle_power_mode(SimDoIp *sim) {
 
 static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     assert(msg->payload_type == DOIP_DIAGNOSTIC_MESSAGE);
+    log_msg(LOG_DEBUG, "Diag Message received");
     object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag *)msg->payload;
     if (!diag->src_addr || !diag->dst_addr) {
         log_msg(LOG_ERROR, "issue with addressing");
@@ -196,6 +197,9 @@ void sim_doip_loop(SimDoIp * sim) {
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
 
+    // Need to be turned on for diag messages to be sent
+    bool routing_activated = false;
+
     while(((DoIpImplementation*)sim->implementation)->loop_thread != null) {
         buffer_recycle(recv_buffer);
         if (!((DoIpImplementation*)sim->implementation)->loop_ready) ((DoIpImplementation*)sim->implementation)->loop_ready = true;
@@ -203,6 +207,7 @@ void sim_doip_loop(SimDoIp * sim) {
         struct sockaddr_in addr;
 
         if ( ! sim_doip_network_is_connected(((DoIpImplementation*)sim->implementation)) ) {
+            routing_activated = false;
             log_msg(LOG_DEBUG, "Waiting for a client to connect");
             socklen_t addr_len = sizeof(addr);
             sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
@@ -237,13 +242,13 @@ void sim_doip_loop(SimDoIp * sim) {
 
         switch(msg->payload_type) {
             case DOIP_DIAGNOSTIC_MESSAGE: {
-                log_msg(LOG_DEBUG, "Sim received '%s'", buffer_to_hex_string(recv_buffer));
                 if (!handle_diag(sim, msg)) {
                     log_msg(LOG_DEBUG, "diag message has not responded");
                     continue;
                 }
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
+                log_msg(LOG_DEBUG, "Routing Activation Request received");
                 object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
 
                 object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
@@ -253,9 +258,12 @@ void sim_doip_loop(SimDoIp * sim) {
                 payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
                 payload->iso_reserved = buffer_new_random(4);
                 payload->oem_reserved = buffer_new_random(4);
+                log_msg(LOG_DEBUG, "No OEM specific handling for routing activation or tester address checking, sending success response");
 
-                final int res = doip_send_msg(sim, reply);
+                final bool res = doip_send_msg(sim, reply);
                 object_DoIPMessage_free(reply);
+                routing_activated = res;
+                log_msg(LOG_DEBUG, "Routing activated: %s", res ? "success" : "failure");
             } break;
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 log_msg(LOG_DEBUG, "This message is not supposed to be sent by the tester, ignoring...");
