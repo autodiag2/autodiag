@@ -230,8 +230,8 @@ void sim_doip_loop(SimDoIp * sim) {
             continue;
         }
 
-        char * buffer_str = buffer_to_ascii_espace_breaking_chars(recv_buffer);
-        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
+        char * buffer_str = buffer_to_hex_string(recv_buffer);
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size/2);
         free(buffer_str);
 
         object_DoIPMessage *msg = doip_message_parse(recv_buffer);
@@ -252,7 +252,7 @@ void sim_doip_loop(SimDoIp * sim) {
                 object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
 
                 object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
-                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)reply->payload;
                 buffer_memcpy(payload->tester, reqPayload->src_addr, sizeof(reqPayload->src_addr));
                 buffer_assign(payload->ecu, buffer_from_ascii_hex("0000"));
                 payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
