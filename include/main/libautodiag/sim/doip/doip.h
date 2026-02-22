@@ -42,17 +42,13 @@ typedef struct _SimDoIp {
     Sim;
 } SimDoIp;
 
-OBJECT_H(SimDoIPServer,
-    SimDoIp * sim;
-    sock_t handle;
-    int port;
-);
-
 #define DOIP_NETWORK_PORT 13400
 SimDoIp * sim_doip_new();
 void sim_doip_loop(SimDoIp * doip);
 void sim_doip_destroy(SimDoIp *sim);
 void sim_doip_loop_as_daemon(SimDoIp * sim);
 bool sim_doip_loop_daemon_wait_ready(SimDoIp *sim);
+
+#include "libautodiag/sim/doip/doip_discover.h"
 
 #endif
