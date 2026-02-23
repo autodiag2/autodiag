@@ -1,6 +1,45 @@
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/doip.h"
 
+static uint16_t doip_tester_addr = 0x0E08;
+
+bool doip_configure(final object_DoIPDevice * device) {
+    log_msg(LOG_DEBUG, "Configuring doip device");
+    {
+        object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
+        object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
+        payload->src_addr[0] = (doip_tester_addr >> 8) & 0xFF;
+        payload->src_addr[1] = doip_tester_addr & 0xFF;
+        msg->payload = (DoIPMessageDef*)payload;
+        doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
+        object_DoIPMessage_free(msg);
+    }
+    {
+        buffer_recycle(device->recv_buffer);
+        doip_recv_internal(device);
+        object_DoIPMessage * msg = doip_message_parse(device->recv_buffer);
+        switch(msg->payload_type) {
+            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
+                switch(payload->code) {
+                    case DOIP_MESSAGE_RARES_CODE_SUCCESS: {
+                        object_DoIPMessage_free(msg);
+                    } return true;
+                    default: {
+                        log_msg(LOG_ERROR, "Doip node refusing to start diagnostic maybe implement manufacturer specific process");
+                        object_DoIPMessage_free(msg);
+                    } return false;
+                }
+            } break;
+            default: {
+                log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", msg->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
+                object_DoIPMessage_free(msg);
+            } return false;
+        }
+    }
+    return false;
+}
+
 void doip_close(final object_DoIPDevice * device) {
     if ( device == null || device->status != DEVICE_DOIP_STATUS_OPEN ) {
         log_msg(LOG_INFO, "Close: device not open");
@@ -170,7 +209,7 @@ static void doip_unlock(final object_DoIPDevice* device) {
 static int doip_send(final object_DoIPDevice * device, const char * command) {
     object_DoIPMessage * msg = doip_message_diag(
         buffer_from_ascii_hex("07E8"), 
-        buffer_from_ascii_hex("0000"),
+        buffer_from_uint16(doip_tester_addr),
         buffer_from_ascii_hex(command)
     );
     return doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
@@ -183,7 +222,7 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
         request = buffer_from_ascii(command);
     }
     if ( log_has_level(LOG_DEBUG) ) {
-        log_msg(LOG_DEBUG, "Sending");
+        log_msg(LOG_DEBUG, "doip: Sending");
         buffer_dump(request);
     }
 
@@ -267,6 +306,10 @@ static int doip_recv(final object_DoIPDevice * device) {
                 object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
                 buffer_recycle(device->recv_buffer);
                 buffer_append(device->recv_buffer, payload->src_addr);
+                if ( log_has_level(LOG_DEBUG) ) {
+                    log_msg(LOG_DEBUG, "device:Received the payload:");
+                    buffer_dump(payload->data);
+                }
                 buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
             } return DEVICE_RECV_DATA;
             case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
@@ -288,7 +331,7 @@ static int doip_recv(final object_DoIPDevice * device) {
         }
         object_DoIPMessage_free(msg);
     }
-    log_msg(LOG_WARNING, "Everything has been tried (%d tries) but cannot retrived response from the node", tries);
+    log_msg(LOG_WARNING, "device: Everything has been tried (%d tries) but cannot retrived response from the node", tries);
     return DEVICE_RECV_NULL;
 }
 int doip_recv_internal(final object_DoIPDevice * device) {
@@ -305,21 +348,21 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             if( 0 < bytes_readed ) {
                 device->recv_buffer->size += bytes_readed;
             } else if ( bytes_readed == 0 ) {
-                log_msg(LOG_ERROR, "error during reception should read %d bytes", readLen);
+                log_msg(LOG_ERROR, "device: error during reception should read %d bytes", readLen);
             } else {
-                perror("read");
+                perror("device: read");
                 return DEVICE_ERROR;
             }
             if ( log_has_level(LOG_DEBUG) ) {
-                log_msg(LOG_DEBUG, "ip data received");
+                log_msg(LOG_DEBUG, "device: ip data received");
                 buffer_dump(device->recv_buffer);
             }
         } else if ( res == -1 ) {
             perror("poll");
         } else if ( res == 0 ) {
-            log_msg(LOG_DEBUG, "Timeout while reading data");
+            log_msg(LOG_DEBUG, "device: Timeout while reading data");
         } else {
-            log_msg(LOG_ERROR, "unexpected happen on doip line");
+            log_msg(LOG_ERROR, "device: unexpected happen on doip line");
         }
     #elif defined OS_WINDOWS
         if (device->implementation->win_handle == INVALID_HANDLE_VALUE) {

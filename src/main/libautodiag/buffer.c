@@ -51,20 +51,30 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
-void buffer_assign_be8(Buffer * buffer, uint8_t i) {
+#define BUFFER_GEN_FROM_UINT(bitsize) \
+    Buffer * buffer_from_uint##bitsize(uint##bitsize##_t i) { \
+        return buffer_assign_uint##bitsize(buffer_new(), i); \
+    }
+BUFFER_GEN_FROM_UINT(8)
+BUFFER_GEN_FROM_UINT(16)
+BUFFER_GEN_FROM_UINT(32)
+BUFFER_GEN_FROM_UINT(64)
+Buffer * buffer_assign_uint8(Buffer * buffer, uint8_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 1);
     buffer->buffer[0] = i & 0xFF;
     buffer->size = 1;
+    return buffer;
 }
-void buffer_assign_be16(Buffer * buffer, uint16_t i) {
+Buffer * buffer_assign_uint16(Buffer * buffer, uint16_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 2);
     buffer->buffer[0] = (i >> 8) & 0xFF;
     buffer->buffer[1] = i & 0xFF;
     buffer->size = 2;
+    return buffer;
 }
-void buffer_assign_be32(Buffer * buffer, uint32_t i) {
+Buffer * buffer_assign_uint32(Buffer * buffer, uint32_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 4);
     buffer->buffer[0] = (i >> 24) & 0xFF;
@@ -72,8 +82,9 @@ void buffer_assign_be32(Buffer * buffer, uint32_t i) {
     buffer->buffer[2] = (i >> 8) & 0xFF;
     buffer->buffer[3] = i & 0xFF;
     buffer->size = 4;
+    return buffer;
 }
-void buffer_assign_be64(Buffer * buffer, uint64_t i) {
+Buffer * buffer_assign_uint64(Buffer * buffer, uint64_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 8);
     buffer->buffer[0] = (i >> 56) & 0xFF;
@@ -85,6 +96,7 @@ void buffer_assign_be64(Buffer * buffer, uint64_t i) {
     buffer->buffer[6] = (i >> 8) & 0xFF;
     buffer->buffer[7] = i & 0xFF;
     buffer->size = 8;
+    return buffer;
 }
 void buffer_assign(Buffer * to, Buffer * from) {
     buffer_recycle(to);

@@ -1076,7 +1076,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         }
         
         char * buffer_str = buffer_to_ascii_espace_breaking_chars(recv_buffer);
-        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
+        log_msg(LOG_DEBUG, "sim:elm327:Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
         
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, strdup((char*)recv_buffer->buffer), false, &shouldWriteNvm) ) {

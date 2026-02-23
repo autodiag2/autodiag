@@ -119,7 +119,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
             }
         }
         doip_device->lock(AD_DEVICE(doip_device));
-        log_msg(LOG_DEBUG, "TODO: Device initialization");
+        doip_configure(doip_device);
         iface->device = AD_DEVICE(doip_device);
         iface->device->unlock(AD_DEVICE(iface->device));
     } else {

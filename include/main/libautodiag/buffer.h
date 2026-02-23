@@ -29,13 +29,13 @@ Buffer * buffer_copy(Buffer* buffer);
  * Produce exact copy but use an existing instance.
  */
 void buffer_assign(Buffer * to, Buffer * from);
-void buffer_assign_be8(Buffer * buffer, uint8_t i);
+Buffer* buffer_assign_uint8(Buffer * buffer, uint8_t i);
 /**
  * Assign a big endian 16 bits to this buffer.
  */
-void buffer_assign_be16(Buffer * buffer, uint16_t i);
-void buffer_assign_be32(Buffer * buffer, uint32_t i);
-void buffer_assign_be64(Buffer * buffer, uint64_t i);
+Buffer* buffer_assign_uint16(Buffer * buffer, uint16_t i);
+Buffer* buffer_assign_uint32(Buffer * buffer, uint32_t i);
+Buffer* buffer_assign_uint64(Buffer * buffer, uint64_t i);
 /**
  * Ensure that there is at least size space in the buffer free space
  */
@@ -96,6 +96,10 @@ Buffer* buffer_from_ints_arr(const unsigned *vals, size_t n);
 #define buffer_from_ints(...) \
     buffer_from_ints_arr((unsigned[]){ __VA_ARGS__ }, \
                        sizeof((unsigned[]){ __VA_ARGS__ })/sizeof(unsigned))
+Buffer * buffer_from_uint8(uint8_t i);
+Buffer * buffer_from_uint16(uint16_t i);
+Buffer * buffer_from_uint32(uint32_t i);
+Buffer * buffer_from_uint64(uint64_t i);
 /**
  * Get an ascii hex the given data.
  * Without spaces.

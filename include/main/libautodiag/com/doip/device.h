@@ -54,4 +54,9 @@ OBJECT_H(DoIPDevice,
 int doip_send_internal(final object_DoIPDevice * device, const char * command);
 int doip_recv_internal(final object_DoIPDevice * device);
 void doip_close(final object_DoIPDevice * device);
+/**
+ * Configure the device so it is up and ready for sending and receiving diag messages.
+ */
+bool doip_configure(final object_DoIPDevice * device);
+
 #endif
