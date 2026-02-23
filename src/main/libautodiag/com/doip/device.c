@@ -289,7 +289,6 @@ static int doip_recv(final object_DoIPDevice * device) {
     bool accepted = false;
     int tries = 10;
     for(int conv_state = 0; conv_state < tries; conv_state++) {
-        buffer_recycle(device->recv_buffer);
         int res = doip_recv_internal(device);
         if ( res == DEVICE_ERROR ) {
             return DEVICE_ERROR;
@@ -317,13 +316,14 @@ static int doip_recv(final object_DoIPDevice * device) {
                     log_msg(LOG_WARNING, "Already accepted message");
                 }
                 accepted = true;
-                buffer_recycle(device->recv_buffer);
+                Buffer * serialized = doip_message_serialize(msg);
+                buffer_left_shift(device->recv_buffer, serialized->size);
+                buffer_free(serialized);
             } break;
             case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
                 if ( accepted ) {
                     log_msg(LOG_ERROR, "Cannot guess whether or diag message is accepted");
                 }
-                buffer_recycle(device->recv_buffer);
             } return DEVICE_RECV_DATA_UNAVAILABLE;
             default: {
                 log_msg(LOG_WARNING, "Received message with unsupported payload type 0x%04X ignoring", msg->payload_type);
