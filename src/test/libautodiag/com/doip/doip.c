@@ -26,7 +26,7 @@ bool testDOIP() {
         log_msg(LOG_DEBUG, "serialized: '%s'", serialized_str);
         doip_send_internal(device, serialized_str);
         device->clear_data(device);
-        doip_recv_internal(device);
+        device->recv(device);
         buffer_dump(device->recv_buffer);
         assert(strstr(buffer_to_hex_string(device->recv_buffer), "50") != null);
         device->close(device);

@@ -247,26 +247,48 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     return bytes_sent;
 }
 static int doip_recv(final object_DoIPDevice * device) {
-    int result = doip_recv_internal(device);
-    if ( result == DEVICE_ERROR ) {
-        return DEVICE_ERROR;
+    bool accepted = false;
+    int tries = 10;
+    for(int conv_state = 0; conv_state < tries; conv_state++) {
+        buffer_recycle(device->recv_buffer);
+        int res = doip_recv_internal(device);
+        if ( res == DEVICE_ERROR ) {
+            return DEVICE_ERROR;
+        }
+        if ( res == DEVICE_RECV_NULL ) {
+            return DEVICE_RECV_NULL;
+        }
+        object_DoIPMessage *msg = doip_message_parse(device->recv_buffer);
+        switch(msg->payload_type) {
+            case DOIP_DIAGNOSTIC_MESSAGE: {
+                if ( ! accepted ) {
+                    log_msg(LOG_WARNING, "Received a diag message without previous ACK (suspisious) never mind ...");
+                }
+                object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
+                buffer_recycle(device->recv_buffer);
+                buffer_append(device->recv_buffer, payload->src_addr);
+                buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
+            } return DEVICE_RECV_DATA;
+            case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
+                if ( accepted ) {
+                    log_msg(LOG_WARNING, "Already accepted message");
+                }
+                accepted = true;
+                buffer_recycle(device->recv_buffer);
+            } break;
+            case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
+                if ( accepted ) {
+                    log_msg(LOG_ERROR, "Cannot guess whether or diag message is accepted");
+                }
+                buffer_recycle(device->recv_buffer);
+            } return DEVICE_RECV_DATA_UNAVAILABLE;
+            default: {
+                log_msg(LOG_WARNING, "Received message with unsupported payload type 0x%04X ignoring", msg->payload_type);
+            } break;
+        }
+        object_DoIPMessage_free(msg);
     }
-    if ( result == 0 ) {
-        return DEVICE_RECV_NULL;
-    }
-    object_DoIPMessage *msg = doip_message_parse(device->recv_buffer);
-    switch(msg->payload_type) {
-        case DOIP_DIAGNOSTIC_MESSAGE: {
-            object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
-            buffer_recycle(device->recv_buffer);
-            buffer_append(device->recv_buffer, payload->src_addr);
-            buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
-        } return DEVICE_RECV_DATA;
-        default: {
-            log_msg(LOG_WARNING, "Received message with unsupported payload type 0x%04X ignoring", msg->payload_type);
-        } break;
-    }
-    object_DoIPMessage_free(msg);
+    log_msg(LOG_WARNING, "Everything has been tried (%d tries) but cannot retrived response from the node", tries);
     return DEVICE_RECV_NULL;
 }
 int doip_recv_internal(final object_DoIPDevice * device) {
