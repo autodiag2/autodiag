@@ -77,6 +77,7 @@ static object_DoIPMessage * message_feedback(Buffer * to, Buffer * from, Buffer 
     buffer_assign(payload->data, payload_data);
     payload->type = type;
     msg->payload = (DoIPMessageDef*)payload;
+    msg->payload_type = type;
     return msg;
 }
 

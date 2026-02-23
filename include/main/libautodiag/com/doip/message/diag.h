@@ -22,7 +22,7 @@ OBJECT_H(DoIPMessagePayloadDiagFeedback,
     Buffer * dst_addr;
     byte code;
     Buffer * data;
-    int type;
+    uint16_t type;
 )
 typedef enum {
     DOIP_DIAGNOSTIC_MESSAGE_ACK_CODE_POSITIVE = 0x00

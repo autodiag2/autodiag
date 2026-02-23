@@ -43,7 +43,7 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationResponse_new();
         } break;
         default: {
-            log_msg(LOG_DEBUG, "payload not implemented");
+            log_msg(LOG_DEBUG, "init: payload not implemented 0x%04X", type);
         } break;
     }
 }
@@ -105,7 +105,7 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
                 object_DoIPMessagePayloadRoutineActivationResponse_free((object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload);
             } break;
             default: {
-                log_msg(LOG_DEBUG, "payload not implemented");
+                log_msg(LOG_DEBUG, "free: payload not implemented %04X", msg->payload_type);
             }
         }
         msg->payload = null;
@@ -287,7 +287,7 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             plen = 2 + 2 + 1 + 4 + 4;
         } break;
         default: {
-            log_msg(LOG_DEBUG, "Payload not implemented");
+            log_msg(LOG_DEBUG, "serialize2: Payload not implemented 0x%04X", msg->payload_type);
         } break;
     }
     int out_sz = 8 + plen;
@@ -349,7 +349,7 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             memcpy(payload_start + 9, payload->oem_reserved->buffer, 4);
         } break;
         default: {
-            log_msg(LOG_DEBUG, "payload not implemented");
+            log_msg(LOG_DEBUG, "serialize: payload not implemented 0x%04X", msg->payload_type);
         } break;
     }
 

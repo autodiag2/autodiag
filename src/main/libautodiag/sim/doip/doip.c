@@ -163,8 +163,15 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     
     if ( ecu == null ) {
         log_msg(LOG_WARNING, "No ECU found for address %02hhX, ignoring diag message (should send NACK)", diag->dst_addr->buffer[1]);
+        object_DoIPMessage *nack = doip_message_diag_feedback_nack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE_UNKNOWN_TARGET_ADDR);
+        doip_send_msg(sim, nack);
+        object_DoIPMessage_free(nack);
         return 1;
     }
+
+    object_DoIPMessage * ack = doip_message_diag_feedback_ack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_ACK_CODE_POSITIVE);
+    doip_send_msg(sim, ack);
+    object_DoIPMessage_free(ack);
 
     log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
     Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
