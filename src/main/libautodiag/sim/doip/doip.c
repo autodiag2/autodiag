@@ -235,7 +235,7 @@ void sim_doip_loop(SimDoIp * sim) {
         }
 
         char * buffer_str = buffer_to_hex_string(recv_buffer);
-        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size/2);
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
 
         object_DoIPMessage *msg = doip_message_parse(recv_buffer);

@@ -7,3 +7,6 @@
 [submodule "pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator"]
 	path = pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator
 	url = https://github.com/TonsenWei/doip-simulator
+[submodule "pyautodiag/examples/external/jacobschaer_python-uds/python-uds"]
+	path = pyautodiag/examples/external/jacobschaer_python-uds/python-uds
+	url = https://github.com/jacobschaer/python-uds/

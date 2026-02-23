@@ -195,11 +195,15 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * rar = object_DoIPMessagePayloadRoutineActivationRequest_new();
             msg->payload = (DoIPMessageDef*)rar;
-            assert(11 <= msg->payload_raw->size);
+            assert(3 <= msg->payload_raw->size);
             memcpy(rar->src_addr, msg->payload_raw->buffer, 2);
             rar->activation_type = msg->payload_raw->buffer[2];
-            memcpy(rar->iso_reserved, msg->payload_raw->buffer + 3, 4);
-            memcpy(rar->vendor_reserved, msg->payload_raw->buffer + 7, 4);
+            if ( 7 <= msg->payload_raw->size ) {
+                memcpy(rar->iso_reserved, msg->payload_raw->buffer + 3, 4);
+            }
+            if ( 11 <= msg->payload_raw->size ) {
+                memcpy(rar->vendor_reserved, msg->payload_raw->buffer + 7, 4);
+            }
         } break;
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             object_DoIPMessagePayloadRoutineActivationResponse * rar = object_DoIPMessagePayloadRoutineActivationResponse_new();
