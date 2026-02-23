@@ -69,6 +69,9 @@ object_DoIPMessagePayloadDiagFeedback * object_DoIPMessagePayloadDiagFeedback_as
 }
 
 static object_DoIPMessage * message_feedback(Buffer * to, Buffer * from, Buffer * payload_data, byte code, uint16_t type) {
+    assert(to != null);
+    assert(from != null);
+    assert(payload_data != null);
     object_DoIPMessage * msg = object_DoIPMessage_new();
     object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
     buffer_assign(payload->src_addr, from);

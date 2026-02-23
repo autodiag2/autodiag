@@ -114,21 +114,30 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
 }
 object_DoIPMessage * doip_message_parse(const Buffer * in) {
     assert(in != null);
-    if (in->size < 8) return null;
+    if (in->size < 8) {
+        log_msg(LOG_DEBUG, "parsing:length too short");
+        return null;
+    }
 
     const byte *p = (const byte*)in->buffer;
 
     byte ver = p[0];
     byte inv = p[1];
-    if (((byte)(ver ^ inv)) != 0xFF) return null;
+    if (((byte)(ver ^ inv)) != 0xFF) {
+        log_msg(LOG_DEBUG, "parsing:checksum incorrect");
+        return null;
+    }
 
     uint16_t ptype = doip__be16(p + 2);
     uint32_t plen  = doip__be32(p + 4);
     if (plen < 0) return null;
     if (in->size < 8 + plen) return null;
 
-    object_DoIPMessage *msg = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
-    if (!msg) return null;
+    object_DoIPMessage *msg = object_DoIPMessage_new();
+    if (!msg) {
+        log_msg(LOG_DEBUG, "parsing:allocation failed");
+        return null;
+    }
 
     memset(msg, 0, sizeof(*msg));
 
@@ -138,6 +147,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     msg->payload_raw = buffer_slice((Buffer*)in, 8, plen);
     msg->payload = null;
 
+    log_msg(LOG_DEBUG, "parsing:found payload type 0x%04X", ptype);
     switch(ptype) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
@@ -281,7 +291,7 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
                 return null;
             }
             plen = 5 + dsz;
-        }
+        } break;
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
             plen = 2 + 2 + 1 + 4 + 4;
@@ -352,7 +362,7 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             log_msg(LOG_DEBUG, "serialize: payload not implemented 0x%04X", msg->payload_type);
         } break;
     }
-
+    assert(out != null);
     return out;
 }
 
