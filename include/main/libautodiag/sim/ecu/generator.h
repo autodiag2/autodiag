@@ -27,7 +27,8 @@ typedef struct SimECUGenerator {
      */
     Buffer * (*response)(struct SimECUGenerator * this, final Buffer *binRequest);
     /**
-     * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
+     * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages).
+     * Response buffer is preallocated to prevent crash in python.
      * @param this Pointer to the SimECUGenerator instance
      * @param binRequest Pointer to the binary request buffer
      * @param binResponse Pointer to the preallocated response buffer
@@ -38,7 +39,7 @@ typedef struct SimECUGenerator {
      */
     char * (*context_to_string)(struct SimECUGenerator * this);
     /**
-     * @return false in case a string represenation is not enough to describe the context, true in case of success
+     * @return false in case a string representation is not enough to describe the context, true in case of success
      */
     bool (*context_load_from_string)(struct SimECUGenerator * this, char * context);
 } SimECUGenerator;
