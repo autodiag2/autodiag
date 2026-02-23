@@ -88,7 +88,7 @@ static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data)
 }
 
 static object_DoIPMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
-    return doip_diag_message(buf_u16be(dst),buf_u16be(src),data_protocol ? buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
+    return doip_message_diag(buf_u16be(dst),buf_u16be(src),data_protocol ? buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
 }
 static bool doip_send_msg(SimDoIp *sim, object_DoIPMessage *m) {
     Buffer *out = doip_message_serialize(m);
@@ -269,6 +269,8 @@ void sim_doip_loop(SimDoIp * sim) {
                 routing_activated = res;
                 log_msg(LOG_DEBUG, "Routing activated: %s", res ? "success" : "failure");
             } break;
+            case DOIP_DIAGNOSTIC_MESSAGE_ACK:
+            case DOIP_DIAGNOSTIC_MESSAGE_NACK:
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 log_msg(LOG_WARNING, "This message is not supposed to be sent by the tester, ignoring...");
             } break;

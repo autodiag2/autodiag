@@ -168,7 +168,7 @@ static void doip_unlock(final object_DoIPDevice* device) {
     pthread_mutex_unlock(&device->implementation->lock_mutex);
 }
 static int doip_send(final object_DoIPDevice * device, const char * command) {
-    object_DoIPMessage * msg = doip_diag_message(
+    object_DoIPMessage * msg = doip_message_diag(
         buffer_from_ascii_hex("07E8"), 
         buffer_from_ascii_hex("0000"),
         buffer_from_ascii_hex(command)

@@ -1,6 +1,6 @@
 #include "libautodiag/com/doip/message/diag.h"
 
-object_DoIPMessage * doip_diag_message(Buffer * to, Buffer * from, Buffer * payload_data) {
+object_DoIPMessage * doip_message_diag(Buffer * to, Buffer * from, Buffer * payload_data) {
     object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
     payload->data = buffer_copy(payload_data);
     payload->src_addr = buffer_copy(from);
@@ -23,35 +23,67 @@ object_DoIPMessagePayloadDiag *object_DoIPMessagePayloadDiag_new() {
 object_DoIPMessagePayloadDiag* object_DoIPMessagePayloadDiag_assign(object_DoIPMessagePayloadDiag * to, object_DoIPMessagePayloadDiag * from) {
     assert(to != null);
     assert(from != null);
-    object_DoIPMessage_assign((object_DoIPMessage*)to, (object_DoIPMessage*)from);
-    if ( to->src_addr != null ) {
-        buffer_free(to->src_addr);
-    }
-    to->src_addr = buffer_copy(from->src_addr);
-    if ( to->dst_addr != null ) {
-        buffer_free(to->dst_addr);
-    }
-    to->dst_addr = buffer_copy(from->dst_addr);
-    if ( to->data != null ) {
-        buffer_free(to->data);
-    }
-    to->data = buffer_copy(from->data);
+    buffer_assign(to->src_addr, from->src_addr);
+    buffer_assign(to->dst_addr, from->dst_addr);
+    buffer_assign(to->data, from->data);
     return to;
 }
 void object_DoIPMessagePayloadDiag_free(object_DoIPMessagePayloadDiag *payload) {
     if ( payload != null ) {
-        if ( payload->src_addr != null ) {
-            buffer_free(payload->src_addr);
-            payload->src_addr = null;
-        }
-        if ( payload->dst_addr != null ) {
-            buffer_free(payload->dst_addr);
-            payload->dst_addr = null;
-        }
-        if ( payload->data != null ) {
-            buffer_free(payload->data);
-            payload->data = null;
-        }
+        buffer_free(payload->src_addr);
+        payload->src_addr = null;
+        buffer_free(payload->dst_addr);
+        payload->dst_addr = null;
+        buffer_free(payload->data);
+        payload->data = null;
         free(payload);
     }
+}
+
+object_DoIPMessagePayloadDiagFeedback * object_DoIPMessagePayloadDiagFeedback_new() {
+    object_DoIPMessagePayloadDiagFeedback * payload = (object_DoIPMessagePayloadDiagFeedback*)malloc(sizeof(object_DoIPMessagePayloadDiagFeedback));
+    payload->src_addr = buffer_new();
+    payload->dst_addr = buffer_new();
+    payload->code = 0x00;
+    payload->data = buffer_new();
+    payload->type = DOIP_DIAGNOSTIC_MESSAGE_ACK;
+    return payload;
+}
+void object_DoIPMessagePayloadDiagFeedback_free(object_DoIPMessagePayloadDiagFeedback * payload) {
+    if ( payload != null ) {
+        buffer_free(payload->src_addr);
+        buffer_free(payload->dst_addr);
+        buffer_free(payload->data);
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadDiagFeedback * object_DoIPMessagePayloadDiagFeedback_assign(object_DoIPMessagePayloadDiagFeedback * to, object_DoIPMessagePayloadDiagFeedback * from) {
+    assert(to != null);
+    assert(from != null);
+    buffer_assign(to->src_addr, from->src_addr);
+    buffer_assign(to->dst_addr, from->dst_addr);
+    to->code = from->code;
+    buffer_assign(to->data, from->data);
+    to->type = from->type;
+    return to;
+}
+
+static object_DoIPMessage * message_feedback(Buffer * to, Buffer * from, Buffer * payload_data, byte code, uint16_t type) {
+    object_DoIPMessage * msg = object_DoIPMessage_new();
+    object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
+    buffer_assign(payload->src_addr, from);
+    buffer_assign(payload->dst_addr, to);
+    payload->code = code;
+    buffer_assign(payload->data, payload_data);
+    payload->type = type;
+    msg->payload = (DoIPMessageDef*)payload;
+    return msg;
+}
+
+object_DoIPMessage * doip_message_diag_feedback_ack(Buffer * to, Buffer * from, Buffer * payload_data, byte code) {
+    return message_feedback(to, from, payload_data, code, DOIP_DIAGNOSTIC_MESSAGE_ACK);
+}
+
+object_DoIPMessage * doip_message_diag_feedback_nack(Buffer * to, Buffer * from, Buffer * payload_data, byte code) {
+    return message_feedback(to, from, payload_data, code, DOIP_DIAGNOSTIC_MESSAGE_NACK);
 }

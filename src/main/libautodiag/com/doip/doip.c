@@ -33,6 +33,12 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationRequest_new();
         } break;
+        case DOIP_DIAGNOSTIC_MESSAGE_ACK:
+        case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
+            object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
+            payload->type = type;
+            msg->payload = (DoIPMessageDef*)payload;
+        } break;
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationResponse_new();
         } break;
@@ -91,6 +97,10 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 object_DoIPMessagePayloadRoutineActivationRequest_free((object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload);
             } break;
+            case DOIP_DIAGNOSTIC_MESSAGE_ACK:
+            case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
+                object_DoIPMessagePayloadDiagFeedback_free((object_DoIPMessagePayloadDiagFeedback*)msg->payload);
+            } break;
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 object_DoIPMessagePayloadRoutineActivationResponse_free((object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload);
             } break;
@@ -112,8 +122,8 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     byte inv = p[1];
     if (((byte)(ver ^ inv)) != 0xFF) return null;
 
-    int ptype = doip__be16(p + 2);
-    int plen  = doip__be32(p + 4);
+    uint16_t ptype = doip__be16(p + 2);
+    uint32_t plen  = doip__be32(p + 4);
     if (plen < 0) return null;
     if (in->size < 8 + plen) return null;
 
@@ -130,35 +140,48 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
 
     switch(ptype) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
-            object_DoIPMessagePayloadDiag * diag = object_DoIPMessagePayloadDiag_new();
-            msg->payload = (DoIPMessageDef*)diag;
+            object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
+            msg->payload = (DoIPMessageDef*)payload;
             assert(4 <= msg->payload_raw->size);
-            diag->src_addr = buffer_slice(msg->payload_raw, 0, 2);
-            diag->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
-            diag->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
+            payload->src_addr = buffer_slice(msg->payload_raw, 0, 2);
+            payload->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
+            payload->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
+        } break;
+        case DOIP_DIAGNOSTIC_MESSAGE_NACK:
+        case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
+            object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
+            msg->payload = (DoIPMessageDef*)payload;
+            assert(5 <= msg->payload_raw->size);
+            payload->src_addr = buffer_slice(msg->payload_raw, 0, 2);
+            payload->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
+            payload->code = msg->payload_raw->buffer[4];
+            if (5 < msg->payload_raw->size) {
+                payload->data = buffer_slice(msg->payload_raw, 5, msg->payload_raw->size - 5);
+            }
+            payload->type = ptype;
         } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
-            object_DoIPMessagePayloadRoutineActivationRequest * rar = object_DoIPMessagePayloadRoutineActivationRequest_new();
-            msg->payload = (DoIPMessageDef*)rar;
+            object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
+            msg->payload = (DoIPMessageDef*)payload;
             assert(3 <= msg->payload_raw->size);
-            memcpy(rar->src_addr, msg->payload_raw->buffer, 2);
-            rar->activation_type = msg->payload_raw->buffer[2];
+            memcpy(payload->src_addr, msg->payload_raw->buffer, 2);
+            payload->activation_type = msg->payload_raw->buffer[2];
             if ( 7 <= msg->payload_raw->size ) {
-                memcpy(rar->iso_reserved, msg->payload_raw->buffer + 3, 4);
+                memcpy(payload->iso_reserved, msg->payload_raw->buffer + 3, 4);
             }
             if ( 11 <= msg->payload_raw->size ) {
-                memcpy(rar->vendor_reserved, msg->payload_raw->buffer + 7, 4);
+                memcpy(payload->vendor_reserved, msg->payload_raw->buffer + 7, 4);
             }
         } break;
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
-            object_DoIPMessagePayloadRoutineActivationResponse * rar = object_DoIPMessagePayloadRoutineActivationResponse_new();
-            msg->payload = (DoIPMessageDef*)rar;
+            object_DoIPMessagePayloadRoutineActivationResponse * payload = object_DoIPMessagePayloadRoutineActivationResponse_new();
+            msg->payload = (DoIPMessageDef*)payload;
             assert(13 <= msg->payload_raw->size);
-            buffer_memcpy(rar->tester, msg->payload_raw->buffer, 2);
-            buffer_memcpy(rar->ecu, msg->payload_raw->buffer+2, 2);
-            rar->code = msg->payload_raw->buffer[4];
-            buffer_memcpy(rar->iso_reserved, msg->payload_raw->buffer+5, 4);
-            buffer_memcpy(rar->oem_reserved, msg->payload_raw->buffer+9, 4);
+            buffer_memcpy(payload->tester, msg->payload_raw->buffer, 2);
+            buffer_memcpy(payload->ecu, msg->payload_raw->buffer+2, 2);
+            payload->code = msg->payload_raw->buffer[4];
+            buffer_memcpy(payload->iso_reserved, msg->payload_raw->buffer+5, 4);
+            buffer_memcpy(payload->oem_reserved, msg->payload_raw->buffer+9, 4);
         } break;
         default: {
             log_msg(LOG_DEBUG, "Parsing of payload type 0x%04X not implemented", ptype);
@@ -187,6 +210,17 @@ void doip_message_dump(object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    activation_type: 0x%02x", payload->activation_type);
                 log_msg(LOG_DEBUG, "    iso_reserved: 0x%02x%02x%02x%02x", payload->iso_reserved[0], payload->iso_reserved[1], payload->iso_reserved[2], payload->iso_reserved[3]);
                 log_msg(LOG_DEBUG, "    vendor_reserved: 0x%02x%02x%02x%02x", payload->vendor_reserved[0], payload->vendor_reserved[1], payload->vendor_reserved[2], payload->vendor_reserved[3]);
+            } break;
+            case DOIP_DIAGNOSTIC_MESSAGE_NACK:
+            case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
+                object_DoIPMessagePayloadDiagFeedback * payload = (object_DoIPMessagePayloadDiagFeedback*)msg->payload;
+                log_msg(LOG_DEBUG, "    type: 0x%08X", payload->type);
+                log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
+                log_msg(LOG_DEBUG, "    code: 0x%02X", payload->code);
+                if (payload->data) {
+                    log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
+                }
             } break;
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
@@ -230,6 +264,24 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
             plen = 2 + 1 + 4 + 4;
         } break;
+        case DOIP_DIAGNOSTIC_MESSAGE_ACK:
+        case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
+            object_DoIPMessagePayloadDiagFeedback * payload = (object_DoIPMessagePayloadDiagFeedback*)msg->payload;
+            if (!payload->src_addr || payload->src_addr->size != 2) {
+                log_msg(LOG_ERROR, "src addr incorrect");
+                return null;
+            }
+            if (!payload->dst_addr || payload->dst_addr->size != 2) {
+                log_msg(LOG_ERROR, "dst addr incorrect");
+                return null;
+            }
+            int dsz = payload->data ? payload->data->size : 0;
+            if (dsz < 0) {
+                log_msg(LOG_ERROR, "dsz incorrect");
+                return null;
+            }
+            plen = 5 + dsz;
+        }
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
             plen = 2 + 2 + 1 + 4 + 4;
@@ -268,9 +320,20 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
             memcpy(payload_start, payload->src_addr, 2);
-            *(payload_start + 2) = payload->activation_type;
+            payload_start[2] = payload->activation_type;
             memcpy(payload_start + 3, payload->iso_reserved, 4);
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
+        } break;
+        case DOIP_DIAGNOSTIC_MESSAGE_ACK:
+        case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
+            object_DoIPMessagePayloadDiagFeedback * payload = (object_DoIPMessagePayloadDiagFeedback*)msg->payload;
+            memcpy(payload_start, payload->src_addr->buffer, 2);
+            memcpy(payload_start + 2, payload->dst_addr->buffer, 2);
+            payload_start[4] = payload->code;
+            if (payload->data) {
+                assert(payload->data->size <= (out_sz - 13));
+                memcpy(payload_start + 5, payload->data->buffer, payload->data->size);
+            }
         } break;
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
