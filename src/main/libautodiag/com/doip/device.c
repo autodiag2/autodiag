@@ -262,6 +262,9 @@ static int doip_recv(final object_DoIPDevice * device) {
             buffer_append(device->recv_buffer, payload->src_addr);
             buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
         } return DEVICE_RECV_DATA;
+        default: {
+            log_msg(LOG_WARNING, "Received message with unsupported payload type 0x%04X ignoring", msg->payload_type);
+        } break;
     }
     object_DoIPMessage_free(msg);
     return DEVICE_RECV_NULL;

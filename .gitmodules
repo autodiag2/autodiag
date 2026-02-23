@@ -4,3 +4,6 @@
 [submodule "cJSON"]
 	path = cJSON
 	url = https://github.com/autodiag2/cJSON
+[submodule "pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator"]
+	path = pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator
+	url = https://github.com/TonsenWei/doip-simulator

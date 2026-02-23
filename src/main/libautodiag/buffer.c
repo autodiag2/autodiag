@@ -73,7 +73,7 @@ void buffer_assign_be32(Buffer * buffer, uint32_t i) {
     buffer->buffer[3] = i & 0xFF;
     buffer->size = 4;
 }
-void buffer_assign_be64(Buffer * buffer, uint32_t i) {
+void buffer_assign_be64(Buffer * buffer, uint64_t i) {
     buffer_recycle(buffer);
     buffer_ensure_capacity(buffer, 8);
     buffer->buffer[0] = (i >> 56) & 0xFF;

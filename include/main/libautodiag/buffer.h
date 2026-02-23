@@ -35,7 +35,7 @@ void buffer_assign_be8(Buffer * buffer, uint8_t i);
  */
 void buffer_assign_be16(Buffer * buffer, uint16_t i);
 void buffer_assign_be32(Buffer * buffer, uint32_t i);
-void buffer_assign_be64(Buffer * buffer, uint32_t i);
+void buffer_assign_be64(Buffer * buffer, uint64_t i);
 /**
  * Ensure that there is at least size space in the buffer free space
  */

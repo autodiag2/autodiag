@@ -36,6 +36,9 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
         case DOIP_ROUTING_ACTIVATION_RESPONSE: {
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationResponse_new();
         } break;
+        default: {
+            log_msg(LOG_DEBUG, "payload not implemented");
+        } break;
     }
 }
 object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_new() {
