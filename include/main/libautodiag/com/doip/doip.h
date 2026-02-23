@@ -47,16 +47,6 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
  */
 object_DoIPMessage * doip_message_new(DoIpPayloadType type);
 
-OBJECT_H(DoIPMessagePayloadDiag,
-    DoIPMessageDef;
-    Buffer * src_addr;
-    Buffer * dst_addr;
-    Buffer * data;
-)
-#define DOIP_MESSAGE_DIAG_ADDR_SZ 2
-object_DoIPMessagePayloadDiag * object_DoIPMessagePayloadDiag_new();
-object_DoIPMessage * doip_diag_message(Buffer * to, Buffer * from, Buffer * payload_data);
-
 typdef enum {
     DOIP_MESSAGE_RAR_TYPE_DEFAULT = 0x00,
     DOIP_MESSAGE_RAR_TYPE_WWH_OBD = 0x01,
@@ -114,5 +104,6 @@ OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
 )
 
 #include "libautodiag/com/doip/device.h"
+#include "libautodiag/com/doip/message/diag.h"
 
 #endif
