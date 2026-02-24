@@ -204,6 +204,9 @@ static void doip_lock(final object_DoIPDevice* device) {
 static void doip_unlock(final object_DoIPDevice* device) {
     pthread_mutex_unlock(&device->implementation->lock_mutex);
 }
+void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address) {
+    device->address = address;
+}
 static int doip_send(final object_DoIPDevice * device, const char * command) {
     object_DoIPMessage * msg = doip_message_diag(
         buffer_from_ascii_hex("07E8"), 

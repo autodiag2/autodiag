@@ -63,5 +63,9 @@ void doip_close(final object_DoIPDevice * device);
  * Configure the device so it is up and ready for sending and receiving diag messages.
  */
 bool doip_configure(final object_DoIPDevice * device);
+/**
+ * Set the tester address on the DoIP network, default is 0x0E08 but some vehicles may expect another one
+ */
+void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address);
 
 #endif
