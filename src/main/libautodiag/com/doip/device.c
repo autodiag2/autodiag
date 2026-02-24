@@ -429,6 +429,7 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->unlock = AD_DEVICE_UNLOCK(doip_unlock);
     device->open = AD_DEVICE_OPEN(doip_open);
     device->close = AD_DEVICE_CLOSE(doip_close);
+    device->free = null;
     return device;
 }
 

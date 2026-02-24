@@ -15,8 +15,8 @@ int serial_cli_main(int argc, char *argv[]) {
     
     config_init();
     config_load();
-    object_SerialTable * device_table = config.ephemere.device_table;
-    serial_table_fill(device_table);
+    object_DeviceTable * device_table = config.ephemere.device_table;
+    device_table_fill(device_table);
 
     argForEach() {
         if ( argIs("-h") || argIs("help") || argIs("--help") ) {
@@ -37,8 +37,8 @@ int serial_cli_main(int argc, char *argv[]) {
             if ( arg == null ) {
                 printf("Ports available:\n");
                 for(int i = 0; i < device_table->list->size; i++) {
-                    Serial * port = device_table->list->list[i];
-                    printf(" %s\n", port->location);
+                    Device * device = device_table->list->list[i];
+                    printf(" %s (%s)\n", device->location, device_type_as_string(device->type));
                 }
                 return 0;
             } else {
@@ -67,11 +67,12 @@ int serial_cli_main(int argc, char *argv[]) {
 
     config_onchange();
 
-    Serial * serial = serial_table_get_selected(device_table);
+    final Serial * serial = (Serial*)device_table_get_selected(config.ephemere.device_table);
     if ( serial == null || serial->status != SERIAL_STATE_READY ) {
         printf("Serial port seem not open\n");
         return 1;
     }
+    assert(serial->type == DEVICE_TYPE_SERIAL);
 
     while(true) {
         char command[1000] = {0};
@@ -95,8 +96,8 @@ int serial_cli_main(int argc, char *argv[]) {
         }
     }
 
-    serial_table_close_selected(config.ephemere.device_table);
-    serial_table_free(config.ephemere.device_table);
+    device_table_close_selected(config.ephemere.device_table);
+    device_table_free(config.ephemere.device_table);
     
     return 0;
 }

@@ -100,7 +100,7 @@ typedef struct {
 } vehicleExplorerGui;
 
 #define vehicle_explorer_error_feedback_obd(iface) \
- error_feedback_obd(gui->errorFeedback,iface,serial_table_get_selected(config.ephemere.device_table))
+ error_feedback_obd(gui->errorFeedback,iface,device_table_get_selected(config.ephemere.device_table))
 
 mod_gui * mod_gui_vehicle_explorer_new();
 

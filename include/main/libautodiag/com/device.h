@@ -9,6 +9,7 @@
  */
 #define AD_DEVICE_SEND(var) ((int (*)(final Device*, const char*))var)
 #define AD_DEVICE_RECV(var) ((int (*)(final Device*))var)
+#define AD_DEVICE_FREE(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_OPEN(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_CLOSE(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(var) ((char* (*)(final Device*))var)
@@ -80,6 +81,10 @@ typedef struct Device {
      * Release the lock on the device by this thread
      */
     void (*unlock)(final struct Device* device);
+    /**
+     * Free this object
+     */
+    void (*free)(final struct Device* device);
 } Device;
 
 void device_location_set(final Device * device, final char *location);

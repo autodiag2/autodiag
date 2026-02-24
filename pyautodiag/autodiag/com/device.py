@@ -10,6 +10,7 @@ DeviceSetFilterByAddressFunc = CFUNCTYPE(c_void_p, c_void_p)
 DeviceClearFunc = CFUNCTYPE(None, c_void_p)
 DeviceLockFunc = CFUNCTYPE(None, c_void_p)
 DeviceUnlockFunc = CFUNCTYPE(None, c_void_p)
+DeviceFreeFunc = CFUNCTYPE(None, c_void_p)
 
 class Device(Structure):
     _fields_ = [
@@ -25,6 +26,7 @@ class Device(Structure):
         ("clear_data", DeviceClearFunc),
         ("lock", DeviceLockFunc),
         ("unlock", DeviceUnlockFunc),
+        ("free", DeviceFreeFunc)
     ]
 
 DEVICE_ERROR = -1

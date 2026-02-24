@@ -571,6 +571,7 @@ void serial_init(final Serial* serial) {
     serial->close = AD_DEVICE_CLOSE(serial_close);
     serial->send = AD_DEVICE_SEND(serial_send);
     serial->recv = AD_DEVICE_RECV(serial_recv);
+    serial->free = AD_DEVICE_FREE(serial_free);
     serial->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(serial_describe_communication_layer);
     serial->parse_data = null;
     serial->set_filter_by_address = null;

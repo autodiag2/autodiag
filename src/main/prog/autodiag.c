@@ -55,7 +55,7 @@ int main (int argc, char *argv[]) {
     log_set_from_env();
     config_init();
     config_load();
-    serial_table_fill(config.ephemere.device_table);
+    device_table_fill(config.ephemere.device_table);
     
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);

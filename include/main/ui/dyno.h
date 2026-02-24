@@ -43,6 +43,6 @@ typedef struct {
 mod_gui * mod_gui_dyno_new();
 
 #define dyno_error_feedback_obd(iface) \
- error_feedback_obd(gui->errorFeedback,iface,serial_table_get_selected(config.ephemere.device_table))
+ error_feedback_obd(gui->errorFeedback,iface,device_table_get_selected(config.ephemere.device_table))
 
 #endif

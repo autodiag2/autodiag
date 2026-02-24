@@ -4,10 +4,11 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
     char *msg = null;
     if ( serial == null ) {
         msg = strdup("No serial selected");
-    } else {
-        if ( serial->status != SERIAL_STATE_READY ) {
-            asprintf(&msg, "Serial port in the wrong state : %s", serial_status_to_string(serial->status));
-        }
+        return true;
+    }
+    assert(serial->type == DEVICE_TYPE_SERIAL);
+    if ( serial->status != SERIAL_STATE_READY ) {
+        asprintf(&msg, "Serial port in the wrong state : %s", serial_status_to_string(serial->status));
     }
     if ( msg != null ) {
         log_msg(LOG_INFO, "Cannot read codes : serial in the wrong state");
@@ -18,11 +19,11 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
     return msg != null;
 }
 
-bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Serial * serial) {
+bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Device * device) {
     if ( iface->state == VIFaceState_READY ) {
         return error_feedback_serial(ws,(Serial *)iface->device);
     } else {
-        if ( ! error_feedback_serial(ws,serial) ) {
+        if ( ! error_feedback_serial(ws,(Serial*)device) ) {
             log_msg(LOG_INFO, "Cannot read codes : no obd interface openned");
             gtk_widget_show_on_main_thread(GTK_WIDGET(ws.obd));
         }

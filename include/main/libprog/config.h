@@ -39,7 +39,7 @@ typedef struct {
     } commandLine;
     struct {
         VehicleIFace* iface;
-        object_SerialTable * device_table;
+        object_DeviceTable * device_table;
     } ephemere;
     struct {
         bool enabled;

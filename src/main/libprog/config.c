@@ -212,9 +212,9 @@ void config_init() {
         config.ephemere.iface = viface_new();
     }
     if ( config.ephemere.device_table != null ) {
-        object_SerialTable_free(config.ephemere.device_table);
+        object_DeviceTable_free(config.ephemere.device_table);
     }
-    config.ephemere.device_table = object_SerialTable_new();
+    config.ephemere.device_table = object_DeviceTable_new();
 }
 bool config_load() {
     config_initiated_check();
@@ -232,18 +232,19 @@ void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        serial_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location);
-        serial_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
-    final Serial * port = serial_table_get_selected(config.ephemere.device_table);
+    final Serial * port = (Serial*)device_table_get_selected(config.ephemere.device_table);
     if ( port == null ) {
-        config.ephemere.device_table->selected_index = SERIAL_TABLE_NO_SELECTED;
+        config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
+        assert(port->type == DEVICE_TYPE_SERIAL);
         port->baud_rate = config.com.serial.baud_rate;
         viface_recorder_reset(config.ephemere.iface);
         viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
         if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(port))) {
-            if ( serial_table_update_device(config.ephemere.device_table, AD_DEVICE(port), config.ephemere.iface->device) ) {
+            if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(port), config.ephemere.iface->device) ) {
                 log_msg(LOG_WARNING, "Device update in the table of devices has failed, continuing ...");
             }
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
