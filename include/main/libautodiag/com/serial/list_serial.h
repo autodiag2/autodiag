@@ -43,5 +43,9 @@ void serial_table_remove_undetected(object_SerialTable * table, bool except_netw
  */
 Serial * serial_table_get_selected(object_SerialTable * table);
 void serial_table_set_selected_by_location(object_SerialTable * table, char *location);
+/**
+ * Update device in the table.
+ */
+bool serial_table_update_device(object_SerialTable * table, Device * old, Device * new);
 
 #endif

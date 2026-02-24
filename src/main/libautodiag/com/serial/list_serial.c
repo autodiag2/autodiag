@@ -51,7 +51,14 @@ Serial * serial_table_add_if_not_in_by_location(object_SerialTable * table, char
         return serial;
     }
 }
-
+bool serial_table_update_device(object_SerialTable * table, Device * old, Device * new) {
+    int index = list_Serial_index_of(table->list, old);
+    if ( index < 0 ) {
+        return false;
+    }
+    table->list->list[index] = new;
+    return true;
+}
 int serial_table_index_from_location(object_SerialTable * table, char *location) {
     if ( location != null ) {
         Device * device;
