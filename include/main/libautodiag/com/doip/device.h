@@ -19,8 +19,6 @@
 #   warning Unsupported OS
 #endif
 
-#define DOIP_DEVICE_TYPE "doip"
-
 typedef struct {
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
 #if defined OS_WINDOWS

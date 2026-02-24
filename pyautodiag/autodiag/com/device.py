@@ -13,7 +13,7 @@ DeviceUnlockFunc = CFUNCTYPE(None, c_void_p)
 
 class Device(Structure):
     _fields_ = [
-        ("type", c_char_p),
+        ("type", c_int),
         ("location", c_char_p),
         ("send", DeviceSendFunc),
         ("recv", DeviceRecvFunc),

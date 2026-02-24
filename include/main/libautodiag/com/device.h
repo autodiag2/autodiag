@@ -18,13 +18,17 @@
 #define AD_DEVICE_LOCK(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
 #define AD_DEVICE(arg) ((struct Device*)arg)
+
+typedef enum {
+    DEVICE_TYPE_SERIAL,
+    DEVICE_TYPE_DOIP
+} DEVICE_TYPE;
+
 typedef struct Device {
     /**
-     * This is very similar to describing the communication layer, except that it holds
-     * only the minimal information required to known which type of device to use
-     * eg serial, ip
+     * eg. DoIP, Serial
      */
-    char * type;
+    DEVICE_TYPE type;
     /**
      * location of the device accross OSs
      */

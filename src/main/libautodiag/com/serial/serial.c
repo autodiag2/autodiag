@@ -546,10 +546,11 @@ void serial_lock(final Serial * port) {
 void serial_unlock(final Serial * port) {
     pthread_mutex_unlock(&port->implementation->lock_mutex);
 }
+
 Serial * serial_new() {
     final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
-    port->type = strdup("serial");
+    port->type = DEVICE_TYPE_SERIAL;
     serial_init(port);
     return port;
 }
