@@ -6,7 +6,7 @@
 #include "ui.h"
 #include "ui_mod.h"
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/device_table.h"
 #include "libautodiag/buffer.h"
 #include "libprog/config.h"
 

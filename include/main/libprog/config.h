@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "libautodiag/com/obd/obd.h"
-#include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/device_table.h"
 
 /**
  * Define general configuration of the gui, values can be modified by the options gui or directly in file

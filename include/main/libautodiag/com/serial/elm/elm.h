@@ -4,7 +4,7 @@
  * An ELM device provides at least the following commands
  */
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/device_table.h"
 #include "elm_iso15765.h"
 
 typedef struct {

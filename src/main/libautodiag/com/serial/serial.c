@@ -1,5 +1,5 @@
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/device_table.h"
 
 int serial_guess_response(final char * buffer) {
     for(int i = 0; i < SerialResponseStrNumber; i++) {

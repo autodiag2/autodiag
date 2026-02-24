@@ -1,5 +1,6 @@
-#include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/device_table.h"
 #include "libautodiag/com/doip/device.h"
+#include "libautodiag/com/serial/serial.h"
 
 int Device_cmp(Device * d1, Device * d2) {
     return strcmp(d1->location, d2->location);
@@ -307,7 +308,7 @@ void device_table_remove_undetected(object_DeviceTable * table, bool except_netw
     for(int i = 0; i < table->list->size; i++) {
         Device * device = table->list->list[i];
         if ( device->type == DEVICE_TYPE_SERIAL ) {
-            Serial * serial = table->list->list[i];
+            Serial * serial = (Serial*)table->list->list[i];
             if ( ! serial->detected ) {
                 if ( except_network && strstr(serial->location,":") != null ) {
                     continue;

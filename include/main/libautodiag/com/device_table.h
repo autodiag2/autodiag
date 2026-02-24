@@ -1,9 +1,9 @@
-#ifndef __SERIAL_AD_LIST_H
-#define __SERIAL_AD_LIST_H
+#ifndef __COM_DEVICE_TABLE_H
+#define __COM_DEVICE_TABLE_H
 
 #include "libautodiag/dirent.h"
 #include "libautodiag/log.h"
-#include "libautodiag/com/serial/serial.h"
+#include "libautodiag/com/device.h"
 
 #ifdef OS_WINDOWS
 #   include "libautodiag/windows.h"
