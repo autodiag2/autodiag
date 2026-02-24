@@ -56,15 +56,17 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 tools_prerequistes:
-	@command -v cp > /dev/null 2>&1 || { echo "cp is required to create a new version"; exit 1; }
-	@command -v mkdir > /dev/null 2>&1 || { echo "mkdir is required to create a new version"; exit 1; }
-	@command -v rm > /dev/null 2>&1 || { echo "rm is required to create a new version"; exit 1; }
-	@command -v printf > /dev/null 2>&1 || { echo "printf is required to create a new version"; exit 1; }
-	@command -v ln > /dev/null 2>&1 || { echo "ln is required to create a new version"; exit 1; }
+	@command -v cp > /dev/null 2>&1 || { echo "cp is required"; exit 1; }
+	@command -v mkdir > /dev/null 2>&1 || { echo "mkdir is required"; exit 1; }
+	@command -v rm > /dev/null 2>&1 || { echo "rm is required"; exit 1; }
+	@command -v printf > /dev/null 2>&1 || { echo "printf is required"; exit 1; }
+	@command -v ln > /dev/null 2>&1 || { echo "ln is required"; exit 1; }
+	@command -v $(CC) > /dev/null 2>&1 || { echo "$(CC) is required"; exit 1; }
 
+# With debugging info removed
 release_progs: tools_prerequistes compile_progs
-
 release_progs_compat: tools_prerequistes compile_progs_compat
+release_lib: tools_prerequistes compile_lib
 
 compile_progs_compat: tools_prerequistes output/bin/elm327sim_compat output/bin/doipsim_compat
 
@@ -83,6 +85,7 @@ compile_lib: tools_prerequistes $(BIN_LIB)
 coverage: CFLAGS_COVERAGE += --coverage
 coverage: CFLAGS_LIBS_TESTS += -lgcov
 coverage: tools_prerequistes veryclean compile_tests
+	@command -v gcov > /dev/null 2>&1 || { echo "gcov is required"; exit 1; }
 	echo "running coverage with : $(CFLAGS)"
 	./output/bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
@@ -153,8 +156,8 @@ $(BIN_LIB): $(OBJS_LIB)
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
 dependencies: $(SOURCES)
-	@command -v sed > /dev/null 2>&1 || { echo "sed is required to create a new version"; exit 1; }
-	@command -v grep > /dev/null 2>&1 || { echo "grep is required to create a new version"; exit 1; }
+	@command -v sed > /dev/null 2>&1 || { echo "sed is required"; exit 1; }
+	@command -v grep > /dev/null 2>&1 || { echo "grep is required"; exit 1; }
 	@echo "Generating dependencies..."
 	@> dependencies.mk
 	@$(foreach var, $(SOURCES), $(cmd))	
@@ -185,9 +188,9 @@ info:
 	@-echo "SOURCES=$(SOURCES)"
 
 tarball: tools_prerequistes
-	@command -v git > /dev/null 2>&1 || { echo "git is required to create a new version"; exit 1; }
-	@command -v cpio > /dev/null 2>&1 || { echo "cpio is required to create a new version"; exit 1; }
-	@command -v tar > /dev/null 2>&1 || { echo "tar is required to create a new version"; exit 1; }
+	@command -v git > /dev/null 2>&1 || { echo "git is required"; exit 1; }
+	@command -v cpio > /dev/null 2>&1 || { echo "cpio is required"; exit 1; }
+	@command -v tar > /dev/null 2>&1 || { echo "tar is required"; exit 1; }
 	prefix="$(APP_NAME)-$(APP_VERSION)" && \
 	tmp="/tmp/$(APP_NAME)fileList" && \
 	mkdir -p "$${prefix}" && \
@@ -197,12 +200,12 @@ tarball: tools_prerequistes
 	rm -rf "$${prefix}"
 
 distDebianSrc: tools_prerequistes veryclean
-	@command -v dpkg-source > /dev/null 2>&1 || { echo "dpkg-source is required to create a new version"; exit 1; }
+	@command -v dpkg-source > /dev/null 2>&1 || { echo "dpkg-source is required"; exit 1; }
 	dpkg-source --format="$$(cat dist/debian/source/format)" -l$$(pwd)/dist/debian/changelog -c$$(pwd)/dist/debian/control -b .
 
 distDebianBin: tools_prerequistes release_progs
-	@command -v dpkg > /dev/null 2>&1 || { echo "dpkg is required to create a new version"; exit 1; }
-	@command -v dpkg-buildpackage > /dev/null 2>&1 || { echo "dpkg-buildpackage is required to create a new version"; exit 1; }
+	@command -v dpkg > /dev/null 2>&1 || { echo "dpkg is required"; exit 1; }
+	@command -v dpkg-buildpackage > /dev/null 2>&1 || { echo "dpkg-buildpackage is required"; exit 1; }
 	cd dist/ && dpkg-buildpackage -b --buildinfo-option=-u../output/bin/ --changes-option=-u../output/bin/ -us -uc --hook-done='fakeroot debian/rules done'
 	# Due to missing behaviour in dpkg-genchanges(1.19.7) (that is in dpkg-genbuilinfo) look -u -O, we are required to do this
 	mv $(APP_NAME)_*.changes ./output/bin/
@@ -259,36 +262,37 @@ uninstall: tools_prerequistes
 		fi; \
 	done
 doc: tools_prerequistes
-	@command -v doxygen > /dev/null 2>&1 || { echo "doxygen is required to create a new version"; exit 1; }
+	@command -v doxygen > /dev/null 2>&1 || { echo "doxygen is required"; exit 1; }
 	doxygen
 	@-echo "Documentation generated in output/doc/html/index.html"
 help:
-	@-echo "Development setup"
-	@-echo " install                  - copy files"
-	@-echo " installDev               - using symlinks"
-	@-echo " uninstall                - delete previous installation"
-	@-echo " run                      - run the software"
-	@-echo " runDebug                 - run with debug flags"
-	@-echo " runTest                  - run regression test"
-	@-echo " compile_progs            - compile progs"
-	@-echo " compile_progs_compat     - compile progs maximizing compatibility"
+	@-echo "Production rules"
 	@-echo " release_progs            - compile progs with debugging info removed"
 	@-echo " release_progs_compat	  - compile progs maximizing compatibility with debugging info removed"
-	@-echo " compile_tests            - compile tests"
+	@-echo " release_lib              - compile the library with debugging info removed"
+	@-echo " distDebian               - package for debian"
+	@-echo " distWindows              - package in an installer for windows"
+	@-echo " distMacOS                - package as DMG for macOS"
+	@-echo " doc                      - generate documentation"
+	@-echo " install                  - install on this computer"
+	@-echo " uninstall                - uninstall"
+	@-echo " run                      - run the software"
+	@-echo "Development rules"
 	@-echo " compile_lib              - compile the library"
+	@-echo " compile_progs_compat     - compile progs maximizing compatibility"
+	@-echo " compile_progs            - compile progs"
+	@-echo " compile_tests            - compile tests"
 	@-echo " compile_examples         - compile examples"
+	@-echo " installDev               - install using symlinks"
+	@-echo " runDebug                 - run with debug flags"
+	@-echo " runTest                  - run regression test"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"
 	@-echo " uninstallPython          - uninstall data from the python package"
 	@-echo " coverage                 - recompile project with coverage information included"
 	@-echo " dependencies             - update make dependencies"
-	@-echo "Software management"
-	@-echo " distDebian               - package for debian"
-	@-echo " distWindows              - package in an installer for windows"
-	@-echo " distMacOS                - package as DMG for macOS"
-	@-echo " newVersion               - create a new version"
-	@-echo " doc                      - generate documentation"
-	@-echo "Configuration variables"
+	@-echo " newVersion               - create a new version of the software"
+	@-echo "Environment variables"
 	@-echo " TOOLCHAIN                - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
 	@-echo " INSTALL_DATA_FOLDER      - where to install application data"
 	@-echo " INSTALL_BIN_FOLDER       - where to install application binaries"
