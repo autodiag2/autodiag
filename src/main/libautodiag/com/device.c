@@ -44,3 +44,17 @@ bool device_location_is_network(final Device *device) {
 
     return *s == '\0';
 }
+const char * device_type_as_string(DEVICE_TYPE type) {
+    switch(type) {
+        case DEVICE_TYPE_SERIAL: return "Serial";
+        case DEVICE_TYPE_DOIP: return "DoIP";
+        default: return "Unknown";
+    }
+}
+void device_location_set(final Device * device, final char *location) {
+    assert(location != null);
+    if ( device->location != null ) {
+        free(device->location);
+    }
+    device->location = strdup(location);
+}

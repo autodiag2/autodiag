@@ -15,27 +15,33 @@
 #   define SERIAL_AD_LIST_PIPE_PREFIX "elm327sim_"
 #endif
 
-AD_LIST_H_STRUCT(Serial)
-AD_LIST_H_APPEND(Serial);
+AD_LIST_H(Serial)
 
-extern list_Serial list_serial;
-extern int list_serial_selected;
-#define SERIAL_AD_LIST_NO_SELECTED -1
+OBJECT_H(SerialTable,
+    list_Serial * list;
+    int selected_index;
+)
+#define SERIAL_TABLE_NO_SELECTED -1
 
-void serial_close_selected();
+void serial_table_close_selected(object_SerialTable * table);
 /**
  * Fill the serial list with currently detected COM ports on the system.
  */
-void list_serial_fill();
-void list_serial_free();
+void serial_table_fill(object_SerialTable * table);
+void serial_table_free(object_SerialTable * table);
 /**
  * @return NULL if not found
  */
-Serial * list_serial_find_by_location(final char * location);
-Serial * list_serial_add_if_not_in_by_location(char * location);
+Serial * serial_table_find_by_location(object_SerialTable * table, final char * location);
+Serial * serial_table_add_if_not_in_by_location(object_SerialTable * table, char * location);
 
-void serial_set_location(final Serial * port, final char *location);
-bool list_serial_remove(final Serial * element);
-void list_serial_set_to_undetected();
-void list_serial_remove_undetected(bool except_network);
+bool serial_table_remove(object_SerialTable * table, final Serial * element);
+void serial_table_set_to_undetected(object_SerialTable * table);
+void serial_table_remove_undetected(object_SerialTable * table, bool except_network);
+/**
+ * Get the selected Serial (port on which we are currently working) or NULL if no port currently selected.
+ */
+Serial * serial_table_get_selected(object_SerialTable * table);
+void serial_table_set_selected_by_location(object_SerialTable * table, char *location);
+
 #endif

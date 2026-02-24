@@ -114,16 +114,6 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
     }
     log_msg(LOG_DEBUG, "Info fetch done");
 
-    if ( device != null ) {
-        for(int i = 0;i < list_serial.size; i++) {
-            if ( list_serial.list[i] == *port ) {
-                log_msg(LOG_DEBUG, "Serial port changed to the real device");
-                list_serial.list[i] = (Serial *)device;
-                *port = list_serial.list[i];
-                break;
-            }
-        }
-    }
     if ( deviceConfigured ) {
         return device;
     } else {

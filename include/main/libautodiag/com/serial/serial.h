@@ -140,8 +140,6 @@ int serial_guess_response(final char * buffer);
     buffer_free(recv_buffer); \
 }
 
-void module_init_serial();
-void module_shutdown_serial();
 void serial_init(final Serial * serial);
 /**
  * Open currently selected serial or reopen if it is already openned. 
@@ -164,11 +162,6 @@ void serial_unlock(final Serial * port);
 void serial_dump(final Serial * port);
 void serial_debug(final Serial * port);
 void serial_free(final Serial * port);
-/**
- * Get the selected Serial (port on which we are currently working) or NULL if no port currently selected.
- */
-Serial * list_serial_get_selected();
-void list_serial_set_selected_by_location(char *location);
 
 /**
  * Timeout before considering remote has not alive (ms)

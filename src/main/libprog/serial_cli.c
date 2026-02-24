@@ -15,7 +15,8 @@ int serial_cli_main(int argc, char *argv[]) {
     
     config_init();
     config_load();
-    module_init_serial();
+    object_SerialTable * device_table = config.ephemere.device_table;
+    serial_table_fill(device_table);
 
     argForEach() {
         if ( argIs("-h") || argIs("help") || argIs("--help") ) {
@@ -35,8 +36,8 @@ int serial_cli_main(int argc, char *argv[]) {
             char * arg = argCurrent();
             if ( arg == null ) {
                 printf("Ports available:\n");
-                for(int i = 0; i < list_serial.size; i++) {
-                    Serial * port = list_serial.list[i];
+                for(int i = 0; i < device_table->list->size; i++) {
+                    Serial * port = device_table->list->list[i];
                     printf(" %s\n", port->location);
                 }
                 return 0;
@@ -66,7 +67,7 @@ int serial_cli_main(int argc, char *argv[]) {
 
     config_onchange();
 
-    Serial * serial = list_serial_get_selected();
+    Serial * serial = serial_table_get_selected(device_table);
     if ( serial == null || serial->status != SERIAL_STATE_READY ) {
         printf("Serial port seem not open\n");
         return 1;
@@ -94,7 +95,8 @@ int serial_cli_main(int argc, char *argv[]) {
         }
     }
 
-    module_shutdown_serial();
+    serial_table_close_selected(config.ephemere.device_table);
+    serial_table_free(config.ephemere.device_table);
     
     return 0;
 }

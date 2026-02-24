@@ -588,16 +588,6 @@ void serial_init(final Serial* serial) {
     #endif
 }
 
-void module_init_serial() {
-    module_debug_init(_MODULE_SERIAL);
-    list_serial_fill();
-}
-
-void module_shutdown_serial() {
-   serial_close_selected();
-   list_serial_free();
-}
-
 void serial_free(final Serial * port) {
     if ( port != null ) {
         if (port->location != null ) {
@@ -663,14 +653,6 @@ void serial_debug(final Serial * port) {
         log_msg(LOG_DEBUG, "    guess_response: %p", port->guess_response);
         log_msg(LOG_DEBUG, "}");
     }
-}
-
-void serial_set_location(final Serial * port, final char *location) {
-    if ( port->location != NULL ) {
-        free(port->location);
-    }
-    port->location = (char *)malloc(sizeof(char) * (strlen(location) + 1));
-    strcpy(port->location, location);
 }
 
 char * serial_status_to_string(final SerialStatus status) {

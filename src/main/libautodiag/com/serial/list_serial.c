@@ -1,93 +1,107 @@
 #include "libautodiag/com/serial/list_serial.h"
 
-list_Serial list_serial = { .list = null, .size = 0};
-int list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+int Serial_cmp(Serial * serial1, Serial * serial2) {
+    return strcmp(serial1->location, serial2->location);
+}
+AD_LIST_SRC(Serial)
 
-Serial * list_serial_get_selected() {
-    if ( SERIAL_AD_LIST_NO_SELECTED == list_serial_selected ) {
+object_SerialTable * object_SerialTable_new() {
+    object_SerialTable * table = malloc(sizeof(object_SerialTable));
+    table->list = list_Serial_new();
+    table->selected_index = SERIAL_TABLE_NO_SELECTED;
+    return table;
+}
+void object_SerialTable_free(object_SerialTable * table) {
+    serial_table_free(table);
+    free(table);
+}
+object_SerialTable * object_SerialTable_assign(object_SerialTable * dest, object_SerialTable * src) {
+    log_msg(LOG_ERROR, "Not implemented yet");
+    return dest;
+}
+Serial * serial_table_get_selected(object_SerialTable * table) {
+    if ( SERIAL_TABLE_NO_SELECTED == table->selected_index ) {
         return null;
     } else {
-        assert(0 <= list_serial_selected && list_serial_selected < list_serial.size);
-        return list_serial.list[list_serial_selected];
+        assert(0 <= table->selected_index && table->selected_index < table->list->size);
+        return table->list->list[table->selected_index];
     }
 }
 
-Serial * list_serial_add_if_not_in(Serial * element) {
-    for(int i = 0; i < list_serial.size; i++) {
-        Serial * serial = list_serial.list[i];
+Serial * serial_table_add_if_not_in(object_SerialTable * table, Serial * element) {
+    for(int i = 0; i < table->list->size; i++) {
+        Serial * serial = table->list->list[i];
         if ( strcmp(serial->location,element->location) == 0 ) {
             return serial;
         }
     }
-    list_Serial_append(&list_serial, element);
+    list_Serial_append(table->list, element);
     return element;
 }
 
-Serial * list_serial_add_if_not_in_by_location(char * location) {
+Serial * serial_table_add_if_not_in_by_location(object_SerialTable * table, char * location) {
     assert(location != null);
-    Serial * serial = list_serial_find_by_location(location);
+    Serial * serial = serial_table_find_by_location(table, location);
     if ( serial == null ) {
-        list_Serial_append(&list_serial, serial_new());
-        final Serial * newOne = list_serial.list[list_serial.size-1];
-        serial_set_location(newOne,location);
+        list_Serial_append(table->list, serial_new());
+        final Serial * newOne = table->list->list[table->list->size-1];
+        device_location_set(AD_DEVICE(newOne),location);
         return newOne;
     } else {
         return serial;
     }
 }
 
-AD_LIST_SRC_APPEND(Serial)
-
-int list_Serial_index_from_location(char *location) {
+int serial_table_index_from_location(object_SerialTable * table, char *location) {
     if ( location != null ) {
-        Serial * port;
-        for(int i = 0; i < list_serial.size; i++) {
-            port = list_serial.list[i];
-            if ( port->location != null && strcmp(port->location,location) == 0 ) {
+        Device * device;
+        for(int i = 0; i < table->list->size; i++) {
+            device = (Device*)table->list->list[i];
+            if ( device->location != null && strcmp(device->location,location) == 0 ) {
                 return i;
             }
         }
     }
     return -1;
 }
-void list_serial_set_selected_by_location(char *location) {
-    final int index = list_Serial_index_from_location(location);
+void serial_table_set_selected_by_location(object_SerialTable * table, char *location) {
+    final int index = serial_table_index_from_location(table, location);
     if ( index == -1 ) {
-        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+        table->selected_index = SERIAL_TABLE_NO_SELECTED;
     } else {
-        list_serial_selected = index;
+        table->selected_index = index;
     }
 }
 
-Serial * list_serial_find_by_location(final char * location) {
-    final int index = list_Serial_index_from_location(location);
+Serial * serial_table_find_by_location(object_SerialTable * table, final char * location) {
+    final int index = serial_table_index_from_location(table, location);
     if ( index == -1 ) {
         return null;
     } else {
-        return list_serial.list[index];
+        return table->list->list[index];
     }
 }
 
-void serial_close_selected() {
-    serial_close(list_serial_get_selected());
+void serial_table_close_selected(object_SerialTable * table) {
+    serial_close(serial_table_get_selected(table));
 }
 
-void list_serial_free() {
-    if ( list_serial.list != null ) {
-        for(int i = 0; i < list_serial.size; i++) {
-            if ( list_serial.list[i] != null ) {
-                serial_free(list_serial.list[i]);
-                list_serial.list[i] = null;
+void serial_table_free(object_SerialTable * table) {
+    if ( table->list->list != null ) {
+        for(int i = 0; i < table->list->size; i++) {
+            if ( table->list->list[i] != null ) {
+                serial_free(table->list->list[i]);
+                table->list->list[i] = null;
             }
         }
-        free(list_serial.list);
-        list_serial.list = null;
+        free(table->list->list);
+        table->list->list = null;
     }
-    list_serial.size = 0;
-    list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+    table->list->size = 0;
+    table->selected_index = SERIAL_TABLE_NO_SELECTED;
 }
 #if defined OS_WINDOWS
-    void list_serial_fill_comports(char *selected_serial_path, int *baud_rate) {
+    static void serial_table_fill_comports(object_SerialTable * table, char *selected_serial_path, int *baud_rate) {
         HDEVINFO hDevInfo;
         SP_DEVINFO_DATA devInfoData;
         DWORD i;
@@ -108,11 +122,11 @@ void list_serial_free() {
                 sscanf(portName, "%*[^(](%[^)])", formattedPortName);
                 snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
 
-                final Serial * serial = list_serial_add_if_not_in_by_location(formattedPortNameFullPath);
+                final Serial * serial = serial_table_add_if_not_in_by_location(table,formattedPortNameFullPath);
                 serial->detected = true;
-                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
+                if ( table->selected_index == SERIAL_TABLE_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,formattedPortNameFullPath) == 0 ) {
-                        list_serial_selected = list_serial.size-1;
+                        table->selected_index = table->list->size-1;
                         serial->baud_rate = *baud_rate;
                     }
                 }
@@ -121,7 +135,7 @@ void list_serial_free() {
         
         SetupDiDestroyDeviceInfoList(hDevInfo);
     }
-    void list_serial_fill_pipes(char *selected_serial_path, int *baud_rate) {
+    static void serial_table_fill_pipes(object_SerialTable * table, char *selected_serial_path, int *baud_rate) {
         char pipeName[256];
         WIN32_FIND_DATAA findFileData;
         HANDLE hFind;
@@ -140,11 +154,11 @@ void list_serial_free() {
             if (strncmp(findFileData.cFileName, SERIAL_AD_LIST_PIPE_PREFIX, strlen(SERIAL_AD_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
-                final Serial * serial = list_serial_add_if_not_in_by_location(pipeFullPath);
+                final Serial * serial = serial_table_add_if_not_in_by_location(table,pipeFullPath);
                 serial->detected = true;
-                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
+                if ( table->selected_index == SERIAL_TABLE_NO_SELECTED ) {
                     if ( selected_serial_path != null && strcmp(selected_serial_path,pipeFullPath) == 0 ) {
-                        list_serial_selected = list_serial.size-1;
+                        table->selected_index = table->list->size-1;
                         serial->baud_rate = *baud_rate;
                     }
                 }
@@ -154,7 +168,7 @@ void list_serial_free() {
         FindClose(hFind);
     }
 #elif defined OS_POSIX
-    void list_serial_fill_from_dir(final char * dir, int filter_sz, char filter[][20], char * selected_serial_path, int * baud_rate) {
+    static void serial_table_fill_from_dir(object_SerialTable * table, final char * dir, int filter_sz, char filter[][20], char * selected_serial_path, int * baud_rate) {
         
         DIRENT **namelist;
         final int namelist_n = scandir(dir, &namelist,NULL,&alphasort);
@@ -179,16 +193,16 @@ void list_serial_free() {
                                 char *serial_path ;
                                 assert(0 < strlen(dir));
                                 asprintf(&serial_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
-                                final Serial * serial = list_serial_add_if_not_in_by_location(serial_path);
+                                final Serial * serial = serial_table_add_if_not_in_by_location(table, serial_path);
                                 serial->detected = true;
                                 if ( access(serial_path,R_OK|W_OK) == 0 ) {
                                     log_msg(LOG_DEBUG, "%s: All permissions granted", serial_path);
                                 } else {
                                     log_msg(LOG_DEBUG, "%s: Missing permissions", serial_path);
                                 }
-                                if ( list_serial_selected == SERIAL_AD_LIST_NO_SELECTED ) {
+                                if ( table->selected_index == SERIAL_TABLE_NO_SELECTED ) {
                                     if ( selected_serial_path != null && strcmp(selected_serial_path,serial_path) == 0 ) {
-                                        list_serial_selected = list_serial.size-1;
+                                        table->selected_index = table->list->size-1;
                                         serial->baud_rate = *baud_rate;
                                     }
                                 }
@@ -209,16 +223,16 @@ void list_serial_free() {
     }
 #endif
 
-void list_serial_set_to_undetected() {
-    for(int i = 0; i < list_serial.size; i++) {
-        Serial * serial = list_serial.list[i];
+void serial_table_set_to_undetected(object_SerialTable * table) {
+    for(int i = 0; i < table->list->size; i++) {
+        Serial * serial = table->list->list[i];
         serial->detected = false;
     }
 }
-bool list_serial_remove(final Serial * element) {
+bool serial_table_remove(object_SerialTable * table, final Serial * element) {
     int index = -1;
-    for(int i = 0; i < list_serial.size; i++) {
-        if ( list_serial.list[i] == element ) {
+    for(int i = 0; i < table->list->size; i++) {
+        if ( table->list->list[i] == element ) {
             index = i;
             break;
         }
@@ -226,59 +240,60 @@ bool list_serial_remove(final Serial * element) {
     if ( index == -1 ) {
         return false;
     } else {
-        if ( index < list_serial_selected ) {
-            list_serial_selected --;
+        if ( index < table->selected_index ) {
+            table->selected_index --;
         }
-        for ( int i = index; i < list_serial.size-1; i++) {
-            list_serial.list[i] = list_serial.list[i+1];
+        for ( int i = index; i < table->list->size-1; i++) {
+            table->list->list[i] = table->list->list[i+1];
         }
-        list_serial.list = (Serial **)realloc(list_serial.list, (--list_serial.size) * sizeof(Serial*));
+        table->list->size--;
         serial_free(element);
         return true;
     }
 }
-void list_serial_remove_undetected(bool except_network) {
-    for(int i = 0; i < list_serial.size; i++) {
-        Serial * serial = list_serial.list[i];
+void serial_table_remove_undetected(object_SerialTable * table, bool except_network) {
+    for(int i = 0; i < table->list->size; i++) {
+        Serial * serial = table->list->list[i];
         if ( ! serial->detected ) {
             if ( except_network && strstr(serial->location,":") != null ) {
                 continue;
             }
-            if ( i == list_serial_selected ) {
-                list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+            if ( i == table->selected_index ) {
+                table->selected_index = SERIAL_TABLE_NO_SELECTED;
             }
-            list_serial_remove(serial);
+            serial_table_remove(table, serial);
         }
     }
 }
 
-void list_serial_fill() {
+void serial_table_fill(object_SerialTable * table) {
     module_debug(MODULE_SERIAL "Filling serial list (with update take care)");
     int i;
     char * selected_serial_path = null;
     int baud_rate = SERIAL_DEFAULT_BAUD_RATE;
-    final Serial * selected_serial = list_serial_get_selected();
+    final Serial * selected_serial = serial_table_get_selected(table);
     if ( selected_serial != null ) {
         selected_serial_path = strdup(selected_serial->location);
         baud_rate = selected_serial->baud_rate;
     }
-    list_serial_set_to_undetected();
+    serial_table_set_to_undetected(table);
    
     #if defined OS_WINDOWS
-        list_serial_fill_comports(selected_serial_path,&baud_rate);
-        list_serial_fill_pipes(selected_serial_path, &baud_rate);
+        serial_table_fill_comports(table, selected_serial_path,&baud_rate);
+        serial_table_fill_pipes(table, selected_serial_path, &baud_rate);
     #elif defined OS_POSIX 
 		char part1[][20] = {"ttys","ttyS","ttyUSB"};
-	    list_serial_fill_from_dir("/dev/",3,part1,selected_serial_path,&baud_rate);
+	    serial_table_fill_from_dir(table, "/dev/",3,part1,selected_serial_path,&baud_rate);
 		char part2[][20] = {""};
-		list_serial_fill_from_dir("/dev/pts/",1,part2,selected_serial_path,&baud_rate);
+		serial_table_fill_from_dir(table, "/dev/pts/",1,part2,selected_serial_path,&baud_rate);
     #else
     #   warning Unsupported OS
     #endif
 
     // This may free the device after it has been openned so disabling for now
     // So function like thread_viface_cleanup_routine use the device after it has been removed/free by this list
-    //list_serial_remove_undetected(true);
+    //serial_table_remove_undetected(table, true);
+
     if ( selected_serial_path != null ) {
         free(selected_serial_path);
     }

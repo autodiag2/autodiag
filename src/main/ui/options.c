@@ -161,12 +161,12 @@ static void recovery_mode() {
     viface_close(iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        list_serial_add_if_not_in_by_location(config.com.serial.device_location);
-        list_serial_set_selected_by_location(config.com.serial.device_location);
+        serial_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        serial_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
-    final Serial * serial = list_serial_get_selected();
+    final Serial * serial = serial_table_get_selected(config.ephemere.device_table);
     if ( serial == null ) {
-        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+        config.ephemere.device_table->selected_index = SERIAL_TABLE_NO_SELECTED;
     } else {
         serial->baud_rate = config.com.serial.baud_rate;
         viface_recorder_reset(iface);
@@ -184,7 +184,7 @@ static void recovery_mode() {
 }
 static void* save_internal(void *arg) {
     module_debug(MODULE_OPTIONS "Save options setup");
-    serial_close_selected();
+    serial_table_close_selected(config.ephemere.device_table);
     final const gchar * device_location = gtk_entry_get_text(gui->device_location);
     if ( device_location == null || strcmp(device_location,"") == 0 ) {
         if ( config.com.serial.device_location != null ) {
@@ -250,15 +250,15 @@ static void save() {
 }
 
 static void list_serial_refresh() {
-    list_serial_fill();
+    serial_table_fill(config.ephemere.device_table);
     if ( gui->serialList == null ) {
         module_debug(MODULE_OPTIONS "Cannot process without gui attached");
     } else {
         gtk_combo_box_text_remove_all(gui->serialList);
-        for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
-            final Serial * port = list_serial.list[serial_i];
+        for(int serial_i = 0; serial_i < config.ephemere.device_table->list->size; serial_i++) {
+            final Serial * port = config.ephemere.device_table->list->list[serial_i];
             gtk_combo_box_text_append(gui->serialList,null,port->location);
-            if ( port == list_serial_get_selected() ) {
+            if ( port == serial_table_get_selected(config.ephemere.device_table) ) {
                 gtk_combo_box_set_active((GtkComboBox *)gui->serialList,serial_i);
                 gtk_entry_set_text(gui->device_location, port->location);
             }
@@ -322,9 +322,10 @@ static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
 }
 static void set_device_location(char * location) {
     assert(location != null);
+    object_SerialTable * device_table = config.ephemere.device_table;
     gtk_entry_set_text(gui->device_location, location);
-    for(int serial_i = 0; serial_i < list_serial.size; serial_i++) {
-        final Serial * port = list_serial.list[serial_i];
+    for(int serial_i = 0; serial_i < device_table->list->size; serial_i++) {
+        final Serial * port = device_table->list->list[serial_i];
         if ( strcmp(location, port->location) == 0 ) {
             gtk_combo_box_set_active((GtkComboBox *)gui->serialList,serial_i);
             break;

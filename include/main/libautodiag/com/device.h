@@ -82,6 +82,9 @@ typedef struct Device {
     void (*unlock)(final struct Device* device);
 } Device;
 
+void device_location_set(final Device * device, final char *location);
+const char * device_type_as_string(DEVICE_TYPE type);
+
 #define DEVICE_ERROR -1
 /**
  * Binary data received by the device

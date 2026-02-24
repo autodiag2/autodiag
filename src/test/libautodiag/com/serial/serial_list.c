@@ -1,7 +1,8 @@
 #include "libTest.h"
 
 bool testSerialListOperations(VehicleIFace* iface) {
-    list_serial_fill();
-    Serial * first = list_serial.list[0];
-    return list_serial_remove(first);
+    object_SerialTable * table = object_SerialTable_new();
+    serial_table_fill(table);
+    Serial * first = table->list->list[0];
+    return serial_table_remove(table, first);
 }

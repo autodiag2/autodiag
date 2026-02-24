@@ -96,7 +96,7 @@ static char *ascii_interpret_escape_sequences(const char *input) {
 }
 static void * send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
-    final Serial * port = list_serial_get_selected();
+    final Serial * port = serial_table_get_selected(config.ephemere.device_table);
     if ( ! error_feedback_serial(gui->errorFeedback,port) ) {
         serial_lock(port);
         buffer_recycle(port->recv_buffer);

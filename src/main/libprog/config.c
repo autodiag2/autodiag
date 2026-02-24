@@ -20,7 +20,8 @@
         .filepath = null \
     }, \
     .ephemere = { \
-        .iface = null \
+        .iface = null, \
+        .device_table = null \
     }, \
     .vehicleExplorer = { \
         .refreshRateS = 0.1, \
@@ -210,6 +211,10 @@ void config_init() {
     if ( config.ephemere.iface == null ) {
         config.ephemere.iface = viface_new();
     }
+    if ( config.ephemere.device_table != null ) {
+        object_SerialTable_free(config.ephemere.device_table);
+    }
+    config.ephemere.device_table = object_SerialTable_new();
 }
 bool config_load() {
     config_initiated_check();
@@ -227,12 +232,12 @@ void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        list_serial_add_if_not_in_by_location(config.com.serial.device_location);
-        list_serial_set_selected_by_location(config.com.serial.device_location);
+        serial_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        serial_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
-    final Serial * port = list_serial_get_selected();
+    final Serial * port = serial_table_get_selected(config.ephemere.device_table);
     if ( port == null ) {
-        list_serial_selected = SERIAL_AD_LIST_NO_SELECTED;
+        config.ephemere.device_table->selected_index = SERIAL_TABLE_NO_SELECTED;
     } else {
         port->baud_rate = config.com.serial.baud_rate;
         viface_recorder_reset(config.ephemere.iface);

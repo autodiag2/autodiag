@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include "libautodiag/com/obd/obd.h"
+#include "libautodiag/com/serial/list_serial.h"
 
 /**
  * Define general configuration of the gui, values can be modified by the options gui or directly in file
@@ -38,6 +39,7 @@ typedef struct {
     } commandLine;
     struct {
         VehicleIFace* iface;
+        object_SerialTable * device_table;
     } ephemere;
     struct {
         bool enabled;

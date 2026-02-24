@@ -55,6 +55,7 @@ int main (int argc, char *argv[]) {
     log_set_from_env();
     config_init();
     config_load();
+    serial_table_fill(config.ephemere.device_table);
     
     if ( ! log_is_env_set() ) {
         log_set_level(config.log.level);
@@ -112,10 +113,10 @@ int main (int argc, char *argv[]) {
                 argNext();
                 char * arg = argCurrent();
                 if ( arg == null ) {
-                    printf("Ports available:\n");
-                    for(int i = 0; i < list_serial.size; i++) {
-                        Serial * port = list_serial.list[i];
-                        printf(" %s\n", port->location);
+                    printf("Devices available:\n");
+                    for(int i = 0; i < config.ephemere.device_table->list->size; i++) {
+                        Device * device = AD_DEVICE(config.ephemere.device_table->list->list[i]);
+                        printf(" %s (%s)\n", device->location, device_type_as_string(device->type));
                     }
                     return 0;
                 } else {

@@ -5,7 +5,8 @@ static list_mod_gui * mods = null;
 static int mod_launcher_last_cols = -1;
 
 void module_shutdown_main() {
-    module_shutdown_serial();
+    serial_table_close_selected(config.ephemere.device_table);
+    serial_table_free(config.ephemere.device_table);
     for(int i = 0; i < mods->size; i++) {
         mods->list[i]->end();
     }
@@ -62,7 +63,7 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
 }
 
 void* refresh_usb_adaptater_state_internal(void *arg) {
-    final Serial * port = list_serial_get_selected();
+    final Serial * port = serial_table_get_selected(config.ephemere.device_table);
     if ( port == null ) {
         adaptater_state_set_text("No serial port selected", "orange");
     } else {
@@ -295,7 +296,7 @@ void module_init_main() {
         assert(0 != g_signal_connect(G_OBJECT(mainGui->window),"delete-event",G_CALLBACK(main_onclose),NULL));
         gtk_builder_add_callback_symbol(builder,"window-root-quit",&module_shutdown_main);
 
-        module_init_serial();
+        serial_table_fill(config.ephemere.device_table);
         
         mods = list_mod_gui_new();
         list_mod_gui_append(mods, mod_gui_dyno_new());
