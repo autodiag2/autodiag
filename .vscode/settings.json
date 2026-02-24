@@ -1,5 +1,7 @@
 {
     "files.associations": {
+        "*.c": "c",
+        "*.h": "c",
         "**/*.html": "jinja-html",
         "array": "c",
         "string": "c",
@@ -14,7 +16,7 @@
         "unordered_map": "c",
         "vector": "c",
         "typeinfo": "c",
-        "list_serial.h": "c",
+        "device_table.h": "c",
         "__hash_table": "c",
         "__split_buffer": "c",
         "bitset": "c",
@@ -55,19 +57,18 @@
         "iso3779.h": "c",
         "ui/graph_data.h": "c",
         "vehicle.h": "c",
-        "sim_obd_generators.h": "c"
+        "sim_obd_generators.h": "c",
         "buffer.h": "c",
         "math.h": "c",
         "string.h": "c"
     },
-    // globally disable import-folding
+
     "editor.foldingImportsByDefault": false,
 
-    // (optional) per-language override
     "[c]": {
-    "editor.foldingImportsByDefault": false
+        "editor.foldingImportsByDefault": false
     },
     "[cpp]": {
-    "editor.foldingImportsByDefault": false
+        "editor.foldingImportsByDefault": false
     }
 }
