@@ -286,15 +286,20 @@ bool device_table_remove(object_DeviceTable * table, final Device * element) {
 }
 void device_table_remove_undetected(object_DeviceTable * table, bool except_network) {
     for(int i = 0; i < table->list->size; i++) {
-        Serial * serial = table->list->list[i];
-        if ( ! serial->detected ) {
-            if ( except_network && strstr(serial->location,":") != null ) {
-                continue;
+        Device * device = table->list->list[i];
+        if ( device->type == DEVICE_TYPE_SERIAL ) {
+            Serial * serial = table->list->list[i];
+            if ( ! serial->detected ) {
+                if ( except_network && strstr(serial->location,":") != null ) {
+                    continue;
+                }
+                if ( i == table->selected_index ) {
+                    table->selected_index = DEVICE_TABLE_NO_SELECTED;
+                }
+                device_table_remove(table, device);
             }
-            if ( i == table->selected_index ) {
-                table->selected_index = DEVICE_TABLE_NO_SELECTED;
-            }
-            device_table_remove(table, serial);
+        } else {
+            log_msg(LOG_ERROR, "not implemented");
         }
     }
 }
@@ -304,10 +309,13 @@ void device_table_fill(object_DeviceTable * table) {
     int i;
     char * selected_device_path = null;
     int baud_rate = SERIAL_DEFAULT_BAUD_RATE;
-    final Serial * selected_serial = device_table_get_selected(table);
-    if ( selected_serial != null ) {
-        selected_device_path = strdup(selected_serial->location);
-        baud_rate = selected_serial->baud_rate;
+    final Device * selected_device = device_table_get_selected(table);
+    if ( selected_device != null ) {
+        selected_device_path = strdup(selected_device->location);
+        if ( selected_device->type == DEVICE_TYPE_SERIAL ) {
+            Serial * serial = (Serial*)selected_device;
+            baud_rate = serial->baud_rate;
+        }
     }
     device_table_set_to_undetected(table);
    
