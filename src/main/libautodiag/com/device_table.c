@@ -181,7 +181,7 @@ void device_table_free(object_DeviceTable * table) {
         }
 
         do {
-            if (strncmp(findFileData.cFileName, SERIAL_AD_LIST_PIPE_PREFIX, strlen(SERIAL_AD_LIST_PIPE_PREFIX)) == 0) {
+            if (strncmp(findFileData.cFileName, WINDOWS_SERIAL_EMU_PIPE_PREFIX, strlen(WINDOWS_SERIAL_EMU_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
                 final Device * device = device_table_add_if_not_in_by_location(table, pipeFullPath, DEVICE_TYPE_SERIAL);

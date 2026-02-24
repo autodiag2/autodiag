@@ -12,7 +12,7 @@
 #   include <devguid.h>
 #   include <stdio.h>
 #   include <string.h>
-#   define SERIAL_AD_LIST_PIPE_PREFIX "elm327sim_"
+#   define WINDOWS_SERIAL_EMU_PIPE_PREFIX "elm327sim_"
 #endif
 
 AD_LIST_H(Device)
