@@ -55,44 +55,51 @@ CC = $(TOOLCHAIN)gcc
 
 default: compile_progs
 
-release_progs: compile_progs
+tools_prerequistes:
+	@command -v cp > /dev/null 2>&1 || { echo "cp is required to create a new version"; exit 1; }
+	@command -v mkdir > /dev/null 2>&1 || { echo "mkdir is required to create a new version"; exit 1; }
+	@command -v rm > /dev/null 2>&1 || { echo "rm is required to create a new version"; exit 1; }
+	@command -v printf > /dev/null 2>&1 || { echo "printf is required to create a new version"; exit 1; }
+	@command -v ln > /dev/null 2>&1 || { echo "ln is required to create a new version"; exit 1; }
 
-release_progs_compat: compile_progs_compat
+release_progs: tools_prerequistes compile_progs
 
-compile_progs_compat: output/bin/elm327sim_compat output/bin/doipsim_compat
+release_progs_compat: tools_prerequistes compile_progs_compat
 
-compile_progs: $(BINS_PROGS)
-	@-echo "Software ready at: $^"
+compile_progs_compat: tools_prerequistes output/bin/elm327sim_compat output/bin/doipsim_compat
 
-compile_examples: $(BINS_EXAMPLES)
-	@-echo "Examples ready at: $^"
+compile_progs: tools_prerequistes $(BINS_PROGS)
+	@echo "Software ready at: $(filter-out tools_prerequistes,$^)"
 
-compile_tests: $(BINS_TESTS)
-	@-echo "Tests: $^"
+compile_examples: tools_prerequistes $(BINS_EXAMPLES)
+	@echo "Examples ready at: $(filter-out tools_prerequistes,$^)"
 
-compile_lib: $(BIN_LIB)
-	@-echo "Library ready at: $^"
+compile_tests: tools_prerequistes $(BINS_TESTS)
+	@echo "Tests: $(filter-out tools_prerequistes,$^)"
+
+compile_lib: tools_prerequistes $(BIN_LIB)
+	@echo "Library ready at: $(filter-out tools_prerequistes,$^)"
 
 coverage: CFLAGS_COVERAGE += --coverage
 coverage: CFLAGS_LIBS_TESTS += -lgcov
-coverage: veryclean compile_tests
+coverage: tools_prerequistes veryclean compile_tests
 	echo "running coverage with : $(CFLAGS)"
 	./output/bin/regression
 	$(TOOLCHAIN)gcov -p -t $(OBJS_LIB)
 
-uninstallPython:
+uninstallPython: tools_prerequistes
 	-rm -f $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	-rm -fr $(PYTHON_INSTALL_FOLDER_DATA)
 
-_installPython: compile_lib uninstallPython
+_installPython: tools_prerequistes compile_lib uninstallPython
 	@-echo "Installing library in the python package"
 	mkdir -p "$(PYTHON_INSTALL_FOLDER_LIB)" "$(PYTHON_INSTALL_FOLDER_DATA)"
 
-installPython: _installPython
+installPython: tools_prerequistes _installPython
 	cp -f $(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	cp -rf data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
-installPythonDev: _installPython
+installPythonDev: tools_prerequistes _installPython
 	ln -s $(PWD)/$(BIN_LIB) $(PYTHON_INSTALL_FOLDER_LIB)/$(BIN_LIB_NAME)
 	ln -s $(PWD)/data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
@@ -146,30 +153,29 @@ $(BIN_LIB): $(OBJS_LIB)
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
 dependencies: $(SOURCES)
+	@command -v sed > /dev/null 2>&1 || { echo "sed is required to create a new version"; exit 1; }
+	@command -v grep > /dev/null 2>&1 || { echo "grep is required to create a new version"; exit 1; }
 	@echo "Generating dependencies..."
 	@> dependencies.mk
 	@$(foreach var, $(SOURCES), $(cmd))	
 
 -include dependencies.mk
 
-clean:
+clean: tools_prerequistes
 	rm -rf output/obj/
 	rm -fr pyautodiag/build
 	rm -fr pyautodiag/dist
 	rm -fr pyautodiag/*.egg-info
 
-veryclean: clean
+veryclean: tools_prerequistes clean
 	rm -rf output/bin/
 
-run: default
+run: tools_prerequistes default
 	output/bin/$(APP_NAME) $(args)
-runDebug: default
+runDebug: tools_prerequistes default
 	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME) $(args)
-runTest: ./output/bin/regression
+runTest: tools_prerequistes ./output/bin/regression
 	./output/bin/regression $(args)
-
-tests: $(BINS_TESTS)
-	@-echo "Tests: $^"
 
 info:
 	@-echo "OBJS=$(OBJS)"
@@ -178,7 +184,10 @@ info:
 	@-echo "OBJS_LIB=$(OBJS_LIB)"
 	@-echo "SOURCES=$(SOURCES)"
 
-tarball:
+tarball: tools_prerequistes
+	@command -v git > /dev/null 2>&1 || { echo "git is required to create a new version"; exit 1; }
+	@command -v cpio > /dev/null 2>&1 || { echo "cpio is required to create a new version"; exit 1; }
+	@command -v tar > /dev/null 2>&1 || { echo "tar is required to create a new version"; exit 1; }
 	prefix="$(APP_NAME)-$(APP_VERSION)" && \
 	tmp="/tmp/$(APP_NAME)fileList" && \
 	mkdir -p "$${prefix}" && \
@@ -187,24 +196,29 @@ tarball:
 	tar jcf "$${prefix}".tar.bz2 "$${prefix}" && \
 	rm -rf "$${prefix}"
 
-distDebianSrc: veryclean
+distDebianSrc: tools_prerequistes veryclean
+	@command -v dpkg-source > /dev/null 2>&1 || { echo "dpkg-source is required to create a new version"; exit 1; }
 	dpkg-source --format="$$(cat dist/debian/source/format)" -l$$(pwd)/dist/debian/changelog -c$$(pwd)/dist/debian/control -b .
 
-distDebianBin: release_progs
+distDebianBin: tools_prerequistes release_progs
+	@command -v dpkg > /dev/null 2>&1 || { echo "dpkg is required to create a new version"; exit 1; }
+	@command -v dpkg-buildpackage > /dev/null 2>&1 || { echo "dpkg-buildpackage is required to create a new version"; exit 1; }
 	cd dist/ && dpkg-buildpackage -b --buildinfo-option=-u../output/bin/ --changes-option=-u../output/bin/ -us -uc --hook-done='fakeroot debian/rules done'
 	# Due to missing behaviour in dpkg-genchanges(1.19.7) (that is in dpkg-genbuilinfo) look -u -O, we are required to do this
 	mv $(APP_NAME)_*.changes ./output/bin/
 	dpkg -I ./output/bin/$(APP_NAME)*$(APP_VERSION)*.deb
 
-distWindows: release_progs
+distWindows: tools_prerequistes release_progs
 	"/c/Program Files (x86)/Inno Setup 6/ISCC.exe" ./dist/windows/package.iss
 
-distMacOS: release_progs
+distMacOS: tools_prerequistes release_progs
 	./dist/macos/package.sh
 
-distDebian: distDebianBin
+distDebian: tools_prerequistes distDebianBin
 
-newVersion:
+newVersion: tools_prerequistes
+	@command -v git > /dev/null 2>&1 || { echo "git is required to create a new version"; exit 1; }
+	@command -v debchange > /dev/null 2>&1 || { echo "debchange is required to create a new version"; exit 1; }
 	@-control=app.mk ; \
 	version=$$(bash -c "let version=$(APP_VERSION)+1 ; echo \$$version") ; \
 	tmp="/tmp/control_tmp" ; \
@@ -224,19 +238,19 @@ _install: uninstall
 	mkdir -p "$(INSTALL_DATA_FOLDER_APP)" "$(INSTALL_BIN_FOLDER)" "$(INSTALL_LIB_FOLDER)"
 
 # Manual installation
-install: _install
+install: tools_prerequistes _install
 	cp -fr ui "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr data/data "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr media "$(INSTALL_DATA_FOLDER_APP)"
 	-cp ./output/bin/* "$(INSTALL_BIN_FOLDER)"
 	cp ./output/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
-installDev: _install
+installDev: tools_prerequistes _install
 	ln -s "$${PWD}/data/data" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/ui" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}/media" "$(INSTALL_DATA_FOLDER_APP)"
 	ln -s "$${PWD}"/output/bin/* "$(INSTALL_BIN_FOLDER)"
 	ln -s "$${PWD}"/output/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
-uninstall:
+uninstall: tools_prerequistes
 	rm -fr "$(INSTALL_DATA_FOLDER_APP)"
 	for bin in "$${PWD}"/output/bin/*; do \
 		if [ -f "$${bin}" ]; then \
@@ -244,7 +258,8 @@ uninstall:
 			rm -f "$(INSTALL_LIB_FOLDER)/$$(basename "$${bin}")"; \
 		fi; \
 	done
-doc:
+doc: tools_prerequistes
+	@command -v doxygen > /dev/null 2>&1 || { echo "doxygen is required to create a new version"; exit 1; }
 	doxygen
 	@-echo "Documentation generated in output/doc/html/index.html"
 help:
@@ -262,7 +277,6 @@ help:
 	@-echo " compile_tests            - compile tests"
 	@-echo " compile_lib              - compile the library"
 	@-echo " compile_examples         - compile examples"
-	@-echo " tests                    - compile tests"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"
 	@-echo " uninstallPython          - uninstall data from the python package"
