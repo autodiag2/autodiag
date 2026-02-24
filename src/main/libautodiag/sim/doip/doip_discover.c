@@ -13,7 +13,7 @@ void * sim_doip_discovery_loop(void *arg) {
     SimDoIp * sim = srv->sim;
     sock_t handle = srv->handle;
     DoIpImplementation * implementation = ((DoIpImplementation*)sim->implementation);
-    long int last_broadcast_ms = -1;
+    long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
     Buffer * annoucement = buffer_from_ascii_hex("0123456789ABCDEF");
     while ( implementation->loop_thread != null ) {

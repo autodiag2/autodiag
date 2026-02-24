@@ -161,7 +161,7 @@ static void recovery_mode() {
     viface_close(iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, DEVICE_TYPE_SERIAL);
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, AD_DEVICE_TYPE_SERIAL);
         log_msg(LOG_ERROR, "TODO add more type of device (doip)");
         device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
@@ -169,7 +169,7 @@ static void recovery_mode() {
     if ( serial == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        assert(serial->type == DEVICE_TYPE_SERIAL);
+        assert(serial->type == AD_DEVICE_TYPE_SERIAL);
         serial->baud_rate = config.com.serial.baud_rate;
         viface_recorder_reset(iface);
         viface_recorder_set_state(iface, false);

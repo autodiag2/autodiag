@@ -232,7 +232,7 @@ void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, DEVICE_TYPE_SERIAL);
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, AD_DEVICE_TYPE_SERIAL);
         log_msg(LOG_ERROR, "TODO add more type of device (doip)");
         device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
@@ -240,7 +240,7 @@ void config_onchange() {
     if ( port == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        assert(port->type == DEVICE_TYPE_SERIAL);
+        assert(port->type == AD_DEVICE_TYPE_SERIAL);
         port->baud_rate = config.com.serial.baud_rate;
         viface_recorder_reset(config.ephemere.iface);
         viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);

@@ -72,7 +72,7 @@ int serial_cli_main(int argc, char *argv[]) {
         printf("Serial port seem not open\n");
         return 1;
     }
-    assert(serial->type == DEVICE_TYPE_SERIAL);
+    assert(serial->type == AD_DEVICE_TYPE_SERIAL);
 
     while(true) {
         char command[1000] = {0};

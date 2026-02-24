@@ -89,7 +89,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
     assert(iface != null);
     uds_viface_stop_tester_present_timer(iface);
     switch(device->type) {
-        case DEVICE_TYPE_SERIAL: {
+        case AD_DEVICE_TYPE_SERIAL: {
             Serial * serial = (Serial*)device;
             if ( serial->status != SERIAL_STATE_READY ) {
                 if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
@@ -109,7 +109,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
             iface->device = AD_DEVICE(elm);
             iface->device->unlock(AD_DEVICE(iface->device));
         } break;
-        case DEVICE_TYPE_DOIP: {
+        case AD_DEVICE_TYPE_DOIP: {
             object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
             if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
                 device->open((Device*)device);

@@ -405,7 +405,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
 }
 object_DoIPDevice * object_DoIPDevice_new() {
     object_DoIPDevice * device = (object_DoIPDevice*)malloc(sizeof(object_DoIPDevice));
-    device->type = DEVICE_TYPE_DOIP;
+    device->type = AD_DEVICE_TYPE_DOIP;
     device->timeout_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_MS;
     device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));

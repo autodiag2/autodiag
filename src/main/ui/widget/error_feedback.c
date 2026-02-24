@@ -6,7 +6,7 @@ bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial)
         msg = strdup("No serial selected");
         return true;
     }
-    assert(serial->type == DEVICE_TYPE_SERIAL);
+    assert(serial->type == AD_DEVICE_TYPE_SERIAL);
     if ( serial->status != SERIAL_STATE_READY ) {
         asprintf(&msg, "Serial port in the wrong state : %s", serial_status_to_string(serial->status));
     }

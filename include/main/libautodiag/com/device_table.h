@@ -33,7 +33,7 @@ void device_table_free(object_DeviceTable * table);
  * @return NULL if not found
  */
 Device * device_table_find_by_location(object_DeviceTable * table, final char * location);
-Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, DEVICE_TYPE type);
+Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, AD_DEVICE_TYPE type);
 
 bool device_table_remove(object_DeviceTable * table, final Device * element);
 void device_table_set_to_undetected(object_DeviceTable * table);

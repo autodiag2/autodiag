@@ -550,7 +550,7 @@ void serial_unlock(final Serial * port) {
 Serial * serial_new() {
     final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
-    port->type = DEVICE_TYPE_SERIAL;
+    port->type = AD_DEVICE_TYPE_SERIAL;
     serial_init(port);
     return port;
 }

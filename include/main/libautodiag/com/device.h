@@ -21,15 +21,15 @@
 #define AD_DEVICE(arg) ((struct Device*)arg)
 
 typedef enum {
-    DEVICE_TYPE_SERIAL,
-    DEVICE_TYPE_DOIP
-} DEVICE_TYPE;
+    AD_DEVICE_TYPE_SERIAL,
+    AD_DEVICE_TYPE_DOIP
+} AD_DEVICE_TYPE;
 
 typedef struct Device {
     /**
      * eg. DoIP, Serial
      */
-    DEVICE_TYPE type;
+    AD_DEVICE_TYPE type;
     /**
      * location of the device accross OSs
      */
@@ -88,7 +88,7 @@ typedef struct Device {
 } Device;
 
 void device_location_set(final Device * device, final char *location);
-const char * device_type_as_string(DEVICE_TYPE type);
+const char * device_type_as_string(AD_DEVICE_TYPE type);
 
 #define DEVICE_ERROR -1
 /**

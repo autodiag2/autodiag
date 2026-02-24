@@ -2,8 +2,15 @@
 #define __AD_TIME_H
 
 #include <stdint.h>
-#include <time.h>
+
 #include "libautodiag/compile_target.h"
+
+#ifdef OS_WINDOWS
+#   include <windows.h>
+#elif defined OS_POSIX
+#   include <time.h>
+#endif
+
 
 uint64_t time_ms();
 

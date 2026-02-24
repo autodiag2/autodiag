@@ -44,10 +44,10 @@ bool device_location_is_network(final Device *device) {
 
     return *s == '\0';
 }
-const char * device_type_as_string(DEVICE_TYPE type) {
+const char * device_type_as_string(AD_DEVICE_TYPE type) {
     switch(type) {
-        case DEVICE_TYPE_SERIAL: return "Serial";
-        case DEVICE_TYPE_DOIP: return "DoIP";
+        case AD_DEVICE_TYPE_SERIAL: return "Serial";
+        case AD_DEVICE_TYPE_DOIP: return "DoIP";
         default: return "Unknown";
     }
 }

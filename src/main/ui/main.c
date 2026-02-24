@@ -67,7 +67,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
     if ( port == null ) {
         adaptater_state_set_text("No serial port selected", "orange");
     } else {
-        assert(port->type == DEVICE_TYPE_SERIAL);
+        assert(port->type == AD_DEVICE_TYPE_SERIAL);
         switch(port->status) {
             case SERIAL_STATE_READY:
                 adaptater_state_set_text("Ready", "green");
