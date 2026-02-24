@@ -232,7 +232,8 @@ void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
     if ( config.com.serial.device_location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, DEVICE_TYPE_SERIAL);
+        log_msg(LOG_ERROR, "TODO add more type of device (doip)");
         device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
     }
     final Serial * port = (Serial*)device_table_get_selected(config.ephemere.device_table);

@@ -25,7 +25,7 @@ OBJECT_H(DeviceTable,
 
 void device_table_close_selected(object_DeviceTable * table);
 /**
- * Fill the serial list with currently detected COM ports on the system.
+ * Fill the device table with currently detected COM ports/pipes/network.
  */
 void device_table_fill(object_DeviceTable * table);
 void device_table_free(object_DeviceTable * table);
@@ -33,7 +33,7 @@ void device_table_free(object_DeviceTable * table);
  * @return NULL if not found
  */
 Device * device_table_find_by_location(object_DeviceTable * table, final char * location);
-Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location);
+Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, DEVICE_TYPE type);
 
 bool device_table_remove(object_DeviceTable * table, final Device * element);
 void device_table_set_to_undetected(object_DeviceTable * table);

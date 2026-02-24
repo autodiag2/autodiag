@@ -1,4 +1,5 @@
 #include "libautodiag/com/serial/list_serial.h"
+#include "libautodiag/com/doip/device.h"
 
 int Device_cmp(Device * d1, Device * d2) {
     return strcmp(d1->location, d2->location);
@@ -39,16 +40,26 @@ Device * device_table_add_if_not_in(object_DeviceTable * table, Device * element
     return element;
 }
 
-Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location) {
+Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, DEVICE_TYPE type) {
     assert(location != null);
-    Device * serial = device_table_find_by_location(table, location);
-    if ( serial == null ) {
-        list_Device_append(table->list, AD_DEVICE(serial_new()));
+    Device * device = device_table_find_by_location(table, location);
+    if ( device == null ) {
+        switch(type) {
+            case DEVICE_TYPE_SERIAL: {
+                list_Device_append(table->list, AD_DEVICE(serial_new()));
+            } break;
+            case DEVICE_TYPE_DOIP: {
+                list_Device_append(table->list, AD_DEVICE(object_DoIPDevice_new()));
+            } break;
+            default: {
+                log_msg(LOG_DEBUG, "not implemented");
+            } break;
+        }
         final Device * newOne = table->list->list[table->list->size-1];
         device_location_set(AD_DEVICE(newOne),location);
         return newOne;
     } else {
-        return serial;
+        return device;
     }
 }
 bool device_table_update_device(object_DeviceTable * table, Device * old, Device * new) {
@@ -135,8 +146,9 @@ void device_table_free(object_DeviceTable * table) {
                 sscanf(portName, "%*[^(](%[^)])", formattedPortName);
                 snprintf(formattedPortNameFullPath, sizeof(formattedPortNameFullPath), "\\\\.\\%s", formattedPortName);
 
-                final Device * device = device_table_add_if_not_in_by_location(table,formattedPortNameFullPath);
+                final Device * device = device_table_add_if_not_in_by_location(table, formattedPortNameFullPath, DEVICE_TYPE_SERIAL);
                 if ( device->type == DEVICE_TYPE_SERIAL ) {
+                    Serial * serial = (Serial*)device;
                     serial->detected = true;
                     if ( table->selected_index == DEVICE_TABLE_NO_SELECTED ) {
                         if ( selected_device_path != null && strcmp(selected_device_path,formattedPortNameFullPath) == 0 ) {
@@ -171,7 +183,7 @@ void device_table_free(object_DeviceTable * table) {
             if (strncmp(findFileData.cFileName, SERIAL_AD_LIST_PIPE_PREFIX, strlen(SERIAL_AD_LIST_PIPE_PREFIX)) == 0) {
                 char *pipeFullPath;
                 asprintf(&pipeFullPath, "\\\\.\\pipe\\%s", findFileData.cFileName);
-                final Device * device = device_table_add_if_not_in_by_location(table,pipeFullPath);
+                final Device * device = device_table_add_if_not_in_by_location(table, pipeFullPath, DEVICE_TYPE_SERIAL);
                 if ( device->type == DEVICE_TYPE_SERIAL ) {
                     Serial * serial = (Serial*)device;
                     serial->detected = true;
@@ -215,7 +227,7 @@ void device_table_free(object_DeviceTable * table) {
                                 char *device_path ;
                                 assert(0 < strlen(dir));
                                 asprintf(&device_path,"%s%s%s",dir,dir[strlen(dir)-1] == '/' ? "" : "/",namelist[namelist_n]->d_name);
-                                final Device * device = device_table_add_if_not_in_by_location(table, device_path);
+                                final Device * device = device_table_add_if_not_in_by_location(table, device_path, DEVICE_TYPE_SERIAL);
                                 if ( device->type == DEVICE_TYPE_SERIAL ) {
                                     Serial * serial = (Serial*)device;
                                     serial->detected = true;
@@ -253,9 +265,16 @@ void device_table_free(object_DeviceTable * table) {
 
 void device_table_set_to_undetected(object_DeviceTable * table) {
     for(int i = 0; i < table->list->size; i++) {
-        Serial * serial = (Serial*)table->list->list[i];
-        assert(serial->type == DEVICE_TYPE_SERIAL);
-        serial->detected = false;
+        Device * device = table->list->list[i];
+        switch(device->type) {
+            case DEVICE_TYPE_SERIAL: {
+                Serial * serial = (Serial*)device;
+                serial->detected = false;
+            } break;
+            default: {
+                log_msg(LOG_DEBUG, "Not implemented");
+            } break;
+        }        
     }
 }
 bool device_table_remove(object_DeviceTable * table, final Device * element) {
