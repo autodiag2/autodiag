@@ -5,6 +5,10 @@ INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 
 # Programs
 SOURCES_PROGS := $(sort $(call rwildcard,src/main/,*.c))
+ifneq (,$(findstring release,$(MAKECMDGOALS)))
+	CFLAGS += -DCOMPILE_RELEASE
+endif
+
 ifneq (,$(findstring compat,$(MAKECMDGOALS)))
 	OBJS_PROGS := $(sort $(call filterout-multi, \
 		output/obj/main/libprog/ui/%.o output/obj/main/ui/%.o \
@@ -51,6 +55,8 @@ CC = $(TOOLCHAIN)gcc
 default: compile_progs
 
 release_progs: compile_progs
+
+release_progs_compat: compile_progs_compat
 
 compile_progs_compat: output/bin/elm327sim_compat output/bin/doipsim_compat
 
@@ -244,6 +250,7 @@ help:
 	@-echo " compile_progs            - compile progs"
 	@-echo " compile_progs_compat     - compile progs maximizing compatibility"
 	@-echo " release_progs            - compile progs with debugging info removed"
+	@-echo " release_progs_compat	  - compile progs maximizing compatibility with debugging info removed"
 	@-echo " compile_tests            - compile tests"
 	@-echo " compile_lib              - compile the library"
 	@-echo " tests                    - compile tests"
