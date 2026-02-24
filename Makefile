@@ -25,6 +25,7 @@ else
 	))
 endif
 BINS_PROGS := $(sort $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,src/main/prog/,*.c)))
+BINS_EXAMPLES := $(sort $(patsubst src/example/%.c,output/bin/example_%,$(call rwildcard,src/example/,*.c)))
 
 # Library shared object
 OBJS_LIB := $(sort output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
@@ -62,6 +63,9 @@ compile_progs_compat: output/bin/elm327sim_compat output/bin/doipsim_compat
 
 compile_progs: $(BINS_PROGS)
 	@-echo "Software ready at: $^"
+
+compile_examples: $(BINS_EXAMPLES)
+	@-echo "Examples ready at: $^"
 
 compile_tests: $(BINS_TESTS)
 	@-echo "Tests: $^"
@@ -125,6 +129,10 @@ output/bin/%_compat: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	else \
 		$(CC) $(CFLAGS) -o '$@' $^ ; \
 	fi
+
+output/bin/example_%: src/example/%.c $(OBJS_PROGS) $(BIN_LIB)
+	mkdir -p "$$(dirname '$@')"
+	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	mkdir -p "$$(dirname '$@')"
@@ -253,6 +261,7 @@ help:
 	@-echo " release_progs_compat	  - compile progs maximizing compatibility with debugging info removed"
 	@-echo " compile_tests            - compile tests"
 	@-echo " compile_lib              - compile the library"
+	@-echo " compile_examples         - compile examples"
 	@-echo " tests                    - compile tests"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"
