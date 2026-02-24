@@ -172,13 +172,19 @@ clean: tools_prerequistes
 
 veryclean: tools_prerequistes clean
 	rm -rf output/bin/
+	rm -fr output/doc/
 
 run: tools_prerequistes default
 	output/bin/$(APP_NAME) $(args)
+
 runDebug: tools_prerequistes default
 	GTK_DEBUG=interactive AUTODIAG_LOG_LEVEL=debug output/bin/$(APP_NAME) $(args)
-runTest: tools_prerequistes ./output/bin/regression
+
+testRegression: tools_prerequistes ./output/bin/regression
 	./output/bin/regression $(args)
+
+testFuzz: tools_prerequistes ./output/bin/fuzz
+	./output/bin/fuzz $(args)
 
 info:
 	@-echo "OBJS=$(OBJS)"
@@ -268,7 +274,7 @@ doc: tools_prerequistes
 help:
 	@-echo "Production rules"
 	@-echo " release_progs            - compile progs with debugging info removed"
-	@-echo " release_progs_compat	  - compile progs maximizing compatibility with debugging info removed"
+	@-echo " release_progs_compat     - compile progs maximizing compatibility with debugging info removed"
 	@-echo " release_lib              - compile the library with debugging info removed"
 	@-echo " distDebian               - package for debian"
 	@-echo " distWindows              - package in an installer for windows"
@@ -285,7 +291,8 @@ help:
 	@-echo " compile_examples         - compile examples"
 	@-echo " installDev               - install using symlinks"
 	@-echo " runDebug                 - run with debug flags"
-	@-echo " runTest                  - run regression test"
+	@-echo " testRegression           - run regression test"
+	@-echo " testFuzz                 - run fuzz test"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"
 	@-echo " uninstallPython          - uninstall data from the python package"
