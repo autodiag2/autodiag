@@ -39,12 +39,19 @@ typedef enum {
     DEVICE_DOIP_STATUS_ERROR
 } DeviceDoIPStatus;
 
+#define DEVICE_DOIP_DEFAULT_ADDRESS 0x0E08
+#define DEVICE_DOIP_DEFAULT_TIMEOUT_MS 1000
 OBJECT_H(DoIPDevice,
     Device;
     DoIPDeviceImplementation * implementation;
-    int timeout;                // timeout in ms before considering no reply from the remote
-    Buffer * recv_buffer;       // buffer for input data
-    DeviceDoIPStatus status;    // state of the device
+    // timeout in ms before considering no reply from the remote
+    int timeout_ms;
+    // buffer for input data
+    Buffer * recv_buffer;
+    // state of the device
+    DeviceDoIPStatus status;
+    // Address of the device on the DoIP network
+    uint16_t address;
 );
 /**
  * Use this to send/recv anything else other than diag messages.

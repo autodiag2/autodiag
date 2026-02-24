@@ -1,15 +1,13 @@
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/doip.h"
 
-static uint16_t doip_tester_addr = 0x0E08;
-
 bool doip_configure(final object_DoIPDevice * device) {
     log_msg(LOG_DEBUG, "Configuring doip device");
     {
         object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
         object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
-        payload->src_addr[0] = (doip_tester_addr >> 8) & 0xFF;
-        payload->src_addr[1] = doip_tester_addr & 0xFF;
+        payload->src_addr[0] = (device->address >> 8) & 0xFF;
+        payload->src_addr[1] = device->address & 0xFF;
         msg->payload = (DoIPMessageDef*)payload;
         doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
         object_DoIPMessage_free(msg);
@@ -209,7 +207,7 @@ static void doip_unlock(final object_DoIPDevice* device) {
 static int doip_send(final object_DoIPDevice * device, const char * command) {
     object_DoIPMessage * msg = doip_message_diag(
         buffer_from_ascii_hex("07E8"), 
-        buffer_from_uint16(doip_tester_addr),
+        buffer_from_uint16(device->address),
         buffer_from_ascii_hex(command)
     );
     return doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
@@ -242,11 +240,11 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     int poll_result = -1;
     #ifdef OS_POSIX
         if ( device->implementation->handle != -1 ) {
-            poll_result = file_pool_write_posix(device->implementation->handle, device->timeout);
+            poll_result = file_pool_write_posix(device->implementation->handle, device->timeout_ms);
         }
     #elif defined OS_WINDOWS
         if ( device->implementation->win_handle != INVALID_HANDLE_VALUE ) {
-            poll_result = file_pool_write(&device->implementation->win_handle, device->timeout);
+            poll_result = file_pool_write(&device->implementation->win_handle, device->timeout_ms);
         }
     #else
     #   warning Unsupported OS
@@ -341,7 +339,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
             return DEVICE_ERROR;
         }
-        int res = file_pool_read_posix(device->implementation->handle, &readLen, device->timeout);
+        int res = file_pool_read_posix(device->implementation->handle, &readLen, device->timeout_ms);
         if ( 0 < res ) {
             buffer_ensure_capacity(device->recv_buffer, readLen);
             final int bytes_readed = read(device->implementation->handle, device->recv_buffer->buffer + device->recv_buffer->size, readLen);
@@ -372,7 +370,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
 
         DWORD bytes_readed = 0;
 
-        int res = file_pool_read(&device->implementation->win_handle, &readLen, device->timeout);
+        int res = file_pool_read(&device->implementation->win_handle, &readLen, device->timeout_ms);
 
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "Error while polling");
@@ -405,7 +403,8 @@ int doip_recv_internal(final object_DoIPDevice * device) {
 object_DoIPDevice * object_DoIPDevice_new() {
     object_DoIPDevice * device = (object_DoIPDevice*)malloc(sizeof(object_DoIPDevice));
     device->type = DEVICE_TYPE_DOIP;
-    device->timeout = 1000;
+    device->timeout_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_MS;
+    device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
     device->recv_buffer = buffer_new();
     #if defined OS_WINDOWS

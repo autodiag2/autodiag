@@ -87,7 +87,6 @@ static void viface_open_abort(final VehicleIFace * iface) {
 }
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
     assert(iface != null);
-    assert(device->type != null);
     uds_viface_stop_tester_present_timer(iface);
     switch(device->type) {
         case DEVICE_TYPE_SERIAL: {
