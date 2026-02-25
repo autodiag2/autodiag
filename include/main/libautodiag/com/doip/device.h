@@ -22,6 +22,9 @@ typedef struct {
      * thread lock on the port (both buffer and other data)
      */
     pthread_mutex_t lock_mutex;
+    /**
+     * Holds the connection (TCP) to the DoIP node, it is used for sending and receiving data.
+     */
     sock_t handle;
 } DoIPDeviceImplementation;
 
