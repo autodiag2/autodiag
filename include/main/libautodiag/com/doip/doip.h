@@ -103,6 +103,11 @@ OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
     Buffer * oem_reserved;
 )
 
+OBJECT_H(DoIPMessagePayloadAliveCheck,
+    DoIPMessageDef;
+    Buffer * src_addr;
+)
+
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/message/diag.h"
 

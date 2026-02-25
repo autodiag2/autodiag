@@ -33,6 +33,10 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationRequest_new();
         } break;
+        case DOIP_ALIVE_CHECK_REQUEST:
+        case DOIP_ALIVE_CHECK_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadAliveCheck_new();
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE_ACK:
         case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
             object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
@@ -91,6 +95,10 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
             msg->payload_raw = null;
         }
         switch(msg->payload_type) {
+            case DOIP_ALIVE_CHECK_REQUEST:
+            case DOIP_ALIVE_CHECK_RESPONSE: {
+                object_DoIPMessagePayloadAliveCheck_free((object_DoIPMessagePayloadAliveCheck*)msg->payload);
+            } break;
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 object_DoIPMessagePayloadDiag_free((object_DoIPMessagePayloadDiag*)msg->payload);
             } break;
@@ -157,6 +165,15 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             payload->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
             payload->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
         } break;
+        case DOIP_ALIVE_CHECK_REQUEST: {
+            object_DoIPMessagePayloadAliveCheck * payload = object_DoIPMessagePayloadAliveCheck_new();
+            buffer_recycle(payload->src_addr);
+        } break;
+        case DOIP_ALIVE_CHECK_RESPONSE: {
+            object_DoIPMessagePayloadAliveCheck * payload = object_DoIPMessagePayloadAliveCheck_new();
+            buffer_recycle(payload->src_addr);
+            buffer_slice_append(payload->src_addr, msg->payload_raw, 0, 2);
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE_NACK:
         case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
             object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
@@ -214,6 +231,11 @@ void doip_message_dump(object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
                 log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
             } break;
+            case DOIP_ALIVE_CHECK_REQUEST:
+            case DOIP_ALIVE_CHECK_RESPONSE: {
+                object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
+                log_msg(LOG_DEBUG, "    src_addr: 0x%04X", buffer_to_hex_string(payload->src_addr));
+            } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
                 log_msg(LOG_DEBUG, "    src_addr: 0x%02X%02X", payload->src_addr[0], payload->src_addr[1]);
@@ -269,6 +291,11 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
                 return null;
             }
             plen = 4 + dsz;
+        } break;
+        case DOIP_ALIVE_CHECK_REQUEST:
+        case DOIP_ALIVE_CHECK_RESPONSE: {
+            object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
+            plen = payload->src_addr->size;
         } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
@@ -326,6 +353,11 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             memcpy(payload_start + 2, payload->dst_addr->buffer, 2);
             assert(payload->data->size <= (out_sz - 12));
             memcpy(payload_start + 4, payload->data->buffer, payload->data->size);
+        } break;
+        case DOIP_ALIVE_CHECK_REQUEST:
+        case DOIP_ALIVE_CHECK_RESPONSE: {
+            object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
+            memcpy(payload_start, payload->src_addr->buffer, payload->src_addr->size);
         } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
@@ -444,4 +476,22 @@ void object_DoIPMessagePayloadRoutineActivationResponse_free(object_DoIPMessageP
         buffer_free(r->oem_reserved);
         free(r);
     }
+}
+
+object_DoIPMessagePayloadAliveCheck * object_DoIPMessagePayloadAliveCheck_new() {
+    object_DoIPMessagePayloadAliveCheck * r = (object_DoIPMessagePayloadAliveCheck*)malloc(sizeof(object_DoIPMessagePayloadAliveCheck));
+    r->src_addr = buffer_new();
+    return r;
+}
+
+void object_DoIPMessagePayloadAliveCheck_free(object_DoIPMessagePayloadAliveCheck * payload) {
+    if ( payload != null ) {
+        buffer_free(payload->src_addr);
+        free(payload);
+    }
+}
+
+object_DoIPMessagePayloadAliveCheck * object_DoIPMessagePayloadAliveCheck_assign(object_DoIPMessagePayloadAliveCheck * to, object_DoIPMessagePayloadAliveCheck * from) {
+    buffer_assign(to->src_addr, from->src_addr);
+    return to;
 }
