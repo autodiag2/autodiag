@@ -3,11 +3,9 @@
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/device.h"
+#include "libautodiag/com/network.h"
 #if defined OS_POSIX
 #   include <sys/types.h>
-#   include <sys/socket.h>
-#   include <netinet/in.h>
-#   include <arpa/inet.h>
 #   include <unistd.h>
 #   include <errno.h>
 #endif
@@ -20,17 +18,11 @@
 #endif
 
 typedef struct {
-    pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
-#if defined OS_WINDOWS
-    HANDLE win_handle;
-    #ifdef OS_POSIX
-        int handle;
-    #endif
-#elif defined OS_POSIX
-    int handle;
-#else
-#   warning Unsupported OS
-#endif
+    /**
+     * thread lock on the port (both buffer and other data)
+     */
+    pthread_mutex_t lock_mutex;
+    sock_t handle;
 } DoIPDeviceImplementation;
 
 typedef enum {

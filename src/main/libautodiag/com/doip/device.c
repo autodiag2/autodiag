@@ -65,20 +65,19 @@ void doip_close(final object_DoIPDevice * device) {
         return;
     } 
     assert(device_location_is_network((Device*)device));
-    #if defined OS_POSIX
-        if (device->implementation->handle >= 0) {
+    
+    if (device->implementation->handle != SOCK_T_INVALID) {
+        #if defined OS_POSIX
             shutdown(device->implementation->handle, SHUT_RDWR);
             close(device->implementation->handle);
-        }
-        device->implementation->handle = -1;
-    #elif defined OS_WINDOWS
-        if (isSocketHandle(device->implementation->win_handle)) {
-            SOCKET s = (SOCKET)device->implementation->win_handle;
-            shutdown(s, SD_BOTH);
-            closesocket(s);
-        }
-        device->implementation->win_handle = INVALID_HANDLE_VALUE;
-    #endif
+        #elif defined OS_WINDOWS
+            shutdown(device->implementation->handle, SD_BOTH);
+            closesocket(device->implementation->handle);
+        #else
+        #   warning not implemented
+        #endif
+    }
+
     device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
 }
 static int doip_open_internal(final object_DoIPDevice * device) {
@@ -109,12 +108,7 @@ static int doip_open_internal(final object_DoIPDevice * device) {
         strncpy(host, addr, sizeof(host) - 1);
     }
 
-    #ifdef OS_POSIX
-        device->implementation->handle = -1;
-    #endif
-    #ifdef OS_WINDOWS
-        device->implementation->win_handle == INVALID_HANDLE_VALUE;
-    #endif
+    device->implementation->handle = SOCK_T_INVALID;
 
     log_msg(LOG_DEBUG, "TODO: UDP vehicle capabilities discovery and readiness");
 
@@ -176,10 +170,10 @@ static int doip_open_internal(final object_DoIPDevice * device) {
             return GENERIC_FUNCTION_ERROR;
         }
 
-        device->implementation->win_handle = (HANDLE)s;
+        device->implementation->handle = s;
         log_msg(LOG_DEBUG, "Opening TCP connection: %s", device->location);
         if (
-            device->implementation->win_handle == INVALID_HANDLE_VALUE
+            device->implementation->handle == SOCK_T_INVALID
         ) {
             log_msg(LOG_WARNING, "Cannot open the device %s", device->location);
             device->status = DEVICE_DOIP_STATUS_ERROR;
@@ -250,31 +244,25 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
         buffer_dump(request);
     }
 
-    #ifdef OS_POSIX
-        if (device->implementation->handle < 0) {
-            device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
-    #elif defined OS_WINDOWS
-        if (device->implementation->win_handle == INVALID_HANDLE_VALUE) {
-            device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
-    #endif
+    if (device->implementation->handle == SOCK_T_INVALID) {
+        device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+        return DEVICE_ERROR;
+    }
+
     int bytes_sent = 0;
     int write_len_rv = 0;
     int poll_result = -1;
-    #ifdef OS_POSIX
-        if ( device->implementation->handle != -1 ) {
+    
+    if ( device->implementation->handle != SOCK_T_INVALID ) {
+        #ifdef OS_POSIX
             poll_result = file_pool_write_posix(device->implementation->handle, device->timeout_ms);
-        }
-    #elif defined OS_WINDOWS
-        if ( device->implementation->win_handle != INVALID_HANDLE_VALUE ) {
-            poll_result = file_pool_write(&device->implementation->win_handle, device->timeout_ms);
-        }
-    #else
-    #   warning Unsupported OS
-    #endif
+        #elif defined OS_WINDOWS
+            poll_result = file_pool_write(&device->implementation->handle, device->timeout_ms);
+        #else
+        #   warning Unsupported OS
+        #endif
+    }
+
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "device:doip:Error while polling");
         return DEVICE_ERROR;
@@ -292,16 +280,13 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     #elif defined OS_WINDOWS
         DWORD bytes_written;
 
-        if (isSocketHandle(device->implementation->win_handle)) {
-            SOCKET s = (SOCKET)device->implementation->win_handle;
-
-            int sent = send(s, (const char *)request->buffer, request->size, 0);
-            if (sent <= 0 || sent != request->size) {
-                log_msg(LOG_ERROR, "device:doip:send failed: %d", WSAGetLastError());
-                return DEVICE_ERROR;
-            }
-            bytes_sent = sent;
+        int sent = send(device->implementation->handle, (const char *)request->buffer, request->size, 0);
+        if (sent <= 0 || sent != request->size) {
+            log_msg(LOG_ERROR, "device:doip:send failed: %d", WSAGetLastError());
+            return DEVICE_ERROR;
         }
+        bytes_sent = sent;
+        
         if (bytes_sent != request->size) {
             log_msg(LOG_ERROR, "device:doip:Error while writting to the doip");
             return DEVICE_ERROR;
@@ -360,11 +345,13 @@ static int doip_recv(final object_DoIPDevice * device) {
 }
 int doip_recv_internal(final object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
+    
+    if (device->implementation->handle == SOCK_T_INVALID) {
+        device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+        return DEVICE_ERROR;
+    }
+
     #if defined OS_POSIX
-        if (device->implementation->handle < 0) {
-            device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
         int res = file_pool_read_posix(device->implementation->handle, &readLen, device->timeout_ms);
         if ( 0 < res ) {
             buffer_ensure_capacity(device->recv_buffer, readLen);
@@ -389,14 +376,10 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             log_msg(LOG_ERROR, "device: unexpected happen on doip line");
         }
     #elif defined OS_WINDOWS
-        if (device->implementation->win_handle == INVALID_HANDLE_VALUE) {
-            device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
 
         DWORD bytes_readed = 0;
 
-        int res = file_pool_read(&device->implementation->win_handle, &readLen, device->timeout_ms);
+        int res = file_pool_read(&device->implementation->handle, &readLen, device->timeout_ms);
 
         if ( res == -1 ) {
             log_msg(LOG_ERROR, "Error while polling");
@@ -404,25 +387,21 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             log_msg(LOG_WARNING, "Timeout while polling");
         }
         
-        if (isSocketHandle(device->implementation->win_handle)) {
-            buffer_ensure_capacity(device->recv_buffer, readLen);
-            SOCKET s = (SOCKET)device->implementation->win_handle;
-            int r = recv(
-                s,
-                (char *)device->recv_buffer->buffer + device->recv_buffer->size,
-                readLen,
-                0
-            );
+        buffer_ensure_capacity(device->recv_buffer, readLen);
+        int r = recv(
+            device->implementation->handle,
+            (char *)device->recv_buffer->buffer + device->recv_buffer->size,
+            readLen,
+            0
+        );
 
-            if (r > 0) {
-                device->recv_buffer->size += r;
-            } else {
-                log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
-                return DEVICE_ERROR;
-            }
+        if (r > 0) {
+            device->recv_buffer->size += r;
         } else {
-            log_msg(LOG_ERROR, "cannot proceed on current handler");
+            log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
+            return DEVICE_ERROR;
         }
+
     #endif
     return readLen;
 }
@@ -435,12 +414,7 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->recv_buffer = buffer_new();
     device->node.max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
     device->node.node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
-    #if defined OS_WINDOWS
-        device->implementation->win_handle = INVALID_HANDLE_VALUE;
-    #endif
-    #if defined OS_POSIX
-        device->implementation->handle = -1;
-    #endif
+    device->implementation->handle = SOCK_T_INVALID;
     pthread_mutex_init(&device->implementation->lock_mutex, NULL);
     device->location = null;
     device->status = DEVICE_DOIP_STATUS_NOT_OPEN;

@@ -20,6 +20,8 @@
 #   define int socklen_t
 #   define SOCK_T_INVALID INVALID_SOCKET
 #   define close_sock closesocket
+#else
+#   warning Unsupported OS
 #endif
 
 #define NETWORK_BACKLOG 10
