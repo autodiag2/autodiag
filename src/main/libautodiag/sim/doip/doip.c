@@ -258,6 +258,10 @@ void sim_doip_loop(SimDoIp * sim) {
                     continue;
                 }
             } break;
+            case DOIP_ALIVE_CHECK_RESPONSE: {
+                object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
+                log_msg(LOG_DEBUG, "Alive Check Response received from tester 0x%04X", buffer_to_hex_string(payload->src_addr));
+            } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 log_msg(LOG_DEBUG, "Routing Activation Request received");
                 object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
@@ -276,6 +280,7 @@ void sim_doip_loop(SimDoIp * sim) {
                 routing_activated = res;
                 log_msg(LOG_DEBUG, "Routing activated: %s", res ? "success" : "failure");
             } break;
+            case DOIP_ALIVE_CHECK_REQUEST:
             case DOIP_DIAGNOSTIC_MESSAGE_ACK:
             case DOIP_DIAGNOSTIC_MESSAGE_NACK:
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {

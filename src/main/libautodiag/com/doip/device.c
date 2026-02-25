@@ -2,7 +2,8 @@
 #include "libautodiag/com/doip/doip.h"
 
 bool doip_configure(final object_DoIPDevice * device) {
-    log_msg(LOG_DEBUG, "Configuring doip device");
+    log_msg(LOG_DEBUG, "doip:client:Configuring doip device");
+    log_msg(LOG_DEBUG, "doip:client:Routine activation");
     {
         object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
         object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
@@ -24,13 +25,13 @@ bool doip_configure(final object_DoIPDevice * device) {
                         object_DoIPMessage_free(msg);
                     } return true;
                     default: {
-                        log_msg(LOG_ERROR, "Doip node refusing to start diagnostic maybe implement manufacturer specific process");
+                        log_msg(LOG_ERROR, "doip:client:Doip node refusing to start diagnostic maybe implement manufacturer specific process");
                         object_DoIPMessage_free(msg);
                     } return false;
                 }
             } break;
             default: {
-                log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", msg->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
+                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", msg->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
                 object_DoIPMessage_free(msg);
             } return false;
         }
