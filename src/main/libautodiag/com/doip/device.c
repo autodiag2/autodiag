@@ -5,55 +5,31 @@ bool doip_configure(final object_DoIPDevice * device) {
     log_msg(LOG_DEBUG, "doip:client:Configuring doip device");
     log_msg(LOG_DEBUG, "doip:client:Routine activation");
     {
-        object_DoIPMessage * msg = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
-        object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
-        payload->src_addr[0] = (device->address >> 8) & 0xFF;
-        payload->src_addr[1] = device->address & 0xFF;
-        msg->payload = (DoIPMessageDef*)payload;
-        doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
-        object_DoIPMessage_free(msg);
-    }
-    {
-        buffer_recycle(device->recv_buffer);
-        doip_recv_internal(device);
-        object_DoIPMessage * msg = doip_message_parse(device->recv_buffer);
-        switch(msg->payload_type) {
-            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
-                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
-                switch(payload->code) {
-                    case DOIP_MESSAGE_RARES_CODE_SUCCESS: {
-                        object_DoIPMessage_free(msg);
-                    } return true;
-                    default: {
-                        log_msg(LOG_ERROR, "doip:client:Doip node refusing to start diagnostic maybe implement manufacturer specific process");
-                        object_DoIPMessage_free(msg);
-                    } return false;
-                }
-            } break;
-            default: {
-                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", msg->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
-                object_DoIPMessage_free(msg);
-            } return false;
-        }
-    }
-    log_msg(LOG_DEBUG, "doip:client:Node capabilities retrieving");
-    {
-        object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
+        object_DoIPMessage * request = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
+        object_DoIPMessagePayloadRoutineActivationRequest * requestPayload = object_DoIPMessagePayloadRoutineActivationRequest_new();
+        requestPayload->src_addr[0] = (device->address >> 8) & 0xFF;
+        requestPayload->src_addr[1] = device->address & 0xFF;
+        request->payload = (DoIPMessageDef*)requestPayload;
         doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(request)));
         object_DoIPMessage_free(request);
         buffer_recycle(device->recv_buffer);
         doip_recv_internal(device);
         object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
         switch(response->payload_type) {
-            case DOIP_ENTITY_STATUS_RESPONSE: {
-                object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
-                device->node.max_data_size = payload->max_data_size;
-                device->node.node_type = payload->node_type;
-                log_msg(LOG_DEBUG, "doip:client:Node type 0x%04X, max data size %d", device->node.node_type, device->node.max_data_size);
-                object_DoIPMessage_free(response);
+            case DOIP_ROUTING_ACTIVATION_RESPONSE: {
+                object_DoIPMessagePayloadRoutineActivationResponse * responsePayload = (object_DoIPMessagePayloadRoutineActivationResponse*)response->payload;
+                switch(responsePayload->code) {
+                    case DOIP_MESSAGE_RARES_CODE_SUCCESS: {
+                        object_DoIPMessage_free(response);
+                    } return true;
+                    default: {
+                        log_msg(LOG_ERROR, "doip:client:Doip node refusing to start diagnostic maybe implement manufacturer specific process");
+                        object_DoIPMessage_free(response);
+                    } return false;
+                }
             } break;
             default: {
-                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
+                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
                 object_DoIPMessage_free(response);
             } return false;
         }
@@ -139,6 +115,8 @@ static int doip_open_internal(final object_DoIPDevice * device) {
     #ifdef OS_WINDOWS
         device->implementation->win_handle == INVALID_HANDLE_VALUE;
     #endif
+
+    log_msg(LOG_DEBUG, "TODO: UDP vehicle capabilities discovery and readiness");
 
     #ifdef OS_POSIX
         int fd = socket(AF_INET, SOCK_STREAM, 0);

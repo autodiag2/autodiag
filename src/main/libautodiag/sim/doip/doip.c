@@ -259,19 +259,6 @@ void sim_doip_loop(SimDoIp * sim) {
                 routing_activated = res;
                 log_msg(LOG_DEBUG, "doip:sim:Routing activated: %s", res ? "success" : "failure");
             } break;
-            case DOIP_ENTITY_STATUS_REQUEST: {
-                log_msg(LOG_DEBUG, "doip:sim:Entity Status Request received");
-                object_DoIPMessage * reply = doip_message_new(DOIP_ENTITY_STATUS_RESPONSE);
-                object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)reply->payload;
-                payload->node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_ECU;
-                payload->max_concurrent_connections = sim->max_concurrent_connections;
-                payload->openned_connections = sim->openned_connections;
-                payload->max_data_size = sim->max_data_size;
-                log_msg(LOG_DEBUG, "doip:sim:Sending Entity Status Response with node_type=0x%02X, max_concurrent_connections=%d, openned_connections=%d, max_data_size=%d",
-                    payload->node_type, payload->max_concurrent_connections, payload->openned_connections, payload->max_data_size);
-                doip_send_msg(sim, reply);
-                object_DoIPMessage_free(reply);
-            } break;
             case DOIP_ALIVE_CHECK_REQUEST:
             case DOIP_DIAGNOSTIC_MESSAGE_ACK:
             case DOIP_DIAGNOSTIC_MESSAGE_NACK:
