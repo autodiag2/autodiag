@@ -36,6 +36,28 @@ bool doip_configure(final object_DoIPDevice * device) {
             } return false;
         }
     }
+    log_msg(LOG_DEBUG, "doip:client:Node capabilities retrieving");
+    {
+        object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
+        doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(request)));
+        object_DoIPMessage_free(request);
+        buffer_recycle(device->recv_buffer);
+        doip_recv_internal(device);
+        object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
+        switch(response->payload_type) {
+            case DOIP_ENTITY_STATUS_RESPONSE: {
+                object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
+                device->node.max_data_size = payload->max_data_size;
+                device->node.node_type = payload->node_type;
+                log_msg(LOG_DEBUG, "doip:client:Node type 0x%04X, max data size %d", device->node.node_type, device->node.max_data_size);
+                object_DoIPMessage_free(response);
+            } break;
+            default: {
+                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
+                object_DoIPMessage_free(response);
+            } return false;
+        }
+    }
     return false;
 }
 
@@ -411,6 +433,8 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
     device->recv_buffer = buffer_new();
+    device->node.max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
+    device->node.node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
     #if defined OS_WINDOWS
         device->implementation->win_handle = INVALID_HANDLE_VALUE;
     #endif

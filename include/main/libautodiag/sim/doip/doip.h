@@ -41,6 +41,10 @@ typedef struct {
 
 typedef struct _SimDoIp {
     Sim;
+    byte node_type;
+    byte max_concurrent_connections;
+    byte openned_connections;
+    byte max_data_size;
 } SimDoIp;
 
 #define DOIP_NETWORK_PORT 13400

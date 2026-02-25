@@ -109,7 +109,7 @@ int network_udp_wait_readable(sock_t s, int timeout_ms) {
     #endif
 }
 
-sock_t network_tcp_start(int *bound_port, int start_port) {
+sock_t network_tcp_start(int *bound_port, int start_port, int backlog) {
     #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;
         if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) return SOCK_T_INVALID;
@@ -126,7 +126,7 @@ sock_t network_tcp_start(int *bound_port, int start_port) {
         return SOCK_T_INVALID;
     }
 
-    if (listen(server_fd, NETWORK_BACKLOG) < 0) {
+    if (listen(server_fd, backlog) < 0) {
         close_sock(server_fd);
         #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
             WSACleanup();

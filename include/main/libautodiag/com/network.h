@@ -24,7 +24,7 @@
 
 #define NETWORK_BACKLOG 10
 char * network_location(struct sockaddr_in caddr);
-sock_t network_tcp_start(int *bound_port, int start_port);
+sock_t network_tcp_start(int *bound_port, int start_port, int backlog);
 sock_t network_udp_start(int *bound_port, int start_port);
 int network_udp_enable_broadcast(sock_t s);
 int network_udp_set_reuseaddr(sock_t s);

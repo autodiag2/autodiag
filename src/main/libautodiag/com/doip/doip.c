@@ -19,6 +19,22 @@ static void doip__put_be32(byte *p, int v) {
     p[2] = (byte)((v >> 8) & 0xFF);
     p[3] = (byte)(v & 0xFF);
 }
+object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_new() {
+    object_DoIPMessagePayloadEmpty * payload = (object_DoIPMessagePayloadEmpty*)malloc(sizeof(object_DoIPMessagePayloadEmpty));
+    if ( payload == null ) return null;
+    memset(payload, 0, sizeof(*payload));
+    return payload;
+}
+void object_DoIPMessagePayloadEmpty_free(object_DoIPMessagePayloadEmpty* payload) {
+    if ( payload != null ) {
+        memset(payload, 0, sizeof(*payload));
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_assign(object_DoIPMessagePayloadEmpty * to, object_DoIPMessagePayloadEmpty *from) {
+    memcpy(to, from, sizeof(*to));
+    return to;
+}
 void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType type) {
     assert(msg != null);
     msg->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
@@ -31,7 +47,13 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadDiag_new();
         } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
-            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRoutineActivationRequest_new();
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadEmpty_new();
+        } break;
+        case DOIP_ENTITY_STATUS_REQUEST: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadEmpty_new();
+        } break;
+        case DOIP_ENTITY_STATUS_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadEntityStatusResponse_new();
         } break;
         case DOIP_ALIVE_CHECK_REQUEST:
         case DOIP_ALIVE_CHECK_RESPONSE: {
@@ -104,6 +126,12 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 object_DoIPMessagePayloadRoutineActivationRequest_free((object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload);
+            } break;
+            case DOIP_ENTITY_STATUS_REQUEST: {
+                object_DoIPMessagePayloadEmpty_free((object_DoIPMessagePayloadEmpty*)msg->payload);
+            } break;
+            case DOIP_ENTITY_STATUS_RESPONSE: {
+                object_DoIPMessagePayloadEntityStatusResponse_free((object_DoIPMessagePayloadEntityStatusResponse*)msg->payload);
             } break;
             case DOIP_DIAGNOSTIC_MESSAGE_ACK:
             case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
@@ -187,6 +215,19 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             }
             payload->type = ptype;
         } break;
+        case DOIP_ENTITY_STATUS_REQUEST: {
+            object_DoIPMessagePayloadEmpty * payload = object_DoIPMessagePayloadEmpty_new();
+            msg->payload = (DoIPMessageDef*)payload;
+        } break;
+        case DOIP_ENTITY_STATUS_RESPONSE: {
+            object_DoIPMessagePayloadEntityStatusResponse * payload = object_DoIPMessagePayloadEntityStatusResponse_new();
+            msg->payload = (DoIPMessageDef*)payload;
+            assert(7 <= msg->payload_raw->size);
+            payload->node_type = doip__be16(msg->payload_raw->buffer);
+            payload->max_concurrent_connections = msg->payload_raw->buffer[2];
+            payload->openned_connections = msg->payload_raw->buffer[3];
+            payload->max_data_size = msg->payload_raw->buffer[4];
+        } break;
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = object_DoIPMessagePayloadRoutineActivationRequest_new();
             msg->payload = (DoIPMessageDef*)payload;
@@ -242,6 +283,16 @@ void doip_message_dump(object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    activation_type: 0x%02x", payload->activation_type);
                 log_msg(LOG_DEBUG, "    iso_reserved: 0x%02x%02x%02x%02x", payload->iso_reserved[0], payload->iso_reserved[1], payload->iso_reserved[2], payload->iso_reserved[3]);
                 log_msg(LOG_DEBUG, "    vendor_reserved: 0x%02x%02x%02x%02x", payload->vendor_reserved[0], payload->vendor_reserved[1], payload->vendor_reserved[2], payload->vendor_reserved[3]);
+            } break;
+            case DOIP_ENTITY_STATUS_REQUEST: {
+                log_msg(LOG_DEBUG, "    no payload");
+            } break;
+            case DOIP_ENTITY_STATUS_RESPONSE: {
+                object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)msg->payload;
+                log_msg(LOG_DEBUG, "    node_type: 0x%04X", payload->node_type);
+                log_msg(LOG_DEBUG, "    max_concurrent_connections: %d", payload->max_concurrent_connections);
+                log_msg(LOG_DEBUG, "    openned_connections: %d", payload->openned_connections);
+                log_msg(LOG_DEBUG, "    max_data_size: %d", payload->max_data_size);
             } break;
             case DOIP_DIAGNOSTIC_MESSAGE_NACK:
             case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
@@ -300,6 +351,13 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
         case DOIP_ROUTING_ACTIVATION_REQUEST: {
             object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
             plen = 2 + 1 + 4 + 4;
+        } break;
+        case DOIP_ENTITY_STATUS_REQUEST: {
+            plen = 0;
+        } break;
+        case DOIP_ENTITY_STATUS_RESPONSE: {
+            object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)msg->payload;
+            plen = 2 + 1 + 1 + 1;
         } break;
         case DOIP_DIAGNOSTIC_MESSAGE_ACK:
         case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
@@ -365,6 +423,16 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             payload_start[2] = payload->activation_type;
             memcpy(payload_start + 3, payload->iso_reserved, 4);
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
+        } break;
+        case DOIP_ENTITY_STATUS_REQUEST: {
+            // no payload
+        } break;
+        case DOIP_ENTITY_STATUS_RESPONSE: {
+            object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)msg->payload;
+            doip__put_be16(payload_start, payload->node_type);
+            payload_start[2] = payload->max_concurrent_connections;
+            payload_start[3] = payload->openned_connections;
+            payload_start[4] = payload->max_data_size;
         } break;
         case DOIP_DIAGNOSTIC_MESSAGE_ACK:
         case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
@@ -493,5 +561,25 @@ void object_DoIPMessagePayloadAliveCheck_free(object_DoIPMessagePayloadAliveChec
 
 object_DoIPMessagePayloadAliveCheck * object_DoIPMessagePayloadAliveCheck_assign(object_DoIPMessagePayloadAliveCheck * to, object_DoIPMessagePayloadAliveCheck * from) {
     buffer_assign(to->src_addr, from->src_addr);
+    return to;
+}
+object_DoIPMessagePayloadEntityStatusResponse * object_DoIPMessagePayloadEntityStatusResponse_new() {
+    object_DoIPMessagePayloadEntityStatusResponse * r = (object_DoIPMessagePayloadEntityStatusResponse*)malloc(sizeof(object_DoIPMessagePayloadEntityStatusResponse));
+    r->node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
+    r->openned_connections = 0;
+    r->max_concurrent_connections = 0;
+    r->max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
+    return r;
+}
+void object_DoIPMessagePayloadEntityStatusResponse_free(object_DoIPMessagePayloadEntityStatusResponse * payload) {
+    if ( payload != null ) {
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadEntityStatusResponse * object_DoIPMessagePayloadEntityStatusResponse_assign(object_DoIPMessagePayloadEntityStatusResponse * to, object_DoIPMessagePayloadEntityStatusResponse * from) {
+    to->node_type = from->node_type;
+    to->openned_connections = from->openned_connections;
+    to->max_concurrent_connections = from->max_concurrent_connections;
+    to->max_data_size = from->max_data_size;
     return to;
 }

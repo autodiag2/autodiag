@@ -30,6 +30,10 @@ typdef struct {
 
 } DoIPMessageDef;
 
+OBJECT_H(DoIPMessagePayloadEmpty,
+    DoIPMessageDef;
+)
+
 OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
@@ -107,6 +111,22 @@ OBJECT_H(DoIPMessagePayloadAliveCheck,
     DoIPMessageDef;
     Buffer * src_addr;
 )
+
+typdef enum {
+    DOIP_MESSAGE_ENTITY_NODE_TYPE_GATEWAY = 0x00,
+    DOIP_MESSAGE_ENTITY_NODE_TYPE_ECU = 0x01,
+    DOIP_MESSAGE_ENTITY_NODE_TYPE_RESERVED = 0x02,
+    DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET = 0x03
+} DOIP_MESSAGE_ENTITY_NODE_TYPE;
+
+OBJECT_H(DoIPMessagePayloadEntityStatusResponse,
+    DoIPMessageDef;
+    uint16_t node_type;
+    byte max_concurrent_connections;
+    byte openned_connections;
+    byte max_data_size;
+)
+#define DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE 0xFF
 
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/message/diag.h"

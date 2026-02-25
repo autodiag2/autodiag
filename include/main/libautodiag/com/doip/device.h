@@ -50,8 +50,12 @@ OBJECT_H(DoIPDevice,
     Buffer * recv_buffer;
     // state of the device
     DeviceDoIPStatus status;
-    // Address of the device on the DoIP network
+    // Address of the device on the DoIP network (tester address)
     uint16_t address;
+    struct {
+        int node_type;
+        int max_data_size;
+    } node;
 );
 /**
  * Use this to send/recv anything else other than diag messages.
