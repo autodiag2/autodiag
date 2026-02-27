@@ -1033,7 +1033,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 #   warning Unsupported OS
                 #endif
 
-                if ( impl->handle->posix_handle == SOCK_T_INVALID ) {
+                if ( client_socket == SOCK_T_INVALID ) {
                     perror("sim:elm327:accept");
                     return;
                 }
