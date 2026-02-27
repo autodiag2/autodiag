@@ -33,9 +33,6 @@ typedef struct {
     pthread_t * loop_thread;
     bool loop_ready;
     int timeout_ms;
-    #ifdef OS_WINDOWS
-        HANDLE win_handle;
-    #endif
 } SimELM327Implementation;
 
 typedef struct _SimELM327 {

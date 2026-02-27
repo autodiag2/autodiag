@@ -48,135 +48,37 @@ void sim_prevent_read_himself(Sim * sim) {
 int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
     assert(sim != null);
     SimImplementation * impl = sim->implementation;
-    #ifdef OS_POSIX
-        if (sim->implementation->handle != SOCK_T_INVALID) {
-            final int poll_result = file_pool_write_posix(impl->handle, timeout_ms);
-            if ( poll_result <= 0 ) {
-                log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-                return -1;
-            }
-            int bytes_written = write(impl->handle, data, data_len);
-            if ( bytes_written == -1 ) {
-                perror("write");
-            }
-            return bytes_written;
-        }
-    #endif
-    #ifdef OS_WINDOWS
-        if (impl->client_socket != SOCK_T_INVALID) {
-            int ret = send(impl->client_socket, (const char*)data, (int)data_len, 0);
-            if (ret == SOCKET_ERROR) {
-                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
-                return -1;
-            }
-            return ret;
-        }
-    #endif
-    if ( strcasecmp(sim->type,"elm327") == 0 ) {
-        SimELM327 * elm327 = (SimELM327*)sim;
-        SimELM327Implementation * impl = (SimELM327Implementation *)elm327->implementation;
-        assert(data != null);
-        #ifdef OS_WINDOWS
-            assert(impl->win_handle != INVALID_HANDLE_VALUE);
-            final int poll_result = file_pool_write(&impl->win_handle, timeout_ms);
-            if ( poll_result <= 0 ) {
-                log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-                return -1;
-            }
-            DWORD bytes_written = 0;
-            if (!WriteFile(impl->win_handle, data, data_len, &bytes_written, null)) {
-                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-                return -1;
-            }
-            return bytes_written;
-        #endif
-    } else if ( strcasecmp(sim->type, "doip") == 0 ) {
-        // nothing to do
-    } else {
-        log_msg(LOG_ERROR, "Device type '%s' not implemented", sim->type);
+    object_handle_t * client_handle = impl->handle;
+    assert(!object_handle_t_invalid(client_handle));
+    final int poll_result = object_handle_t_poll_write(client_handle, timeout_ms);
+    if ( poll_result <= 0 ) {
+        log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+        return -1;
     }
-    return -1;
+    int bytes_written = object_handle_t_write(client_handle, data, data_len);
+    if ( bytes_written == -1 ) {
+        perror("write");
+    }
+    return bytes_written;
 }
 int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     assert(sim != null);
     assert(readed != null);
     buffer_ensure_capacity(readed, 500);
     SimImplementation * impl = sim->implementation;
-    #ifdef OS_POSIX
-        if ( sim->implementation->handle != -1 ) {
-            int res = file_pool_read_posix(sim->implementation->handle, null, timeout_ms);
-            if ( res == -1 ) {
-                log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-                return -1;
-            }
-            int rv = read(sim->implementation->handle,readed->buffer,readed->size_allocated-1);
-            if ( rv == -1 ) {
-                log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-                return -1;
-            }
-            readed->size = rv;
-            return rv;
-        }
-    #endif
-    #ifdef OS_WINDOWS
-        if (impl->client_socket != SOCK_T_INVALID) {
-            fd_set rfds;
-            FD_ZERO(&rfds);
-            FD_SET(impl->client_socket, &rfds);
-
-            struct timeval tv;
-            tv.tv_sec = timeout_ms / 1000;
-            tv.tv_usec = (timeout_ms % 1000) * 1000;
-
-            int sel = select(0, &rfds, null, null, &tv);
-            if (sel <= 0) return -1;
-
-            int ret = recv(impl->client_socket,
-                        (char*)readed->buffer,
-                        readed->size_allocated - 1,
-                        0);
-
-            if (ret <= 0) return -1;
-            readed->size = ret;
-            return ret;
-        }
-    #endif
-    if ( strcasecmp(sim->type,"elm327") == 0 ) {
-        SimELM327 * elm327 = (SimELM327*)sim;
-        SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;        
-        #ifdef OS_WINDOWS
-            if ( ! ConnectNamedPipe(impl->win_handle, null) ) {
-                DWORD err = GetLastError();
-                if ( err == ERROR_PIPE_CONNECTED ) {
-                    log_msg(LOG_DEBUG, "pipe already connected");
-                } else {
-                    if ( err == ERROR_NO_DATA ) {
-                        log_msg(LOG_ERROR, "pipe closed");
-                    } else {
-                        log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
-                    }
-                    return -1;
-                }
-            }
-            if ( file_pool_read(&impl->win_handle, null, timeout_ms) == -1 ) {
-                log_msg(LOG_ERROR, "Error while pooling");
-                return -1;
-            }
-            DWORD readedBytes = 0;
-            final int success = ReadFile(impl->win_handle, readed->buffer, readed->size_allocated-1, &readedBytes, 0);
-            if ( ! success ) {
-                log_msg(LOG_ERROR, "read error : %lu ERROR_BROKEN_PIPE=%lu", GetLastError(), ERROR_BROKEN_PIPE);
-                return -1;
-            }
-            if ( UINT_MAX < readedBytes ) {
-                log_msg(LOG_ERROR, "Impossible has happend more bytes received than buffer->size=%u", readed->size);
-                return -1;
-            }
-            readed->size = readedBytes;
-            return readedBytes;
-        #endif
+    object_handle_t * client_handle = impl->handle;
+    final int poll_result = object_handle_t_poll_read(client_handle, null, timeout_ms);
+    if ( poll_result == -1 ) {
+        log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+        return -1;
     }
-    return -1;
+    int rv = object_handle_t_read(client_handle, readed->buffer, readed->size_allocated);
+    if ( rv == -1 ) {
+        log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+        return -1;
+    }
+    readed->size = rv;
+    return rv;
 }
 
 int sim_load_from_json(Sim * sim, char * json_context) {

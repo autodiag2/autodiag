@@ -3,20 +3,18 @@
 
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/compile_target.h"
+#include "libautodiag/handle.h"
 #include "libautodiag/com/network.h"
 
 typedef struct {
     /**
      * Handle for one connection
      */
-    sock_t handle;
+    object_handle_t * handle;
     /**
      * Master handle that produce handles
      */
-    sock_t server_fd;
-    #ifdef OS_WINDOWS
-        sock_t client_socket;
-    #endif
+    object_handle_t * server_handle;
 } SimImplementation;
 
 typedef struct {

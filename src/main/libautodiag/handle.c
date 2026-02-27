@@ -1,8 +1,6 @@
 #include "libautodiag/handle.h"
 
-
-object_handle_t * object_handle_t_new() {
-    object_handle_t * h = (object_handle_t*)malloc(sizeof(object_handle_t));
+void object_handle_t_init(object_handle_t * h) {
     #ifdef OS_POSIX
         h->posix_handle = -1;
     #endif
@@ -12,6 +10,10 @@ object_handle_t * object_handle_t_new() {
             h->win_socket = INVALID_SOCKET;
         #endif
     #endif
+}
+object_handle_t * object_handle_t_new() {
+    object_handle_t * h = (object_handle_t*)malloc(sizeof(object_handle_t));
+    object_handle_t_init(h);
     return h;
 }
 void object_handle_t_free(object_handle_t * h) {

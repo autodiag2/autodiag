@@ -1,26 +1,18 @@
 #include "libautodiag/sim/elm327/network.h"
 #include "libautodiag/sim/elm327/elm327.h"
 
-bool sim_elm327_network_is_connected(void * implPtr) {
-    assert(implPtr != null);
-    SimELM327Implementation * impl = (SimELM327Implementation*)implPtr;
+bool sim_elm327_network_is_connected(object_handle_t * h) {
+    assert(h != null);
     #ifdef OS_POSIX
-        #ifdef OS_WINDOWS
-            sock_t handle = impl->win_handle;
-        #else        
-            sock_t handle = impl->handle;
-        #endif
-        if ( handle < 0 ) {
-            return false;
-        }
+        sock_t handle = h->posix_handle;
     #elif defined OS_WINDOWS
-        sock_t handle = impl->client_socket;
-        if ( handle == INVALID_SOCKET ) {
-            return false;
-        }
+        sock_t handle = h->win_socket;
     #else
     #   warning Unsupported OS
     #endif
+    if ( handle == SOCK_T_INVALID ) {
+        return false;
+    }
     char buf;
     ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
     if (ret == 0) return false; // connection closed by peer

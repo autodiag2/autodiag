@@ -61,5 +61,9 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size);
  * Close the handle.
  */
 void object_handle_t_close(object_handle_t * h);
+/**
+ * Set defaults on fields of this handle.
+ */
+void object_handle_t_init(object_handle_t * h);
 
 #endif
