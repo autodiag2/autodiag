@@ -1015,24 +1015,29 @@ void sim_elm327_loop(SimELM327 * elm327) {
         }
         if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
             struct sockaddr_in addr;
-            if ( ! sim_elm327_network_is_connected(impl->server_handle) ) {
-                #if defined OS_POSIX
-                    socklen_t addr_len = sizeof(addr);
-                    impl->handle->posix_handle = accept(impl->server_handle->posix_handle, (struct sockaddr*)&addr, &addr_len);
-                    if ( impl->handle->posix_handle == SOCK_T_INVALID ) {
-                        perror("sim:elm327:accept");
-                        return;
-                    }
+            if ( ! sim_network_is_connected(impl->server_handle) ) {
+                #ifdef OS_POSIX
+                    sock_t server_fd = impl->server_handle->posix_handle;
                 #elif defined OS_WINDOWS
-                    int addr_len = sizeof(addr);
-                    impl->handle->win_socket = accept(impl->server_handle->win_socket, (struct sockaddr*)&addr, &addr_len);
-                    if (impl->server_handle->win_socket == SOCK_T_INVALID) {
-                        perror("accept");
-                        return;
-                    }
+                    sock_t server_fd = impl->server_handle->win_socket;
                 #else
                 #   warning Unsupported OS
                 #endif
+                socklen_t addr_len = sizeof(addr);
+                sock_t client_socket = accept(server_fd, (struct sockaddr*)&addr, &addr_len);
+                #ifdef OS_POSIX
+                    impl->handle->posix_handle = client_socket;
+                #elif defined OS_WINDOWS
+                    impl->handle->win_socket = client_socket;
+                #else
+                #   warning Unsupported OS
+                #endif
+
+                if ( impl->handle->posix_handle == SOCK_T_INVALID ) {
+                    perror("sim:elm327:accept");
+                    return;
+                }
+
                 char * location = network_location(addr);
                 log_msg(LOG_INFO, "Client %s connected", location);
                 free(location);

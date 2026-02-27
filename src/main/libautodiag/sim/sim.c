@@ -3,6 +3,40 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
+bool sim_network_is_connected(object_handle_t * h) {
+    assert(h != null);
+    #ifdef OS_POSIX
+        sock_t handle = h->posix_handle;
+    #elif defined OS_WINDOWS
+        sock_t handle = h->win_socket;
+    #else
+    #   warning Unsupported OS
+    #endif
+    if ( handle == SOCK_T_INVALID ) {
+        return false;
+    }
+    char buf;
+    ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
+    if (ret == 0) return false; // connection closed by peer
+    #if defined OS_POSIX
+    #   include <fcntl.h>
+    #   include <errno.h>
+        if (ret == -1) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
+            return false; // error, consider disconnected
+        }
+    #elif defined OS_WINDOWS
+        if (ret == SOCKET_ERROR) {
+            int err = WSAGetLastError();
+            if (err == WSAEWOULDBLOCK) return 1;
+            return false;
+        }
+    #else
+    #   warning Unsupported OS
+    #endif
+    return true; // data available, connection alive
+}
+
 SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
     for (int i = 0; i < sim->ecus->size; i++) {
         SimECU *ecu = sim->ecus->list[i];
@@ -39,8 +73,8 @@ void sim_prevent_read_himself(Sim * sim) {
     assert(sim != null);
     SimImplementation * impl = sim->implementation;
     assert(impl != null);
-    bool result = (impl->server_fd == -1);
-    if ( result ) {
+    assert(impl->handle != null);
+    if ( sim_network_is_connected(impl->handle) ) {
         log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
         usleep(50e3);
     }

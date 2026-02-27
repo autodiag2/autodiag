@@ -13,38 +13,12 @@ SimDoIp * sim_doip_new() {
     impl->loop_ready = false;
     impl->timeout_ms = SIM_DOIP_TIMEOUT_MS_RW;
     impl->broadcast_time_ms = SIM_DOIP_TIMEOUT_MS_BROADCAST;
+    impl->handle = object_handle_t_new();
+    impl->server_handle = object_handle_t_new();
     sim->implementation = (SimImplementation*)impl;
     return sim;
 }
 
-bool sim_doip_network_is_connected(void * implPtr) {
-    assert(implPtr != null);
-    DoIpImplementation * impl = (DoIpImplementation*)implPtr;
-    sock_t handle = impl->handle;
-    if ( handle == SOCK_T_INVALID ) {
-        return false;
-    }
-    char buf;
-    ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
-    if (ret == 0) return false; // connection closed by peer
-    #if defined OS_POSIX
-    #   include <fcntl.h>
-    #   include <errno.h>
-        if (ret == -1) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) return true; // still connected, no data
-            return false; // error, consider disconnected
-        }
-    #elif defined OS_WINDOWS
-        if (ret == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) return true;
-            return false;
-        }
-    #else
-    #   warning Unsupported OS
-    #endif
-    return true; // data available, connection alive
-}
 void sim_doip_destroy(SimDoIp *sim) {
     THREAD_CANCEL(((DoIpImplementation*)sim->implementation)->loop_thread);
     free(((DoIpImplementation*)sim->implementation)->loop_thread);
@@ -165,9 +139,9 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
 void sim_doip_loop(SimDoIp * sim) {
 
     sim_doip_discover_start(sim);
-
-    sim->implementation->handle = SOCK_T_INVALID;
-    sim->implementation->server_fd = SOCK_T_INVALID;
+    DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
+    object_handle_t_init(impl->server_handle);
+    object_handle_t_init(impl->handle);
 
     int main_loop_port = -1;
     sock_t serverFD = network_tcp_start(&main_loop_port, DOIP_NETWORK_PORT, sim->max_concurrent_connections);
@@ -178,7 +152,13 @@ void sim_doip_loop(SimDoIp * sim) {
     }
     log_msg(LOG_DEBUG, "Listening on TCP");
     assert(main_loop_port != -1);
-    sim->implementation->server_fd = serverFD;
+    #ifdef OS_POSIX
+        impl->server_handle->posix_handle = serverFD;
+    #elif defined OS_WINDOWS
+        impl->server_handle->win_socket = serverFD;
+    #else
+    #   warning unsupported OS
+    #endif
     asprintf(&sim->device_location, "0.0.0.0:%d", main_loop_port);
 
     log_msg(LOG_INFO, "doip:sim:running on %s", sim->device_location);
@@ -188,19 +168,33 @@ void sim_doip_loop(SimDoIp * sim) {
     // Need to be turned on for diag messages to be sent
     bool routing_activated = false;
 
-    while(((DoIpImplementation*)sim->implementation)->loop_thread != null) {
+    while(impl->loop_thread != null) {
         buffer_recycle(recv_buffer);
-        if (!((DoIpImplementation*)sim->implementation)->loop_ready) ((DoIpImplementation*)sim->implementation)->loop_ready = true;
+        if (!impl->loop_ready) impl->loop_ready = true;
 
         struct sockaddr_in addr;
 
-        if ( ! sim_doip_network_is_connected(((DoIpImplementation*)sim->implementation)) ) {
+        if ( ! sim_network_is_connected(impl->server_handle) ) {
             routing_activated = false;
             sim->openned_connections = 0;
             log_msg(LOG_DEBUG, "doip:sim:Waiting for a client to connect");
+            #ifdef OS_POSIX
+                sock_t server_fd = impl->server_handle->posix_handle;
+            #elif defined OS_WINDOWS
+                sock_t server_fd = impl->server_handle->win_socket;
+            #else
+            #   warning unsupported OS
+            #endif
             socklen_t addr_len = sizeof(addr);
-            sim->implementation->handle = accept(sim->implementation->server_fd, (struct sockaddr*)&addr, &addr_len);
-            if (sim->implementation->handle == SOCK_T_INVALID) {
+            sock_t client_socket = accept(server_fd, (struct sockaddr*)&addr, &addr_len);
+            #ifdef OS_POSIX
+                impl->server_handle->posix_handle = client_socket;
+            #elif defined OS_WINDOWS
+                impl->server_handle->win_socket = client_socket;
+            #else
+            #   warning unsupported OS
+            #endif
+            if (client_socket == SOCK_T_INVALID) {
                 perror("doip:sim:accept");
                 return;
             }
@@ -210,7 +204,7 @@ void sim_doip_loop(SimDoIp * sim) {
             free(location);
         }
 
-        if ( sim_read((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, recv_buffer) == -1 ) {
+        if ( sim_read((Sim*)sim, impl->timeout_ms, recv_buffer) == -1 ) {
             log_msg(LOG_ERROR, "doip:sim:Error during reception, exiting the loop");
             return;
         }
