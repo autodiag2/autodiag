@@ -8,7 +8,9 @@ object_handle_t * object_handle_t_new() {
     #endif
     #ifdef OS_WINDOWS
         h->win_handle = INVALID_HANDLE_VALUE;
-        h->win_socket = INVALID_SOCKET;
+        #ifndef OS_POSIX
+            h->win_socket = INVALID_SOCKET;
+        #endif
     #endif
     return h;
 }
@@ -23,7 +25,9 @@ object_handle_t * object_handle_t_assign(object_handle_t * to, object_handle_t *
     #endif
     #ifdef OS_WINDOWS
         to->win_handle = from->win_handle;
-        to->win_socket = from->win_socket;
+        #ifndef OS_POSIX
+            to->win_socket = from->win_socket;
+        #endif
     #endif
     return to;
 }
@@ -38,9 +42,11 @@ bool object_handle_t_invalid(object_handle_t * h) {
         if ( h->win_handle != INVALID_HANDLE_VALUE ) {
             result = false;
         }
-        if ( h->win_socket != INVALID_SOCKET ) {
-            result = false;
-        }
+        #ifndef OS_POSIX
+            if ( h->win_socket != INVALID_SOCKET ) {
+                result = false;
+            }
+        #endif
     #endif
     return result;
 }
@@ -59,7 +65,9 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
             } else {
                 log_msg(LOG_ERROR, "ReadFile error 2");
             }
-        } else if ( h->win_socket != INVALID_SOCKET ) {
+        }
+        #ifndef OS_POSIX 
+        else if ( h->win_socket != INVALID_SOCKET ) {
             bytes_readed = recv(
                 h->win_socket,
                 (char *)dst,
@@ -72,6 +80,7 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
                 return -1;
             }
         }
+        #endif
     #endif
     return bytes_readed;
 }
@@ -109,7 +118,9 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
             if ( tries == max_tries) {
                 return 0;
             }
-        } else if ( h->win_socket != INVALID_SOCKET ) {
+        }
+        #ifndef OS_POSIX 
+        else if ( h->win_socket != INVALID_SOCKET ) {
                 
             WSAPOLLFD pfd = {
                 .fd = h->win_socket,
@@ -131,6 +142,7 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
             }
             readLen = avail;
         }
+        #endif
     
         if ( readLen_rv != null ) {
             if ( INT_MAX < readLen ) {
@@ -180,30 +192,31 @@ int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
                 return 1;
             }
             return 0;
-        } else if ( h->win_socket != INVALID_SOCKET ) {
-            WSAPOLLFD pfd = {
-                .fd = h->win_socket,
-                .events = POLLWRNORM
-            };
-
-            int res = WSAPoll(&pfd, 1, timeout_ms);
-            if (res <= 0) {
-                return res;
-            }
-            if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
-                return -1;
-            }
-            if (pfd.revents & POLLWRNORM) {
-                return res;
-            }
-            return 0;
         }
+        #ifndef OS_POSIX
+            if ( h->win_socket != INVALID_SOCKET ) {
+                WSAPOLLFD pfd = {
+                    .fd = h->win_socket,
+                    .events = POLLWRNORM
+                };
+
+                int res = WSAPoll(&pfd, 1, timeout_ms);
+                if (res <= 0) {
+                    return res;
+                }
+                if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                    return -1;
+                }
+                if (pfd.revents & POLLWRNORM) {
+                    return res;
+                }
+                return 0;
+            }
+        #endif
     #endif
     return poll_result;
 }
 int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send) {
-    
-    int bytes_sent = -1;
 
     if ( object_handle_t_invalid(h) ) {
         return -1;
@@ -211,7 +224,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
 
     #ifdef OS_POSIX
         if ( h->posix_handle != -1 ) {
-            bytes_sent = write(h->posix_handle, tx_buf, bytes_to_send);
+            int bytes_sent = write(h->posix_handle, tx_buf, bytes_to_send);
             if ( bytes_sent != bytes_to_send ) {
                 log_msg(LOG_ERROR, "Error while writting to the serial");
                 return -1;
@@ -225,14 +238,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
     #if defined OS_WINDOWS
         DWORD bytes_written;
 
-        if ( h->win_socket != INVALID_SOCKET ) {
-            int sent = send(h->win_socket, (const char *)tx_buf, bytes_to_send, 0);
-            if (sent <= 0 || sent != bytes_to_send) {
-                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
-                return -1;
-            }
-            bytes_sent = sent;
-        } else {
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
             if ( isComPort(h->win_handle) ) {
                 PurgeComm(h->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             }
@@ -240,11 +246,21 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
                 log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                 return -1;
             }            
-            bytes_sent = (int) bytes_written;
+            return (int) bytes_written;
         }
+        #ifndef OS_POSIX 
+            if ( h->win_socket != INVALID_SOCKET ) {
+                int sent = send(h->win_socket, (const char *)tx_buf, bytes_to_send, 0);
+                if (sent <= 0 || sent != bytes_to_send) {
+                    log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                    return -1;
+                }
+                return sent;
+            }
+        #endif
     #endif
 
-    return bytes_sent;
+    return -1;
 }
 void object_handle_t_close(object_handle_t * h) {
     #if defined OS_POSIX
@@ -268,10 +284,12 @@ void object_handle_t_close(object_handle_t * h) {
             CloseHandle(h->win_handle);
             h->win_handle = INVALID_HANDLE_VALUE;
         }
+        #ifndef OS_POSIX
         if ( h->win_socket != INVALID_SOCKET ) {
             shutdown(h->win_socket, SD_BOTH);
             closesocket(h->win_socket);
             h->win_socket = INVALID_SOCKET;
         }
+        #endif
     #endif
 }

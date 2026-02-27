@@ -25,7 +25,9 @@ OBJECT_H(handle_t,
     #endif
     #ifdef OS_WINDOWS
         HANDLE win_handle;
-        SOCKET win_socket;
+        #ifndef OS_POSIX
+            SOCKET win_socket;
+        #endif
     #endif
 );
 
