@@ -53,8 +53,9 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
     #endif
     #ifdef OS_WINDOWS
         if ( h->win_handle != INVALID_HANDLE_VALUE ) {
-            if ( ReadFile(h->win_handle, dst, size, &bytes_readed, 0) ) {
-                port->recv_buffer->size += bytes_readed;
+            DWORD NumberOfBytesRead;
+            if ( ReadFile(h->win_handle, dst, size, &NumberOfBytesRead, 0) ) {
+                bytes_readed = (int)NumberOfBytesRead;
             } else {
                 log_msg(LOG_ERROR, "ReadFile error 2");
             }
@@ -240,11 +241,6 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
                 return -1;
             }            
             bytes_sent = (int) bytes_written;
-        }
-        if (bytes_sent != bytes_to_send) {
-            log_msg(LOG_ERROR, "Error while writting to the serial");
-            serial_close(port);
-            return -1;
         }
     #endif
 
