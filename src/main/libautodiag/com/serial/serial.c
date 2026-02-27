@@ -21,7 +21,7 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     }
 
     int write_len_rv = 0;
-    int poll_result = object_handle_t_poll_write(port->implementation->handle_rename);
+    int poll_result = object_handle_t_poll_write(port->implementation->handle_rename, port->timeout);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
@@ -29,7 +29,7 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
-    int result = object_handle_t_write(port->implementation->handle_rename, tx_buf, bytes_to_send);
+    int result = object_handle_t_write(port->implementation->handle_rename, (byte*)tx_buf, bytes_to_send);
     if ( result == -1 ) {
         serial_close(port);
         return DEVICE_ERROR;

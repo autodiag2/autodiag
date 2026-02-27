@@ -200,7 +200,7 @@ int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
     #endif
     return poll_result;
 }
-int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, int bytes_to_send) {
+int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send) {
     
     int bytes_sent = -1;
 
