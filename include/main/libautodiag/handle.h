@@ -38,7 +38,7 @@ bool object_handle_t_invalid(object_handle_t * h);
  */
 int object_handle_t_poll_write(object_handle_t * h, int timeout_ms);
 /**
- * Write some data to the handle.
+ * Write data to the handle.
  * @return -1 on error, bytes_written on success
  */
 int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, int bytes_to_send);
@@ -47,5 +47,12 @@ int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, in
  * @return see poll
  */
 int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_ms);
+/**
+ * Read data from the handle.
+ * @param size max size of the read
+ * @param dst preallocated destination for incoming data
+ * @return -1 on error, bytes_readed on success
+ */
+int object_handle_t_read(object_handle_t * h, byte * dst, int size);
 
 #endif

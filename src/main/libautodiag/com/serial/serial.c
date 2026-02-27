@@ -53,111 +53,41 @@ int serial_send(final Serial * port, const char *command) {
 int serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
-    } else {
-        final unsigned initial_buffer_sz = port->recv_buffer->size;
-        #ifdef OS_POSIX
-            if ( port->implementation->handle != -1 ) {
-                int block_sz = 64;
-                int res = file_pool_read_posix(port->implementation->handle, null, port->timeout);
-                if ( 0 < res ) {
-                    while( 0 < res && port->implementation->handle != -1 ) {
-                        buffer_ensure_capacity(port->recv_buffer, block_sz);
-                        final int bytes_readed = read(port->implementation->handle, port->recv_buffer->buffer + port->recv_buffer->size, block_sz);
-                        if( 0 < bytes_readed ) {
-                            port->recv_buffer->size += bytes_readed;
-                        } else if ( bytes_readed == 0 ) {
-                            break;
-                        } else {
-                            perror("read");
-                            break;
-                        }
-                        res = file_pool_read_posix(port->implementation->handle, null, port->timeout_seq);
-                    }
-                    if ( log_has_level(LOG_DEBUG) ) {
-                        module_debug(MODULE_SERIAL "Serial data received");
-                        buffer_dump(port->recv_buffer);
-                    }
-                } else if ( res == -1 ) {
-                    perror("poll");
-                } else if ( res == 0 ) {
-                    log_msg(LOG_DEBUG, "Timeout while reading data");
-                } else {
-                    log_msg(LOG_ERROR, "unexpected happen on serial line");
-                }
-                return port->recv_buffer->size - initial_buffer_sz;
-            }
-        #endif
-        #if defined OS_WINDOWS
-            if (port->implementation->win_handle == INVALID_HANDLE_VALUE) {
-               port->status = SERIAL_STATE_NOT_OPEN;
-               return DEVICE_ERROR;
-            } else {        
-                DWORD bytes_readed = 0;
-
-                int readLen = 0;
-                int res = file_pool_read(&port->implementation->win_handle, &readLen, port->timeout);
-
-                if ( res == -1 ) {
-                    log_msg(LOG_ERROR, "Error while polling");
-                } else if ( res == 0 ) {
-                    log_msg(LOG_WARNING, "Timeout while polling");
-                }
-                
-                while(0 < res && 0 < readLen) {
-                    buffer_ensure_capacity(port->recv_buffer, readLen);
-                    #ifndef OS_POSIX
-                        if (isSocketHandle(port->implementation->win_handle)) {
-                            SOCKET s = (SOCKET)port->implementation->win_handle;
-                            int r = recv(
-                                s,
-                                (char *)port->recv_buffer->buffer + port->recv_buffer->size,
-                                readLen,
-                                0
-                            );
-
-                            if (r > 0) {
-                                port->recv_buffer->size += r;
-                            } else {
-                                log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
-                                serial_close(port);
-                                return DEVICE_ERROR;
-                            }
-                        } else 
-                    #endif
-                    {
-                        if ( ReadFile(port->implementation->win_handle, port->recv_buffer->buffer + port->recv_buffer->size, readLen, &bytes_readed, 0) ) {
-                            if( readLen == bytes_readed ) {
-                                port->recv_buffer->size += bytes_readed;
-                                if ( log_has_level(LOG_DEBUG) ) {
-                                    module_debug(MODULE_SERIAL "Serial data received");
-                                    buffer_dump(port->recv_buffer);
-                                }
-                            } else {
-                                log_msg(LOG_ERROR, "ReadFile error");
-                            }
-                        } else {
-                            log_msg(LOG_ERROR, "ReadFile error 2");
-                        }
-                    }
-                    res = file_pool_read(&port->implementation->win_handle, &readLen, port->timeout_seq);
-                    if ( res == -1 ) {
-                        log_msg(LOG_ERROR, "Error while polling");
-                    } else if ( res == 0 ) {
-                        log_msg(LOG_WARNING, "Timeout while polling");
-                    }
-                }
-            }
-        #elif defined OS_POSIX
-            if (port->implementation->handle < 0) {
-               port->status = SERIAL_STATE_NOT_OPEN;
-               return DEVICE_ERROR;
-            }
-        #else
-        #   warning Unsupported OS
-        #endif
-        
-        return port->recv_buffer->size - initial_buffer_sz;
     }
+    if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
+        port->status = SERIAL_STATE_NOT_OPEN;
+        return DEVICE_ERROR;
+    }
+    final unsigned initial_buffer_sz = port->recv_buffer->size;
+    int maxReadLen = 1024;
+    int res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
+    if ( 0 < res ) {
+        while ( 0 < res && ! object_handle_t_invalid(port->implementation->handle_rename) ) {
+            buffer_ensure_capacity(port->recv_buffer, maxReadLen);
+            final int bytes_readed = object_handle_t_read(port->implementation->handle_rename, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
+            if( 0 < bytes_readed ) {
+                port->recv_buffer->size += bytes_readed;
+            } else if ( bytes_readed == 0 ) {
+                break;
+            } else {
+                perror("read");
+                break;
+            }
+            res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout_seq);
+        }
+        if ( log_has_level(LOG_DEBUG) ) {
+            module_debug(MODULE_SERIAL "Serial data received");
+            buffer_dump(port->recv_buffer);
+        }
+    } else if ( res == -1 ) {
+        perror("poll");
+    } else if ( res == 0 ) {
+        log_msg(LOG_DEBUG, "Timeout while reading data");
+    } else {
+        log_msg(LOG_ERROR, "unexpected happen on serial line");
+    }
+    
+    return port->recv_buffer->size - initial_buffer_sz;
 }
 
 #define SERIAL_RECV_ITERATOR(ptr,end_ptr) \

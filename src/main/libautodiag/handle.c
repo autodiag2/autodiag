@@ -44,6 +44,36 @@ bool object_handle_t_invalid(object_handle_t * h) {
     #endif
     return result;
 }
+int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
+    int bytes_readed = -1;
+    #ifdef OS_POSIX
+        if ( h->posix_handle != -1 ) {
+            bytes_readed = read(h->posix_handle, dst, size);
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
+            if ( ReadFile(h->win_handle, dst, size, &bytes_readed, 0) ) {
+                port->recv_buffer->size += bytes_readed;
+            } else {
+                log_msg(LOG_ERROR, "ReadFile error 2");
+            }
+        } else if ( h->win_socket != INVALID_SOCKET ) {
+            bytes_readed = recv(
+                h->win_socket,
+                (char *)dst,
+                size,
+                0
+            );
+
+            if (bytes_readed <= 0) {
+                log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
+                return -1;
+            }
+        }
+    #endif
+    return bytes_readed;
+}
 int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_ms) {
     if ( readLen_rv != null ) {
         *readLen_rv = 0;
