@@ -42,5 +42,10 @@ int object_handle_t_poll_write(object_handle_t * h, int timeout_ms);
  * @return -1 on error, bytes_written on success
  */
 int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, int bytes_to_send);
+/**
+ * Is the handle ready for data reading.
+ * @return see poll
+ */
+int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_ms);
 
 #endif

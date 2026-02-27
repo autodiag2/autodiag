@@ -44,6 +44,78 @@ bool object_handle_t_invalid(object_handle_t * h) {
     #endif
     return result;
 }
+int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_ms) {
+    if ( readLen_rv != null ) {
+        *readLen_rv = 0;
+    }
+    if ( object_handle_t_invalid(h) ) {
+        return -1;
+    }
+    #if defined OS_WINDOWS
+        int sleep_length_ms = 20;
+        final int max_tries = timeout_ms / sleep_length_ms ;
+        int tries = 0;
+        DWORD readLen = 0;
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
+            if ( isComPort(h->win_handle) ) {
+                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
+                    DWORD errors;
+                    COMSTAT stat = {0};
+                    ClearCommError(h->win_handle, &errors, &stat);
+                    readLen = stat.cbInQue;
+                    if ( readLen == 0 ) {
+                        usleep(1000 * sleep_length_ms);
+                    }
+                }
+            } else {
+                for(tries = 0; tries < max_tries && readLen == 0; tries++) {
+                    PeekNamedPipe(h->win_handle, NULL, 0, NULL, &readLen, NULL);
+                    if ( readLen == 0 ) {
+                        usleep(1000 * sleep_length_ms);
+                    }
+                }
+            }
+            if ( tries == max_tries) {
+                return 0;
+            }
+        } else if ( h->win_socket != INVALID_SOCKET ) {
+                
+            WSAPOLLFD pfd = {
+                .fd = h->win_socket,
+                .events = POLLRDNORM
+            };
+            
+            int res = WSAPoll(&pfd, 1, timeout_ms);
+            if (res <= 0) {
+                return res;
+            }
+
+            if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                return -1;
+            }
+
+            u_long avail = 0;
+            if (ioctlsocket(h->win_socket, FIONREAD, &avail) != 0) {
+                return -1;
+            }
+            readLen = avail;
+        }
+    
+        if ( readLen_rv != null ) {
+            if ( INT_MAX < readLen ) {
+                log_msg(LOG_WARNING, "The size readed is more than the capacity of implementation, restricting to ");
+                *readLen_rv = INT_MAX;
+            } else {
+                *readLen_rv = readLen;
+            }
+        }
+        return 1;
+    #endif
+    #if defined OS_POSIX
+        return file_pool_read_posix(h->posix_handle, readLen_rv, timeout_ms);
+    #endif
+    return -1;
+}
 int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
     int poll_result = -1;
     #ifdef OS_POSIX
