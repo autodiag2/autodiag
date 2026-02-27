@@ -84,4 +84,12 @@ endif
 
 BIN_LIB_NAME := libautodiag-$(SYSTEM)-$(MACHINE).$(EXT)
 
+ifeq ($(COMPILE_VERBOSE),)
+    COMPILE_MSG = @-echo "$@"
+    PRINT_VOIDER = @-
+else
+    COMPILE_MSG = @-echo "Compiling ($^) -> $@"
+    PRINT_VOIDER = 
+endif
+
 include common.mk

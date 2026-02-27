@@ -107,33 +107,30 @@ installPythonDev: tools_prerequistes _installPython
 	ln -s $(PWD)/data/data $(PYTHON_INSTALL_FOLDER_DATA)/
 
 output/obj/main/ui/%.o output/obj/main/libprog/%.o:
-	@-echo "Compiling ($^) -> $@"
-	@-printf "  "
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+	$(COMPILE_MSG)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
 output/obj/main/%.o:
-	@-echo "Compiling ($^) -> $@"
-	@-printf "  "
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+	$(COMPILE_MSG)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
 output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
-	@-echo "Compiling ($^) -> $@"
-	@-printf "  "
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
+	$(COMPILE_MSG)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
 output/obj/test/%.o:
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_COVERAGE) $(CFLAGS_TESTS) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
 output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CGLAGS_GUI) $(CFLAGS_TESTS) $^ -o '$@' $(CFLAGS_LIBS) $(CFLAGS_LIBS_TESTS) $(CFLAGS_LIBS_GUI)
 
 output/bin/%_compat: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	if $(COMPILE_NEED_OBJS) ; then \
 		$(CC) $(CFLAGS) -o '$@' $(OBJS_LIB) $^ $(CFLAGS_LIBS) ; \
 	else \
@@ -141,17 +138,17 @@ output/bin/%_compat: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	fi
 
 output/bin/example_%: src/example/%.c $(OBJS_PROGS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 output/bin/%: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
-	mkdir -p "$$(dirname '$@')"
-	$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CGLAGS_GUI) -o '$@' $^ $(CFLAGS_LIBS) $(CFLAGS_LIBS_GUI)
 
 $(BIN_LIB): $(OBJS_LIB)
-	$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
-	mkdir -p output/bin/
-	cp "$@" output/bin/
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_LIB_COMPILE) -fPIC -o '$@' $^ $(CFLAGS_LIBS)
+	$(PRINT_VOIDER)mkdir -p output/bin/
+	$(PRINT_VOIDER)cp "$@" output/bin/
 
 # Additionnal specific dependencies
 dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
@@ -301,6 +298,7 @@ help:
 	@-echo " newVersion               - create a new version of the software"
 	@-echo "Environment variables"
 	@-echo " TOOLCHAIN                - prefix for the toolchain (eg TOOLCHAINgcc TOOLCHAINstrip)"
+	@-echo " COMPILE_VERBOSE          - set to any value to increase the verbosity of compiling"
 	@-echo " INSTALL_DATA_FOLDER      - where to install application data"
 	@-echo " INSTALL_BIN_FOLDER       - where to install application binaries"
 
