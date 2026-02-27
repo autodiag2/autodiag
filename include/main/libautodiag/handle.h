@@ -4,6 +4,7 @@
 #include "libautodiag/compile_target.h"
 #include "libautodiag/lang/all.h"
 #include "libautodiag/log.h"
+#include "libautodiag/com/network.h"
 
 #if defined OS_WINDOWS
 #   include "libautodiag/windows.h"

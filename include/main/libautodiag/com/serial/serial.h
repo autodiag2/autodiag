@@ -21,14 +21,7 @@
 #include "libautodiag/com/device.h"
 #include "libautodiag/lib.h"
 #include <ctype.h>
-#if defined OS_POSIX
-#   include <sys/types.h>
-#   include <sys/socket.h>
-#   include <netinet/in.h>
-#   include <arpa/inet.h>
-#   include <unistd.h>
-#   include <errno.h>
-#endif
+#include "libautodiag/com/network.h"
 
 typedef enum {
     SERIAL_STATE_UNDEFINED, 

@@ -259,7 +259,7 @@ void object_handle_t_close(object_handle_t * h) {
                         TCSANOW,
                         &port->implementation->oldtio);
             }*/
-            //shutdown(h->posix_handle, SHUT_RDWR);
+            shutdown(h->posix_handle, SHUT_RDWR);
             close(h->posix_handle);
             h->posix_handle = -1;
         }

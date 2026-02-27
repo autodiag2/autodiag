@@ -1,5 +1,4 @@
 #include "libautodiag/com/serial/serial.h"
-#include "libautodiag/com/device_table.h"
 
 int serial_guess_response(final char * buffer) {
     for(int i = 0; i < SerialResponseStrNumber; i++) {
@@ -133,166 +132,8 @@ int serial_open(final Serial * port) {
         }
     }
 
-    #ifdef OS_POSIX
-        port->implementation->handle = -1;
-    #endif
-
-    #if defined OS_WINDOWS
-        port->implementation->win_handle == INVALID_HANDLE_VALUE;
-        if ( device_location_is_network((Device*)port) ) {
-            #ifdef OS_POSIX
-                int fd = socket(AF_INET, SOCK_STREAM, 0);
-                if (fd < 0) {
-                    perror("socket");
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                struct sockaddr_in sa;
-                bzero(&sa, sizeof(sa));
-                sa.sin_family = AF_INET;
-                sa.sin_port = htons(atoi(port_str));
-
-                if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
-                    perror("inet_pton");
-                    close(fd);
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-                    perror("connect");
-                    close(fd);
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                port->implementation->handle = fd;
-            #else
-                WSADATA wsa;
-                if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-                    log_msg(LOG_ERROR, "WSAStartup failed");
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-                if (s == INVALID_SOCKET) {
-                    log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                struct sockaddr_in sa;
-                ZeroMemory(&sa, sizeof(sa));
-                sa.sin_family = AF_INET;
-                sa.sin_port = htons((u_short)atoi(port_str));
-
-                if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
-                    log_msg(LOG_ERROR, "invalid address: %s", host);
-                    closesocket(s);
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
-                    log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
-                    closesocket(s);
-                    WSACleanup();
-                    return GENERIC_FUNCTION_ERROR;
-                }
-
-                port->implementation->win_handle = (HANDLE)s;
-                log_msg(LOG_DEBUG, "Opening TCP connection: %s", port->location);
-            #endif
-        } else {
-            port->implementation->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-        }
-        if (
-            #ifdef OS_POSIX
-                port->implementation->handle == -1 &&
-            #endif
-            port->implementation->win_handle == INVALID_HANDLE_VALUE
-        ) {
-            log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
-            port->status = SERIAL_STATE_OPEN_ERROR;
-            return GENERIC_FUNCTION_ERROR;
-        }
-        log_msg(LOG_DEBUG, "Openning port: %s", port->location);
-        
-        if (
-            #ifdef OS_POSIX
-                port->implementation->handle == -1 &&
-            #endif 
-            isComPort(port->implementation->win_handle) 
-        ) {
-            assert(0 <= port->baud_rate);
-            #define TX_TIMEOUT_MULTIPLIER    0
-            #define TX_TIMEOUT_CONSTANT      1000
-
-            DCB dcb;
-            COMMTIMEOUTS timeouts;
-            DWORD bytes_written;
-
-            ZeroMemory(&dcb, sizeof(DCB));
-            dcb.DCBlength = sizeof(DCB);
-            if (!GetCommState(port->implementation->win_handle, &dcb)) {
-                log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
-                CloseHandle(port->implementation->win_handle);
-                return GENERIC_FUNCTION_ERROR;
-            }
-            dcb.BaudRate = port->baud_rate;
-            dcb.ByteSize = 8;
-            dcb.StopBits = ONESTOPBIT;
-            dcb.fParity = FALSE;
-            dcb.Parity = NOPARITY;
-            dcb.fOutxCtsFlow = FALSE;
-            dcb.fOutxDsrFlow = FALSE;
-            dcb.fOutX = FALSE;
-            dcb.fInX = FALSE;
-            dcb.fDtrControl = DTR_CONTROL_ENABLE;
-            dcb.fRtsControl = RTS_CONTROL_ENABLE;
-            dcb.fDsrSensitivity = FALSE;
-            dcb.fErrorChar = FALSE;
-            dcb.fAbortOnError = FALSE;
-            if (!SetCommState(port->implementation->win_handle, &dcb)) {
-                log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
-                CloseHandle(port->implementation->win_handle);
-                return GENERIC_FUNCTION_ERROR;
-            }
-
-            ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
-            timeouts.ReadIntervalTimeout = port->timeout;
-            timeouts.ReadTotalTimeoutMultiplier = 0;
-            timeouts.ReadTotalTimeoutConstant = port->timeout;
-            timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
-            timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-            if (!SetCommTimeouts(port->implementation->win_handle, &timeouts)) {
-                log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
-                CloseHandle(port->implementation->win_handle);
-                return GENERIC_FUNCTION_ERROR;
-            }
-
-            // Hack to get around Windows 2000 multiplying timeout values by 15
-            GetCommTimeouts(port->implementation->win_handle, &timeouts);
-            if (TX_TIMEOUT_MULTIPLIER > 0) {
-                timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
-            }
-            if (TX_TIMEOUT_CONSTANT > 0) {
-                timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
-            }
-            SetCommTimeouts(port->implementation->win_handle, &timeouts);
-
-            // If the port is Bluetooth, make sure device is active
-            PurgeComm(port->implementation->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            WriteFile(port->implementation->win_handle, "?\r", 2, &bytes_written, 0);
-            PurgeComm(port->implementation->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            if (bytes_written != 2) { // If Tx timeout occured
-                log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
-                CloseHandle(port->implementation->win_handle);
-                port->status = SERIAL_STATE_OPEN_ERROR;
-                return GENERIC_FUNCTION_ERROR;
-            }
-        }
-
-    #elif defined OS_POSIX
-        if (device_location_is_network((Device*)port)) {
+    if (device_location_is_network((Device*)port)) {
+        #if defined OS_POSIX
             int fd = socket(AF_INET, SOCK_STREAM, 0);
             if (fd < 0) {
                 perror("socket");
@@ -316,54 +157,181 @@ int serial_open(final Serial * port) {
                 return GENERIC_FUNCTION_ERROR;
             }
 
-            port->implementation->handle = fd;
-        } else {
-            assert(0 <= port->baud_rate);
-            port->implementation->handle = open(port->location, O_RDWR | O_NOCTTY);
-            if (port->implementation->handle < 0) {
-                perror(port->location);
-                if ( errno == ENOENT ) {
-                    port->status = SERIAL_STATE_DISCONNECTED;
-                } else if ( errno == EPERM ) {
-                    port->status = SERIAL_STATE_MISSING_PERM;
-                } else {
-                    port->status = SERIAL_STATE_OPEN_ERROR;
-                }
+            port->implementation->handle_rename->posix_handle = fd;
+            port->status = SERIAL_STATE_READY;
+            module_debug(MODULE_SERIAL "Open: Serial openned as posix socket");
+            return GENERIC_FUNCTION_SUCCESS;
+        #elif defined OS_WINDOWS
+            WSADATA wsa;
+            if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
+                log_msg(LOG_ERROR, "WSAStartup failed");
                 return GENERIC_FUNCTION_ERROR;
             }
 
-            tcgetattr(port->implementation->handle, &(port->implementation->oldtio)); /* save current port settings */
+            SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+            if (s == INVALID_SOCKET) {
+                log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
+                WSACleanup();
+                return GENERIC_FUNCTION_ERROR;
+            }
 
-            bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
+            struct sockaddr_in sa;
+            ZeroMemory(&sa, sizeof(sa));
+            sa.sin_family = AF_INET;
+            sa.sin_port = htons((u_short)atoi(port_str));
 
-            cfsetspeed(&(port->implementation->newtio), port->baud_rate);
+            if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
+                log_msg(LOG_ERROR, "invalid address: %s", host);
+                closesocket(s);
+                WSACleanup();
+                return GENERIC_FUNCTION_ERROR;
+            }
 
-            cfmakeraw(&(port->implementation->newtio));
-            port->implementation->newtio.c_cflag |= (CLOCAL | CREAD);
+            if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
+                log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
+                closesocket(s);
+                WSACleanup();
+                return GENERIC_FUNCTION_ERROR;
+            }
 
-            // No parity (8N1):
-            port->implementation->newtio.c_cflag &= ~PARENB;
-            port->implementation->newtio.c_cflag &= ~CSTOPB;
-            port->implementation->newtio.c_cflag &= ~CSIZE;
-            port->implementation->newtio.c_cflag |= CS8;
+            port->implementation->handle_rename->win_socket = s;
+            port->status = SERIAL_STATE_READY;
+            module_debug(MODULE_SERIAL "Open: Serial openned as windows socket");
+            return GENERIC_FUNCTION_SUCCESS;
+        #else
+        #   warning networking mode unsupported for this OS
+        #endif
+    }
 
-            // disable hardware flow control
-            port->implementation->newtio.c_cflag &= ~CRTSCTS ;
-
-            port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
-            port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
-
-            tcflush(port->implementation->handle, TCIFLUSH);
-            tcsetattr(port->implementation->handle,TCSANOW,&(port->implementation->newtio));
+    #if defined OS_WINDOWS
+    {
+        port->implementation->handle_rename->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (port->implementation->handle_rename->win_handle == INVALID_HANDLE_VALUE) {
+            log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
+            port->status = SERIAL_STATE_OPEN_ERROR;
+            return GENERIC_FUNCTION_ERROR;
         }
+        log_msg(LOG_DEBUG, "Openning port: %s", port->location);
+        
+        if ( isComPort(port->implementation->handle_rename->win_handle) ) {
+            assert(0 <= port->baud_rate);
+            #define TX_TIMEOUT_MULTIPLIER    0
+            #define TX_TIMEOUT_CONSTANT      1000
+
+            DCB dcb;
+            COMMTIMEOUTS timeouts;
+            DWORD bytes_written;
+
+            ZeroMemory(&dcb, sizeof(DCB));
+            dcb.DCBlength = sizeof(DCB);
+            if (!GetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
+                log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
+                CloseHandle(port->implementation->handle_rename->win_handle);
+                return GENERIC_FUNCTION_ERROR;
+            }
+            dcb.BaudRate = port->baud_rate;
+            dcb.ByteSize = 8;
+            dcb.StopBits = ONESTOPBIT;
+            dcb.fParity = FALSE;
+            dcb.Parity = NOPARITY;
+            dcb.fOutxCtsFlow = FALSE;
+            dcb.fOutxDsrFlow = FALSE;
+            dcb.fOutX = FALSE;
+            dcb.fInX = FALSE;
+            dcb.fDtrControl = DTR_CONTROL_ENABLE;
+            dcb.fRtsControl = RTS_CONTROL_ENABLE;
+            dcb.fDsrSensitivity = FALSE;
+            dcb.fErrorChar = FALSE;
+            dcb.fAbortOnError = FALSE;
+            if (!SetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
+                log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
+                CloseHandle(port->implementation->handle_rename->win_handle);
+                return GENERIC_FUNCTION_ERROR;
+            }
+
+            ZeroMemory(&timeouts, sizeof(COMMTIMEOUTS));
+            timeouts.ReadIntervalTimeout = port->timeout;
+            timeouts.ReadTotalTimeoutMultiplier = 0;
+            timeouts.ReadTotalTimeoutConstant = port->timeout;
+            timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
+            timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
+            if (!SetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts)) {
+                log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
+                CloseHandle(port->implementation->handle_rename->win_handle);
+                return GENERIC_FUNCTION_ERROR;
+            }
+
+            // Hack to get around Windows 2000 multiplying timeout values by 15
+            GetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts);
+            if (TX_TIMEOUT_MULTIPLIER > 0) {
+                timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
+            }
+            if (TX_TIMEOUT_CONSTANT > 0) {
+                timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
+            }
+            SetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts);
+
+            // If the port is Bluetooth, make sure device is active
+            PurgeComm(port->implementation->handle_rename->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            WriteFile(port->implementation->handle_rename->win_handle, "?\r", 2, &bytes_written, 0);
+            PurgeComm(port->implementation->handle_rename->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            if (bytes_written != 2) { // If Tx timeout occured
+                log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
+                CloseHandle(port->implementation->handle_rename->win_handle);
+                port->status = SERIAL_STATE_OPEN_ERROR;
+                return GENERIC_FUNCTION_ERROR;
+            }
+            module_debug(MODULE_SERIAL "Open: Serial openned as windows COM port");
+        } else {
+            module_debug(MODULE_SERIAL "Open: Serial openned as windows regular file (named pipe)");
+        }
+    }
+    #elif defined OS_POSIX
+    {
+        assert(0 <= port->baud_rate);
+        port->implementation->handle_rename->posix_handle = open(port->location, O_RDWR | O_NOCTTY);
+        if (port->implementation->handle_rename->posix_handle < 0) {
+            perror(port->location);
+            if ( errno == ENOENT ) {
+                port->status = SERIAL_STATE_DISCONNECTED;
+            } else if ( errno == EPERM ) {
+                port->status = SERIAL_STATE_MISSING_PERM;
+            } else {
+                port->status = SERIAL_STATE_OPEN_ERROR;
+            }
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        tcgetattr(port->implementation->handle_rename->posix_handle, &(port->implementation->oldtio)); /* save current port settings */
+
+        bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
+
+        cfsetspeed(&(port->implementation->newtio), port->baud_rate);
+
+        cfmakeraw(&(port->implementation->newtio));
+        port->implementation->newtio.c_cflag |= (CLOCAL | CREAD);
+
+        // No parity (8N1):
+        port->implementation->newtio.c_cflag &= ~PARENB;
+        port->implementation->newtio.c_cflag &= ~CSTOPB;
+        port->implementation->newtio.c_cflag &= ~CSIZE;
+        port->implementation->newtio.c_cflag |= CS8;
+
+        // disable hardware flow control
+        port->implementation->newtio.c_cflag &= ~CRTSCTS ;
+
+        port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
+        port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
+
+        tcflush(port->implementation->handle_rename->posix_handle, TCIFLUSH);
+        tcsetattr(port->implementation->handle_rename->posix_handle,TCSANOW,&(port->implementation->newtio));
+    }
     #else
-    #   warning Unsupported OS            
+    #   warning Regular file openning not supported on this OS
     #endif
 
     port->status = SERIAL_STATE_READY;
-
     module_debug(MODULE_SERIAL "Open: Serial openned");
-
     return GENERIC_FUNCTION_SUCCESS;
 }
 void serial_close(final Serial * port) {
