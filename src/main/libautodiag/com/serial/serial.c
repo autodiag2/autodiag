@@ -46,7 +46,7 @@ int serial_send(final Serial * port, const char *command) {
         final int bytes_to_send = strlen(command) + strlen(port->eol);
         char tx_buf[bytes_to_send + useless_termination];
         sprintf(tx_buf, "%s%s", command, port->eol);
-        return serial_send_internal(port, tx_buf, bytes_to_send);
+        return serial_send_internal(port, tx_buf, bytes_to_send - useless_termination);
     }
 }
 int serial_recv_internal(final Serial * port) {
