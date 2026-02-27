@@ -54,5 +54,9 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
  * @return -1 on error, bytes_readed on success
  */
 int object_handle_t_read(object_handle_t * h, byte * dst, int size);
+/**
+ * Close the handle.
+ */
+void object_handle_t_close(object_handle_t * h);
 
 #endif

@@ -371,31 +371,7 @@ void serial_close(final Serial * port) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
-    #if defined OS_POSIX
-        if (port->implementation->handle >= 0) {
-            if (!device_location_is_network((Device*)port)) {
-                tcsetattr(port->implementation->handle,
-                        TCSANOW,
-                        &port->implementation->oldtio);
-            }
-            shutdown(port->implementation->handle, SHUT_RDWR);
-            close(port->implementation->handle);
-            port->implementation->handle = -1;
-            port->status = SERIAL_STATE_NOT_OPEN;
-            return;
-        }
-    #endif
-    #if defined OS_WINDOWS
-        if (isSocketHandle(port->implementation->win_handle)) {
-            SOCKET s = (SOCKET)port->implementation->win_handle;
-            shutdown(s, SD_BOTH);
-            closesocket(s);
-        } else if ( isComPort(port->implementation->win_handle) ) {
-            PurgeComm(port->implementation->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            CloseHandle(port->implementation->win_handle);
-        }
-        port->implementation->win_handle = INVALID_HANDLE_VALUE;
-    #endif
+    object_handle_t_close(port->implementation->handle_rename);
     port->status = SERIAL_STATE_NOT_OPEN;
 }
 char * serial_describe_communication_layer(final Serial * serial) {

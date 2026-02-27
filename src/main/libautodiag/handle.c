@@ -250,3 +250,32 @@ int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, in
 
     return bytes_sent;
 }
+void object_handle_t_close(object_handle_t * h) {
+    #if defined OS_POSIX
+        if (0 <= h->posix_handle) {
+            log_msg(LOG_DEBUG, "TODO:object_handle_t_close");
+            /*if (!device_location_is_network((Device*)port)) {
+                tcsetattr(port->implementation->handle,
+                        TCSANOW,
+                        &port->implementation->oldtio);
+            }*/
+            //shutdown(h->posix_handle, SHUT_RDWR);
+            close(h->posix_handle);
+            h->posix_handle = -1;
+        }
+    #endif
+    #if defined OS_WINDOWS
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
+            if ( isComPort(h->win_handle) ) {
+                PurgeComm(h->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            }
+            CloseHandle(h->win_handle);
+            h->win_handle = INVALID_HANDLE_VALUE;
+        }
+        if ( h->win_socket != INVALID_SOCKET ) {
+            shutdown(h->win_socket, SD_BOTH);
+            closesocket(h->win_socket);
+            h->win_socket = INVALID_SOCKET;
+        }
+    #endif
+}
