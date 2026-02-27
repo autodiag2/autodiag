@@ -301,4 +301,3 @@ help:
 	@-echo " COMPILE_VERBOSE          - set to any value to increase the verbosity of compiling"
 	@-echo " INSTALL_DATA_FOLDER      - where to install application data"
 	@-echo " INSTALL_BIN_FOLDER       - where to install application binaries"
-
