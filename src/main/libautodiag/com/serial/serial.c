@@ -15,39 +15,14 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         module_debug(MODULE_SERIAL "Sending");
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
-    #ifdef OS_WINDOWS
-        #ifdef OS_POSIX
-            if ( port->implementation != -1 ) {
+    
+    if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
+        port->status = SERIAL_STATE_NOT_OPEN;
+        return DEVICE_ERROR;
+    }
 
-            } else
-        #endif
-        if (port->implementation->win_handle == INVALID_HANDLE_VALUE) {
-            port->status = SERIAL_STATE_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
-        #ifdef OS_POSIX
-            else
-        #endif
-    #endif
-    #ifdef OS_POSIX
-        if (port->implementation->handle < 0) {
-            port->status = SERIAL_STATE_NOT_OPEN;
-            return DEVICE_ERROR;
-        }
-    #endif
-    int bytes_sent = 0;
     int write_len_rv = 0;
-    int poll_result = -1;
-    #ifdef OS_POSIX
-        if ( port->implementation->handle != -1 ) {
-            poll_result = file_pool_write_posix(port->implementation->handle, port->timeout);
-        }
-    #endif
-    #ifdef OS_WINDOWS
-        if ( port->implementation->win_handle != INVALID_HANDLE_VALUE ) {
-            poll_result = file_pool_write(&port->implementation->win_handle, port->timeout);
-        }
-    #endif
+    int poll_result = object_handle_t_poll_write(port->implementation->handle_rename);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
@@ -55,52 +30,13 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
-    #ifdef OS_POSIX
-        if ( port->implementation->handle != -1 ) {
-            bytes_sent = write(port->implementation->handle,tx_buf,bytes_to_send);
-            if ( bytes_sent != bytes_to_send ) {
-                perror(port->location);
-                log_msg(LOG_ERROR, "Error while writting to the serial");
-                serial_close(port);
-                return DEVICE_ERROR;
-            } else {
-                tcflush(port->implementation->handle, TCIFLUSH);
-            }
-            return bytes_sent;
-        }
-    #endif
-
-    #if defined OS_WINDOWS
-        DWORD bytes_written;
-
-        if (isSocketHandle(port->implementation->win_handle)) {
-            SOCKET s = (SOCKET)port->implementation->win_handle;
-
-            int sent = send(s, (const char *)tx_buf, bytes_to_send, 0);
-            if (sent <= 0 || sent != bytes_to_send) {
-                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
-                serial_close(port);
-                return DEVICE_ERROR;
-            }
-            bytes_sent = sent;
-        } else {
-            if ( isComPort(port->implementation->win_handle) ) {
-                PurgeComm(port->implementation->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            }
-            if (!WriteFile(port->implementation->win_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
-                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
-                serial_close(port);
-                return DEVICE_ERROR;
-            }            
-            bytes_sent = (int) bytes_written;
-        }
-        if (bytes_sent != bytes_to_send) {
-            log_msg(LOG_ERROR, "Error while writting to the serial");
-            serial_close(port);
-            return DEVICE_ERROR;
-        }
-    #endif
-    return bytes_sent;
+    int result = object_handle_t_write(port->implementation->handle_rename, tx_buf, bytes_to_send);
+    if ( result == -1 ) {
+        serial_close(port);
+        return DEVICE_ERROR;
+    }
+    assert(0 <= result);
+    return result;
 }
 
 int serial_send(final Serial * port, const char *command) {
@@ -581,12 +517,7 @@ void serial_init(final Serial* serial) {
     serial->clear_data = AD_DEVICE_CLEAR_DATA(clear_data);
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
-    #ifdef OS_POSIX
-        serial->implementation->handle = -1;
-    #endif
-    #if defined OS_WINDOWS
-        serial->implementation->win_handle = INVALID_HANDLE_VALUE;
-    #endif
+    serial->implementation->handle_rename = object_handle_t_new();
 }
 
 void serial_free(final Serial * port) {

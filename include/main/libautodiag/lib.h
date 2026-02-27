@@ -73,5 +73,6 @@ int compat_vasprintf(char **ret, const char *fmt, va_list ap);
 #include "eventHandlerHolder.h"
 #include "libautodiag/lang/all.h"
 #include "libautodiag/time.h"
+#include "libautodiag/handle.h"
 
 #endif

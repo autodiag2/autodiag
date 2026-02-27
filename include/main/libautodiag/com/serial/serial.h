@@ -29,13 +29,6 @@
 #   include <unistd.h>
 #   include <errno.h>
 #endif
-#if defined OS_WINDOWS
-#   include "libautodiag/windows.h"
-#elif defined OS_POSIX
-#   include <termios.h>
-#else
-#   warning Unsupported OS
-#endif
 
 typedef enum {
     SERIAL_STATE_UNDEFINED, 
@@ -53,13 +46,12 @@ typedef enum {
 // Implementation related fields, to avoid breaking bindings
 typedef struct {
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
+
+    object_handle_t * handle_rename;
 #if defined OS_WINDOWS
-    HANDLE win_handle;
-    #ifdef OS_POSIX
-        int handle;
-    #endif
+
 #elif defined OS_POSIX
-    int handle;
+
     struct termios oldtio,newtio;
 #else
 #   warning Unsupported OS

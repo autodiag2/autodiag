@@ -8,6 +8,7 @@ object_handle_t * object_handle_t_new() {
     #endif
     #ifdef OS_WINDOWS
         h->win_handle = INVALID_HANDLE_VALUE;
+        h->win_socket = INVALID_SOCKET;
     #endif
     return h;
 }
@@ -22,6 +23,128 @@ object_handle_t * object_handle_t_assign(object_handle_t * to, object_handle_t *
     #endif
     #ifdef OS_WINDOWS
         to->win_handle = from->win_handle;
+        to->win_socket = from->win_socket;
     #endif
     return to;
+}
+bool object_handle_t_invalid(object_handle_t * h) {
+    bool result = true;
+    #ifdef OS_POSIX
+        if ( h->posix_handle != -1 ) {
+            result = false;
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
+            result = false;
+        }
+        if ( h->win_socket != INVALID_SOCKET ) {
+            result = false;
+        }
+    #endif
+    return result;
+}
+int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
+    int poll_result = -1;
+    #ifdef OS_POSIX
+        if ( h->posix_handle != -1 ) {
+            poll_result = file_pool_write_posix(h->posix_handle, timeout_ms);
+        }
+    #endif
+    #ifdef OS_WINDOWS
+        int sleep_length_ms = 20;
+        final int max_tries = timeout_ms / sleep_length_ms ;
+        int tries = 0;
+        if ( h->win_handle != INVALID_HANDLE_VALUE ) {
+            if (isComPort(h->win_handle)) {
+                for(tries = 0; tries < max_tries; tries++) {
+                    COMSTAT stat = {0};
+                    DWORD errors = 0;
+                    if ( ! ClearCommError(h->win_handle, &errors, &stat) ) {
+                        return -1;
+                    }
+                    /* if no flow-control hold, port is writable */
+                    if (!(stat.fCtsHold || stat.fDsrHold || stat.fRlsdHold || stat.fXoffHold) && stat.cbOutQue == 0) {
+                        return 1;
+                    }
+                    usleep(1000 * sleep_length_ms);
+                }
+            } else {
+                DWORD err = GetLastError();
+                if ( err == ERROR_BROKEN_PIPE || err == ERROR_PIPE_NOT_CONNECTED ) {
+                    return -1;
+                }
+                return 1;
+            }
+            return 0;
+        } else if ( h->win_socket != INVALID_SOCKET ) {
+            WSAPOLLFD pfd = {
+                .fd = h->win_socket,
+                .events = POLLWRNORM
+            };
+
+            int res = WSAPoll(&pfd, 1, timeout_ms);
+            if (res <= 0) {
+                return res;
+            }
+            if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+                return -1;
+            }
+            if (pfd.revents & POLLWRNORM) {
+                return res;
+            }
+            return 0;
+        }
+    #endif
+    return poll_result;
+}
+int object_handle_t_write(object_handle_t * h, int timeout_ms, byte * tx_buf, int bytes_to_send) {
+    
+    int bytes_sent = -1;
+
+    if ( object_handle_t_invalid(h) ) {
+        return -1;
+    }
+
+    #ifdef OS_POSIX
+        if ( h->posix_handle != -1 ) {
+            bytes_sent = write(h->posix_handle, tx_buf, bytes_to_send);
+            if ( bytes_sent != bytes_to_send ) {
+                log_msg(LOG_ERROR, "Error while writting to the serial");
+                return -1;
+            } else {
+                tcflush(h->posix_handle, TCIFLUSH);
+            }
+            return bytes_sent;
+        }
+    #endif
+
+    #if defined OS_WINDOWS
+        DWORD bytes_written;
+
+        if ( h->win_socket != INVALID_SOCKET ) {
+            int sent = send(h->win_socket, (const char *)tx_buf, bytes_to_send, 0);
+            if (sent <= 0 || sent != bytes_to_send) {
+                log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
+                return -1;
+            }
+            bytes_sent = sent;
+        } else {
+            if ( isComPort(h->win_handle) ) {
+                PurgeComm(h->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            }
+            if (!WriteFile(h->win_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
+                return -1;
+            }            
+            bytes_sent = (int) bytes_written;
+        }
+        if (bytes_sent != bytes_to_send) {
+            log_msg(LOG_ERROR, "Error while writting to the serial");
+            serial_close(port);
+            return -1;
+        }
+    #endif
+
+    return bytes_sent;
 }
