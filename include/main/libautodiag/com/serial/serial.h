@@ -44,7 +44,6 @@ typedef struct {
 #if defined OS_WINDOWS
 
 #elif defined OS_POSIX
-
     struct termios oldtio,newtio;
 #else
 #   warning Unsupported OS

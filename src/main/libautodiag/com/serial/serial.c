@@ -59,6 +59,7 @@ int serial_recv_internal(final Serial * port) {
     }
     final unsigned initial_buffer_sz = port->recv_buffer->size;
     int maxReadLen = 1024;
+    log_msg(LOG_DEBUG, "polling");
     int res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
     if ( 0 < res ) {
         while ( 0 < res && ! object_handle_t_invalid(port->implementation->handle_rename) ) {
@@ -338,7 +339,14 @@ void serial_close(final Serial * port) {
     if ( port == null || port->status != SERIAL_STATE_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
-    } 
+    }
+    #ifdef OS_POSIX
+        if (!device_location_is_network((Device*)port)) {
+            tcsetattr(port->implementation->handle_rename->posix_handle,
+                    TCSANOW,
+                    &port->implementation->oldtio);
+        }
+    #endif
     object_handle_t_close(port->implementation->handle_rename);
     port->status = SERIAL_STATE_NOT_OPEN;
 }

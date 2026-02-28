@@ -268,12 +268,6 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
 void object_handle_t_close(object_handle_t * h) {
     #if defined OS_POSIX
         if (0 <= h->posix_handle) {
-            log_msg(LOG_DEBUG, "TODO:object_handle_t_close");
-            /*if (!device_location_is_network((Device*)port)) {
-                tcsetattr(port->implementation->handle,
-                        TCSANOW,
-                        &port->implementation->oldtio);
-            }*/
             shutdown(h->posix_handle, SHUT_RDWR);
             close(h->posix_handle);
             h->posix_handle = -1;

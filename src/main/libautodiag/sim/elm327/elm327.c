@@ -358,10 +358,12 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     log_msg(LOG_DEBUG, "sending back %s", resp_str);
     free(resp_str);
 
-    if ( sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
+    int bytes_written = sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms, (byte*)response, strlen(response));
+    free(response);
+    if ( bytes_written == -1 ) {
         return false;
     }
-    free(response);
+    log_msg(LOG_DEBUG, "Written %d bytes", bytes_written);
     return true;
 }
 char *lastBinCommand = null;
