@@ -35,7 +35,16 @@ bool sim_network_is_connected(object_handle_t *h) {
 
     if (FD_ISSET(s, &readfds)) {
         char buf;
-        #if defined(OS_WINDOWS)
+        #ifdef OS_POSIX
+            ssize_t ret = recv(s, &buf, 1, MSG_PEEK | MSG_DONTWAIT);
+            if (ret == 0)
+                return false;
+            if (ret < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    return true;
+                return false;
+            }
+        #elif defined OS_WINDOWS
             int ret = recv(s, &buf, 1, MSG_PEEK);
             if (ret == 0)
                 return false;
@@ -46,14 +55,7 @@ bool sim_network_is_connected(object_handle_t *h) {
                 return false;
             }
         #else
-            ssize_t ret = recv(s, &buf, 1, MSG_PEEK | MSG_DONTWAIT);
-            if (ret == 0)
-                return false;
-            if (ret < 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK)
-                    return true;
-                return false;
-            }
+        #   warning unsupported OS
         #endif
     }
 
