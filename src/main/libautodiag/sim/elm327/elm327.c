@@ -1057,6 +1057,22 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 log_msg(LOG_INFO, "Client %s connected", location);
                 free(location);
             }
+        } else if ( elm327->device_type == SimELM327_DEVICE_TYPE_LOCAL ) {
+            #ifdef OS_WINDOWS
+                if ( ! ConnectNamedPipe(impl->handle->win_handle, null) ) {
+                    DWORD err = GetLastError();
+                    if ( err == ERROR_PIPE_CONNECTED ) {
+                        log_msg(LOG_DEBUG, "pipe already connected");
+                    } else {
+                        if ( err == ERROR_NO_DATA ) {
+                            log_msg(LOG_ERROR, "pipe closed");
+                        } else {
+                            log_msg(LOG_ERROR, "connexion au client échouée: (%lu)", GetLastError());
+                        }
+                        break;
+                    }
+                }
+            #endif
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");
