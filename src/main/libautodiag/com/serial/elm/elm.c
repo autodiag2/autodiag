@@ -102,7 +102,7 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
         } else if (strstr(response, "ELM320") != null) {
             device = AD_ELM_DEVICE((Device *)elm320_new_from_serial(*port));
         } else {
-            log_msg(LOG_DEBUG, "client:elm:Device type unknown, trying as ELM327");
+            log_msg(LOG_DEBUG, "Device type unknown, trying as ELM327");
             device = AD_ELM_DEVICE((Device *)elm327_new_from_serial(*port));
         }
         if ( device == null ) {
@@ -112,7 +112,7 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
         }
         free(response);
     }
-    log_msg(LOG_DEBUG, "client:elm:Info fetch done");
+    log_msg(LOG_DEBUG, "Info fetch done");
 
     if ( deviceConfigured ) {
         return device;
@@ -122,11 +122,11 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
 }
 ELMDevice* elm_open_from_serial_internal(final Serial * * port) {
     if ( elm_echo(*port,false) == DEVICE_ERROR ) {
-        log_msg(LOG_ERROR, "client:elm:Error while turn echo off");
+        log_msg(LOG_ERROR, "Error while turn echo off");
         return null;
     }
     if ( elm_linefeeds(*port,false) == DEVICE_ERROR ) {
-        log_msg(LOG_ERROR, "client:elm:Error while turn line feeds off");
+        log_msg(LOG_ERROR, "Error while turn line feeds off");
         return null;
     }
 
@@ -145,12 +145,12 @@ ELMDevice* elm_open_from_serial(final Serial * port) {
     assert(port != null);
     ELMDevice* device = elm_open_from_serial_internal(&port);
     if ( device == null ) {
-        log_msg(LOG_DEBUG, "client:elm:Configuration has failed, resetting and trying one more time");
+        log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time");
         serial_query_at_command(port, "d");
         serial_reset_to_default(port);
         device = elm_open_from_serial_internal(&port);
         if ( device == null ) {
-            log_msg(LOG_DEBUG, "client:elm:Configuration has failed, device maybe not using AT&T default, trying one more time");
+            log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time");
             elm_echo(port,false);
             port->echo = false;
             elm_linefeeds(port,false);
@@ -159,7 +159,7 @@ ELMDevice* elm_open_from_serial(final Serial * port) {
         }
     }
     if ( device == null ) {
-        log_msg(LOG_WARNING, "client:elm:Everything has been tried but device config has failed");
+        log_msg(LOG_WARNING, "Everything has been tried but device config has failed");
     }
     return device;
 }
@@ -201,7 +201,7 @@ Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final c
     return bin;
 }
 bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol_max_value) {
-    log_msg(LOG_DEBUG, "client:elm:Detecting the connection sanity with show supported PIDS in current data");
+    log_msg(LOG_DEBUG, "Detecting the connection sanity with show supported PIDS in current data");
     char * testerOrder = buffer_to_hex_string(buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00));
     bool sanityCheck = false;
     int protocol = 1;
@@ -222,7 +222,7 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
             elm->send(AD_DEVICE(elm), at_command("tp %x", protocol));
             elm->clear_data(AD_DEVICE(elm));
             if ( elm->recv(AD_DEVICE(elm)) != SERIAL_RESPONSE_OK ) {
-                log_msg(LOG_WARNING, "client:elm:Cannot set the protocol correctly");
+                log_msg(LOG_WARNING, "Cannot set the protocol correctly");
             }
             elm->protocol = protocol;
             protocol ++;

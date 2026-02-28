@@ -11,7 +11,7 @@ int serial_guess_response(final char * buffer) {
 }
 int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) {
     if ( log_has_level(LOG_DEBUG) ) {
-        log_msg(LOG_DEBUG, "client:serial:Sending");
+        log_msg(LOG_DEBUG, "Sending");
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     
@@ -23,10 +23,10 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     int write_len_rv = 0;
     int poll_result = object_handle_t_poll_write(port->implementation->handle_rename, port->timeout);
     if ( poll_result == -1 ) {
-        log_msg(LOG_ERROR, "client:serial:Error while polling");
+        log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
     } else if ( poll_result == 0 ) {
-        log_msg(LOG_ERROR, "client:serial:Timeout while polling for write");
+        log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
     int result = object_handle_t_write(port->implementation->handle_rename, (byte*)tx_buf, bytes_to_send);
@@ -75,15 +75,15 @@ int serial_recv_internal(final Serial * port) {
             res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout_seq);
         }
         if ( log_has_level(LOG_DEBUG) ) {
-            log_msg(LOG_DEBUG, "client:serial:Serial data received");
+            log_msg(LOG_DEBUG, "Serial data received");
             buffer_dump(port->recv_buffer);
         }
     } else if ( res == -1 ) {
         perror("poll");
     } else if ( res == 0 ) {
-        log_msg(LOG_DEBUG, "client:serial:Timeout while reading data");
+        log_msg(LOG_DEBUG, "Timeout while reading data");
     } else {
-        log_msg(LOG_ERROR, "client:serial:unexpected happen on serial line");
+        log_msg(LOG_ERROR, "unexpected happen on serial line");
     }
     
     return port->recv_buffer->size - initial_buffer_sz;
@@ -104,13 +104,13 @@ GEN_SERIAL_RECV(serial_recv,Serial,SERIAL_RECV_ITERATOR)
 
 int serial_open(final Serial * port) {
     if ( port == null ) {
-        log_msg(LOG_INFO, "client:serial:Open: Cannot open since not serial port info given");
+        log_msg(LOG_INFO, "Open: Cannot open since not serial port info given");
         return GENERIC_FUNCTION_ERROR;
     }
     
     // Do not open serial if it has not been configured.
     if (port->location == null) {
-        log_msg(LOG_DEBUG, "client:serial:Open: Cannot open since no name on the serial");
+        log_msg(LOG_DEBUG, "Open: Cannot open since no name on the serial");
         return GENERIC_FUNCTION_ERROR;
     }
 
@@ -159,18 +159,18 @@ int serial_open(final Serial * port) {
 
             port->implementation->handle_rename->posix_handle = fd;
             port->status = SERIAL_STATE_READY;
-            log_msg(LOG_DEBUG, "client:serial:Open: Serial openned as posix socket");
+            log_msg(LOG_DEBUG, "Open: Serial openned as posix socket");
             return GENERIC_FUNCTION_SUCCESS;
         #elif defined OS_WINDOWS
             WSADATA wsa;
             if (WSAStartup(MAKEWORD(2,2), &wsa) != 0) {
-                log_msg(LOG_ERROR, "client:serial:WSAStartup failed");
+                log_msg(LOG_ERROR, "WSAStartup failed");
                 return GENERIC_FUNCTION_ERROR;
             }
 
             SOCKET s = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (s == INVALID_SOCKET) {
-                log_msg(LOG_ERROR, "client:serial:socket failed: %d", WSAGetLastError());
+                log_msg(LOG_ERROR, "socket failed: %d", WSAGetLastError());
                 WSACleanup();
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -181,14 +181,14 @@ int serial_open(final Serial * port) {
             sa.sin_port = htons((u_short)atoi(port_str));
 
             if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
-                log_msg(LOG_ERROR, "client:serial:invalid address: %s", host);
+                log_msg(LOG_ERROR, "invalid address: %s", host);
                 closesocket(s);
                 WSACleanup();
                 return GENERIC_FUNCTION_ERROR;
             }
 
             if (connect(s, (struct sockaddr *)&sa, sizeof(sa)) == SOCKET_ERROR) {
-                log_msg(LOG_ERROR, "client:serial:connect failed: %d", WSAGetLastError());
+                log_msg(LOG_ERROR, "connect failed: %d", WSAGetLastError());
                 closesocket(s);
                 WSACleanup();
                 return GENERIC_FUNCTION_ERROR;
@@ -196,7 +196,7 @@ int serial_open(final Serial * port) {
 
             port->implementation->handle_rename->win_socket = s;
             port->status = SERIAL_STATE_READY;
-            log_msg(LOG_DEBUG, "client:serial:Open: Serial openned as windows socket");
+            log_msg(LOG_DEBUG, "Open: Serial openned as windows socket");
             return GENERIC_FUNCTION_SUCCESS;
         #else
         #   warning networking mode unsupported for this OS
@@ -207,11 +207,11 @@ int serial_open(final Serial * port) {
     {
         port->implementation->handle_rename->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
         if (port->implementation->handle_rename->win_handle == INVALID_HANDLE_VALUE) {
-            log_msg(LOG_WARNING, "client:serial:Cannot open the port %s", port->location);
+            log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
             port->status = SERIAL_STATE_OPEN_ERROR;
             return GENERIC_FUNCTION_ERROR;
         }
-        log_msg(LOG_DEBUG, "client:serial:Openning port: %s", port->location);
+        log_msg(LOG_DEBUG, "Openning port: %s", port->location);
         
         if ( isComPort(port->implementation->handle_rename->win_handle) ) {
             assert(0 <= port->baud_rate);
@@ -225,7 +225,7 @@ int serial_open(final Serial * port) {
             ZeroMemory(&dcb, sizeof(DCB));
             dcb.DCBlength = sizeof(DCB);
             if (!GetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
-                log_msg(LOG_ERROR, "client:serial:GetCommState failed for %s", port->location);
+                log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
                 CloseHandle(port->implementation->handle_rename->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -244,7 +244,7 @@ int serial_open(final Serial * port) {
             dcb.fErrorChar = FALSE;
             dcb.fAbortOnError = FALSE;
             if (!SetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
-                log_msg(LOG_ERROR, "client:serial:SetCommState failed for %s", port->location);
+                log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
                 CloseHandle(port->implementation->handle_rename->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -256,7 +256,7 @@ int serial_open(final Serial * port) {
             timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
             timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
             if (!SetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts)) {
-                log_msg(LOG_ERROR, "client:serial:SetCommTimeouts failed for %s", port->location);
+                log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
                 CloseHandle(port->implementation->handle_rename->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -276,14 +276,14 @@ int serial_open(final Serial * port) {
             WriteFile(port->implementation->handle_rename->win_handle, "?\r", 2, &bytes_written, 0);
             PurgeComm(port->implementation->handle_rename->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             if (bytes_written != 2) { // If Tx timeout occured
-                log_msg(LOG_WARNING, "client:serial:Inactive port detected %s", port->location);
+                log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
                 CloseHandle(port->implementation->handle_rename->win_handle);
                 port->status = SERIAL_STATE_OPEN_ERROR;
                 return GENERIC_FUNCTION_ERROR;
             }
-            log_msg(LOG_DEBUG, "client:serial:Open: Serial openned as windows COM port");
+            log_msg(LOG_DEBUG, "Open: Serial openned as windows COM port");
         } else {
-            log_msg(LOG_DEBUG, "client:serial:Open: Serial openned as windows regular file (named pipe)");
+            log_msg(LOG_DEBUG, "Open: Serial openned as windows regular file (named pipe)");
         }
     }
     #elif defined OS_POSIX
@@ -331,12 +331,12 @@ int serial_open(final Serial * port) {
     #endif
 
     port->status = SERIAL_STATE_READY;
-    log_msg(LOG_DEBUG, "client:serial:Open: Serial openned");
+    log_msg(LOG_DEBUG, "Open: Serial openned");
     return GENERIC_FUNCTION_SUCCESS;
 }
 void serial_close(final Serial * port) {
     if ( port == null || port->status != SERIAL_STATE_READY ) {
-        log_msg(LOG_INFO, "client:serial:Close: device not open");
+        log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
     object_handle_t_close(port->implementation->handle_rename);
@@ -433,31 +433,31 @@ void serial_dump(final Serial * port) {
 
 void serial_debug(final Serial * port) {
     if ( port == null ) {
-        log_msg(LOG_DEBUG, "client:serial:Serial debug: NULL");
+        log_msg(LOG_DEBUG, "Serial debug: NULL");
     } else {
-        log_msg(LOG_DEBUG, "client:serial:Serial: {");
-        log_msg(LOG_DEBUG, "client:serial:    Device: {");
-        log_msg(LOG_DEBUG, "client:serial:        send: %p", port->send);
-        log_msg(LOG_DEBUG, "client:serial:        recv: %p", port->recv);
-        log_msg(LOG_DEBUG, "client:serial:        open: %p", port->open);
-        log_msg(LOG_DEBUG, "client:serial:        close: %p", port->close);
-        log_msg(LOG_DEBUG, "client:serial:        describe_communication_layer: %p", port->describe_communication_layer);
-        log_msg(LOG_DEBUG, "client:serial:        parse_data: %p", port->parse_data);
-        log_msg(LOG_DEBUG, "client:serial:        clear_data: %p", port->clear_data);
-        log_msg(LOG_DEBUG, "client:serial:        lock: %p", port->lock);
-        log_msg(LOG_DEBUG, "client:serial:        unlock: %p", port->unlock);
-        log_msg(LOG_DEBUG, "client:serial:    }");
-        log_msg(LOG_DEBUG, "client:serial:    echo: %s", port->echo ? "true" : "false");
-        log_msg(LOG_DEBUG, "client:serial:    baud_rate: %d", port->baud_rate);
-        log_msg(LOG_DEBUG, "client:serial:    status: %d", port->status);
-        log_msg(LOG_DEBUG, "client:serial:    name: %s", port->location);
-        log_msg(LOG_DEBUG, "client:serial:    eol: %s", port->eol);
-        log_msg(LOG_DEBUG, "client:serial:    timeout: %d ms", port->timeout);
-        log_msg(LOG_DEBUG, "client:serial:    timeout_seq: %d ms", port->timeout_seq);
-        log_msg(LOG_DEBUG, "client:serial:    recv_buffer: %p", port->recv_buffer);
-        log_msg(LOG_DEBUG, "client:serial:    detected: %s", port->detected ? "true" : "false");
-        log_msg(LOG_DEBUG, "client:serial:    guess_response: %p", port->guess_response);
-        log_msg(LOG_DEBUG, "client:serial:}");
+        log_msg(LOG_DEBUG, "Serial: {");
+        log_msg(LOG_DEBUG, "    Device: {");
+        log_msg(LOG_DEBUG, "        send: %p", port->send);
+        log_msg(LOG_DEBUG, "        recv: %p", port->recv);
+        log_msg(LOG_DEBUG, "        open: %p", port->open);
+        log_msg(LOG_DEBUG, "        close: %p", port->close);
+        log_msg(LOG_DEBUG, "        describe_communication_layer: %p", port->describe_communication_layer);
+        log_msg(LOG_DEBUG, "        parse_data: %p", port->parse_data);
+        log_msg(LOG_DEBUG, "        clear_data: %p", port->clear_data);
+        log_msg(LOG_DEBUG, "        lock: %p", port->lock);
+        log_msg(LOG_DEBUG, "        unlock: %p", port->unlock);
+        log_msg(LOG_DEBUG, "    }");
+        log_msg(LOG_DEBUG, "    echo: %s", port->echo ? "true" : "false");
+        log_msg(LOG_DEBUG, "    baud_rate: %d", port->baud_rate);
+        log_msg(LOG_DEBUG, "    status: %d", port->status);
+        log_msg(LOG_DEBUG, "    name: %s", port->location);
+        log_msg(LOG_DEBUG, "    eol: %s", port->eol);
+        log_msg(LOG_DEBUG, "    timeout: %d ms", port->timeout);
+        log_msg(LOG_DEBUG, "    timeout_seq: %d ms", port->timeout_seq);
+        log_msg(LOG_DEBUG, "    recv_buffer: %p", port->recv_buffer);
+        log_msg(LOG_DEBUG, "    detected: %s", port->detected ? "true" : "false");
+        log_msg(LOG_DEBUG, "    guess_response: %p", port->guess_response);
+        log_msg(LOG_DEBUG, "}");
     }
 }
 
@@ -493,7 +493,7 @@ char * at_command_va(char * at_command, va_list ap) {
     
     char *res = null;
     if ( compat_vasprintf(&res, atCmd, ap) == -1 ) {
-        log_msg(LOG_ERROR, "client:serial:Error with at command");
+        log_msg(LOG_ERROR, "Error with at command");
     }
 
     return res;

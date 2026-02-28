@@ -90,14 +90,14 @@ static int handle_power_mode(SimDoIp *sim) {
 
 static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     assert(msg->payload_type == DOIP_DIAGNOSTIC_MESSAGE);
-    log_msg(LOG_DEBUG, "sim:doip:Diag Message received");
+    log_msg(LOG_DEBUG, "Diag Message received");
     object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag *)msg->payload;
     if (!diag->src_addr || !diag->dst_addr) {
-        log_msg(LOG_ERROR, "sim:doip:issue with addressing");
+        log_msg(LOG_ERROR, "issue with addressing");
         return 1;
     }
     if (diag->src_addr->size < 2 || diag->dst_addr->size < 2) {
-        log_msg(LOG_ERROR, "sim:doip:issue with addressing 2");
+        log_msg(LOG_ERROR, "issue with addressing 2");
         return 1;
     }
 
@@ -107,13 +107,13 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     SimECU *ecu = sim_search_ecu_by_address((Sim*)sim, diag->dst_addr->buffer[diag->dst_addr->size-1]);
     if ( ecu == null ) {
         if ( sim->ecus->size == 1 ) {
-            log_msg(LOG_DEBUG, "sim:doip:Diag message was addressed to a different ECU, never mind continuing ...");
+            log_msg(LOG_DEBUG, "Diag message was addressed to a different ECU, never mind continuing ...");
             ecu = sim->ecus->list[0];
         }
     }
     
     if ( ecu == null ) {
-        log_msg(LOG_WARNING, "sim:doip:No ECU found for address %02hhX, ignoring diag message (should send NACK)", diag->dst_addr->buffer[1]);
+        log_msg(LOG_WARNING, "No ECU found for address %02hhX, ignoring diag message (should send NACK)", diag->dst_addr->buffer[1]);
         object_DoIPMessage *nack = doip_message_diag_feedback_nack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE_UNKNOWN_TARGET_ADDR);
         doip_send_msg(sim, nack);
         object_DoIPMessage_free(nack);
@@ -124,11 +124,11 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     doip_send_msg(sim, ack);
     object_DoIPMessage_free(ack);
 
-    log_msg(LOG_DEBUG, "sim:doip:Found target ecu %02hhX", ecu->address);
+    log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
     Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
     if (!data_protocol) return 1;
 
-    log_msg(LOG_DEBUG, "sim:doip:Sending back %s", buffer_to_hex_string(data_protocol));
+    log_msg(LOG_DEBUG, "Sending back %s", buffer_to_hex_string(data_protocol));
     object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
     if (!doip_resp) return 0;
     if (!doip_send_msg(sim, doip_resp)) return 0;
