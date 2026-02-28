@@ -69,6 +69,7 @@ release_progs_compat: tools_prerequistes compile_progs_compat
 release_lib: tools_prerequistes compile_lib
 
 compile_progs_compat: tools_prerequistes output/bin/elm327sim_compat output/bin/doipsim_compat
+	@echo "Software ready at: $(filter-out tools_prerequistes,$^)"
 
 compile_progs: tools_prerequistes $(BINS_PROGS)
 	@echo "Software ready at: $(filter-out tools_prerequistes,$^)"
@@ -131,7 +132,7 @@ output/bin/%: src/test/%.c $(OBJS_PROGS) $(OBJS_TESTS) $(BIN_LIB)
 
 output/bin/%_compat: src/main/prog/%.c $(OBJS_PROGS) $(BIN_LIB)
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
-	if $(COMPILE_NEED_OBJS) ; then \
+	$(PRINT_VOIDER)if $(COMPILE_NEED_OBJS) ; then \
 		$(CC) $(CFLAGS) -o '$@' $(OBJS_LIB) $^ $(CFLAGS_LIBS) ; \
 	else \
 		$(CC) $(CFLAGS) -o '$@' $^ ; \
