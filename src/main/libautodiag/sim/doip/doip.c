@@ -174,7 +174,7 @@ void sim_doip_loop(SimDoIp * sim) {
 
         struct sockaddr_in addr;
 
-        if ( ! sim_network_is_connected(impl->server_handle) ) {
+        if ( ! sim_network_is_connected(impl->handle) ) {
             routing_activated = false;
             sim->openned_connections = 0;
             log_msg(LOG_DEBUG, "doip:sim:Waiting for a client to connect");
@@ -188,9 +188,9 @@ void sim_doip_loop(SimDoIp * sim) {
             socklen_t addr_len = sizeof(addr);
             sock_t client_socket = accept(server_fd, (struct sockaddr*)&addr, &addr_len);
             #ifdef OS_POSIX
-                impl->server_handle->posix_handle = client_socket;
+                impl->handle->posix_handle = client_socket;
             #elif defined OS_WINDOWS
-                impl->server_handle->win_socket = client_socket;
+                impl->handle->win_socket = client_socket;
             #else
             #   warning unsupported OS
             #endif
