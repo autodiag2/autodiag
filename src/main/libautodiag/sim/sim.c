@@ -3,38 +3,61 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
-bool sim_network_is_connected(object_handle_t * h) {
+
+bool sim_network_is_connected(object_handle_t *h) {
     assert(h != null);
+
     #ifdef OS_POSIX
-        sock_t handle = h->posix_handle;
-    #elif defined OS_WINDOWS
-        sock_t handle = h->win_socket;
+        sock_t s = h->posix_handle;
+    #elif defined(OS_WINDOWS)
+        sock_t s = h->win_socket;
     #else
-    #   warning Unsupported OS
+    #   warning unsupported os
     #endif
-    if ( handle == SOCK_T_INVALID ) {
+
+    if (s == SOCK_T_INVALID)
         return false;
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(s, &readfds);
+
+    struct timeval tv;
+    tv.tv_sec  = 0;
+    tv.tv_usec = 0;
+
+    int sel = select((int)(s + 1), &readfds, NULL, NULL, &tv);
+    if (sel < 0)
+        return false;
+
+    if (sel == 0)
+        return true;
+
+    if (FD_ISSET(s, &readfds)) {
+        char buf;
+        #if defined(OS_WINDOWS)
+            int ret = recv(s, &buf, 1, MSG_PEEK);
+            if (ret == 0)
+                return false;
+            if (ret == SOCKET_ERROR) {
+                int err = WSAGetLastError();
+                if (err == WSAEWOULDBLOCK)
+                    return true;
+                return false;
+            }
+        #else
+            ssize_t ret = recv(s, &buf, 1, MSG_PEEK | MSG_DONTWAIT);
+            if (ret == 0)
+                return false;
+            if (ret < 0) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK)
+                    return true;
+                return false;
+            }
+        #endif
     }
-    char buf;
-    ssize_t ret = recv(handle, &buf, 1, MSG_PEEK);
-    if (ret == 0) return false; // connection closed by peer
-    #if defined OS_POSIX
-    #   include <fcntl.h>
-    #   include <errno.h>
-        if (ret == -1) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) return 1; // still connected, no data
-            return false; // error, consider disconnected
-        }
-    #elif defined OS_WINDOWS
-        if (ret == SOCKET_ERROR) {
-            int err = WSAGetLastError();
-            if (err == WSAEWOULDBLOCK) return 1;
-            return false;
-        }
-    #else
-    #   warning Unsupported OS
-    #endif
-    return true; // data available, connection alive
+
+    return true;
 }
 
 SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
