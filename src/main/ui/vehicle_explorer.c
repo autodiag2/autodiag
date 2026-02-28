@@ -1050,7 +1050,7 @@ static void generic_error_feedback_ok() {
 }
 static void hide() {
     THREAD_CANCEL(refresh_dynamic_thread);
-    gtk_widget_hide(gui->window);
+    gtk_widget_hide_on_main_thread(gui->window);
 }
 static void init(final GtkBuilder *builder) {
     if (gui != null) {

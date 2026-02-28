@@ -226,7 +226,7 @@ THREAD_WRITE_DAEMON(
 )
 
 static void confirm_cancel() {
-    gtk_widget_hide(gui->clear.confirm);
+    gtk_widget_hide_on_main_thread(gui->clear.confirm);
 }
 static void confirm_confirm() {
     thread_allocate_and_start(&gui->clear.thread,&clear_codes_daemon);

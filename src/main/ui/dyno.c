@@ -742,7 +742,7 @@ static void show() {
 }
 
 static void hide() {
-    gtk_widget_hide(GTK_WIDGET(gui->window));
+    gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->window));
 }
 
 mod_gui *mod_gui_dyno_new() {

@@ -20,7 +20,7 @@ void gtk_widget_show_on_main_thread(GtkWidget *widget) {
     gdk_threads_add_idle(G_SOURCE_FUNC(&gtk_widget_show_on_main_thread_wrapper),widget);
 }
 gboolean gtk_widget_generic_onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-    gtk_widget_hide(dialog);
+    gtk_widget_hide_on_main_thread(dialog);
     return true;
 }
 

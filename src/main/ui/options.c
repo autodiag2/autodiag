@@ -139,7 +139,7 @@ static void simulation_add_clicked(GtkButton *button, gpointer user_data) {
 }
 
 static void hide_window() {
-   gtk_widget_hide(gui->window);
+   gtk_widget_hide_on_main_thread(gui->window);
 }
 
 static void cancel() {
