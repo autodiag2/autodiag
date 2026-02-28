@@ -62,7 +62,7 @@ bool sim_loop_daemon_wait_ready(bool * var) {
         usleep(step_ms * 1e3);
     }
     if ( i == step_n ) {
-        log_msg(LOG_ERROR, "timeout while waiting for sim to be ready");
+        log_msg(LOG_ERROR, "sim:timeout while waiting for sim to be ready");
         return false;
     } else {
         usleep(step_ms * 1e3);
@@ -75,7 +75,7 @@ void sim_prevent_read_himself(Sim * sim) {
     assert(impl != null);
     assert(impl->handle != null);
     if ( sim_network_is_connected(impl->handle) ) {
-        log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
+        log_msg(LOG_DEBUG, "sim:make a wait before sending the response to avoid write() before read() causing response loss");
         usleep(50e3);
     }
 }
@@ -86,7 +86,7 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
     assert(!object_handle_t_invalid(client_handle));
     final int poll_result = object_handle_t_poll_write(client_handle, timeout_ms);
     if ( poll_result <= 0 ) {
-        log_msg(LOG_WARNING, "timeout reached waiting for the other end");
+        log_msg(LOG_WARNING, "sim:timeout reached waiting for the other end");
         return -1;
     }
     int bytes_written = object_handle_t_write(client_handle, data, data_len);
@@ -103,12 +103,12 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     object_handle_t * client_handle = impl->handle;
     final int poll_result = object_handle_t_poll_read(client_handle, null, timeout_ms);
     if ( poll_result == -1 ) {
-        log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
+        log_msg(LOG_ERROR, "sim:poll error: %s", strerror(errno));
         return -1;
     }
     int rv = object_handle_t_read(client_handle, readed->buffer, readed->size_allocated);
     if ( rv == -1 ) {
-        log_msg(LOG_ERROR, "read error: %s", strerror(errno));
+        log_msg(LOG_ERROR, "sim:read error: %s", strerror(errno));
         return -1;
     }
     readed->size = rv;
@@ -132,14 +132,14 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         if (errno == ENOENT || errno == ENAMETOOLONG) {
             root = cJSON_Parse(json_context);
             if ( ! root ) {
-                log_msg(LOG_ERROR, "Context '%s' is not a file and not a json string");
+                log_msg(LOG_ERROR, "sim:Context '%s' is not a file and not a json string");
             }
         } else if (errno == EACCES) {
-            log_msg(LOG_ERROR, "File '%s' exists but missing reading permission", json_context);
+            log_msg(LOG_ERROR, "sim:File '%s' exists but missing reading permission", json_context);
         }
     }
     if (!root) {
-        log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
+        log_msg(LOG_ERROR, "sim:Impossible to get the flow from the json aborting ...");
         return GENERIC_FUNCTION_ERROR;
     }
     list_SimECU_clear(LIST_SIM_ECU(sim->ecus));
@@ -150,7 +150,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         root = arr;
     }
     if ( 0 == cJSON_GetArraySize(root) ) {
-        log_msg(LOG_ERROR, "No ECUs in this file");
+        log_msg(LOG_ERROR, "sim:No ECUs in this file");
         return GENERIC_FUNCTION_ERROR;
     }
     for(int i = 0; i < cJSON_GetArraySize(root); i++) {

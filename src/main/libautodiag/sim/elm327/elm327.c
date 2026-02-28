@@ -3,7 +3,7 @@
 #include "libautodiag/sim/elm327/bus.h"
 
 void sim_elm327_go_low_power() {
-    log_msg(LOG_INFO, "Device go to low power");
+    log_msg(LOG_INFO, "sim:elm327:Device go to low power");
 }
 
 void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
@@ -22,7 +22,7 @@ void sim_elm327_activity_monitor_daemon(SimELM327 * elm327) {
                     if ( bitRetrieve(b,3) ) {
                         char *act_alert;
                         asprintf(&act_alert,"%sACT ALERT", bitRetrieve(b,1) ? "!" : "");
-                        log_msg(LOG_DEBUG, "Sending \"%s\"", act_alert);
+                        log_msg(LOG_DEBUG, "sim:elm327:Sending \"%s\"", act_alert);
 
                         if ( sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms,(byte*)act_alert,strlen(act_alert)) == -1 ) {
                             return;
@@ -43,7 +43,7 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327) {
         if ( pthread_create(&((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread, NULL,
                               (void *(*) (void *)) sim_elm327_activity_monitor_daemon,
                               (void *)elm327) != 0 ) {
-            log_msg(LOG_ERROR, "thread creation error (activity monitor)");
+            log_msg(LOG_ERROR, "sim:elm327:thread creation error (activity monitor)");
             exit(EXIT_FAILURE);
         }
     }
@@ -323,7 +323,7 @@ void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
     ((SimELM327Implementation*)elm327->implementation)->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
     if ( pthread_create(((SimELM327Implementation*)elm327->implementation)->loop_thread, NULL,
                           (void *(*) (void *)) sim_elm327_loop, (void *)elm327) != 0 ) {
-        log_msg(LOG_ERROR, "thread creation error");
+        log_msg(LOG_ERROR, "sim:elm327:thread creation error");
         free(((SimELM327Implementation*)elm327->implementation)->loop_thread);
         ((SimELM327Implementation*)elm327->implementation)->loop_thread = null;
         exit(EXIT_FAILURE);
@@ -355,7 +355,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
     }
     sim_prevent_read_himself((Sim*)elm327);
     char * resp_str = ascii_escape_breaking_chars(response);
-    log_msg(LOG_DEBUG, "sending back %s", resp_str);
+    log_msg(LOG_DEBUG, "sim:elm327:sending back %s", resp_str);
     free(resp_str);
 
     if ( sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms, (byte*)response, strlen(response)) == -1 ) {
@@ -374,7 +374,7 @@ static void set_last_bin_command(char * command) {
 bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* serial_request, bool preventWrite, bool * modifyNvm) {
     assert(serial_request != null);
     char * serial_request_escaped = ascii_escape_breaking_chars(serial_request);
-    log_msg(LOG_DEBUG, "interpreting '%s' (len: %d)", serial_request_escaped, strlen(serial_request));
+    log_msg(LOG_DEBUG, "sim:elm327:interpreting '%s' (len: %d)", serial_request_escaped, strlen(serial_request));
     free(serial_request_escaped);
     char * command_reduced = serial_at_reduce(serial_request);
     int last_index;
@@ -389,7 +389,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             if ( ! sim_elm327_reply(elm327, serial_request, serial_response, isGeneric) ) { \
                 char * serial_request_str = ascii_escape_breaking_chars(serial_request); \
                 char * serial_response_str = ascii_escape_breaking_chars(serial_response); \
-                log_msg(LOG_ERROR, "Error while trying to reply to the command '%s' by '%s'", \
+                log_msg(LOG_ERROR, "sim:elm327:Error while trying to reply to the command '%s' by '%s'", \
                     serial_request_str, \
                     serial_response_str \
                 ); \
@@ -447,12 +447,12 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         elm327->can.display_dlc = true;
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("d") {
-        log_msg(LOG_INFO, "Reset to defaults");
+        log_msg(LOG_INFO, "sim:elm327:Reset to defaults");
         sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_DEFAULTS);
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("e") {
         bool echo = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Set echo %s", echo ? "on" : "off");
+        log_msg(LOG_INFO, "sim:elm327:Set echo %s", echo ? "on" : "off");
         elm327->echo = echo;
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("fe") {
@@ -483,7 +483,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("l") {
         bool lfe = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
+        log_msg(LOG_INFO, "sim:elm327:Set linefeeds %s", lfe ? "enabled" : "disabled");
         if ( lfe ) {
                 asprintf(&elm327->eol,"%c%c", SIM_ELM327_PP_GET(elm327,0x0D), SIM_ELM327_PP_GET(elm327,0x0A));
         } else {
@@ -684,7 +684,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         }
         if ( success ) {
             if ( p == 0 ) {
-                log_msg(LOG_DEBUG, "resetting to the default factory setting");
+                log_msg(LOG_DEBUG, "sim:elm327:resetting to the default factory setting");
                 elm327->protocolRunning = SIM_ELM327_DEFAULT_PROTO;
                 elm327->protocol_is_auto_running = true;
                 elm327->nvm.protocol = elm327->protocolRunning;
@@ -731,7 +731,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("caf") {
         elm327->can.auto_format = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Can auto format %s", elm327->can.auto_format ? "enabled" : "disabled");
+        log_msg(LOG_INFO, "sim:elm327:Can auto format %s", elm327->can.auto_format ? "enabled" : "disabled");
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("kw") {
         char number;
@@ -861,7 +861,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         int boundPort = -1;
         sock_t serverFD = network_tcp_start(&boundPort, ELM327_NETWORK_PORT, NETWORK_BACKLOG);
         if ( serverFD == SOCK_T_INVALID ) {
-            log_msg(LOG_ERROR, "Failed to start server");
+            log_msg(LOG_ERROR, "sim:elm327:Failed to start server");
             perror("network_tcp_start");
             return;
         }
@@ -897,21 +897,21 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 );
     
                 if (hPipe != INVALID_HANDLE_VALUE) {
-                    log_msg(LOG_INFO, "Pipe créé: %s", pipeName);
+                    log_msg(LOG_INFO, "sim:elm327:Pipe créé: %s", pipeName);
                     break;
                 }
     
                 DWORD err = GetLastError();
                 if (err == ERROR_ACCESS_DENIED || err == ERROR_ALREADY_EXISTS || err == ERROR_PIPE_BUSY) {
-                    log_msg(LOG_INFO, "Pipe %s existe déjà, tentative suivante...", pipeName);
+                    log_msg(LOG_INFO, "sim:elm327:Pipe %s existe déjà, tentative suivante...", pipeName);
                     continue;
                 } else {
-                    log_msg(LOG_ERROR, "Échec de création du pipe %s: (%lu)", pipeName, err);
+                    log_msg(LOG_ERROR, "sim:elm327:Échec de création du pipe %s: (%lu)", pipeName, err);
                     break;
                 }
             }
             if ( i == MAX_ATTEMPTS ) {
-                log_msg(LOG_ERROR, "No valid slot found");
+                log_msg(LOG_ERROR, "sim:elm327:No valid slot found");
                 return;
             }
             elm327->device_location = strdup(pipeName);
@@ -946,7 +946,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
             char *socketFreeFound = file_get_next_free(gprintf("%s/socket", jni_data_dir_get()));
             if ( socketFreeFound == null ) {
-                log_msg(LOG_ERROR, "error while getting the socket");
+                log_msg(LOG_ERROR, "sim:elm327:error while getting the socket");
                 return;
             }
             strncpy(addr.sun_path, socketFreeFound, sizeof(addr.sun_path) - 1);
@@ -982,7 +982,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
 
             if (server_fd == -1) {
-                log_msg(LOG_ERROR, "Failed to bind UNIX socket\n");
+                log_msg(LOG_ERROR, "sim:elm327:Failed to bind UNIX socket\n");
                 return;
             }
 
@@ -991,15 +991,15 @@ void sim_elm327_loop(SimELM327 * elm327) {
             snprintf(loc, sizeof(loc), "%s", addr.sun_path);
             elm327->device_location = strdup(loc);
         #else
-            log_msg(LOG_ERROR, "Socket not supported");
+            log_msg(LOG_ERROR, "sim:elm327:Socket not supported");
             return;
         #endif
     } else {
-        log_msg(LOG_ERROR, "Unsupported simulation way: '%s'", elm327->device_type);
+        log_msg(LOG_ERROR, "sim:elm327:Unsupported simulation way: '%s'", elm327->device_type);
         return;
     }
 
-    log_msg(LOG_INFO, "sim running on %s", elm327->device_location);
+    log_msg(LOG_INFO, "sim:elm327:sim running on %s", elm327->device_location);
 
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
@@ -1039,12 +1039,12 @@ void sim_elm327_loop(SimELM327 * elm327) {
                 }
 
                 char * location = network_location(addr);
-                log_msg(LOG_INFO, "Client %s connected", location);
+                log_msg(LOG_INFO, "sim:elm327:Client %s connected", location);
                 free(location);
             }
         }
         if ( ! sim_elm327_receive(elm327, recv_buffer, SERIAL_DEFAULT_TIMEOUT) ) {
-            log_msg(LOG_ERROR, "Error during reception, exiting the loop");
+            log_msg(LOG_ERROR, "sim:elm327:Error during reception, exiting the loop");
             return;
         }
         if ( recv_buffer->size <= 1 ) {
@@ -1057,7 +1057,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, strdup((char*)recv_buffer->buffer), false, &shouldWriteNvm) ) {
             if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true) ) {
-                log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
+                log_msg(LOG_ERROR, "sim:elm327:Error while trying to send, exiting the loop");
                 return;
             }
         }
