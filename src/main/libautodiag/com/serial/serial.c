@@ -341,11 +341,13 @@ void serial_close(final Serial * port) {
         return;
     }
     #ifdef OS_POSIX
-        if (!device_location_is_network((Device*)port)) {
-            tcsetattr(port->implementation->handle_rename->posix_handle,
-                    TCSANOW,
-                    &port->implementation->oldtio);
-        }
+        #ifndef OS_WINDOWS
+            if (!device_location_is_network((Device*)port)) {
+                tcsetattr(port->implementation->handle_rename->posix_handle,
+                        TCSANOW,
+                        &port->implementation->oldtio);
+            }
+        #endif
     #endif
     object_handle_t_close(port->implementation->handle_rename);
     port->status = SERIAL_STATE_NOT_OPEN;
