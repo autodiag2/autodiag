@@ -99,6 +99,7 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
         final int max_tries = timeout_ms / sleep_length_ms ;
         int tries = 0;
         DWORD readLen = 0;
+        bool handleAvailable = false;
         if ( h->win_handle != INVALID_HANDLE_VALUE ) {
             if ( isComPort(h->win_handle) ) {
                 for(tries = 0; tries < max_tries && readLen == 0; tries++) {
@@ -121,6 +122,7 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
             if ( tries == max_tries) {
                 return 0;
             }
+            handleAvailable = true;
         }
         #ifndef OS_POSIX 
         else if ( h->win_socket != INVALID_SOCKET ) {
@@ -144,18 +146,21 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
                 return -1;
             }
             readLen = avail;
+            handleAvailable = true;
         }
         #endif
     
-        if ( readLen_rv != null ) {
-            if ( INT_MAX < readLen ) {
-                log_msg(LOG_WARNING, "The size readed is more than the capacity of implementation, restricting to ");
-                *readLen_rv = INT_MAX;
-            } else {
-                *readLen_rv = readLen;
+        if ( handleAvailable ) {
+            if ( readLen_rv != null ) {
+                if ( INT_MAX < readLen ) {
+                    log_msg(LOG_WARNING, "The size readed is more than the capacity of implementation, restricting to ");
+                    *readLen_rv = INT_MAX;
+                } else {
+                    *readLen_rv = readLen;
+                }
             }
+            return 1;
         }
-        return 1;
     #endif
     #if defined OS_POSIX
         return file_pool_read_posix(h->posix_handle, readLen_rv, timeout_ms);
