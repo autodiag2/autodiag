@@ -18,6 +18,16 @@ bool sim_network_is_connected(object_handle_t *h) {
     if (s == SOCK_T_INVALID)
         return false;
 
+    #ifdef OS_POSIX
+        int so_type;
+        socklen_t len = sizeof(so_type);
+        if (getsockopt(s, SOL_SOCKET, SO_TYPE, &so_type, &len) == -1) {
+            if (errno == ENOTSOCK)
+                return false;
+            return false;
+        }
+    #endif
+
     fd_set readfds;
     FD_ZERO(&readfds);
     FD_SET(s, &readfds);
