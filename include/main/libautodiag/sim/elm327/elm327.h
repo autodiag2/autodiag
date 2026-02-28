@@ -35,15 +35,29 @@ typedef struct {
     int timeout_ms;
 } SimELM327Implementation;
 
+typedef enum {
+    /**
+     * pseudo tty for unix, named pipe for windows
+     */
+    SimELM327_DEVICE_TYPE_LOCAL,
+    /**
+     * TCP socket
+     */
+    SimELM327_DEVICE_TYPE_NETWORK,
+    /**
+     * For android
+     */
+    SimELM327_DEVICE_TYPE_SOCKET,
+    /**
+     * field not init 
+     */
+    SimELM327_DEVICE_TYPE_UNSET
+} SimELM327_DEVICE_TYPE;
+SimELM327_DEVICE_TYPE sim_elm327_device_type_from_str(char * str);
+
 typedef struct _SimELM327 {
     Sim;
-    /**
-     * For example:
-     *  pseudo tty for unix, named pipe for windows: local
-     *  loopback interface: loopback
-     * let to null the sim choose automatically the kind of emulation.
-     */
-    char * device_type;
+    SimELM327_DEVICE_TYPE device_type;
 	char * eol;
 	bool echo;
 	ELM327_PROTO protocolRunning;

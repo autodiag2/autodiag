@@ -380,9 +380,9 @@ static gboolean sim_launch(gpointer data) {
     SimELM327 * elm327 = (SimELM327*)data;
 
     if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->simulator.networkSim)) ) {
-        elm327->device_type = strdup("network");
+        elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;
     } else {
-        elm327->device_type = strdup("local");
+        elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
     }
     sim_elm327_loop_as_daemon(elm327);
     sim_launch_set_status(strdup("Starting simulation ..."));

@@ -284,7 +284,7 @@ SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     sim_init_with_defaults((Sim*)elm327);
     elm327->type = strdup("elm327");
-    elm327->device_type = null;
+    elm327->device_type = SimELM327_DEVICE_TYPE_UNSET;
     SimELM327Implementation * impl = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->implementation = (SimImplementation*)impl;
     impl->handle = object_handle_t_new();
@@ -847,17 +847,31 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     return commandReconized;
 }
 
+SimELM327_DEVICE_TYPE sim_elm327_device_type_from_str(char * str) {
+    assert(str != null);
+    if ( strcasecmp(str,"local") == 0 ) {
+        return SimELM327_DEVICE_TYPE_LOCAL;
+    }
+    if ( strcasecmp(str,"network") == 0 ) {
+        return SimELM327_DEVICE_TYPE_NETWORK;
+    }
+    if ( strcasecmp(str,"socket") == 0 ) {
+        return SimELM327_DEVICE_TYPE_SOCKET;
+    }
+    return SimELM327_DEVICE_TYPE_UNSET;
+}
+
 void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
     SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;
     object_handle_t_init(impl->server_handle);
 
-    if ( elm327->device_type == null ) {
-        elm327->device_type = strdup("local");
+    if ( elm327->device_type == SimELM327_DEVICE_TYPE_UNSET ) {
+        elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
     }
 
-    if ( strcasecmp(elm327->device_type, "network") == 0 ) {
+    if ( elm327->device_type == SimELM327_DEVICE_TYPE_NETWORK ) {
         int boundPort = -1;
         sock_t serverFD = network_tcp_start(&boundPort, ELM327_NETWORK_PORT, NETWORK_BACKLOG);
         if ( serverFD == SOCK_T_INVALID ) {
@@ -874,7 +888,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         #   warning unsupported OS
         #endif
         asprintf(&elm327->device_location, "0.0.0.0:%d", boundPort);
-    } else if ( strcasecmp(elm327->device_type, "local") == 0 ) {
+    } else if ( elm327->device_type == SimELM327_DEVICE_TYPE_LOCAL ) {
         #ifdef OS_WINDOWS
             #define MAX_ATTEMPTS 20
             char pipeName[256];
@@ -935,7 +949,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         #else
         #   warning local sim unsupported on this OS
         #endif
-    } else if ( strcasecmp(elm327->device_type, "socket") == 0 ) {
+    } else if ( elm327->device_type == SimELM327_DEVICE_TYPE_SOCKET ) {
         #ifdef OS_ANDROID
         #   include <sys/un.h>
             int server_fd = -1;
@@ -1007,13 +1021,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     object_handle_t_init(impl->handle);
 
-    assert(elm327->device_type != null);
+    assert(elm327->device_type != SimELM327_DEVICE_TYPE_UNSET);
     while(impl->loop_thread != null) {
         buffer_recycle(recv_buffer);
         if ( impl->loop_ready == false ) {
             impl->loop_ready = true;
         }
-        if ( strcasecmp(elm327->device_type, "socket") == 0 || strcasecmp(elm327->device_type, "network") == 0 ) {
+        if ( elm327->device_type == SimELM327_DEVICE_TYPE_SOCKET || elm327->device_type == SimELM327_DEVICE_TYPE_NETWORK ) {
             struct sockaddr_in addr;
             if ( ! sim_network_is_connected(impl->handle) ) {
                 #ifdef OS_POSIX

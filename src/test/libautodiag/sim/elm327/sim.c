@@ -177,7 +177,7 @@ void incomplete_string_return_after_20_secs() {
 
 bool fuzzSimELM327() {
     SimELM327* elm327 = tf_sim_elm327_new();     
-    elm327->device_type = strdup("network");  
+    elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;  
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
@@ -217,7 +217,25 @@ bool fuzzSimELM327() {
     viface_close(iface);
     return true;
 }
+static void ensureSerialOK() {
+    SimELM327* elm327 = tf_sim_elm327_new();       
+    elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    assert(iface != null);
+}
+static void ensureNetworkOK() {
+    SimELM327* elm327 = tf_sim_elm327_new();       
+    elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    assert(iface != null);
+}
 bool testSimELM327() {
+    ensureSerialOK();
+    ensureNetworkOK();
     ensureWithoutHeadersDontSendNull();
     ensureDisplayWithSpacesIsCorrect();
     //incomplete_string_return_after_20_secs();

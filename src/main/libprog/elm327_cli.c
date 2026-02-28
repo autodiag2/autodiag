@@ -132,7 +132,7 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 printf("network (ELM327 WiFi)\n");
                 return 0;
             } else {
-                sim->device_type = strdup(arg);
+                sim->device_type = sim_elm327_device_type_from_str(arg);
             }
         } else if argIs("-l") {
             argNext();
