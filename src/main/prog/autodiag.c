@@ -97,7 +97,9 @@ int main (int argc, char *argv[]) {
         } else if argIs("gui") {
             log_msg(LOG_INFO, "this is the default behaviour");
             argNext()
-            if ( argIs("-h") || argIs("help") || argIs("--help") ) {
+            if ( argCurrent() == null ) {
+                // nothing to do
+            } else if ( argIs("-h") || argIs("help") || argIs("--help") ) {
                 display_gui_help();
                 return 0;
             } else if argIs("-b") {
