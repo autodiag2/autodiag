@@ -21,7 +21,7 @@ JNIEXPORT jstring JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_launch
     const char *kindStr = (*env)->GetStringUTFChars(env, kind, null);
 
     SimELM327 *sim = jni_sim_elm327_get();
-    sim->device_type = strdup(kindStr);
+    sim->device_type = sim_elm327_device_type_from_str(kindStr);
 
     (*env)->ReleaseStringUTFChars(env, kind, kindStr);
 
