@@ -866,6 +866,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;
     object_handle_t_init(impl->server_handle);
+    object_handle_t_init(impl->handle);
 
     if ( elm327->device_type == SimELM327_DEVICE_TYPE_UNSET ) {
         elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
@@ -930,6 +931,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
             elm327->device_location = strdup(pipeName);
             impl->server_handle->win_handle = hPipe;
+            impl->handle->win_handle = hPipe;
         #elif defined OS_POSIX
             int fd = posix_openpt(O_RDWR);
             if ( fd == -1 ) {
@@ -946,6 +948,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             }
             elm327->device_location = strdup(ptsname(fd));
             impl->server_handle->posix_handle = fd;
+            impl->handle->posix_handle = fd;
         #else
         #   warning local sim unsupported on this OS
         #endif
@@ -1018,8 +1021,6 @@ void sim_elm327_loop(SimELM327 * elm327) {
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
     bool shouldWriteNvm = false;
-
-    object_handle_t_init(impl->handle);
 
     assert(elm327->device_type != SimELM327_DEVICE_TYPE_UNSET);
     while(impl->loop_thread != null) {
