@@ -225,6 +225,7 @@ void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address) 
     device->address = address;
 }
 static int doip_send(final object_DoIPDevice * device, const char * command) {
+    log_msg(LOG_DEBUG, "TODO: should read from the data map to which ecu this command is addressed to");
     object_DoIPMessage * msg = doip_message_diag(
         buffer_from_ascii_hex("07E8"), 
         buffer_from_uint16(device->address),
