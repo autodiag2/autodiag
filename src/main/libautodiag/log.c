@@ -7,7 +7,7 @@ Logger logger = {
     .show_code_location = false
 };
 
-bool log_is_env_set() {
+bool log_level_is_env_set() {
     return null != getenv("AUTODIAG_LOG_LEVEL");
 }
 
@@ -18,6 +18,22 @@ void log_set_from_env() {
     } else {
         LogLevel level = log_level_from_str(logLevel);
         log_set_level(level);
+    }
+    char * logTimestamp = getenv("AUTODIAG_LOG_TIMESTAMP");
+    if ( logTimestamp != null ) {
+        if ( strcasecmp(logTimestamp, "false") == 0 || strcasecmp(logTimestamp, "0") == 0 ) {
+            logger.show_timestamp = false;
+        } else {
+            logger.show_timestamp = true;
+        }
+    }
+    char * codeLocation = getenv("AUTODIAG_LOG_CODE_LOCATION");
+    if ( codeLocation != null ) {
+        if ( strcasecmp(codeLocation, "false") == 0 || strcasecmp(codeLocation, "0") == 0 ) {
+            logger.show_code_location = false;
+        } else {
+            logger.show_code_location = true;
+        }
     }
 }
 

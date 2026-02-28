@@ -207,7 +207,7 @@ static void* save_internal(void *arg) {
     }
     config.com.connectAtStartup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup));
     config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(gui->logLevel));
-    if ( ! log_is_env_set() ) {
+    if ( ! log_level_is_env_set() ) {
         log_set_level(config.log.level);
     }
     config.recorder.enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->recorder.enabled));

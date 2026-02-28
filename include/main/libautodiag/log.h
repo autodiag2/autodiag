@@ -63,5 +63,5 @@ char* log_level_to_str(LogLevel level);
  */
 char *log_get_current_time();
 void log_set_from_env();
-bool log_is_env_set();
+bool log_level_is_env_set();
 #endif

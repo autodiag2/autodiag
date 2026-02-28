@@ -33,7 +33,7 @@ lib.log_get_current_time.restype = c_char_p
 
 lib.log_set_from_env.restype = None
 
-lib.log_is_env_set.restype = bool
+lib.log_level_is_env_set.restype = bool
 
 def log_msg(msg: str, level=LOG_DEBUG, *args):
     frame = inspect.currentframe().f_back
@@ -71,5 +71,5 @@ def log_get_current_time() -> str:
 def log_set_from_env():
     lib.log_set_from_env()
 
-def log_is_env_set() -> bool:
-    return lib.log_is_env_set()
+def log_level_is_env_set() -> bool:
+    return lib.log_level_is_env_set()

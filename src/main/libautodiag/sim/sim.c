@@ -74,7 +74,7 @@ void sim_prevent_read_himself(Sim * sim) {
     SimImplementation * impl = sim->implementation;
     assert(impl != null);
     assert(impl->handle != null);
-    if ( sim_network_is_connected(impl->handle) ) {
+    if ( ! sim_network_is_connected(impl->handle) ) {
         log_msg(LOG_DEBUG, "sim:make a wait before sending the response to avoid write() before read() causing response loss");
         usleep(50e3);
     }
