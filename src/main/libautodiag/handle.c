@@ -231,8 +231,6 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
             if ( bytes_sent != bytes_to_send ) {
                 log_msg(LOG_ERROR, "Error while writting to the serial");
                 return -1;
-            } else {
-                tcflush(h->posix_handle, TCIFLUSH);
             }
             return bytes_sent;
         }
