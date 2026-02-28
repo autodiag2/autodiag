@@ -63,7 +63,7 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
         if ( h->win_handle != INVALID_HANDLE_VALUE ) {
             DWORD NumberOfBytesRead;
             if ( ! ReadFile(h->win_handle, dst, size, &NumberOfBytesRead, 0) ) {
-                log_msg(LOG_ERROR, "handle:ReadFile error 2");
+                log_msg(LOG_ERROR, "ReadFile error 2");
             }
             return (int)NumberOfBytesRead;
         }
@@ -77,7 +77,7 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
                 );
 
                 if (bytes_readed <= 0) {
-                    log_msg(LOG_ERROR, "handle:recv failed: %d", WSAGetLastError());
+                    log_msg(LOG_ERROR, "recv failed: %d", WSAGetLastError());
                     return -1;
                 }
 
@@ -149,7 +149,7 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
     
         if ( readLen_rv != null ) {
             if ( INT_MAX < readLen ) {
-                log_msg(LOG_WARNING, "handle:The size readed is more than the capacity of implementation, restricting to ");
+                log_msg(LOG_WARNING, "The size readed is more than the capacity of implementation, restricting to ");
                 *readLen_rv = INT_MAX;
             } else {
                 *readLen_rv = readLen;
@@ -229,7 +229,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
         if ( h->posix_handle != -1 ) {
             int bytes_sent = write(h->posix_handle, tx_buf, bytes_to_send);
             if ( bytes_sent != bytes_to_send ) {
-                log_msg(LOG_ERROR, "handle:Error while writting to the serial");
+                log_msg(LOG_ERROR, "Error while writting to the serial");
                 return -1;
             } else {
                 tcflush(h->posix_handle, TCIFLUSH);
@@ -246,7 +246,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
                 PurgeComm(h->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             }
             if (!WriteFile(h->win_handle, tx_buf, bytes_to_send, &bytes_written, null)) {
-                log_msg(LOG_ERROR, "handle:WriteFile failed with error %lu", GetLastError());
+                log_msg(LOG_ERROR, "WriteFile failed with error %lu", GetLastError());
                 return -1;
             }            
             return (int) bytes_written;
@@ -255,7 +255,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
             if ( h->win_socket != INVALID_SOCKET ) {
                 int sent = send(h->win_socket, (const char *)tx_buf, bytes_to_send, 0);
                 if (sent <= 0 || sent != bytes_to_send) {
-                    log_msg(LOG_ERROR, "handle:send failed: %d", WSAGetLastError());
+                    log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
                     return -1;
                 }
                 return sent;
@@ -268,7 +268,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
 void object_handle_t_close(object_handle_t * h) {
     #if defined OS_POSIX
         if (0 <= h->posix_handle) {
-            log_msg(LOG_DEBUG, "handle:TODO:object_handle_t_close");
+            log_msg(LOG_DEBUG, "TODO:object_handle_t_close");
             /*if (!device_location_is_network((Device*)port)) {
                 tcsetattr(port->implementation->handle,
                         TCSANOW,
