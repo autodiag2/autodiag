@@ -163,7 +163,7 @@ void sim_doip_loop(SimDoIp * sim) {
     #endif
     asprintf(&sim->device_location, "0.0.0.0:%d", main_loop_port);
 
-    log_msg(LOG_INFO, "doip:sim:running on %s", sim->device_location);
+    log_msg(LOG_INFO, "running on %s", sim->device_location);
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
 
@@ -179,7 +179,7 @@ void sim_doip_loop(SimDoIp * sim) {
         if ( ! sim_network_is_connected(impl->handle) ) {
             routing_activated = false;
             sim->openned_connections = 0;
-            log_msg(LOG_DEBUG, "doip:sim:Waiting for a client to connect");
+            log_msg(LOG_DEBUG, "Waiting for a client to connect");
             #ifdef OS_POSIX
                 sock_t server_handle = impl->server_handle->posix_handle;
             #elif defined OS_WINDOWS
@@ -197,48 +197,48 @@ void sim_doip_loop(SimDoIp * sim) {
             #   warning unsupported OS
             #endif
             if (client_socket == SOCK_T_INVALID) {
-                perror("doip:sim:accept");
+                perror("accept");
                 return;
             }
             sim->openned_connections = 1;
             char * location = network_location(addr);
-            log_msg(LOG_INFO, "doip:sim:Client %s connected", location);
+            log_msg(LOG_INFO, "Client %s connected", location);
             free(location);
         }
 
         if ( sim_read((Sim*)sim, impl->timeout_ms, recv_buffer) == -1 ) {
-            log_msg(LOG_ERROR, "doip:sim:Error during reception, exiting the loop");
+            log_msg(LOG_ERROR, "Error during reception, exiting the loop");
             return;
         }
 
         if (recv_buffer->size < 8) {
-            log_msg(LOG_WARNING, "doip:sim:Received message appears truncated (len: %d)", recv_buffer->size);
+            log_msg(LOG_WARNING, "Received message appears truncated (len: %d)", recv_buffer->size);
             continue;
         }
 
         char * buffer_str = buffer_to_hex_string(recv_buffer);
-        log_msg(LOG_DEBUG, "doip:sim:Received '%s' (len: %d)", buffer_str, recv_buffer->size);
+        log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
 
         object_DoIPMessage *msg = doip_message_parse(recv_buffer);
         if (!msg) {
-            log_msg(LOG_DEBUG, "doip:sim:Unabled to parse incoming data : '%s'", buffer_to_ascii_espace_breaking_chars(recv_buffer));
+            log_msg(LOG_DEBUG, "Unabled to parse incoming data : '%s'", buffer_to_ascii_espace_breaking_chars(recv_buffer));
             continue;
         }
 
         switch(msg->payload_type) {
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 if (!handle_diag(sim, msg)) {
-                    log_msg(LOG_DEBUG, "doip:sim:diag message has not responded");
+                    log_msg(LOG_DEBUG, "diag message has not responded");
                     continue;
                 }
             } break;
             case DOIP_ALIVE_CHECK_RESPONSE: {
                 object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
-                log_msg(LOG_DEBUG, "doip:sim:Alive Check Response received from tester 0x%04X", buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "Alive Check Response received from tester 0x%04X", buffer_to_hex_string(payload->src_addr));
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
-                log_msg(LOG_DEBUG, "doip:sim:Routing Activation Request received");
+                log_msg(LOG_DEBUG, "Routing Activation Request received");
                 object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
 
                 object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
@@ -248,24 +248,24 @@ void sim_doip_loop(SimDoIp * sim) {
                 payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
                 payload->iso_reserved = buffer_new_random(4);
                 payload->oem_reserved = buffer_new_random(4);
-                log_msg(LOG_DEBUG, "doip:sim:No OEM specific handling for routing activation or tester address checking, sending success response");
+                log_msg(LOG_DEBUG, "No OEM specific handling for routing activation or tester address checking, sending success response");
 
                 final bool res = doip_send_msg(sim, reply);
                 object_DoIPMessage_free(reply);
                 routing_activated = res;
-                log_msg(LOG_DEBUG, "doip:sim:Routing activated: %s", res ? "success" : "failure");
+                log_msg(LOG_DEBUG, "Routing activated: %s", res ? "success" : "failure");
             } break;
             case DOIP_ALIVE_CHECK_REQUEST:
             case DOIP_DIAGNOSTIC_MESSAGE_ACK:
             case DOIP_DIAGNOSTIC_MESSAGE_NACK:
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
-                log_msg(LOG_WARNING, "doip:sim:This message is not supposed to be sent by the tester, ignoring...");
+                log_msg(LOG_WARNING, "This message is not supposed to be sent by the tester, ignoring...");
             } break;
             case DOIP_DIAG_POWER_MODE_REQUEST: {
                 if (!handle_power_mode(sim)) return;
             } break;
             default: {
-                log_msg(LOG_ERROR, "doip:sim:Payload type 0x%04X not implemented", (int)msg->payload_type);
+                log_msg(LOG_ERROR, "Payload type 0x%04X not implemented", (int)msg->payload_type);
             } break;
         }
     }

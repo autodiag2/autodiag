@@ -15,6 +15,9 @@ bool doip_configure(final object_DoIPDevice * device) {
         buffer_recycle(device->recv_buffer);
         doip_recv_internal(device);
         object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
+        if ( response == null ) {
+            return false;
+        }
         switch(response->payload_type) {
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 object_DoIPMessagePayloadRoutineActivationResponse * responsePayload = (object_DoIPMessagePayloadRoutineActivationResponse*)response->payload;
@@ -303,6 +306,9 @@ static int doip_recv(final object_DoIPDevice * device) {
             return DEVICE_RECV_NULL;
         }
         object_DoIPMessage *msg = doip_message_parse(device->recv_buffer);
+        if ( msg == null ) {
+            return DEVICE_RECV_NULL;
+        }
         switch(msg->payload_type) {
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 if ( ! accepted ) {
@@ -312,7 +318,7 @@ static int doip_recv(final object_DoIPDevice * device) {
                 buffer_recycle(device->recv_buffer);
                 buffer_append(device->recv_buffer, payload->src_addr);
                 if ( log_has_level(LOG_DEBUG) ) {
-                    log_msg(LOG_DEBUG, "device:Received the payload:");
+                    log_msg(LOG_DEBUG, "Received the payload:");
                     buffer_dump(payload->data);
                 }
                 buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
@@ -337,7 +343,7 @@ static int doip_recv(final object_DoIPDevice * device) {
         }
         object_DoIPMessage_free(msg);
     }
-    log_msg(LOG_WARNING, "device: Everything has been tried (%d tries) but cannot retrived response from the node", tries);
+    log_msg(LOG_WARNING, "Everything has been tried (%d tries) but cannot retrived response from the node", tries);
     return DEVICE_RECV_NULL;
 }
 int doip_recv_internal(final object_DoIPDevice * device) {
@@ -356,21 +362,21 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             if( 0 < bytes_readed ) {
                 device->recv_buffer->size += bytes_readed;
             } else if ( bytes_readed == 0 ) {
-                log_msg(LOG_ERROR, "device: error during reception should read %d bytes", readLen);
+                log_msg(LOG_ERROR, "error during reception should read %d bytes", readLen);
             } else {
-                perror("device: read");
+                perror("read");
                 return DEVICE_ERROR;
             }
             if ( log_has_level(LOG_DEBUG) ) {
-                log_msg(LOG_DEBUG, "device: ip data received");
+                log_msg(LOG_DEBUG, "ip data received");
                 buffer_dump(device->recv_buffer);
             }
         } else if ( res == -1 ) {
             perror("poll");
         } else if ( res == 0 ) {
-            log_msg(LOG_DEBUG, "device: Timeout while reading data");
+            log_msg(LOG_DEBUG, "Timeout while reading data");
         } else {
-            log_msg(LOG_ERROR, "device: unexpected happen on doip line");
+            log_msg(LOG_ERROR, "unexpected happen on doip line");
         }
     #elif defined OS_WINDOWS
 

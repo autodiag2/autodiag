@@ -151,7 +151,7 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
 object_DoIPMessage * doip_message_parse(const Buffer * in) {
     assert(in != null);
     if (in->size < 8) {
-        log_msg(LOG_DEBUG, "parsing:length too short");
+        log_msg(LOG_ERROR, "length too short");
         return null;
     }
 
@@ -160,7 +160,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     byte ver = p[0];
     byte inv = p[1];
     if (((byte)(ver ^ inv)) != 0xFF) {
-        log_msg(LOG_DEBUG, "parsing:checksum incorrect");
+        log_msg(LOG_ERROR, "checksum incorrect");
         return null;
     }
 
@@ -171,7 +171,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
 
     object_DoIPMessage *msg = object_DoIPMessage_new();
     if (!msg) {
-        log_msg(LOG_DEBUG, "parsing:allocation failed");
+        log_msg(LOG_ERROR, "allocation failed");
         return null;
     }
 
@@ -183,7 +183,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     msg->payload_raw = buffer_slice((Buffer*)in, 8, plen);
     msg->payload = null;
 
-    log_msg(LOG_DEBUG, "parsing:found payload type 0x%04X", ptype);
+    log_msg(LOG_DEBUG, "found payload type 0x%04X", ptype);
     switch(ptype) {
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
