@@ -174,7 +174,7 @@ static AD_DEVICE_TYPE device_get_type() {
     const char * type_str = gtk_combo_box_text_get_active_text(gui->device_type);
     if ( strcasecmp(type_str, "auto") == 0 ) {
         return AD_DEVICE_TYPE_AUTO;
-    } else if ( strcasecmp(type_str, "serial") == 0 ) {
+    } else if ( strcasecmp(type_str, "serial") == 0 || strcasecmp(type_str, "elm") == 0 ) {
         return AD_DEVICE_TYPE_SERIAL;
     } else if ( strcasecmp(type_str, "doip") == 0 ) {
         return AD_DEVICE_TYPE_DOIP;
@@ -196,7 +196,7 @@ static void recovery_mode() {
     if ( device == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        device->type = device_get_type();
+        device->type = config.com.device.type;
         viface_recorder_reset(iface);
         viface_recorder_set_state(iface, false);
 

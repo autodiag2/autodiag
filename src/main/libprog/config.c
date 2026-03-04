@@ -250,29 +250,30 @@ void config_onchange() {
     final Device * device = device_table_get_selected(config.ephemere.device_table);
     if ( device == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
-    } else {
-        switch(device->type) {
-            case AD_DEVICE_TYPE_SERIAL: {
-                Serial * port = (Serial*) device;
-                port->baud_rate = config.com.device.serial.baud_rate;
-            } break;
-            case AD_DEVICE_TYPE_DOIP: {
-                // nothing to do
-            } break;
-            default: {
-                log_msg(LOG_ERROR, "Unsupported device type %d", device->type);
-            } break;
+        return;
+    }
+    device->type = config.com.device.type;
+    switch(device->type) {
+        case AD_DEVICE_TYPE_SERIAL: {
+            Serial * port = (Serial*) device;
+            port->baud_rate = config.com.device.serial.baud_rate;
+        } break;
+        case AD_DEVICE_TYPE_DOIP: {
+            // nothing to do
+        } break;
+        default: {
+            log_msg(LOG_ERROR, "Unsupported device type %d", device->type);
+        } break;
+    }
+    viface_recorder_reset(config.ephemere.iface);
+    viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
+    if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(device))) {
+        if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(device), config.ephemere.iface->device) ) {
+            log_msg(LOG_WARNING, "Device update in the table of devices has failed, continuing ...");
         }
-        viface_recorder_reset(config.ephemere.iface);
-        viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
-        if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(device))) {
-            if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(device), config.ephemere.iface->device) ) {
-                log_msg(LOG_WARNING, "Device update in the table of devices has failed, continuing ...");
-            }
-            if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
-                config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
-                viface_fill_infos_from_vin(config.ephemere.iface);
-            }
+        if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
+            config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
+            viface_fill_infos_from_vin(config.ephemere.iface);
         }
     }
 }
