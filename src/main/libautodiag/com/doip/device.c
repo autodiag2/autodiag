@@ -62,7 +62,7 @@ bool doip_node_queue_is_full(final object_DoIPDevice * device) {
     }
 }
 void doip_close(final object_DoIPDevice * device) {
-    if ( device == null || device->state != AD_DEVICE_STATE_NOT_READY ) {
+    if ( device == null || device->state != AD_DEVICE_STATE_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
