@@ -2,8 +2,8 @@
 #include "libautodiag/com/doip/doip.h"
 
 bool doip_configure(final object_DoIPDevice * device) {
-    log_msg(LOG_DEBUG, "doip:client:Configuring doip device");
-    log_msg(LOG_DEBUG, "doip:client:Routine activation");
+    log_msg(LOG_DEBUG, "Configuring doip device");
+    log_msg(LOG_DEBUG, "Routine activation");
     {
         object_DoIPMessage * request = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
         object_DoIPMessagePayloadRoutineActivationRequest * requestPayload = object_DoIPMessagePayloadRoutineActivationRequest_new();
@@ -23,13 +23,13 @@ bool doip_configure(final object_DoIPDevice * device) {
                         object_DoIPMessage_free(response);
                     } return true;
                     default: {
-                        log_msg(LOG_ERROR, "doip:client:Doip node refusing to start diagnostic maybe implement manufacturer specific process");
+                        log_msg(LOG_ERROR, "Doip node refusing to start diagnostic maybe implement manufacturer specific process");
                         object_DoIPMessage_free(response);
                     } return false;
                 }
             } break;
             default: {
-                log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
+                log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
                 object_DoIPMessage_free(response);
             } return false;
         }
@@ -48,12 +48,12 @@ bool doip_node_queue_is_full(final object_DoIPDevice * device) {
         case DOIP_ENTITY_STATUS_RESPONSE: {
             object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
             bool result = payload->openned_connections >= payload->max_concurrent_connections;
-            log_msg(LOG_DEBUG, "doip:client:Node queue is %s (openned connections: %d, max concurrent connections: %d)", result ? "full" : "not full", payload->openned_connections, payload->max_concurrent_connections);
+            log_msg(LOG_DEBUG, "Node queue is %s (openned connections: %d, max concurrent connections: %d)", result ? "full" : "not full", payload->openned_connections, payload->max_concurrent_connections);
             object_DoIPMessage_free(response);
             return result;
         } break;
         default: {
-            log_msg(LOG_ERROR, "doip:client:Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
+            log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
             object_DoIPMessage_free(response);
         } return bool_unset;
     }

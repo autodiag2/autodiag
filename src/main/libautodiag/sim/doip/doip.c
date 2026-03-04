@@ -20,19 +20,21 @@ SimDoIp * sim_doip_new() {
 }
 
 void sim_doip_destroy(SimDoIp *sim) {
-    THREAD_CANCEL(((DoIpImplementation*)sim->implementation)->loop_thread);
-    free(((DoIpImplementation*)sim->implementation)->loop_thread);
-    ((DoIpImplementation*)sim->implementation)->loop_thread = null;
-    ((DoIpImplementation*)sim->implementation)->loop_ready = false;
+    DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
+    THREAD_CANCEL(impl->loop_thread);
+    free(impl->loop_thread);
+    impl->loop_thread = null;
+    impl->loop_ready = false;
 }
 void sim_doip_loop_as_daemon(SimDoIp * sim) {
-    THREAD_CANCEL(((DoIpImplementation*)sim->implementation)->loop_thread);
-    ((DoIpImplementation*)sim->implementation)->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
-    if ( pthread_create(((DoIpImplementation*)sim->implementation)->loop_thread, NULL,
+    DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
+    THREAD_CANCEL(impl->loop_thread);
+    impl->loop_thread = (pthread_t*)malloc(sizeof(pthread_t));
+    if ( pthread_create(impl->loop_thread, NULL,
                           (void *(*) (void *)) sim_doip_loop, (void *)sim) != 0 ) {
         log_msg(LOG_ERROR, "thread creation error");
-        free(((DoIpImplementation*)sim->implementation)->loop_thread);
-        ((DoIpImplementation*)sim->implementation)->loop_thread = null;
+        free(impl->loop_thread);
+        impl->loop_thread = null;
         exit(EXIT_FAILURE);
     }
 }
@@ -179,14 +181,14 @@ void sim_doip_loop(SimDoIp * sim) {
             sim->openned_connections = 0;
             log_msg(LOG_DEBUG, "doip:sim:Waiting for a client to connect");
             #ifdef OS_POSIX
-                sock_t server_fd = impl->server_handle->posix_handle;
+                sock_t server_handle = impl->server_handle->posix_handle;
             #elif defined OS_WINDOWS
-                sock_t server_fd = impl->server_handle->win_socket;
+                sock_t server_handle = impl->server_handle->win_socket;
             #else
             #   warning unsupported OS
             #endif
             socklen_t addr_len = sizeof(addr);
-            sock_t client_socket = accept(server_fd, (struct sockaddr*)&addr, &addr_len);
+            sock_t client_socket = accept(server_handle, (struct sockaddr*)&addr, &addr_len);
             #ifdef OS_POSIX
                 impl->handle->posix_handle = client_socket;
             #elif defined OS_WINDOWS
