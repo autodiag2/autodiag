@@ -20,7 +20,7 @@ void error_feedback_windows_init(final ErrorFeedbackWindows ws);
 /**
  * @return true if a feedback has been returned else false
  */
-bool error_feedback_serial(final ErrorFeedbackWindows ws, final Serial * serial);
+bool error_feedback_device(final ErrorFeedbackWindows ws, final Device * device);
 /**
  * Same but at a different level
  */

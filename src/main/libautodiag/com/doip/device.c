@@ -58,9 +58,8 @@ bool doip_node_queue_is_full(final object_DoIPDevice * device) {
         } return bool_unset;
     }
 }
-
 void doip_close(final object_DoIPDevice * device) {
-    if ( device == null || device->status != DEVICE_DOIP_STATUS_OPEN ) {
+    if ( device == null || device->state != AD_DEVICE_STATE_NOT_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
@@ -78,7 +77,7 @@ void doip_close(final object_DoIPDevice * device) {
         #endif
     }
 
-    device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+    device->state = AD_DEVICE_STATE_NOT_READY;
 }
 int doip_open(final object_DoIPDevice * device) {
     if ( device == null ) {
@@ -184,7 +183,7 @@ int doip_open(final object_DoIPDevice * device) {
     #   warning Unsupported OS            
     #endif
 
-    device->status = DEVICE_DOIP_STATUS_OPEN;
+    device->state = AD_DEVICE_STATE_READY;
 
     log_msg(LOG_DEBUG, "DoIP device openned");
 
@@ -243,7 +242,7 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     }
 
     if (device->implementation->handle == SOCK_T_INVALID) {
-        device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+        device->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
 
@@ -345,7 +344,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
     
     if (device->implementation->handle == SOCK_T_INVALID) {
-        device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+        device->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
 
@@ -415,12 +414,13 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->implementation->handle = SOCK_T_INVALID;
     pthread_mutex_init(&device->implementation->lock_mutex, NULL);
     device->location = null;
-    device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
+    device->state = AD_DEVICE_STATE_UNDEFINED;
     device->send = AD_DEVICE_SEND(doip_send);
     device->recv = AD_DEVICE_RECV(doip_recv);
     device->clear_data = AD_DEVICE_CLEAR_DATA(doip_clear_data);
     device->parse_data = AD_DEVICE_PARSE_DATA(doip_parse_data);
     device->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(doip_describe_communication_layer);
+    device->describe_state = AD_DEVICE_DESCRIBE_STATE(device_describe_state);
     device->set_filter_by_address = AD_DEVICE_SET_FILTER_BY_ADDRESS(doip_set_filter_by_address);
     device->lock = AD_DEVICE_LOCK(doip_lock);
     device->unlock = AD_DEVICE_UNLOCK(doip_unlock);

@@ -186,29 +186,18 @@ static void recovery_mode() {
         viface_recorder_set_state(iface, false);
 
         switch ( device->type ) {
-            case AD_DEVICE_TYPE_DOIP: {
-                object_DoIPDevice * doip = (object_DoIPDevice*) device;
-                if ( doip->status != DEVICE_DOIP_STATUS_OPEN ) {
-                    if ( doip_open(doip) == GENERIC_FUNCTION_ERROR ) {
-                        log_msg(LOG_ERROR, "Error while openning DoIP device");
-                        return;
-                    }
-                }
-            } break;
             case AD_DEVICE_TYPE_SERIAL: {
                 Serial * serial = (Serial*) device;
                 serial->baud_rate = config.com.device.serial.baud_rate;
-                if ( serial->status != SERIAL_STATE_READY ) {
-                    if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
-                        log_msg(LOG_ERROR, "Error while openning serial port");
-                        return;
-                    }
-                }
             } break;
-            default: {
-                log_msg(LOG_ERROR, "Unsupported device type %d", device->type);
+            default: break;
+        }
+
+        if ( device->state != AD_DEVICE_STATE_READY ) {
+            if ( device->open(device) == GENERIC_FUNCTION_ERROR ) {
+                log_msg(LOG_ERROR, "Error while openning device");
                 return;
-            } break;
+            }
         }
         iface->device = AD_DEVICE(device);
         iface->state = VIFaceState_READY;

@@ -94,20 +94,8 @@ int terminal_cli_main(int argc, char *argv[]) {
     }
 
     while(true) {
-        if ( device->type == AD_DEVICE_TYPE_DOIP ) {
-            object_DoIPDevice * doip_device = (object_DoIPDevice *) device;
-            if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
-                printf("Error while receiving data from the device\n");
-                return 1;
-            }
-        } else if ( device->type == AD_DEVICE_TYPE_SERIAL ) {
-            Serial * serial = (Serial *) device;
-            if ( serial->status != SERIAL_STATE_READY ) {
-                printf("Error while receiving data from the device\n");
-                return 1;
-            }
-        } else {
-            printf("Unsupported device type\n");
+        if ( device->state != AD_DEVICE_STATE_READY ) {
+            printf("Device not ready, cannot send commands\n");
             return 1;
         }
         char command[1000] = {0};
@@ -119,24 +107,12 @@ int terminal_cli_main(int argc, char *argv[]) {
         } else {
             device->clear_data(device);
             device->recv(device);
-            {
-                char * result = null;
-                if ( device->type == AD_DEVICE_TYPE_DOIP ) {
-                    object_DoIPDevice * doip_device = (object_DoIPDevice *) device;
-                    result = buffer_to_hexdump(doip_device->recv_buffer);
-                } else if ( device->type == AD_DEVICE_TYPE_SERIAL ) {
-                    Serial * serial = (Serial *) device;
-                    result = buffer_to_hexdump(serial->recv_buffer);
-                } else {
-                    printf("Unsupported device type\n");
-                    return 1;
-                }
-                if ( result == null || strlen(result) == 0 ) {
-                    printf("No data received from the device\n");
-                } else {
-                    printf("%s\n",result);
-                    free(result);
-                }
+            char * result = buffer_to_hexdump(device->recv_buffer);
+            if ( result == null || strlen(result) == 0 ) {
+                printf("No data received from the device\n");
+            } else {
+                printf("%s\n",result);
+                free(result);
             }
         }
     }

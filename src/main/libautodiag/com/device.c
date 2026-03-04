@@ -1,5 +1,18 @@
 #include "libautodiag/com/device.h"
 
+const char * device_describe_state(final Device * device) {
+    switch(device->state) {
+        case AD_DEVICE_STATE_UNDEFINED:
+            return "Undefined state";
+        case AD_DEVICE_STATE_READY:
+            return "Ready";
+        case AD_DEVICE_STATE_NOT_READY:
+            return "Not ready";
+        default: break;
+    }
+    return null;
+}
+
 bool device_location_is_network(final Device *device) {
     if (device == null || device->location == null) {
         return false;

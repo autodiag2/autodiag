@@ -88,53 +88,39 @@ static void viface_open_abort(final VehicleIFace * iface) {
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
     assert(iface != null);
     uds_viface_stop_tester_present_timer(iface);
-    switch(device->type) {
-        case AD_DEVICE_TYPE_SERIAL: {
-            Serial * serial = (Serial*)device;
-            if ( serial->status != SERIAL_STATE_READY ) {
-                if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
-                    log_msg(LOG_ERROR, "Error while openning serial port");
-                    viface_open_abort(iface);
-                    return false;
-                }
-            }
-            device->lock(AD_DEVICE(device));
-            ELMDevice * elm = elm_open_from_serial(serial);
-            if ( elm == null ) {
-                log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
-                serial_unlock(serial);
-                viface_open_abort(iface);
-                return false;
-            }
-            iface->device = AD_DEVICE(elm);
-            iface->device->unlock(AD_DEVICE(iface->device));
-        } break;
-        case AD_DEVICE_TYPE_DOIP: {
-            object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
-            if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
-                if ( device->open((Device*)device) == DEVICE_ERROR ) {
-                    log_msg(LOG_ERROR, "Error while openning doip device");
-                    viface_open_abort(iface);
-                    return false;
-                }
-                if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
-                    log_msg(LOG_ERROR, "Error while openning doip device");
-                    viface_open_abort(iface);
-                    return false;
-                }
-            }
-            doip_device->lock(AD_DEVICE(doip_device));
-            doip_configure(doip_device);
-            iface->device = AD_DEVICE(doip_device);
-            iface->device->unlock(AD_DEVICE(iface->device));
-        } break;
-        default: {
-            log_msg(LOG_ERROR, "Unknown device type: 0x%X aborting", device->type);
+    if ( device->state != AD_DEVICE_STATE_READY ) {
+        if ( device->open(device) == DEVICE_ERROR ) {
+            log_msg(LOG_ERROR, "Error while openning device");
             viface_open_abort(iface);
             return false;
         }
     }
-
+    device->lock(AD_DEVICE(device));
+    switch(device->type) {
+        case AD_DEVICE_TYPE_SERIAL: {
+            Serial * serial = (Serial*)device;
+            ELMDevice * elm = elm_open_from_serial(serial);
+            if ( elm == null ) {
+                log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
+                device->unlock(AD_DEVICE(device));
+                viface_open_abort(iface);
+                return false;
+            }
+            iface->device = AD_DEVICE(elm);
+        } break;
+        case AD_DEVICE_TYPE_DOIP: {
+            object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
+            doip_configure(doip_device);
+            iface->device = AD_DEVICE(doip_device);
+        } break;
+        default: {
+            log_msg(LOG_ERROR, "Unknown device type: 0x%X aborting", device->type);
+            device->unlock(AD_DEVICE(device));
+            viface_open_abort(iface);
+            return false;
+        }
+    }
+    iface->device->unlock(AD_DEVICE(iface->device));
     viface_discover_vehicle(iface);
     iface->state = VIFaceState_READY;
     return true;

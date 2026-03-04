@@ -19,6 +19,7 @@
 #define AD_DEVICE_LOCK(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
 #define AD_DEVICE(arg) ((struct Device*)arg)
+#define AD_DEVICE_DESCRIBE_STATE(var) ((const char* (*)(final Device*))var)
 
 typedef enum {
     AD_DEVICE_TYPE_AUTO = 0,
@@ -26,15 +27,34 @@ typedef enum {
     AD_DEVICE_TYPE_DOIP = 2
 } AD_DEVICE_TYPE;
 
+typedef enum {
+    AD_DEVICE_STATE_UNDEFINED = 0,
+    AD_DEVICE_STATE_READY = 1,
+    AD_DEVICE_STATE_NOT_READY = 2,
+    AD_DEVICE_STATE_DEVICE_SPECIFIC = 3
+} AD_DEVICE_STATE;
+
 typedef struct Device {
     /**
      * eg. DoIP, Serial
      */
     AD_DEVICE_TYPE type;
     /**
+     * State of the device
+     */
+    AD_DEVICE_STATE state;
+    /**
+     * buffer for input data
+     */
+    Buffer * recv_buffer;
+    /**
      * location of the device accross OSs
      */
     char *location;
+    /**
+     * did the serial port has been detected during the previous scan
+     */
+    bool detected;
     /**
      * Send a string with the device
      * @return number of bytes sent or DEVICE_ERROR on error
@@ -59,6 +79,11 @@ typedef struct Device {
      * eg "ISO 15765-4 (CAN 11-bit ID, 500 kBit/s)"
      */
     char* (*describe_communication_layer)(final struct Device* device);
+    /**
+     * Get a string representing state of the device, with device specific information if the state is DEVICE_STATE_DEVICE_SPECIFIC
+     * @return null if the error is unhandled.
+     */
+    const char* (*describe_state)(final struct Device* device);
     /**
      * Parse a previously received data and store in corresponding ECU in the vehicle
      * eg OBD data, UDS data
@@ -111,5 +136,9 @@ const char * device_type_as_string(AD_DEVICE_TYPE type);
  * If network location is an ip addresse + port
  */
 bool device_location_is_network(final Device *device);
+/**
+ * Default handler for a device.
+ */
+const char * device_describe_state(final Device * device);
 
 #endif

@@ -1,11 +1,10 @@
 from autodiag.libloader import *
-from autodiag.buffer import Buffer
 from autodiag.com.device import Device
 from autodiag.lib import addr
 
 GuessResponseFunc = CFUNCTYPE(c_int, char_p)
 
-class SerialStatus(c_int):
+class SerialState(c_int):
     pass
 
 class SerialImplementation(Structure):
@@ -14,14 +13,12 @@ class SerialImplementation(Structure):
 class Serial(Structure):
     _fields_ = [
         ("device", Device),
+        ("serial_state", SerialState),
         ("echo", bool),
         ("baud_rate", c_int),
-        ("status", SerialStatus),
         ("eol", char_p),
         ("timeout", c_int),
         ("timeout_seq", c_int),
-        ("recv_buffer", POINTER(Buffer)),
-        ("detected", bool),
         ("guess_response", GuessResponseFunc),
         ("implementation", POINTER(SerialImplementation))
     ]
@@ -127,11 +124,6 @@ class Serial(Structure):
         lib.serial_recv_internal.argtypes = [POINTER(Serial)]
         lib.serial_recv_internal.restype = c_int
         return lib.serial_recv_internal(pointer(self))
-    
-    def describe_status(self) -> str:
-        lib.serial_describe_status.argtypes = [POINTER(Serial)]
-        lib.serial_describe_status.restype = char_p
-        return lib.serial_describe_status(pointer(self)).decode('utf-8')
 
     def describe_communication_layer(self) -> str:
         lib.serial_describe_communication_layer.argtypes = [POINTER(Serial)]

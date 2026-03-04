@@ -63,30 +63,19 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
 }
 
 void* refresh_usb_adaptater_state_internal(void *arg) {
-    final Serial * port = (Serial*)device_table_get_selected(config.ephemere.device_table);
-    if ( port == null ) {
-        adaptater_state_set_text("No serial port selected", "orange");
+    final Device * device = device_table_get_selected(config.ephemere.device_table);
+    if ( device == null ) {
+        adaptater_state_set_text("No device selected", "orange");
     } else {
-        assert(port->type == AD_DEVICE_TYPE_SERIAL);
-        switch(port->status) {
-            case SERIAL_STATE_READY:
-                adaptater_state_set_text("Ready", "green");
-                break;
-            case SERIAL_STATE_NOT_OPEN:
-                adaptater_state_set_text("Not open", "orange");
-                break;
-            case SERIAL_STATE_OPEN_ERROR:
-                adaptater_state_set_text("Error while opening serial port (eg permissions not sufficient)", "red");
-                break;
-            case SERIAL_STATE_DISCONNECTED:
-                adaptater_state_set_text("Serial port disconnected", "orange");
-                break;
-            case SERIAL_STATE_MISSING_PERM:
-                adaptater_state_set_text("Missing permissions", "red");
-                break;
-            default:
-                adaptater_state_set_text("No data", "red");
-                break;
+        if ( device->state == AD_DEVICE_STATE_READY ) {
+            adaptater_state_set_text("Ready", "green");
+        } else {
+            const char * errorFeedbackStr = device->describe_state(device);
+            if ( errorFeedbackStr == null ) {
+                adaptater_state_set_text("Undefined error", "red");
+            } else {
+                adaptater_state_set_text((char*)errorFeedbackStr, "red");
+            }
         }
         final VehicleIFace* iface = config.ephemere.iface;
         if ( iface->state == VIFaceState_READY ) {
@@ -101,7 +90,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.year), "%d", iface->vehicle->year);
             gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.vin), "%s", buffer_to_ascii(iface->vehicle->vin));
         } else {
-            adaptater_protocol_set_text(port->describe_communication_layer(AD_DEVICE(port)));
+            adaptater_protocol_set_text(iface->device->describe_communication_layer(AD_DEVICE(iface->device)));
             adaptater_interface_set_text("Not an OBD interface");
         }
     }

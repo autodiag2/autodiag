@@ -24,12 +24,11 @@
 #include "libautodiag/com/network.h"
 
 typedef enum {
-    SERIAL_STATE_UNDEFINED, 
-    SERIAL_STATE_READY, SERIAL_STATE_NOT_OPEN, SERIAL_STATE_USER_IGNORED,
+    SERIAL_STATE_USER_IGNORED,
     SERIAL_STATE_OPEN_ERROR,
     SERIAL_STATE_DISCONNECTED,
     SERIAL_STATE_MISSING_PERM
-} SerialStatus;
+} SerialState;
 
 // timeout values in ms
 #define SERIAL_DEFAULT_TIMEOUT 1000
@@ -52,14 +51,12 @@ typedef struct {
 
 typedef struct {
     Device;
+    SerialState serial_state;   // device specific state of the serial port 
     bool echo;                  // Not part of the serial standard but defined here for convenience
     int baud_rate;              // RS232 speed in bauds
-    SerialStatus status;
     char *eol;                  // Not part of the serial standard but defined here for convenience
     int timeout;                // timeout in ms before considering no reply from the remote
     int timeout_seq;            // timeout in ms for burst reception
-    Buffer * recv_buffer;       // buffer for input data
-    bool detected;              // did the serial port has been detected during the previous scan
     /**
      * Guess error responses and special response sent back by
      * the adaptater
@@ -194,11 +191,6 @@ int serial_recv(final Serial * port);
  * @return number of bytes received or DEVICE_ERROR on error
  */
 int serial_recv_internal(final Serial * port);
-/**
- * @return allocated with malloc
- */
-char * serial_status_to_string(final SerialStatus status);
-char * serial_describe_status(final Serial * port);
 
 char * at_command(char * at_command, ...);
 char * at_command_va(char * at_command, va_list ap);

@@ -28,12 +28,6 @@ typedef struct {
     sock_t handle;
 } DoIPDeviceImplementation;
 
-typedef enum {
-    DEVICE_DOIP_STATUS_OPEN,
-    DEVICE_DOIP_STATUS_NOT_OPEN,
-    DEVICE_DOIP_STATUS_ERROR
-} DeviceDoIPStatus;
-
 #define DEVICE_DOIP_DEFAULT_ADDRESS 0x0E08
 #define DEVICE_DOIP_DEFAULT_TIMEOUT_MS 1000
 OBJECT_H(DoIPDevice,
@@ -41,10 +35,6 @@ OBJECT_H(DoIPDevice,
     DoIPDeviceImplementation * implementation;
     // timeout in ms before considering no reply from the remote
     int timeout_ms;
-    // buffer for input data
-    Buffer * recv_buffer;
-    // state of the device
-    DeviceDoIPStatus status;
     // Address of the device on the DoIP network (tester address)
     uint16_t address;
     struct {

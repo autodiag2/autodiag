@@ -96,10 +96,10 @@ static char *ascii_interpret_escape_sequences(const char *input) {
 }
 static void * send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
-    final Serial * port = (Serial*)device_table_get_selected(config.ephemere.device_table);
-    if ( ! error_feedback_serial(gui->errorFeedback,port) ) {
-        serial_lock(port);
-        buffer_recycle(port->recv_buffer);
+    final Device * device = device_table_get_selected(config.ephemere.device_table);
+    if ( ! error_feedback_device(gui->errorFeedback,device) ) {
+        device->lock(AD_DEVICE(device));
+        buffer_recycle(device->recv_buffer);
         {
             char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
             char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
@@ -113,16 +113,25 @@ static void * send_command_wait_response_internal(final void * arg) {
         }
         final int result;
         if ( gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.raw)) ) {
-            result = serial_send_internal(port, command, strlen(command));
+            switch( device->type ) {
+                case AD_DEVICE_TYPE_SERIAL: {
+                    Serial * serial = (Serial*) device;
+                    result = serial_send_internal(serial, command, strlen(command));
+                } break;
+                default: {
+                    result = DEVICE_ERROR; 
+                    log_msg(LOG_DEBUG, "TODO");
+                } break;
+            }
         } else {
-            result = port->send(AD_DEVICE(port), command);
+            result = device->send(AD_DEVICE(device), command);
         }
         if ( result == DEVICE_ERROR ) {
-            error_feedback_serial(gui->errorFeedback,port);                
+            error_feedback_device(gui->errorFeedback,device);                
         } else {
-            port->recv(AD_DEVICE(port));
+            device->recv(AD_DEVICE(device));
             {
-                final char * result = bytes_to_hexdump(port->recv_buffer->buffer, port->recv_buffer->size);
+                final char * result = bytes_to_hexdump(device->recv_buffer->buffer, device->recv_buffer->size);
                 if ( result == null ) {
                     append_text_to_output("No data received from the device\n");
                 } else {
@@ -131,7 +140,7 @@ static void * send_command_wait_response_internal(final void * arg) {
                 }
             }
         }
-        serial_unlock(port);
+        device->unlock(AD_DEVICE(device));
     }
     pthread_exit(0);
 }

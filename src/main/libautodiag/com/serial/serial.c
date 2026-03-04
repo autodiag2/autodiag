@@ -16,7 +16,7 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     }
     
     if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
-        port->status = SERIAL_STATE_NOT_OPEN;
+        port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
 
@@ -54,7 +54,7 @@ int serial_recv_internal(final Serial * port) {
         return DEVICE_ERROR;
     }
     if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
-        port->status = SERIAL_STATE_NOT_OPEN;
+        port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
     final unsigned initial_buffer_sz = port->recv_buffer->size;
@@ -159,7 +159,7 @@ int serial_open(final Serial * port) {
             }
 
             port->implementation->handle_rename->posix_handle = fd;
-            port->status = SERIAL_STATE_READY;
+            port->state = AD_DEVICE_STATE_READY;
             log_msg(LOG_DEBUG, "Open: Serial openned as posix socket");
             return GENERIC_FUNCTION_SUCCESS;
         #elif defined OS_WINDOWS
@@ -196,7 +196,7 @@ int serial_open(final Serial * port) {
             }
 
             port->implementation->handle_rename->win_socket = s;
-            port->status = SERIAL_STATE_READY;
+            port->state = AD_DEVICE_STATE_READY;
             log_msg(LOG_DEBUG, "Open: Serial openned as windows socket");
             return GENERIC_FUNCTION_SUCCESS;
         #else
@@ -209,7 +209,8 @@ int serial_open(final Serial * port) {
         port->implementation->handle_rename->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
         if (port->implementation->handle_rename->win_handle == INVALID_HANDLE_VALUE) {
             log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
-            port->status = SERIAL_STATE_OPEN_ERROR;
+            port->state = AD_DEVICE_STATE_NOT_READY;
+            port->serial_state = SERIAL_STATE_OPEN_ERROR;
             return GENERIC_FUNCTION_ERROR;
         }
         log_msg(LOG_DEBUG, "Openning port: %s", port->location);
@@ -279,7 +280,8 @@ int serial_open(final Serial * port) {
             if (bytes_written != 2) { // If Tx timeout occured
                 log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
                 CloseHandle(port->implementation->handle_rename->win_handle);
-                port->status = SERIAL_STATE_OPEN_ERROR;
+                port->serial_state = SERIAL_STATE_OPEN_ERROR;
+                port->state = AD_DEVICE_STATE_NOT_READY;
                 return GENERIC_FUNCTION_ERROR;
             }
             log_msg(LOG_DEBUG, "Open: Serial openned as windows COM port");
@@ -293,12 +295,13 @@ int serial_open(final Serial * port) {
         port->implementation->handle_rename->posix_handle = open(port->location, O_RDWR | O_NOCTTY);
         if (port->implementation->handle_rename->posix_handle < 0) {
             perror(port->location);
+            port->state = AD_DEVICE_STATE_NOT_READY;
             if ( errno == ENOENT ) {
-                port->status = SERIAL_STATE_DISCONNECTED;
+                port->serial_state = SERIAL_STATE_DISCONNECTED;
             } else if ( errno == EPERM ) {
-                port->status = SERIAL_STATE_MISSING_PERM;
+                port->serial_state = SERIAL_STATE_MISSING_PERM;
             } else {
-                port->status = SERIAL_STATE_OPEN_ERROR;
+                port->serial_state = SERIAL_STATE_OPEN_ERROR;
             }
             return GENERIC_FUNCTION_ERROR;
         }
@@ -331,12 +334,12 @@ int serial_open(final Serial * port) {
     #   warning Regular file openning not supported on this OS
     #endif
 
-    port->status = SERIAL_STATE_READY;
+    port->state = AD_DEVICE_STATE_READY;
     log_msg(LOG_DEBUG, "Open: Serial openned");
     return GENERIC_FUNCTION_SUCCESS;
 }
 void serial_close(final Serial * port) {
-    if ( port == null || port->status != SERIAL_STATE_READY ) {
+    if ( port == null || port->state != AD_DEVICE_STATE_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     }
@@ -350,7 +353,27 @@ void serial_close(final Serial * port) {
         #endif
     #endif
     object_handle_t_close(port->implementation->handle_rename);
-    port->status = SERIAL_STATE_NOT_OPEN;
+    port->state = AD_DEVICE_STATE_NOT_READY;
+}
+const char * serial_describe_state(final Serial * port) {
+    const char * parent = device_describe_state((Device*)port);
+
+    if ( parent != null ) {
+        return parent;
+    }
+
+    switch(port->serial_state) {
+        case SERIAL_STATE_USER_IGNORED:
+            return "User ignored (eg. user ignored the serial port during the scan)";
+        case SERIAL_STATE_OPEN_ERROR:
+            return "Error while opening serial port (eg permissions not sufficient)";
+        case SERIAL_STATE_DISCONNECTED:
+            return "Serial port disconnected";
+        case SERIAL_STATE_MISSING_PERM:
+            return "Missing permissions to open the serial port";
+    }
+
+    return null;
 }
 char * serial_describe_communication_layer(final Serial * serial) {
     char * res;
@@ -382,7 +405,7 @@ void serial_reset_to_default(final Serial* serial) {
 void serial_init(final Serial* serial) {
     serial_reset_to_default(serial);
     serial->location = null;
-    serial->status = SERIAL_STATE_UNDEFINED;
+    serial->state = AD_DEVICE_STATE_UNDEFINED;
     serial->recv_buffer = buffer_new();
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
     serial->timeout_seq = SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT;
@@ -400,6 +423,7 @@ void serial_init(final Serial* serial) {
     serial->unlock = AD_DEVICE_UNLOCK(serial_unlock);
     serial->clear_data = AD_DEVICE_CLEAR_DATA(clear_data);
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
+    serial->describe_state = AD_DEVICE_DESCRIBE_STATE(serial_describe_state);
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     serial->implementation->handle_rename = object_handle_t_new();
 }
@@ -429,13 +453,13 @@ void serial_free(final Serial * port) {
 }
 
 void serial_dump(final Serial * port) {
-    const char * title = "Serial dump (name/baud_rate/status/eol):";
+    const char * title = "Serial dump (name/baud_rate/state/eol):";
     char *result = null;
     if ( port == null ) {
         asprintf(&result, "%s NULL", title);
         module_debug(MODULE_SERIAL result);
     } else {
-        asprintf(&result, "%s %s/%d/%d/%s", title, port->location, port->baud_rate, port->status, port->eol);
+        asprintf(&result, "%s %s/%d/%d/%s", title, port->location, port->baud_rate, port->state, port->eol);
         module_debug(MODULE_SERIAL result);
     }
     free(result);
@@ -452,6 +476,7 @@ void serial_debug(final Serial * port) {
         log_msg(LOG_DEBUG, "        open: %p", port->open);
         log_msg(LOG_DEBUG, "        close: %p", port->close);
         log_msg(LOG_DEBUG, "        describe_communication_layer: %p", port->describe_communication_layer);
+        log_msg(LOG_DEBUG, "        describe_state: %p", port->describe_state);
         log_msg(LOG_DEBUG, "        parse_data: %p", port->parse_data);
         log_msg(LOG_DEBUG, "        clear_data: %p", port->clear_data);
         log_msg(LOG_DEBUG, "        lock: %p", port->lock);
@@ -459,7 +484,7 @@ void serial_debug(final Serial * port) {
         log_msg(LOG_DEBUG, "    }");
         log_msg(LOG_DEBUG, "    echo: %s", port->echo ? "true" : "false");
         log_msg(LOG_DEBUG, "    baud_rate: %d", port->baud_rate);
-        log_msg(LOG_DEBUG, "    status: %d", port->status);
+        log_msg(LOG_DEBUG, "    state: %d", port->state);
         log_msg(LOG_DEBUG, "    name: %s", port->location);
         log_msg(LOG_DEBUG, "    eol: %s", port->eol);
         log_msg(LOG_DEBUG, "    timeout: %d ms", port->timeout);
@@ -469,27 +494,6 @@ void serial_debug(final Serial * port) {
         log_msg(LOG_DEBUG, "    guess_response: %p", port->guess_response);
         log_msg(LOG_DEBUG, "}");
     }
-}
-
-char * serial_status_to_string(final SerialStatus status) {
-    switch(status) {
-        case SERIAL_STATE_UNDEFINED: return strdup("undefined");
-        case SERIAL_STATE_READY: return strdup("ready");
-        case SERIAL_STATE_USER_IGNORED: return strdup("user ignored");        
-        case SERIAL_STATE_OPEN_ERROR: return strdup("open error");
-        case SERIAL_STATE_DISCONNECTED: return strdup("disconnected");
-        case SERIAL_STATE_MISSING_PERM: return strdup("missing permissions");
-        default: return strdup("unknown");
-    }
-}
-
-char * serial_describe_status(final Serial * port) {
-    assert(port != null);
-    char *status = serial_status_to_string(port->status);
-    char *result = null;
-    asprintf(&result, "Serial status: %s", status);
-    free(status);
-    return result;
 }
 
 bool at_is_command(char * command) {
