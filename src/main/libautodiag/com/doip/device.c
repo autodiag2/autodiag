@@ -237,7 +237,7 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
         request = buffer_from_ascii(command);
     }
     if ( log_has_level(LOG_DEBUG) ) {
-        log_msg(LOG_DEBUG, "device:doip:Sending");
+        log_msg(LOG_DEBUG, "Sending");
         buffer_dump(request);
     }
 
@@ -261,17 +261,17 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     }
 
     if ( poll_result == -1 ) {
-        log_msg(LOG_ERROR, "device:doip:Error while polling");
+        log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
     } else if ( poll_result == 0 ) {
-        log_msg(LOG_ERROR, "device:doip:Timeout while polling for write");
+        log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
     #ifdef OS_POSIX
         bytes_sent = write(device->implementation->handle,request->buffer,request->size);
         if ( bytes_sent != request->size ) {
-            perror("device:doip:write");
-            log_msg(LOG_ERROR, "device:doip:Error while writting to the doip");
+            perror("write");
+            log_msg(LOG_ERROR, "Error while writting to the doip");
             return DEVICE_ERROR;
         }
     #elif defined OS_WINDOWS
@@ -279,13 +279,13 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
 
         int sent = send(device->implementation->handle, (const char *)request->buffer, request->size, 0);
         if (sent <= 0 || sent != request->size) {
-            log_msg(LOG_ERROR, "device:doip:send failed: %d", WSAGetLastError());
+            log_msg(LOG_ERROR, "send failed: %d", WSAGetLastError());
             return DEVICE_ERROR;
         }
         bytes_sent = sent;
         
         if (bytes_sent != request->size) {
-            log_msg(LOG_ERROR, "device:doip:Error while writting to the doip");
+            log_msg(LOG_ERROR, "Error while writting to the doip");
             return DEVICE_ERROR;
         }
     #endif
