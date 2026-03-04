@@ -90,7 +90,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.year), "%d", iface->vehicle->year);
             gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.vin), "%s", buffer_to_ascii(iface->vehicle->vin));
         } else {
-            adaptater_protocol_set_text(iface->device->describe_communication_layer(AD_DEVICE(iface->device)));
+            adaptater_protocol_set_text(device->describe_communication_layer(AD_DEVICE(device)));
             adaptater_interface_set_text("Not an OBD interface");
         }
     }
