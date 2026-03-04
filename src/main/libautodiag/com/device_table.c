@@ -44,7 +44,7 @@ Device * device_table_add_if_not_in(object_DeviceTable * table, Device * element
 Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, AD_DEVICE_TYPE type) {
     assert(location != null);
     Device * device = device_table_find_by_location(table, location);
-    if ( device == null ) {
+    if ( device == null || device->type != type ) {
         switch(type) {
             case AD_DEVICE_TYPE_SERIAL: {
                 list_Device_append(table->list, AD_DEVICE(serial_new()));
@@ -55,6 +55,9 @@ Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char
             default: {
                 log_msg(LOG_DEBUG, "not implemented");
             } break;
+        }
+        if ( device != null ) {
+            list_Device_remove(table->list, device);
         }
         final Device * newOne = table->list->list[table->list->size-1];
         device_location_set(AD_DEVICE(newOne),location);

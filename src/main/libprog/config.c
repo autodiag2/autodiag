@@ -252,7 +252,7 @@ void config_onchange() {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
         return;
     }
-    device->type = config.com.device.type;
+
     switch(device->type) {
         case AD_DEVICE_TYPE_SERIAL: {
             Serial * port = (Serial*) device;
