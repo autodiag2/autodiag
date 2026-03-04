@@ -160,27 +160,45 @@ static void recovery_mode() {
     VehicleIFace * iface = config.ephemere.iface;
     viface_close(iface);
     config_initiated_check();
-    if ( config.com.serial.device_location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, AD_DEVICE_TYPE_SERIAL);
+    if ( config.com.device.location != null ) {
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.device.location, AD_DEVICE_TYPE_SERIAL);
         log_msg(LOG_ERROR, "TODO add more type of device (doip)");
-        device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
+        device_table_set_selected_by_location(config.ephemere.device_table, config.com.device.location);
     }
-    final Serial * serial = (Serial*)device_table_get_selected(config.ephemere.device_table);
-    if ( serial == null ) {
+    final Device * device = (Device*)device_table_get_selected(config.ephemere.device_table);
+    if ( device == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        assert(serial->type == AD_DEVICE_TYPE_SERIAL);
-        serial->baud_rate = config.com.serial.baud_rate;
+        
         viface_recorder_reset(iface);
         viface_recorder_set_state(iface, false);
 
-        if ( serial->status != SERIAL_STATE_READY ) {
-            if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
-                log_msg(LOG_ERROR, "Error while openning serial port");
+        switch ( device->type ) {
+            case AD_DEVICE_TYPE_DOIP: {
+                object_DoIPDevice * doip = (object_DoIPDevice*) device;
+                if ( doip->status != DEVICE_DOIP_STATUS_OPEN ) {
+                    if ( doip_open_internal(doip) == GENERIC_FUNCTION_ERROR ) {
+                        log_msg(LOG_ERROR, "Error while openning DoIP device");
+                        return;
+                    }
+                }
+            } break;
+            case AD_DEVICE_TYPE_SERIAL: {
+                Serial * serial = (Serial*) device;
+                serial->baud_rate = config.com.device.serial.baud_rate;
+                if ( serial->status != SERIAL_STATE_READY ) {
+                    if ( serial_open(serial) == GENERIC_FUNCTION_ERROR ) {
+                        log_msg(LOG_ERROR, "Error while openning serial port");
+                        return;
+                    }
+                }
+            } break;
+            default: {
+                log_msg(LOG_ERROR, "Unsupported device type %d", device->type);
                 return;
-            }
+            } break;
         }
-        iface->device = AD_DEVICE(serial);
+        iface->device = AD_DEVICE(device);
         iface->state = VIFaceState_READY;
     }
 }
@@ -189,21 +207,20 @@ static void* save_internal(void *arg) {
     device_table_close_selected(config.ephemere.device_table);
     final const gchar * device_location = gtk_entry_get_text(gui->device_location);
     if ( device_location == null || strcmp(device_location,"") == 0 ) {
-        if ( config.com.serial.device_location != null ) {
-            free(config.com.serial.device_location);
-            config.com.serial.device_location = null;
+        if ( config.com.device.location != null ) {
+            free(config.com.device.location);
+            config.com.device.location = null;
         }
     } else {
-        module_debug(MODULE_OPTIONS "Serial port selected:");
-        module_debug(MODULE_OPTIONS (char *)device_location);
-        config.com.serial.device_location = strdup(device_location);
+        log_msg(LOG_DEBUG, "Device selected: %s", device_location);
+        config.com.device.location = strdup(device_location);
     }
     const char * activeBaudRateText = gtk_entry_get_text(gui->baudRateSelection);
     int baud_rate = atoi(activeBaudRateText);
     if ( baud_rate < 0 ) {
         log_msg(LOG_ERROR, "Invalid baud rate setup '%s'", activeBaudRateText);
     } else {
-        config.com.serial.baud_rate = baud_rate;
+        config.com.device.serial.baud_rate = baud_rate;
     }
     config.com.connectAtStartup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup));
     config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(gui->logLevel));
@@ -609,11 +626,11 @@ static void show() {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup), config.com.connectAtStartup);
     gtk_combo_box_set_active(GTK_COMBO_BOX(gui->logLevel), config.log.level);
     char * txt;
-    asprintf(&txt,"%d", config.com.serial.baud_rate);
+    asprintf(&txt,"%d", config.com.device.serial.baud_rate);
     gtk_entry_set_text(gui->baudRateSelection,txt);
     free(txt);
-    if ( config.com.serial.device_location != null ) {
-        set_device_location(config.com.serial.device_location);
+    if ( config.com.device.location != null ) {
+        set_device_location(config.com.device.location);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);

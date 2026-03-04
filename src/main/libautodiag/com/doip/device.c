@@ -80,7 +80,7 @@ void doip_close(final object_DoIPDevice * device) {
 
     device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
 }
-static int doip_open_internal(final object_DoIPDevice * device) {
+int doip_open_internal(final object_DoIPDevice * device) {
     if ( device == null ) {
         log_msg(LOG_INFO, "Open: Cannot open since no device info given");
         return GENERIC_FUNCTION_ERROR;

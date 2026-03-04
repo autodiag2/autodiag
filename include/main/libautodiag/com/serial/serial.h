@@ -3,8 +3,8 @@
  * to avoid concurrency, you must lock the serial port before using it
  * and unlock it after usage.
  */
-#ifndef __SERIAL_H
-#define __SERIAL_H
+#ifndef __COM_SERIAL_H
+#define __COM_SERIAL_H
 
 #define _MODULE_SERIAL "Serial"
 #define MODULE_SERIAL _MODULE_SERIAL,

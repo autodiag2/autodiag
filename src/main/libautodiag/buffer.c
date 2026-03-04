@@ -391,6 +391,13 @@ char* buffer_to_hex_string(Buffer *buffer) {
         return bytes_to_hex_string(buffer->buffer, buffer->size);
     }
 }
+char * buffer_to_hexdump(final Buffer *buffer) {
+    if ( buffer == null || buffer->size == 0 ) {
+        return strdup("");
+    } else {
+        return bytes_to_hexdump(buffer->buffer, buffer->size);
+    }
+}
 void list_Buffer_dump(final list_Buffer* list) {
     assert(list != null);
     AD_LIST_FOREACH(list,Buffer,buffer,

@@ -3,9 +3,12 @@
 #define _DEFAULT_CONFIG { \
     .com = { \
         .connectAtStartup = true, \
-        .serial = { \
-            .baud_rate = SERIAL_DEFAULT_BAUD_RATE, \
-            .device_location = null \
+        .device = { \
+            .type = AD_DEVICE_TYPE_SERIAL, \
+            .location = null, \
+             .serial = { \
+                .baud_rate = SERIAL_DEFAULT_BAUD_RATE \
+            } \
         } \
     }, \
     .main = { \
@@ -46,8 +49,12 @@ void config_commandLine_showTimestamp_set(final bool state) {
 void config_dump(Config * c) {
     config_initiated_check();
     log_msg(LOG_DEBUG, "Config {");
-    log_msg(LOG_DEBUG,"    com.serial {");
-    log_msg(LOG_DEBUG,"        baud_rate=%d, device_location=%s", c->com.serial.baud_rate, c->com.serial.device_location);
+    log_msg(LOG_DEBUG,"    com {");
+    log_msg(LOG_DEBUG,"        type=%d", c->com.device.type);
+    log_msg(LOG_DEBUG,"        location=%s", c->com.device.location);
+    log_msg(LOG_DEBUG,"        serial {");
+    log_msg(LOG_DEBUG,"            baud_rate=%d", c->com.device.serial.baud_rate);
+    log_msg(LOG_DEBUG,"        }");
     log_msg(LOG_DEBUG,"    }");
     log_msg(LOG_DEBUG,"    main.adaptater_detailled_settings_showned=%d",c->main.adaptater_detailled_settings_showned);
     log_msg(LOG_DEBUG,"    commandLine {");
@@ -133,9 +140,10 @@ bool config_store() {
         if ( file == null ) {
             log_msg(LOG_ERROR, "Config path is not built %s", configPath);
         } else {
-            fprintf(file,"com.serial.baud_rate=%d" FILE_EOL, config.com.serial.baud_rate);
-            if ( config.com.serial.device_location != null && strcmp("",config.com.serial.device_location)!=0) {
-                fprintf(file,"com.serial.device_location=%s" FILE_EOL, config.com.serial.device_location);
+            fprintf(file,"com.device.type=%d" FILE_EOL, config.com.device.type);
+            fprintf(file,"com.device.serial.baud_rate=%d" FILE_EOL, config.com.device.serial.baud_rate);
+            if ( config.com.device.location != null && strcmp("",config.com.device.location)!=0) {
+                fprintf(file,"com.device.location=%s" FILE_EOL, config.com.device.location);
             }
             fprintf(file, "com.connectAtStartup=%d" FILE_EOL, config.com.connectAtStartup);
             fprintf(file,"main.adaptater_detailled_settings_showned=%d" FILE_EOL, config.main.adaptater_detailled_settings_showned);
@@ -167,14 +175,18 @@ static double config_strtod(char * value) {
 }
 static bool config_load_parser(char * funcData, char *key, char *value) {
     config_initiated_check();
-    if ( strcasecmp(key,"com.serial.baud_rate") == 0 ) {
-        config.com.serial.baud_rate = atoi(value);
+    if ( strcasecmp(key, "com.device.type") == 0 ) {
+        config.com.device.type = atoi(value);
+        return true;
+    } else
+    if ( strcasecmp(key,"com.device.serial.baud_rate") == 0 ) {
+        config.com.device.serial.baud_rate = atoi(value);
         return true;
     } else if ( strcasecmp(key,"com.connectAtStartup") == 0 ) {
         config.com.connectAtStartup = atoi(value);
         return true;
-    } else if ( strcasecmp(key,"com.serial.device_location") == 0 ) {
-        config.com.serial.device_location = strdup(value);
+    } else if ( strcasecmp(key,"com.device.location") == 0 ) {
+        config.com.device.location = strdup(value);
         return true;
     } else if ( strcasecmp(key,"main.adaptater_detailled_settings_showned") == 0 ) {
         config.main.adaptater_detailled_settings_showned = atoi(value);
@@ -231,21 +243,30 @@ bool config_load() {
 void config_onchange() {
     viface_close(config.ephemere.iface);
     config_initiated_check();
-    if ( config.com.serial.device_location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.serial.device_location, AD_DEVICE_TYPE_SERIAL);
-        log_msg(LOG_ERROR, "TODO add more type of device (doip)");
-        device_table_set_selected_by_location(config.ephemere.device_table, config.com.serial.device_location);
+    if ( config.com.device.location != null ) {
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.device.location, config.com.device.type);
+        device_table_set_selected_by_location(config.ephemere.device_table, config.com.device.location);
     }
-    final Serial * port = (Serial*)device_table_get_selected(config.ephemere.device_table);
-    if ( port == null ) {
+    final Device * device = device_table_get_selected(config.ephemere.device_table);
+    if ( device == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        assert(port->type == AD_DEVICE_TYPE_SERIAL);
-        port->baud_rate = config.com.serial.baud_rate;
+        switch(device->type) {
+            case AD_DEVICE_TYPE_SERIAL: {
+                Serial * port = (Serial*) device;
+                port->baud_rate = config.com.device.serial.baud_rate;
+            } break;
+            case AD_DEVICE_TYPE_DOIP: {
+                // nothing to do
+            } break;
+            default: {
+                log_msg(LOG_ERROR, "Unsupported device type %d", device->type);
+            } break;
+        }
         viface_recorder_reset(config.ephemere.iface);
         viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
-        if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(port))) {
-            if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(port), config.ephemere.iface->device) ) {
+        if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(device))) {
+            if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(device), config.ephemere.iface->device) ) {
                 log_msg(LOG_WARNING, "Device update in the table of devices has failed, continuing ...");
             }
             if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {

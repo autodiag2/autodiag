@@ -12,6 +12,7 @@
 #include <errno.h>
 #include "libautodiag/com/obd/obd.h"
 #include "libautodiag/com/device_table.h"
+#include "libautodiag/com/device.h"
 
 /**
  * Define general configuration of the gui, values can be modified by the options gui or directly in file
@@ -19,11 +20,15 @@
 typedef struct {
     struct {
         struct {
-            // port speed codified as in options screen
-            int baud_rate;
-            // port name as showned in options screen
-            char *device_location;
-        } serial;
+            // device type to connect to, eg. serial, doip
+            AD_DEVICE_TYPE type;
+            // port name as showned in options screen, ip:port
+            char * location;
+            struct {
+                // port speed codified as in options screen
+                int baud_rate;
+            } serial;
+        } device;
         // Did we attempt to connect at startup
         bool connectAtStartup;
     } com;

@@ -1,5 +1,5 @@
 #include "ui/main.h"
-#include "libprog/serial_cli.h"
+#include "libprog/terminal_cli.h"
 #include "libprog/elm327_cli.h"
 #include "libprog/doip_cli.h"
 
@@ -40,8 +40,9 @@ static void display_gui_help() {
     printf(
     "\n"
     " -h                : display this help\n"
-    " -b <baud rate>    : set the baud rate\n"
-    " -n [name]         : device location (comport, pseudo terminals, named pipes)\n"
+    " -n [name]         : device location (comport, pseudo terminals, named pipes, ip:port)\n"
+    " Serial speficic options:\n"
+    "  -b <baud rate>    : set the baud rate\n"
     "\n"
     );
 }
@@ -109,7 +110,7 @@ int main (int argc, char *argv[]) {
                     printf("-b require the baud rate as argument\n");
                     return 1;
                 } else {
-                    config.com.serial.baud_rate = atoi(arg);
+                    config.com.device.serial.baud_rate = atoi(arg);
                 }
             } else if argIs("-n") {
                 argNext();
@@ -122,14 +123,14 @@ int main (int argc, char *argv[]) {
                     }
                     return 0;
                 } else {
-                    config.com.serial.device_location = strdup(arg);
+                    config.com.device.location = strdup(arg);
                 }
             } else {
                 printf("Unknown argument '%s', aborting\n", argCurrent());
                 return 1;
             }
         } else if argIs("cli") {
-            return serial_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
+            return terminal_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());
         } else if argIs("-l") {
             argNext();
             char * arg = argCurrent();

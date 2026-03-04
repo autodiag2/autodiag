@@ -70,5 +70,9 @@ void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address);
  * @return true if the node queue is full and cannot accept new connections else false or bool_unset if an error happened during the check
  */
 bool doip_node_queue_is_full(final object_DoIPDevice * device);
+/**
+ * Open the doip device.
+ */
+int doip_open_internal(final object_DoIPDevice * device);
 
 #endif
