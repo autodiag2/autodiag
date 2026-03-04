@@ -151,7 +151,7 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
 object_DoIPMessage * doip_message_parse(const Buffer * in) {
     assert(in != null);
     if (in->size < 8) {
-        log_msg(LOG_ERROR, "length too short");
+        log_msg(LOG_ERROR, "length too short : %s", buffer_to_hex_string(in));
         return null;
     }
 
@@ -160,7 +160,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     byte ver = p[0];
     byte inv = p[1];
     if (((byte)(ver ^ inv)) != 0xFF) {
-        log_msg(LOG_ERROR, "checksum incorrect");
+        log_msg(LOG_ERROR, "checksum incorrect : %s", buffer_to_hex_string(in));
         return null;
     }
 
