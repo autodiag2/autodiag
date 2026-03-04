@@ -103,7 +103,9 @@ Device * device_table_find_by_location(object_DeviceTable * table, final char * 
 
 void device_table_close_selected(object_DeviceTable * table) {
     Device * device = device_table_get_selected(table);
-    device->close(device);
+    if ( device != null ) {
+        device->close(device);
+    }
 }
 
 void device_table_free(object_DeviceTable * table) {

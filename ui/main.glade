@@ -8124,7 +8124,7 @@ What can be done:
                                 <property name="margin-end">5</property>
                                 <property name="margin-top">5</property>
                                 <property name="margin-bottom">5</property>
-                                <property name="label" translatable="yes">Serial port</property>
+                                <property name="label" translatable="yes">OBD/UDS device</property>
                                 <style>
                                   <class name="options-title"/>
                                 </style>
@@ -8188,7 +8188,7 @@ What can be done:
                                           <object class="GtkEntry" id="options-device-location">
                                             <property name="visible">True</property>
                                             <property name="can-focus">True</property>
-                                            <property name="placeholder-text" translatable="yes">/dev/ttyUSB0 COM1 127.0.0.1:35000</property>
+                                            <property name="placeholder-text" translatable="yes">/dev/ttyUSB0 COM1 127.0.0.1:35000 127.0.0.1:13400</property>
                                           </object>
                                           <packing>
                                             <property name="expand">True</property>
@@ -8237,6 +8237,49 @@ What can be done:
                                     <property name="expand">True</property>
                                     <property name="fill">True</property>
                                     <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkBox">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <child>
+                                      <object class="GtkLabel">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="label" translatable="yes">Device type: </property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkComboBoxText" id="options-device-type">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="active">0</property>
+                                        <items>
+                                          <item translatable="yes">auto</item>
+                                          <item translatable="yes">elm</item>
+                                          <item translatable="yes">doip</item>
+                                        </items>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -8358,7 +8401,7 @@ What can be done:
                                   <packing>
                                     <property name="expand">True</property>
                                     <property name="fill">True</property>
-                                    <property name="position">1</property>
+                                    <property name="position">2</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -8410,7 +8453,7 @@ What can be done:
                                   <packing>
                                     <property name="expand">False</property>
                                     <property name="fill">True</property>
-                                    <property name="position">2</property>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </object>

@@ -146,7 +146,6 @@ static void cancel() {
    module_debug(MODULE_OPTIONS "Cancel options setup");
    hide_window();
 }
-
 static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
@@ -155,6 +154,19 @@ static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
 static void on_nvm_override_changed(GtkEntry *entry, gpointer user_data) {
     const gchar * text = gtk_entry_get_text(entry);
     sim_elm327_nvm_override((char *)text);    
+}
+static AD_DEVICE_TYPE device_get_type() {
+    const char * type_str = gtk_combo_box_text_get_active_text(gui->device_type);
+    if ( strcasecmp(type_str, "auto") == 0 ) {
+        return AD_DEVICE_TYPE_AUTO;
+    } else if ( strcasecmp(type_str, "serial") == 0 ) {
+        return AD_DEVICE_TYPE_SERIAL;
+    } else if ( strcasecmp(type_str, "doip") == 0 ) {
+        return AD_DEVICE_TYPE_DOIP;
+    } else {
+        log_msg(LOG_WARNING, "Unknown device type selected '%s', fallback to auto", type_str);
+        return AD_DEVICE_TYPE_AUTO;
+    }
 }
 static void recovery_mode() {
     VehicleIFace * iface = config.ephemere.iface;
@@ -169,7 +181,7 @@ static void recovery_mode() {
     if ( device == null ) {
         config.ephemere.device_table->selected_index = DEVICE_TABLE_NO_SELECTED;
     } else {
-        
+        device->type = device_get_type();
         viface_recorder_reset(iface);
         viface_recorder_set_state(iface, false);
 
@@ -222,6 +234,7 @@ static void* save_internal(void *arg) {
     } else {
         config.com.device.serial.baud_rate = baud_rate;
     }
+    config.com.device.type = device_get_type();
     config.com.connectAtStartup = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->connectAtStartup));
     config.log.level = log_level_from_str(gtk_combo_box_text_get_active_text(gui->logLevel));
     if ( ! log_level_is_env_set() ) {
@@ -270,15 +283,15 @@ static void save() {
 
 static void list_serial_refresh() {
     device_table_fill(config.ephemere.device_table);
-    if ( gui->serialList == null ) {
+    if ( gui->deviceList == null ) {
         module_debug(MODULE_OPTIONS "Cannot process without gui attached");
     } else {
-        gtk_combo_box_text_remove_all(gui->serialList);
+        gtk_combo_box_text_remove_all(gui->deviceList);
         for(int device_i = 0; device_i < config.ephemere.device_table->list->size; device_i++) {
             final Device * device = config.ephemere.device_table->list->list[device_i];
-            gtk_combo_box_text_append(gui->serialList,null,device->location);
+            gtk_combo_box_text_append(gui->deviceList,null,device->location);
             if ( device == device_table_get_selected(config.ephemere.device_table) ) {
-                gtk_combo_box_set_active((GtkComboBox *)gui->serialList,device_i);
+                gtk_combo_box_set_active((GtkComboBox *)gui->deviceList,device_i);
                 gtk_entry_set_text(gui->device_location, device->location);
             }
         }
@@ -346,7 +359,8 @@ static void set_device_location(char * location) {
     for(int device_i = 0; device_i < device_table->list->size; device_i++) {
         final Device * device = device_table->list->list[device_i];
         if ( strcmp(location, device->location) == 0 ) {
-            gtk_combo_box_set_active((GtkComboBox *)gui->serialList,device_i);
+            gtk_combo_box_set_active((GtkComboBox *)gui->deviceList,device_i);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(gui->device_type), device->type);
             break;
         }
     }
@@ -530,8 +544,9 @@ static void init(GtkBuilder *builder) {
         OptionsGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-options")),
             .logLevel = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-log-level")),
-            .serialList = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-serial-list")),
+            .deviceList = GTK_COMBO_BOX_TEXT(gtk_builder_get_object (builder, "window-options-serial-list")),
             .device_location = GTK_ENTRY(gtk_builder_get_object(builder, "options-device-location")),
+            .device_type = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "options-device-type")),
             .baudRateSelection = GTK_ENTRY(gtk_builder_get_object (builder, "window-options-baud-rate-selection")),
             .recoveryMode = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"options-recovery-mode")),
             .connectAtStartup = GTK_CHECK_BUTTON(gtk_builder_get_object(builder,"options-connect-at-startup")),
@@ -583,9 +598,9 @@ static void init(GtkBuilder *builder) {
         assert(0 != g_signal_connect(gui->simulator.nvm_override, "changed", G_CALLBACK(on_nvm_override_changed), null));
         assert(0 != g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file));
         assert(0 != g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file));
-        assert(0 != g_signal_connect(g.serialList, "changed", G_CALLBACK(serial_list_changed), gui->device_location));
+        assert(0 != g_signal_connect(g.deviceList, "changed", G_CALLBACK(serial_list_changed), gui->device_location));
         assert(0 != g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
-        assert(0 != g_signal_connect(g.serialList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
+        assert(0 != g_signal_connect(g.deviceList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.vehicleInfos.engine, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.vehicleInfos.manufacturer, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
@@ -629,8 +644,11 @@ static void show() {
     asprintf(&txt,"%d", config.com.device.serial.baud_rate);
     gtk_entry_set_text(gui->baudRateSelection,txt);
     free(txt);
-    if ( config.com.device.location != null ) {
+    if ( config.com.device.location == null ) {
+        gtk_combo_box_set_active(GTK_COMBO_BOX(gui->device_type), AD_DEVICE_TYPE_AUTO);
+    } else {
         set_device_location(config.com.device.location);
+        gtk_combo_box_set_active(GTK_COMBO_BOX(gui->device_type), config.com.device.type);
     }
     char * text;
     asprintf(&text,"%f", config.vehicleExplorer.refreshRateS);

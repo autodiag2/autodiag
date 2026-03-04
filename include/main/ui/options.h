@@ -12,8 +12,9 @@
 
 typedef struct {
     GtkWidget *window;
-    GtkComboBoxText *serialList;
+    GtkComboBoxText *deviceList;
     GtkEntry *device_location;
+    GtkComboBoxText *device_type;
     GtkEntry *baudRateSelection;
     GtkComboBoxText *logLevel;
     GtkCheckButton *recoveryMode;

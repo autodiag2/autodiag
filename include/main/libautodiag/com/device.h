@@ -21,8 +21,9 @@
 #define AD_DEVICE(arg) ((struct Device*)arg)
 
 typedef enum {
-    AD_DEVICE_TYPE_SERIAL,
-    AD_DEVICE_TYPE_DOIP
+    AD_DEVICE_TYPE_AUTO = 0,
+    AD_DEVICE_TYPE_SERIAL = 1,
+    AD_DEVICE_TYPE_DOIP = 2
 } AD_DEVICE_TYPE;
 
 typedef struct Device {
