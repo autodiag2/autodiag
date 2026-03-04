@@ -177,7 +177,7 @@ static void recovery_mode() {
             case AD_DEVICE_TYPE_DOIP: {
                 object_DoIPDevice * doip = (object_DoIPDevice*) device;
                 if ( doip->status != DEVICE_DOIP_STATUS_OPEN ) {
-                    if ( doip_open_internal(doip) == GENERIC_FUNCTION_ERROR ) {
+                    if ( doip_open(doip) == GENERIC_FUNCTION_ERROR ) {
                         log_msg(LOG_ERROR, "Error while openning DoIP device");
                         return;
                     }

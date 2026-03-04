@@ -10,7 +10,7 @@
 #define AD_DEVICE_SEND(var) ((int (*)(final Device*, const char*))var)
 #define AD_DEVICE_RECV(var) ((int (*)(final Device*))var)
 #define AD_DEVICE_FREE(var) ((void (*)(final Device*))var)
-#define AD_DEVICE_OPEN(var) ((void (*)(final Device*))var)
+#define AD_DEVICE_OPEN(var) ((int (*)(final Device*))var)
 #define AD_DEVICE_CLOSE(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(var) ((char* (*)(final Device*))var)
 #define AD_DEVICE_PARSE_DATA(var) ((bool (*)(final Device*, final Vehicle*))var)
@@ -46,8 +46,9 @@ typedef struct Device {
     int  (*recv)(final struct Device* device);
     /**
      * Open the device for sending and receiving
+     * @returns GENERIC_FUNCTION_SUCCESS on success else GENERIC_FUNCTION_ERROR
      */
-    void (*open)(final struct Device* device);
+    int (*open)(final struct Device* device);
     /**
      * Close the device for sending and receiving it may be reopenned later
      */

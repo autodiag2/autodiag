@@ -112,7 +112,11 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
         case AD_DEVICE_TYPE_DOIP: {
             object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
             if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
-                device->open((Device*)device);
+                if ( device->open((Device*)device) == DEVICE_ERROR ) {
+                    log_msg(LOG_ERROR, "Error while openning doip device");
+                    viface_open_abort(iface);
+                    return false;
+                }
                 if ( doip_device->status != DEVICE_DOIP_STATUS_OPEN ) {
                     log_msg(LOG_ERROR, "Error while openning doip device");
                     viface_open_abort(iface);

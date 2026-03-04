@@ -73,6 +73,6 @@ bool doip_node_queue_is_full(final object_DoIPDevice * device);
 /**
  * Open the doip device.
  */
-int doip_open_internal(final object_DoIPDevice * device);
+int doip_open(final object_DoIPDevice * device);
 
 #endif

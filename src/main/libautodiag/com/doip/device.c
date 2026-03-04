@@ -80,7 +80,7 @@ void doip_close(final object_DoIPDevice * device) {
 
     device->status = DEVICE_DOIP_STATUS_NOT_OPEN;
 }
-int doip_open_internal(final object_DoIPDevice * device) {
+int doip_open(final object_DoIPDevice * device) {
     if ( device == null ) {
         log_msg(LOG_INFO, "Open: Cannot open since no device info given");
         return GENERIC_FUNCTION_ERROR;
@@ -189,9 +189,6 @@ int doip_open_internal(final object_DoIPDevice * device) {
     log_msg(LOG_DEBUG, "DoIP device openned");
 
     return GENERIC_FUNCTION_SUCCESS;
-}
-static void doip_open(final object_DoIPDevice * device) {
-    doip_open_internal(device);
 }
 static char* doip_describe_communication_layer(final object_DoIPDevice* device) {
     return strdup("DoIP");
