@@ -21,5 +21,5 @@ def test_serial():
     assert serial.send("ok") == 2 + eol
     assert serial.recv() == DEVICE_RECV_DATA
 
-    assert serial.describe_status() != ""
+    assert serial.describe_state() != ""
 

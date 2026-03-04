@@ -130,6 +130,12 @@ class Serial(Structure):
         lib.serial_describe_communication_layer.restype = char_p
         res = lib.serial_describe_communication_layer(pointer(self))
         return res.decode('utf-8') if res else None
+    
+    def describe_state(self) -> str:
+        lib.serial_describe_state.argtypes = [POINTER(Serial)]
+        lib.serial_describe_state.restype = char_p
+        res = lib.serial_describe_state(pointer(self))
+        return res.decode('utf-8') if res else None
 
     def query_at_command(self, cmd: str, *args) -> bool:
         lib.serial_query_at_command.argtypes = [POINTER(Serial), char_p]
