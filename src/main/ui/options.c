@@ -2,6 +2,21 @@
 #include "ui/main.h"
 
 static OptionsGui *gui = null;
+static void set_device_location(char * location) {
+    if ( location == null ) {
+        location = "";
+    }
+    object_DeviceTable * device_table = config.ephemere.device_table;
+    gtk_entry_set_text(gui->device_location, location);
+    for(int device_i = 0; device_i < device_table->list->size; device_i++) {
+        final Device * device = device_table->list->list[device_i];
+        if ( strcmp(location, device->location) == 0 ) {
+            gtk_combo_box_set_active((GtkComboBox *)gui->deviceList,device_i);
+            gtk_combo_box_set_active(GTK_COMBO_BOX(gui->device_type), device->type);
+            break;
+        }
+    }
+}
 static gboolean recorder_set_status(gpointer data) {
     gtk_label_set_text(gui->recorder.status, (char *)data);
     return true;
@@ -149,7 +164,7 @@ static void cancel() {
 static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
-    gtk_entry_set_text(entry, text ? text : "");
+    set_device_location(text);
 }
 static void on_nvm_override_changed(GtkEntry *entry, gpointer user_data) {
     const gchar * text = gtk_entry_get_text(entry);
@@ -340,19 +355,6 @@ static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
     module_debug(MODULE_OPTIONS "Close event received");
     cancel();
     return true;
-}
-static void set_device_location(char * location) {
-    assert(location != null);
-    object_DeviceTable * device_table = config.ephemere.device_table;
-    gtk_entry_set_text(gui->device_location, location);
-    for(int device_i = 0; device_i < device_table->list->size; device_i++) {
-        final Device * device = device_table->list->list[device_i];
-        if ( strcmp(location, device->location) == 0 ) {
-            gtk_combo_box_set_active((GtkComboBox *)gui->deviceList,device_i);
-            gtk_combo_box_set_active(GTK_COMBO_BOX(gui->device_type), device->type);
-            break;
-        }
-    }
 }
 
 void window_baud_rate_set_from_button(final GtkButton * button) {
