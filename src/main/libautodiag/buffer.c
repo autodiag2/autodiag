@@ -299,6 +299,11 @@ bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
 }
 AD_LIST_SRC_FIND(Buffer, Buffer*, buffer_find_comparator)
 
+Buffer * buffer_from_bytes(byte * buf, int len) {
+    Buffer * b = buffer_new();
+    buffer_memcpy(b, buf, len);
+    return b;
+}
 Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     assert(ascii_hex != null);
     Buffer * bin = buffer_new();

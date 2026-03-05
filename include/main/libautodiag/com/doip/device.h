@@ -16,6 +16,7 @@
 #else
 #   warning Unsupported OS
 #endif
+#include "libautodiag/com/doip/doip.h"
 
 typedef struct {
     /**
@@ -44,6 +45,7 @@ OBJECT_H(DoIPDevice,
     struct {
         int node_type;
         int max_data_size;
+        Buffer * address;
     } node;
 );
 /**
@@ -68,5 +70,13 @@ bool doip_node_queue_is_full(final object_DoIPDevice * device);
  * Open the doip device.
  */
 int doip_open(final object_DoIPDevice * device);
+/**
+ * Receive over UDP a message
+ */
+object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device);
+/**
+ * Send a message over UDP
+ */
+int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg);
 
 #endif

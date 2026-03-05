@@ -100,6 +100,8 @@ Buffer * buffer_from_uint8(uint8_t i);
 Buffer * buffer_from_uint16(uint16_t i);
 Buffer * buffer_from_uint32(uint32_t i);
 Buffer * buffer_from_uint64(uint64_t i);
+Buffer * buffer_from_bytes(byte * buf, int len);
+
 /**
  * Get an ascii hex the given data.
  * Without spaces.

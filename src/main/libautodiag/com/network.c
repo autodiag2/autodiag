@@ -7,6 +7,32 @@ char * network_location(struct sockaddr_in caddr) {
     return gprintf("%s:%d", ip, ntohs(caddr.sin_port));
 }
 
+struct sockaddr_in network_location_to_object(char * location) {
+    struct sockaddr_in addr;
+    char host[500];
+    char port_str[8] = "35000";
+    const char *colon = strchr(location, ':');
+    if (colon) {
+        size_t len = colon - location;
+        if (len >= sizeof(host)) len = sizeof(host) - 1;
+        memcpy(host, location, len);
+        host[len] = 0;
+        strncpy(port_str, colon + 1, sizeof(port_str) - 1);
+    } else {
+        strncpy(host, location, sizeof(host) - 1);
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(atoi(port_str));
+
+    if (inet_pton(AF_INET, host, &addr.sin_addr) != 1) {
+        log_msg(LOG_ERROR, "invalid address: %s", host);
+        memset(&addr, 0, sizeof(addr));
+    }
+    return addr;
+}
+
 static int bind_any_available_port(sock_t server_fd, int start_port, int max_tries, int *out_port) {
     struct sockaddr_in addr;
     int opt = 1;

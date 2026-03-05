@@ -1,10 +1,101 @@
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/doip.h"
 
+int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg) {
+    assert(device != null && msg != null);
+
+    switch(msg->payload_type) {
+        case DOIP_VEHICLE_IDENT_REQUEST:
+        case DOIP_VEHICLE_IDENT_REQUEST_EID:
+        case DOIP_VEHICLE_IDENT_REQUEST_VIN:
+            break;
+        default: {
+            log_msg(LOG_WARNING, "Not supposed to send 0x%X payload with udp", msg->payload_type);
+        } break;
+    }
+
+    Buffer *serialized = doip_message_serialize(msg);
+    if (!serialized) return -1;
+
+    struct sockaddr_in addr = network_location_to_object(device->location);
+    #ifdef OS_POSIX
+        ssize_t sent = sendto(device->implementation->disc_handle,
+                            serialized->buffer,
+                            serialized->size,
+                            0,
+                            (struct sockaddr *)&addr,
+                            sizeof(addr));
+        return (sent == serialized->size) ? 0 : -1;
+
+    #elif defined(OS_WINDOWS)
+        int sent = sendto(device->implementation->disc_handle,
+                        (const char *)serialized->buffer,
+                        (int)serialized->size,
+                        0,
+                        (struct sockaddr *)&addr,
+                        sizeof(addr));
+        return (sent == (int)serialized->size) ? 0 : -1;
+
+    #endif
+}
+
+object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
+    assert(device != null);
+
+    unsigned char buf[4096];
+    #ifdef OS_POSIX
+        struct timeval tv = { device->timeout_ms / 1000, (device->timeout_ms % 1000) * 1000 };
+        setsockopt(device->implementation->disc_handle, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        struct sockaddr_in src;
+        socklen_t slen = sizeof(src);
+        ssize_t recv_len = recvfrom(device->implementation->disc_handle, buf, sizeof(buf), 0,
+                                    (struct sockaddr *)&src, &slen);
+        if (recv_len <= 0) return null;
+
+    #elif defined(OS_WINDOWS)
+        DWORD tv = timeout_ms;
+        setsockopt(device->implementation->disc_handle, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+        struct sockaddr_in src;
+        int slen = sizeof(src);
+        int recv_len = recvfrom(device->implementation->disc_handle, (char*)buf, sizeof(buf), 0,
+                                (struct sockaddr *)&src, &slen);
+        if (recv_len <= 0) return NULL;
+    #endif
+
+    Buffer *recv_buf = buffer_from_bytes(buf, (size_t)recv_len);
+    if (!recv_buf) return null;
+
+    object_DoIPMessage *msg = doip_message_parse(recv_buf);
+    buffer_free(recv_buf);
+    return msg;
+}
+
 bool doip_configure(final object_DoIPDevice * device) {
     log_msg(LOG_DEBUG, "Configuring doip device");
-    log_msg(LOG_DEBUG, "Routine activation");
     {
+        log_msg(LOG_DEBUG, "Discovering the vehicle");
+        object_DoIPMessage * request = doip_message_new(DOIP_VEHICLE_IDENT_REQUEST);
+        if ( doip_disc_send(device, request) < 0 ) {
+            log_msg(LOG_ERROR, "Error while retrieving ECUs");
+            return false;
+        }
+        object_DoIPMessage_free(request);
+        object_DoIPMessage * response = doip_disc_recv(device);
+        if ( response == null ) {
+            log_msg(LOG_ERROR, "Error while retrieving ECUs");
+            return false;
+        }
+        if ( response->payload_type != DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE ) {
+            log_msg(LOG_ERROR, "Payload 0x%X received instead of 0x%X", response->payload_type, DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
+            return false;
+        }
+        object_DoIPMessagePayloadVehicleIdResponse * responsePayload = (object_DoIPMessagePayloadVehicleIdResponse*)response->payload;
+        device->node.address = buffer_copy(responsePayload->addr);
+        log_msg(LOG_DEBUG, "Found node 0x%X VIN=%s", buffer_to_hex_string(responsePayload->addr), buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
+        object_DoIPMessage_free(response);
+    }
+    {
+        log_msg(LOG_DEBUG, "Routine activation");
         object_DoIPMessage * request = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
         object_DoIPMessagePayloadRoutineActivationRequest * requestPayload = object_DoIPMessagePayloadRoutineActivationRequest_new();
         requestPayload->src_addr[0] = (device->address >> 8) & 0xFF;
@@ -100,11 +191,66 @@ int doip_open(final object_DoIPDevice * device) {
         strncpy(host, addr, sizeof(host) - 1);
     }
 
-    device->implementation->handle = SOCK_T_INVALID;
     device->implementation->disc_handle = SOCK_T_INVALID;
+    log_msg(LOG_DEBUG, "Opening UDP discovery socket");
 
-    log_msg(LOG_DEBUG, "TODO: UDP vehicle capabilities discovery and readiness");
+    #ifdef OS_POSIX
+        int udp_fd = socket(AF_INET, SOCK_DGRAM, 0);
+        if (udp_fd < 0) {
+            perror("UDP socket");
+            return GENERIC_FUNCTION_ERROR;
+        }
 
+        int opt = 1;
+        setsockopt(udp_fd, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt));
+        setsockopt(udp_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+
+        struct sockaddr_in udp_sa;
+        bzero(&udp_sa, sizeof(udp_sa));
+        udp_sa.sin_family = AF_INET;
+        udp_sa.sin_port = htons(0);
+        udp_sa.sin_addr.s_addr = htonl(INADDR_ANY);
+
+        if (bind(udp_fd, (struct sockaddr *)&udp_sa, sizeof(udp_sa)) < 0) {
+            perror("UDP bind");
+            close(udp_fd);
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        device->implementation->disc_handle = udp_fd;
+
+    #elif defined(OS_WINDOWS)
+        SOCKET udp_s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+        if (udp_s == INVALID_SOCKET) {
+            log_msg(LOG_ERROR, "UDP socket failed: %d", WSAGetLastError());
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        BOOL opt = TRUE;
+        setsockopt(udp_s, SOL_SOCKET, SO_BROADCAST, (const char*)&opt, sizeof(opt));
+        setsockopt(udp_s, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt));
+
+        struct sockaddr_in udp_sa;
+        ZeroMemory(&udp_sa, sizeof(udp_sa));
+        udp_sa.sin_family = AF_INET;
+        udp_sa.sin_port = htons(0);
+        udp_sa.sin_addr.s_addr = INADDR_ANY;
+
+        if (bind(udp_s, (struct sockaddr *)&udp_sa, sizeof(udp_sa)) == SOCKET_ERROR) {
+            log_msg(LOG_ERROR, "UDP bind failed: %d", WSAGetLastError());
+            closesocket(udp_s);
+            return GENERIC_FUNCTION_ERROR;
+        }
+
+        device->implementation->disc_handle = udp_s;
+
+    #else
+    #   warning Unsupported OS
+    #endif
+
+    log_msg(LOG_DEBUG, "UDP discovery socket opened");
+
+    device->implementation->handle = SOCK_T_INVALID;
     #ifdef OS_POSIX
         int fd = socket(AF_INET, SOCK_STREAM, 0);
         if (fd < 0) {
@@ -222,7 +368,7 @@ static int doip_send(final object_DoIPDevice * device, const char * command) {
         return DEVICE_ERROR;
     }
     object_DoIPMessage * msg = doip_message_diag(
-        buffer_from_ascii_hex("07E8"), 
+        device->node.address, 
         buffer_from_uint16(device->address),
         diag_message
     );
@@ -431,14 +577,19 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->open = AD_DEVICE_OPEN(doip_open);
     device->close = AD_DEVICE_CLOSE(doip_close);
     device->free = null;
+    device->node.address = buffer_new();
     return device;
 }
 
 void object_DoIPDevice_free(object_DoIPDevice *device) {
-    free(device);
+    if ( device != null ) {
+        buffer_free(device->node.address);
+        free(device);
+    }
 }
 
 object_DoIPDevice * object_DoIPDevice_assign(object_DoIPDevice * to, object_DoIPDevice * from) {
     memcpy(to, from, sizeof(object_DoIPDevice));
+    buffer_assign(to->node.address, from->node.address);
     return to;
 }

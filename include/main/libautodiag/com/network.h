@@ -25,7 +25,15 @@
 #endif
 
 #define NETWORK_BACKLOG 10
+/**
+ * User friendly string to represent an address, it is in the form of "ip:port" or just "ip" (default port is 35000)
+ */
 char * network_location(struct sockaddr_in caddr);
+/**
+ * Convert a string in the form of "ip:port" or just "ip" (default port is 35000) to a sockaddr_in object
+ * @return the converted object, if the string is invalid the returned object will be zeroed
+ */
+struct sockaddr_in network_location_to_object(char * location);
 sock_t network_tcp_start(int *bound_port, int start_port, int backlog);
 sock_t network_udp_start(int *bound_port, int start_port);
 int network_udp_enable_broadcast(sock_t s);
