@@ -11,9 +11,9 @@ void * sim_doip_discovery_loop(void *arg) {
     }
     long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
-    Buffer * annoucement = buffer_from_ascii_hex("000102030405060708090A0B0C0D0E0F");
     while ( sim_doip_should_continue(sim) ) {
-        if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
+        /*if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
+            Buffer * annoucement = buffer_from_ascii_hex("000102030405060708090A0B0C0D0E0F");   
             last_broadcast_ms = time_ms();
             struct sockaddr_in addr;
             memset(&addr, 0, sizeof(addr));
@@ -24,7 +24,7 @@ void * sim_doip_discovery_loop(void *arg) {
             log_msg(LOG_DEBUG, "Annoucement sent");
             sendto(handle, annoucement->buffer, annoucement->size, 0,
                 (struct sockaddr*)&addr, sizeof(addr));
-        } 
+        }*/
         int r = network_udp_wait_readable(handle, timeout_waiting_client_ms);
         if (0 < r) {
             Buffer * request = buffer_new();
@@ -33,14 +33,45 @@ void * sim_doip_discovery_loop(void *arg) {
             socklen_t from_len = (socklen_t)sizeof(from);
             int n = (int)recvfrom(handle, request->buffer, request->size_allocated, 0, (struct sockaddr *)&from, &from_len);
             if (n <= 0) continue;
+            request->size = (unsigned)n;
+            object_DoIPMessage * requestMessage = doip_message_parse(request);
+            object_DoIPMessage * responseMessage = null;
+            switch(requestMessage->payload_type) {
+                case DOIP_VEHICLE_IDENT_REQUEST_EID:
+                case DOIP_VEHICLE_IDENT_REQUEST_VIN:
+                    log_msg(LOG_DEBUG, "TODO: ignoring ecu targetting for now");
+                case DOIP_VEHICLE_IDENT_REQUEST: {
+                    log_msg(LOG_DEBUG, "Vehicle identification request received from %s", network_location(from));
+                    responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
+                    object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
+                    payload->vin = buffer_from_ascii("VF1BB05CF26010203");
+                    assert(0 < sim->ecus->size);
+                    payload->addr = buffer_from_ints(0x07, sim->ecus->list[0]->address);
+                    payload->eid = buffer_from_ascii_hex("1234567890AB");
+                    payload->gid = buffer_from_ascii_hex("1234567890AB");
+                    payload->further_action_required = false;
+                    payload->sync_status = false;
+                } break;
+
+                default: {
+                    log_msg(LOG_DEBUG, "Unknown message received from %s", network_location(from));
+                } break;
+            }
     
-            sendto(handle, annoucement->buffer, annoucement->size, 0, (struct sockaddr *)&from, from_len);
-            char * addr_str = network_location(from);
-            log_msg(LOG_DEBUG, "Annoucement sent to %s", addr_str);
-            free(addr_str);
+            if (responseMessage) {
+                Buffer * responseBuffer = doip_message_serialize(responseMessage);
+                if (responseBuffer) {
+                    sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
+                    char * addr_str = network_location(from);
+                    log_msg(LOG_DEBUG, "Response sent to %s", addr_str);
+                    free(addr_str);
+                    buffer_free(responseBuffer);
+                }
+                object_DoIPMessage_free(responseMessage);
+            }
         }
     }
-    return NULL;
+    return null;
 }
 /**
  * Start the broadcast listening and sending server

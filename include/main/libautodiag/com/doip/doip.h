@@ -128,6 +128,23 @@ OBJECT_H(DoIPMessagePayloadEntityStatusResponse,
 )
 #define DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE 0xFF
 
+OBJECT_H(DoIPMessagePayloadRequestWithEID,
+    DoIPMessageDef;
+    Buffer * eid;
+)
+OBJECT_H(DoIPMessagePayloadRequestWithVIN,
+    DoIPMessageDef;
+    Buffer * vin;
+)
+OBJECT_H(DoIPMessagePayloadVehicleIdResponse,
+    Buffer * vin;
+    Buffer * addr;
+    Buffer * eid;
+    Buffer * gid;
+    byte further_action_required;
+    byte sync_status;
+)
+
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/message/diag.h"
 

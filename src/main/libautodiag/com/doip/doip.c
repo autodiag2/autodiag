@@ -19,22 +19,6 @@ static void doip__put_be32(byte *p, int v) {
     p[2] = (byte)((v >> 8) & 0xFF);
     p[3] = (byte)(v & 0xFF);
 }
-object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_new() {
-    object_DoIPMessagePayloadEmpty * payload = (object_DoIPMessagePayloadEmpty*)malloc(sizeof(object_DoIPMessagePayloadEmpty));
-    if ( payload == null ) return null;
-    memset(payload, 0, sizeof(*payload));
-    return payload;
-}
-void object_DoIPMessagePayloadEmpty_free(object_DoIPMessagePayloadEmpty* payload) {
-    if ( payload != null ) {
-        memset(payload, 0, sizeof(*payload));
-        free(payload);
-    }
-}
-object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_assign(object_DoIPMessagePayloadEmpty * to, object_DoIPMessagePayloadEmpty *from) {
-    memcpy(to, from, sizeof(*to));
-    return to;
-}
 void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType type) {
     assert(msg != null);
     msg->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
@@ -43,6 +27,18 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
     msg->payload_raw = null;
     msg->payload = null;
     switch(type) {
+        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadVehicleIdResponse_new();
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadEmpty_new();
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRequestWithEID_new();
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+            msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadRequestWithVIN_new();
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             msg->payload = (DoIPMessageDef*)object_DoIPMessagePayloadDiag_new();
         } break;
@@ -73,43 +69,6 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
         } break;
     }
 }
-object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_new() {
-    object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
-    if ( payload == null ) return null;
-    memset(payload, 0, sizeof(*payload));
-    payload->activation_type = DOIP_MESSAGE_RAR_TYPE_DEFAULT;
-    return payload;
-}
-void object_DoIPMessagePayloadRoutineActivationRequest_free(object_DoIPMessagePayloadRoutineActivationRequest* payload) {
-    if ( payload != null ) {
-        memset(payload, 0, sizeof(*payload));
-        free(payload);
-    }
-}
-object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_assign(object_DoIPMessagePayloadRoutineActivationRequest * to, object_DoIPMessagePayloadRoutineActivationRequest *from) {
-    memcpy(to, from, sizeof(*to));
-    return to;
-}
-object_DoIPMessage * object_DoIPMessage_assign(object_DoIPMessage * to, object_DoIPMessage * from) {
-    to->protocol_version = from->protocol_version;
-    to->inv_protocol_version = from->inv_protocol_version;
-    to->payload_type = from->payload_type;
-    if ( to->payload_raw != null ) {
-        buffer_free(to->payload_raw);
-    }
-    to->payload_raw = buffer_copy(from->payload_raw);
-    return to;
-}
-object_DoIPMessage * object_DoIPMessage_new() {
-    object_DoIPMessage * msg = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
-    doip_message_init(msg, 0x00);
-    return msg;
-}
-object_DoIPMessage * doip_message_new(DoIpPayloadType type) {
-    object_DoIPMessage * msg = object_DoIPMessage_new();
-    doip_message_init(msg, type);
-    return msg;
-}
 void object_DoIPMessage_free(object_DoIPMessage * msg) {
     if ( msg != null ) {
         if ( msg->payload_raw != null ) {
@@ -117,6 +76,18 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
             msg->payload_raw = null;
         }
         switch(msg->payload_type) {
+            case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+                object_DoIPMessagePayloadVehicleIdResponse_free((object_DoIPMessagePayloadVehicleIdResponse*)msg->payload);
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST: {
+                object_DoIPMessagePayloadEmpty_free((object_DoIPMessagePayloadEmpty*)msg->payload);
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+                object_DoIPMessagePayloadRequestWithEID_free((object_DoIPMessagePayloadRequestWithEID*)msg->payload);
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+                object_DoIPMessagePayloadRequestWithVIN_free((object_DoIPMessagePayloadRequestWithVIN*)msg->payload);
+            } break;
             case DOIP_ALIVE_CHECK_REQUEST:
             case DOIP_ALIVE_CHECK_RESPONSE: {
                 object_DoIPMessagePayloadAliveCheck_free((object_DoIPMessagePayloadAliveCheck*)msg->payload);
@@ -185,6 +156,39 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
 
     log_msg(LOG_DEBUG, "found payload type 0x%04X", ptype);
     switch(ptype) {
+        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+            object_DoIPMessagePayloadVehicleIdResponse * payload = object_DoIPMessagePayloadVehicleIdResponse_new();
+            msg->payload = (DoIPMessageDef*)payload;
+            assert((17 + 2 + 6 + 6 + 1 + 1) <= msg->payload_raw->size);
+            payload->vin = buffer_slice(msg->payload_raw, 0, 17);
+            payload->addr = buffer_slice(msg->payload_raw, 17, 2);
+            payload->eid = buffer_slice(msg->payload_raw, 19, 6);
+            payload->gid = buffer_slice(msg->payload_raw, 25, 6);
+            payload->further_action_required = msg->payload_raw->buffer[31];
+            payload->sync_status = msg->payload_raw->buffer[32];
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST: {
+            object_DoIPMessagePayloadEmpty * payload = object_DoIPMessagePayloadEmpty_new();
+            msg->payload = (DoIPMessageDef*)payload;
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+            object_DoIPMessagePayloadRequestWithEID * payload = object_DoIPMessagePayloadRequestWithEID_new();
+            assert(6 <= msg->payload_raw->size);
+            msg->payload = (DoIPMessageDef*)payload;
+            if ( 6 < msg->payload_raw->size ) {
+                log_msg(LOG_WARNING, "EID longer than expected 0x%s", buffer_to_hex_string(msg->payload_raw));
+            }
+            payload->eid = buffer_copy(msg->payload_raw); 
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+            object_DoIPMessagePayloadRequestWithVIN * payload = object_DoIPMessagePayloadRequestWithVIN_new();
+            assert(17 <= msg->payload_raw->size);
+            msg->payload = (DoIPMessageDef*)payload;
+            if ( 17 < msg->payload_raw->size ) {
+                log_msg(LOG_WARNING, "VIN longer than expected 0x%s", buffer_to_hex_string(msg->payload_raw));
+            }
+            payload->vin = buffer_copy(msg->payload_raw); 
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
             msg->payload = (DoIPMessageDef*)payload;
@@ -266,6 +270,26 @@ void doip_message_dump(object_DoIPMessage * msg) {
         log_msg(LOG_DEBUG, "    version: 0x%02hhX", msg->protocol_version);
         log_msg(LOG_DEBUG, "    payload_type: 0x%04X", msg->payload_type);
         switch(msg->payload_type) {
+            case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+                object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)msg->payload;
+                log_msg(LOG_DEBUG, "    vin: %s", buffer_to_hex_string(payload->vin));
+                log_msg(LOG_DEBUG, "    addr: %s", buffer_to_hex_string(payload->addr));
+                log_msg(LOG_DEBUG, "    eid: %s", buffer_to_hex_string(payload->eid));
+                log_msg(LOG_DEBUG, "    gid: %s", buffer_to_hex_string(payload->gid));
+                log_msg(LOG_DEBUG, "    further_action_required: 0x%02X", payload->further_action_required);
+                log_msg(LOG_DEBUG, "    sync_status: 0x%02X", payload->sync_status);
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST: {
+                // nothing to do
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+                object_DoIPMessagePayloadRequestWithEID * payload = (object_DoIPMessagePayloadRequestWithEID*)msg->payload;
+                log_msg(LOG_DEBUG, "    eid: %s", buffer_to_hex_string(payload->eid));
+            } break;
+            case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+                object_DoIPMessagePayloadRequestWithVIN * payload = (object_DoIPMessagePayloadRequestWithVIN*)msg->payload;
+                log_msg(LOG_DEBUG, "    vin: %s", buffer_to_hex_string(payload->vin));
+            } break;
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
                 log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
@@ -325,6 +349,34 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
 
     int plen = 0;
     switch(msg->payload_type) {
+        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+            plen = 17 + 2 + 6 + 6 + 1 + 1;
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST: {
+            plen = 0;
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+            object_DoIPMessagePayloadRequestWithEID * payload = (object_DoIPMessagePayloadRequestWithEID*)msg->payload;
+            if ( ! payload->eid ) {
+                log_msg(LOG_ERROR, "eid incorrect");
+                return null;
+            }
+            if ( payload->eid->size != 6 ) {
+                log_msg(LOG_WARNING, "non standard eid detected");
+            }
+            plen = payload->eid->size;
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+            object_DoIPMessagePayloadRequestWithVIN * payload = (object_DoIPMessagePayloadRequestWithVIN*)msg->payload;
+            if ( ! payload->vin ) {
+                log_msg(LOG_ERROR, "vin incorrect");
+                return null;
+            }
+            if ( payload->vin->size != 17 ) {
+                log_msg(LOG_WARNING, "non standard vin detected");
+            }
+            plen = payload->vin->size;
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
             if (!payload->src_addr || payload->src_addr->size != 2) {
@@ -405,6 +457,23 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
     byte * payload_start = p + 8;
 
     switch(msg->payload_type) {
+        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+            object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)msg->payload;
+            memcpy(payload_start, payload->vin->buffer, payload->vin->size);
+            memcpy(payload_start + 17, payload->addr->buffer, payload->addr->size);
+            memcpy(payload_start + 19, payload->eid->buffer, payload->eid->size);
+            memcpy(payload_start + 25, payload->gid->buffer, payload->gid->size);
+            payload_start[31] = payload->further_action_required;
+            payload_start[32] = payload->sync_status;
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_EID: {
+            object_DoIPMessagePayloadRequestWithEID * payload = (object_DoIPMessagePayloadRequestWithEID*)msg->payload;
+            memcpy(payload_start, payload->eid->buffer, payload->eid->size);
+        } break;
+        case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
+            object_DoIPMessagePayloadRequestWithVIN * payload = (object_DoIPMessagePayloadRequestWithVIN*)msg->payload;
+            memcpy(payload_start, payload->vin->buffer, payload->vin->size);
+        } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
             memcpy(payload_start, payload->src_addr->buffer, 2);
@@ -424,6 +493,7 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
             memcpy(payload_start + 3, payload->iso_reserved, 4);
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
         } break;
+        case DOIP_VEHICLE_IDENT_REQUEST:
         case DOIP_ENTITY_STATUS_REQUEST: {
             // no payload
         } break;
@@ -517,7 +587,37 @@ DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n) {
 
     return DOIP_MESSAGE_RARES_CODE_UNKNOWN;
 }
-
+// start of payload object definitions
+object_DoIPMessagePayloadRequestWithEID * object_DoIPMessagePayloadRequestWithEID_new() {
+    object_DoIPMessagePayloadRequestWithEID * r = (object_DoIPMessagePayloadRequestWithEID*)malloc(sizeof(object_DoIPMessagePayloadRequestWithEID));
+    r->eid = buffer_new();
+    return r;
+}
+object_DoIPMessagePayloadRequestWithEID * object_DoIPMessagePayloadRequestWithEID_assign(object_DoIPMessagePayloadRequestWithEID*to, object_DoIPMessagePayloadRequestWithEID*from) {
+    buffer_assign(to->eid, from->eid);
+    return to;
+}
+void object_DoIPMessagePayloadRequestWithEID_free(object_DoIPMessagePayloadRequestWithEID*r) {
+    if ( r != null ) {
+        buffer_free(r->eid);
+        free(r);
+    }
+}
+object_DoIPMessagePayloadRequestWithVIN * object_DoIPMessagePayloadRequestWithVIN_new() {
+    object_DoIPMessagePayloadRequestWithVIN * r = (object_DoIPMessagePayloadRequestWithVIN*)malloc(sizeof(object_DoIPMessagePayloadRequestWithVIN));
+    r->vin = buffer_new();
+    return r;
+}
+object_DoIPMessagePayloadRequestWithVIN * object_DoIPMessagePayloadRequestWithVIN_assign(object_DoIPMessagePayloadRequestWithVIN * to, object_DoIPMessagePayloadRequestWithVIN * from) {
+    buffer_assign(to->vin, from->vin);
+    return to;
+}
+void object_DoIPMessagePayloadRequestWithVIN_free(object_DoIPMessagePayloadRequestWithVIN *r) {
+    if ( r != null ) {
+        buffer_free(r->vin);
+        free(r);
+    }
+}
 object_DoIPMessagePayloadRoutineActivationResponse * object_DoIPMessagePayloadRoutineActivationResponse_assign(object_DoIPMessagePayloadRoutineActivationResponse * to, object_DoIPMessagePayloadRoutineActivationResponse * from) {
     to->tester = buffer_copy(from->tester);
     to->ecu = buffer_copy(from->ecu);
@@ -581,5 +681,86 @@ object_DoIPMessagePayloadEntityStatusResponse * object_DoIPMessagePayloadEntityS
     to->openned_connections = from->openned_connections;
     to->max_concurrent_connections = from->max_concurrent_connections;
     to->max_data_size = from->max_data_size;
+    return to;
+}
+object_DoIPMessagePayloadVehicleIdResponse * object_DoIPMessagePayloadVehicleIdResponse_new() {
+    object_DoIPMessagePayloadVehicleIdResponse * r = (object_DoIPMessagePayloadVehicleIdResponse*)malloc(sizeof(object_DoIPMessagePayloadVehicleIdResponse));
+    r->vin = buffer_new();
+    r->addr = buffer_new();
+    r->eid = buffer_new();
+    r->gid = buffer_new();
+    r->further_action_required = 0x00;
+    r->sync_status = 0x00;
+    return r;
+}
+void object_DoIPMessagePayloadVehicleIdResponse_free(object_DoIPMessagePayloadVehicleIdResponse * payload) {
+    if ( payload != null ) {
+        buffer_free(payload->vin);
+        buffer_free(payload->addr);
+        buffer_free(payload->eid);
+        buffer_free(payload->gid);
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadVehicleIdResponse * object_DoIPMessagePayloadVehicleIdResponse_assign(object_DoIPMessagePayloadVehicleIdResponse * to, object_DoIPMessagePayloadVehicleIdResponse * from) {
+    buffer_assign(to->vin, from->vin);
+    buffer_assign(to->addr, from->addr);
+    buffer_assign(to->eid, from->eid);
+    buffer_assign(to->gid, from->gid);
+    to->further_action_required = from->further_action_required;
+    to->sync_status = from->sync_status;
+    return to;
+}
+object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_new() {
+    object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationRequest));
+    if ( payload == null ) return null;
+    memset(payload, 0, sizeof(*payload));
+    payload->activation_type = DOIP_MESSAGE_RAR_TYPE_DEFAULT;
+    return payload;
+}
+void object_DoIPMessagePayloadRoutineActivationRequest_free(object_DoIPMessagePayloadRoutineActivationRequest* payload) {
+    if ( payload != null ) {
+        memset(payload, 0, sizeof(*payload));
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadRoutineActivationRequest * object_DoIPMessagePayloadRoutineActivationRequest_assign(object_DoIPMessagePayloadRoutineActivationRequest * to, object_DoIPMessagePayloadRoutineActivationRequest *from) {
+    memcpy(to, from, sizeof(*to));
+    return to;
+}
+object_DoIPMessage * object_DoIPMessage_assign(object_DoIPMessage * to, object_DoIPMessage * from) {
+    to->protocol_version = from->protocol_version;
+    to->inv_protocol_version = from->inv_protocol_version;
+    to->payload_type = from->payload_type;
+    if ( to->payload_raw != null ) {
+        buffer_free(to->payload_raw);
+    }
+    to->payload_raw = buffer_copy(from->payload_raw);
+    return to;
+}
+object_DoIPMessage * object_DoIPMessage_new() {
+    object_DoIPMessage * msg = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
+    doip_message_init(msg, 0x00);
+    return msg;
+}
+object_DoIPMessage * doip_message_new(DoIpPayloadType type) {
+    object_DoIPMessage * msg = object_DoIPMessage_new();
+    doip_message_init(msg, type);
+    return msg;
+}
+object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_new() {
+    object_DoIPMessagePayloadEmpty * payload = (object_DoIPMessagePayloadEmpty*)malloc(sizeof(object_DoIPMessagePayloadEmpty));
+    if ( payload == null ) return null;
+    memset(payload, 0, sizeof(*payload));
+    return payload;
+}
+void object_DoIPMessagePayloadEmpty_free(object_DoIPMessagePayloadEmpty* payload) {
+    if ( payload != null ) {
+        memset(payload, 0, sizeof(*payload));
+        free(payload);
+    }
+}
+object_DoIPMessagePayloadEmpty * object_DoIPMessagePayloadEmpty_assign(object_DoIPMessagePayloadEmpty * to, object_DoIPMessagePayloadEmpty *from) {
+    memcpy(to, from, sizeof(*to));
     return to;
 }
