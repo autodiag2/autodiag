@@ -26,6 +26,10 @@ typedef struct {
      * Holds the connection (TCP) to the DoIP node, it is used for sending and receiving data.
      */
     sock_t handle;
+    /**
+     * Holds the UDP connection to the doip node.
+     */
+    sock_t disc_handle;
 } DoIPDeviceImplementation;
 
 #define DEVICE_DOIP_DEFAULT_ADDRESS 0x0E08

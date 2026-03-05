@@ -87,6 +87,19 @@ int network_udp_set_reuseaddr(sock_t s) {
     #endif
     return -1;
 }
+void network_stop(sock_t s) {
+    if (s != SOCK_T_INVALID) {
+        #if defined OS_POSIX
+            shutdown(s, SHUT_RDWR);
+            close(s);
+        #elif defined OS_WINDOWS
+            shutdown(s, SD_BOTH);
+            closesocket(s);
+        #else
+        #   warning not implemented
+        #endif
+    }
+}
 int network_udp_wait_readable(sock_t s, int timeout_ms) {
     fd_set rfds;
     FD_ZERO(&rfds);

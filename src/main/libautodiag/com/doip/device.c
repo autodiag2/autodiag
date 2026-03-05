@@ -68,18 +68,8 @@ void doip_close(final object_DoIPDevice * device) {
     } 
     assert(device_location_is_network((Device*)device));
     
-    if (device->implementation->handle != SOCK_T_INVALID) {
-        #if defined OS_POSIX
-            shutdown(device->implementation->handle, SHUT_RDWR);
-            close(device->implementation->handle);
-        #elif defined OS_WINDOWS
-            shutdown(device->implementation->handle, SD_BOTH);
-            closesocket(device->implementation->handle);
-        #else
-        #   warning not implemented
-        #endif
-    }
-
+    network_stop(device->implementation->handle);
+    network_stop(device->implementation->disc_handle);
     device->state = AD_DEVICE_STATE_NOT_READY;
 }
 int doip_open(final object_DoIPDevice * device) {
@@ -111,6 +101,7 @@ int doip_open(final object_DoIPDevice * device) {
     }
 
     device->implementation->handle = SOCK_T_INVALID;
+    device->implementation->disc_handle = SOCK_T_INVALID;
 
     log_msg(LOG_DEBUG, "TODO: UDP vehicle capabilities discovery and readiness");
 
@@ -424,6 +415,7 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->node.max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
     device->node.node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
     device->implementation->handle = SOCK_T_INVALID;
+    device->implementation->disc_handle = SOCK_T_INVALID;
     pthread_mutex_init(&device->implementation->lock_mutex, NULL);
     device->location = null;
     device->state = AD_DEVICE_STATE_UNDEFINED;
