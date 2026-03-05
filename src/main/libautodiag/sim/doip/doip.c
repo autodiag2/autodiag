@@ -15,6 +15,7 @@ SimDoIp * sim_doip_new() {
     impl->broadcast_time_ms = SIM_DOIP_TIMEOUT_MS_BROADCAST;
     impl->handle = object_handle_t_new();
     impl->server_handle = object_handle_t_new();
+    impl->disc_server_handle = SOCK_T_INVALID;
     sim->implementation = (SimImplementation*)impl;
     return sim;
 }
@@ -137,7 +138,10 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
 
     return 1;
 }
-
+bool sim_doip_should_continue(SimDoIp * sim) {
+    DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
+    return impl->loop_thread != null;
+}
 void sim_doip_loop(SimDoIp * sim) {
 
     sim_doip_discover_start(sim);
@@ -170,7 +174,7 @@ void sim_doip_loop(SimDoIp * sim) {
     // Need to be turned on for diag messages to be sent
     bool routing_activated = false;
 
-    while(impl->loop_thread != null) {
+    while(sim_doip_should_continue(sim)) {
         buffer_recycle(recv_buffer);
         if (!impl->loop_ready) impl->loop_ready = true;
 

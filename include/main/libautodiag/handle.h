@@ -65,5 +65,9 @@ void object_handle_t_close(object_handle_t * h);
  * Set defaults on fields of this handle.
  */
 void object_handle_t_init(object_handle_t * h);
+/**
+ * @return -1 on error else port bound to
+ */
+int object_handle_t_get_port(object_handle_t * handle);
 
 #endif

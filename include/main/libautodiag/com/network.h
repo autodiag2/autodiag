@@ -32,5 +32,10 @@ int network_udp_enable_broadcast(sock_t s);
 int network_udp_set_reuseaddr(sock_t s);
 int network_udp_wait_readable(sock_t s, int timeout_ms);
 void network_stop(sock_t s);
+/**
+ * Get the port to which a socket is bound
+ * @return -1 on error else port bound to
+ */
+int sock_t_get_port(sock_t s);
 
 #endif

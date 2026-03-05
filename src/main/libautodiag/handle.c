@@ -1,5 +1,15 @@
 #include "libautodiag/handle.h"
 
+int object_handle_t_get_port(object_handle_t * handle) {
+    #ifdef OS_POSIX
+        return sock_t_get_port(handle->posix_handle);
+    #elif defined OS_WINDOWS
+        return sock_t_get_port(handle->win_socket);
+    #else
+    #   warning Unsupported OS
+        return -1;
+    #endif
+}
 void object_handle_t_init(object_handle_t * h) {
     #ifdef OS_POSIX
         h->posix_handle = -1;

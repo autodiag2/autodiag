@@ -43,7 +43,29 @@ static int bind_any_available_port(sock_t server_fd, int start_port, int max_tri
 
     return -1;
 }
+int sock_t_get_port(sock_t s) {
+    
+    if ( s == SOCK_T_INVALID ) return -1;
 
+    struct sockaddr_storage addr;
+    socklen_t len = sizeof(addr);
+
+    if (getsockname(s, (struct sockaddr *)&addr, &len) < 0) {
+        return -1;
+    }
+
+    if (addr.ss_family == AF_INET) {
+        struct sockaddr_in *a = (struct sockaddr_in *)&addr;
+        return ntohs(a->sin_port);
+    }
+
+    if (addr.ss_family == AF_INET6) {
+        struct sockaddr_in6 *a = (struct sockaddr_in6 *)&addr;
+        return ntohs(a->sin6_port);
+    }
+
+    return -1;
+}
 sock_t network_udp_start(int *bound_port, int start_port) {
     #if defined(OS_WINDOWS) && ! defined(OS_POSIX)
         WSADATA wsa;

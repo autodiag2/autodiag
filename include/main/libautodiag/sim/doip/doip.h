@@ -34,6 +34,11 @@ typedef struct {
      * Delay in ms between each broadcast
      */
     int broadcast_time_ms;
+    /**
+     * UDP discovery server handle
+     */
+    sock_t disc_server_handle;
+    pthread_t discovery_thread;
 } DoIpImplementation;
 
 #define SIM_DOIP_TIMEOUT_MS_RW 5000
@@ -53,6 +58,7 @@ void sim_doip_loop(SimDoIp * doip);
 void sim_doip_destroy(SimDoIp *sim);
 void sim_doip_loop_as_daemon(SimDoIp * sim);
 bool sim_doip_loop_daemon_wait_ready(SimDoIp *sim);
+bool sim_doip_should_continue(SimDoIp * sim);
 
 #include "libautodiag/sim/doip/doip_discover.h"
 
