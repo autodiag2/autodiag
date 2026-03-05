@@ -362,7 +362,6 @@ void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address) 
     device->address = address;
 }
 static int doip_send(final object_DoIPDevice * device, const char * command) {
-    log_msg(LOG_DEBUG, "TODO: should read from the data map to which ecu this command is addressed to");
     Buffer * diag_message = buffer_from_ascii_hex(command);
     if ( diag_message == null ) {
         log_msg(LOG_ERROR, "Message sent is not ascii hex, cannot be sent");

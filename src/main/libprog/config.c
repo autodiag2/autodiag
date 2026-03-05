@@ -268,8 +268,8 @@ void config_onchange() {
     viface_recorder_reset(config.ephemere.iface);
     viface_recorder_set_state(config.ephemere.iface, config.recorder.enabled);
     if ( viface_open_from_iface_device(config.ephemere.iface, AD_DEVICE(device))) {
-        if ( device_table_update_device(config.ephemere.device_table, AD_DEVICE(device), config.ephemere.iface->device) ) {
-            log_msg(LOG_WARNING, "Device update in the table of devices has failed, continuing ...");
+        if ( ! device_table_update_device(config.ephemere.device_table, AD_DEVICE(device), config.ephemere.iface->device) ) {
+            log_msg(LOG_ERROR, "Device update in the table of devices has failed, continuing ...");
         }
         if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
             config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
