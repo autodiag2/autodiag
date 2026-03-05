@@ -3,7 +3,7 @@
 #include <limits.h>
 
 static CommandLineGui *gui = null;
-static list_ad_object_string * commandHistory = null;
+static ad_list_ad_object_string * commandHistory = null;
 static int commandHistoryIndex = -1;
 static gdouble output_scrollbar_current_upper = -1;
 static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
@@ -170,7 +170,7 @@ static void send_custom_command() {
     if ( -1 == commandHistoryIndex || strcmp(commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data, command) != 0 ) {
         if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
             if ( 0 < strlen(command) ) {
-                list_ad_object_string_append(commandHistory, ad_object_string_new_from(command));
+                ad_list_ad_object_string_append(commandHistory, ad_object_string_new_from(command));
             }
         }
     }
@@ -251,7 +251,7 @@ static void vehicle_add_pid_buttons() {
 
 static void init(final GtkBuilder *builder) {
     if ( gui == null ) {
-        commandHistory = list_ad_object_string_new();
+        commandHistory = ad_list_ad_object_string_new();
         gui = (CommandLineGui*)malloc(sizeof(CommandLineGui));
         CommandLineGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-command-line")),

@@ -12,6 +12,6 @@ typedef struct {
 } mod_gui;
 
 AD_LIST_H(mod_gui)
-void list_mod_gui_build(list_mod_gui * mods, final GtkBuilder * builder);
+void ad_list_mod_gui_build(ad_list_mod_gui * mods, final GtkBuilder * builder);
 
 #endif

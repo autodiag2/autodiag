@@ -41,13 +41,13 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
 /**
  * handler has the shape: handler(Buffer * data, arg)
  */
-#define OBD_ITERATE_ECUS_DATA_BUFFER(list_Buffer,handler) { \
+#define OBD_ITERATE_ECUS_DATA_BUFFER(ad_list_Buffer,handler) { \
     final Vehicle* v = iface->vehicle; \
     for(int i = 0; i < v->ecus_len; i++) { \
         final ECU* ecu = v->ecus[i]; \
-        if ( 0 < list_Buffer->size ) { \
-            for(int j = list_Buffer->size-1; 0 <= j; j--) { \
-                Buffer * data = list_Buffer->list[j]; \
+        if ( 0 < ad_list_Buffer->size ) { \
+            for(int j = ad_list_Buffer->size-1; 0 <= j; j--) { \
+                Buffer * data = ad_list_Buffer->list[j]; \
                 handler(data); \
             } \
         } \
@@ -60,14 +60,14 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
  * ex: 
  *  OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.current_data, saej1979_get_current_vehicle_speed_iterator, 0x0D, result);
  */
-#define OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(list_Buffer,handler,_expected_pid) { \
+#define OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ad_list_Buffer,handler,_expected_pid) { \
     int expected_pid = _expected_pid; \
     final Vehicle* v = iface->vehicle; \
     for(unsigned i = 0; i < v->ecus_len; i++) { \
         final ECU* ecu = v->ecus[i]; \
-        if ( 0 < list_Buffer->size ) { \
-            for(int j = list_Buffer->size-1; 0 <= j; j--) { \
-                Buffer * data = list_Buffer->list[j]; \
+        if ( 0 < ad_list_Buffer->size ) { \
+            for(int j = ad_list_Buffer->size-1; 0 <= j; j--) { \
+                Buffer * data = ad_list_Buffer->list[j]; \
                 if ( 0 < data->size ) { \
                     Buffer * data_copy = ad_buffer_copy(data); \
                     byte pid = ad_buffer_extract_0(data_copy); \

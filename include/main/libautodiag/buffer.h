@@ -117,7 +117,7 @@ char * ad_buffer_to_hexdump(final Buffer *buffer);
 AD_LIST_H(Buffer);
 AD_LIST_H_FIND(Buffer, Buffer*);
 AD_LIST_H_EMPTY(Buffer);
-void list_Buffer_dump(final list_Buffer* list);
+void ad_list_Buffer_dump(final ad_list_Buffer* list);
 /**
  * Obtain a new buffer with bytes initialized to random value
  */

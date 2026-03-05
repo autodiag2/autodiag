@@ -29,7 +29,7 @@ int oneHex(char c);
             } \
             final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
             ad_buffer_free(address); \
-            Iso15765Conversation *conversation = list_Iso15765Conversation_find(conversations, current_ecu); \
+            Iso15765Conversation *conversation = ad_list_Iso15765Conversation_find(conversations, current_ecu); \
             \
             if ( strlen(ptr) < 1 ) { \
                 log_msg(LOG_ERROR, "Incoming frame is too short"); \
@@ -57,7 +57,7 @@ int oneHex(char c);
                     ptr += 1 + elm->printing_of_spaces; \
                     conversation = iso15765_init_conversation(data_bytes); \
                     conversation->current_data_length = conversation->remaining_data_bytes_to_receive; \
-                    list_Iso15765Conversation_append(conversations,conversation); \
+                    ad_list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765FirstFrame: { \
                     log_msg(LOG_DEBUG, "first frame"); \
@@ -69,7 +69,7 @@ int oneHex(char c);
                     ptr += 3 + elm->printing_of_spaces * 2; \
                     conversation = iso15765_init_conversation(data_bytes); \
                     conversation->current_data_length = min(CAN_MAX_BYTES_PER_MESSAGE-2,conversation->remaining_data_bytes_to_receive); \
-                    list_Iso15765Conversation_append(conversations,conversation); \
+                    ad_list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765ConsecutiveFrame: { \
                     if ( strlen(ptr) < (1 + elm->printing_of_spaces) ) { \
@@ -130,9 +130,9 @@ int oneHex(char c);
                             if ( conversation->remaining_data_bytes_to_receive == 0 ) { \
                                 assert(conversation->ecu != null); \
                                 if ( bin_buffer != null ) { \
-                                    list_Buffer_append(conversation->ecu->data_buffer,ad_buffer_copy(conversation->data)); \
+                                    ad_list_Buffer_append(conversation->ecu->data_buffer,ad_buffer_copy(conversation->data)); \
                                 } \
-                                if ( list_Iso15765Conversation_remove(conversations, conversation) ) { \
+                                if ( ad_list_Iso15765Conversation_remove(conversations, conversation) ) { \
                                     log_msg(LOG_DEBUG, "Conversation removed"); \
                                     iso15765_conversation_free(conversation); \
                                 } \
@@ -150,6 +150,6 @@ int oneHex(char c);
         } \
     }
 
-bool elm_iso15765_parse_response_internal(final void* elm_arg, list_Iso15765Conversation* conversations, char * id_ascii, int id_sz_chars, void * vehicle_arg);
+bool elm_iso15765_parse_response_internal(final void* elm_arg, ad_list_Iso15765Conversation* conversations, char * id_ascii, int id_sz_chars, void * vehicle_arg);
 
 #endif

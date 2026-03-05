@@ -2,15 +2,15 @@
 
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
-    dtc->description = list_DTC_DESCRIPTION_new();
+    dtc->description = ad_list_DTC_DESCRIPTION_new();
     dtc->to_string = AD_DTC_TO_STRING(saej1979_dtc_to_string);
     dtc->ecu = null;
-    dtc->detection_method = list_ad_object_string_new();
+    dtc->detection_method = ad_list_ad_object_string_new();
     return dtc;
 }
 void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
     if ( dtc->description != null ) {
-        list_DTC_DESCRIPTION_free(dtc->description);
+        ad_list_DTC_DESCRIPTION_free(dtc->description);
         dtc->description = null;
     }
     dtc->ecu = null;
@@ -18,7 +18,7 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
 
 #define saej1979_dtcs_iterator(data_buffer) { \
     if ( result == null ) { \
-        result = list_DTC_new(); \
+        result = ad_list_DTC_new(); \
     } \
     for(unsigned byte = 0; 0 < data_buffer->size && byte < data_buffer->size-1; byte += 2) { \
         unsigned char byte_0 = data_buffer->buffer[byte]; \
@@ -32,23 +32,23 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
             dtc->data[2] = 0; \
             dtc->ecu = ecu; \
             dtc_description_fetch_from_fs((DTC*)dtc, filter); \
-            list_DTC_append(result, (DTC*)dtc); \
+            ad_list_DTC_append(result, (DTC*)dtc); \
         } \
     } \
 }
 
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        list_DTC *,saej1979_retrieve_stored_dtcs,
+                        ad_list_DTC *,saej1979_retrieve_stored_dtcs,
                         "03",saej1979_dtcs_iterator,null,
                         ecu->obd_service.current_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        list_DTC *,saej1979_retrieve_pending_dtcs,
+                        ad_list_DTC *,saej1979_retrieve_pending_dtcs,
                         "07",saej1979_dtcs_iterator,null,
                         ecu->obd_service.pending_dtc, Vehicle *filter
                     )
 SAEJ1979_GENERATE_OBD_REQUEST_ITERATE(
-                        list_DTC *, saej1979_retrieve_permanent_dtcs,
+                        ad_list_DTC *, saej1979_retrieve_permanent_dtcs,
                         "0A",saej1979_dtcs_iterator,null,
                         ecu->obd_service.permanent_dtc, Vehicle *filter
                     )

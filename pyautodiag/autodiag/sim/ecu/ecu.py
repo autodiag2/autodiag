@@ -33,7 +33,7 @@ class list_SimECU(Structure):
     ]
 
     def __new__(cls):
-        obj_ptr = lib.list_SimECU_new()
+        obj_ptr = lib.ad_list_SimECU_new()
         if not obj_ptr:
             raise MemoryError("Failed to create SimECU")
         obj = cast(obj_ptr, POINTER(cls)).contents
@@ -41,19 +41,19 @@ class list_SimECU(Structure):
         return obj
     
     def append(self, element):
-        lib.list_SimECU_append(byref(self), cast(byref(element), POINTER(SimECU)))
+        lib.ad_list_SimECU_append(byref(self), cast(byref(element), POINTER(SimECU)))
     
     def remove(self, element):
-        lib.list_SimECU_remove(byref(self), cast(byref(element), POINTER(SimECU)))
+        lib.ad_list_SimECU_remove(byref(self), cast(byref(element), POINTER(SimECU)))
 
     def remove_at(self, index):
-        return lib.list_SimECU_remove_at(byref(self), index).contents
+        return lib.ad_list_SimECU_remove_at(byref(self), index).contents
 
-lib.list_SimECU_new.restype = POINTER(list_SimECU)
-lib.list_SimECU_free.argtypes = [POINTER(list_SimECU)]
-lib.list_SimECU_append.argtypes = [POINTER(list_SimECU), POINTER(SimECU)]
-lib.list_SimECU_remove.argtypes = [POINTER(list_SimECU), POINTER(SimECU)]
-lib.list_SimECU_remove.restype = bool
-lib.list_SimECU_remove_at.argtypes = [POINTER(list_SimECU), c_int]
-lib.list_SimECU_remove_at.restype = POINTER(SimECU)
+lib.ad_list_SimECU_new.restype = POINTER(list_SimECU)
+lib.ad_list_SimECU_free.argtypes = [POINTER(list_SimECU)]
+lib.ad_list_SimECU_append.argtypes = [POINTER(list_SimECU), POINTER(SimECU)]
+lib.ad_list_SimECU_remove.argtypes = [POINTER(list_SimECU), POINTER(SimECU)]
+lib.ad_list_SimECU_remove.restype = bool
+lib.ad_list_SimECU_remove_at.argtypes = [POINTER(list_SimECU), c_int]
+lib.ad_list_SimECU_remove_at.restype = POINTER(SimECU)
 

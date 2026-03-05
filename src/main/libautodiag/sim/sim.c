@@ -82,9 +82,9 @@ SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
     return null;
 }
 void sim_init_with_defaults(Sim *sim) {
-    sim->ecus = list_SimECU_new();
+    sim->ecus = ad_list_SimECU_new();
     final SimECU *ecu = sim_ecu_new(0xE8);
-    list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
+    ad_list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
     sim->device_location = null;
 }
 bool sim_loop_daemon_wait_ready(bool * var) {
@@ -177,7 +177,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
         return GENERIC_FUNCTION_ERROR;
     }
-    list_SimECU_clear(LIST_SIM_ECU(sim->ecus));
+    ad_list_SimECU_clear(LIST_SIM_ECU(sim->ecus));
     if ( ! cJSON_IsArray(root) ) {
         assert(cJSON_IsObject(root));
         cJSON * arr = cJSON_CreateArray();
@@ -197,7 +197,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         final SimECU * ecu = sim_ecu_new(address->buffer[address->size-1]);
         ecu->generator = sim_ecu_generator_new_replay();
         ecu->generator->context = context;
-        list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);
+        ad_list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);
     }
     return GENERIC_FUNCTION_SUCCESS;
 }

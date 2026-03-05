@@ -21,11 +21,11 @@ void iso15765_conversation_free(Iso15765Conversation *conv) {
     }
 }
 
-bool list_Iso15765Conversation_find_comparator(Iso15765Conversation *conv, ECU* ecu) {
+bool ad_list_Iso15765Conversation_find_comparator(Iso15765Conversation *conv, ECU* ecu) {
     return conv->ecu == ecu;
 }
 AD_LIST_SRC_FIND(Iso15765Conversation,
-                ECU*,list_Iso15765Conversation_find_comparator
+                ECU*,ad_list_Iso15765Conversation_find_comparator
 )
 int Iso15765Conversation_cmp(Iso15765Conversation* e1, Iso15765Conversation* e2) {
     return e1->ecu - e2->ecu;

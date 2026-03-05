@@ -403,7 +403,7 @@ char * ad_buffer_to_hexdump(final Buffer *buffer) {
         return bytes_to_hexdump(buffer->buffer, buffer->size);
     }
 }
-void list_Buffer_dump(final list_Buffer* list) {
+void ad_list_Buffer_dump(final ad_list_Buffer* list) {
     assert(list != null);
     AD_LIST_FOREACH(list,Buffer,buffer,
         ad_buffer_dump(buffer);

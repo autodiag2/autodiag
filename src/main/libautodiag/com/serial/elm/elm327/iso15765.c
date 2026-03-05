@@ -45,12 +45,12 @@ bool elm327_iso15765_parse_response(final ELM327Device* elm327, final Vehicle* v
     final byte id_ascii[id_sz_chars+1];
     id_ascii[id_sz_chars] = 0;
 
-    final list_Iso15765Conversation* conversations = list_Iso15765Conversation_new();
+    final ad_list_Iso15765Conversation* conversations = ad_list_Iso15765Conversation_new();
     bool result = elm_iso15765_parse_response_internal(elm327, conversations, (char*)id_ascii, id_sz_chars, vehicle);
     for(int i = 0; i < conversations->size; i++) {
         iso15765_conversation_free(conversations->list[i]);
         conversations->list[i] = null;
     }
-    list_Iso15765Conversation_free(conversations);
+    ad_list_Iso15765Conversation_free(conversations);
     return result;
 }

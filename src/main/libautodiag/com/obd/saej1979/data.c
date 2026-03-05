@@ -261,8 +261,8 @@ int SAEJ1979_DATA_Test_cmp(SAEJ1979_DATA_Test* e1, SAEJ1979_DATA_Test* e2) {
 }
 AD_LIST_SRC(SAEJ1979_DATA_Test)
 
-list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
-    list_SAEJ1979_DATA_Test *list = list_SAEJ1979_DATA_Test_new();
+ad_list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
+    ad_list_SAEJ1979_DATA_Test *list = ad_list_SAEJ1979_DATA_Test_new();
     byte * buffer = data_accessor(iface,useFreezedData);
     if ( buffer != null ) {
         byte B = buffer[1];
@@ -272,7 +272,7 @@ list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, 
                 SAEJ1979_DATA_Test * data = (SAEJ1979_DATA_Test*)malloc(sizeof(SAEJ1979_DATA_Test));
                 data->name = strdup(names1[i]);
                 data->completed = ! bitRetrieve(B, 4 + i);
-                list_SAEJ1979_DATA_Test_append(list, data);
+                ad_list_SAEJ1979_DATA_Test_append(list, data);
             }
         }
         bool isCompressionIgnition = bitRetrieve(B, 3);
@@ -295,7 +295,7 @@ list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, 
                 SAEJ1979_DATA_Test * data = (SAEJ1979_DATA_Test*)malloc(sizeof(SAEJ1979_DATA_Test));
                 data->name = strdup(names[i]);
                 data->completed = ! bitRetrieve(D, i);
-                list_SAEJ1979_DATA_Test_append(list, data);
+                ad_list_SAEJ1979_DATA_Test_append(list, data);
             }
         }
         free(buffer);
@@ -311,7 +311,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool useFreezedData, bool thisDriveCycleOnly) {
+ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool useFreezedData, bool thisDriveCycleOnly) {
     if ( thisDriveCycleOnly ) {
         return saej1979_data_tests_generic(iface, useFreezedData, saej1979_data_status_this_cycle);
     } else {

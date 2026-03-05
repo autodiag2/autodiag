@@ -1,7 +1,7 @@
 #include "ui/main.h"
 
 MainGui *mainGui = null;
-static list_mod_gui * mods = null;
+static ad_list_mod_gui * mods = null;
 static int mod_launcher_last_cols = -1;
 
 void module_shutdown_main() {
@@ -174,7 +174,7 @@ static void grid_clear_children_tagged(GtkWidget *grid) {
     }
     g_list_free(children);
 }
-static void populate_mod_launcher_grid(GtkWidget *grid, list_mod_gui *mods) {
+static void populate_mod_launcher_grid(GtkWidget *grid, ad_list_mod_gui *mods) {
     const int fallback_cols = 3;
     const int item_min_w = 160;
     const int spacing = 10;
@@ -218,7 +218,7 @@ static void populate_mod_launcher_grid(GtkWidget *grid, list_mod_gui *mods) {
 }
 
 static void mod_launcher_on_size_allocate(GtkWidget *grid, GdkRectangle *alloc, gpointer user_data) {
-    list_mod_gui *mods = (list_mod_gui*)user_data;
+    ad_list_mod_gui *mods = (ad_list_mod_gui*)user_data;
 
     const int fallback_cols = 3;
     const int item_min_w = 160;
@@ -292,15 +292,15 @@ void module_init_main() {
 
         device_table_fill(config.ephemere.device_table);
         
-        mods = list_mod_gui_new();
-        list_mod_gui_append(mods, mod_gui_dyno_new());
-        list_mod_gui_append(mods, mod_gui_vehicle_explorer_new());
-        list_mod_gui_append(mods, mod_gui_options_new());
-        list_mod_gui_append(mods, mod_gui_command_line_new());
-        list_mod_gui_append(mods, mod_gui_read_codes_new());
-        list_mod_gui_append(mods, mod_gui_documentation_new());
+        mods = ad_list_mod_gui_new();
+        ad_list_mod_gui_append(mods, mod_gui_dyno_new());
+        ad_list_mod_gui_append(mods, mod_gui_vehicle_explorer_new());
+        ad_list_mod_gui_append(mods, mod_gui_options_new());
+        ad_list_mod_gui_append(mods, mod_gui_command_line_new());
+        ad_list_mod_gui_append(mods, mod_gui_read_codes_new());
+        ad_list_mod_gui_append(mods, mod_gui_documentation_new());
 
-        list_mod_gui_build(mods, builder);
+        ad_list_mod_gui_build(mods, builder);
         
         g_signal_connect(G_OBJECT(mainGui->mod_launcher), "size-allocate",
                      G_CALLBACK(mod_launcher_on_size_allocate), mods);

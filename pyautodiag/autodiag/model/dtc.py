@@ -33,7 +33,7 @@ class list_DTC_DESCRIPTION(Structure):
         ("list", POINTER(DTC_DESCRIPTION)),
     ]
     def __new__(cls):
-        lib.list_DTC_DESCRIPTION_new.restype = POINTER(cls)
+        lib.ad_list_DTC_DESCRIPTION_new.restype = POINTER(cls)
         ptr = lib.list_DTC_DESCRIPTION_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
@@ -41,11 +41,11 @@ class list_DTC_DESCRIPTION(Structure):
         obj.__class__ = cls
         return obj
     
-    def append(self, dtc_desc: DTC_DESCRIPTION): return lib.list_DTC_DESCRIPTION_append(byref(self), byref(dtc_desc))
+    def append(self, dtc_desc: DTC_DESCRIPTION): return lib.ad_list_DTC_DESCRIPTION_append(byref(self), byref(dtc_desc))
 
-lib.list_DTC_DESCRIPTION_new.restype = POINTER(list_DTC_DESCRIPTION)
-lib.list_DTC_DESCRIPTION_free.argtypes = [POINTER(list_DTC_DESCRIPTION)]
-lib.list_DTC_DESCRIPTION_append.argtypes = [POINTER(list_DTC_DESCRIPTION), POINTER(DTC_DESCRIPTION)]
+lib.ad_list_DTC_DESCRIPTION_new.restype = POINTER(list_DTC_DESCRIPTION)
+lib.ad_list_DTC_DESCRIPTION_free.argtypes = [POINTER(list_DTC_DESCRIPTION)]
+lib.ad_list_DTC_DESCRIPTION_append.argtypes = [POINTER(list_DTC_DESCRIPTION), POINTER(DTC_DESCRIPTION)]
 
 class DTC(Structure):
     pass
@@ -64,9 +64,9 @@ class list_DTC(Structure):
         ("list", POINTER(POINTER(DTC))),
     ]
 
-lib.list_DTC_append_list.argtypes = [POINTER(list_DTC), POINTER(list_DTC)]
-lib.list_DTC_get.argtypes = [POINTER(list_DTC), c_char_p]
-lib.list_DTC_get.restype = POINTER(DTC)
+lib.ad_list_DTC_append_list.argtypes = [POINTER(list_DTC), POINTER(list_DTC)]
+lib.ad_list_DTC_get.argtypes = [POINTER(list_DTC), c_char_p]
+lib.ad_list_DTC_get.restype = POINTER(DTC)
 
 lib.dtc_desc_fill_from_codes_file.argtypes = [POINTER(DTC), POINTER(DTC_DESCRIPTION)]
 lib.dtc_description_fetch_from_fs.argtypes = [POINTER(DTC), POINTER(Vehicle)]

@@ -5,10 +5,10 @@ int SimECU_cmp(SimECU* e1, SimECU* e2) {
 }
 AD_LIST_SRC(SimECU)
 
-void list_SimECU_empty(list_SimECU * list) {
+void ad_list_SimECU_empty(ad_list_SimECU * list) {
     while(0 < list->size) {
         log_msg(LOG_DEBUG, "should free ecu here");
-        list_SimECU_remove_at(list, 0);
+        ad_list_SimECU_remove_at(list, 0);
     }
 }
 /**

@@ -166,8 +166,8 @@ static Buffer * response_frame_extract_header(final SimELM327* elm327, final Buf
     }
     return header;
 }
-static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * dataResponse) {
-    list_Buffer * result = list_Buffer_new();
+static ad_list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * dataResponse) {
+    ad_list_Buffer * result = ad_list_Buffer_new();
     bool iso_15765_is_multi_message = false;
     int iso_15765_multi_message_sn = 0;
     int transportLayerMessageDataBytes = 0;
@@ -217,7 +217,7 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
         }
         final Buffer * protocolHeader = response_header(elm327, ecu, ELM327_CAN_28_BITS_DEFAULT_PRIO);
         ad_buffer_prepend(responseBodyChunk, protocolHeader);
-        list_Buffer_append(result, responseBodyChunk);
+        ad_list_Buffer_append(result, responseBodyChunk);
         ad_buffer_free(protocolHeader);
     }
     return result;
@@ -321,7 +321,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
             ad_buffer_free(extractedDataRequest);
             if ( ecuResponse == null && 0 < dataResponse->size ) {
-                list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
+                ad_list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
 
                 if ( ! elm327->printing_of_headers ) {
                     if ( 1 < frames->size ) {
@@ -371,7 +371,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                     ecuResponse = elmFrameStr;
                 }
 
-                list_Buffer_empty(frames);
+                ad_list_Buffer_empty(frames);
                 free(frames);
             }
             ad_buffer_free(dataResponse);

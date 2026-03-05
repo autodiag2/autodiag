@@ -9,7 +9,7 @@ int oneHex(char c) {
 
 }
 
-bool elm_iso15765_parse_response_internal(final void* elm_arg, list_Iso15765Conversation* conversations, char * id_ascii, int id_sz_chars, void * vehicle_arg) {
+bool elm_iso15765_parse_response_internal(final void* elm_arg, ad_list_Iso15765Conversation* conversations, char * id_ascii, int id_sz_chars, void * vehicle_arg) {
     final ELMDevice* elm = (ELMDevice*)elm_arg;
     final Vehicle* vehicle = (Vehicle*)vehicle_arg;
     SERIAL_BUFFER_ITERATE(elm,ELM_ISO15765_PARSE_RESPONSE_ITERATOR);

@@ -4,7 +4,7 @@ bool testRecorder(VehicleIFace* iface) {
 
     viface_recorder_set_state(iface, false);
     viface_recorder_reset(iface);
-    list_ad_object_Record* recorder = viface_recorder_get(iface);
+    ad_list_ad_object_Record* recorder = viface_recorder_get(iface);
     assert(recorder->size == 0);
     viface_recorder_set_state(iface, true);
     viface_lock(iface);
@@ -20,7 +20,7 @@ bool testRecorder(VehicleIFace* iface) {
     
     printf("result:\n");
     for(int i = 0; i < record->binResponses->size; i ++) {
-        list_ECUBufferRecord * r = record->binResponses->list[i];
+        ad_list_ECUBufferRecord * r = record->binResponses->list[i];
         ECU * ecu = r->ecu;
         assert(ecu != null);
         vehicle_ecu_debug(ecu);

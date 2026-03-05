@@ -43,7 +43,7 @@ AD_LIST_H(SAEJ1979_DATA_Test)
  * Get a list of avaliable tests on the car and the completeness of those
  * @param thisDriveCycleOnly use result of tests occurred this drive cycle
  */
-list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool useFreezedData, bool thisDriveCycleOnly);
+ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool useFreezedData, bool thisDriveCycleOnly);
 
 /**
  * For given pid number (eg 0, 1, 2, 3, 4, ...) show if it is currently supported by ECU<br />

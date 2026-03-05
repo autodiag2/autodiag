@@ -341,11 +341,11 @@ static bool doip_parse_data(final ad_object_DoIPDevice* device, final Vehicle* v
     ad_buffer_left_shift(device->recv_buffer, DOIP_MESSAGE_DIAG_ADDR_SZ);
     final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
     ad_buffer_free(address); 
-    list_Buffer_append(ecu->data_buffer,ad_buffer_copy(device->recv_buffer));
+    ad_list_Buffer_append(ecu->data_buffer,ad_buffer_copy(device->recv_buffer));
     return true;
 }
 
-static bool doip_set_filter_by_address(final ad_object_DoIPDevice* device, list_Buffer * filter_addresses) {
+static bool doip_set_filter_by_address(final ad_object_DoIPDevice* device, ad_list_Buffer * filter_addresses) {
     return true;
 }
 

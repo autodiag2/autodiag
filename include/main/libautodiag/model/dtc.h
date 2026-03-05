@@ -37,11 +37,11 @@ void dtc_description_dump(DTC_DESCRIPTION *desc);
 typedef struct {
     int size;
     DTC_DESCRIPTION *list;
-} list_DTC_DESCRIPTION;
+} ad_list_DTC_DESCRIPTION;
 
-list_DTC_DESCRIPTION * list_DTC_DESCRIPTION_new();
-void list_DTC_DESCRIPTION_free(list_DTC_DESCRIPTION * list);
-void list_DTC_DESCRIPTION_append(list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc);
+ad_list_DTC_DESCRIPTION * ad_list_DTC_DESCRIPTION_new();
+void ad_list_DTC_DESCRIPTION_free(ad_list_DTC_DESCRIPTION * list);
+void ad_list_DTC_DESCRIPTION_append(ad_list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc);
 
 struct DTC;
 #define DTC_DATA_SZ 3
@@ -56,7 +56,7 @@ typedef struct {
     /**
      * Error corresponding to the DTC
      */
-    list_DTC_DESCRIPTION * description;
+    ad_list_DTC_DESCRIPTION * description;
     /**
      * Convert bytes to string representation
      */
@@ -68,15 +68,15 @@ typedef struct {
     /**
      * How did this DTC has been detected
      */
-    list_ad_object_string * detection_method;
+    ad_list_ad_object_string * detection_method;
 } DTC;
 
 #define AD_DTC(var) ((struct DTC*)var)
 #define AD_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
 
 AD_LIST_H(DTC)
-void list_DTC_append_list(list_DTC * list, list_DTC * another);
-DTC * list_DTC_get(list_DTC * list, char *dtc);
+void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another);
+DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtc);
 
 /**
  * Fill DTC description fields from the file codes.tsv

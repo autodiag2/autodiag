@@ -12,7 +12,7 @@ typedef struct {
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this ECU.
      */
-    list_Buffer * data_buffer;
+    ad_list_Buffer * data_buffer;
     /**
      * The source address of the message.
      */
@@ -33,23 +33,23 @@ typedef struct {
         /**
          * DTC reported by this ECU
          */
-        list_Buffer * current_dtc;
-        list_Buffer * pending_dtc;
-        list_Buffer * permanent_dtc;
+        ad_list_Buffer * current_dtc;
+        ad_list_Buffer * pending_dtc;
+        ad_list_Buffer * permanent_dtc;
         /**
          * Data reported by the ECU
          */
-        list_Buffer * current_data;
-        list_Buffer * freeze_frame_data;
-        list_Buffer * tests_results;        
-        list_Buffer * tests_results_other;
+        ad_list_Buffer * current_data;
+        ad_list_Buffer * freeze_frame_data;
+        ad_list_Buffer * tests_results;        
+        ad_list_Buffer * tests_results_other;
         /**
          * Response trames to the clear request
          */
-        list_Buffer * clear_dtc;
-        list_Buffer * request_vehicle_information;
-        list_Buffer * control_operation;
-        list_Buffer * none;
+        ad_list_Buffer * clear_dtc;
+        ad_list_Buffer * request_vehicle_information;
+        ad_list_Buffer * control_operation;
+        ad_list_Buffer * none;
     } obd_service;
 
 } ECU;
@@ -72,7 +72,7 @@ typedef struct {
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this vehicle (any ECU).
      */
-    list_Buffer * data_buffer;
+    ad_list_Buffer * data_buffer;
     Buffer * vin;
     char *country;
     /**
@@ -96,7 +96,7 @@ typedef struct {
             EventHandlerHolder * onECURegister;
             EventHandlerHolder * onFilterChange;
         } events;
-        list_Buffer * filter;
+        ad_list_Buffer * filter;
     } internal;
 } Vehicle;
 
@@ -125,6 +125,6 @@ void vehicle_ecu_empty_duplicated_info(ECU* ecu);
 ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address);
 
 AD_LIST_H(Vehicle)
-void list_Vehicle_empty(list_Vehicle * list);
+void ad_list_Vehicle_empty(ad_list_Vehicle * list);
 
 #endif

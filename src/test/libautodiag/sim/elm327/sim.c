@@ -3,8 +3,8 @@
 void testSimELM327_1() {
 
     SimELM327* elm327 = tf_sim_elm327_new();
-    list_SimECU_append(elm327->ecus,sim_ecu_new(0xE9));
-    list_SimECU_append(elm327->ecus,sim_ecu_new(0x1A));        
+    ad_list_SimECU_append(elm327->ecus,sim_ecu_new(0xE9));
+    ad_list_SimECU_append(elm327->ecus,sim_ecu_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
@@ -366,7 +366,7 @@ bool testSimELM327() {
         viface_send_str(iface, "0902");
         viface_clear_data(iface);
         viface_recv(iface);
-        list_Buffer_dump(iface->vehicle->data_buffer);
+        ad_list_Buffer_dump(iface->vehicle->data_buffer);
         assert(17 < iface->vehicle->data_buffer->list[0]->size);
     }
     return true;

@@ -2,11 +2,11 @@
 
 
 AD_LIST_SRC_NEW(DTC_DESCRIPTION,)
-void list_DTC_DESCRIPTION_append(list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc) {
+void ad_list_DTC_DESCRIPTION_append(ad_list_DTC_DESCRIPTION * list, DTC_DESCRIPTION *desc) {
     list->list = (DTC_DESCRIPTION*)realloc(list->list, sizeof(DTC_DESCRIPTION) * ++list->size);
     list->list[list->size-1] = *desc;
 }
-void list_DTC_DESCRIPTION_free(list_DTC_DESCRIPTION * list) {
+void ad_list_DTC_DESCRIPTION_free(ad_list_DTC_DESCRIPTION * list) {
     AD_LIST_FREE_CONTIGUOUS(list);
 }
 
@@ -39,7 +39,7 @@ void dtc_description_dump(DTC_DESCRIPTION *desc) {
     printf("}\n");
 }
 
-DTC * list_DTC_get(list_DTC * list, char *dtcStr) {
+DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtcStr) {
     AD_LIST_FOREACH(list, DTC, dtc, 
 
         final char * searched_dtc = dtc->to_string((struct DTC *)dtc);
@@ -156,7 +156,7 @@ static void dtc_description_fetch_from_fs_recurse(final char*path, final DTC * d
                                 final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
                                 dtc_desc->vehicle = compare_against;
                                 dtc_desc_fill_from_codes_file(dtc, dtc_desc);
-                                list_DTC_DESCRIPTION_append(dtc->description,dtc_desc);
+                                ad_list_DTC_DESCRIPTION_append(dtc->description,dtc_desc);
                             }
                         }
                         break;
@@ -179,10 +179,10 @@ void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter) {
 int DTC_cmp(DTC* e1, DTC* e2) {
     return memcmp(e1->data, e2->data, DTC_DATA_SZ);
 }
-void list_DTC_append_list(list_DTC * list, list_DTC * another) {
+void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another) {
     if ( another != null ) {
         for(int i = 0; i < another->size; i++) {
-            list_DTC_append(list,another->list[i]);
+            ad_list_DTC_append(list,another->list[i]);
         }
     }
 }

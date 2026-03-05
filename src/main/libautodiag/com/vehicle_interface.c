@@ -6,7 +6,7 @@
 void viface_recorder_reset(final VehicleIFace* iface) {
     record_clear();
 }
-list_ad_object_Record * viface_recorder_get(final VehicleIFace* iface) {
+ad_list_ad_object_Record * viface_recorder_get(final VehicleIFace* iface) {
     return recorder_get();
 }
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state) {
@@ -142,20 +142,20 @@ static bool update_filters_on_device(final VehicleIFace* iface) {
     return false;
 }
 void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address) {
-    if ( ! list_Buffer_find(iface->vehicle->internal.filter, address) ) {
+    if ( ! ad_list_Buffer_find(iface->vehicle->internal.filter, address) ) {
         viface_lock(iface);
         final Buffer * address_copy = ad_buffer_copy(address);
-        list_Buffer_append(iface->vehicle->internal.filter, address_copy);
+        ad_list_Buffer_append(iface->vehicle->internal.filter, address_copy);
         update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_add(iface->vehicle, address_copy);
         viface_unlock(iface);
     }
 }
 bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
-    final Buffer * found = list_Buffer_find(iface->vehicle->internal.filter, address);
+    final Buffer * found = ad_list_Buffer_find(iface->vehicle->internal.filter, address);
     if ( found ) {
         viface_lock(iface);
-        list_Buffer_remove(iface->vehicle->internal.filter, found);
+        ad_list_Buffer_remove(iface->vehicle->internal.filter, found);
         update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_rm(iface->vehicle, address);
         ad_buffer_free(found);
@@ -165,7 +165,7 @@ bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
 }
 void viface_recv_filter_clear(final VehicleIFace* iface) {
     viface_lock(iface);
-    list_Buffer_empty(iface->vehicle->internal.filter);
+    ad_list_Buffer_empty(iface->vehicle->internal.filter);
     update_filters_on_device(iface);
     vehicle_event_emit_on_filter_change_clear(iface->vehicle);
     viface_unlock(iface);
@@ -191,8 +191,8 @@ int viface_recv(final VehicleIFace* iface) {
         for(unsigned i = 0; i < v->ecus_len; i++) {
             ECU * ecu = v->ecus[i];
             vehicle_ecu_empty_duplicated_info(ecu);
-            if ( 0 < v->internal.filter->size && ! list_Buffer_contains(v->internal.filter, ecu->address) ) {
-                list_Buffer_empty(ecu->data_buffer);
+            if ( 0 < v->internal.filter->size && ! ad_list_Buffer_contains(v->internal.filter, ecu->address) ) {
+                ad_list_Buffer_empty(ecu->data_buffer);
             } else {
                 for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
@@ -207,17 +207,17 @@ int viface_recv(final VehicleIFace* iface) {
                             final Buffer * data_copy = ad_buffer_copy(data);
                             ad_buffer_extract_0(data_copy);
                             switch(service_id) {
-                                case OBD_SERVICE_SHOW_CURRENT_DATA: list_Buffer_append(ecu->obd_service.current_data, data_copy); break;
-                                case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: list_Buffer_append(ecu->obd_service.freeze_frame_data, data_copy); break;
-                                case OBD_SERVICE_TESTS_RESULTS: list_Buffer_append(ecu->obd_service.tests_results, data_copy); break;
-                                case OBD_SERVICE_TESTS_RESULTS_OTHER: list_Buffer_append(ecu->obd_service.tests_results_other, data_copy); break;
-                                case OBD_SERVICE_CONTROL_OPERATION: list_Buffer_append(ecu->obd_service.control_operation, data_copy); break;
-                                case OBD_SERVICE_PENDING_DTC: list_Buffer_append(ecu->obd_service.pending_dtc, data_copy); break;
-                                case OBD_SERVICE_NONE: list_Buffer_append(ecu->obd_service.none, data_copy); break;
-                                case OBD_SERVICE_SHOW_DTC: list_Buffer_append(ecu->obd_service.current_dtc, data_copy); break;
-                                case OBD_SERVICE_CLEAR_DTC: list_Buffer_append(ecu->obd_service.clear_dtc, data_copy); break;
-                                case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: list_Buffer_append(ecu->obd_service.request_vehicle_information, data_copy); break;
-                                case OBD_SERVICE_PERMANENT_DTC: list_Buffer_append(ecu->obd_service.permanent_dtc, data_copy); break;
+                                case OBD_SERVICE_SHOW_CURRENT_DATA: ad_list_Buffer_append(ecu->obd_service.current_data, data_copy); break;
+                                case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: ad_list_Buffer_append(ecu->obd_service.freeze_frame_data, data_copy); break;
+                                case OBD_SERVICE_TESTS_RESULTS: ad_list_Buffer_append(ecu->obd_service.tests_results, data_copy); break;
+                                case OBD_SERVICE_TESTS_RESULTS_OTHER: ad_list_Buffer_append(ecu->obd_service.tests_results_other, data_copy); break;
+                                case OBD_SERVICE_CONTROL_OPERATION: ad_list_Buffer_append(ecu->obd_service.control_operation, data_copy); break;
+                                case OBD_SERVICE_PENDING_DTC: ad_list_Buffer_append(ecu->obd_service.pending_dtc, data_copy); break;
+                                case OBD_SERVICE_NONE: ad_list_Buffer_append(ecu->obd_service.none, data_copy); break;
+                                case OBD_SERVICE_SHOW_DTC: ad_list_Buffer_append(ecu->obd_service.current_dtc, data_copy); break;
+                                case OBD_SERVICE_CLEAR_DTC: ad_list_Buffer_append(ecu->obd_service.clear_dtc, data_copy); break;
+                                case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: ad_list_Buffer_append(ecu->obd_service.request_vehicle_information, data_copy); break;
+                                case OBD_SERVICE_PERMANENT_DTC: ad_list_Buffer_append(ecu->obd_service.permanent_dtc, data_copy); break;
                                 default:
                                     log_msg(LOG_WARNING, "Received data for unknown OBD service ID: 0x%02X", service_id);
                                     ad_buffer_free(data_copy);
@@ -225,7 +225,7 @@ int viface_recv(final VehicleIFace* iface) {
                             }
                         }
                     } else {
-                        list_Buffer_remove_at(ecu->data_buffer,j);
+                        ad_list_Buffer_remove_at(ecu->data_buffer,j);
                         j--;
                     }
                 }
@@ -242,7 +242,7 @@ void viface_clear_data(final VehicleIFace* iface) {
     for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
         vehicle_ecu_empty(iface->vehicle->ecus[i]);
     }
-    list_Buffer_empty(iface->vehicle->data_buffer);
+    ad_list_Buffer_empty(iface->vehicle->data_buffer);
 }
 
 void viface_fill_infos_from_vin(final VehicleIFace * iface) {
@@ -275,7 +275,7 @@ void viface_discover_vehicle(VehicleIFace* iface) {
         iface->vehicle->vin = ad_buffer_new();
     }
     if ( iface->uds_enabled && iface->vehicle->vin->size == 0 ) {
-        final list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
+        final ad_list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
         assert(result->size <= 1);
         if ( 0 < result->size ) {
             iface->vehicle->vin = ad_buffer_copy(result->list[0]);

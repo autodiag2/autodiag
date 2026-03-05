@@ -11,7 +11,7 @@ bool obd_standard_parse_buffer(final Vehicle* vehicle, final Buffer* bin_buffer)
         final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
         ad_buffer_free(address); 
         
-        list_Buffer_append(ecu->data_buffer,ad_buffer_copy(bin_buffer)); 
+        ad_list_Buffer_append(ecu->data_buffer,ad_buffer_copy(bin_buffer)); 
         return true;
     } else { 
         log_msg(LOG_DEBUG, "Not enough data received"); 

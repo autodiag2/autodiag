@@ -9,8 +9,8 @@ typedef struct SimECU {
 } SimECU;
 
 AD_LIST_H(SimECU)
-#define LIST_SIM_ECU(var) ((list_SimECU*)var)
-void list_SimECU_empty(list_SimECU * list);
+#define LIST_SIM_ECU(var) ((ad_list_SimECU*)var)
+void ad_list_SimECU_empty(ad_list_SimECU * list);
 
 SimECU* sim_ecu_new(byte address);
 Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest);

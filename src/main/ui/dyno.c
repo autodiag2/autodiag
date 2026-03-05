@@ -8,7 +8,7 @@ static pthread_mutex_t dyno_mutex = PTHREAD_MUTEX_INITIALIZER;
 static gboolean dyno_running = false;
 static gboolean dyno_request_stop = false;
 
-static list_Graph *dyno_graphs = null;
+static ad_list_Graph *dyno_graphs = null;
 
 typedef struct {
     double t_ms;
@@ -82,7 +82,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     pthread_mutex_lock(&dyno_mutex);
 
     char *graph_title = (char*)user_data;
-    Graph *graph = dyno_graphs ? list_Graph_get_by_title(dyno_graphs, graph_title) : null;
+    Graph *graph = dyno_graphs ? ad_list_Graph_get_by_title(dyno_graphs, graph_title) : null;
     if (!graph) { pthread_mutex_unlock(&dyno_mutex); return false; }
 
     GtkAllocation a;
@@ -278,12 +278,12 @@ static void dyno_graph_add_series_point(Graph *g, unsigned si, double x, double 
     if (!g || !g->series || g->series->size <= si) return;
     GraphSeries *s = g->series->list[si];
     if (!s) return;
-    if (!s->data) s->data = list_GraphData_new();
+    if (!s->data) s->data = ad_list_GraphData_new();
     GraphData *d = malloc(sizeof(*d));
     if (!d) return;
     d->time = x;
     d->data = y;
-    list_GraphData_append(s->data, d);
+    ad_list_GraphData_append(s->data, d);
 }
 
 static void dyno_graph_reset(Graph *g) {
@@ -291,13 +291,13 @@ static void dyno_graph_reset(Graph *g) {
     for (unsigned si = 0; si < g->series->size; si++) {
         GraphSeries *s = g->series->list[si];
         if (!s) continue;
-        if (s->data) list_GraphData_free(s->data);
-        s->data = list_GraphData_new();
+        if (s->data) ad_list_GraphData_free(s->data);
+        s->data = ad_list_GraphData_new();
     }
 }
 
 static Graph *dyno_get_graph(char *title) {
-    return dyno_graphs ? list_Graph_get_by_title(dyno_graphs, title) : null;
+    return dyno_graphs ? ad_list_Graph_get_by_title(dyno_graphs, title) : null;
 }
 
 static void dyno_update_labels_locked(double t_s, double speed, double rpm, double p_kw, double tq_nm) {
@@ -534,8 +534,8 @@ static GtkWidget *dyno_make_graph_box(char *title) {
     gtk_box_pack_start(GTK_BOX(v), da, true, true, 0);
 
     Graph *g = graph_new(da, title, (char*)unit_for_metric_title(title));
-    if (!g->series) g->series = list_GraphSeries_new();
-    list_GraphSeries_append(g->series, graph_series_new(METRIC_SPEED, 0));
+    if (!g->series) g->series = ad_list_GraphSeries_new();
+    ad_list_GraphSeries_append(g->series, graph_series_new(METRIC_SPEED, 0));
     if (strcmp(title, "RPM (time)") == 0) g->series->list[0]->type = METRIC_ENGINE_SPEED;
     if (strcmp(title, "Power (rpm)") == 0) g->series->list[0]->type = METRIC_SPEED;
     if (strcmp(title, "Torque (rpm)") == 0) g->series->list[0]->type = METRIC_SPEED;
@@ -547,8 +547,8 @@ static GtkWidget *dyno_make_graph_box(char *title) {
         g->series->list[0]->unit  = strdup(unit_for_metric_title(title));
     }
 
-    if (!dyno_graphs) dyno_graphs = list_Graph_new();
-    list_Graph_append(dyno_graphs, g);
+    if (!dyno_graphs) dyno_graphs = ad_list_Graph_new();
+    ad_list_Graph_append(dyno_graphs, g);
 
     g_signal_connect(G_OBJECT(da), "draw", G_CALLBACK(dyno_graph_on_draw), strdup(title));
 
@@ -727,7 +727,7 @@ static void end() {
     pthread_mutex_unlock(&dyno_mutex);
 
     if (dyno_graphs) {
-        list_Graph_free(dyno_graphs);
+        ad_list_Graph_free(dyno_graphs);
         dyno_graphs = null;
     }
 

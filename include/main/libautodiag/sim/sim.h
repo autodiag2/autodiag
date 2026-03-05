@@ -21,7 +21,7 @@ typedef struct {
     /**
      * Holds the list of ECUs in this simulation
      */
-    list_SimECU * ecus;
+    ad_list_SimECU * ecus;
     /**
      * elm327, doip
      */

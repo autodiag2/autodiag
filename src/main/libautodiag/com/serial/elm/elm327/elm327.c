@@ -118,7 +118,7 @@ char* elm327_describe_communication_layer(final ELM327Device* elm327) {
     }
 }
 
-bool elm327_set_filter_by_address(final ELM327Device* elm327, final list_Buffer * filter_addresses) {
+bool elm327_set_filter_by_address(final ELM327Device* elm327, final ad_list_Buffer * filter_addresses) {
     if ( filter_addresses->size == 1 ) {
         final Buffer * address = filter_addresses->list[0];
         if ( elm327_protocol_is_can_11_bits_id(elm327->protocol) ) {

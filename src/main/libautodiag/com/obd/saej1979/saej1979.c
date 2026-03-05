@@ -48,7 +48,7 @@ int int_cmp(int* e1, int* e2) {
 }
 AD_LIST_SRC(int)
 
-list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int service_id, int pid) {
+ad_list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int service_id, int pid) {
     assert(0 <= pid);
     final int pid_set_inc;
     if ( service_id == 0x01 ) {
@@ -61,9 +61,9 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         log_msg(LOG_ERROR, "called with the wrong service id : %d", service_id);
         exit(1);
     }
-    list_int * pids_status = list_int_new();
+    ad_list_int * pids_status = ad_list_int_new();
     if ( 0 == pid ) {
-        list_int_append(pids_status, intdup(true));
+        ad_list_int_append(pids_status, intdup(true));
     } else {
         pid -= 1;
         final int current_set = pid - (pid % pid_set_inc);
@@ -85,13 +85,13 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
             OBD_ITERATE_ECUS_DATA_BUFFER_WITH_PID(ecu->obd_service.request_vehicle_information,saej1979_is_pid_supported_iterator,current_set)
         }
         viface_unlock(iface);
-        list_int_append(pids_status, intdup(result));
+        ad_list_int_append(pids_status, intdup(result));
     }
     return pids_status;
 }
 bool saej1979_is_pid_supported(final VehicleIFace* iface, final int service_id, int pid) {
-    list_int * pids_status = saej1979_is_pids_supported(iface, service_id, pid);
+    ad_list_int * pids_status = saej1979_is_pids_supported(iface, service_id, pid);
     final bool result = *pids_status->list[0];
-    list_int_free(pids_status);
+    ad_list_int_free(pids_status);
     return result;
 }

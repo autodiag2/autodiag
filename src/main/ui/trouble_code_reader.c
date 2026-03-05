@@ -1,7 +1,7 @@
 #include "ui/trouble_code_reader.h"
 
 TroubleCodeReaderGui * gui = null;
-list_DTC * list_dtc = null;
+ad_list_DTC * list_dtc = null;
 
 MENUBAR_DATA_ALL_IN_ONE
 
@@ -57,7 +57,7 @@ static void show_ecus_buffer_internal() {
             AD_LIST_FOREACH(ecu->data_buffer,Buffer,buffer,
                 char * dump = bytes_to_hexdump(buffer->buffer, buffer->size);
                 char *tmp;
-                asprintf(&tmp, "%sdata#%d:\n%s",result,list_element_index+1,dump);
+                asprintf(&tmp, "%sdata#%d:\n%s",result,ad_list_element_index+1,dump);
                 free(result);
                 result = tmp;
                 free(dump);
@@ -94,7 +94,7 @@ static gboolean set_dtc_count_gsource(gpointer data) {
     return false;
 }
 static gboolean set_list_dtc_gsource(gpointer data) {
-    list_DTC *list_dtc = (list_DTC *)data;
+    ad_list_DTC *list_dtc = (ad_list_DTC *)data;
     GList *ptr = gtk_container_get_children((GtkContainer*)gui->dtc.list);
     while(ptr != null) {
         final GList *ptr_next = ptr->next;
@@ -128,40 +128,40 @@ static void read_codes_daemon_internal() {
             }
             {
                 if ( list_dtc != null ) {
-                    list_DTC_free(list_dtc);
+                    ad_list_DTC_free(list_dtc);
                     list_dtc = null;
                 }
-                final list_DTC * list_dtc_buffer = list_DTC_new();
-                final list_DTC * list_dtc_obd = list_DTC_new();
-                final list_DTC * list_dtc_uds = list_DTC_new();
+                final ad_list_DTC * list_dtc_buffer = ad_list_DTC_new();
+                final ad_list_DTC * list_dtc_obd = ad_list_DTC_new();
+                final ad_list_DTC * list_dtc_uds = ad_list_DTC_new();
                 bool state = filtered_dtc_state();
                 final Vehicle* filter = state ? iface->vehicle : null;
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
                     if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.stored) ) {
-                        list_DTC_append_list(list_dtc_obd,saej1979_retrieve_stored_dtcs(iface, filter));
+                        ad_list_DTC_append_list(list_dtc_obd,saej1979_retrieve_stored_dtcs(iface, filter));
                     }
                     if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.pending) ) {
-                        list_DTC_append_list(list_dtc_obd,saej1979_retrieve_pending_dtcs(iface, filter));
+                        ad_list_DTC_append_list(list_dtc_obd,saej1979_retrieve_pending_dtcs(iface, filter));
                     }
                     if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.permanent) ) {
-                        list_DTC_append_list(list_dtc_obd,saej1979_retrieve_permanent_dtcs(iface, filter));
+                        ad_list_DTC_append_list(list_dtc_obd,saej1979_retrieve_permanent_dtcs(iface, filter));
                     }
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
-                    list_DTC_append_list(list_dtc_uds, (list_DTC*)uds_read_all_dtcs(iface, filter));
+                    ad_list_DTC_append_list(list_dtc_uds, (ad_list_DTC*)uds_read_all_dtcs(iface, filter));
                     for(unsigned i = 0; i < list_dtc_uds->size; i++) {
                         final DTC * dtc = list_dtc_uds->list[i];
-                        if ( list_DTC_contains(list_dtc_obd, dtc) ) {
-                            list_ad_object_string_append(dtc->detection_method, ad_object_string_new_from("OBD"));
+                        if ( ad_list_DTC_contains(list_dtc_obd, dtc) ) {
+                            ad_list_ad_object_string_append(dtc->detection_method, ad_object_string_new_from("OBD"));
                         }
                     }
-                    list_DTC_append_list(list_dtc_buffer, list_dtc_uds);
+                    ad_list_DTC_append_list(list_dtc_buffer, list_dtc_uds);
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.obd.origin) ) {
                     for(unsigned i = 0; i < list_dtc_obd->size; i ++) {
                         final DTC * dtc = list_dtc_obd->list[i];
-                        if ( ! list_DTC_contains(list_dtc_buffer, dtc)) {
-                            list_DTC_append(list_dtc_buffer, dtc);
+                        if ( ! ad_list_DTC_contains(list_dtc_buffer, dtc)) {
+                            ad_list_DTC_append(list_dtc_buffer, dtc);
                         }
                     }
                 }
@@ -273,7 +273,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
             free(explanation);
             explanation = result;
         }
-        if ( list_ad_object_string_contains(dtc->detection_method, ad_object_string_new_from("UDS")) ) {
+        if ( ad_list_ad_object_string_contains(dtc->detection_method, ad_object_string_new_from("UDS")) ) {
             char * result;
             asprintf(&result, "%s%s", explanation, UDS_DTC_explanation((UDS_DTC*)dtc));
             free(explanation);

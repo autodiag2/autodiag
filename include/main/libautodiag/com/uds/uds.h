@@ -124,7 +124,7 @@ typedef enum {
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID_VIN = 0xF802
 } UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID;
 
-list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
+ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
 
 // SBF field (second byte after the service byte)
 typedef enum {

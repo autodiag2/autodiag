@@ -88,8 +88,8 @@ bool uds_clear_dtcs(final VehicleIFace * iface) {
     viface_unlock(iface);
     return result == bool_unset ? false : result;
 }
-list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
-    list_Buffer * result = list_Buffer_new();
+ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
+    ad_list_Buffer * result = ad_list_Buffer_new();
     viface_lock(iface);
     final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
     viface_send(iface, binRequest);
@@ -111,7 +111,7 @@ list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int 
                 }
                 Buffer * resultBuffer = ad_buffer_new();
                 ad_buffer_slice_append(resultBuffer, data, 3, data->size - 3);
-                list_Buffer_append(result, resultBuffer);
+                ad_list_Buffer_append(result, resultBuffer);
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");
                 ad_buffer_dump(data);

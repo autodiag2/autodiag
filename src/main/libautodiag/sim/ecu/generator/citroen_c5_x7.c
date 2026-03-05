@@ -6,13 +6,13 @@ typedef struct {
     struct {
         int session_type;
         bool security_access_granted;
-        list_UDS_DTC * dtcs;
+        ad_list_UDS_DTC * dtcs;
         byte DTCSupportedStatusMask;
         pthread_t * session_timer;
         bool session_continue;
     } uds;
     struct {
-        list_DTC * dtcs;
+        ad_list_DTC * dtcs;
         bool mil_on;
     } obd;
 
@@ -123,7 +123,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
-            list_DTC_clear(state->obd.dtcs);
+            ad_list_DTC_clear(state->obd.dtcs);
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
@@ -291,8 +291,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
             if ( 3 < binRequest->size ) {
-                list_DTC_clear((list_DTC*)state->uds.dtcs);
-                list_DTC_clear(state->obd.dtcs);
+                ad_list_DTC_clear((ad_list_DTC*)state->uds.dtcs);
+                ad_list_DTC_clear(state->obd.dtcs);
                 log_msg(LOG_DEBUG, "Should apply the group mask from the request");
                 ad_buffer_slice_append(binResponse, binRequest, 1, 3);
             } else {
@@ -371,18 +371,18 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->uds.session_continue = true;
 
     state->vin = ad_buffer_from_ascii("VF7RD5FV8FL507366");
-    state->uds.dtcs = list_UDS_DTC_new();
-    state->obd.dtcs = list_DTC_new();
+    state->uds.dtcs = ad_list_UDS_DTC_new();
+    state->obd.dtcs = ad_list_DTC_new();
     generator->context = (unsigned*)malloc(sizeof(unsigned));
     *((unsigned *)generator->context) = 1;
 
-    list_ad_object_string * dtcs = list_ad_object_string_new();
-    list_ad_object_string_append(dtcs, ad_object_string_new_from("P0103"));
-    list_ad_object_string_append(dtcs, ad_object_string_new_from("P0104"));
+    ad_list_ad_object_string * dtcs = ad_list_ad_object_string_new();
+    ad_list_ad_object_string_append(dtcs, ad_object_string_new_from("P0103"));
+    ad_list_ad_object_string_append(dtcs, ad_object_string_new_from("P0104"));
     for(int i = 0; i < dtcs->size; i++) {
         SAEJ1979_DTC * dtc = saej1979_dtc_from_string(dtcs->list[i]->data);
-        list_DTC_append(state->obd.dtcs, (DTC*)dtc);
-        list_UDS_DTC_append(state->uds.dtcs, UDS_DTC_new_from(dtc));
+        ad_list_DTC_append(state->obd.dtcs, (DTC*)dtc);
+        ad_list_UDS_DTC_append(state->uds.dtcs, UDS_DTC_new_from(dtc));
     }
     return generator;
 }

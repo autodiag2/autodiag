@@ -14,7 +14,7 @@
 #define AD_DEVICE_CLOSE(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(var) ((char* (*)(final Device*))var)
 #define AD_DEVICE_PARSE_DATA(var) ((bool (*)(final Device*, final Vehicle*))var)
-#define AD_DEVICE_SET_FILTER_BY_ADDRESS(var) ((bool (*)(final Device*, final list_Buffer*))var)
+#define AD_DEVICE_SET_FILTER_BY_ADDRESS(var) ((bool (*)(final Device*, final ad_list_Buffer*))var)
 #define AD_DEVICE_CLEAR_DATA(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_LOCK(var) ((void (*)(final Device*))var)
 #define AD_DEVICE_UNLOCK(var) ((void (*)(final Device*))var)
@@ -95,7 +95,7 @@ typedef struct Device {
      * Set a filter on the data received directly at the device level.
      * @return true if the filter setting success else false
      */
-    bool (*set_filter_by_address)(final struct Device* device, list_Buffer * filter_addresses);
+    bool (*set_filter_by_address)(final struct Device* device, ad_list_Buffer * filter_addresses);
     /**
      * Clear any previously received data on the device
      */

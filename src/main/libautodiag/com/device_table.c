@@ -10,7 +10,7 @@ AD_OBJECT_SRC(DeviceTable)
 
 ad_object_DeviceTable * ad_object_DeviceTable_new() {
     ad_object_DeviceTable * table = malloc(sizeof(ad_object_DeviceTable));
-    table->list = list_Device_new();
+    table->list = ad_list_Device_new();
     table->selected_index = DEVICE_TABLE_NO_SELECTED;
     return table;
 }
@@ -38,7 +38,7 @@ Device * device_table_add_if_not_in(ad_object_DeviceTable * table, Device * elem
             return device;
         }
     }
-    list_Device_append(table->list, element);
+    ad_list_Device_append(table->list, element);
     return element;
 }
 
@@ -48,17 +48,17 @@ Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, c
     if ( device == null || device->type != type ) {
         switch(type) {
             case AD_DEVICE_TYPE_SERIAL: {
-                list_Device_append(table->list, AD_DEVICE(serial_new()));
+                ad_list_Device_append(table->list, AD_DEVICE(serial_new()));
             } break;
             case AD_DEVICE_TYPE_DOIP: {
-                list_Device_append(table->list, AD_DEVICE(ad_object_DoIPDevice_new()));
+                ad_list_Device_append(table->list, AD_DEVICE(ad_object_DoIPDevice_new()));
             } break;
             default: {
                 log_msg(LOG_DEBUG, "not implemented");
             } break;
         }
         if ( device != null ) {
-            list_Device_remove(table->list, device);
+            ad_list_Device_remove(table->list, device);
         }
         final Device * newOne = table->list->list[table->list->size-1];
         device_location_set(AD_DEVICE(newOne),location);
@@ -68,7 +68,7 @@ Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, c
     }
 }
 bool device_table_update_device(ad_object_DeviceTable * table, Device * old, Device * new) {
-    int index = list_Device_index_of(table->list, old);
+    int index = ad_list_Device_index_of(table->list, old);
     if ( index < 0 ) {
         return false;
     }

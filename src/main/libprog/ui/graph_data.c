@@ -7,7 +7,7 @@ double graph_time_ms_now() {
     double now_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
     return now_ms;
 }
-void list_Graph_time_ms_reset(list_Graph * graphs) {
+void ad_list_Graph_time_ms_reset(ad_list_Graph * graphs) {
     for(int i = 0; i < graphs->size; i++) {
         graph_time_ms_reset(graphs->list[i]);
     }
@@ -67,14 +67,14 @@ GraphSeries * graph_series_new(MetricType t, int arg) {
     s->arg = arg;
     s->label = strdup(lbl);
     s->unit = strdup(unit);
-    s->data = list_GraphData_new();
+    s->data = ad_list_GraphData_new();
     return s;
 }
 Graph * graph_new(GtkWidget *drawing_area, char *title, char *unit_unused) {
     Graph *g = malloc(sizeof(*g));
     g->widget = drawing_area;
     g->title = strdup(title);
-    g->series = list_GraphSeries_new();
+    g->series = ad_list_GraphSeries_new();
     g->time_start_ms = -1;
     return g;
 }
@@ -83,7 +83,7 @@ int Graph_cmp(Graph*g1, Graph*g2) {
 }
 AD_LIST_SRC(Graph)
 
-Graph * list_Graph_get_by_title(list_Graph * list, char * title) {
+Graph * ad_list_Graph_get_by_title(ad_list_Graph * list, char * title) {
     assert(list != null);
     assert(title != null);
     for(int i = 0; i < list->size; i++) {
@@ -97,7 +97,7 @@ Graph * list_Graph_get_by_title(list_Graph * list, char * title) {
     return null;
 }
 
-bool list_Graph_append_data(list_Graph * list, char * title, double data) {
+bool ad_list_Graph_append_data(ad_list_Graph * list, char * title, double data) {
     log_msg(LOG_ERROR, "TODO");
     return true;
 }

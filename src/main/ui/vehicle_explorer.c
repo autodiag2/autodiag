@@ -2,7 +2,7 @@
 
 static vehicleExplorerGui *gui = null;
 static pthread_t *refresh_dynamic_thread = null;
-static list_Graph *graphs = null;
+static ad_list_Graph *graphs = null;
 static pthread_mutex_t graphs_mutex;
 static bool graphs_should_refresh = false;
 
@@ -341,7 +341,7 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
         gtk_container_remove(gui->engine.tests, glist->data);
         glist = glist->next;
     }
-    list_SAEJ1979_DATA_Test *testsList = data;
+    ad_list_SAEJ1979_DATA_Test *testsList = data;
     for (unsigned i = 0; i < testsList->size; i++) {
         SAEJ1979_DATA_Test *test = testsList->list[i];
         GtkBox *box = GTK_BOX(gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5));
@@ -351,11 +351,11 @@ static gboolean saej1979_data_tests_gsource(gpointer data) {
         gtk_widget_show_all(GTK_WIDGET(box));
         free(test->name);
     }
-    list_SAEJ1979_DATA_Test_free(data);
+    ad_list_SAEJ1979_DATA_Test_free(data);
     return false;
 }
 
-static void list_Graph_append_data_for_series(Graph *g, unsigned series_idx, double value) {
+static void ad_list_Graph_append_data_for_series(Graph *g, unsigned series_idx, double value) {
     if (!g || !g->series) return;
     if (g->series->size <= series_idx) return;
 
@@ -365,7 +365,7 @@ static void list_Graph_append_data_for_series(Graph *g, unsigned series_idx, dou
     GraphData *d = malloc(sizeof(*d));
     d->time = graph_time_ms_ellapsed(g);
     d->data = value;
-    list_GraphData_append(s->data, d);
+    ad_list_GraphData_append(s->data, d);
 }
 
 static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
@@ -382,7 +382,7 @@ static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
             if (!s) continue;
             double err = metric_error(s->type);
             double v = metric_get(iface, freeze, s->type, s->arg, err);
-            if (v != err) list_Graph_append_data_for_series(g, si, v);
+            if (v != err) ad_list_Graph_append_data_for_series(g, si, v);
         }
 
         g_idle_add(graph_refresh_gsource, g);
@@ -422,7 +422,7 @@ static bool refresh_dynamic_internal() {
     pthread_mutex_unlock(&graphs_mutex);
 
     if (VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(gui->engine.tests)))) {
-        list_SAEJ1979_DATA_Test *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
+        ad_list_SAEJ1979_DATA_Test *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
         if (testsList != null) g_idle_add(saej1979_data_tests_gsource, testsList);
     }
 
@@ -526,7 +526,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     pthread_mutex_lock(&graphs_mutex);
 
     char *graph_title = (char*)user_data;
-    Graph *graph = list_Graph_get_by_title(graphs, graph_title);
+    Graph *graph = ad_list_Graph_get_by_title(graphs, graph_title);
     assert(graph != null);
 
     GtkAllocation a;
@@ -814,7 +814,7 @@ static void graphs_add_curve_clicked(GtkButton *btn, gpointer unused) {
             int arg = 0;
             MetricType t = metric_from_title(sel, &arg);
             pthread_mutex_lock(&graphs_mutex);
-            list_GraphSeries_append(graph->series, graph_series_new(t, arg));
+            ad_list_GraphSeries_append(graph->series, graph_series_new(t, arg));
             pthread_mutex_unlock(&graphs_mutex);
         }
     }
@@ -831,7 +831,7 @@ static void graphs_remove_curve_clicked(GtkButton *btn, gpointer unused) {
         if (s) {
             free(s->label);
             free(s->unit);
-            list_GraphData_free(s->data);
+            ad_list_GraphData_free(s->data);
             free(s);
         }
         g_idle_add(graph_refresh_gsource, graph);
@@ -846,8 +846,8 @@ static void graphs_reset_curve_data_clicked(GtkButton *btn, gpointer unused) {
         for (unsigned si = 0; si < graph->series->size; si++) {
             GraphSeries *s = graph->series->list[si];
             if (!s) continue;
-            list_GraphData_free(s->data);
-            s->data = list_GraphData_new();
+            ad_list_GraphData_free(s->data);
+            s->data = ad_list_GraphData_new();
         }
         graph_time_ms_reset(graph);
         g_idle_add(graph_refresh_gsource, graph);
@@ -931,8 +931,8 @@ static void *graphs_add_daemon(void *arg) {
         Graph *graph = graph_new(drawing_area, activeGraph, "");
         int argi = 0;
         MetricType t = metric_from_title(activeGraph, &argi);
-        list_GraphSeries_append(graph->series, graph_series_new(t, argi));
-        list_Graph_append(graphs, graph);
+        ad_list_GraphSeries_append(graph->series, graph_series_new(t, argi));
+        ad_list_Graph_append(graphs, graph);
 
         graph_attach_controls(vbox, graph);
 
@@ -968,11 +968,11 @@ static void *graphs_reset_data_daemon(void *arg) {
             for (unsigned si = 0; si < g->series->size; si++) {
                 GraphSeries *s = g->series->list[si];
                 if (!s) continue;
-                list_GraphData_free(s->data);
-                s->data = list_GraphData_new();
+                ad_list_GraphData_free(s->data);
+                s->data = ad_list_GraphData_new();
             }
         }
-        list_Graph_time_ms_reset(graphs);
+        ad_list_Graph_time_ms_reset(graphs);
     }
 
     pthread_mutex_unlock(&graphs_mutex);
@@ -1058,7 +1058,7 @@ static void init(final GtkBuilder *builder) {
         return;
     }
 
-    graphs = list_Graph_new();
+    graphs = ad_list_Graph_new();
 
     vehicleExplorerGui g = {
         .window = GTK_WIDGET(gtk_builder_get_object(builder, "window-vehicle-explorer")),

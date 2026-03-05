@@ -98,8 +98,8 @@ class list_Buffer(Structure):
         ("list", POINTER(POINTER(Buffer)))
     ]
 
-    def empty(self): lib.list_Buffer_empty(byref(self))
-    def dump(self): lib.list_Buffer_dump(byref(self))
+    def empty(self): lib.ad_list_Buffer_empty(byref(self))
+    def dump(self): lib.ad_list_Buffer_dump(byref(self))
 
-lib.list_Buffer_empty.argtypes = [POINTER(list_Buffer)]
-lib.list_Buffer_dump.argtypes = [POINTER(list_Buffer)]
+lib.ad_list_Buffer_empty.argtypes = [POINTER(list_Buffer)]
+lib.ad_list_Buffer_dump.argtypes = [POINTER(list_Buffer)]

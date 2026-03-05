@@ -18,7 +18,7 @@
 AD_LIST_H(Device)
 
 AD_OBJECT_H(DeviceTable,
-    list_Device * list;
+    ad_list_Device * list;
     int selected_index;
 )
 #define DEVICE_TABLE_NO_SELECTED -1

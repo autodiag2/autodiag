@@ -27,9 +27,9 @@ char * saej1979_dtc_explanation(final DTC * dtc);
 /**
  * Service 03 retrieve stored DTCs
  */
-list_DTC * saej1979_retrieve_stored_dtcs(final VehicleIFace* iface, final Vehicle *filter);
-list_DTC * saej1979_retrieve_pending_dtcs(final VehicleIFace* iface, final Vehicle *filter);
-list_DTC * saej1979_retrieve_permanent_dtcs(final VehicleIFace* iface, final Vehicle *filter);
+ad_list_DTC * saej1979_retrieve_stored_dtcs(final VehicleIFace* iface, final Vehicle *filter);
+ad_list_DTC * saej1979_retrieve_pending_dtcs(final VehicleIFace* iface, final Vehicle *filter);
+ad_list_DTC * saej1979_retrieve_permanent_dtcs(final VehicleIFace* iface, final Vehicle *filter);
 /**
  * eg. P1122
  * @return dtc as string, result must be then cleared
