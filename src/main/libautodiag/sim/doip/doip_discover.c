@@ -25,7 +25,7 @@ void * sim_doip_discovery_loop(void *arg) {
     long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
     while ( sim_doip_should_continue(sim) ) {
-        if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
+        /*if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
             last_broadcast_ms = time_ms();
             struct sockaddr_in addr;
             memset(&addr, 0, sizeof(addr));
@@ -36,7 +36,7 @@ void * sim_doip_discovery_loop(void *arg) {
             log_msg(LOG_DEBUG, "Annoucement sent");
             sendto(handle, responseBuffer->buffer, responseBuffer->size, 0,
                 (struct sockaddr*)&addr, sizeof(addr));
-        }
+        }*/
         int r = network_udp_wait_readable(handle, timeout_waiting_client_ms);
         if (0 < r) {
             Buffer * request = buffer_new();
