@@ -68,7 +68,7 @@ typedef struct {
     /**
      * How did this DTC has been detected
      */
-    list_object_string * detection_method;
+    list_ad_object_string * detection_method;
 } DTC;
 
 #define AD_DTC(var) ((struct DTC*)var)

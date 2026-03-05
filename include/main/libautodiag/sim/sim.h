@@ -10,11 +10,11 @@ typedef struct {
     /**
      * Handle for one connection
      */
-    object_handle_t * handle;
+    ad_object_handle_t * handle;
     /**
      * Master handle that produce handles
      */
-    object_handle_t * server_handle;
+    ad_object_handle_t * server_handle;
 } SimImplementation;
 
 typedef struct {
@@ -57,7 +57,7 @@ SimECU * sim_search_ecu_by_address(Sim *sim, byte address);
 /**
  * Is this sim a network(TCP) and is it connected.
  */
-bool sim_network_is_connected(object_handle_t * h);
+bool sim_network_is_connected(ad_object_handle_t * h);
 
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/doip/doip.h"

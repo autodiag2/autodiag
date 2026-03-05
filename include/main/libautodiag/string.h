@@ -21,8 +21,8 @@ bool strcasebeginwith(char *str, char *begin);
 OBJECT_H(string,
     char *data;
 )
-object_string * object_string_new_from(char *data);
+ad_object_string * ad_object_string_new_from(char *data);
 
-AD_LIST_H(object_string)
+AD_LIST_H(ad_object_string)
 
 #endif

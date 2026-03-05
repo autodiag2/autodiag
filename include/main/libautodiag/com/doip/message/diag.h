@@ -14,7 +14,7 @@ OBJECT_H(DoIPMessagePayloadDiag,
 /**
  * Creates a diagnostic message.
  */
-object_DoIPMessage * doip_message_diag(Buffer * to, Buffer * from, Buffer * payload_data);
+ad_object_DoIPMessage * doip_message_diag(Buffer * to, Buffer * from, Buffer * payload_data);
 
 OBJECT_H(DoIPMessagePayloadDiagFeedback,
     DoIPMessageDef;
@@ -29,7 +29,7 @@ typedef enum {
     // 0x01-0xFF reserved
 } DOIP_DIAGNOSTIC_MESSAGE_ACK_CODE;
 
-object_DoIPMessage * doip_message_diag_feedback_ack(Buffer * to, Buffer * from, Buffer * payload_data, byte code);
+ad_object_DoIPMessage * doip_message_diag_feedback_ack(Buffer * to, Buffer * from, Buffer * payload_data, byte code);
 
 typedef enum {
     // 0x00 0x01 reserved
@@ -43,6 +43,6 @@ typedef enum {
     DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE_TRANSPORT_PROTO_ERROR = 0x08
     // 0x09-0xFF reserved
 } DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE;
-object_DoIPMessage * doip_message_diag_feedback_nack(Buffer * to, Buffer * from, Buffer * payload_data, byte code);
+ad_object_DoIPMessage * doip_message_diag_feedback_nack(Buffer * to, Buffer * from, Buffer * payload_data, byte code);
 
 #endif

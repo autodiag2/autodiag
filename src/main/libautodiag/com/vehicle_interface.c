@@ -6,7 +6,7 @@
 void viface_recorder_reset(final VehicleIFace* iface) {
     record_clear();
 }
-list_object_Record * viface_recorder_get(final VehicleIFace* iface) {
+list_ad_object_Record * viface_recorder_get(final VehicleIFace* iface) {
     return recorder_get();
 }
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state) {
@@ -109,7 +109,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
             iface->device = AD_DEVICE(elm);
         } break;
         case AD_DEVICE_TYPE_DOIP: {
-            object_DoIPDevice * doip_device = (object_DoIPDevice*)device;
+            ad_object_DoIPDevice * doip_device = (ad_object_DoIPDevice*)device;
             doip_configure(doip_device);
             iface->device = AD_DEVICE(doip_device);
         } break;

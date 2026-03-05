@@ -2,7 +2,7 @@
 
 AD_OBJECT_SRC(handle_t)
 
-int object_handle_t_get_port(object_handle_t * handle) {
+int ad_object_handle_t_get_port(ad_object_handle_t * handle) {
     #ifdef OS_POSIX
         return sock_t_get_port(handle->posix_handle);
     #elif defined OS_WINDOWS
@@ -12,7 +12,7 @@ int object_handle_t_get_port(object_handle_t * handle) {
         return -1;
     #endif
 }
-void object_handle_t_init(object_handle_t * h) {
+void ad_object_handle_t_init(ad_object_handle_t * h) {
     #ifdef OS_POSIX
         h->posix_handle = -1;
     #endif
@@ -23,17 +23,17 @@ void object_handle_t_init(object_handle_t * h) {
         #endif
     #endif
 }
-object_handle_t * object_handle_t_new() {
-    object_handle_t * h = (object_handle_t*)malloc(sizeof(object_handle_t));
-    object_handle_t_init(h);
+ad_object_handle_t * ad_object_handle_t_new() {
+    ad_object_handle_t * h = (ad_object_handle_t*)malloc(sizeof(ad_object_handle_t));
+    ad_object_handle_t_init(h);
     return h;
 }
-void object_handle_t_free(object_handle_t * h) {
+void ad_object_handle_t_free(ad_object_handle_t * h) {
     if ( h != null ) {
         free(h);
     }
 }
-object_handle_t * object_handle_t_assign(object_handle_t * to, object_handle_t * from) {
+ad_object_handle_t * ad_object_handle_t_assign(ad_object_handle_t * to, ad_object_handle_t * from) {
     #ifdef OS_POSIX
         to->posix_handle = from->posix_handle;
     #endif
@@ -45,7 +45,7 @@ object_handle_t * object_handle_t_assign(object_handle_t * to, object_handle_t *
     #endif
     return to;
 }
-bool object_handle_t_invalid(object_handle_t * h) {
+bool ad_object_handle_t_invalid(ad_object_handle_t * h) {
     bool result = true;
     #ifdef OS_POSIX
         if ( h->posix_handle != -1 ) {
@@ -64,7 +64,7 @@ bool object_handle_t_invalid(object_handle_t * h) {
     #endif
     return result;
 }
-int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
+int ad_object_handle_t_read(ad_object_handle_t * h, byte * dst, int size) {
     int bytes_readed = -1;
     #ifdef OS_POSIX
         if ( h->posix_handle != -1 ) {
@@ -99,11 +99,11 @@ int object_handle_t_read(object_handle_t * h, byte * dst, int size) {
     #endif
     return -1;
 }
-int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_ms) {
+int ad_object_handle_t_poll_read(ad_object_handle_t * h, int *readLen_rv, int timeout_ms) {
     if ( readLen_rv != null ) {
         *readLen_rv = 0;
     }
-    if ( object_handle_t_invalid(h) ) {
+    if ( ad_object_handle_t_invalid(h) ) {
         return -1;
     }
     #if defined OS_WINDOWS
@@ -179,7 +179,7 @@ int object_handle_t_poll_read(object_handle_t * h, int *readLen_rv, int timeout_
     #endif
     return -1;
 }
-int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
+int ad_object_handle_t_poll_write(ad_object_handle_t * h, int timeout_ms) {
     int poll_result = -1;
     #ifdef OS_POSIX
         if ( h->posix_handle != -1 ) {
@@ -236,9 +236,9 @@ int object_handle_t_poll_write(object_handle_t * h, int timeout_ms) {
     #endif
     return poll_result;
 }
-int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send) {
+int ad_object_handle_t_write(ad_object_handle_t * h, byte * tx_buf, int bytes_to_send) {
 
-    if ( object_handle_t_invalid(h) ) {
+    if ( ad_object_handle_t_invalid(h) ) {
         return -1;
     }
 
@@ -280,7 +280,7 @@ int object_handle_t_write(object_handle_t * h, byte * tx_buf, int bytes_to_send)
 
     return -1;
 }
-void object_handle_t_close(object_handle_t * h) {
+void ad_object_handle_t_close(ad_object_handle_t * h) {
     #if defined OS_POSIX
         if (0 <= h->posix_handle) {
             shutdown(h->posix_handle, SHUT_RDWR);

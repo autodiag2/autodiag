@@ -4,7 +4,7 @@ bool testRecorder(VehicleIFace* iface) {
 
     viface_recorder_set_state(iface, false);
     viface_recorder_reset(iface);
-    list_object_Record* recorder = viface_recorder_get(iface);
+    list_ad_object_Record* recorder = viface_recorder_get(iface);
     assert(recorder->size == 0);
     viface_recorder_set_state(iface, true);
     viface_lock(iface);
@@ -13,7 +13,7 @@ bool testRecorder(VehicleIFace* iface) {
     viface_clear_data(iface);
     viface_recv(iface);
     assert(recorder->size == 1);
-    object_Record * record = recorder->list[0];
+    ad_object_Record * record = recorder->list[0];
 
     assert(ad_buffer_cmp(binRequest, record->binRequest) == 0);
     assert(0 < record->binResponses->size);

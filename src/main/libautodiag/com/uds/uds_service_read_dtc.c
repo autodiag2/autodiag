@@ -2,15 +2,15 @@
 
 AD_OBJECT_SRC(UDS_DTC)
 
-object_UDS_DTC * object_UDS_DTC_new() { return UDS_DTC_new(); }
-object_UDS_DTC * object_UDS_DTC_assign(object_UDS_DTC * to, object_UDS_DTC * from) {
+ad_object_UDS_DTC * ad_object_UDS_DTC_new() { return UDS_DTC_new(); }
+ad_object_UDS_DTC * ad_object_UDS_DTC_assign(ad_object_UDS_DTC * to, ad_object_UDS_DTC * from) {
     memcpy(to->data, from->data, DTC_DATA_SZ);
     to->description = from->description;
     to->ecu = from->ecu;
     to->status = from->status;
     return to;
 }
-void object_UDS_DTC_free(object_UDS_DTC *o) { return UDS_DTC_free(o); }
+void ad_object_UDS_DTC_free(ad_object_UDS_DTC *o) { return UDS_DTC_free(o); }
 char * UDS_DTC_to_string(final UDS_DTC * dtc) {
     return saej1979_dtc_to_string((DTC*)dtc);
 }
@@ -18,8 +18,8 @@ UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
     dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
     dtc->description = list_DTC_DESCRIPTION_new();
-    dtc->detection_method = list_object_string_new();
-    list_object_string_append(dtc->detection_method, object_string_new_from("UDS"));
+    dtc->detection_method = list_ad_object_string_new();
+    list_ad_object_string_append(dtc->detection_method, ad_object_string_new_from("UDS"));
     dtc->to_string = AD_DTC_TO_STRING(UDS_DTC_to_string);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;

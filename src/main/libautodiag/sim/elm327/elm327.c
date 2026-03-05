@@ -287,8 +287,8 @@ SimELM327* sim_elm327_new() {
     elm327->device_type = SimELM327_DEVICE_TYPE_UNSET;
     SimELM327Implementation * impl = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->implementation = (SimImplementation*)impl;
-    impl->handle = object_handle_t_new();
-    impl->server_handle = object_handle_t_new();
+    impl->handle = ad_object_handle_t_new();
+    impl->server_handle = ad_object_handle_t_new();
     impl->loop_thread = null;
     impl->loop_ready = false;
     impl->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
@@ -867,8 +867,8 @@ void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
     SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;
-    object_handle_t_init(impl->server_handle);
-    object_handle_t_init(impl->handle);
+    ad_object_handle_t_init(impl->server_handle);
+    ad_object_handle_t_init(impl->handle);
 
     if ( elm327->device_type == SimELM327_DEVICE_TYPE_UNSET ) {
         elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;

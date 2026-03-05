@@ -2,27 +2,27 @@
 
 AD_OBJECT_SRC(Ptr)
 
-void object_Ptr_free(object_Ptr *object) {
+void ad_object_Ptr_free(ad_object_Ptr *object) {
     assert(object);
     if (object) {
         free(object);
     }
 }
-object_Ptr *object_Ptr_new() {
-    object_Ptr *obj = (object_Ptr *)malloc(sizeof(object_Ptr));
+ad_object_Ptr *ad_object_Ptr_new() {
+    ad_object_Ptr *obj = (ad_object_Ptr *)malloc(sizeof(ad_object_Ptr));
     assert(obj);
     obj->value = null;
     return obj;
 }
-object_Ptr * object_Ptr_assign(object_Ptr *object, object_Ptr *other) {
+ad_object_Ptr * ad_object_Ptr_assign(ad_object_Ptr *object, ad_object_Ptr *other) {
     assert(object);
     assert(other);
     object->value = other->value;
     return object;
 }
 
-object_Ptr * object_Ptr_new_from(void* value) {
-    object_Ptr * o = object_Ptr_new();
+ad_object_Ptr * ad_object_Ptr_new_from(void* value) {
+    ad_object_Ptr * o = ad_object_Ptr_new();
     o->value = value;
     return o;
 }

@@ -16,11 +16,11 @@ OBJECT_H(Record,
     list_list_ECUBufferRecord * binResponses;
 )
 
-AD_LIST_H(object_Record)
+AD_LIST_H(ad_object_Record)
 void record_on_request(final Buffer * binRequest);
 void record_on_response(final ECU * ecu, final Buffer * binResponse);
 void record_clear();
-list_object_Record * recorder_get();
+list_ad_object_Record * recorder_get();
 bool record_to_json_file(char *filepath);
 
 #endif

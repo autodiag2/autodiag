@@ -15,13 +15,13 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     
-    if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
+    if ( ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
         port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
 
     int write_len_rv = 0;
-    int poll_result = object_handle_t_poll_write(port->implementation->handle_rename, port->timeout);
+    int poll_result = ad_object_handle_t_poll_write(port->implementation->handle_rename, port->timeout);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
@@ -29,7 +29,7 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
-    int result = object_handle_t_write(port->implementation->handle_rename, (byte*)tx_buf, bytes_to_send);
+    int result = ad_object_handle_t_write(port->implementation->handle_rename, (byte*)tx_buf, bytes_to_send);
     if ( result == -1 ) {
         serial_close(port);
         return DEVICE_ERROR;
@@ -53,18 +53,18 @@ int serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     }
-    if ( object_handle_t_invalid(port->implementation->handle_rename) ) {
+    if ( ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
         port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
     final unsigned initial_buffer_sz = port->recv_buffer->size;
     int maxReadLen = 1024;
     log_msg(LOG_DEBUG, "polling");
-    int res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
+    int res = ad_object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
     if ( 0 < res ) {
-        while ( 0 < res && ! object_handle_t_invalid(port->implementation->handle_rename) ) {
+        while ( 0 < res && ! ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
             ad_buffer_ensure_capacity(port->recv_buffer, maxReadLen);
-            final int bytes_readed = object_handle_t_read(port->implementation->handle_rename, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
+            final int bytes_readed = ad_object_handle_t_read(port->implementation->handle_rename, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
             if( 0 < bytes_readed ) {
                 port->recv_buffer->size += bytes_readed;
             } else if ( bytes_readed == 0 ) {
@@ -73,7 +73,7 @@ int serial_recv_internal(final Serial * port) {
                 perror("read");
                 break;
             }
-            res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout_seq);
+            res = ad_object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout_seq);
         }
         if ( log_has_level(LOG_DEBUG) ) {
             log_msg(LOG_DEBUG, "Serial data received");
@@ -352,7 +352,7 @@ void serial_close(final Serial * port) {
             }
         #endif
     #endif
-    object_handle_t_close(port->implementation->handle_rename);
+    ad_object_handle_t_close(port->implementation->handle_rename);
     port->state = AD_DEVICE_STATE_NOT_READY;
 }
 const char * serial_describe_state(final Serial * port) {
@@ -425,7 +425,7 @@ void serial_init(final Serial* serial) {
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     serial->describe_state = AD_DEVICE_DESCRIBE_STATE(serial_describe_state);
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
-    serial->implementation->handle_rename = object_handle_t_new();
+    serial->implementation->handle_rename = ad_object_handle_t_new();
 }
 
 void serial_free(final Serial * port) {

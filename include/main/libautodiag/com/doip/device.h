@@ -51,32 +51,32 @@ OBJECT_H(DoIPDevice,
 /**
  * Use this to send/recv anything else other than diag messages.
  */
-int doip_send_internal(final object_DoIPDevice * device, const char * command);
-int doip_recv_internal(final object_DoIPDevice * device);
-void doip_close(final object_DoIPDevice * device);
+int doip_send_internal(final ad_object_DoIPDevice * device, const char * command);
+int doip_recv_internal(final ad_object_DoIPDevice * device);
+void doip_close(final ad_object_DoIPDevice * device);
 /**
  * Configure the device so it is up and ready for sending and receiving diag messages.
  */
-bool doip_configure(final object_DoIPDevice * device);
+bool doip_configure(final ad_object_DoIPDevice * device);
 /**
  * Set the tester address on the DoIP network, default is 0x0E08 but some vehicles may expect another one
  */
-void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address);
+void doip_set_tester_address(final ad_object_DoIPDevice* device, uint16_t address);
 /**
  * @return true if the node queue is full and cannot accept new connections else false or bool_unset if an error happened during the check
  */
-bool doip_node_queue_is_full(final object_DoIPDevice * device);
+bool doip_node_queue_is_full(final ad_object_DoIPDevice * device);
 /**
  * Open the doip device.
  */
-int doip_open(final object_DoIPDevice * device);
+int doip_open(final ad_object_DoIPDevice * device);
 /**
  * Receive over UDP a message
  */
-object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device);
+ad_object_DoIPMessage *doip_disc_recv(ad_object_DoIPDevice *device);
 /**
  * Send a message over UDP
  */
-int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg);
+int doip_disc_send(ad_object_DoIPDevice *device, ad_object_DoIPMessage *msg);
 
 #endif

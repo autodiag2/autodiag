@@ -8,21 +8,21 @@ int Device_cmp(Device * d1, Device * d2) {
 AD_LIST_SRC(Device)
 AD_OBJECT_SRC(DeviceTable)
 
-object_DeviceTable * object_DeviceTable_new() {
-    object_DeviceTable * table = malloc(sizeof(object_DeviceTable));
+ad_object_DeviceTable * ad_object_DeviceTable_new() {
+    ad_object_DeviceTable * table = malloc(sizeof(ad_object_DeviceTable));
     table->list = list_Device_new();
     table->selected_index = DEVICE_TABLE_NO_SELECTED;
     return table;
 }
-void object_DeviceTable_free(object_DeviceTable * table) {
+void ad_object_DeviceTable_free(ad_object_DeviceTable * table) {
     device_table_free(table);
     free(table);
 }
-object_DeviceTable * object_DeviceTable_assign(object_DeviceTable * dest, object_DeviceTable * src) {
+ad_object_DeviceTable * ad_object_DeviceTable_assign(ad_object_DeviceTable * dest, ad_object_DeviceTable * src) {
     log_msg(LOG_ERROR, "Not implemented yet");
     return dest;
 }
-Device * device_table_get_selected(object_DeviceTable * table) {
+Device * device_table_get_selected(ad_object_DeviceTable * table) {
     if ( DEVICE_TABLE_NO_SELECTED == table->selected_index ) {
         return null;
     } else {
@@ -31,7 +31,7 @@ Device * device_table_get_selected(object_DeviceTable * table) {
     }
 }
 
-Device * device_table_add_if_not_in(object_DeviceTable * table, Device * element) {
+Device * device_table_add_if_not_in(ad_object_DeviceTable * table, Device * element) {
     for(int i = 0; i < table->list->size; i++) {
         Device * device = table->list->list[i];
         if ( strcmp(device->location,element->location) == 0 ) {
@@ -42,7 +42,7 @@ Device * device_table_add_if_not_in(object_DeviceTable * table, Device * element
     return element;
 }
 
-Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char * location, AD_DEVICE_TYPE type) {
+Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, char * location, AD_DEVICE_TYPE type) {
     assert(location != null);
     Device * device = device_table_find_by_location(table, location);
     if ( device == null || device->type != type ) {
@@ -51,7 +51,7 @@ Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char
                 list_Device_append(table->list, AD_DEVICE(serial_new()));
             } break;
             case AD_DEVICE_TYPE_DOIP: {
-                list_Device_append(table->list, AD_DEVICE(object_DoIPDevice_new()));
+                list_Device_append(table->list, AD_DEVICE(ad_object_DoIPDevice_new()));
             } break;
             default: {
                 log_msg(LOG_DEBUG, "not implemented");
@@ -67,7 +67,7 @@ Device * device_table_add_if_not_in_by_location(object_DeviceTable * table, char
         return device;
     }
 }
-bool device_table_update_device(object_DeviceTable * table, Device * old, Device * new) {
+bool device_table_update_device(ad_object_DeviceTable * table, Device * old, Device * new) {
     int index = list_Device_index_of(table->list, old);
     if ( index < 0 ) {
         return false;
@@ -75,7 +75,7 @@ bool device_table_update_device(object_DeviceTable * table, Device * old, Device
     table->list->list[index] = new;
     return true;
 }
-int device_table_index_from_location(object_DeviceTable * table, char *location) {
+int device_table_index_from_location(ad_object_DeviceTable * table, char *location) {
     if ( location != null ) {
         Device * device;
         for(int i = 0; i < table->list->size; i++) {
@@ -87,7 +87,7 @@ int device_table_index_from_location(object_DeviceTable * table, char *location)
     }
     return -1;
 }
-void device_table_set_selected_by_location(object_DeviceTable * table, char *location) {
+void device_table_set_selected_by_location(ad_object_DeviceTable * table, char *location) {
     final int index = device_table_index_from_location(table, location);
     if ( index == -1 ) {
         table->selected_index = DEVICE_TABLE_NO_SELECTED;
@@ -96,7 +96,7 @@ void device_table_set_selected_by_location(object_DeviceTable * table, char *loc
     }
 }
 
-Device * device_table_find_by_location(object_DeviceTable * table, final char * location) {
+Device * device_table_find_by_location(ad_object_DeviceTable * table, final char * location) {
     final int index = device_table_index_from_location(table, location);
     if ( index == -1 ) {
         return null;
@@ -106,14 +106,14 @@ Device * device_table_find_by_location(object_DeviceTable * table, final char * 
 }
 
 
-void device_table_close_selected(object_DeviceTable * table) {
+void device_table_close_selected(ad_object_DeviceTable * table) {
     Device * device = device_table_get_selected(table);
     if ( device != null ) {
         device->close(device);
     }
 }
 
-void device_table_free(object_DeviceTable * table) {
+void device_table_free(ad_object_DeviceTable * table) {
     if ( table->list->list != null ) {
         for(int i = 0; i < table->list->size; i++) {
             if ( table->list->list[i] != null ) {
@@ -133,7 +133,7 @@ void device_table_free(object_DeviceTable * table) {
     table->selected_index = DEVICE_TABLE_NO_SELECTED;
 }
 #if defined OS_WINDOWS
-    static void device_table_fill_comports(object_DeviceTable * table, char *selected_device_path, int *baud_rate) {
+    static void device_table_fill_comports(ad_object_DeviceTable * table, char *selected_device_path, int *baud_rate) {
         HDEVINFO hDevInfo;
         SP_DEVINFO_DATA devInfoData;
         DWORD i;
@@ -172,7 +172,7 @@ void device_table_free(object_DeviceTable * table) {
         
         SetupDiDestroyDeviceInfoList(hDevInfo);
     }
-    static void device_table_fill_pipes(object_DeviceTable * table, char *selected_device_path, int *baud_rate) {
+    static void device_table_fill_pipes(ad_object_DeviceTable * table, char *selected_device_path, int *baud_rate) {
         char pipeName[256];
         WIN32_FIND_DATAA findFileData;
         HANDLE hFind;
@@ -210,7 +210,7 @@ void device_table_free(object_DeviceTable * table) {
         FindClose(hFind);
     }
 #elif defined OS_POSIX
-    static void device_table_fill_from_dir(object_DeviceTable * table, final char * dir, int filter_sz, char filter[][20], char * selected_device_path, int * baud_rate) {
+    static void device_table_fill_from_dir(ad_object_DeviceTable * table, final char * dir, int filter_sz, char filter[][20], char * selected_device_path, int * baud_rate) {
         
         DIRENT **namelist;
         final int namelist_n = scandir(dir, &namelist,NULL,&alphasort);
@@ -271,7 +271,7 @@ void device_table_free(object_DeviceTable * table) {
     }
 #endif
 
-void device_table_set_to_undetected(object_DeviceTable * table) {
+void device_table_set_to_undetected(ad_object_DeviceTable * table) {
     for(int i = 0; i < table->list->size; i++) {
         Device * device = table->list->list[i];
         switch(device->type) {
@@ -285,7 +285,7 @@ void device_table_set_to_undetected(object_DeviceTable * table) {
         }        
     }
 }
-bool device_table_remove(object_DeviceTable * table, final Device * element) {
+bool device_table_remove(ad_object_DeviceTable * table, final Device * element) {
     int index = -1;
     for(int i = 0; i < table->list->size; i++) {
         if ( table->list->list[i] == element ) {
@@ -311,7 +311,7 @@ bool device_table_remove(object_DeviceTable * table, final Device * element) {
         return true;
     }
 }
-void device_table_remove_undetected(object_DeviceTable * table, bool except_network) {
+void device_table_remove_undetected(ad_object_DeviceTable * table, bool except_network) {
     for(int i = 0; i < table->list->size; i++) {
         Device * device = table->list->list[i];
         if ( device->type == AD_DEVICE_TYPE_SERIAL ) {
@@ -331,7 +331,7 @@ void device_table_remove_undetected(object_DeviceTable * table, bool except_netw
     }
 }
 
-void device_table_fill(object_DeviceTable * table) {
+void device_table_fill(ad_object_DeviceTable * table) {
     module_debug(MODULE_SERIAL "Filling serial list (with update take care)");
     int i;
     char * selected_device_path = null;

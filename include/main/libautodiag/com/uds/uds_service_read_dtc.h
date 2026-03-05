@@ -42,7 +42,7 @@ OBJECT_H(UDS_DTC,
     DTC;
     byte status;
 )
-typedef object_UDS_DTC UDS_DTC;
+typedef ad_object_UDS_DTC UDS_DTC;
 
 void uds_dtc_dump(final UDS_DTC * dtc);
 UDS_DTC * UDS_DTC_new();

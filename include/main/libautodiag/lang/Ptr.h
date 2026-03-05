@@ -7,6 +7,6 @@
 OBJECT_H(Ptr,
     void * value;
 )
-object_Ptr * object_Ptr_new_from(void* value);
+ad_object_Ptr * ad_object_Ptr_new_from(void* value);
 
 #endif

@@ -42,14 +42,14 @@ OBJECT_H(DoIPMessage,
     DoIPMessageDef * payload;
 )
 #define DOIP_PROTOCOL_VERSION_CURRENT 0x02
-object_DoIPMessage * doip_message_parse(const Buffer * in);
-Buffer * doip_message_serialize(const object_DoIPMessage * in);
-void doip_message_dump(final object_DoIPMessage * msg);
-void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType type);
+ad_object_DoIPMessage * doip_message_parse(const Buffer * in);
+Buffer * doip_message_serialize(const ad_object_DoIPMessage * in);
+void doip_message_dump(final ad_object_DoIPMessage * msg);
+void doip_message_init(final ad_object_DoIPMessage * msg, final DoIpPayloadType type);
 /**
  * Init with a given type of message
  */
-object_DoIPMessage * doip_message_new(DoIpPayloadType type);
+ad_object_DoIPMessage * doip_message_new(DoIpPayloadType type);
 
 typdef enum {
     DOIP_MESSAGE_RAR_TYPE_DEFAULT = 0x00,

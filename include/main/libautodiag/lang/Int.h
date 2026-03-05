@@ -6,6 +6,6 @@
 OBJECT_H(Int,
     int value;
 )
-object_Int * object_Int_new_from(int value);
+ad_object_Int * ad_object_Int_new_from(int value);
 
 #endif

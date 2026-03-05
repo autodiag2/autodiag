@@ -140,7 +140,7 @@ typedef enum {
 /**
  * UDS_SESSION or a byte for ISO/SAE reserved
  */
-object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final byte session_type);
+ad_object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final byte session_type);
 bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
 bool uds_is_enabled(final VehicleIFace *iface);
 

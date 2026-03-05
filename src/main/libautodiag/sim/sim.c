@@ -4,7 +4,7 @@
 #include "cJSON.h"
 
 
-bool sim_network_is_connected(object_handle_t *h) {
+bool sim_network_is_connected(ad_object_handle_t *h) {
     assert(h != null);
 
     #ifdef OS_POSIX
@@ -117,14 +117,14 @@ void sim_prevent_read_himself(Sim * sim) {
 int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
     assert(sim != null);
     SimImplementation * impl = sim->implementation;
-    object_handle_t * client_handle = impl->handle;
-    assert(!object_handle_t_invalid(client_handle));
-    final int poll_result = object_handle_t_poll_write(client_handle, timeout_ms);
+    ad_object_handle_t * client_handle = impl->handle;
+    assert(!ad_object_handle_t_invalid(client_handle));
+    final int poll_result = ad_object_handle_t_poll_write(client_handle, timeout_ms);
     if ( poll_result <= 0 ) {
         log_msg(LOG_WARNING, "timeout reached waiting for the other end");
         return -1;
     }
-    int bytes_written = object_handle_t_write(client_handle, data, data_len);
+    int bytes_written = ad_object_handle_t_write(client_handle, data, data_len);
     if ( bytes_written == -1 ) {
         perror("write");
     }
@@ -135,13 +135,13 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     assert(readed != null);
     ad_buffer_ensure_capacity(readed, 500);
     SimImplementation * impl = sim->implementation;
-    object_handle_t * client_handle = impl->handle;
-    final int poll_result = object_handle_t_poll_read(client_handle, null, timeout_ms);
+    ad_object_handle_t * client_handle = impl->handle;
+    final int poll_result = ad_object_handle_t_poll_read(client_handle, null, timeout_ms);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
         return -1;
     }
-    int rv = object_handle_t_read(client_handle, readed->buffer, readed->size_allocated);
+    int rv = ad_object_handle_t_read(client_handle, readed->buffer, readed->size_allocated);
     if ( rv == -1 ) {
         log_msg(LOG_ERROR, "read error: %s", strerror(errno));
         return -1;

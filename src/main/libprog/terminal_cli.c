@@ -17,7 +17,7 @@ int terminal_cli_main(int argc, char *argv[]) {
     
     config_init();
     config_load();
-    object_DeviceTable * device_table = config.ephemere.device_table;
+    ad_object_DeviceTable * device_table = config.ephemere.device_table;
     device_table_fill(device_table);
 
     argForEach() {

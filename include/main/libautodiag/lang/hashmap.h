@@ -18,35 +18,35 @@
     if ( object == null ) return; \
     if ( object->keys != null ) { \
         for(unsigned i = 0; i < object->size; i++) { \
-            object_##key_type##_free(object->keys[i]); \
+            ad_object_##key_type##_free(object->keys[i]); \
         } \
         object->keys = null; \
     } \
     if ( object->values != null ) { \
         for(unsigned i = 0; i < object->size; i++) { \
-            object_##value_type##_free(object->values[i]); \
+            ad_object_##value_type##_free(object->values[i]); \
         } \
         object->values = null; \
     } \
     object->size = 0; \
 }
 
-#define HASHMAP_H_GET(key_type, value_type) OBJECT(value_type) * object_hashmap_##key_type##_##value_type##_get(HASHMAP(key_type,value_type) * hm, OBJECT(key_type) *key)
+#define HASHMAP_H_GET(key_type, value_type) OBJECT(value_type) * ad_object_hashmap_##key_type##_##value_type##_get(HASHMAP(key_type,value_type) * hm, OBJECT(key_type) *key)
 #define HASHMAP_SRC_GET(key_type, value_type) HASHMAP_H_GET(key_type, value_type) { \
     assert(hm != null); \
     for(unsigned i = 0; i < hm->size; i++) { \
-        if ( object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
+        if ( ad_object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
             return hm->values[i]; \
         } \
     } \
     return null; \
 }
-#define HASHMAP_H_SET(key_type, value_type) void object_hashmap_##key_type##_##value_type##_set(object_hashmap_##key_type##_##value_type * hm, OBJECT(key_type) *key, OBJECT(value_type) *value)
+#define HASHMAP_H_SET(key_type, value_type) void ad_object_hashmap_##key_type##_##value_type##_set(ad_object_hashmap_##key_type##_##value_type * hm, OBJECT(key_type) *key, OBJECT(value_type) *value)
 #define HASHMAP_SRC_SET(key_type, value_type) HASHMAP_H_SET(key_type, value_type) { \
     assert(hm != null); \
     bool found = false; \
     for(unsigned i = 0; i < hm->size; i++) { \
-        if ( object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
+        if ( ad_object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
             hm->values[i] = value; \
             found = true; \
         } \
@@ -60,12 +60,12 @@
     } \
 }
 
-#define HASHMAP_H_CLEAR(key_type, value_type) void object_hashmap_##key_type##_##value_type##_clear(object_hashmap_##key_type##_##value_type * hm)
+#define HASHMAP_H_CLEAR(key_type, value_type) void ad_object_hashmap_##key_type##_##value_type##_clear(ad_object_hashmap_##key_type##_##value_type * hm)
 #define HASHMAP_SRC_CLEAR(key_type, value_type) HASHMAP_H_CLEAR(key_type, value_type) { \
     assert(hm != null); \
     for(unsigned i = 0; i < hm->size; i++) { \
-        object_##key_type##_free(hm->keys[i]); \
-        object_##value_type##_free(hm->values[i]); \
+        ad_object_##key_type##_free(hm->keys[i]); \
+        ad_object_##value_type##_free(hm->values[i]); \
     } \
     hm->size = 0; \
     free(hm->keys); \

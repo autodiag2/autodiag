@@ -52,24 +52,24 @@ bool strcasebeginwith(char *str, char *begin) {
     return strncasecmp(str,begin,strlen(begin)) == 0;
 }
 
-object_string * object_string_new() {
-    object_string * object = (object_string *) malloc(sizeof(object_string));
+ad_object_string * ad_object_string_new() {
+    ad_object_string * object = (ad_object_string *) malloc(sizeof(ad_object_string));
     object->data = null;
     return object;
 }
-void object_string_free(object_string * object) {
+void ad_object_string_free(ad_object_string * object) {
     if ( object->data != null ) {
         free(object->data);
         object->data = null;
     }
     free(object);
 }
-object_string * object_string_new_from(char *data) {
-    object_string * s = object_string_new();
+ad_object_string * ad_object_string_new_from(char *data) {
+    ad_object_string * s = ad_object_string_new();
     s->data = strdup(data);
     return s;
 }
-object_string * object_string_assign(object_string * o1, object_string * o2) {
+ad_object_string * ad_object_string_assign(ad_object_string * o1, ad_object_string * o2) {
     if ( o1->data ) {
         free(o1->data);
     }
@@ -80,7 +80,7 @@ object_string * object_string_assign(object_string * o1, object_string * o2) {
     }
     return o1;
 }
-int object_string_cmp(object_string* e1, object_string* e2) {
+int ad_object_string_cmp(ad_object_string* e1, ad_object_string* e2) {
     return strcmp(e1->data, e2->data);
 }
-AD_LIST_SRC(object_string)
+AD_LIST_SRC(ad_object_string)

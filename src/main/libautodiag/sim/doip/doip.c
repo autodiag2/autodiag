@@ -13,8 +13,8 @@ SimDoIp * sim_doip_new() {
     impl->loop_ready = false;
     impl->timeout_ms = SIM_DOIP_TIMEOUT_MS_RW;
     impl->broadcast_time_ms = SIM_DOIP_TIMEOUT_MS_BROADCAST;
-    impl->handle = object_handle_t_new();
-    impl->server_handle = object_handle_t_new();
+    impl->handle = ad_object_handle_t_new();
+    impl->server_handle = ad_object_handle_t_new();
     impl->disc_server_handle = SOCK_T_INVALID;
     sim->implementation = (SimImplementation*)impl;
     return sim;
@@ -55,9 +55,9 @@ static Buffer *buf_u16be(uint16_t v) {
     return b;
 }
 
-static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data) {
+static ad_object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data) {
     assert(data);
-    object_DoIPMessage *m = (object_DoIPMessage*)malloc(sizeof(object_DoIPMessage));
+    ad_object_DoIPMessage *m = (ad_object_DoIPMessage*)malloc(sizeof(ad_object_DoIPMessage));
     if (!m) return NULL;
     memset(m, 0, sizeof(*m));
     m->protocol_version = DOIP_PROTOCOL_VERSION_CURRENT;
@@ -67,10 +67,10 @@ static object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data)
     return m;
 }
 
-static object_DoIPMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
+static ad_object_DoIPMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
     return doip_message_diag(buf_u16be(dst),buf_u16be(src),data_protocol ? ad_buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
 }
-static bool doip_send_msg(SimDoIp *sim, object_DoIPMessage *m) {
+static bool doip_send_msg(SimDoIp *sim, ad_object_DoIPMessage *m) {
     Buffer *out = doip_message_serialize(m);
     if (!out) return false;
     if ( sim_write((Sim*)sim, ((DoIpImplementation*)sim->implementation)->timeout_ms, out->buffer, out->size) == -1 ) {
@@ -85,16 +85,16 @@ static int handle_power_mode(SimDoIp *sim) {
     ad_buffer_ensure_capacity(response, 1);
     ad_buffer_fill(response, 0x00);
 
-    object_DoIPMessage *resp = mk_doip_simple(DOIP_DIAG_POWER_MODE_RESPONSE, response);
+    ad_object_DoIPMessage *resp = mk_doip_simple(DOIP_DIAG_POWER_MODE_RESPONSE, response);
     ad_buffer_free(response);
     if (!resp) return 0;
     return doip_send_msg(sim, resp);
 }
 
-static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
+static int handle_diag(SimDoIp *sim, ad_object_DoIPMessage *msg) {
     assert(msg->payload_type == DOIP_DIAGNOSTIC_MESSAGE);
     log_msg(LOG_DEBUG, "Diag Message received");
-    object_DoIPMessagePayloadDiag * diag = (object_DoIPMessagePayloadDiag *)msg->payload;
+    ad_object_DoIPMessagePayloadDiag * diag = (ad_object_DoIPMessagePayloadDiag *)msg->payload;
     if (!diag->src_addr || !diag->dst_addr) {
         log_msg(LOG_ERROR, "issue with addressing");
         return 1;
@@ -117,22 +117,22 @@ static int handle_diag(SimDoIp *sim, object_DoIPMessage *msg) {
     
     if ( ecu == null ) {
         log_msg(LOG_WARNING, "No ECU found for address %02hhX, ignoring diag message (should send NACK)", diag->dst_addr->buffer[1]);
-        object_DoIPMessage *nack = doip_message_diag_feedback_nack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE_UNKNOWN_TARGET_ADDR);
+        ad_object_DoIPMessage *nack = doip_message_diag_feedback_nack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_NACK_CODE_UNKNOWN_TARGET_ADDR);
         doip_send_msg(sim, nack);
-        object_DoIPMessage_free(nack);
+        ad_object_DoIPMessage_free(nack);
         return 1;
     }
 
-    object_DoIPMessage * ack = doip_message_diag_feedback_ack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_ACK_CODE_POSITIVE);
+    ad_object_DoIPMessage * ack = doip_message_diag_feedback_ack(diag->src_addr, diag->dst_addr, msg->payload_raw, DOIP_DIAGNOSTIC_MESSAGE_ACK_CODE_POSITIVE);
     doip_send_msg(sim, ack);
-    object_DoIPMessage_free(ack);
+    ad_object_DoIPMessage_free(ack);
 
     log_msg(LOG_DEBUG, "Found target ecu %02hhX", ecu->address);
     Buffer *data_protocol = sim_ecu_response(ecu, diag->data);
     if (!data_protocol) return 1;
 
     log_msg(LOG_DEBUG, "Sending back %s", ad_buffer_to_hex_string(data_protocol));
-    object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
+    ad_object_DoIPMessage *doip_resp = mk_doip_diag(0x0700 + ((uint16_t)ecu->address), tester, data_protocol);
     if (!doip_resp) return 0;
     if (!doip_send_msg(sim, doip_resp)) return 0;
 
@@ -145,8 +145,8 @@ bool sim_doip_should_continue(SimDoIp * sim) {
 void sim_doip_loop(SimDoIp * sim) {
 
     DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
-    object_handle_t_init(impl->server_handle);
-    object_handle_t_init(impl->handle);
+    ad_object_handle_t_init(impl->server_handle);
+    ad_object_handle_t_init(impl->handle);
 
     int main_loop_port = -1;
     sock_t serverFD = network_tcp_start(&main_loop_port, DOIP_NETWORK_PORT, sim->max_concurrent_connections);
@@ -225,7 +225,7 @@ void sim_doip_loop(SimDoIp * sim) {
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
 
-        object_DoIPMessage *msg = doip_message_parse(recv_buffer);
+        ad_object_DoIPMessage *msg = doip_message_parse(recv_buffer);
         if (!msg) {
             log_msg(LOG_DEBUG, "Unabled to parse incoming data : '%s'", ad_buffer_to_ascii_espace_breaking_chars(recv_buffer));
             continue;
@@ -239,15 +239,15 @@ void sim_doip_loop(SimDoIp * sim) {
                 }
             } break;
             case DOIP_ALIVE_CHECK_RESPONSE: {
-                object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
+                ad_object_DoIPMessagePayloadAliveCheck * payload = (ad_object_DoIPMessagePayloadAliveCheck*)msg->payload;
                 log_msg(LOG_DEBUG, "Alive Check Response received from tester 0x%04X", ad_buffer_to_hex_string(payload->src_addr));
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 log_msg(LOG_DEBUG, "Routing Activation Request received");
-                object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
+                ad_object_DoIPMessagePayloadRoutineActivationRequest * reqPayload = (ad_object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
 
-                object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
-                object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)reply->payload;
+                ad_object_DoIPMessage * reply = doip_message_new(DOIP_ROUTING_ACTIVATION_RESPONSE);
+                ad_object_DoIPMessagePayloadRoutineActivationResponse * payload = (ad_object_DoIPMessagePayloadRoutineActivationResponse*)reply->payload;
                 ad_buffer_memcpy(payload->tester, reqPayload->src_addr, sizeof(reqPayload->src_addr));
                 ad_buffer_assign(payload->ecu, ad_buffer_from_ascii_hex("0000"));
                 payload->code = DOIP_MESSAGE_RARES_CODE_SUCCESS;
@@ -256,7 +256,7 @@ void sim_doip_loop(SimDoIp * sim) {
                 log_msg(LOG_DEBUG, "No OEM specific handling for routing activation or tester address checking, sending success response");
 
                 final bool res = doip_send_msg(sim, reply);
-                object_DoIPMessage_free(reply);
+                ad_object_DoIPMessage_free(reply);
                 routing_activated = res;
                 log_msg(LOG_DEBUG, "Routing activated: %s", res ? "success" : "failure");
             } break;

@@ -44,7 +44,7 @@ typedef struct {
     } commandLine;
     struct {
         VehicleIFace* iface;
-        object_DeviceTable * device_table;
+        ad_object_DeviceTable * device_table;
     } ephemere;
     struct {
         bool enabled;

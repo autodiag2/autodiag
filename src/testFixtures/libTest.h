@@ -69,7 +69,7 @@ static VehicleIFace* tf_serial_open(char *device_location) {
 }
 static VehicleIFace* tf_doip_open(char *device_location) {
     printf("open doip %s\n", device_location);
-    final object_DoIPDevice * device = object_DoIPDevice_new();
+    final ad_object_DoIPDevice * device = ad_object_DoIPDevice_new();
     device->location = strdup(device_location);
     return viface_open_from_device(AD_DEVICE(device));
 }

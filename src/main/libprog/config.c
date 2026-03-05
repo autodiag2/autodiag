@@ -224,9 +224,9 @@ void config_init() {
         config.ephemere.iface = viface_new();
     }
     if ( config.ephemere.device_table != null ) {
-        object_DeviceTable_free(config.ephemere.device_table);
+        ad_object_DeviceTable_free(config.ephemere.device_table);
     }
-    config.ephemere.device_table = object_DeviceTable_new();
+    config.ephemere.device_table = ad_object_DeviceTable_new();
 }
 bool config_load() {
     config_initiated_check();

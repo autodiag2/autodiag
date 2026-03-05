@@ -4,14 +4,14 @@ void * sim_doip_discovery_loop(void *arg) {
     SimDoIp * sim = (SimDoIp*)arg;
     DoIpImplementation * implementation = ((DoIpImplementation*)sim->implementation);
     sock_t handle = implementation->disc_server_handle;
-    int port = object_handle_t_get_port(implementation->server_handle);
+    int port = ad_object_handle_t_get_port(implementation->server_handle);
     if ( port == -1 ) {
         log_msg(LOG_ERROR, "Failed to get discovery server port");
         return null;
     }
 
-    object_DoIPMessage * responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
-    object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
+    ad_object_DoIPMessage * responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
+    ad_object_DoIPMessagePayloadVehicleIdResponse * payload = (ad_object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
     payload->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     assert(0 < sim->ecus->size);
     payload->addr = ad_buffer_from_ints(0x07, sim->ecus->list[0]->address);
@@ -20,7 +20,7 @@ void * sim_doip_discovery_loop(void *arg) {
     payload->further_action_required = false;
     payload->sync_status = false;
     Buffer * responseBuffer = doip_message_serialize(responseMessage);
-    object_DoIPMessage_free(responseMessage);
+    ad_object_DoIPMessage_free(responseMessage);
 
     long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
@@ -46,7 +46,7 @@ void * sim_doip_discovery_loop(void *arg) {
             int n = (int)recvfrom(handle, request->buffer, request->size_allocated, 0, (struct sockaddr *)&from, &from_len);
             if (n <= 0) continue;
             request->size = (unsigned)n;
-            object_DoIPMessage * requestMessage = doip_message_parse(request);
+            ad_object_DoIPMessage * requestMessage = doip_message_parse(request);
             bool requestSent = false;
             switch(requestMessage->payload_type) {
                 case DOIP_VEHICLE_IDENT_REQUEST_EID:
@@ -60,7 +60,7 @@ void * sim_doip_discovery_loop(void *arg) {
                     log_msg(LOG_DEBUG, "Unknown message received from %s", network_location(from));
                 } break;
             }
-            object_DoIPMessage_free(requestMessage);
+            ad_object_DoIPMessage_free(requestMessage);
             if (requestSent) {
                 sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
                 char * addr_str = network_location(from);

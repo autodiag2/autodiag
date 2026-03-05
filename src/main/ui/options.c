@@ -6,7 +6,7 @@ static void set_device_location(char * location) {
     if ( location == null ) {
         location = "";
     }
-    object_DeviceTable * device_table = config.ephemere.device_table;
+    ad_object_DeviceTable * device_table = config.ephemere.device_table;
     gtk_entry_set_text(gui->device_location, location);
     for(int device_i = 0; device_i < device_table->list->size; device_i++) {
         final Device * device = device_table->list->list[device_i];

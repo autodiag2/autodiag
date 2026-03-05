@@ -152,7 +152,7 @@ static void read_codes_daemon_internal() {
                     for(unsigned i = 0; i < list_dtc_uds->size; i++) {
                         final DTC * dtc = list_dtc_uds->list[i];
                         if ( list_DTC_contains(list_dtc_obd, dtc) ) {
-                            list_object_string_append(dtc->detection_method, object_string_new_from("OBD"));
+                            list_ad_object_string_append(dtc->detection_method, ad_object_string_new_from("OBD"));
                         }
                     }
                     list_DTC_append_list(list_dtc_buffer, list_dtc_uds);
@@ -273,7 +273,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
             free(explanation);
             explanation = result;
         }
-        if ( list_object_string_contains(dtc->detection_method, object_string_new_from("UDS")) ) {
+        if ( list_ad_object_string_contains(dtc->detection_method, ad_object_string_new_from("UDS")) ) {
             char * result;
             asprintf(&result, "%s%s", explanation, UDS_DTC_explanation((UDS_DTC*)dtc));
             free(explanation);

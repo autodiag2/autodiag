@@ -3,7 +3,7 @@
 
 AD_OBJECT_SRC(DoIPDevice)
 
-int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg) {
+int doip_disc_send(ad_object_DoIPDevice *device, ad_object_DoIPMessage *msg) {
     assert(device != null && msg != null);
 
     switch(msg->payload_type) {
@@ -41,7 +41,7 @@ int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg) {
     #endif
 }
 
-object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
+ad_object_DoIPMessage *doip_disc_recv(ad_object_DoIPDevice *device) {
     assert(device != null);
 
     unsigned char buf[4096];
@@ -67,23 +67,23 @@ object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
     Buffer *recv_buf = ad_buffer_from_bytes(buf, (size_t)recv_len);
     if (!recv_buf) return null;
 
-    object_DoIPMessage *msg = doip_message_parse(recv_buf);
+    ad_object_DoIPMessage *msg = doip_message_parse(recv_buf);
     ad_buffer_free(recv_buf);
     return msg;
 }
 
-bool doip_configure(final object_DoIPDevice * device) {
+bool doip_configure(final ad_object_DoIPDevice * device) {
     assert(device != null);
     log_msg(LOG_DEBUG, "Configuring doip device");
     {
         log_msg(LOG_DEBUG, "Discovering the vehicle");
-        object_DoIPMessage * request = doip_message_new(DOIP_VEHICLE_IDENT_REQUEST);
+        ad_object_DoIPMessage * request = doip_message_new(DOIP_VEHICLE_IDENT_REQUEST);
         if ( doip_disc_send(device, request) < 0 ) {
             log_msg(LOG_ERROR, "Error while retrieving ECUs");
             return false;
         }
-        object_DoIPMessage_free(request);
-        object_DoIPMessage * response = doip_disc_recv(device);
+        ad_object_DoIPMessage_free(request);
+        ad_object_DoIPMessage * response = doip_disc_recv(device);
         if ( response == null ) {
             log_msg(LOG_ERROR, "Error while retrieving ECUs");
             return false;
@@ -92,70 +92,70 @@ bool doip_configure(final object_DoIPDevice * device) {
             log_msg(LOG_ERROR, "Payload 0x%X received instead of 0x%X", response->payload_type, DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
             return false;
         }
-        object_DoIPMessagePayloadVehicleIdResponse * responsePayload = (object_DoIPMessagePayloadVehicleIdResponse*)response->payload;
+        ad_object_DoIPMessagePayloadVehicleIdResponse * responsePayload = (ad_object_DoIPMessagePayloadVehicleIdResponse*)response->payload;
         device->node.address = ad_buffer_copy(responsePayload->addr);
         log_msg(LOG_DEBUG, "Found node 0x%s VIN=%s", ad_buffer_to_hex_string(responsePayload->addr), ad_buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
-        object_DoIPMessage_free(response);
+        ad_object_DoIPMessage_free(response);
     }
     {
         log_msg(LOG_DEBUG, "Routine activation");
-        object_DoIPMessage * request = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
-        object_DoIPMessagePayloadRoutineActivationRequest * requestPayload = object_DoIPMessagePayloadRoutineActivationRequest_new();
+        ad_object_DoIPMessage * request = doip_message_new(DOIP_ROUTING_ACTIVATION_REQUEST);
+        ad_object_DoIPMessagePayloadRoutineActivationRequest * requestPayload = ad_object_DoIPMessagePayloadRoutineActivationRequest_new();
         requestPayload->src_addr[0] = (device->address >> 8) & 0xFF;
         requestPayload->src_addr[1] = device->address & 0xFF;
         request->payload = (DoIPMessageDef*)requestPayload;
         doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
-        object_DoIPMessage_free(request);
+        ad_object_DoIPMessage_free(request);
         ad_buffer_recycle(device->recv_buffer);
         doip_recv_internal(device);
-        object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
+        ad_object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
         if ( response == null ) {
             return false;
         }
         switch(response->payload_type) {
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
-                object_DoIPMessagePayloadRoutineActivationResponse * responsePayload = (object_DoIPMessagePayloadRoutineActivationResponse*)response->payload;
+                ad_object_DoIPMessagePayloadRoutineActivationResponse * responsePayload = (ad_object_DoIPMessagePayloadRoutineActivationResponse*)response->payload;
                 switch(responsePayload->code) {
                     case DOIP_MESSAGE_RARES_CODE_SUCCESS: {
-                        object_DoIPMessage_free(response);
+                        ad_object_DoIPMessage_free(response);
                     } return true;
                     default: {
                         log_msg(LOG_ERROR, "Doip node refusing to start diagnostic maybe implement manufacturer specific process");
-                        object_DoIPMessage_free(response);
+                        ad_object_DoIPMessage_free(response);
                     } return false;
                 }
             } break;
             default: {
                 log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ROUTING_ACTIVATION_RESPONSE);
-                object_DoIPMessage_free(response);
+                ad_object_DoIPMessage_free(response);
             } return false;
         }
     }
     return false;
 }
 
-bool doip_node_queue_is_full(final object_DoIPDevice * device) {
-    object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
+bool doip_node_queue_is_full(final ad_object_DoIPDevice * device) {
+    ad_object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
     doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
-    object_DoIPMessage_free(request);
+    ad_object_DoIPMessage_free(request);
     ad_buffer_recycle(device->recv_buffer);
     doip_recv_internal(device);
-    object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
+    ad_object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
     switch(response->payload_type) {
         case DOIP_ENTITY_STATUS_RESPONSE: {
-            object_DoIPMessagePayloadEntityStatusResponse * payload = (object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
+            ad_object_DoIPMessagePayloadEntityStatusResponse * payload = (ad_object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
             bool result = payload->openned_connections >= payload->max_concurrent_connections;
             log_msg(LOG_DEBUG, "Node queue is %s (openned connections: %d, max concurrent connections: %d)", result ? "full" : "not full", payload->openned_connections, payload->max_concurrent_connections);
-            object_DoIPMessage_free(response);
+            ad_object_DoIPMessage_free(response);
             return result;
         } break;
         default: {
             log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
-            object_DoIPMessage_free(response);
+            ad_object_DoIPMessage_free(response);
         } return bool_unset;
     }
 }
-void doip_close(final object_DoIPDevice * device) {
+void doip_close(final ad_object_DoIPDevice * device) {
     if ( device == null || device->state != AD_DEVICE_STATE_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
@@ -166,7 +166,7 @@ void doip_close(final object_DoIPDevice * device) {
     network_stop(device->implementation->disc_handle);
     device->state = AD_DEVICE_STATE_NOT_READY;
 }
-int doip_open(final object_DoIPDevice * device) {
+int doip_open(final ad_object_DoIPDevice * device) {
     if ( device == null ) {
         log_msg(LOG_INFO, "Open: Cannot open since no device info given");
         return GENERIC_FUNCTION_ERROR;
@@ -332,11 +332,11 @@ int doip_open(final object_DoIPDevice * device) {
 
     return GENERIC_FUNCTION_SUCCESS;
 }
-static char* doip_describe_communication_layer(final object_DoIPDevice* device) {
+static char* doip_describe_communication_layer(final ad_object_DoIPDevice* device) {
     return strdup("DoIP");
 }
 
-static bool doip_parse_data(final object_DoIPDevice* device, final Vehicle* vehicle) {
+static bool doip_parse_data(final ad_object_DoIPDevice* device, final Vehicle* vehicle) {
     final Buffer * address = ad_buffer_slice(device->recv_buffer, 0, DOIP_MESSAGE_DIAG_ADDR_SZ); 
     ad_buffer_left_shift(device->recv_buffer, DOIP_MESSAGE_DIAG_ADDR_SZ);
     final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
@@ -345,31 +345,31 @@ static bool doip_parse_data(final object_DoIPDevice* device, final Vehicle* vehi
     return true;
 }
 
-static bool doip_set_filter_by_address(final object_DoIPDevice* device, list_Buffer * filter_addresses) {
+static bool doip_set_filter_by_address(final ad_object_DoIPDevice* device, list_Buffer * filter_addresses) {
     return true;
 }
 
-static void doip_clear_data(final object_DoIPDevice* device) {
+static void doip_clear_data(final ad_object_DoIPDevice* device) {
     ad_buffer_recycle(device->recv_buffer);
 }
 
-static void doip_lock(final object_DoIPDevice* device) {
+static void doip_lock(final ad_object_DoIPDevice* device) {
     pthread_mutex_lock(&device->implementation->lock_mutex);
 }
 
-static void doip_unlock(final object_DoIPDevice* device) {
+static void doip_unlock(final ad_object_DoIPDevice* device) {
     pthread_mutex_unlock(&device->implementation->lock_mutex);
 }
-void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address) {
+void doip_set_tester_address(final ad_object_DoIPDevice* device, uint16_t address) {
     device->address = address;
 }
-static int doip_send(final object_DoIPDevice * device, const char * command) {
+static int doip_send(final ad_object_DoIPDevice * device, const char * command) {
     Buffer * diag_message = ad_buffer_from_ascii_hex(command);
     if ( diag_message == null ) {
         log_msg(LOG_ERROR, "Message sent is not ascii hex, cannot be sent");
         return DEVICE_ERROR;
     }
-    object_DoIPMessage * msg = doip_message_diag(
+    ad_object_DoIPMessage * msg = doip_message_diag(
         device->node.address, 
         ad_buffer_from_uint16(device->address),
         diag_message
@@ -377,7 +377,7 @@ static int doip_send(final object_DoIPDevice * device, const char * command) {
     ad_buffer_free(diag_message);
     return doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(msg)));
 }
-int doip_send_internal(final object_DoIPDevice * device, const char * command) {
+int doip_send_internal(final ad_object_DoIPDevice * device, const char * command) {
     assert(command != null);
 
     Buffer * request = ad_buffer_from_ascii_hex(command);
@@ -439,7 +439,7 @@ int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     #endif
     return bytes_sent;
 }
-static int doip_recv(final object_DoIPDevice * device) {
+static int doip_recv(final ad_object_DoIPDevice * device) {
     bool accepted = false;
     int tries = 10;
     for(int conv_state = 0; conv_state < tries; conv_state++) {
@@ -450,7 +450,7 @@ static int doip_recv(final object_DoIPDevice * device) {
         if ( res == DEVICE_RECV_NULL ) {
             return DEVICE_RECV_NULL;
         }
-        object_DoIPMessage *msg = doip_message_parse(device->recv_buffer);
+        ad_object_DoIPMessage *msg = doip_message_parse(device->recv_buffer);
         if ( msg == null ) {
             return DEVICE_RECV_NULL;
         }
@@ -459,7 +459,7 @@ static int doip_recv(final object_DoIPDevice * device) {
                 if ( ! accepted ) {
                     log_msg(LOG_WARNING, "Received a diag message without previous ACK (suspisious) never mind ...");
                 }
-                object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
+                ad_object_DoIPMessagePayloadDiag * payload = (ad_object_DoIPMessagePayloadDiag*)msg->payload;
                 ad_buffer_recycle(device->recv_buffer);
                 ad_buffer_append(device->recv_buffer, payload->src_addr);
                 if ( log_has_level(LOG_DEBUG) ) {
@@ -486,12 +486,12 @@ static int doip_recv(final object_DoIPDevice * device) {
                 log_msg(LOG_WARNING, "Received message with unsupported payload type 0x%04X ignoring", msg->payload_type);
             } break;
         }
-        object_DoIPMessage_free(msg);
+        ad_object_DoIPMessage_free(msg);
     }
     log_msg(LOG_WARNING, "Everything has been tried (%d tries) but cannot retrived response from the node", tries);
     return DEVICE_RECV_NULL;
 }
-int doip_recv_internal(final object_DoIPDevice * device) {
+int doip_recv_internal(final ad_object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
     
     if (device->implementation->handle == SOCK_T_INVALID) {
@@ -553,8 +553,8 @@ int doip_recv_internal(final object_DoIPDevice * device) {
     #endif
     return readLen;
 }
-object_DoIPDevice * object_DoIPDevice_new() {
-    object_DoIPDevice * device = (object_DoIPDevice*)malloc(sizeof(object_DoIPDevice));
+ad_object_DoIPDevice * ad_object_DoIPDevice_new() {
+    ad_object_DoIPDevice * device = (ad_object_DoIPDevice*)malloc(sizeof(ad_object_DoIPDevice));
     device->type = AD_DEVICE_TYPE_DOIP;
     device->timeout_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_MS;
     device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
@@ -583,15 +583,15 @@ object_DoIPDevice * object_DoIPDevice_new() {
     return device;
 }
 
-void object_DoIPDevice_free(object_DoIPDevice *device) {
+void ad_object_DoIPDevice_free(ad_object_DoIPDevice *device) {
     if ( device != null ) {
         ad_buffer_free(device->node.address);
         free(device);
     }
 }
 
-object_DoIPDevice * object_DoIPDevice_assign(object_DoIPDevice * to, object_DoIPDevice * from) {
-    memcpy(to, from, sizeof(object_DoIPDevice));
+ad_object_DoIPDevice * ad_object_DoIPDevice_assign(ad_object_DoIPDevice * to, ad_object_DoIPDevice * from) {
+    memcpy(to, from, sizeof(ad_object_DoIPDevice));
     ad_buffer_assign(to->node.address, from->node.address);
     return to;
 }

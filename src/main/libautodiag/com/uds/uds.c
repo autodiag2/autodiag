@@ -125,7 +125,7 @@ bool uds_is_enabled(final VehicleIFace *iface) {
     return uds_request_session_cond(iface, UDS_SESSION_DEFAULT);
 }
 bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
-    final object_hashmap_Int_Int * result = uds_request_session(iface, session_type);
+    final ad_object_hashmap_Int_Int * result = uds_request_session(iface, session_type);
     int value = -1;
     if ( 0 < result->size ) {
         for(int i = 0; i < result->size; i++) {
@@ -136,7 +136,7 @@ bool uds_request_session_cond(final VehicleIFace * iface, final byte session_typ
             value = result->values[i]->value;
         }
     }
-    object_hashmap_Int_Int_free(result);
+    ad_object_hashmap_Int_Int_free(result);
     return value == -1 ? false : value;
 }
 
@@ -204,7 +204,7 @@ int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
     return seed ^ UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY;
 }
 bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface) {
-    final object_hashmap_Int_Int * seeds = object_hashmap_Int_Int_new();
+    final ad_object_hashmap_Int_Int * seeds = ad_object_hashmap_Int_Int_new();
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
         UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
@@ -220,10 +220,10 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 assert(3 < data->size);
                 assert(data->buffer[1] == UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED);
-                object_hashmap_Int_Int_set(
+                ad_object_hashmap_Int_Int_set(
                     seeds,
-                    object_Int_new_from(ecu->address->buffer[1]), 
-                    object_Int_new_from(data->buffer[2] << 8 | data->buffer[3])
+                    ad_object_Int_new_from(ecu->address->buffer[1]), 
+                    ad_object_Int_new_from(data->buffer[2] << 8 | data->buffer[3])
                 );
                 uds_viface_start_tester_present_timer(iface);
             } else {
@@ -231,7 +231,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
             }
         }
     }
-    final object_hashmap_Int_Int * verify = object_hashmap_Int_Int_new();
+    final ad_object_hashmap_Int_Int * verify = ad_object_hashmap_Int_Int_new();
     for(int i = 0; i < seeds->size; i++) {
         final int encrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
         viface_send(iface, ad_buffer_from_ints(
@@ -247,18 +247,18 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
                 final Buffer * data = ecu->data_buffer->list[j];
                 if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
                     log_msg(LOG_ERROR, "ECU has responded negatively to verify key request");
-                    object_hashmap_Int_Int_set(
+                    ad_object_hashmap_Int_Int_set(
                         verify,
-                        object_Int_new_from(ecu->address->buffer[1]), 
-                        object_Int_new_from(false)
+                        ad_object_Int_new_from(ecu->address->buffer[1]), 
+                        ad_object_Int_new_from(false)
                     );
                 } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                     assert(1 < data->size);
                     assert(data->buffer[1] == UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY);
-                    object_hashmap_Int_Int_set(
+                    ad_object_hashmap_Int_Int_set(
                         verify,
-                        object_Int_new_from(ecu->address->buffer[1]), 
-                        object_Int_new_from(true)
+                        ad_object_Int_new_from(ecu->address->buffer[1]), 
+                        ad_object_Int_new_from(true)
                     );
                     uds_viface_start_tester_present_timer(iface);
                 } else {
@@ -276,14 +276,14 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
             result &= verify->values[i]->value; 
         }
     }
-    object_hashmap_Int_Int_free(verify);
-    object_hashmap_Int_Int_free(seeds);
+    ad_object_hashmap_Int_Int_free(verify);
+    ad_object_hashmap_Int_Int_free(seeds);
     return result == bool_unset ? false : result;
 }
-object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
+ad_object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     
-    final object_hashmap_Int_Int * result = object_hashmap_Int_Int_new();
+    final ad_object_hashmap_Int_Int * result = ad_object_hashmap_Int_Int_new();
     final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, session_type);
     viface_send(iface, binRequest);
     ad_buffer_free(binRequest);
@@ -294,16 +294,16 @@ object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final b
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
-                object_hashmap_Int_Int_set(
+                ad_object_hashmap_Int_Int_set(
                     result,
-                    object_Int_new_from(ecu->address->buffer[1]), 
-                    object_Int_new_from(false)
+                    ad_object_Int_new_from(ecu->address->buffer[1]), 
+                    ad_object_Int_new_from(false)
                 );
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                object_hashmap_Int_Int_set(
+                ad_object_hashmap_Int_Int_set(
                     result,
-                    object_Int_new_from(ecu->address->buffer[1]), 
-                    object_Int_new_from(true)
+                    ad_object_Int_new_from(ecu->address->buffer[1]), 
+                    ad_object_Int_new_from(true)
                 );
                 uds_viface_start_tester_present_timer(iface);
             } else {
