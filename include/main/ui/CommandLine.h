@@ -1,5 +1,5 @@
-#ifndef __COMMAND_LINE_H
-#define __COMMAND_LINE_H
+#ifndef __AD_COMMAND_LINE_H
+#define __AD_COMMAND_LINE_H
 
 #define MODULE_COMMAND_LINE "CommandLine",
 

@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_GTK_H
-#define __CUSTOM_GTK_H
+#ifndef __AD_CUSTOM_GTK_H
+#define __AD_CUSTOM_GTK_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

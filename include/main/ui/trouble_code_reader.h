@@ -1,5 +1,5 @@
-#ifndef __TROUBLE_CODE_READER_H
-#define __TROUBLE_CODE_READER_H
+#ifndef __AD_TROUBLE_CODE_READER_H
+#define __AD_TROUBLE_CODE_READER_H
 
 #define MODULE_CODES_READER "Trouble Code Reader"
 

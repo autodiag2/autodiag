@@ -1,5 +1,5 @@
-#ifndef __COM_DEVICE_TABLE_H
-#define __COM_DEVICE_TABLE_H
+#ifndef __AD_COM_DEVICE_TABLE_H
+#define __AD_COM_DEVICE_TABLE_H
 
 #include "libautodiag/dirent.h"
 #include "libautodiag/log.h"

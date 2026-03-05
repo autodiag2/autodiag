@@ -1,8 +1,8 @@
 /**
  * Extension of the base language
  */
-#ifndef __LANG_H
-#define __LANG_H
+#ifndef __AD_LANG_H
+#define __AD_LANG_H
 
 #include <stdint.h>
 

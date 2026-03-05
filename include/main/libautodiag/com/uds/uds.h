@@ -1,8 +1,8 @@
 /**
  * ISO 14229
  */
-#ifndef __UDS_H
-#define __UDS_H
+#ifndef __AD_UDS_H
+#define __AD_UDS_H
 
 #include "libautodiag/lang/all.h"
 #include "libautodiag/com/vehicle_interface.h"

@@ -1,5 +1,5 @@
-#ifndef __ELM329_H
-#define __ELM329_H
+#ifndef __AD_ELM329_H
+#define __AD_ELM329_H
 
 #include "libautodiag/com/obd/obd.h"
 #include "../elm.h"

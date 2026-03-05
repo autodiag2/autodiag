@@ -1,5 +1,5 @@
-#ifndef __UI_LIB_MENUBAR_H
-#define __UI_LIB_MENUBAR_H
+#ifndef __AD_UI_LIB_MENUBAR_H
+#define __AD_UI_LIB_MENUBAR_H
 
 #define MENUBAR_DATA_ALL_IN_ONE \
 static void menubar_data_filter_by_on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data){ \

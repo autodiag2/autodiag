@@ -1,5 +1,5 @@
-#ifndef __SIM_DOIP_H
-#define __SIM_DOIP_H
+#ifndef __AD_SIM_DOIP_H
+#define __AD_SIM_DOIP_H
 
 #include "libautodiag/compile_target.h"
 

@@ -1,5 +1,5 @@
-#ifndef __DATABASE_H
-#define __DATABASE_H
+#ifndef __AD_DATABASE_H
+#define __AD_DATABASE_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

@@ -1,5 +1,5 @@
-#ifndef __HANDLE_H
-#define __HANDLE_H
+#ifndef __AD_HANDLE_H
+#define __AD_HANDLE_H
 
 #include "libautodiag/compile_target.h"
 #include "libautodiag/lang/all.h"

@@ -1,5 +1,5 @@
-#ifndef __JNI_SIM_ECU_GENERATOR_GUI_H
-#define __JNI_SIM_ECU_GENERATOR_GUI_H
+#ifndef __AD_JNI_SIM_ECU_GENERATOR_GUI_H
+#define __AD_JNI_SIM_ECU_GENERATOR_GUI_H
 
 #include "libautodiag/compile_target.h"
 #include "libautodiag/sim/ecu/generator.h"

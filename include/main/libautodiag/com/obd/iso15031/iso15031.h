@@ -2,8 +2,8 @@
  * ISO-15031 Protocol consists of a number of parts taken together to provide a coherent 
  * self-consistent set of specifications to facilitate emissions-related diagnostics. 
  */
-#ifndef __ISO15031_H
-#define __ISO15031_H
+#ifndef __AD_ISO15031_H
+#define __AD_ISO15031_H
 
 /**
  * SAE J1979 <=> ISO 15031-5

@@ -1,8 +1,8 @@
 /**
  * This file detect configuration of the system this is a compilation tool only
  */
-#ifndef __OS_H
-#define __OS_H
+#ifndef __AD_OS_H
+#define __AD_OS_H
 
 /**
  * Define OS_* compilation variables

@@ -1,5 +1,5 @@
-#ifndef __LIBAUTODIAG_CONFIG_H
-#define __LIBAUTODIAG_CONFIG_H
+#ifndef __AD_LIBAUTODIAG_CONFIG_H
+#define __AD_LIBAUTODIAG_CONFIG_H
 
 #define _GNU_SOURCE
 #include <stdlib.h>

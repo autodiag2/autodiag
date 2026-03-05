@@ -1,5 +1,5 @@
-#ifndef __ERROR_FEEDBACK_H
-#define __ERROR_FEEDBACK_H
+#ifndef __AD_ERROR_FEEDBACK_H
+#define __AD_ERROR_FEEDBACK_H
 
 #include "libautodiag/lib.h"
 #include "libprog/ui/gtk.h"

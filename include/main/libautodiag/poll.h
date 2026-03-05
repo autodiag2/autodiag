@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_POLL_H
-#define __CUSTOM_POLL_H
+#ifndef __AD_CUSTOM_POLL_H
+#define __AD_CUSTOM_POLL_H
 
 #include "libautodiag/compile_target.h"
 #include "libautodiag/lang/lang.h"

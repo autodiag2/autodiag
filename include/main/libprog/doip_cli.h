@@ -1,5 +1,5 @@
-#ifndef __DOIP_CLI_H
-#define __DOIP_CLI_H
+#ifndef __AD_DOIP_CLI_H
+#define __AD_DOIP_CLI_H
 
 #include <unistd.h>
 #include <stdlib.h>

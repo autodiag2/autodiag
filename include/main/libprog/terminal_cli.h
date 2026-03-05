@@ -1,5 +1,5 @@
-#ifndef __TERMINAL_CLI_H
-#define __TERMINAL_CLI_H
+#ifndef __AD_TERMINAL_CLI_H
+#define __AD_TERMINAL_CLI_H
 
 #include <stdio.h>
 #include "libautodiag/lib.h"

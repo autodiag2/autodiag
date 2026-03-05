@@ -1,5 +1,5 @@
-#ifndef __VEHICLE_DIAGNOSTIC_H
-#define __VEHICLE_DIAGNOSTIC_H
+#ifndef __AD_VEHICLE_DIAGNOSTIC_H
+#define __AD_VEHICLE_DIAGNOSTIC_H
 
 #define MODULE_VEHICLE_DIAGNOSTIC "Vehicle Diagnostic",
 

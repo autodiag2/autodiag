@@ -1,5 +1,5 @@
-#ifndef __SAEJ1979_DATA_H
-#define __SAEJ1979_DATA_H
+#ifndef __AD_SAEJ1979_DATA_H
+#define __AD_SAEJ1979_DATA_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/string.h"

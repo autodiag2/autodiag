@@ -1,5 +1,5 @@
-#ifndef __OPTIONS_H
-#define __OPTIONS_H
+#ifndef __AD_OPTIONS_H
+#define __AD_OPTIONS_H
 
 #define MODULE_OPTIONS "Options", 
 

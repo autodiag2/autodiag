@@ -1,5 +1,5 @@
-#ifndef __CLI_HELPERS_H
-#define __CLI_HELPERS_H
+#ifndef __AD_CLI_HELPERS_H
+#define __AD_CLI_HELPERS_H
 
 #include "libautodiag/lib.h"
 

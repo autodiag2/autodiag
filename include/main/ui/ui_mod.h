@@ -1,5 +1,5 @@
-#ifndef __UI_MOD_H
-#define __UI_MOD_H
+#ifndef __AD_UI_MOD_H
+#define __AD_UI_MOD_H
 
 #include "ui/ui.h"
 

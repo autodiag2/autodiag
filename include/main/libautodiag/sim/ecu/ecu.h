@@ -1,5 +1,5 @@
-#ifndef __SIM_ECU_H
-#define __SIM_ECU_H
+#ifndef __AD_SIM_ECU_H
+#define __AD_SIM_ECU_H
 
 #include "libautodiag/sim/ecu/generator.h"
 

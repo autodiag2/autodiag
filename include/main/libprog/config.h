@@ -1,5 +1,5 @@
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __AD_CONFIG_H
+#define __AD_CONFIG_H
 
 #include "libautodiag/lib.h"
 #define _GNU_SOURCE

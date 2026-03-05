@@ -1,5 +1,5 @@
-#ifndef __SIM_DOIP_DISCOVER_H
-#define __SIM_DOIP_DISCOVER_H
+#ifndef __AD_SIM_DOIP_DISCOVER_H
+#define __AD_SIM_DOIP_DISCOVER_H
 
 #include "libautodiag/sim/doip/doip.h"
 

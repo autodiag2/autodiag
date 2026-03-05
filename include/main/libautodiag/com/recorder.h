@@ -1,5 +1,5 @@
-#ifndef __COM_RECORDER_H
-#define __COM_RECORDER_H
+#ifndef __AD_COM_RECORDER_H
+#define __AD_COM_RECORDER_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/model/vehicle.h"

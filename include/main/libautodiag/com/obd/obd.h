@@ -1,8 +1,8 @@
 /**
  * Include this header will include all obd devices and any specification related to OBD
  */
-#ifndef __OBD_OBD_H
-#define __OBD_OBD_H
+#ifndef __AD_OBD_OBD_H
+#define __AD_OBD_OBD_H
 
 #include "libautodiag/com/device.h"
 #include "libautodiag/com/vehicle_interface.h"

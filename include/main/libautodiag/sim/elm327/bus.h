@@ -1,5 +1,5 @@
-#ifndef __SIM_ELM327_BUS_H
-#define __SIM_ELM327_BUS_H
+#ifndef __AD_SIM_ELM327_BUS_H
+#define __AD_SIM_ELM327_BUS_H
 
 #include "libautodiag/sim/elm327/elm327.h"
 

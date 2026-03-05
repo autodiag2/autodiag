@@ -1,5 +1,5 @@
-#ifndef __ELM327_CLI_H
-#define __ELM327_CLI_H
+#ifndef __AD_ELM327_CLI_H
+#define __AD_ELM327_CLI_H
 
 #include <unistd.h>
 #include <stdlib.h>

@@ -1,5 +1,5 @@
-#ifndef __UI_COUNTER_H
-#define __UI_COUNTER_H
+#ifndef __AD_UI_COUNTER_H
+#define __AD_UI_COUNTER_H
 
 #include "libprog/ui/gtk.h"
 #include "libprog/config.h"

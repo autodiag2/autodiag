@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_FILE_H
-#define __CUSTOM_FILE_H
+#ifndef __AD_CUSTOM_FILE_H
+#define __AD_CUSTOM_FILE_H
 
 #include "compile_target.h"
 #define _GNU_SOURCE

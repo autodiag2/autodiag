@@ -1,5 +1,5 @@
-#ifndef __ELM327_ISO_15765
-#define __ELM327_ISO_15765
+#ifndef __AD_ELM327_ISO_15765_H
+#define __AD_ELM327_ISO_15765_H
 
 #include "elm327.h"
 #include "libautodiag/com/can/iso15765.h"

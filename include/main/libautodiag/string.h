@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_STRING_H
-#define __CUSTOM_STRING_H
+#ifndef __AD_CUSTOM_STRING_H
+#define __AD_CUSTOM_STRING_H
 
 #include <string.h>
 #include <strings.h>

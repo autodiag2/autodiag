@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_WINDOWS_H
-#define __CUSTOM_WINDOWS_H
+#ifndef __AD_CUSTOM_WINDOWS_H
+#define __AD_CUSTOM_WINDOWS_H
 
 #include "libautodiag/lang/lang.h"
 #include "libautodiag/compile_target.h"

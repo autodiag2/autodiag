@@ -1,5 +1,5 @@
-#ifndef __HASHMAP_H
-#define __HASHMAP_H
+#ifndef __AD_HASHMAP_H
+#define __AD_HASHMAP_H
 
 #include "libautodiag/lang/lang.h"
 #include "libautodiag/lang/object.h"

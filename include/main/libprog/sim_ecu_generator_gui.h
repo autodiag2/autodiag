@@ -1,5 +1,5 @@
-#ifndef __SIM_OBD_GENERATORS_H
-#define __SIM_OBD_GENERATORS_H
+#ifndef __AD_SIM_OBD_GENERATORS_H
+#define __AD_SIM_OBD_GENERATORS_H
 
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/ecu/generator.h"

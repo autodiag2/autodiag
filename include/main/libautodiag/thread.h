@@ -1,5 +1,5 @@
-#ifndef __THREAD_H
-#define __THREAD_H
+#ifndef __AD_THREAD_H
+#define __AD_THREAD_H
 
 #include  <pthread.h>
 #include "log.h"

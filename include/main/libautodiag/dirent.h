@@ -1,5 +1,5 @@
-#ifndef __CUSTOM_DIRENT_H
-#define __CUSTOM_DIRENT_H
+#ifndef __AD_CUSTOM_DIRENT_H
+#define __AD_CUSTOM_DIRENT_H
 
 #include "compile_target.h"
 

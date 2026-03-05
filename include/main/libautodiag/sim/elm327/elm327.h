@@ -1,5 +1,5 @@
-#ifndef __SIM_ELM327_H
-#define __SIM_ELM327_H
+#ifndef __AD_SIM_ELM327_H
+#define __AD_SIM_ELM327_H
 
 #include "libautodiag/compile_target.h"
 

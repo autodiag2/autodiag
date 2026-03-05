@@ -1,5 +1,5 @@
-#ifndef __LIB_H
-#define __LIB_H
+#ifndef __AD_LIB_H
+#define __AD_LIB_H
 
 // To stay compat with libautodiag-dev
 #ifndef APP_NAME

@@ -3,8 +3,8 @@
  * When there is multiple ECU on the line, the best possible is done regarding to the logic of the function.<br />
  * Example: for the number of dtc currently displayed we sum number of dtcs reported by each ecu.<br />
  */
-#ifndef __OBD_SAEJ1979_H
-#define __OBD_SAEJ1979_H
+#ifndef __AD_OBD_SAEJ1979_H
+#define __AD_OBD_SAEJ1979_H
 
 #include "libautodiag/com/obd/obd.h"
 

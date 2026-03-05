@@ -1,5 +1,5 @@
-#ifndef __SERIAL_SHOW_DTC_SAEJ1979_H
-#define __SERIAL_SHOW_DTC_SAEJ1979_H
+#ifndef __AD_SERIAL_SHOW_DTC_SAEJ1979_H
+#define __AD_SERIAL_SHOW_DTC_SAEJ1979_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

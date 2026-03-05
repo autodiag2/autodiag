@@ -1,5 +1,5 @@
-#ifndef __SIM_H
-#define __SIM_H
+#ifndef __AD_SIM_H
+#define __AD_SIM_H
 
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/compile_target.h"

@@ -1,5 +1,5 @@
-#ifndef __GTK_WRAPPER_H
-#define __GTK_WRAPPER_H
+#ifndef __AD_GTK_WRAPPER_H
+#define __AD_GTK_WRAPPER_H
 
 #include "libprog/ui/gtk.h"
 

@@ -1,5 +1,5 @@
-#ifndef __SIM_NVM_H
-#define __SIM_NVM_H
+#ifndef __AD_SIM_NVM_H
+#define __AD_SIM_NVM_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/serial/elm/elm327/elm327.h"

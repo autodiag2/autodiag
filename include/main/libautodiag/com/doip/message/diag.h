@@ -1,5 +1,5 @@
-#ifndef __COM_DOIP_MESSAGE_DIAG_H
-#define __COM_DOIP_MESSAGE_DIAG_H
+#ifndef __AD_COM_DOIP_MESSAGE_DIAG_H
+#define __AD_COM_DOIP_MESSAGE_DIAG_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/doip/doip.h"

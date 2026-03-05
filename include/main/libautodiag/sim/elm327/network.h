@@ -1,5 +1,5 @@
-#ifndef __SIM_ELM327_NETWORK_H
-#define __SIM_ELM327_NETWORK_H
+#ifndef __AD_SIM_ELM327_NETWORK_H
+#define __AD_SIM_ELM327_NETWORK_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/network.h"

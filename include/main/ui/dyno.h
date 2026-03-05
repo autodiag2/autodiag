@@ -1,5 +1,5 @@
-#ifndef __UI_DYNO_H
-#define __UI_DYNO_H
+#ifndef __AD_UI_DYNO_H
+#define __AD_UI_DYNO_H
 
 #include "ui.h"
 #include "ui/ui_mod.h"

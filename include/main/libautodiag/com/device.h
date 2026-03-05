@@ -1,5 +1,5 @@
-#ifndef __DEVICE_H
-#define __DEVICE_H
+#ifndef __AD_DEVICE_H
+#define __AD_DEVICE_H
 
 #include <ctype.h>
 #include "libautodiag/model/vehicle.h"

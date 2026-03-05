@@ -1,5 +1,5 @@
-#ifndef __OBJECT_INT_H
-#define __OBJECT_INT_H
+#ifndef __AD_OBJECT_INT_H
+#define __AD_OBJECT_INT_H
 
 #include "libautodiag/lang/object.h"
 

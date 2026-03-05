@@ -1,5 +1,5 @@
-#ifndef __UI_H
-#define __UI_H
+#ifndef __AD_UI_H
+#define __AD_UI_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

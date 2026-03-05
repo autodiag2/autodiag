@@ -1,8 +1,8 @@
 /**
  * Dynamic information retrieved from the car (eg not loaded from database files)
  */
-#ifndef __VEHICLE_H
-#define __VEHICLE_H
+#ifndef __AD_VEHICLE_H
+#define __AD_VEHICLE_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/buffer.h"

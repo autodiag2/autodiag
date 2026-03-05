@@ -1,5 +1,5 @@
-#ifndef __COM_DOIP_H
-#define __COM_DOIP_H
+#ifndef __AD_COM_DOIP_H
+#define __AD_COM_DOIP_H
 
 /**
  * ISO 13400

@@ -1,5 +1,5 @@
-#ifndef __ELM_H
-#define __ELM_H
+#ifndef __AD_ELM_H
+#define __AD_ELM_H
 /**
  * An ELM device provides at least the following commands
  */

@@ -1,5 +1,5 @@
-#ifndef __VEHICLE_INTERFACE_H
-#define __VEHICLE_INTERFACE_H
+#ifndef __AD_VEHICLE_INTERFACE_H
+#define __AD_VEHICLE_INTERFACE_H
 
 #include "libautodiag/com/device.h"
 #include "libautodiag/model/vehicle.h"

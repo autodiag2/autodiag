@@ -1,5 +1,5 @@
-#ifndef __SERIAL_ELM327_H
-#define __SERIAL_ELM327_H
+#ifndef __AD_SERIAL_ELM327_H
+#define __AD_SERIAL_ELM327_H
 
 #include "libautodiag/com/obd/obd.h"
 #include "../elm.h"

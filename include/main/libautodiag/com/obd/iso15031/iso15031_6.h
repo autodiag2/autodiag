@@ -1,5 +1,5 @@
-#ifndef __ISO15031_6_H
-#define __ISO15031_6_H
+#ifndef __AD_ISO15031_6_H
+#define __AD_ISO15031_6_H
 
 #include "libautodiag/lib.h"
 

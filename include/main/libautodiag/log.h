@@ -1,5 +1,5 @@
-#ifndef __LOG_H
-#define __LOG_H
+#ifndef __AD_LOG_H
+#define __AD_LOG_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

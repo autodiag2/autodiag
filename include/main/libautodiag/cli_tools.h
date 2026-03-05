@@ -1,5 +1,5 @@
-#ifndef __CLI_TOOLS_H
-#define __CLI_TOOLS_H
+#ifndef __AD_CLI_TOOLS_H
+#define __AD_CLI_TOOLS_H
 
 #define argForEach() for(int i = 1; i < argc; i++)
 #define argNext() i++;

@@ -2,8 +2,8 @@
  * ISO 15765 also called ISO-TP - used to transfer more than eight bytes on it
  * It operate over a can bus
  */
-#ifndef __iso15765_2_H
-#define __iso15765_2_H
+#ifndef __AD_iso15765_2_H
+#define __AD_iso15765_2_H
 
 #include "can.h"
 #include "libautodiag/lib.h"

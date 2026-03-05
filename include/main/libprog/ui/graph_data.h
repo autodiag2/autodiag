@@ -1,5 +1,5 @@
-#ifndef __GRAPH_DATA_H
-#define __GRAPH_DATA_H
+#ifndef __AD_GRAPH_DATA_H
+#define __AD_GRAPH_DATA_H
 
 #include <time.h>
 #include "libautodiag/lib.h"

@@ -1,5 +1,5 @@
-#ifndef __MODEL_DTC_H
-#define __MODEL_DTC_H
+#ifndef __AD_MODEL_DTC_H
+#define __AD_MODEL_DTC_H
 
 #include "libautodiag/lang/all.h"
 #include "libautodiag/model/vehicle.h"

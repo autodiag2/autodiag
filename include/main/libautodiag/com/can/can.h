@@ -1,8 +1,8 @@
 /**
  * A Controller Area Network (CAN) bus is designed to allow microcontrollers and devices to communicate.
  */
-#ifndef __CAN_H
-#define __CAN_H
+#ifndef __AD_CAN_H
+#define __AD_CAN_H
 
 /**
  * Standard can messages are 8 bytes length

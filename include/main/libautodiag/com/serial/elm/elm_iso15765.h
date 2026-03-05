@@ -1,5 +1,5 @@
-#ifndef __ELM_ISO15765_H
-#define __ELM_ISO15765_H
+#ifndef __AD_ELM_ISO15765_H
+#define __AD_ELM_ISO15765_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/math.h"

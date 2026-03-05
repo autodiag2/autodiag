@@ -1,5 +1,5 @@
-#ifndef __COM_NETWORK_H
-#define __COM_NETWORK_H
+#ifndef __AD_COM_NETWORK_H
+#define __AD_COM_NETWORK_H
 
 #include "libautodiag/lib.h"
 

@@ -1,5 +1,5 @@
-#ifndef __UDS_SERVICE_READ_DTC_H
-#define __UDS_SERVICE_READ_DTC_H
+#ifndef __AD_UDS_SERVICE_READ_DTC_H
+#define __AD_UDS_SERVICE_READ_DTC_H
 
 #include "libautodiag/com/uds/uds.h"
 #include "libautodiag/lang/all.h"

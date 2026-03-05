@@ -1,5 +1,5 @@
-#ifndef __INITOOLS_H
-#define __INITOOLS_H
+#ifndef __AD_INITOOLS_H
+#define __AD_INITOOLS_H
 
 #include <stdio.h>
 #include "libautodiag/string.h"

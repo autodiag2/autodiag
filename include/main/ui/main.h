@@ -1,5 +1,5 @@
-#ifndef __MAIN_H
-#define __MAIN_H
+#ifndef __AD_MAIN_H
+#define __AD_MAIN_H
 
 #define MODULE_MAIN "Main", 
 

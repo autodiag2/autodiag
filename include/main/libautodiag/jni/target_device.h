@@ -1,5 +1,5 @@
-#ifndef __JNI_TARGET_DEVICE_H
-#define __JNI_TARGET_DEVICE_H
+#ifndef __AD_JNI_TARGET_DEVICE_H
+#define __AD_JNI_TARGET_DEVICE_H
 
 #include "libautodiag/compile_target.h"
 #include "libautodiag/lang/all.h"

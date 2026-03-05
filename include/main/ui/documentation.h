@@ -1,5 +1,5 @@
-#ifndef __DOCUMENTATION_H
-#define __DOCUMENTATION_H
+#ifndef __AD_DOCUMENTATION_H
+#define __AD_DOCUMENTATION_H
 
 #include "ui.h"
 #include "ui_mod.h"

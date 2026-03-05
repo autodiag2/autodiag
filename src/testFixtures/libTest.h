@@ -1,5 +1,5 @@
-#ifndef __TEST_LIB_H
-#define __TEST_LIB_H
+#ifndef __AD_TEST_LIB_H
+#define __AD_TEST_LIB_H
 
 #define _GNU_SOURCE
 #include <stdio.h>

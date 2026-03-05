@@ -1,5 +1,5 @@
-#ifndef __OBJECT_PTR_H
-#define __OBJECT_PTR_H
+#ifndef __AD_OBJECT_PTR_H
+#define __AD_OBJECT_PTR_H
 
 #include "libautodiag/lang/object.h"
 #include "libautodiag/lang/lang.h"

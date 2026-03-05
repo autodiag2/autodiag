@@ -1,5 +1,5 @@
-#ifndef __LANG_ALL_H
-#define __LANG_ALL_H
+#ifndef __AD_LANG_ALL_H
+#define __AD_LANG_ALL_H
 
 #include "libautodiag/lang/lang.h"
 #include "libautodiag/lang/object.h"

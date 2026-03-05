@@ -1,5 +1,5 @@
-#ifndef __COM_DOIP_DEVICE_H
-#define __COM_DOIP_DEVICE_H
+#ifndef __AD_COM_DOIP_DEVICE_H
+#define __AD_COM_DOIP_DEVICE_H
 
 #include "libautodiag/lib.h"
 #include "libautodiag/com/device.h"

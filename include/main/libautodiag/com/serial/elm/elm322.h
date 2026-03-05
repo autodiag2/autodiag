@@ -1,5 +1,5 @@
-#ifndef __ELM322_H
-#define __ELM322_H
+#ifndef __AD_ELM322_H
+#define __AD_ELM322_H
 
 #include "elm.h"
 

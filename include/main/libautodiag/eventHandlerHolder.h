@@ -1,5 +1,5 @@
-#ifndef __LIBAUTODIAG_EVENT_HANDLER_HOLDER_H
-#define __LIBAUTODIAG_EVENT_HANDLER_HOLDER_H
+#ifndef __AD_LIBAUTODIAG_EVENT_HANDLER_HOLDER_H
+#define __AD_LIBAUTODIAG_EVENT_HANDLER_HOLDER_H
 
 #include "libautodiag/lang/all.h"
 #include <stdlib.h>

@@ -1,5 +1,5 @@
-#ifndef __ELM320_H
-#define __ELM320_H
+#ifndef __AD_ELM320_H
+#define __AD_ELM320_H
 
 #include "elm.h"
 
