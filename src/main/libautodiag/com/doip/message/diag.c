@@ -1,5 +1,8 @@
 #include "libautodiag/com/doip/message/diag.h"
 
+AD_OBJECT_SRC(DoIPMessagePayloadDiag)
+AD_OBJECT_SRC(DoIPMessagePayloadDiagFeedback)
+
 object_DoIPMessage * doip_message_diag(Buffer * to, Buffer * from, Buffer * payload_data) {
     object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
     payload->data = buffer_copy(payload_data);

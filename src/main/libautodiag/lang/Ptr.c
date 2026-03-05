@@ -1,5 +1,7 @@
 #include "libautodiag/lang/Ptr.h"
 
+AD_OBJECT_SRC(Ptr)
+
 void object_Ptr_free(object_Ptr *object) {
     assert(object);
     if (object) {

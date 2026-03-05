@@ -1,5 +1,7 @@
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 
+AD_OBJECT_SRC(UDS_DTC)
+
 object_UDS_DTC * object_UDS_DTC_new() { return UDS_DTC_new(); }
 object_UDS_DTC * object_UDS_DTC_assign(object_UDS_DTC * to, object_UDS_DTC * from) {
     memcpy(to->data, from->data, DTC_DATA_SZ);

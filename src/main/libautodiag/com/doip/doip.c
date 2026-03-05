@@ -588,6 +588,15 @@ DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n) {
     return DOIP_MESSAGE_RARES_CODE_UNKNOWN;
 }
 // start of payload object definitions
+AD_OBJECT_SRC(DoIPMessagePayloadEmpty)
+AD_OBJECT_SRC(DoIPMessage)
+AD_OBJECT_SRC(DoIPMessagePayloadRoutineActivationRequest)
+AD_OBJECT_SRC(DoIPMessagePayloadRoutineActivationResponse)
+AD_OBJECT_SRC(DoIPMessagePayloadAliveCheck)
+AD_OBJECT_SRC(DoIPMessagePayloadEntityStatusResponse)
+AD_OBJECT_SRC(DoIPMessagePayloadRequestWithEID)
+AD_OBJECT_SRC(DoIPMessagePayloadRequestWithVIN)
+AD_OBJECT_SRC(DoIPMessagePayloadVehicleIdResponse)
 object_DoIPMessagePayloadRequestWithEID * object_DoIPMessagePayloadRequestWithEID_new() {
     object_DoIPMessagePayloadRequestWithEID * r = (object_DoIPMessagePayloadRequestWithEID*)malloc(sizeof(object_DoIPMessagePayloadRequestWithEID));
     r->eid = buffer_new();

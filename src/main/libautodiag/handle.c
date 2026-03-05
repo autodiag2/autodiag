@@ -1,5 +1,7 @@
 #include "libautodiag/handle.h"
 
+AD_OBJECT_SRC(handle_t)
+
 int object_handle_t_get_port(object_handle_t * handle) {
     #ifdef OS_POSIX
         return sock_t_get_port(handle->posix_handle);

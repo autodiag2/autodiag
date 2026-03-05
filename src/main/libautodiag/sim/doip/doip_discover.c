@@ -9,11 +9,23 @@ void * sim_doip_discovery_loop(void *arg) {
         log_msg(LOG_ERROR, "Failed to get discovery server port");
         return null;
     }
+
+    object_DoIPMessage * responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
+    object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
+    payload->vin = buffer_from_ascii("VF1BB05CF26010203");
+    assert(0 < sim->ecus->size);
+    payload->addr = buffer_from_ints(0x07, sim->ecus->list[0]->address);
+    payload->eid = buffer_from_ascii_hex("1234567890AB");
+    payload->gid = buffer_from_ascii_hex("1234567890AB");
+    payload->further_action_required = false;
+    payload->sync_status = false;
+    Buffer * responseBuffer = doip_message_serialize(responseMessage);
+    object_DoIPMessage_free(responseMessage);
+
     long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
     while ( sim_doip_should_continue(sim) ) {
-        /*if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
-            Buffer * annoucement = buffer_from_ascii_hex("000102030405060708090A0B0C0D0E0F");   
+        if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
             last_broadcast_ms = time_ms();
             struct sockaddr_in addr;
             memset(&addr, 0, sizeof(addr));
@@ -22,9 +34,9 @@ void * sim_doip_discovery_loop(void *arg) {
             addr.sin_addr.s_addr = htonl(INADDR_BROADCAST);
 
             log_msg(LOG_DEBUG, "Annoucement sent");
-            sendto(handle, annoucement->buffer, annoucement->size, 0,
+            sendto(handle, responseBuffer->buffer, responseBuffer->size, 0,
                 (struct sockaddr*)&addr, sizeof(addr));
-        }*/
+        }
         int r = network_udp_wait_readable(handle, timeout_waiting_client_ms);
         if (0 < r) {
             Buffer * request = buffer_new();
@@ -35,39 +47,26 @@ void * sim_doip_discovery_loop(void *arg) {
             if (n <= 0) continue;
             request->size = (unsigned)n;
             object_DoIPMessage * requestMessage = doip_message_parse(request);
-            object_DoIPMessage * responseMessage = null;
+            bool requestSent = false;
             switch(requestMessage->payload_type) {
                 case DOIP_VEHICLE_IDENT_REQUEST_EID:
                 case DOIP_VEHICLE_IDENT_REQUEST_VIN:
                     log_msg(LOG_DEBUG, "TODO: ignoring ecu targetting for now");
                 case DOIP_VEHICLE_IDENT_REQUEST: {
                     log_msg(LOG_DEBUG, "Vehicle identification request received from %s", network_location(from));
-                    responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
-                    object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
-                    payload->vin = buffer_from_ascii("VF1BB05CF26010203");
-                    assert(0 < sim->ecus->size);
-                    payload->addr = buffer_from_ints(0x07, sim->ecus->list[0]->address);
-                    payload->eid = buffer_from_ascii_hex("1234567890AB");
-                    payload->gid = buffer_from_ascii_hex("1234567890AB");
-                    payload->further_action_required = false;
-                    payload->sync_status = false;
+                    requestSent = true;
                 } break;
-
                 default: {
                     log_msg(LOG_DEBUG, "Unknown message received from %s", network_location(from));
                 } break;
             }
             object_DoIPMessage_free(requestMessage);
-            if (responseMessage) {
-                Buffer * responseBuffer = doip_message_serialize(responseMessage);
-                if (responseBuffer) {
-                    sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
-                    char * addr_str = network_location(from);
-                    log_msg(LOG_DEBUG, "Response sent to %s (0x%s)", addr_str, buffer_to_hex_string(responseBuffer));
-                    free(addr_str);
-                    buffer_free(responseBuffer);
-                }
-                object_DoIPMessage_free(responseMessage);
+            if (requestSent) {
+                sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
+                char * addr_str = network_location(from);
+                log_msg(LOG_DEBUG, "Response sent to %s (0x%s)", addr_str, buffer_to_hex_string(responseBuffer));
+                free(addr_str);
+                buffer_free(responseBuffer);
             }
         }
     }

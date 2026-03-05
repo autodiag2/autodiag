@@ -6,6 +6,7 @@ int Device_cmp(Device * d1, Device * d2) {
     return strcmp(d1->location, d2->location);
 }
 AD_LIST_SRC(Device)
+AD_OBJECT_SRC(DeviceTable)
 
 object_DeviceTable * object_DeviceTable_new() {
     object_DeviceTable * table = malloc(sizeof(object_DeviceTable));
@@ -103,6 +104,7 @@ Device * device_table_find_by_location(object_DeviceTable * table, final char * 
         return table->list->list[index];
     }
 }
+
 
 void device_table_close_selected(object_DeviceTable * table) {
     Device * device = device_table_get_selected(table);

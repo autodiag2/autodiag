@@ -42,6 +42,8 @@ char *strsep(char **stringp, const char *delim) {
 
 #endif
 
+AD_OBJECT_SRC(string)
+
 bool strbeginwith(char *str, char *begin) {
     return strncmp(str,begin,strlen(begin)) == 0;
 }

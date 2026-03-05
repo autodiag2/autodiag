@@ -1,6 +1,8 @@
 #include "libautodiag/com/recorder.h"
 #include "cJSON.h"
 
+AD_OBJECT_SRC(Record)
+
 static cJSON * cJSON_GetArrayItemByStringField(cJSON * arr, char * key, char * value) {
     for(int i = 0; i < cJSON_GetArraySize(arr); i++) {
         cJSON * obj = cJSON_GetArrayItem(arr, i);

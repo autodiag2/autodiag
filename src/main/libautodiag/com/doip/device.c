@@ -1,6 +1,8 @@
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/doip.h"
 
+AD_OBJECT_SRC(DoIPDevice)
+
 int doip_disc_send(object_DoIPDevice *device, object_DoIPMessage *msg) {
     assert(device != null && msg != null);
 

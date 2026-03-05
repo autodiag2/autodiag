@@ -1570,11 +1570,9 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     false
                 )
 
+// WARNING: never attempt to free this map
 static object_hashmap_Ptr_string * _saej1979_data_data_gen_pid_map = null;
-int object_hashmap_Ptr_string_key_comparator(object_Ptr * k1, object_Ptr *k2) {
-    return k1->value - k2->value;
-}
-HASHMAP_SRC(Ptr, string)
+
 char* saej1979_data_data_gen_pid_map_get(void *key) {
     if ( _saej1979_data_data_gen_pid_map == null ) {
         _saej1979_data_data_gen_pid_map = object_hashmap_Ptr_string_new();

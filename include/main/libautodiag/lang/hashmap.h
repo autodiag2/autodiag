@@ -89,6 +89,7 @@
     HASHMAP_SRC_GET(key_type, value_type) \
     HASHMAP_SRC_NEW(key_type, value_type) \
     HASHMAP_SRC_FREE(key_type, value_type) \
-    HASHMAP_SRC_CLEAR(key_type, value_type)
+    HASHMAP_SRC_CLEAR(key_type, value_type) \
+    AD_OBJECT_SRC(hashmap_##key_type##_##value_type)
 
 #endif

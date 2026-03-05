@@ -1,5 +1,7 @@
 #include "libautodiag/lang/Int.h"
 
+AD_OBJECT_SRC(Int)
+
 void object_Int_free(object_Int *object) {
     assert(object);
     if (object) {

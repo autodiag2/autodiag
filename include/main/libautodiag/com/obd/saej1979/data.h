@@ -8,8 +8,6 @@
 #include "libautodiag/com/obd/obd.h"
 #include "saej1979.h"
 
-HASHMAP_H(Ptr, string)
-// WARNING: never attempt to free this map
 char* saej1979_data_data_gen_pid_map_get(void *key);
 
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \
