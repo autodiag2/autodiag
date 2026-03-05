@@ -144,7 +144,6 @@ bool sim_doip_should_continue(SimDoIp * sim) {
 }
 void sim_doip_loop(SimDoIp * sim) {
 
-    sim_doip_discover_start(sim);
     DoIpImplementation * impl = (DoIpImplementation*)sim->implementation;
     object_handle_t_init(impl->server_handle);
     object_handle_t_init(impl->handle);
@@ -168,6 +167,8 @@ void sim_doip_loop(SimDoIp * sim) {
     asprintf(&sim->device_location, "0.0.0.0:%d", main_loop_port);
 
     log_msg(LOG_INFO, "running on %s", sim->device_location);
+    sim_doip_discover_start(sim);
+
     final Buffer * recv_buffer = buffer_new();
     buffer_ensure_capacity(recv_buffer, 100);
 

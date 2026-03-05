@@ -11,7 +11,7 @@ void * sim_doip_discovery_loop(void *arg) {
     }
     long last_broadcast_ms = -1;
     final int timeout_waiting_client_ms = implementation->broadcast_time_ms/10;
-    Buffer * annoucement = buffer_from_ascii_hex("0123456789ABCDEF");
+    Buffer * annoucement = buffer_from_ascii_hex("000102030405060708090A0B0C0D0E0F");
     while ( sim_doip_should_continue(sim) ) {
         if ( last_broadcast_ms == -1 || (time_ms() - last_broadcast_ms) > implementation->broadcast_time_ms ) {
             last_broadcast_ms = time_ms();
