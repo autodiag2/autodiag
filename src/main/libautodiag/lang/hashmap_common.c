@@ -14,7 +14,7 @@ ad_object_hashmap_Int_string * ad_object_hashmap_Int_string_assign(ad_object_has
     }
     return to;
 }
-HASHMAP_SRC(Int, string)
+AD_HASHMAP_SRC(Int, string)
 
 ad_object_hashmap_Int_Int * ad_object_hashmap_Int_Int_assign(ad_object_hashmap_Int_Int*to, ad_object_hashmap_Int_Int*from) {
     assert(to != null);
@@ -28,7 +28,7 @@ ad_object_hashmap_Int_Int * ad_object_hashmap_Int_Int_assign(ad_object_hashmap_I
 int ad_object_hashmap_Int_Int_key_comparator(ad_object_Int * k1, ad_object_Int *k2) {
     return ad_object_hashmap_Int_string_key_comparator(k1, k2);
 }
-HASHMAP_SRC(Int, Int)
+AD_HASHMAP_SRC(Int, Int)
 
 int ad_object_hashmap_string_Ptr_key_comparator(ad_object_string * k1, ad_object_string * k2) {
     return strcmp(k1->data, k2->data);
@@ -42,7 +42,7 @@ ad_object_hashmap_string_Ptr * ad_object_hashmap_string_Ptr_assign(ad_object_has
     }
     return to;
 }
-HASHMAP_SRC(string, Ptr)
+AD_HASHMAP_SRC(string, Ptr)
 
 ad_object_hashmap_Ptr_string * ad_object_hashmap_Ptr_string_assign(ad_object_hashmap_Ptr_string*to, ad_object_hashmap_Ptr_string*from) {
     assert(to != null);
@@ -56,7 +56,7 @@ ad_object_hashmap_Ptr_string * ad_object_hashmap_Ptr_string_assign(ad_object_has
 int ad_object_hashmap_Ptr_string_key_comparator(ad_object_Ptr * k1, ad_object_Ptr *k2) {
     return k1->value - k2->value;
 }
-HASHMAP_SRC(Ptr, string)
+AD_HASHMAP_SRC(Ptr, string)
 
 int ad_object_hashmap_string_string_key_comparator(ad_object_string *k1, ad_object_string *k2) {
     assert(k1 != null);
@@ -72,4 +72,4 @@ ad_object_hashmap_string_string * ad_object_hashmap_string_string_assign(ad_obje
     }
     return to;
 }
-HASHMAP_SRC(string, string)
+AD_HASHMAP_SRC(string, string)
