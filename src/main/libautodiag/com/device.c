@@ -69,7 +69,7 @@ AD_DEVICE_TYPE ad_device_type_from_str(char * type_str) {
         return AD_DEVICE_TYPE_AUTO;
     }
 }
-const char * device_type_as_string(AD_DEVICE_TYPE type) {
+const char * ad_device_type_as_string(AD_DEVICE_TYPE type) {
     switch(type) {
         case AD_DEVICE_TYPE_SERIAL: return "Serial";
         case AD_DEVICE_TYPE_DOIP: return "DoIP";

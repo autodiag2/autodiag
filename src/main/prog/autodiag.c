@@ -130,7 +130,7 @@ int main (int argc, char *argv[]) {
                         printf("Devices available:\n");
                         for(int i = 0; i < config.ephemere.device_table->list->size; i++) {
                             Device * device = AD_DEVICE(config.ephemere.device_table->list->list[i]);
-                            printf(" %s (%s)\n", device->location, device_type_as_string(device->type));
+                            printf(" %s (%s)\n", device->location, ad_device_type_as_string(device->type));
                         }
                         return 0;
                     } else {

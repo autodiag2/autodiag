@@ -53,7 +53,7 @@ object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
         if (recv_len <= 0) return null;
 
     #elif defined(OS_WINDOWS)
-        DWORD tv = timeout_ms;
+        DWORD tv = device->timeout_ms;
         setsockopt(device->implementation->disc_handle, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
         struct sockaddr_in src;
         int slen = sizeof(src);
@@ -71,6 +71,7 @@ object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
 }
 
 bool doip_configure(final object_DoIPDevice * device) {
+    assert(device != null);
     log_msg(LOG_DEBUG, "Configuring doip device");
     {
         log_msg(LOG_DEBUG, "Discovering the vehicle");
