@@ -57,13 +57,13 @@ void * sim_doip_discovery_loop(void *arg) {
                     log_msg(LOG_DEBUG, "Unknown message received from %s", network_location(from));
                 } break;
             }
-    
+            object_DoIPMessage_free(requestMessage);
             if (responseMessage) {
                 Buffer * responseBuffer = doip_message_serialize(responseMessage);
                 if (responseBuffer) {
                     sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
                     char * addr_str = network_location(from);
-                    log_msg(LOG_DEBUG, "Response sent to %s", addr_str);
+                    log_msg(LOG_DEBUG, "Response sent to %s (0x%s)", addr_str, buffer_to_hex_string(responseBuffer));
                     free(addr_str);
                     buffer_free(responseBuffer);
                 }

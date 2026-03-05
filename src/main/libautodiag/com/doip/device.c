@@ -91,7 +91,7 @@ bool doip_configure(final object_DoIPDevice * device) {
         }
         object_DoIPMessagePayloadVehicleIdResponse * responsePayload = (object_DoIPMessagePayloadVehicleIdResponse*)response->payload;
         device->node.address = buffer_copy(responsePayload->addr);
-        log_msg(LOG_DEBUG, "Found node 0x%X VIN=%s", buffer_to_hex_string(responsePayload->addr), buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
+        log_msg(LOG_DEBUG, "Found node 0x%s VIN=%s", buffer_to_hex_string(responsePayload->addr), buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
         object_DoIPMessage_free(response);
     }
     {

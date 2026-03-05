@@ -99,47 +99,48 @@ int main (int argc, char *argv[]) {
         } else if argIs("gui") {
             log_msg(LOG_INFO, "this is the default behaviour");
             argNext()
-            if ( argCurrent() == null ) {
-                // nothing to do
-            } else if ( argIs("-h") || argIs("help") || argIs("--help") ) {
-                display_gui_help();
-                return 0;
-            } else if argIs("-t") {
-                argNext();
-                char * arg = argCurrent();
-                if ( arg == null ) {
-                    printf("auto\n");
-                    printf("doip\n");
-                    printf("elm\n");
+            while(argCurrent() != null) {
+                if ( argIs("-h") || argIs("help") || argIs("--help") ) {
+                    display_gui_help();
                     return 0;
-                } else {
-                    config.com.device.type = ad_device_type_from_str(arg);
-                }
-            } else if argIs("-b") {
-                argNext();
-                char * arg = argCurrent();
-                if ( arg == null ) {
-                    printf("-b require the baud rate as argument\n");
-                    return 1;
-                } else {
-                    config.com.device.serial.baud_rate = atoi(arg);
-                }
-            } else if argIs("-n") {
-                argNext();
-                char * arg = argCurrent();
-                if ( arg == null ) {
-                    printf("Devices available:\n");
-                    for(int i = 0; i < config.ephemere.device_table->list->size; i++) {
-                        Device * device = AD_DEVICE(config.ephemere.device_table->list->list[i]);
-                        printf(" %s (%s)\n", device->location, device_type_as_string(device->type));
+                } else if argIs("-t") {
+                    argNext();
+                    char * arg = argCurrent();
+                    if ( arg == null ) {
+                        printf("auto\n");
+                        printf("doip\n");
+                        printf("elm\n");
+                        return 0;
+                    } else {
+                        config.com.device.type = ad_device_type_from_str(arg);
                     }
-                    return 0;
+                } else if argIs("-b") {
+                    argNext();
+                    char * arg = argCurrent();
+                    if ( arg == null ) {
+                        printf("-b require the baud rate as argument\n");
+                        return 1;
+                    } else {
+                        config.com.device.serial.baud_rate = atoi(arg);
+                    }
+                } else if argIs("-n") {
+                    argNext();
+                    char * arg = argCurrent();
+                    if ( arg == null ) {
+                        printf("Devices available:\n");
+                        for(int i = 0; i < config.ephemere.device_table->list->size; i++) {
+                            Device * device = AD_DEVICE(config.ephemere.device_table->list->list[i]);
+                            printf(" %s (%s)\n", device->location, device_type_as_string(device->type));
+                        }
+                        return 0;
+                    } else {
+                        config.com.device.location = strdup(arg);
+                    }
                 } else {
-                    config.com.device.location = strdup(arg);
+                    printf("Unknown argument '%s', aborting\n", argCurrent());
+                    return 1;
                 }
-            } else {
-                printf("Unknown argument '%s', aborting\n", argCurrent());
-                return 1;
+                argNext()
             }
         } else if argIs("cli") {
             return terminal_cli_main(argc-argCurrentIndex(), argv+argCurrentIndex());

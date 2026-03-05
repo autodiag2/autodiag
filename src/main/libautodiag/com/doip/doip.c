@@ -266,7 +266,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
 void doip_message_dump(object_DoIPMessage * msg) {
     assert(msg != null);
     if ( log_has_level(LOG_DEBUG) ) {
-        log_msg(LOG_DEBUG, "diag message: {");
+        log_msg(LOG_DEBUG, "DoIP message: {");
         log_msg(LOG_DEBUG, "    version: 0x%02hhX", msg->protocol_version);
         log_msg(LOG_DEBUG, "    payload_type: 0x%04X", msg->payload_type);
         switch(msg->payload_type) {
