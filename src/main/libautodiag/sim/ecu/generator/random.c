@@ -3,12 +3,12 @@
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     assert(generator->context != null);
     unsigned * seed = generator->context;
-    final Buffer *binResponse = buffer_new();
+    final Buffer *binResponse = ad_buffer_new();
     if ( binRequest->size == 0 ) {
         return binResponse;
     }
     if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
-        return buffer_new();
+        return ad_buffer_new();
     }
 
     switch(binRequest->buffer[0]) {
@@ -24,11 +24,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x40:
                     case 0x20:
                     case 0x00: {
-                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                     } break;
                     default: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
                     } break;
                 }
             }
@@ -37,8 +37,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC: {
-            buffer_append_melt(binResponse,
-                buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));
+            ad_buffer_append_melt(binResponse,
+                ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));
         } break;
 
         case OBD_SERVICE_CLEAR_DTC: {
@@ -49,58 +49,58 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                         break;
                     }
                     case 0x01: {
-                        buffer_append_byte(binResponse, 0x05);
+                        ad_buffer_append_byte(binResponse, 0x05);
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(17, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(17, seed));
                         break;
                     }
                     case 0x03: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x04: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(16, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(16, seed));
                         break;
                     }
                     case 0x05: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x06: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x08: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        final Buffer * name = buffer_from_ascii("ECU random");
-                        buffer_padding(name, 20, 0x00);
-                        buffer_append_melt(binResponse, name);
+                        final Buffer * name = ad_buffer_from_ascii("ECU random");
+                        ad_buffer_padding(name, 20, 0x00);
+                        ad_buffer_append_melt(binResponse, name);
                         break;
                     }
                     case 0x0B: {
-                        buffer_append_melt(binResponse,
-                            buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,
+                            ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }

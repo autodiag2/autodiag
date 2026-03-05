@@ -64,11 +64,11 @@ object_DoIPMessage *doip_disc_recv(object_DoIPDevice *device) {
         if (recv_len <= 0) return NULL;
     #endif
 
-    Buffer *recv_buf = buffer_from_bytes(buf, (size_t)recv_len);
+    Buffer *recv_buf = ad_buffer_from_bytes(buf, (size_t)recv_len);
     if (!recv_buf) return null;
 
     object_DoIPMessage *msg = doip_message_parse(recv_buf);
-    buffer_free(recv_buf);
+    ad_buffer_free(recv_buf);
     return msg;
 }
 
@@ -93,8 +93,8 @@ bool doip_configure(final object_DoIPDevice * device) {
             return false;
         }
         object_DoIPMessagePayloadVehicleIdResponse * responsePayload = (object_DoIPMessagePayloadVehicleIdResponse*)response->payload;
-        device->node.address = buffer_copy(responsePayload->addr);
-        log_msg(LOG_DEBUG, "Found node 0x%s VIN=%s", buffer_to_hex_string(responsePayload->addr), buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
+        device->node.address = ad_buffer_copy(responsePayload->addr);
+        log_msg(LOG_DEBUG, "Found node 0x%s VIN=%s", ad_buffer_to_hex_string(responsePayload->addr), ad_buffer_to_ascii_espace_breaking_chars(responsePayload->vin));
         object_DoIPMessage_free(response);
     }
     {
@@ -104,9 +104,9 @@ bool doip_configure(final object_DoIPDevice * device) {
         requestPayload->src_addr[0] = (device->address >> 8) & 0xFF;
         requestPayload->src_addr[1] = device->address & 0xFF;
         request->payload = (DoIPMessageDef*)requestPayload;
-        doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(request)));
+        doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
         object_DoIPMessage_free(request);
-        buffer_recycle(device->recv_buffer);
+        ad_buffer_recycle(device->recv_buffer);
         doip_recv_internal(device);
         object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
         if ( response == null ) {
@@ -136,9 +136,9 @@ bool doip_configure(final object_DoIPDevice * device) {
 
 bool doip_node_queue_is_full(final object_DoIPDevice * device) {
     object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
-    doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(request)));
+    doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
     object_DoIPMessage_free(request);
-    buffer_recycle(device->recv_buffer);
+    ad_buffer_recycle(device->recv_buffer);
     doip_recv_internal(device);
     object_DoIPMessage * response = doip_message_parse(device->recv_buffer);
     switch(response->payload_type) {
@@ -337,11 +337,11 @@ static char* doip_describe_communication_layer(final object_DoIPDevice* device) 
 }
 
 static bool doip_parse_data(final object_DoIPDevice* device, final Vehicle* vehicle) {
-    final Buffer * address = buffer_slice(device->recv_buffer, 0, DOIP_MESSAGE_DIAG_ADDR_SZ); 
-    buffer_left_shift(device->recv_buffer, DOIP_MESSAGE_DIAG_ADDR_SZ);
+    final Buffer * address = ad_buffer_slice(device->recv_buffer, 0, DOIP_MESSAGE_DIAG_ADDR_SZ); 
+    ad_buffer_left_shift(device->recv_buffer, DOIP_MESSAGE_DIAG_ADDR_SZ);
     final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
-    buffer_free(address); 
-    list_Buffer_append(ecu->data_buffer,buffer_copy(device->recv_buffer));
+    ad_buffer_free(address); 
+    list_Buffer_append(ecu->data_buffer,ad_buffer_copy(device->recv_buffer));
     return true;
 }
 
@@ -350,7 +350,7 @@ static bool doip_set_filter_by_address(final object_DoIPDevice* device, list_Buf
 }
 
 static void doip_clear_data(final object_DoIPDevice* device) {
-    buffer_recycle(device->recv_buffer);
+    ad_buffer_recycle(device->recv_buffer);
 }
 
 static void doip_lock(final object_DoIPDevice* device) {
@@ -364,29 +364,29 @@ void doip_set_tester_address(final object_DoIPDevice* device, uint16_t address) 
     device->address = address;
 }
 static int doip_send(final object_DoIPDevice * device, const char * command) {
-    Buffer * diag_message = buffer_from_ascii_hex(command);
+    Buffer * diag_message = ad_buffer_from_ascii_hex(command);
     if ( diag_message == null ) {
         log_msg(LOG_ERROR, "Message sent is not ascii hex, cannot be sent");
         return DEVICE_ERROR;
     }
     object_DoIPMessage * msg = doip_message_diag(
         device->node.address, 
-        buffer_from_uint16(device->address),
+        ad_buffer_from_uint16(device->address),
         diag_message
     );
-    buffer_free(diag_message);
-    return doip_send_internal(device, buffer_to_hex_string(doip_message_serialize(msg)));
+    ad_buffer_free(diag_message);
+    return doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(msg)));
 }
 int doip_send_internal(final object_DoIPDevice * device, const char * command) {
     assert(command != null);
 
-    Buffer * request = buffer_from_ascii_hex(command);
+    Buffer * request = ad_buffer_from_ascii_hex(command);
     if ( request == null ) {
-        request = buffer_from_ascii(command);
+        request = ad_buffer_from_ascii(command);
     }
     if ( log_has_level(LOG_DEBUG) ) {
         log_msg(LOG_DEBUG, "Sending");
-        buffer_dump(request);
+        ad_buffer_dump(request);
     }
 
     if (device->implementation->handle == SOCK_T_INVALID) {
@@ -460,13 +460,13 @@ static int doip_recv(final object_DoIPDevice * device) {
                     log_msg(LOG_WARNING, "Received a diag message without previous ACK (suspisious) never mind ...");
                 }
                 object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
-                buffer_recycle(device->recv_buffer);
-                buffer_append(device->recv_buffer, payload->src_addr);
+                ad_buffer_recycle(device->recv_buffer);
+                ad_buffer_append(device->recv_buffer, payload->src_addr);
                 if ( log_has_level(LOG_DEBUG) ) {
                     log_msg(LOG_DEBUG, "Received the payload:");
-                    buffer_dump(payload->data);
+                    ad_buffer_dump(payload->data);
                 }
-                buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
+                ad_buffer_slice_append(device->recv_buffer, payload->data, 0, payload->data->size);
             } return DEVICE_RECV_DATA;
             case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
                 if ( accepted ) {
@@ -474,8 +474,8 @@ static int doip_recv(final object_DoIPDevice * device) {
                 }
                 accepted = true;
                 Buffer * serialized = doip_message_serialize(msg);
-                buffer_left_shift(device->recv_buffer, serialized->size);
-                buffer_free(serialized);
+                ad_buffer_left_shift(device->recv_buffer, serialized->size);
+                ad_buffer_free(serialized);
             } break;
             case DOIP_DIAGNOSTIC_MESSAGE_NACK: {
                 if ( accepted ) {
@@ -502,7 +502,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
     #if defined OS_POSIX
         int res = file_pool_read_posix(device->implementation->handle, &readLen, device->timeout_ms);
         if ( 0 < res ) {
-            buffer_ensure_capacity(device->recv_buffer, readLen);
+            ad_buffer_ensure_capacity(device->recv_buffer, readLen);
             final int bytes_readed = read(device->implementation->handle, device->recv_buffer->buffer + device->recv_buffer->size, readLen);
             if( 0 < bytes_readed ) {
                 device->recv_buffer->size += bytes_readed;
@@ -514,7 +514,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             }
             if ( log_has_level(LOG_DEBUG) ) {
                 log_msg(LOG_DEBUG, "ip data received");
-                buffer_dump(device->recv_buffer);
+                ad_buffer_dump(device->recv_buffer);
             }
         } else if ( res == -1 ) {
             perror("poll");
@@ -535,7 +535,7 @@ int doip_recv_internal(final object_DoIPDevice * device) {
             log_msg(LOG_WARNING, "Timeout while polling");
         }
         
-        buffer_ensure_capacity(device->recv_buffer, readLen);
+        ad_buffer_ensure_capacity(device->recv_buffer, readLen);
         int r = recv(
             device->implementation->handle,
             (char *)device->recv_buffer->buffer + device->recv_buffer->size,
@@ -559,7 +559,7 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->timeout_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_MS;
     device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
-    device->recv_buffer = buffer_new();
+    device->recv_buffer = ad_buffer_new();
     device->node.max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
     device->node.node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
     device->implementation->handle = SOCK_T_INVALID;
@@ -579,19 +579,19 @@ object_DoIPDevice * object_DoIPDevice_new() {
     device->open = AD_DEVICE_OPEN(doip_open);
     device->close = AD_DEVICE_CLOSE(doip_close);
     device->free = null;
-    device->node.address = buffer_new();
+    device->node.address = ad_buffer_new();
     return device;
 }
 
 void object_DoIPDevice_free(object_DoIPDevice *device) {
     if ( device != null ) {
-        buffer_free(device->node.address);
+        ad_buffer_free(device->node.address);
         free(device);
     }
 }
 
 object_DoIPDevice * object_DoIPDevice_assign(object_DoIPDevice * to, object_DoIPDevice * from) {
     memcpy(to, from, sizeof(object_DoIPDevice));
-    buffer_assign(to->node.address, from->node.address);
+    ad_buffer_assign(to->node.address, from->node.address);
     return to;
 }

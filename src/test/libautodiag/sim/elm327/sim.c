@@ -118,7 +118,7 @@ void ensureDisplayWithSpacesIsCorrect() {
     iface->device->send(iface->device, "0100");
     viface_clear_data(iface);
     iface->device->recv(iface->device);
-    buffer_ensure_termination(serial->recv_buffer);
+    ad_buffer_ensure_termination(serial->recv_buffer);
     assert(strstr(serial->recv_buffer->buffer, "7E8") != null);
 }
 void ensureWithoutHeadersDontSendNull() {
@@ -133,7 +133,7 @@ void ensureWithoutHeadersDontSendNull() {
     iface->device->send(iface->device, "0100");
     viface_clear_data(iface);
     iface->device->recv(iface->device);
-    buffer_ensure_termination(serial->recv_buffer);
+    ad_buffer_ensure_termination(serial->recv_buffer);
     assert(strstr(serial->recv_buffer->buffer, "null") == null);
 }
 void ensureReplayCommands() {
@@ -158,7 +158,7 @@ void anyCommandShouldReplyUnknown() {
     viface_send_str(iface, "azrer");
     viface_recv(iface);
     Serial * serial = (Serial*)iface->device;
-    buffer_ensure_termination(serial->recv_buffer);
+    ad_buffer_ensure_termination(serial->recv_buffer);
     assert(strncmp("?", serial->recv_buffer->buffer, 1) == 0);
 }
 void incomplete_string_return_after_20_secs() {
@@ -167,7 +167,7 @@ void incomplete_string_return_after_20_secs() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     final Serial* serial = (Serial*)iface->device;
-    buffer_recycle(serial->recv_buffer);
+    ad_buffer_recycle(serial->recv_buffer);
     serial_send_internal(serial, "ati", 3);
     assert(serial_recv(serial) == DEVICE_RECV_NULL);
     usleep(20 + 3);
@@ -183,10 +183,10 @@ bool fuzzSimELM327() {
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     {
         int sz_rand = 0x0F;
-        Buffer * buffer = buffer_new_random(sz_rand);
+        Buffer * buffer = ad_buffer_new_random(sz_rand);
         viface_send(iface, buffer);
         viface_clear_data(iface);
-        buffer_free(buffer);
+        ad_buffer_free(buffer);
         viface_recv(iface);
     }
     int fuzz_iterations = 10000000;
@@ -196,10 +196,10 @@ bool fuzzSimELM327() {
         printf("\rFuzzing ELM327 %d/%d", i, fuzz_iterations);
         fflush(stdout);
         int sz_rand = rand() % 0x10;
-        Buffer * buffer = buffer_new_random(sz_rand);
+        Buffer * buffer = ad_buffer_new_random(sz_rand);
         viface_send(iface, buffer);
         viface_clear_data(iface);
-        buffer_free(buffer);
+        ad_buffer_free(buffer);
         viface_recv(iface);
         rate_count++;
         if ((rate_count % 1000) == 0) {
@@ -251,11 +251,11 @@ bool testSimELM327() {
         iface->device->send(iface->device,"0104");
         viface_clear_data(iface);
         iface->device->recv(iface->device);
-        Buffer * response = buffer_copy(serial->recv_buffer);
+        Buffer * response = ad_buffer_copy(serial->recv_buffer);
         iface->device->send(iface->device,"0104");
         viface_clear_data(iface);
         iface->device->recv(iface->device);
-        assert(buffer_cmp(response, serial->recv_buffer) != 0);
+        assert(ad_buffer_cmp(response, serial->recv_buffer) != 0);
     }
     {
         SimELM327* elm327 = tf_sim_elm327_new();       
@@ -281,7 +281,7 @@ bool testSimELM327() {
         viface_clear_data(iface);
         iface->device->send(iface->device,"unknown");
         iface->device->recv(iface->device);
-        buffer_dump(serial->recv_buffer);
+        ad_buffer_dump(serial->recv_buffer);
         assert(strstr(serial->recv_buffer->buffer, "?") != null);
     }
     {
@@ -355,7 +355,7 @@ bool testSimELM327() {
         viface_send_str(iface, "0900");
         viface_clear_data(iface);
         viface_recv(iface);
-        assert(0 == buffer_cmp(iface->vehicle->data_buffer->list[0], buffer_from_ascii_hex("4900FFFFFFFFFF")));
+        assert(0 == ad_buffer_cmp(iface->vehicle->data_buffer->list[0], ad_buffer_from_ascii_hex("4900FFFFFFFFFF")));
     }
     {
         SimELM327* elm327 = tf_sim_elm327_new();       

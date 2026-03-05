@@ -80,31 +80,31 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     elm327->nvm.user_memory = 0;
 
     if ( type == SIM_ELM327_INIT_TYPE_POWER_OFF ) {
-        elm327->nvm.programmable_parameters = buffer_new();
-        elm327->nvm.programmable_parameters_states = buffer_new();
-        elm327->nvm.programmable_parameters_pending = buffer_new();
-        elm327->programmable_parameters_pending_load_type = buffer_new();
-        elm327->programmable_parameters_defaults = buffer_new();  
+        elm327->nvm.programmable_parameters = ad_buffer_new();
+        elm327->nvm.programmable_parameters_states = ad_buffer_new();
+        elm327->nvm.programmable_parameters_pending = ad_buffer_new();
+        elm327->programmable_parameters_pending_load_type = ad_buffer_new();
+        elm327->programmable_parameters_defaults = ad_buffer_new();  
 
-        buffer_ensure_capacity(elm327->programmable_parameters_defaults, SIM_ELM327_PPS_SZ);
+        ad_buffer_ensure_capacity(elm327->programmable_parameters_defaults, SIM_ELM327_PPS_SZ);
         elm327->programmable_parameters_defaults->size = SIM_ELM327_PPS_SZ; 
-        buffer_initialise(elm327->programmable_parameters_defaults, 0x00);
+        ad_buffer_initialise(elm327->programmable_parameters_defaults, 0x00);
 
-        buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, SIM_ELM327_PPS_SZ);
+        ad_buffer_ensure_capacity(elm327->programmable_parameters_pending_load_type, SIM_ELM327_PPS_SZ);
         elm327->programmable_parameters_pending_load_type->size = SIM_ELM327_PPS_SZ;
-        buffer_initialise(elm327->programmable_parameters_pending_load_type, SIM_ELM327_INIT_TYPE_IMMEDIATE);
+        ad_buffer_initialise(elm327->programmable_parameters_pending_load_type, SIM_ELM327_INIT_TYPE_IMMEDIATE);
 
-        buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, SIM_ELM327_PPS_SZ);
+        ad_buffer_ensure_capacity(elm327->nvm.programmable_parameters_states, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters_states->size = SIM_ELM327_PPS_SZ;
         SIM_ELM327_PPS_STATE(elm327,false)  
 
-        buffer_ensure_capacity(elm327->nvm.programmable_parameters, SIM_ELM327_PPS_SZ);
+        ad_buffer_ensure_capacity(elm327->nvm.programmable_parameters, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters->size = SIM_ELM327_PPS_SZ;
-        buffer_initialise(elm327->nvm.programmable_parameters, 0x00);
+        ad_buffer_initialise(elm327->nvm.programmable_parameters, 0x00);
 
-        buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, SIM_ELM327_PPS_SZ);
+        ad_buffer_ensure_capacity(elm327->nvm.programmable_parameters_pending, SIM_ELM327_PPS_SZ);
         elm327->nvm.programmable_parameters_pending->size = SIM_ELM327_PPS_SZ;
-        buffer_initialise(elm327->nvm.programmable_parameters_pending, 0x00);
+        ad_buffer_initialise(elm327->nvm.programmable_parameters_pending, 0x00);
 
         // Perform an AT MA command after powerup or reset
         elm327->programmable_parameters_defaults->buffer[0x00] = 0xFF;
@@ -238,8 +238,8 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
                 elm327->programmable_parameters_defaults->size
         );
     }
-    elm327->obd_buffer = buffer_new();
-    buffer_ensure_capacity(elm327->obd_buffer,12);
+    elm327->obd_buffer = ad_buffer_new();
+    ad_buffer_ensure_capacity(elm327->obd_buffer,12);
     if ( ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched ) {
         pthread_cancel(((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread);
         ((SimELM327Implementation*)elm327->implementation)->activity_monitor_thread_launched = false;
@@ -269,14 +269,14 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     elm327->printing_of_headers = SIM_ELM327_PP_GET(elm327,0x01) == 0x00;
     elm327->echo = SIM_ELM327_PP_GET(elm327,0x09) == 0x00;
     elm327->testerAddress = SIM_ELM327_PP_GET(elm327,0x06);
-    elm327->can.mask = buffer_new();
-    elm327->can.filter = buffer_new();
+    elm327->can.mask = ad_buffer_new();
+    elm327->can.filter = ad_buffer_new();
     elm327->can.priority_29bits = ELM327_CAN_28_BITS_DEFAULT_PRIO;
     elm327->can.auto_format = SIM_ELM327_PP_GET(elm327,0x24) == 0x00;
     elm327->can.extended_addressing = false;
     elm327->can.timeout_multiplier = 1;
     elm327->can.display_dlc = SIM_ELM327_PP_GET(elm327, 0x29) == 0x00;
-    elm327->custom_header = buffer_new();
+    elm327->custom_header = ad_buffer_new();
     sim_elm327_start_activity_monitor(elm327);
 }
 
@@ -308,14 +308,14 @@ void sim_elm327_destroy(SimELM327 * elm327) {
     free(elm327->dev_identifier);
     free(elm327->device_location);
     free(elm327->receive_address);
-    buffer_free(elm327->custom_header);
-    buffer_free(elm327->obd_buffer);
-    buffer_free(elm327->can.mask);
-    buffer_free(elm327->can.filter);
-    buffer_free(elm327->nvm.programmable_parameters);
-    buffer_free(elm327->nvm.programmable_parameters_pending);
-    buffer_free(elm327->nvm.programmable_parameters_states);
-    buffer_free(elm327->programmable_parameters_defaults);
+    ad_buffer_free(elm327->custom_header);
+    ad_buffer_free(elm327->obd_buffer);
+    ad_buffer_free(elm327->can.mask);
+    ad_buffer_free(elm327->can.filter);
+    ad_buffer_free(elm327->nvm.programmable_parameters);
+    ad_buffer_free(elm327->nvm.programmable_parameters_pending);
+    ad_buffer_free(elm327->nvm.programmable_parameters_states);
+    ad_buffer_free(elm327->programmable_parameters_defaults);
     free(elm327);
 }
 void sim_elm327_loop_as_daemon(SimELM327 * elm327) {
@@ -337,7 +337,7 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
     if ( sim_read((Sim*)elm327, timeout, buffer) == -1 ) {
         return false;
     }
-    buffer_ensure_termination(buffer);
+    ad_buffer_ensure_termination(buffer);
     return true;
 }
 
@@ -592,8 +592,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             SIM_ELM327_REPLY(false, "%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
             usleep(elm327->baud_rate_timeout_msec * 1000);
             SIM_ELM327_REPLY(false, "%s", SIM_ELM327_ATI);
-            final Buffer * recv = buffer_new();
-            buffer_ensure_capacity(recv, 50);
+            final Buffer * recv = ad_buffer_new();
+            ad_buffer_ensure_capacity(recv, 50);
             if ( sim_elm327_receive(elm327, recv, elm327->baud_rate_timeout_msec) ) {
                 if ( recv->buffer[0] == '\r' ) {
                     SIM_ELM327_REPLY(false, "%s", SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
@@ -646,7 +646,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
                 free(tmp);
             }
 
-            buffer_recycle(elm327->custom_header);
+            ad_buffer_recycle(elm327->custom_header);
             elm_ascii_to_bin_internal(false, elm327->custom_header, header, header + strlen(header));
             SIM_ELM327_REPLY_OK();        
         }
@@ -741,9 +741,9 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             if ( number == '0' || number == '1' ) {
                 SIM_ELM327_REPLY_OK();                                
             } else {
-                Buffer * b = buffer_new_random(2);
+                Buffer * b = ad_buffer_new_random(2);
                 SIM_ELM327_REPLY_GENERIC("1:%02x 2:%02x",b->buffer[0],b->buffer[1]);
-                buffer_free(b);
+                ad_buffer_free(b);
             }                          
         }
     } else if AT_PARSE("cra") {
@@ -769,8 +769,8 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             asprintf(&filterCmd,"atcf %s", filter);            
             sim_elm327_command_and_protocol_interpreter(elm327, filterCmd, true, null);
         } else {
-            elm327->can.mask = buffer_new();
-            elm327->can.filter = buffer_new();
+            elm327->can.mask = ad_buffer_new();
+            elm327->can.filter = ad_buffer_new();
         }        
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("cm") {
@@ -786,7 +786,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             parsed = true;                 
         }
         if ( parsed ) {
-            elm327->can.mask = buffer_from_ascii_hex(mask);
+            elm327->can.mask = ad_buffer_from_ascii_hex(mask);
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("csm") {
@@ -805,7 +805,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             parsed = true;                
         }
         if ( parsed) {
-            elm327->can.filter = buffer_from_ascii_hex(filter);
+            elm327->can.filter = ad_buffer_from_ascii_hex(filter);
             SIM_ELM327_REPLY_OK();    
         }                    
     } else {
@@ -1020,13 +1020,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
 
     log_msg(LOG_INFO, "sim running on %s", elm327->device_location);
 
-    final Buffer * recv_buffer = buffer_new();
-    buffer_ensure_capacity(recv_buffer, 100);
+    final Buffer * recv_buffer = ad_buffer_new();
+    ad_buffer_ensure_capacity(recv_buffer, 100);
     bool shouldWriteNvm = false;
 
     assert(elm327->device_type != SimELM327_DEVICE_TYPE_UNSET);
     while(impl->loop_thread != null) {
-        buffer_recycle(recv_buffer);
+        ad_buffer_recycle(recv_buffer);
         if ( impl->loop_ready == false ) {
             impl->loop_ready = true;
         }
@@ -1084,7 +1084,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
             continue;
         }
         
-        char * buffer_str = buffer_to_ascii_espace_breaking_chars(recv_buffer);
+        char * buffer_str = ad_buffer_to_ascii_espace_breaking_chars(recv_buffer);
         log_msg(LOG_DEBUG, "Received '%s' (len: %d)", buffer_str, recv_buffer->size);
         free(buffer_str);
         

@@ -99,7 +99,7 @@ static void * send_command_wait_response_internal(final void * arg) {
     final Device * device = device_table_get_selected(config.ephemere.device_table);
     if ( ! error_feedback_device(gui->errorFeedback,device) ) {
         device->lock(AD_DEVICE(device));
-        buffer_recycle(device->recv_buffer);
+        ad_buffer_recycle(device->recv_buffer);
         {
             char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
             char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
@@ -206,7 +206,7 @@ static void output_copy() {
 static bool vehicle_set_tooltip_text(GtkButton* child) {
     const gchar* text = gtk_button_get_label(child);
     bool res = false;
-    final Buffer* bin_buffer = buffer_from_ascii_hex((char*)text);
+    final Buffer* bin_buffer = ad_buffer_from_ascii_hex((char*)text);
     gchar *tooltipText = null;
     if ( 1 < bin_buffer->size ) {
         switch(bin_buffer->buffer[0]) {
@@ -218,7 +218,7 @@ static bool vehicle_set_tooltip_text(GtkButton* child) {
             free(tooltipText);
         }
     }
-    buffer_free(bin_buffer);
+    ad_buffer_free(bin_buffer);
     return res;
 }
 

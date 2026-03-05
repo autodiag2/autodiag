@@ -29,6 +29,7 @@ int object_hashmap_Int_Int_key_comparator(object_Int * k1, object_Int *k2) {
     return object_hashmap_Int_string_key_comparator(k1, k2);
 }
 HASHMAP_SRC(Int, Int)
+
 int object_hashmap_string_Ptr_key_comparator(object_string * k1, object_string * k2) {
     return strcmp(k1->data, k2->data);
 }
@@ -56,3 +57,19 @@ int object_hashmap_Ptr_string_key_comparator(object_Ptr * k1, object_Ptr *k2) {
     return k1->value - k2->value;
 }
 HASHMAP_SRC(Ptr, string)
+
+int object_hashmap_string_string_key_comparator(object_string *k1, object_string *k2) {
+    assert(k1 != null);
+    assert(k2 != null);
+    return strcmp(k1->data, k2->data);
+}
+object_hashmap_string_string * object_hashmap_string_string_assign(object_hashmap_string_string*to, object_hashmap_string_string*from) {
+    assert(to != null);
+    assert(from != null);
+    object_hashmap_string_string_clear(to);
+    for(unsigned i = 0; i < from->size; i++) {
+        object_hashmap_string_string_set(to, object_string_new_from(from->keys[i]->data), object_string_new_from(from->values[i]->data));
+    }
+    return to;
+}
+HASHMAP_SRC(string, string)

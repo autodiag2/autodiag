@@ -75,12 +75,12 @@ static bool uds_service_allowed(GState *state, byte service_id) {
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
     GState * state = (GState*)generator->state;
-    final Buffer *binResponse = buffer_new();
+    final Buffer *binResponse = ad_buffer_new();
     if ( binRequest->size == 0 ) {
         return binResponse;
     }
     if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
-        return buffer_new();
+        return ad_buffer_new();
     }    
     start_or_update_session_timer(state);
     unsigned * seed = generator->context;
@@ -97,30 +97,30 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             bool generic_behaviour = true;
             switch(binRequest->buffer[1]) {
                 case 0x01: {
-                    Buffer* status = buffer_new();
-                    buffer_padding(status, 4, 0x00);
+                    Buffer* status = ad_buffer_new();
+                    ad_buffer_padding(status, 4, 0x00);
                     status->buffer[0] = state->obd.dtcs->size;
                     status->buffer[0] |= state->obd.mil_on << 7;
-                    buffer_append_melt(binResponse, status);
+                    ad_buffer_append_melt(binResponse, status);
                     generic_behaviour = false;
                 }
             }
             if ( generic_behaviour ) {
-                buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+                ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
             }
         } break;
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
-            buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+            ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
         case OBD_SERVICE_SHOW_DTC: {
             for(int i = 0; i < state->obd.dtcs->size; i++) {
                 final DTC * dtc = state->obd.dtcs->list[i];
-                buffer_append_byte(binResponse, dtc->data[0]);
-                buffer_append_byte(binResponse, dtc->data[1]);
+                ad_buffer_append_byte(binResponse, dtc->data[0]);
+                ad_buffer_append_byte(binResponse, dtc->data[1]);
             }
         } break;
         case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
-            buffer_append_melt(binResponse,buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
+            ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));                
         } break;
         case OBD_SERVICE_CLEAR_DTC: {
             list_DTC_clear(state->obd.dtcs);
@@ -130,53 +130,53 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {            
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                         break;
                     }
                     case 0x01: {
-                        buffer_append_byte(binResponse, 0x05);
+                        ad_buffer_append_byte(binResponse, 0x05);
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        buffer_append(binResponse,state->vin);                
+                        ad_buffer_append(binResponse,state->vin);                
                         break;
                     }
                     case 0x03: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x04: {
-                        buffer_append_melt(binResponse,buffer_new_random_with_seed(16, seed));                
+                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(16, seed));                
                         break;
                     }
                     case 0x05: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x06: {
-                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x07: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case 0x08: {
-                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                     case 0x09: {
-                        buffer_append_byte(binResponse,0x01);
+                        ad_buffer_append_byte(binResponse,0x01);
                         break;
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        final Buffer * name = buffer_from_ascii("ECU citroen C5 X7");
-                        buffer_padding(name, 20, 0x00);
-                        buffer_append_melt(binResponse, name);
+                        final Buffer * name = ad_buffer_from_ascii("ECU citroen C5 X7");
+                        ad_buffer_padding(name, 20, 0x00);
+                        ad_buffer_append_melt(binResponse, name);
                         break;
                     }
                     case 0x0B: {
-                        buffer_append_melt(binResponse,buffer_new_random_with_seed(4, seed));
+                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
                         break;
                     }
                 }
@@ -191,8 +191,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 } else {
                     state->uds.session_type = binRequest->buffer[1];
                 }
-                buffer_append_byte(binResponse, state->uds.session_type);
-                buffer_append_melt(binResponse, buffer_from_ints( 
+                ad_buffer_append_byte(binResponse, state->uds.session_type);
+                ad_buffer_append_melt(binResponse, ad_buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
             }
@@ -204,16 +204,16 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 } else {
                     for(unsigned i = 1; i < (binRequest->size-1); i+=2) {
                         final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
-                        buffer_append_melt(binResponse, buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
                         switch(did) {
                             case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: {
-                                buffer_append_byte(binResponse, state->uds.session_type);
+                                ad_buffer_append_byte(binResponse, state->uds.session_type);
                             } break;
                             case UDS_DID_VIN: {
-                                buffer_append(binResponse, state->vin);
+                                ad_buffer_append(binResponse, state->vin);
                             } break;
                             default: {
-                                buffer_append(binResponse, buffer_new_random_with_seed(10, seed));
+                                ad_buffer_append(binResponse, ad_buffer_new_random_with_seed(10, seed));
                             } break;
                         }
                     }
@@ -224,14 +224,14 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case UDS_SERVICE_READ_DTC_INFORMATION: {
             if ( 1 < binRequest->size ) {
-                buffer_append_byte(binResponse, binRequest->buffer[1]);
+                ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
                 switch(binRequest->buffer[1]) {
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
-                        buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
+                        ad_buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
                         for(int i = 0; i < state->uds.dtcs->size; i++) {
                             final UDS_DTC * dtc = state->uds.dtcs->list[i];
-                            buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
-                            buffer_append_byte(binResponse, dtc->status);
+                            ad_buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                            ad_buffer_append_byte(binResponse, dtc->status);
                         }
                     } break;
                     case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_SEVERITY_MASK_RECORD: {
@@ -240,13 +240,13 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         } else {
                             final byte DTCSeverityMask = binRequest->buffer[2];
                             final byte DTCStatusMask = binRequest->buffer[3];
-                            buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
+                            ad_buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
                             for(int i = 0; i < state->uds.dtcs->size; i++) {
                                 final UDS_DTC * dtc = state->uds.dtcs->list[i];
-                                buffer_append_byte(binResponse, 0xFF); // DTCSeverity
-                                buffer_append_byte(binResponse, 0xFF); // DTCFunctionalUnit
-                                buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
-                                buffer_append_byte(binResponse, dtc->status);
+                                ad_buffer_append_byte(binResponse, 0xFF); // DTCSeverity
+                                ad_buffer_append_byte(binResponse, 0xFF); // DTCFunctionalUnit
+                                ad_buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                                ad_buffer_append_byte(binResponse, dtc->status);
                             }
                         }
                     } break;
@@ -255,12 +255,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                         } else {
                             final byte DTCStatusMask = binRequest->buffer[2];
-                            buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
+                            ad_buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
                             for(int i = 0; i < state->uds.dtcs->size; i++) {
                                 final UDS_DTC * dtc = state->uds.dtcs->list[i];
                                 if ( (dtc->status & DTCStatusMask) != 0 ) {
-                                    buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
-                                    buffer_append_byte(binResponse, dtc->status);
+                                    ad_buffer_append_bytes(binResponse, dtc->data, DTC_DATA_SZ);
+                                    ad_buffer_append_byte(binResponse, dtc->status);
                                 }
                             }
                         }
@@ -274,10 +274,10 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case UDS_TESTER_PRESENT_SUB_ZERO:
-                        buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
                         break;
                     case UDS_TESTER_PRESENT_SUB_NO_RESPONSE:
-                        buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
                         log_msg(LOG_DEBUG, "TODO (not sending anything back)");
                         break;
                     default:
@@ -294,7 +294,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 list_DTC_clear((list_DTC*)state->uds.dtcs);
                 list_DTC_clear(state->obd.dtcs);
                 log_msg(LOG_DEBUG, "Should apply the group mask from the request");
-                buffer_slice_append(binResponse, binRequest, 1, 3);
+                ad_buffer_slice_append(binResponse, binRequest, 1, 3);
             } else {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
@@ -304,9 +304,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 final int securit_seed = 0x4321;
                 switch(binRequest->buffer[1]) {
                     case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED: {
-                        buffer_append_byte(binResponse, binRequest->buffer[1]);
-                        buffer_append_byte(binResponse, securit_seed >> 8);
-                        buffer_append_byte(binResponse, securit_seed & 0xFF);
+                        ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
+                        ad_buffer_append_byte(binResponse, securit_seed >> 8);
+                        ad_buffer_append_byte(binResponse, securit_seed & 0xFF);
                     } break;
                     case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY: {
                         assert(3 < binRequest->size);
@@ -314,7 +314,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         int decrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
                         log_msg(LOG_DEBUG, "From emu: encrypted received: 0x%X decrypted to 0x%X", encrypted, decrypted);
                         if ( securit_seed == decrypted ) {
-                            buffer_append_byte(binResponse, binRequest->buffer[1]);
+                            ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
                             state->uds.security_access_granted = true;
                         } else {
                             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_SECURITY_ACCESS_DENIED);
@@ -332,7 +332,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 final byte resetType = binRequest->buffer[0];
                 uds_reset_default_session(state);
-                buffer_append_byte(binResponse, resetType);
+                ad_buffer_append_byte(binResponse, resetType);
             } else {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
@@ -370,7 +370,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->uds.session_timer = null;
     state->uds.session_continue = true;
 
-    state->vin = buffer_from_ascii("VF7RD5FV8FL507366");
+    state->vin = ad_buffer_from_ascii("VF7RD5FV8FL507366");
     state->uds.dtcs = list_UDS_DTC_new();
     state->obd.dtcs = list_DTC_new();
     generator->context = (unsigned*)malloc(sizeof(unsigned));

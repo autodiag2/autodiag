@@ -72,9 +72,9 @@ list_int * saej1979_is_pids_supported(final VehicleIFace* iface, final int servi
         viface_lock(iface);
         bool result = false;
 
-        final Buffer * binRequest = buffer_from_ints(service_id, current_set);
+        final Buffer * binRequest = ad_buffer_from_ints(service_id, current_set);
         viface_send(iface, binRequest);
-        buffer_free(binRequest);
+        ad_buffer_free(binRequest);
         viface_clear_data(iface);
         viface_recv(iface);
         if ( service_id == 0x01 ) {

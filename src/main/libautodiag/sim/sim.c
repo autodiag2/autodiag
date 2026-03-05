@@ -133,7 +133,7 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
 int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     assert(sim != null);
     assert(readed != null);
-    buffer_ensure_capacity(readed, 500);
+    ad_buffer_ensure_capacity(readed, 500);
     SimImplementation * impl = sim->implementation;
     object_handle_t * client_handle = impl->handle;
     final int poll_result = object_handle_t_poll_read(client_handle, null, timeout_ms);
@@ -193,7 +193,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         char *context = cJSON_PrintUnformatted(obj);
         cJSON * address_obj = cJSON_GetObjectItem(obj, "ecu");
         char * address_str = address_obj->valuestring;
-        final Buffer * address = buffer_from_ascii_hex(address_str);
+        final Buffer * address = ad_buffer_from_ascii_hex(address_str);
         final SimECU * ecu = sim_ecu_new(address->buffer[address->size-1]);
         ecu->generator = sim_ecu_generator_new_replay();
         ecu->generator->context = context;

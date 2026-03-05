@@ -72,7 +72,7 @@ bool elm327_protocol_is_j1939(final ELM327_PROTO protocol) {
 bool elm327_reset_protocol(final ELM327Device* elm327) {
     final char * command = at_command("sp0");
     final bool result = (3 <= elm327->send(AD_DEVICE(elm327), command));
-    buffer_recycle(elm327->recv_buffer);
+    ad_buffer_recycle(elm327->recv_buffer);
     return ( elm327->recv(AD_DEVICE(elm327)) == SERIAL_RESPONSE_OK );
 }
 
@@ -126,7 +126,7 @@ bool elm327_set_filter_by_address(final ELM327Device* elm327, final list_Buffer 
             serial_query_at_command((Serial*)elm327,"cra %01hhX%02hhX",address->buffer[0], address->buffer[1]);
         } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocol) ) {
             assert(address->size == 4);
-            serial_query_at_command((Serial*)elm327,"cra %s",buffer_to_hex_string(address));
+            serial_query_at_command((Serial*)elm327,"cra %s",ad_buffer_to_hex_string(address));
         } else {
             assert(0 < address->size);
             serial_query_at_command((Serial*)elm327,"ra %02hhX",address->buffer[address->size-1]);
@@ -197,7 +197,7 @@ bool elm327_printing_of_spaces(final ELM327Device* elm327, bool state) {
 ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
     final char * command = at_command("dpn");
     final bool result = (3 <= elm327->send(AD_DEVICE(elm327), command));
-    buffer_recycle(elm327->recv_buffer);
+    ad_buffer_recycle(elm327->recv_buffer);
     elm327->recv(AD_DEVICE(elm327));
 
     ELM327_PROTO current_protocol = ELM327_PROTO_NONE;
@@ -222,7 +222,7 @@ bool elm327_calibrate_battery_voltage(final ELM327Device* elm327, double voltage
 double elm327_get_current_battery_voltage(final ELM327Device* elm327) {
     final char * command = at_command("rv");
     elm327->send(AD_DEVICE(elm327), command);
-    buffer_recycle(elm327->recv_buffer);
+    ad_buffer_recycle(elm327->recv_buffer);
     elm327->recv(AD_DEVICE(elm327));
 
     final double result = -1;

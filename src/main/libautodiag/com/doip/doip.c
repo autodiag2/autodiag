@@ -72,7 +72,7 @@ void doip_message_init(final object_DoIPMessage * msg, final DoIpPayloadType typ
 void object_DoIPMessage_free(object_DoIPMessage * msg) {
     if ( msg != null ) {
         if ( msg->payload_raw != null ) {
-            buffer_free(msg->payload_raw);
+            ad_buffer_free(msg->payload_raw);
             msg->payload_raw = null;
         }
         switch(msg->payload_type) {
@@ -122,7 +122,7 @@ void object_DoIPMessage_free(object_DoIPMessage * msg) {
 object_DoIPMessage * doip_message_parse(const Buffer * in) {
     assert(in != null);
     if (in->size < 8) {
-        log_msg(LOG_ERROR, "length too short : %s", buffer_to_hex_string((Buffer*)in));
+        log_msg(LOG_ERROR, "length too short : %s", ad_buffer_to_hex_string((Buffer*)in));
         return null;
     }
 
@@ -131,7 +131,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     byte ver = p[0];
     byte inv = p[1];
     if (((byte)(ver ^ inv)) != 0xFF) {
-        log_msg(LOG_ERROR, "checksum incorrect : %s", buffer_to_hex_string((Buffer*)in));
+        log_msg(LOG_ERROR, "checksum incorrect : %s", ad_buffer_to_hex_string((Buffer*)in));
         return null;
     }
 
@@ -151,7 +151,7 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
     msg->protocol_version = ver;
     msg->inv_protocol_version = inv;
     msg->payload_type = (DoIpPayloadType)ptype;
-    msg->payload_raw = buffer_slice((Buffer*)in, 8, plen);
+    msg->payload_raw = ad_buffer_slice((Buffer*)in, 8, plen);
     msg->payload = null;
 
     log_msg(LOG_DEBUG, "found payload type 0x%04X", ptype);
@@ -160,10 +160,10 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             object_DoIPMessagePayloadVehicleIdResponse * payload = object_DoIPMessagePayloadVehicleIdResponse_new();
             msg->payload = (DoIPMessageDef*)payload;
             assert((17 + 2 + 6 + 6 + 1 + 1) <= msg->payload_raw->size);
-            payload->vin = buffer_slice(msg->payload_raw, 0, 17);
-            payload->addr = buffer_slice(msg->payload_raw, 17, 2);
-            payload->eid = buffer_slice(msg->payload_raw, 19, 6);
-            payload->gid = buffer_slice(msg->payload_raw, 25, 6);
+            payload->vin = ad_buffer_slice(msg->payload_raw, 0, 17);
+            payload->addr = ad_buffer_slice(msg->payload_raw, 17, 2);
+            payload->eid = ad_buffer_slice(msg->payload_raw, 19, 6);
+            payload->gid = ad_buffer_slice(msg->payload_raw, 25, 6);
             payload->further_action_required = msg->payload_raw->buffer[31];
             payload->sync_status = msg->payload_raw->buffer[32];
         } break;
@@ -176,46 +176,46 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             assert(6 <= msg->payload_raw->size);
             msg->payload = (DoIPMessageDef*)payload;
             if ( 6 < msg->payload_raw->size ) {
-                log_msg(LOG_WARNING, "EID longer than expected 0x%s", buffer_to_hex_string(msg->payload_raw));
+                log_msg(LOG_WARNING, "EID longer than expected 0x%s", ad_buffer_to_hex_string(msg->payload_raw));
             }
-            payload->eid = buffer_copy(msg->payload_raw); 
+            payload->eid = ad_buffer_copy(msg->payload_raw); 
         } break;
         case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
             object_DoIPMessagePayloadRequestWithVIN * payload = object_DoIPMessagePayloadRequestWithVIN_new();
             assert(17 <= msg->payload_raw->size);
             msg->payload = (DoIPMessageDef*)payload;
             if ( 17 < msg->payload_raw->size ) {
-                log_msg(LOG_WARNING, "VIN longer than expected 0x%s", buffer_to_hex_string(msg->payload_raw));
+                log_msg(LOG_WARNING, "VIN longer than expected 0x%s", ad_buffer_to_hex_string(msg->payload_raw));
             }
-            payload->vin = buffer_copy(msg->payload_raw); 
+            payload->vin = ad_buffer_copy(msg->payload_raw); 
         } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             object_DoIPMessagePayloadDiag * payload = object_DoIPMessagePayloadDiag_new();
             msg->payload = (DoIPMessageDef*)payload;
             assert(4 <= msg->payload_raw->size);
-            payload->src_addr = buffer_slice(msg->payload_raw, 0, 2);
-            payload->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
-            payload->data     = buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
+            payload->src_addr = ad_buffer_slice(msg->payload_raw, 0, 2);
+            payload->dst_addr = ad_buffer_slice(msg->payload_raw, 2, 2);
+            payload->data     = ad_buffer_slice(msg->payload_raw, 4, msg->payload_raw->size - 4);
         } break;
         case DOIP_ALIVE_CHECK_REQUEST: {
             object_DoIPMessagePayloadAliveCheck * payload = object_DoIPMessagePayloadAliveCheck_new();
-            buffer_recycle(payload->src_addr);
+            ad_buffer_recycle(payload->src_addr);
         } break;
         case DOIP_ALIVE_CHECK_RESPONSE: {
             object_DoIPMessagePayloadAliveCheck * payload = object_DoIPMessagePayloadAliveCheck_new();
-            buffer_recycle(payload->src_addr);
-            buffer_slice_append(payload->src_addr, msg->payload_raw, 0, 2);
+            ad_buffer_recycle(payload->src_addr);
+            ad_buffer_slice_append(payload->src_addr, msg->payload_raw, 0, 2);
         } break;
         case DOIP_DIAGNOSTIC_MESSAGE_NACK:
         case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
             object_DoIPMessagePayloadDiagFeedback * payload = object_DoIPMessagePayloadDiagFeedback_new();
             msg->payload = (DoIPMessageDef*)payload;
             assert(5 <= msg->payload_raw->size);
-            payload->src_addr = buffer_slice(msg->payload_raw, 0, 2);
-            payload->dst_addr = buffer_slice(msg->payload_raw, 2, 2);
+            payload->src_addr = ad_buffer_slice(msg->payload_raw, 0, 2);
+            payload->dst_addr = ad_buffer_slice(msg->payload_raw, 2, 2);
             payload->code = msg->payload_raw->buffer[4];
             if (5 < msg->payload_raw->size) {
-                payload->data = buffer_slice(msg->payload_raw, 5, msg->payload_raw->size - 5);
+                payload->data = ad_buffer_slice(msg->payload_raw, 5, msg->payload_raw->size - 5);
             }
             payload->type = ptype;
         } break;
@@ -249,11 +249,11 @@ object_DoIPMessage * doip_message_parse(const Buffer * in) {
             object_DoIPMessagePayloadRoutineActivationResponse * payload = object_DoIPMessagePayloadRoutineActivationResponse_new();
             msg->payload = (DoIPMessageDef*)payload;
             assert(13 <= msg->payload_raw->size);
-            buffer_memcpy(payload->tester, msg->payload_raw->buffer, 2);
-            buffer_memcpy(payload->ecu, msg->payload_raw->buffer+2, 2);
+            ad_buffer_memcpy(payload->tester, msg->payload_raw->buffer, 2);
+            ad_buffer_memcpy(payload->ecu, msg->payload_raw->buffer+2, 2);
             payload->code = msg->payload_raw->buffer[4];
-            buffer_memcpy(payload->iso_reserved, msg->payload_raw->buffer+5, 4);
-            buffer_memcpy(payload->oem_reserved, msg->payload_raw->buffer+9, 4);
+            ad_buffer_memcpy(payload->iso_reserved, msg->payload_raw->buffer+5, 4);
+            ad_buffer_memcpy(payload->oem_reserved, msg->payload_raw->buffer+9, 4);
         } break;
         default: {
             log_msg(LOG_DEBUG, "Parsing of payload type 0x%04X not implemented", ptype);
@@ -272,10 +272,10 @@ void doip_message_dump(object_DoIPMessage * msg) {
         switch(msg->payload_type) {
             case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
                 object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)msg->payload;
-                log_msg(LOG_DEBUG, "    vin: %s", buffer_to_hex_string(payload->vin));
-                log_msg(LOG_DEBUG, "    addr: %s", buffer_to_hex_string(payload->addr));
-                log_msg(LOG_DEBUG, "    eid: %s", buffer_to_hex_string(payload->eid));
-                log_msg(LOG_DEBUG, "    gid: %s", buffer_to_hex_string(payload->gid));
+                log_msg(LOG_DEBUG, "    vin: %s", ad_buffer_to_hex_string(payload->vin));
+                log_msg(LOG_DEBUG, "    addr: %s", ad_buffer_to_hex_string(payload->addr));
+                log_msg(LOG_DEBUG, "    eid: %s", ad_buffer_to_hex_string(payload->eid));
+                log_msg(LOG_DEBUG, "    gid: %s", ad_buffer_to_hex_string(payload->gid));
                 log_msg(LOG_DEBUG, "    further_action_required: 0x%02X", payload->further_action_required);
                 log_msg(LOG_DEBUG, "    sync_status: 0x%02X", payload->sync_status);
             } break;
@@ -284,22 +284,22 @@ void doip_message_dump(object_DoIPMessage * msg) {
             } break;
             case DOIP_VEHICLE_IDENT_REQUEST_EID: {
                 object_DoIPMessagePayloadRequestWithEID * payload = (object_DoIPMessagePayloadRequestWithEID*)msg->payload;
-                log_msg(LOG_DEBUG, "    eid: %s", buffer_to_hex_string(payload->eid));
+                log_msg(LOG_DEBUG, "    eid: %s", ad_buffer_to_hex_string(payload->eid));
             } break;
             case DOIP_VEHICLE_IDENT_REQUEST_VIN: {
                 object_DoIPMessagePayloadRequestWithVIN * payload = (object_DoIPMessagePayloadRequestWithVIN*)msg->payload;
-                log_msg(LOG_DEBUG, "    vin: %s", buffer_to_hex_string(payload->vin));
+                log_msg(LOG_DEBUG, "    vin: %s", ad_buffer_to_hex_string(payload->vin));
             } break;
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 object_DoIPMessagePayloadDiag * payload = (object_DoIPMessagePayloadDiag*)msg->payload;
-                log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
-                log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
-                log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
+                log_msg(LOG_DEBUG, "    src_addr: %s", ad_buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "    dst_addr: %s", ad_buffer_to_hex_string(payload->dst_addr));
+                log_msg(LOG_DEBUG, "    data: %s", ad_buffer_to_hex_string(payload->data));
             } break;
             case DOIP_ALIVE_CHECK_REQUEST:
             case DOIP_ALIVE_CHECK_RESPONSE: {
                 object_DoIPMessagePayloadAliveCheck * payload = (object_DoIPMessagePayloadAliveCheck*)msg->payload;
-                log_msg(LOG_DEBUG, "    src_addr: 0x%04X", buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "    src_addr: 0x%04X", ad_buffer_to_hex_string(payload->src_addr));
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 object_DoIPMessagePayloadRoutineActivationRequest * payload = (object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
@@ -322,20 +322,20 @@ void doip_message_dump(object_DoIPMessage * msg) {
             case DOIP_DIAGNOSTIC_MESSAGE_ACK: {
                 object_DoIPMessagePayloadDiagFeedback * payload = (object_DoIPMessagePayloadDiagFeedback*)msg->payload;
                 log_msg(LOG_DEBUG, "    type: 0x%08X", payload->type);
-                log_msg(LOG_DEBUG, "    src_addr: %s", buffer_to_hex_string(payload->src_addr));
-                log_msg(LOG_DEBUG, "    dst_addr: %s", buffer_to_hex_string(payload->dst_addr));
+                log_msg(LOG_DEBUG, "    src_addr: %s", ad_buffer_to_hex_string(payload->src_addr));
+                log_msg(LOG_DEBUG, "    dst_addr: %s", ad_buffer_to_hex_string(payload->dst_addr));
                 log_msg(LOG_DEBUG, "    code: 0x%02X", payload->code);
                 if (payload->data) {
-                    log_msg(LOG_DEBUG, "    data: %s", buffer_to_hex_string(payload->data));
+                    log_msg(LOG_DEBUG, "    data: %s", ad_buffer_to_hex_string(payload->data));
                 }
             } break;
             case DOIP_ROUTING_ACTIVATION_RESPONSE: {
                 object_DoIPMessagePayloadRoutineActivationResponse * payload = (object_DoIPMessagePayloadRoutineActivationResponse*)msg->payload;
-                log_msg(LOG_DEBUG, "    tester: 0x%s", buffer_to_hex_string(payload->tester));
-                log_msg(LOG_DEBUG, "    ecu: 0x%s", buffer_to_hex_string(payload->ecu));
+                log_msg(LOG_DEBUG, "    tester: 0x%s", ad_buffer_to_hex_string(payload->tester));
+                log_msg(LOG_DEBUG, "    ecu: 0x%s", ad_buffer_to_hex_string(payload->ecu));
                 log_msg(LOG_DEBUG, "    code: 0x%02X", payload->code);
-                log_msg(LOG_DEBUG, "    iso_reserved: 0x%s", buffer_to_hex_string(payload->iso_reserved));
-                log_msg(LOG_DEBUG, "    oem_reserved: 0x%s", buffer_to_hex_string(payload->oem_reserved));
+                log_msg(LOG_DEBUG, "    iso_reserved: 0x%s", ad_buffer_to_hex_string(payload->iso_reserved));
+                log_msg(LOG_DEBUG, "    oem_reserved: 0x%s", ad_buffer_to_hex_string(payload->oem_reserved));
             } break;
             default: {
 
@@ -439,9 +439,9 @@ Buffer *doip_message_serialize(const object_DoIPMessage *msg) {
     }
     int out_sz = 8 + plen;
 
-    Buffer *out = buffer_new();
+    Buffer *out = ad_buffer_new();
 
-    buffer_ensure_capacity(out, out_sz);
+    ad_buffer_ensure_capacity(out, out_sz);
     out->size = out_sz;
 
     byte *p = (byte*)out->buffer;
@@ -599,77 +599,77 @@ AD_OBJECT_SRC(DoIPMessagePayloadRequestWithVIN)
 AD_OBJECT_SRC(DoIPMessagePayloadVehicleIdResponse)
 object_DoIPMessagePayloadRequestWithEID * object_DoIPMessagePayloadRequestWithEID_new() {
     object_DoIPMessagePayloadRequestWithEID * r = (object_DoIPMessagePayloadRequestWithEID*)malloc(sizeof(object_DoIPMessagePayloadRequestWithEID));
-    r->eid = buffer_new();
+    r->eid = ad_buffer_new();
     return r;
 }
 object_DoIPMessagePayloadRequestWithEID * object_DoIPMessagePayloadRequestWithEID_assign(object_DoIPMessagePayloadRequestWithEID*to, object_DoIPMessagePayloadRequestWithEID*from) {
-    buffer_assign(to->eid, from->eid);
+    ad_buffer_assign(to->eid, from->eid);
     return to;
 }
 void object_DoIPMessagePayloadRequestWithEID_free(object_DoIPMessagePayloadRequestWithEID*r) {
     if ( r != null ) {
-        buffer_free(r->eid);
+        ad_buffer_free(r->eid);
         free(r);
     }
 }
 object_DoIPMessagePayloadRequestWithVIN * object_DoIPMessagePayloadRequestWithVIN_new() {
     object_DoIPMessagePayloadRequestWithVIN * r = (object_DoIPMessagePayloadRequestWithVIN*)malloc(sizeof(object_DoIPMessagePayloadRequestWithVIN));
-    r->vin = buffer_new();
+    r->vin = ad_buffer_new();
     return r;
 }
 object_DoIPMessagePayloadRequestWithVIN * object_DoIPMessagePayloadRequestWithVIN_assign(object_DoIPMessagePayloadRequestWithVIN * to, object_DoIPMessagePayloadRequestWithVIN * from) {
-    buffer_assign(to->vin, from->vin);
+    ad_buffer_assign(to->vin, from->vin);
     return to;
 }
 void object_DoIPMessagePayloadRequestWithVIN_free(object_DoIPMessagePayloadRequestWithVIN *r) {
     if ( r != null ) {
-        buffer_free(r->vin);
+        ad_buffer_free(r->vin);
         free(r);
     }
 }
 object_DoIPMessagePayloadRoutineActivationResponse * object_DoIPMessagePayloadRoutineActivationResponse_assign(object_DoIPMessagePayloadRoutineActivationResponse * to, object_DoIPMessagePayloadRoutineActivationResponse * from) {
-    to->tester = buffer_copy(from->tester);
-    to->ecu = buffer_copy(from->ecu);
+    to->tester = ad_buffer_copy(from->tester);
+    to->ecu = ad_buffer_copy(from->ecu);
     to->code = from->code;
-    buffer_assign(to->iso_reserved, from->iso_reserved);
-    buffer_assign(to->oem_reserved, from->oem_reserved);
+    ad_buffer_assign(to->iso_reserved, from->iso_reserved);
+    ad_buffer_assign(to->oem_reserved, from->oem_reserved);
     return to;
 }
 
 object_DoIPMessagePayloadRoutineActivationResponse* object_DoIPMessagePayloadRoutineActivationResponse_new() {
     object_DoIPMessagePayloadRoutineActivationResponse * r = (object_DoIPMessagePayloadRoutineActivationResponse*)malloc(sizeof(object_DoIPMessagePayloadRoutineActivationResponse));
-    r->tester = buffer_new();
-    r->ecu = buffer_new();
+    r->tester = ad_buffer_new();
+    r->ecu = ad_buffer_new();
     r->code = DOIP_MESSAGE_RARES_CODE_UNKNOWN;
-    r->iso_reserved = buffer_new();
-    r->oem_reserved = buffer_new();
+    r->iso_reserved = ad_buffer_new();
+    r->oem_reserved = ad_buffer_new();
     return r;
 }
 void object_DoIPMessagePayloadRoutineActivationResponse_free(object_DoIPMessagePayloadRoutineActivationResponse * r) {
     if ( r != null ) {
-        buffer_free(r->tester);
-        buffer_free(r->ecu);
-        buffer_free(r->iso_reserved);
-        buffer_free(r->oem_reserved);
+        ad_buffer_free(r->tester);
+        ad_buffer_free(r->ecu);
+        ad_buffer_free(r->iso_reserved);
+        ad_buffer_free(r->oem_reserved);
         free(r);
     }
 }
 
 object_DoIPMessagePayloadAliveCheck * object_DoIPMessagePayloadAliveCheck_new() {
     object_DoIPMessagePayloadAliveCheck * r = (object_DoIPMessagePayloadAliveCheck*)malloc(sizeof(object_DoIPMessagePayloadAliveCheck));
-    r->src_addr = buffer_new();
+    r->src_addr = ad_buffer_new();
     return r;
 }
 
 void object_DoIPMessagePayloadAliveCheck_free(object_DoIPMessagePayloadAliveCheck * payload) {
     if ( payload != null ) {
-        buffer_free(payload->src_addr);
+        ad_buffer_free(payload->src_addr);
         free(payload);
     }
 }
 
 object_DoIPMessagePayloadAliveCheck * object_DoIPMessagePayloadAliveCheck_assign(object_DoIPMessagePayloadAliveCheck * to, object_DoIPMessagePayloadAliveCheck * from) {
-    buffer_assign(to->src_addr, from->src_addr);
+    ad_buffer_assign(to->src_addr, from->src_addr);
     return to;
 }
 object_DoIPMessagePayloadEntityStatusResponse * object_DoIPMessagePayloadEntityStatusResponse_new() {
@@ -694,28 +694,28 @@ object_DoIPMessagePayloadEntityStatusResponse * object_DoIPMessagePayloadEntityS
 }
 object_DoIPMessagePayloadVehicleIdResponse * object_DoIPMessagePayloadVehicleIdResponse_new() {
     object_DoIPMessagePayloadVehicleIdResponse * r = (object_DoIPMessagePayloadVehicleIdResponse*)malloc(sizeof(object_DoIPMessagePayloadVehicleIdResponse));
-    r->vin = buffer_new();
-    r->addr = buffer_new();
-    r->eid = buffer_new();
-    r->gid = buffer_new();
+    r->vin = ad_buffer_new();
+    r->addr = ad_buffer_new();
+    r->eid = ad_buffer_new();
+    r->gid = ad_buffer_new();
     r->further_action_required = 0x00;
     r->sync_status = 0x00;
     return r;
 }
 void object_DoIPMessagePayloadVehicleIdResponse_free(object_DoIPMessagePayloadVehicleIdResponse * payload) {
     if ( payload != null ) {
-        buffer_free(payload->vin);
-        buffer_free(payload->addr);
-        buffer_free(payload->eid);
-        buffer_free(payload->gid);
+        ad_buffer_free(payload->vin);
+        ad_buffer_free(payload->addr);
+        ad_buffer_free(payload->eid);
+        ad_buffer_free(payload->gid);
         free(payload);
     }
 }
 object_DoIPMessagePayloadVehicleIdResponse * object_DoIPMessagePayloadVehicleIdResponse_assign(object_DoIPMessagePayloadVehicleIdResponse * to, object_DoIPMessagePayloadVehicleIdResponse * from) {
-    buffer_assign(to->vin, from->vin);
-    buffer_assign(to->addr, from->addr);
-    buffer_assign(to->eid, from->eid);
-    buffer_assign(to->gid, from->gid);
+    ad_buffer_assign(to->vin, from->vin);
+    ad_buffer_assign(to->addr, from->addr);
+    ad_buffer_assign(to->eid, from->eid);
+    ad_buffer_assign(to->gid, from->gid);
     to->further_action_required = from->further_action_required;
     to->sync_status = from->sync_status;
     return to;
@@ -742,9 +742,9 @@ object_DoIPMessage * object_DoIPMessage_assign(object_DoIPMessage * to, object_D
     to->inv_protocol_version = from->inv_protocol_version;
     to->payload_type = from->payload_type;
     if ( to->payload_raw != null ) {
-        buffer_free(to->payload_raw);
+        ad_buffer_free(to->payload_raw);
     }
-    to->payload_raw = buffer_copy(from->payload_raw);
+    to->payload_raw = ad_buffer_copy(from->payload_raw);
     return to;
 }
 object_DoIPMessage * object_DoIPMessage_new() {

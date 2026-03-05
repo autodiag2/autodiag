@@ -5,26 +5,26 @@
  * @return empty buffer in case not addressed to this ECU, null on error, OBD/UDS data on success
  */
 static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest, char ** errorCauseReturn) {
-    Buffer * dataRequest = buffer_new();
+    Buffer * dataRequest = ad_buffer_new();
     log_msg(LOG_DEBUG, "Receving incoming request by the tester");
     log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
             assert(4 <= binRequest->size);
-            buffer_slice_append(dataRequest, binRequest, 4, binRequest->size - 4);
+            ad_buffer_slice_append(dataRequest, binRequest, 4, binRequest->size - 4);
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
             assert(2 <= binRequest->size);
-            buffer_slice_append(dataRequest, binRequest, 2, binRequest->size - 2);
+            ad_buffer_slice_append(dataRequest, binRequest, 2, binRequest->size - 2);
         } else {
             log_msg(LOG_WARNING, "Missing case here");
         }
         if ( elm327->can.extended_addressing ) {
-            buffer_left_shift(dataRequest, 1);
+            ad_buffer_left_shift(dataRequest, 1);
         }
         assert(0 < dataRequest->size);
         byte pci = dataRequest->buffer[0];
         final int pci_sz_value = pci & 0x0F;
-        buffer_left_shift(dataRequest, 1);
+        ad_buffer_left_shift(dataRequest, 1);
         if ( elm327->can.auto_format ) {
             if ( pci_sz_value != dataRequest->size ) {
                 log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, dataRequest->size);
@@ -41,7 +41,7 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
         }
     } else {
         assert(3 <= binRequest->size);
-        buffer_slice_append(dataRequest, binRequest, 3, binRequest->size - 3);
+        ad_buffer_slice_append(dataRequest, binRequest, 3, binRequest->size - 3);
     }
     return dataRequest;
 }
@@ -53,36 +53,36 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
  */
 static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequest) {
     log_msg(LOG_DEBUG, "Generating the tester request header");
-    Buffer *protocolSpecificHeader = buffer_new();
+    Buffer *protocolSpecificHeader = ad_buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
             if ( elm327->custom_header->size == 3 ) {
-                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                     elm327->can.priority_29bits,
                     elm327->custom_header->buffer[0],
                     elm327->custom_header->buffer[1], 
                     elm327->custom_header->buffer[2]
                 );
             } else if ( elm327->custom_header->size == 4 ) {
-                buffer_append(protocolSpecificHeader, elm327->custom_header);
+                ad_buffer_append(protocolSpecificHeader, elm327->custom_header);
             } else {
-                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                     elm327->can.priority_29bits, 0xDA, 0xF1, elm327->testerAddress
                 );
             }
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
             if ( elm327->custom_header->size == 2 ) {
-                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                     elm327->custom_header->buffer[0]&0xF, 
                     elm327->custom_header->buffer[1]
                 );
             } else if ( elm327->custom_header->size == 3 ) {
-                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                     elm327->custom_header->buffer[1]&0xF, 
                     elm327->custom_header->buffer[2]
                 );
             } else {
-                BUFFER_APPEND_BYTES(protocolSpecificHeader,
+                AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                     0x7, elm327->testerAddress
                 );
             }
@@ -90,22 +90,22 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
             log_msg(LOG_WARNING, "Missing case here");
         }
         if ( elm327->can.extended_addressing ) {
-            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+            AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                 elm327->can.extended_addressing_target_address
             );
         }
         if ( elm327->can.auto_format ) {
             final byte pci = dataRequest->size | Iso15765SingleFrame;
-            BUFFER_APPEND_BYTES(
+            AD_BUFFER_APPEND_BYTES(
                 protocolSpecificHeader,
                 pci   
             );
         }
     } else {
         if ( elm327->custom_header->size == 3 ) {
-            buffer_append(protocolSpecificHeader, elm327->custom_header);
+            ad_buffer_append(protocolSpecificHeader, elm327->custom_header);
         } else {
-            BUFFER_APPEND_BYTES(protocolSpecificHeader,
+            AD_BUFFER_APPEND_BYTES(protocolSpecificHeader,
                 0x41, 0x6B, elm327->testerAddress
             );
         }
@@ -116,17 +116,17 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
  * Generate the response header to the tester by the bus.
  */
 static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_prio) {
-    final Buffer * header = buffer_new();
+    final Buffer * header = ad_buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            BUFFER_APPEND_BYTES(header, 
+            AD_BUFFER_APPEND_BYTES(header, 
                 can28bits_prio,
                 0xDA,
                 elm327->testerAddress,
                 ecu->address
             );
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            BUFFER_APPEND_BYTES(header, 
+            AD_BUFFER_APPEND_BYTES(header, 
                 0x7,
                 ecu->address
             );
@@ -137,7 +137,7 @@ static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_pr
             );
         }
     } else {
-        BUFFER_APPEND_BYTES(header, 
+        AD_BUFFER_APPEND_BYTES(header, 
             0x41, 
             elm327->testerAddress,
             ecu->address
@@ -146,14 +146,14 @@ static Buffer* response_header(SimELM327* elm327,SimECU * ecu, byte can28bits_pr
     return header;     
 }
 static Buffer * response_frame_extract_header(final SimELM327* elm327, final Buffer * frame) {
-    final Buffer * header = buffer_new();
+    final Buffer * header = ad_buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            buffer_slice_append(header, frame, 0, 4);
-            buffer_left_shift(frame, 4);
+            ad_buffer_slice_append(header, frame, 0, 4);
+            ad_buffer_left_shift(frame, 4);
         } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            buffer_slice_append(header, frame, 0, 2);
-            buffer_left_shift(frame, 2);
+            ad_buffer_slice_append(header, frame, 0, 2);
+            ad_buffer_left_shift(frame, 2);
         } else {
             log_msg(LOG_ERROR, "Missing case here");
             assert( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) || 
@@ -161,8 +161,8 @@ static Buffer * response_frame_extract_header(final SimELM327* elm327, final Buf
             );
         }
     } else {
-        buffer_slice_append(header, frame, 0, 3);
-        buffer_left_shift(frame, 3);
+        ad_buffer_slice_append(header, frame, 0, 3);
+        ad_buffer_left_shift(frame, 3);
     }
     return header;
 }
@@ -173,7 +173,7 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
     int transportLayerMessageDataBytes = 0;
     for(int responseBodyIndex = 0; responseBodyIndex < dataResponse->size; responseBodyIndex += transportLayerMessageDataBytes, iso_15765_multi_message_sn += 1) {
         
-        final Buffer * responseBodyChunk = buffer_new();
+        final Buffer * responseBodyChunk = ad_buffer_new();
         bool iso_15765_is_multi_message_ff = false;
 
         if ( responseBodyIndex == 0 ) {
@@ -192,7 +192,7 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
             }
         }
         transportLayerMessageDataBytes = min(transportLayerMessageDataBytesMax - responseBodyChunk->size, dataResponse->size - responseBodyIndex);
-        buffer_slice_append(responseBodyChunk, dataResponse, responseBodyIndex, transportLayerMessageDataBytes);
+        ad_buffer_slice_append(responseBodyChunk, dataResponse, responseBodyIndex, transportLayerMessageDataBytes);
 
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if ( iso_15765_is_multi_message ) {
@@ -202,23 +202,23 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
                     int dl11_8 = (bytesSent & 0x0F00) >> 8;
                     final byte pci = Iso15765FirstFrame << 4 | dl11_8;
                     final byte dl7_0 = bytesSent & 0xFF;
-                    buffer_prepend_byte(responseBodyChunk, dl7_0);
-                    buffer_prepend_byte(responseBodyChunk, pci);
+                    ad_buffer_prepend_byte(responseBodyChunk, dl7_0);
+                    ad_buffer_prepend_byte(responseBodyChunk, pci);
                 } else {
                     log_msg(LOG_DEBUG, "reply consecutive frame");
                     final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
-                    buffer_prepend_byte(responseBodyChunk, pci);
+                    ad_buffer_prepend_byte(responseBodyChunk, pci);
                 }
             } else {
                 log_msg(LOG_DEBUG, "reply as single frame");
                 final byte pci = Iso15765SingleFrame | responseBodyChunk->size;
-                buffer_prepend_byte(responseBodyChunk, pci);
+                ad_buffer_prepend_byte(responseBodyChunk, pci);
             }
         }
         final Buffer * protocolHeader = response_header(elm327, ecu, ELM327_CAN_28_BITS_DEFAULT_PRIO);
-        buffer_prepend(responseBodyChunk, protocolHeader);
+        ad_buffer_prepend(responseBodyChunk, protocolHeader);
         list_Buffer_append(result, responseBodyChunk);
-        buffer_free(protocolHeader);
+        ad_buffer_free(protocolHeader);
     }
     return result;
 }
@@ -226,12 +226,12 @@ static list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer * d
  * Generate the response header by ELM device back to user through serial line.
  */
 static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src) {
-    Buffer * header = buffer_copy(header_src);
+    Buffer * header = ad_buffer_copy(header_src);
     char *protocolSpecificHeader = null;
     char *protocolSpecificHeaderFreeLocation = null;
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         if ( elm327->can.extended_addressing ) {
-            buffer_append_byte(header, elm327->can.extended_addressing_target_address);
+            ad_buffer_append_byte(header, elm327->can.extended_addressing_target_address);
         }
         protocolSpecificHeader = elm_ascii_from_bin(elm327->printing_of_spaces, header);
         protocolSpecificHeaderFreeLocation = protocolSpecificHeader;
@@ -250,7 +250,7 @@ static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src)
     if ( protocolSpecificHeader[strlen(protocolSpecificHeader)-1] == ' ' ) {
         protocolSpecificHeader[strlen(protocolSpecificHeader)-1] = 0x00;
     }
-    buffer_free(header);
+    ad_buffer_free(header);
     char * result = null;
     if ( protocolSpecificHeader != null ) {
         result = strdup(protocolSpecificHeader); 
@@ -276,7 +276,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     }
     if ( isHexString && elm327->responses ) {
         
-        final Buffer * dataRequest = buffer_new();
+        final Buffer * dataRequest = ad_buffer_new();
         char * end_ptr = strstr(hex_string_request,elm327->eol);
         elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
         log_msg(LOG_DEBUG, "TODO: handle multiple data request");
@@ -289,15 +289,15 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
 
-            Buffer * binRequest = buffer_new();
+            Buffer * binRequest = ad_buffer_new();
             final Buffer * requestHeader = request_header(elm327, ecu, dataRequest);
-            buffer_append(binRequest, requestHeader);
-            buffer_append(binRequest, dataRequest);
-            buffer_free(requestHeader);
+            ad_buffer_append(binRequest, requestHeader);
+            ad_buffer_append(binRequest, dataRequest);
+            ad_buffer_free(requestHeader);
 
             char * errorCauseReturn;
             final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest, &errorCauseReturn);
-            buffer_free(binRequest);
+            ad_buffer_free(binRequest);
             if ( extractedDataRequest == null ) {
                 response = errorCauseReturn;
                 break;
@@ -314,12 +314,12 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 if ( 0 < dataResponse->size ) {
                     if ( (dataResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
                         log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
-                        buffer_recycle(dataResponse);
+                        ad_buffer_recycle(dataResponse);
                         ecuResponse = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
                     }
                 }
             }
-            buffer_free(extractedDataRequest);
+            ad_buffer_free(extractedDataRequest);
             if ( ecuResponse == null && 0 < dataResponse->size ) {
                 list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
 
@@ -340,13 +340,13 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                             header = gprintf("%d:", frame_idx);
                         }
                     }
-                    buffer_free(headerBin);
+                    ad_buffer_free(headerBin);
                     if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
                         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                            byte pci_0 = buffer_extract_0(frame);
+                            byte pci_0 = ad_buffer_extract_0(frame);
                             switch((pci_0 & 0xF0) >> 4) {
                                 case Iso15765FirstFrame:
-                                    buffer_extract_0(frame);
+                                    ad_buffer_extract_0(frame);
                                     break;
                                 case Iso15765ConsecutiveFrame:
                                 case Iso15765SingleFrame:
@@ -374,7 +374,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 list_Buffer_empty(frames);
                 free(frames);
             }
-            buffer_free(dataResponse);
+            ad_buffer_free(dataResponse);
 
             Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
             if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -404,11 +404,11 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
 
             int sz = min(response_header_bin->size,12);
-            buffer_recycle(elm327->obd_buffer);
-            buffer_ensure_capacity(elm327->obd_buffer,sz);
+            ad_buffer_recycle(elm327->obd_buffer);
+            ad_buffer_ensure_capacity(elm327->obd_buffer,sz);
             memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
             elm327->obd_buffer->size = sz;
-            buffer_free(response_header_bin);
+            ad_buffer_free(response_header_bin);
 
             if ( ecuResponse != null ) {
                 char * tmpResponseResult;
@@ -420,7 +420,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 response = tmpResponseResult;
             }
         }
-        buffer_free(dataRequest);
+        ad_buffer_free(dataRequest);
         if ( response == null ) {
             double part = 1;
             if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) && 

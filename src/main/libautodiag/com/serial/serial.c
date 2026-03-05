@@ -63,7 +63,7 @@ int serial_recv_internal(final Serial * port) {
     int res = object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
     if ( 0 < res ) {
         while ( 0 < res && ! object_handle_t_invalid(port->implementation->handle_rename) ) {
-            buffer_ensure_capacity(port->recv_buffer, maxReadLen);
+            ad_buffer_ensure_capacity(port->recv_buffer, maxReadLen);
             final int bytes_readed = object_handle_t_read(port->implementation->handle_rename, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
             if( 0 < bytes_readed ) {
                 port->recv_buffer->size += bytes_readed;
@@ -77,7 +77,7 @@ int serial_recv_internal(final Serial * port) {
         }
         if ( log_has_level(LOG_DEBUG) ) {
             log_msg(LOG_DEBUG, "Serial data received");
-            buffer_dump(port->recv_buffer);
+            ad_buffer_dump(port->recv_buffer);
         }
     } else if ( res == -1 ) {
         perror("poll");
@@ -381,7 +381,7 @@ char * serial_describe_communication_layer(final Serial * serial) {
     return res;
 }
 static void clear_data(final Serial* serial) {
-    buffer_recycle(serial->recv_buffer);
+    ad_buffer_recycle(serial->recv_buffer);
 }
 void serial_lock(final Serial * port) {
     pthread_mutex_lock(&port->implementation->lock_mutex);
@@ -406,7 +406,7 @@ void serial_init(final Serial* serial) {
     serial_reset_to_default(serial);
     serial->location = null;
     serial->state = AD_DEVICE_STATE_UNDEFINED;
-    serial->recv_buffer = buffer_new();
+    serial->recv_buffer = ad_buffer_new();
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
     serial->timeout_seq = SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT;
     serial->detected = false;
@@ -439,7 +439,7 @@ void serial_free(final Serial * port) {
             port->eol = null;
         }
         if ( port->recv_buffer != null ) {
-            buffer_free(port->recv_buffer);
+            ad_buffer_free(port->recv_buffer);
             port->recv_buffer = null;
         }
         if ( port->implementation != null ) {
@@ -551,7 +551,7 @@ bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
         return false;
     }
 
-    buffer_recycle(serial->recv_buffer);
+    ad_buffer_recycle(serial->recv_buffer);
     bool result = serial->recv(AD_DEVICE(serial)) == SERIAL_RESPONSE_OK;
     
     return result;

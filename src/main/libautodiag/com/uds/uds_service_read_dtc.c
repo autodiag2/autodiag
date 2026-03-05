@@ -72,12 +72,12 @@ AD_LIST_SRC(list_UDS_DTC);
 static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
     list_list_UDS_DTC * result = list_list_UDS_DTC_new();
     viface_lock(iface);
-    final Buffer * binRequest = buffer_from_ints(UDS_SERVICE_READ_DTC_INFORMATION, sub);
+    final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DTC_INFORMATION, sub);
     if ( sub == UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK ) {
-        buffer_append_byte(binRequest, StatusMask);
+        ad_buffer_append_byte(binRequest, StatusMask);
     }
     viface_send(iface, binRequest);
-    buffer_free(binRequest);
+    ad_buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
     for(int i = 0; i < iface->vehicle->ecus_len; i++) {
@@ -88,12 +88,12 @@ static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, f
             final Buffer * data = ecu->data_buffer->list[j];
             if ( data->size < 3 ) {
                 log_msg(LOG_WARNING, "received some data with wrong size (probably concurrent access)");
-                buffer_dump(data);
+                ad_buffer_dump(data);
                 continue;
             }
             if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
                 log_msg(LOG_DEBUG, "negative response found: ");
-                buffer_dump(data);
+                ad_buffer_dump(data);
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 if ( (data->buffer[1] & sub) == sub ) {
                     ecu_response->Status_Availability_Mask = data->buffer[2];
@@ -108,7 +108,7 @@ static list_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, f
                 }
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");
-                buffer_dump(data);
+                ad_buffer_dump(data);
             }
         }
         list_list_UDS_DTC_append(result, ecu_response);

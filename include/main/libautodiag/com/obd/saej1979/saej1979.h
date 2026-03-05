@@ -24,7 +24,7 @@ AD_LIST_H(int)
     viface_lock(iface); \
     int response = 0; \
     type result = errorValue; \
-    Buffer * obd_req = buffer_from_ascii_hex(obd_request_str); \
+    Buffer * obd_req = ad_buffer_from_ascii_hex(obd_request_str); \
     int pid; \
     bool hasPid = ( 1 < obd_req->size ); \
     if ( hasPid ) { \

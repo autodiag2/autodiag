@@ -12,11 +12,11 @@ void * sim_doip_discovery_loop(void *arg) {
 
     object_DoIPMessage * responseMessage = doip_message_new(DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE);
     object_DoIPMessagePayloadVehicleIdResponse * payload = (object_DoIPMessagePayloadVehicleIdResponse*)responseMessage->payload;
-    payload->vin = buffer_from_ascii("VF1BB05CF26010203");
+    payload->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     assert(0 < sim->ecus->size);
-    payload->addr = buffer_from_ints(0x07, sim->ecus->list[0]->address);
-    payload->eid = buffer_from_ascii_hex("1234567890AB");
-    payload->gid = buffer_from_ascii_hex("1234567890AB");
+    payload->addr = ad_buffer_from_ints(0x07, sim->ecus->list[0]->address);
+    payload->eid = ad_buffer_from_ascii_hex("1234567890AB");
+    payload->gid = ad_buffer_from_ascii_hex("1234567890AB");
     payload->further_action_required = false;
     payload->sync_status = false;
     Buffer * responseBuffer = doip_message_serialize(responseMessage);
@@ -39,8 +39,8 @@ void * sim_doip_discovery_loop(void *arg) {
         }*/
         int r = network_udp_wait_readable(handle, timeout_waiting_client_ms);
         if (0 < r) {
-            Buffer * request = buffer_new();
-            buffer_ensure_capacity(request, 1024);
+            Buffer * request = ad_buffer_new();
+            ad_buffer_ensure_capacity(request, 1024);
             struct sockaddr_in from;
             socklen_t from_len = (socklen_t)sizeof(from);
             int n = (int)recvfrom(handle, request->buffer, request->size_allocated, 0, (struct sockaddr *)&from, &from_len);
@@ -64,9 +64,9 @@ void * sim_doip_discovery_loop(void *arg) {
             if (requestSent) {
                 sendto(handle, responseBuffer->buffer, responseBuffer->size, 0, (struct sockaddr *)&from, from_len);
                 char * addr_str = network_location(from);
-                log_msg(LOG_DEBUG, "Response sent to %s (0x%s)", addr_str, buffer_to_hex_string(responseBuffer));
+                log_msg(LOG_DEBUG, "Response sent to %s (0x%s)", addr_str, ad_buffer_to_hex_string(responseBuffer));
                 free(addr_str);
-                buffer_free(responseBuffer);
+                ad_buffer_free(responseBuffer);
             }
         }
     }

@@ -1,13 +1,13 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/lib.h"
 
-void buffer_fill(final Buffer * buffer, final byte value) {
+void ad_buffer_fill(final Buffer * buffer, final byte value) {
     for(unsigned i = buffer->size; i < buffer->size_allocated; i++) {
         buffer->buffer[i] = value;
     }
     buffer->size = buffer->size_allocated;
 }
-Buffer * buffer_slice(final Buffer *buffer, int from, int sz) {
+Buffer * ad_buffer_slice(final Buffer *buffer, int from, int sz) {
     if (!buffer) return null;
     if (!buffer->buffer) return null;
     if (from < 0) return null;
@@ -32,7 +32,7 @@ Buffer * buffer_slice(final Buffer *buffer, int from, int sz) {
     return out;
 }
 
-bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
+bool ad_buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2) {
     assert(cmp1 != null);
     assert(ascii_hex != null);
     if ( strlen(ascii_hex) < strlen(cmp1)) {
@@ -51,32 +51,32 @@ bool buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char
     }
     return true;
 }
-#define BUFFER_GEN_FROM_UINT(bitsize) \
-    Buffer * buffer_from_uint##bitsize(uint##bitsize##_t i) { \
-        return buffer_assign_uint##bitsize(buffer_new(), i); \
+#define AD_BUFFER_GEN_FROM_UINT(bitsize) \
+    Buffer * ad_buffer_from_uint##bitsize(uint##bitsize##_t i) { \
+        return ad_buffer_assign_uint##bitsize(ad_buffer_new(), i); \
     }
-BUFFER_GEN_FROM_UINT(8)
-BUFFER_GEN_FROM_UINT(16)
-BUFFER_GEN_FROM_UINT(32)
-BUFFER_GEN_FROM_UINT(64)
-Buffer * buffer_assign_uint8(Buffer * buffer, uint8_t i) {
-    buffer_recycle(buffer);
-    buffer_ensure_capacity(buffer, 1);
+AD_BUFFER_GEN_FROM_UINT(8)
+AD_BUFFER_GEN_FROM_UINT(16)
+AD_BUFFER_GEN_FROM_UINT(32)
+AD_BUFFER_GEN_FROM_UINT(64)
+Buffer * ad_buffer_assign_uint8(Buffer * buffer, uint8_t i) {
+    ad_buffer_recycle(buffer);
+    ad_buffer_ensure_capacity(buffer, 1);
     buffer->buffer[0] = i & 0xFF;
     buffer->size = 1;
     return buffer;
 }
-Buffer * buffer_assign_uint16(Buffer * buffer, uint16_t i) {
-    buffer_recycle(buffer);
-    buffer_ensure_capacity(buffer, 2);
+Buffer * ad_buffer_assign_uint16(Buffer * buffer, uint16_t i) {
+    ad_buffer_recycle(buffer);
+    ad_buffer_ensure_capacity(buffer, 2);
     buffer->buffer[0] = (i >> 8) & 0xFF;
     buffer->buffer[1] = i & 0xFF;
     buffer->size = 2;
     return buffer;
 }
-Buffer * buffer_assign_uint32(Buffer * buffer, uint32_t i) {
-    buffer_recycle(buffer);
-    buffer_ensure_capacity(buffer, 4);
+Buffer * ad_buffer_assign_uint32(Buffer * buffer, uint32_t i) {
+    ad_buffer_recycle(buffer);
+    ad_buffer_ensure_capacity(buffer, 4);
     buffer->buffer[0] = (i >> 24) & 0xFF;
     buffer->buffer[1] = (i >> 16) & 0xFF;
     buffer->buffer[2] = (i >> 8) & 0xFF;
@@ -84,9 +84,9 @@ Buffer * buffer_assign_uint32(Buffer * buffer, uint32_t i) {
     buffer->size = 4;
     return buffer;
 }
-Buffer * buffer_assign_uint64(Buffer * buffer, uint64_t i) {
-    buffer_recycle(buffer);
-    buffer_ensure_capacity(buffer, 8);
+Buffer * ad_buffer_assign_uint64(Buffer * buffer, uint64_t i) {
+    ad_buffer_recycle(buffer);
+    ad_buffer_ensure_capacity(buffer, 8);
     buffer->buffer[0] = (i >> 56) & 0xFF;
     buffer->buffer[1] = (i >> 48) & 0xFF;
     buffer->buffer[2] = (i >> 40) & 0xFF;
@@ -98,11 +98,11 @@ Buffer * buffer_assign_uint64(Buffer * buffer, uint64_t i) {
     buffer->size = 8;
     return buffer;
 }
-void buffer_assign(Buffer * to, Buffer * from) {
-    buffer_recycle(to);
-    buffer_memcpy(to, from->buffer, from->size);
+void ad_buffer_assign(Buffer * to, Buffer * from) {
+    ad_buffer_recycle(to);
+    ad_buffer_memcpy(to, from->buffer, from->size);
 }
-int buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
+int ad_buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     if ( buf1->size != buf2->size ) {
         return -1;
     }
@@ -113,38 +113,38 @@ int buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
     }
     return 0;
 }
-Buffer * buffer_new_cycle(unsigned sz, int percent) {
+Buffer * ad_buffer_new_cycle(unsigned sz, int percent) {
     assert(0 <= percent && percent <= 100);
-    Buffer * buffer = buffer_new();
-    buffer_ensure_capacity(buffer, sz);
+    Buffer * buffer = ad_buffer_new();
+    ad_buffer_ensure_capacity(buffer, sz);
     for(unsigned i = 0; i < sz; i++) {
         buffer->buffer[i] = (byte)((percent / 100.0) * 0xFF);
     }
     buffer->size = sz;
     return buffer;
 }
-Buffer * buffer_new_random_with_seed(unsigned sz, unsigned * seed) {
-    Buffer * buffer = buffer_new();
-    buffer_ensure_capacity(buffer, sz);
+Buffer * ad_buffer_new_random_with_seed(unsigned sz, unsigned * seed) {
+    Buffer * buffer = ad_buffer_new();
+    ad_buffer_ensure_capacity(buffer, sz);
     for(unsigned i = 0; i < sz; i++) {
         buffer->buffer[i] = (byte)math_rand_r(seed);
     }
     buffer->size = sz;
     return buffer;
 }
-Buffer * buffer_new_random(unsigned sz) {
+Buffer * ad_buffer_new_random(unsigned sz) {
     unsigned seed = rand();
-    return buffer_new_random_with_seed(sz, &seed);
+    return ad_buffer_new_random_with_seed(sz, &seed);
 }
 
-byte buffer_extract_0(final Buffer * buffer) {
+byte ad_buffer_extract_0(final Buffer * buffer) {
     assert(0 < buffer->size);
     final byte b0 = buffer->buffer[0];
-    buffer_left_shift(buffer,1);
+    ad_buffer_left_shift(buffer,1);
     return b0;
 }
 
-void buffer_left_shift(final Buffer * buffer, final unsigned shift) {
+void ad_buffer_left_shift(final Buffer * buffer, final unsigned shift) {
     assert(shift <= buffer->size);
     for(int i = shift; i < buffer->size; i++) {
         buffer->buffer[i-shift] = buffer->buffer[i];
@@ -152,28 +152,28 @@ void buffer_left_shift(final Buffer * buffer, final unsigned shift) {
     buffer->size -= shift;
 }
 
-Buffer * buffer_new() {
+Buffer * ad_buffer_new() {
     Buffer * buffer = (Buffer*)malloc(sizeof(Buffer));
     buffer->size_allocated = 0;
     buffer->size = 0;
     buffer->buffer = null;
     return buffer;
 }
-void buffer_memcpy(Buffer * buffer, void * src, int sz) {
-    buffer_ensure_capacity(buffer, sz);
+void ad_buffer_memcpy(Buffer * buffer, void * src, int sz) {
+    ad_buffer_ensure_capacity(buffer, sz);
     memcpy(buffer->buffer, src, sz);
     buffer->size = sz;
 }
-Buffer * buffer_copy(Buffer* buffer) {
+Buffer * ad_buffer_copy(Buffer* buffer) {
     assert(buffer != null);
-    Buffer * b = buffer_new();
-    buffer_ensure_capacity(b,buffer->size);
+    Buffer * b = ad_buffer_new();
+    ad_buffer_ensure_capacity(b,buffer->size);
     b->size = buffer->size;
     memcpy(b->buffer,buffer->buffer,b->size);
     return b;
 }
 
-void buffer_free(Buffer * buffer) {
+void ad_buffer_free(Buffer * buffer) {
     if ( buffer != null ) {
         if ( buffer->buffer != null ) {
             free(buffer->buffer);
@@ -185,16 +185,16 @@ void buffer_free(Buffer * buffer) {
     }
 }
 
-int buffer_get_free_space(Buffer * buffer) {
+int ad_buffer_get_free_space(Buffer * buffer) {
     assert(buffer != null);
     assert(buffer->size <= buffer->size_allocated);
     return buffer->size_allocated - buffer->size;
 }
 
-bool buffer_ensure_capacity(Buffer * buffer, unsigned size) {
+bool ad_buffer_ensure_capacity(Buffer * buffer, unsigned size) {
     assert(buffer != null);
     assert(0 <= size);
-    final unsigned remaining_space = buffer_get_free_space(buffer);
+    final unsigned remaining_space = ad_buffer_get_free_space(buffer);
     if ( size <= remaining_space ) {
         return false;
     } else {
@@ -203,110 +203,110 @@ bool buffer_ensure_capacity(Buffer * buffer, unsigned size) {
         return true;
     }
 }
-void buffer_initialise(final Buffer * buffer, final byte value) {
+void ad_buffer_initialise(final Buffer * buffer, final byte value) {
     for(int i = 0; i < buffer->size; i++) {
         buffer->buffer[i] = value;
     }
 }
-void buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned index, final unsigned size) {
+void ad_buffer_slice_append(final Buffer *dest, final Buffer * src, final unsigned index, final unsigned size) {
     assert(size <= src->size);
     assert(dest != null);
     assert(src != null);
     assert(index+size <= src->size);
-    buffer_ensure_capacity(dest, size);
+    ad_buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, src->buffer + index, size);
     dest->size += size;
 }
-void buffer_prepend_byte(final Buffer* dest, final byte b) {
-    buffer_prepend_bytes(dest, &b, 1);
+void ad_buffer_prepend_byte(final Buffer* dest, final byte b) {
+    ad_buffer_prepend_bytes(dest, &b, 1);
 }
-void buffer_prepend(final Buffer* dest, final Buffer * src) {
+void ad_buffer_prepend(final Buffer* dest, final Buffer * src) {
     assert(src != null);
     assert(dest != null);
-    buffer_prepend_bytes(dest, src->buffer, src->size);
+    ad_buffer_prepend_bytes(dest, src->buffer, src->size);
 }
-void buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned size) {
+void ad_buffer_prepend_bytes(final Buffer* dest, final byte * data, final unsigned size) {
     if ( size == 0 ) {
         return;
     }
     assert(dest != null);
     assert(data != null);
-    buffer_ensure_capacity(dest, size);
+    ad_buffer_ensure_capacity(dest, size);
     for(unsigned i = dest->size_allocated - 1; size <= i; i--) {
         dest->buffer[i] = dest->buffer[i-size];
     }
     memcpy(dest->buffer, data, size);
     dest->size += size;
 }
-void buffer_append_melt(final Buffer * dest, final Buffer * src) {
-    buffer_append(dest, src);
-    buffer_free(src);
+void ad_buffer_append_melt(final Buffer * dest, final Buffer * src) {
+    ad_buffer_append(dest, src);
+    ad_buffer_free(src);
 }
-void buffer_append(final Buffer * dest, final Buffer * src) {
+void ad_buffer_append(final Buffer * dest, final Buffer * src) {
     assert(src != null);
     assert(dest != null);
-    buffer_append_bytes(dest, src->buffer, src->size);
+    ad_buffer_append_bytes(dest, src->buffer, src->size);
 }
-void buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned size) {
-    buffer_ensure_capacity(dest, size);
+void ad_buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned size) {
+    ad_buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, data, size);
     dest->size += size;
 }
-void buffer_append_byte(final Buffer * dest, final byte b) {
-    buffer_ensure_capacity(dest, 1);
+void ad_buffer_append_byte(final Buffer * dest, final byte b) {
+    ad_buffer_ensure_capacity(dest, 1);
     dest->buffer[dest->size] = b;
     dest->size ++;
 }
-void buffer_append_str(final Buffer * dest, final char *data) {
-    buffer_append_bytes(dest,(byte*)data,strlen(data));
+void ad_buffer_append_str(final Buffer * dest, final char *data) {
+    ad_buffer_append_bytes(dest,(byte*)data,strlen(data));
 }
 
-void buffer_ensure_termination(Buffer * buffer) {
+void ad_buffer_ensure_termination(Buffer * buffer) {
     assert(buffer != null);
     if ( 0 < buffer->size ) {
         if ( buffer->buffer[buffer->size-1] == 0 ) {
             return;
         }
     }
-    buffer_ensure_capacity(buffer, 1);
+    ad_buffer_ensure_capacity(buffer, 1);
     buffer->buffer[buffer->size] = 0;
     buffer->size++;
 }
 
-void buffer_dump(Buffer * buffer) {
+void ad_buffer_dump(Buffer * buffer) {
     assert(buffer != null);    
     bytes_dump(buffer->buffer, buffer->size);
 }
 
-void buffer_debug(Buffer *buffer) {
+void ad_buffer_debug(Buffer *buffer) {
     assert(buffer != null);
     log_msg(LOG_DEBUG, "buffer: {size_allocated: %d, size: %d, addr: 0x%p}",buffer->size_allocated,buffer->size,buffer->buffer);
     bytes_dump(buffer->buffer, buffer->size);
 }
 
-void buffer_recycle(Buffer * buffer) {
+void ad_buffer_recycle(Buffer * buffer) {
     assert(buffer != null);
     buffer->size = 0;
 }
 
 int Buffer_cmp(Buffer* e1, Buffer* e2) {
-    return buffer_cmp(e1, e2);
+    return ad_buffer_cmp(e1, e2);
 }
 AD_LIST_SRC(Buffer);
-AD_LIST_SRC_EMPTY(Buffer, buffer_free)
-bool buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
-    return buffer_cmp(b1, b2) == 0;
+AD_LIST_SRC_EMPTY(Buffer, ad_buffer_free)
+bool ad_buffer_find_comparator(final Buffer *b1, final Buffer *b2) {
+    return ad_buffer_cmp(b1, b2) == 0;
 }
-AD_LIST_SRC_FIND(Buffer, Buffer*, buffer_find_comparator)
+AD_LIST_SRC_FIND(Buffer, Buffer*, ad_buffer_find_comparator)
 
-Buffer * buffer_from_bytes(byte * buf, int len) {
-    Buffer * b = buffer_new();
-    buffer_memcpy(b, buf, len);
+Buffer * ad_buffer_from_bytes(byte * buf, int len) {
+    Buffer * b = ad_buffer_new();
+    ad_buffer_memcpy(b, buf, len);
     return b;
 }
-Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
+Buffer * ad_buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     assert(ascii_hex != null);
-    Buffer * bin = buffer_new();
+    Buffer * bin = ad_buffer_new();
     char *ascii_internal;
     if ( size % 2 ) {
         size ++;
@@ -316,7 +316,7 @@ Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     }
     char hex[3];
     hex[2] = 0;
-    buffer_ensure_capacity(bin,size/2);
+    ad_buffer_ensure_capacity(bin,size/2);
     for (unsigned i = 0; i < size; i += 2) {
         memcpy(hex, ascii_internal+i, 2);
         for(unsigned j = 0; j < 2; j++) {
@@ -326,7 +326,7 @@ Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
             ) {
 
             } else {
-                buffer_free(bin);
+                ad_buffer_free(bin);
                 free(ascii_internal);
                 return null;
             }
@@ -336,34 +336,34 @@ Buffer * buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     free(ascii_internal);
     return bin;
 }
-void buffer_padding(final Buffer * buffer, final unsigned padding_until, final byte pad) {
+void ad_buffer_padding(final Buffer * buffer, final unsigned padding_until, final byte pad) {
     assert(buffer != null);
     final unsigned remaining_size_to_pad = max(padding_until - buffer->size, 0);
-    buffer_ensure_capacity(buffer, remaining_size_to_pad);
+    ad_buffer_ensure_capacity(buffer, remaining_size_to_pad);
     for(unsigned i = buffer->size; i < padding_until; i++) {
         buffer->buffer[i] = pad;
     }
     buffer->size += remaining_size_to_pad;
 }
-Buffer* buffer_from_ascii(const char *ascii) {
-    Buffer * result = buffer_new();
-    buffer_ensure_capacity(result, strlen(ascii));
+Buffer* ad_buffer_from_ascii(const char *ascii) {
+    Buffer * result = ad_buffer_new();
+    ad_buffer_ensure_capacity(result, strlen(ascii));
     memcpy(result->buffer,ascii,strlen(ascii));
     result->size = strlen(ascii);
     return result;
 }
-Buffer* buffer_from_ascii_hex(const char * ascii_hex) {
-    return buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
+Buffer* ad_buffer_from_ascii_hex(const char * ascii_hex) {
+    return ad_buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));
 }
-Buffer* buffer_from_ints_arr(const unsigned *vals, size_t n) {
-    Buffer *result = buffer_new();
+Buffer* ad_buffer_from_ints_arr(const unsigned *vals, size_t n) {
+    Buffer *result = ad_buffer_new();
     for (size_t i = 0; i < n; i++) {
-        buffer_ensure_capacity(result, result->size + 1);
+        ad_buffer_ensure_capacity(result, result->size + 1);
         result->buffer[result->size++] = (byte)vals[i];
     }
     return result;
 }
-void buffer_slice_non_alphanum(final Buffer *buffer) {
+void ad_buffer_slice_non_alphanum(final Buffer *buffer) {
     int offset = 0;
     for(int i = 0; i < buffer->size; i++) {
         if ( ! ascii_is_alphanum(buffer->buffer[i]) ) {
@@ -374,10 +374,10 @@ void buffer_slice_non_alphanum(final Buffer *buffer) {
     }
     buffer->size -= 1;
 }
-char * buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
+char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
     return ascii_escape_breaking_chars_n((char *)buffer->buffer, buffer->size);
 }
-char * buffer_to_ascii(final Buffer *buffer) {
+char * ad_buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {
         return strdup("");
     } else {
@@ -389,14 +389,14 @@ char * buffer_to_ascii(final Buffer *buffer) {
         }
     }
 }
-char* buffer_to_hex_string(Buffer *buffer) {
+char* ad_buffer_to_hex_string(Buffer *buffer) {
     if ( buffer == null || buffer->size == 0 ) {
         return strdup("");
     } else {
         return bytes_to_hex_string(buffer->buffer, buffer->size);
     }
 }
-char * buffer_to_hexdump(final Buffer *buffer) {
+char * ad_buffer_to_hexdump(final Buffer *buffer) {
     if ( buffer == null || buffer->size == 0 ) {
         return strdup("");
     } else {
@@ -406,10 +406,10 @@ char * buffer_to_hexdump(final Buffer *buffer) {
 void list_Buffer_dump(final list_Buffer* list) {
     assert(list != null);
     AD_LIST_FOREACH(list,Buffer,buffer,
-        buffer_dump(buffer);
+        ad_buffer_dump(buffer);
     )
 }
-bool buffer_equals(final Buffer * b1, final Buffer * b2) {
+bool ad_buffer_equals(final Buffer * b1, final Buffer * b2) {
     assert(b1 != null);
     assert(b2 != null);
     if ( b1->size != b2->size ) {

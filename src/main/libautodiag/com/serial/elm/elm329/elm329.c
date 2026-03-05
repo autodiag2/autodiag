@@ -57,7 +57,7 @@ int elm329_guess_response(final char * buffer) {
 ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     final char * command = at_command("dpn");
     final bool result = (3 <= elm329->send(AD_DEVICE(elm329), command));
-    buffer_recycle(elm329->recv_buffer);
+    ad_buffer_recycle(elm329->recv_buffer);
     elm329->recv(AD_DEVICE(elm329));
 
     ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
@@ -136,7 +136,7 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
 bool elm329_reset_protocol(final ELM329Device* elm329) {
     final char * command = at_command("sp0");
     final bool result = (3 <= elm329->send(AD_DEVICE(elm329), command));
-    buffer_recycle(elm329->recv_buffer);
+    ad_buffer_recycle(elm329->recv_buffer);
     return ( elm329->recv(AD_DEVICE(elm329)) == SERIAL_RESPONSE_OK );
 }
 bool elm329_configure(final ELM329Device* elm329) {

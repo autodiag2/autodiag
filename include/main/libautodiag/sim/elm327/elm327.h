@@ -169,7 +169,7 @@ void sim_elm327_start_activity_monitor(SimELM327 * elm327);
     (elm327->nvm.programmable_parameters_states->buffer[parameter] ? elm327->nvm.programmable_parameters->buffer[parameter] : elm327->programmable_parameters_defaults->buffer[parameter])
 
 #define SIM_ELM327_PPS_STATE(elm327,state) \
-    buffer_initialise(elm327->nvm.programmable_parameters_states, state);
+    ad_buffer_initialise(elm327->nvm.programmable_parameters_states, state);
 
 #include "nvm.h"
 

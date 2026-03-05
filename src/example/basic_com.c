@@ -17,13 +17,13 @@ int main(int argc, char ** argv) {
     printf("serial selected location: %s\n", serial->location);
     VehicleIFace * viface = viface_open_from_device(AD_DEVICE(serial));
 
-    viface_send(viface, buffer_from_ascii_hex("0100"));
+    viface_send(viface, ad_buffer_from_ascii_hex("0100"));
     viface_clear_data(viface);
     viface_recv(viface);
 
     printf("received: \n");
     for(int i = 0; i < viface->vehicle->data_buffer->size; i++) {
-            char * received = buffer_to_hex_string(viface->vehicle->data_buffer->list[i]);
+            char * received = ad_buffer_to_hex_string(viface->vehicle->data_buffer->list[i]);
             printf(" - %s\n", received);
     }
 

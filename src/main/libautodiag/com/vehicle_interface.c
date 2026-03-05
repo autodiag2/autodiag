@@ -25,17 +25,17 @@ void viface_close(final VehicleIFace* iface) {
     }
 }
 int viface_send_str(final VehicleIFace * iface, final char * request) {
-    final Buffer * binRequest = buffer_from_ascii_hex(request);
+    final Buffer * binRequest = ad_buffer_from_ascii_hex(request);
     if ( binRequest == null || binRequest->size == 0 ) {
         log_msg(LOG_WARNING, "Sending at command through the vehicle interface is a bad pratice");
         return iface->device->send(iface->device, request);
     }
     final int result = viface_send(iface, binRequest);
-    buffer_free(binRequest);
+    ad_buffer_free(binRequest);
     return result;
 }
 int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
-    char * request = buffer_to_hex_string(binRequest);
+    char * request = ad_buffer_to_hex_string(binRequest);
     final int result = iface->device->send(iface->device, request);
     free(request);
     viface_event_emit_on_request(iface, binRequest);
@@ -144,7 +144,7 @@ static bool update_filters_on_device(final VehicleIFace* iface) {
 void viface_recv_filter_add(final VehicleIFace* iface, final Buffer * address) {
     if ( ! list_Buffer_find(iface->vehicle->internal.filter, address) ) {
         viface_lock(iface);
-        final Buffer * address_copy = buffer_copy(address);
+        final Buffer * address_copy = ad_buffer_copy(address);
         list_Buffer_append(iface->vehicle->internal.filter, address_copy);
         update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_add(iface->vehicle, address_copy);
@@ -158,7 +158,7 @@ bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address) {
         list_Buffer_remove(iface->vehicle->internal.filter, found);
         update_filters_on_device(iface);
         vehicle_event_emit_on_filter_change_rm(iface->vehicle, address);
-        buffer_free(found);
+        ad_buffer_free(found);
         viface_unlock(iface);
     }
     return found != null;
@@ -204,8 +204,8 @@ int viface_recv(final VehicleIFace* iface) {
                             continue;
                         } else {
                             service_id &= ~OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE;
-                            final Buffer * data_copy = buffer_copy(data);
-                            buffer_extract_0(data_copy);
+                            final Buffer * data_copy = ad_buffer_copy(data);
+                            ad_buffer_extract_0(data_copy);
                             switch(service_id) {
                                 case OBD_SERVICE_SHOW_CURRENT_DATA: list_Buffer_append(ecu->obd_service.current_data, data_copy); break;
                                 case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: list_Buffer_append(ecu->obd_service.freeze_frame_data, data_copy); break;
@@ -220,7 +220,7 @@ int viface_recv(final VehicleIFace* iface) {
                                 case OBD_SERVICE_PERMANENT_DTC: list_Buffer_append(ecu->obd_service.permanent_dtc, data_copy); break;
                                 default:
                                     log_msg(LOG_WARNING, "Received data for unknown OBD service ID: 0x%02X", service_id);
-                                    buffer_free(data_copy);
+                                    ad_buffer_free(data_copy);
                                     break;
                             }
                         }
@@ -272,21 +272,21 @@ void viface_discover_vehicle(VehicleIFace* iface) {
     iface->uds_enabled = uds_is_enabled(iface);
     saej1979_vehicle_info_discover_vin(iface);
     if ( iface->vehicle->vin == null ) {
-        iface->vehicle->vin = buffer_new();
+        iface->vehicle->vin = ad_buffer_new();
     }
     if ( iface->uds_enabled && iface->vehicle->vin->size == 0 ) {
         final list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
         assert(result->size <= 1);
         if ( 0 < result->size ) {
-            iface->vehicle->vin = buffer_copy(result->list[0]);
+            iface->vehicle->vin = ad_buffer_copy(result->list[0]);
         }
     }
     if ( 0 < iface->vehicle->vin->size ) {
         if ( 17 != iface->vehicle->vin->size ) {
-            log_msg(LOG_WARNING, "Non standard VIN detected: size=%d content=%s", iface->vehicle->vin->size, buffer_to_ascii(iface->vehicle->vin));
+            log_msg(LOG_WARNING, "Non standard VIN detected: size=%d content=%s", iface->vehicle->vin->size, ad_buffer_to_ascii(iface->vehicle->vin));
         }
         // If the manufacturer return it in a non standard way
-        buffer_slice_non_alphanum(iface->vehicle->vin);
+        ad_buffer_slice_non_alphanum(iface->vehicle->vin);
         viface_fill_infos_from_vin(iface);
     }
 }

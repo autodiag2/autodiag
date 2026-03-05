@@ -22,13 +22,13 @@ int oneHex(char c);
             } \
             ptr += id_sz_chars + elm->printing_of_spaces; \
             \
-            final Buffer * address = buffer_from_ascii_hex_n((char*)id_ascii,id_sz_chars); \
+            final Buffer * address = ad_buffer_from_ascii_hex_n((char*)id_ascii,id_sz_chars); \
             if ( address == null ) { \
                 log_msg(LOG_ERROR, "Data has been detected but address cannot be decoded, maybe it is not ISO15765 frame"); \
                 return false; \
             } \
             final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
-            buffer_free(address); \
+            ad_buffer_free(address); \
             Iso15765Conversation *conversation = list_Iso15765Conversation_find(conversations, current_ecu); \
             \
             if ( strlen(ptr) < 1 ) { \
@@ -79,7 +79,7 @@ int oneHex(char c);
                     if ( conversation == null ) { \
                         log_msg(LOG_ERROR, "Conversation has not started properly"); \
                         final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
-                        buffer_dump(bin_buffer); \
+                        ad_buffer_dump(bin_buffer); \
                     } else { \
                         log_msg(LOG_DEBUG, "consecutive frame"); \
                         final int sequence_number = oneHex(*ptr); \
@@ -130,7 +130,7 @@ int oneHex(char c);
                             if ( conversation->remaining_data_bytes_to_receive == 0 ) { \
                                 assert(conversation->ecu != null); \
                                 if ( bin_buffer != null ) { \
-                                    list_Buffer_append(conversation->ecu->data_buffer,buffer_copy(conversation->data)); \
+                                    list_Buffer_append(conversation->ecu->data_buffer,ad_buffer_copy(conversation->data)); \
                                 } \
                                 if ( list_Iso15765Conversation_remove(conversations, conversation) ) { \
                                     log_msg(LOG_DEBUG, "Conversation removed"); \
@@ -144,7 +144,7 @@ int oneHex(char c);
                         } break; \
                     default: break; \
                 } \
-                buffer_free(bin_buffer); \
+                ad_buffer_free(bin_buffer); \
             } \
             break; \
         } \

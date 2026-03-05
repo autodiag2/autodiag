@@ -78,7 +78,7 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
         }
     }
 
-    char *req_hex = buffer_to_hex_string(binRequest);
+    char *req_hex = ad_buffer_to_hex_string(binRequest);
 
     // Calculate max flow count for this request and address filter
     int max = 0;
@@ -101,7 +101,7 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
         }
     }
 
-    if (max == 0) return buffer_new();
+    if (max == 0) return ad_buffer_new();
 
     int idx = get_next_index(st, req_hex, max);
 
@@ -121,16 +121,16 @@ static Buffer *response(SimECUGenerator *generator, Buffer *binRequest) {
             if (strcmp(req_hex, file_req) == 0) {
                 if (count == idx) {
                     cJSON *rs_arr = cJSON_GetObjectItem(flow_obj, "responses");
-                    if (!rs_arr || cJSON_GetArraySize(rs_arr) == 0) return buffer_new();
+                    if (!rs_arr || cJSON_GetArraySize(rs_arr) == 0) return ad_buffer_new();
                     char *hex = cJSON_GetArrayItem(rs_arr, 0)->valuestring;
-                    return buffer_from_ascii_hex(hex);
+                    return ad_buffer_from_ascii_hex(hex);
                 }
                 count++;
             }
         }
     }
 
-    return buffer_new();
+    return ad_buffer_new();
 }
 static void init_state(SimECUGenerator * this) {
     GState *st = malloc(sizeof(GState));

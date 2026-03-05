@@ -31,7 +31,7 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
     }else{ \
         ECU *ecu=vehicle_search_ecu_by_address(config.ephemere.iface->vehicle,address); \
         if(ecu==null){ \
-            log_msg(LOG_WARNING,"ecu with address '%s' not found",buffer_to_hex_string(address)); \
+            log_msg(LOG_WARNING,"ecu with address '%s' not found",ad_buffer_to_hex_string(address)); \
         }else{ \
             GtkCheckMenuItem *w = GTK_CHECK_MENU_ITEM(menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,ecu)); \
             if(w==null){ \
@@ -43,7 +43,7 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
 } \
 static void menubar_data_filter_by_register(const ECU *ecu){ \
     char *displayLabel; \
-    asprintf(&displayLabel,"%s (%s)",ecu->name,buffer_to_hex_string(ecu->address)); \
+    asprintf(&displayLabel,"%s (%s)",ecu->name,ad_buffer_to_hex_string(ecu->address)); \
     GtkWidget *filter_check=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,(ECU*)ecu); \
     if(filter_check==null){ \
         filter_check=gtk_check_menu_item_new_with_label(displayLabel); \

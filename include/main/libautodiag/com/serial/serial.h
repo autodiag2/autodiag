@@ -102,8 +102,8 @@ int serial_guess_response(final char * buffer);
  * handle: (ptr, end_ptr) where end_ptr is the excluded bound (exclude eol), ptr the start (end_ptr-ptr is the size)
  */
 #define SERIAL_BUFFER_ITERATE(serial,handle) { \
-    Buffer * recv_buffer = buffer_copy(serial->recv_buffer); \
-    buffer_ensure_termination(recv_buffer); \
+    Buffer * recv_buffer = ad_buffer_copy(serial->recv_buffer); \
+    ad_buffer_ensure_termination(recv_buffer); \
     char *ptr = (char*)recv_buffer->buffer; \
     final char* buffer_last_position = (char*)recv_buffer->buffer + recv_buffer->size; \
     while(ptr < buffer_last_position && *ptr != 0) { \
@@ -118,7 +118,7 @@ int serial_guess_response(final char * buffer);
         } \
         ptr = end_ptr + strlen(serial->eol); \
     } \
-    buffer_free(recv_buffer); \
+    ad_buffer_free(recv_buffer); \
 }
 
 void serial_init(final Serial * serial);

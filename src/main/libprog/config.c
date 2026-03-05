@@ -272,7 +272,7 @@ void config_onchange() {
             log_msg(LOG_ERROR, "Device update in the table of devices has failed, continuing ...");
         }
         if ( config.vehicleInfos.vin != null && 17 <= strlen(config.vehicleInfos.vin) ) {
-            config.ephemere.iface->vehicle->vin = buffer_from_ascii(config.vehicleInfos.vin);
+            config.ephemere.iface->vehicle->vin = ad_buffer_from_ascii(config.vehicleInfos.vin);
             viface_fill_infos_from_vin(config.ephemere.iface);
         }
     }

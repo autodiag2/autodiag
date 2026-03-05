@@ -5,8 +5,8 @@ Iso15765Conversation* iso15765_init_conversation(int expected_bytes) {
     conv->current_sn = 0;
     conv->current_data_length = 0;
     conv->remaining_data_bytes_to_receive = expected_bytes;
-    conv->data = buffer_new();
-    buffer_ensure_capacity(conv->data,expected_bytes);
+    conv->data = ad_buffer_new();
+    ad_buffer_ensure_capacity(conv->data,expected_bytes);
     conv->data->size = conv->data->size_allocated;
     conv->ecu = null;
     return conv;
@@ -14,7 +14,7 @@ Iso15765Conversation* iso15765_init_conversation(int expected_bytes) {
 
 void iso15765_conversation_free(Iso15765Conversation *conv) {
     if ( conv != null ) {
-        buffer_free(conv->data);
+        ad_buffer_free(conv->data);
         conv->remaining_data_bytes_to_receive = 0;
         conv->ecu = null;
         free(conv);

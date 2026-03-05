@@ -21,7 +21,7 @@ bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *valu
         return true;
     }
     if ( strcasecmp(key,"nvm.programmable_parameters") == 0 ) {
-        final Buffer * pp_pending = buffer_from_ascii_hex(value);
+        final Buffer * pp_pending = ad_buffer_from_ascii_hex(value);
         if ( pp_pending == null || elm327->nvm.programmable_parameters->size < pp_pending->size ) {
             log_msg(LOG_WARNING, "Potential memory corruption detected - NVM dropped !");
             log_msg(LOG_DEBUG, "reading: %s", value);
@@ -36,7 +36,7 @@ bool sim_elm327_non_volatile_memory_parse(char * funcData, char *key, char *valu
         return true;
     } 
     if ( strcasecmp(key,"nvm.programmable_parameters_states") == 0 ) {
-        final Buffer * pp_states = buffer_from_ascii_hex(value);
+        final Buffer * pp_states = ad_buffer_from_ascii_hex(value);
         if ( pp_states == null || elm327->nvm.programmable_parameters_states->size < pp_states->size ) {
             log_msg(LOG_WARNING, "Potential memory corruption detected - NVM dropped !");
             log_msg(LOG_DEBUG, "reading: %s", value);
@@ -106,8 +106,8 @@ bool sim_elm327_non_volatile_memory_store(SimELM327 * elm327) {
         fprintf(file,"nvm.user_memory=%d" FILE_EOL, elm327->nvm.user_memory);
         fprintf(file,"nvm.protocol=%d" FILE_EOL, elm327->nvm.protocol);
         fprintf(file,"nvm.protocolIsAuto=%d" FILE_EOL, elm327->nvm.protocol_is_auto);
-        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, buffer_to_hex_string(elm327->nvm.programmable_parameters_pending));
-        fprintf(file,"nvm.programmable_parameters_states=%s" FILE_EOL, buffer_to_hex_string(elm327->nvm.programmable_parameters_states));
+        fprintf(file,"nvm.programmable_parameters=%s" FILE_EOL, ad_buffer_to_hex_string(elm327->nvm.programmable_parameters_pending));
+        fprintf(file,"nvm.programmable_parameters_states=%s" FILE_EOL, ad_buffer_to_hex_string(elm327->nvm.programmable_parameters_states));
         fclose(file);
         return true;
     } else {

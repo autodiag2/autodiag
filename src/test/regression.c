@@ -33,7 +33,6 @@ int main(int argc, char **argv) {
     runIfSelected(testGlobals,null);
     runIfSelected(testSimELM327,null);
     runIfSelected(testISO3779,null);
-    runIfSelected(testDOIP, null);
     
     final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start());
 
@@ -51,6 +50,7 @@ int main(int argc, char **argv) {
     runIfSelected(testSimUDS, null);
     runIfSelected(testSim, null);
     runIfSelected(testCycle, null);
+    runIfSelected(testDOIP, null);
 
     viface_close(iface);
     viface_free(iface);

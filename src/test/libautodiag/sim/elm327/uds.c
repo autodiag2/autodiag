@@ -7,7 +7,7 @@ bool testSimUDS() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     {
-        viface_send(iface, buffer_from_ints(
+        viface_send(iface, ad_buffer_from_ints(
             UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
             UDS_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
         ));

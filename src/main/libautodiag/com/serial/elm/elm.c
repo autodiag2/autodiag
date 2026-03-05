@@ -8,7 +8,7 @@
                 return false; \
             } else { \
                 obd_standard_parse_buffer(vehicle,bin_buffer); \
-                buffer_free(bin_buffer); \
+                ad_buffer_free(bin_buffer); \
             } \
             break; \
         } \
@@ -39,7 +39,7 @@ int elm_linefeeds(final Serial * port, final bool state) {
         
     if ( serial_send_at_command(port, "l%d", state) ) {
         port->eol =  strdup(state ? "\r\n" : "\r");
-        buffer_recycle(port->recv_buffer);
+        ad_buffer_recycle(port->recv_buffer);
         if ( port->recv(AD_DEVICE(port)) == SERIAL_RESPONSE_OK ) {
             return state;
         } else {
@@ -78,7 +78,7 @@ char * elm_print_id(final Serial * port) {
     
     char * id = null;
     
-    buffer_ensure_termination(port->recv_buffer); 
+    ad_buffer_ensure_termination(port->recv_buffer); 
     SERIAL_BUFFER_ITERATE(port,ELM_PRINT_ID_ITERATOR)
         
     return id;
@@ -172,7 +172,7 @@ void elm_ascii_to_bin_internal(final bool printing_of_spaces, final Buffer * bin
     char hex[3];
     hex[2] = 0;
     for(char *ptr = ascii; (ptr+1) < end_ptr; ptr+=(2 + printing_of_spaces)) {
-        buffer_ensure_capacity(bin,1);
+        ad_buffer_ensure_capacity(bin,1);
         memcpy(hex, ptr, 2);
         bin->buffer[bin->size++] = (char)strtol(hex,null,16);
     }
@@ -189,20 +189,20 @@ char* elm_ascii_from_bin(final bool printing_of_spaces, final Buffer * bin) {
 }
 
 Buffer * elm_ascii_to_bin(final ELMDevice * elm, final Buffer * ascii) {
-    final Buffer * bin = buffer_new();
-    buffer_ensure_capacity(bin,ascii->size);
+    final Buffer * bin = ad_buffer_new();
+    ad_buffer_ensure_capacity(bin,ascii->size);
     elm_ascii_to_bin_with_device(elm, bin, (char*)ascii->buffer, (char*)ascii->buffer + ascii->size);
     return bin;
 }
 
 Buffer * elm_ascii_to_bin_str(final ELMDevice * elm, final char * ascii, final char * end_ptr) {
-    final Buffer * bin = buffer_new();
+    final Buffer * bin = ad_buffer_new();
     elm_ascii_to_bin_with_device(elm, bin, ascii, end_ptr);
     return bin;
 }
 bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol_max_value) {
     log_msg(LOG_DEBUG, "Detecting the connection sanity with show supported PIDS in current data");
-    char * testerOrder = buffer_to_hex_string(buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00));
+    char * testerOrder = ad_buffer_to_hex_string(ad_buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00));
     bool sanityCheck = false;
     int protocol = 1;
     // ensure that the SEARCHING... on bus init

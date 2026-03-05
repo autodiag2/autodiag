@@ -43,14 +43,14 @@
                                 \
                                 \
         int bulk_sz = 500; \
-        Buffer * buffer = buffer_new(); \
+        Buffer * buffer = ad_buffer_new(); \
                                         \
         do { \
-            buffer_ensure_capacity(buffer,bulk_sz); \
+            ad_buffer_ensure_capacity(buffer,bulk_sz); \
             int bytes_readed = fread(buffer->buffer+buffer->size,1,bulk_sz,file); \
             if ( 0 < bytes_readed ) { \
                 buffer->size += bytes_readed; \
-                buffer_ensure_termination(buffer); \
+                ad_buffer_ensure_termination(buffer); \
                 \
                 for(char * eol_ptr = strstr((char*)buffer->buffer,eol);eol_ptr != null;eol_ptr = strstr((char *)buffer->buffer,eol)) { \
                     *eol_ptr = 0;                     \
@@ -58,7 +58,7 @@
                         return false; \
                     } \
                     int line_length = ((unsigned char*)eol_ptr - buffer->buffer) + strlen(eol); \
-                    buffer_left_shift(buffer,line_length); \
+                    ad_buffer_left_shift(buffer,line_length); \
                 } \
                 if ( 0 < buffer->size && buffer->buffer[buffer->size-1] == 0) { \
                     buffer->size --; \
@@ -67,13 +67,13 @@
         } while(!feof(file)); \
         \
         if ( 0 < buffer->size ) { \
-            buffer_ensure_termination(buffer);        \
+            ad_buffer_ensure_termination(buffer);        \
             if ( ! handler(buffer,handlerFunc,handlerData) ) { \
                 return false; \
             } \
         } \
         \
-        buffer_free(buffer); \
+        ad_buffer_free(buffer); \
                             \
         fclose(file); \
         return true; \

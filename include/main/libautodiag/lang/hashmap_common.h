@@ -10,5 +10,6 @@ HASHMAP_H(Int, string)
 HASHMAP_H(Int, Int)
 HASHMAP_H(string, Ptr)
 HASHMAP_H(Ptr, string)
+HASHMAP_H(string, string)
 
 #endif

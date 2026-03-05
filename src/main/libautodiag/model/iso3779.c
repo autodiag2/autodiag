@@ -1,23 +1,23 @@
 #include "libautodiag/model/iso3779.h"
 
 char * ISO3779_region(final ISO3779 *decoder) {
-    final char * vin = buffer_to_ascii(decoder->vin);
-    if ( buffer_alphabet_compare(vin,"A","H") ) {
+    final char * vin = ad_buffer_to_ascii(decoder->vin);
+    if ( ad_buffer_alphabet_compare(vin,"A","H") ) {
         return strdup("Africa");
     }
-    if ( buffer_alphabet_compare(vin,"J","R") ) {
+    if ( ad_buffer_alphabet_compare(vin,"J","R") ) {
         return strdup("Asia");
     }
-    if ( buffer_alphabet_compare(vin,"S","Z") ) {
+    if ( ad_buffer_alphabet_compare(vin,"S","Z") ) {
         return strdup("Europe");
     }
-    if ( buffer_alphabet_compare(vin,"1","5") ) {
+    if ( ad_buffer_alphabet_compare(vin,"1","5") ) {
         return strdup("North America");
     }
-    if ( buffer_alphabet_compare(vin,"6","7") ) {
+    if ( ad_buffer_alphabet_compare(vin,"6","7") ) {
         return strdup("Oceania");
     }
-    if ( buffer_alphabet_compare(vin,"8","9") ) {
+    if ( ad_buffer_alphabet_compare(vin,"8","9") ) {
         return strdup("South America");
     }
     return strdup("Unknown");
@@ -42,11 +42,11 @@ void ISO3779_dump(final ISO3779 *decoder) {
     printf("    wmi: %s\n", decoder->wmi);
     printf("    vds: %s\n", decoder->vds);
     printf("    vis: %s\n", decoder->vis);
-    printf("    vin: %s\n", buffer_to_ascii(decoder->vin));
+    printf("    vin: %s\n", ad_buffer_to_ascii(decoder->vin));
     printf("}\n");
 }
 void ISO3779_free(ISO3779 *decoder) {
-    buffer_free(decoder->vin);
+    ad_buffer_free(decoder->vin);
     decoder->vin = null;
     MEMORY_FREE_POINTER(decoder->country)
     MEMORY_FREE_POINTER(decoder->manufacturer)
@@ -65,7 +65,7 @@ bool ISO3779_country_read_tsv_line(Buffer * line, void*data) {
     char *end = strtok(NULL, "\t");
     char *country = strtok(NULL, "\t");
     if (!start || !end || !country) return true;
-    if (buffer_alphabet_compare(vin_prefix, start, end)) {
+    if (ad_buffer_alphabet_compare(vin_prefix, start, end)) {
         *result = strdup(country);
         return false;
     }
@@ -122,7 +122,7 @@ bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
 }
 
 char * ISO3779_manufacturer(final ISO3779 *decoder) {
-    final char * vin = buffer_to_ascii(decoder->vin);
+    final char * vin = ad_buffer_to_ascii(decoder->vin);
     char *manufacturers_file = installation_folder_resolve("data/vehicle/manufacturers.tsv");
     if (manufacturers_file == NULL) {
         log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
@@ -163,7 +163,7 @@ int ISO3779_year_recent(final ISO3779 *decoder) {
 
 void ISO3779_decode_internal(final ISO3779 *decoder, final Buffer *vin) {
     assert(17 <= vin->size);
-    decoder->vin = buffer_copy(vin);
+    decoder->vin = ad_buffer_copy(vin);
     decoder->country = null;
     decoder->manufacturer = null;
     decoder->year = -1;

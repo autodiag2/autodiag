@@ -15,7 +15,7 @@ ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size) {
 
 ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
     final ECU* ecu = vehicle_ecu_new();
-    buffer_append_bytes(ecu->address,address,size);
+    ad_buffer_append_bytes(ecu->address,address,size);
     v->ecus = (ECU**)realloc(v->ecus,sizeof(ECU*)*(++v->ecus_len));
     v->ecus[v->ecus_len-1] = ecu;
     vehicle_event_emit_on_ecu_register(v, ecu);
@@ -24,7 +24,7 @@ ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
 
 ECU* vehicle_ecu_new() {
     ECU* ecu = (ECU*)malloc(sizeof(ECU));
-    ecu->address = buffer_new();
+    ecu->address = ad_buffer_new();
     ecu->name = null;
     ecu->data_buffer = list_Buffer_new();
     ecu->obd_service.current_data = list_Buffer_new();
@@ -42,7 +42,7 @@ ECU* vehicle_ecu_new() {
 }
 ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address) {
     for(int i = 0; i < v->ecus_len; i++) {
-        if ( buffer_cmp(v->ecus[i]->address, address) == 0 ) {
+        if ( ad_buffer_cmp(v->ecus[i]->address, address) == 0 ) {
             return v->ecus[i];
         }
     }
@@ -132,7 +132,7 @@ void vehicle_free(Vehicle * v) {
         MEMORY_FREE_POINTER(v->engine)
         MEMORY_FREE_POINTER(v->internal.directory)
         if ( v->vin != null ) {
-            buffer_free(v->vin);
+            ad_buffer_free(v->vin);
             v->vin = null;
         }
         list_Buffer_free(v->internal.filter);
@@ -147,7 +147,7 @@ void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v) {
     for ( int i = 0; i < v->ecus_len; i++) {
         ECU* ecu = v->ecus[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
-            list_Buffer_append(v->data_buffer,buffer_copy(ecu->data_buffer->list[j]));
+            list_Buffer_append(v->data_buffer,ad_buffer_copy(ecu->data_buffer->list[j]));
         }
     }
 }
@@ -172,7 +172,7 @@ void vehicle_dump(Vehicle* v) {
         ECU * ecu = v->ecus[i];
         log_msg(LOG_DEBUG, "Address");
         Buffer * address = ecu->address;
-        buffer_dump(address);
+        ad_buffer_dump(address);
         log_msg(LOG_DEBUG, "content");
         list_Buffer_dump(ecu->data_buffer);
 

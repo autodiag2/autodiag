@@ -17,7 +17,7 @@ void list_SimECU_empty(list_SimECU * list) {
 Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest) {
     final Buffer* binResponse;
     if ( ecu->generator->response_for_python != null ) {
-        binResponse = buffer_new();
+        binResponse = ad_buffer_new();
         ecu->generator->response_for_python(ecu->generator, binRequest, binResponse);
     } else {
         binResponse = ecu->generator->response(ecu->generator, binRequest);

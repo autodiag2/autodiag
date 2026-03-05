@@ -20,12 +20,12 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
 }
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
-    final Buffer *binResponse = buffer_new();
+    final Buffer *binResponse = ad_buffer_new();
     if ( binRequest->size == 0 ) {
         return binResponse;
     }
     if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
-        return buffer_new();
+        return ad_buffer_new();
     }
     
     switch(binRequest->buffer[0]) {
@@ -39,12 +39,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case 0x40:
                     case 0x20:
                     case 0x00: {
-                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                     } break;
                     case 0x01: {
                         gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
-                        Buffer* status = buffer_new();
-                        buffer_padding(status, 4, 0x00);
+                        Buffer* status = ad_buffer_new();
+                        ad_buffer_padding(status, 4, 0x00);
                         if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
                             GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
                             final int dtc_count = g_list_length(ptr);
@@ -52,13 +52,13 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             g_list_free(ptr);
                             status->buffer[0] |= is_checked << 7;
                         }
-                        buffer_append_melt(binResponse, status);
+                        ad_buffer_append_melt(binResponse, status);
                     } break;
                     case 0x05: {
                         gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
                         byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                         int value = percent * span;
-                        buffer_append_byte(binResponse, (byte)(value));
+                        ad_buffer_append_byte(binResponse, (byte)(value));
                         coolant_temperature_set(gui, value + SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
                     } break;
                     case 0x0C: {
@@ -67,15 +67,15 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
                         byte bA = (0xFF00 & value) >> 8;
                         byte bB = 0xFF & value;
-                        buffer_append_byte(binResponse, bA);
-                        buffer_append_byte(binResponse, bB);
+                        ad_buffer_append_byte(binResponse, bA);
+                        ad_buffer_append_byte(binResponse, bB);
                         engine_speed_set(gui, value/4.0 + SAEJ1979_DATA_ENGINE_SPEED_MIN);
                     } break;
                     case 0x0D: {
                         gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
                         byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
                         int value = percent * span;
-                        buffer_append_byte(binResponse, (byte)value);
+                        ad_buffer_append_byte(binResponse, (byte)value);
                         vehicle_speed_set(gui, value + SAEJ1979_DATA_VEHICLE_SPEED_MIN);
                     } break;
                 }
@@ -96,7 +96,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
-                                buffer_append_melt(binResponse, dtc_bin);
+                                ad_buffer_append_melt(binResponse, dtc_bin);
                             }
                         } else {
                             g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
@@ -111,22 +111,22 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case 0x00: {
-                        buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                     } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
                         const gchar * vin = gtk_entry_get_text(gui->vin);
                         if ( 0 < strlen(vin) ) {
-                            final Buffer * vinBuffer = buffer_from_ascii((char*)vin);
-                            buffer_padding(vinBuffer, 17, 0x00);
-                            buffer_append_melt(binResponse, vinBuffer);
+                            final Buffer * vinBuffer = ad_buffer_from_ascii((char*)vin);
+                            ad_buffer_padding(vinBuffer, 17, 0x00);
+                            ad_buffer_append_melt(binResponse, vinBuffer);
                         }
                     } break;
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
                         if ( 0 < strlen(ecuName) ) {
-                            final Buffer * name = buffer_from_ascii((char*)ecuName);
-                            buffer_padding(name, 20, 0x00);
-                            buffer_append_melt(binResponse, name);
+                            final Buffer * name = ad_buffer_from_ascii((char*)ecuName);
+                            ad_buffer_padding(name, 20, 0x00);
+                            ad_buffer_append_melt(binResponse, name);
                         }
                     } break;
                 }

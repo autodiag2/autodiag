@@ -3,21 +3,21 @@
 #include <string.h>
 
 static Buffer * response(struct SimECUGenerator * this, final Buffer *binRequest) {
-    final Buffer * binResponse = buffer_new();
+    final Buffer * binResponse = ad_buffer_new();
     if ( 0 < binRequest->size ) {
         switch(binRequest->buffer[0]) {
             case OBD_SERVICE_SHOW_CURRENT_DATA: {
                 // positive response
-                buffer_append_byte(binResponse, OBD_SERVICE_SHOW_CURRENT_DATA + OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+                ad_buffer_append_byte(binResponse, OBD_SERVICE_SHOW_CURRENT_DATA + OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
                 // example: return 0 for all PIDs
                 for(int i = 2; i < 8; i++) {
-                    buffer_append_byte(binResponse, 0x00);
+                    ad_buffer_append_byte(binResponse, 0x00);
                 }
             } break;
             default:
-                buffer_append_byte(binResponse, 0x7F); // negative response
-                buffer_append_byte(binResponse, binRequest->buffer[0]); // echo request
-                buffer_append_byte(binResponse, 0x12); // subfunction not supported
+                ad_buffer_append_byte(binResponse, 0x7F); // negative response
+                ad_buffer_append_byte(binResponse, binRequest->buffer[0]); // echo request
+                ad_buffer_append_byte(binResponse, 0x12); // subfunction not supported
                 break;
         }
     }

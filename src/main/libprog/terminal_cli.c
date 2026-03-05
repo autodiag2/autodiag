@@ -100,7 +100,7 @@ int terminal_cli_main(int argc, char *argv[]) {
         } else {
             device->clear_data(device);
             device->recv(device);
-            char * result = buffer_to_hexdump(device->recv_buffer);
+            char * result = ad_buffer_to_hexdump(device->recv_buffer);
             if ( result == null || strlen(result) == 0 ) {
                 printf("No data received from the device\n");
             } else {

@@ -1,15 +1,6 @@
 #include "libTest.h"
 #include "libautodiag/lang/hashmap.h"
 
-int object_hashmap_string_string_key_comparator(object_string *k1, object_string *k2) {
-    assert(k1 != null);
-    assert(k2 != null);
-    return strcmp(k1->data, k2->data);
-}
-
-HASHMAP_H(string, string)
-HASHMAP_SRC(string, string)
-
 bool testHashMap() {
     object_hashmap_string_string * hm = object_hashmap_string_string_new();
     object_hashmap_string_string_set(hm, object_string_new_from("k"), object_string_new_from("v"));

@@ -52,7 +52,7 @@
     static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         JNIEnv *env = get_env();
         if ( binRequest->size == 0 ) {
-            return buffer_new();
+            return ad_buffer_new();
         }
 
         int vehicle_speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_vehicle_speed);
@@ -72,12 +72,12 @@
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
 
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
-        final Buffer *binResponse = buffer_new();
+        final Buffer *binResponse = ad_buffer_new();
         bool useParent = true;
         if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
             (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
             (*env)->ReleaseStringUTFChars(env, vin_j, vin);
-            return buffer_new();
+            return ad_buffer_new();
         }
         switch(binRequest->buffer[0]) {
             case OBD_SERVICE_CLEAR_DTC: {
@@ -100,7 +100,7 @@
                         if ( dtc_bin == null ) {
                             log_msg(LOG_ERROR, "invalid dtc found");
                         } else {
-                            buffer_append_melt(binResponse, dtc_bin);
+                            ad_buffer_append_melt(binResponse, dtc_bin);
                         }
                         
                         (*env)->ReleaseStringUTFChars(env, s, dtc);
@@ -119,18 +119,18 @@
                         case 0x40:
                         case 0x20:
                         case 0x00: {
-                            buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                             useParent = false;
                         } break;
                         case 0x01: {
                             bool is_checked = mil_status;
-                            Buffer* status = buffer_new();
-                            buffer_padding(status, 4, 0x00);
+                            Buffer* status = ad_buffer_new();
+                            ad_buffer_padding(status, 4, 0x00);
                             if ( ! dtc_cleared ) {
                                 status->buffer[0] = dtc_count;
                                 status->buffer[0] |= is_checked << 7;
                             }
-                            buffer_append_melt(binResponse, status);
+                            ad_buffer_append_melt(binResponse, status);
                             useParent = false;
                         } break;
                         case 0x05: {
@@ -138,7 +138,7 @@
                             byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
                             double percent = (1.0 * coolant_coolant_temperature_abs) / span;
                             int value = percent * span;
-                            buffer_append_byte(binResponse, (byte)(value));
+                            ad_buffer_append_byte(binResponse, (byte)(value));
                             useParent = false;
                         } break;
                         case 0x0C: {
@@ -148,8 +148,8 @@
                             int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
                             byte bA = (0xFF00 & value) >> 8;
                             byte bB = 0xFF & value;
-                            buffer_append_byte(binResponse, bA);
-                            buffer_append_byte(binResponse, bB);
+                            ad_buffer_append_byte(binResponse, bA);
+                            ad_buffer_append_byte(binResponse, bB);
                             useParent = false;
                         } break;
                         case 0x0D: {
@@ -157,7 +157,7 @@
                             byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
                             double percent = (1.0 * vehicle_speed_abs) / span;
                             int value = percent * span;
-                            buffer_append_byte(binResponse, (byte)value);
+                            ad_buffer_append_byte(binResponse, (byte)value);
                             useParent = false;
                         } break;
                     }
@@ -167,64 +167,64 @@
                 if ( 1 < binRequest->size ) {            
                     switch(binRequest->buffer[1]) {
                         case 0x00: {
-                            buffer_append_melt(binResponse, buffer_from_ascii_hex("FFFFFFFFFF"));
+                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
                             useParent = false;
                             break;
                         }
                         case 0x01: {
-                            buffer_append_byte(binResponse, 0x05);
+                            ad_buffer_append_byte(binResponse, 0x05);
                             useParent = false;
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                            buffer_append_melt(binResponse,buffer_from_ascii(vin));   
+                            ad_buffer_append_melt(binResponse,buffer_from_ascii(vin));   
                             useParent = false;             
                             break;
                         }
                         case 0x03: {
-                            buffer_append_byte(binResponse,0x01);
+                            ad_buffer_append_byte(binResponse,0x01);
                             useParent = false;
                             break;
                         }
                         case 0x04: {
-                            buffer_append_melt(binResponse,buffer_new_random(16));  
+                            ad_buffer_append_melt(binResponse,buffer_new_random(16));  
                             useParent = false;
                             break;
                         }
                         case 0x05: {
-                            buffer_append_byte(binResponse,0x01);
+                            ad_buffer_append_byte(binResponse,0x01);
                             useParent = false;
                             break;
                         }
                         case 0x06: {
-                            buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }
                         case 0x07: {
-                            buffer_append_byte(binResponse,0x01);
+                            ad_buffer_append_byte(binResponse,0x01);
                             useParent = false;
                             break;
                         }
                         case 0x08: {
-                            buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }
                         case 0x09: {
-                            buffer_append_byte(binResponse,0x01);
+                            ad_buffer_append_byte(binResponse,0x01);
                             useParent = false;
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                            final Buffer * name = buffer_from_ascii(ecu_name);
-                            buffer_padding(name, 20, 0x00);
-                            buffer_append_melt(binResponse, name);
+                            final Buffer * name = ad_buffer_from_ascii(ecu_name);
+                            ad_buffer_padding(name, 20, 0x00);
+                            ad_buffer_append_melt(binResponse, name);
                             useParent = false;
                             break;
                         }
                         case 0x0B: {
-                            buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
                             useParent = false;
                             break;
                         }

@@ -6,7 +6,7 @@ bool saej1979_vehicle_info_is_pid_supported(final VehicleIFace* iface, final int
 
 #define saej1979_vehicle_info_discover_vin_iterator(data) \
     if ( 0 < data->size ) { \
-        iface->vehicle->vin = buffer_copy(data); \
+        iface->vehicle->vin = ad_buffer_copy(data); \
     }
 
 SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
