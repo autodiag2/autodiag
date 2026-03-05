@@ -41,6 +41,7 @@ static void display_gui_help() {
     "\n"
     " -h                : display this help\n"
     " -n [name]         : device location (comport, pseudo terminals, named pipes, ip:port)\n"
+    " -t [type]         : device type (serial/elm: default, doip)\n"
     " Serial speficic options:\n"
     "  -b <baud rate>    : set the baud rate\n"
     "\n"
@@ -103,6 +104,17 @@ int main (int argc, char *argv[]) {
             } else if ( argIs("-h") || argIs("help") || argIs("--help") ) {
                 display_gui_help();
                 return 0;
+            } else if argIs("-t") {
+                argNext();
+                char * arg = argCurrent();
+                if ( arg == null ) {
+                    printf("auto\n");
+                    printf("doip\n");
+                    printf("elm\n");
+                    return 0;
+                } else {
+                    config.com.device.type = ad_device_type_from_str(arg);
+                }
             } else if argIs("-b") {
                 argNext();
                 char * arg = argCurrent();

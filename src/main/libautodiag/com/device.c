@@ -57,6 +57,18 @@ bool device_location_is_network(final Device *device) {
 
     return *s == '\0';
 }
+AD_DEVICE_TYPE ad_device_type_from_str(char * type_str) {
+    if ( strcasecmp(type_str, "auto") == 0 ) {
+        return AD_DEVICE_TYPE_AUTO;
+    } else if ( strcasecmp(type_str, "serial") == 0 || strcasecmp(type_str, "elm") == 0 ) {
+        return AD_DEVICE_TYPE_SERIAL;
+    } else if ( strcasecmp(type_str, "doip") == 0 ) {
+        return AD_DEVICE_TYPE_DOIP;
+    } else {
+        log_msg(LOG_WARNING, "Unknown device type selected '%s', fallback to auto", type_str);
+        return AD_DEVICE_TYPE_AUTO;
+    }
+}
 const char * device_type_as_string(AD_DEVICE_TYPE type) {
     switch(type) {
         case AD_DEVICE_TYPE_SERIAL: return "Serial";

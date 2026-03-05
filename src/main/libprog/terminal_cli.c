@@ -55,14 +55,7 @@ int terminal_cli_main(int argc, char *argv[]) {
                 printf("doip\n");
                 return 0;
             } else {
-                if ( strcasecmp(arg, "serial") == 0 ) {
-                    config.com.device.type = AD_DEVICE_TYPE_SERIAL;
-                } else if ( strcasecmp(arg, "doip") == 0 ) {
-                    config.com.device.type = AD_DEVICE_TYPE_DOIP;
-                } else {
-                    printf("Unknown device type '%s', aborting\n", arg);
-                    return 1;
-                }
+                config.com.device.type = ad_device_type_from_str(arg);
             }
         } else if argIs("-l") {
             argNext();

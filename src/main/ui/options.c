@@ -171,17 +171,7 @@ static void on_nvm_override_changed(GtkEntry *entry, gpointer user_data) {
     sim_elm327_nvm_override((char *)text);    
 }
 static AD_DEVICE_TYPE device_get_type() {
-    const char * type_str = gtk_combo_box_text_get_active_text(gui->device_type);
-    if ( strcasecmp(type_str, "auto") == 0 ) {
-        return AD_DEVICE_TYPE_AUTO;
-    } else if ( strcasecmp(type_str, "serial") == 0 || strcasecmp(type_str, "elm") == 0 ) {
-        return AD_DEVICE_TYPE_SERIAL;
-    } else if ( strcasecmp(type_str, "doip") == 0 ) {
-        return AD_DEVICE_TYPE_DOIP;
-    } else {
-        log_msg(LOG_WARNING, "Unknown device type selected '%s', fallback to auto", type_str);
-        return AD_DEVICE_TYPE_AUTO;
-    }
+    return ad_device_type_from_str(gtk_combo_box_text_get_active_text(gui->device_type));
 }
 static void recovery_mode() {
     VehicleIFace * iface = config.ephemere.iface;

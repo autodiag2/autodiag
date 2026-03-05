@@ -116,6 +116,7 @@ typedef struct Device {
 
 void device_location_set(final Device * device, final char *location);
 const char * device_type_as_string(AD_DEVICE_TYPE type);
+AD_DEVICE_TYPE ad_device_type_from_str(char * type_str);
 
 #define DEVICE_ERROR -1
 /**
