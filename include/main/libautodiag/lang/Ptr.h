@@ -4,7 +4,7 @@
 #include "libautodiag/lang/object.h"
 #include "libautodiag/lang/lang.h"
 
-OBJECT_H(Ptr,
+AD_OBJECT_H(Ptr,
     void * value;
 )
 ad_object_Ptr * ad_object_Ptr_new_from(void* value);

@@ -17,7 +17,7 @@
 
 AD_LIST_H(Device)
 
-OBJECT_H(DeviceTable,
+AD_OBJECT_H(DeviceTable,
     list_Device * list;
     int selected_index;
 )

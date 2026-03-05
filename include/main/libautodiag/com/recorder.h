@@ -11,7 +11,7 @@ AD_LIST_H_DEEP(ECUBufferRecord,
 )
 AD_LIST_H(list_ECUBufferRecord)
 
-OBJECT_H(Record,
+AD_OBJECT_H(Record,
     Buffer * binRequest;
     list_list_ECUBufferRecord * binResponses;
 )

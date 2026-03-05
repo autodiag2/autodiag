@@ -3,7 +3,7 @@
 
 #include "libautodiag/lang/object.h"
 
-OBJECT_H(Int,
+AD_OBJECT_H(Int,
     int value;
 )
 ad_object_Int * ad_object_Int_new_from(int value);

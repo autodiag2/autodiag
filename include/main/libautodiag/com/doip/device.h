@@ -35,7 +35,7 @@ typedef struct {
 
 #define DEVICE_DOIP_DEFAULT_ADDRESS 0x0E08
 #define DEVICE_DOIP_DEFAULT_TIMEOUT_MS 1000
-OBJECT_H(DoIPDevice,
+AD_OBJECT_H(DoIPDevice,
     Device;
     DoIPDeviceImplementation * implementation;
     // timeout in ms before considering no reply from the remote

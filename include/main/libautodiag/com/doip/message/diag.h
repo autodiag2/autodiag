@@ -4,7 +4,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/com/doip/doip.h"
 
-OBJECT_H(DoIPMessagePayloadDiag,
+AD_OBJECT_H(DoIPMessagePayloadDiag,
     DoIPMessageDef;
     Buffer * src_addr;
     Buffer * dst_addr;
@@ -16,7 +16,7 @@ OBJECT_H(DoIPMessagePayloadDiag,
  */
 ad_object_DoIPMessage * doip_message_diag(Buffer * to, Buffer * from, Buffer * payload_data);
 
-OBJECT_H(DoIPMessagePayloadDiagFeedback,
+AD_OBJECT_H(DoIPMessagePayloadDiagFeedback,
     DoIPMessageDef;
     Buffer * src_addr;
     Buffer * dst_addr;

@@ -19,7 +19,7 @@
  * file for posix
  * pseudo tty, socket, named pipe for windows
  */
-OBJECT_H(handle_t,
+AD_OBJECT_H(handle_t,
     #ifdef OS_POSIX
         int posix_handle;
     #endif

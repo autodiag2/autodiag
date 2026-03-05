@@ -30,11 +30,11 @@ typdef struct {
 
 } DoIPMessageDef;
 
-OBJECT_H(DoIPMessagePayloadEmpty,
+AD_OBJECT_H(DoIPMessagePayloadEmpty,
     DoIPMessageDef;
 )
 
-OBJECT_H(DoIPMessage,
+AD_OBJECT_H(DoIPMessage,
     byte protocol_version;
     byte inv_protocol_version;
     DoIpPayloadType payload_type;
@@ -59,7 +59,7 @@ typdef enum {
     DOIP_MESSAGE_RAR_TYPE_OEM = 0x00
 } DOIP_MESSAGE_RAR_TYPE;
 
-OBJECT_H(DoIPMessagePayloadRoutineActivationRequest,
+AD_OBJECT_H(DoIPMessagePayloadRoutineActivationRequest,
     DoIPMessageDef;
     byte src_addr[2];
     DOIP_MESSAGE_RAR_TYPE activation_type;
@@ -99,7 +99,7 @@ char *doip_message_rares_code_to_string(unsigned code);
  */
 DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n);
 
-OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
+AD_OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
     Buffer * tester;
     Buffer * ecu;
     unsigned code;
@@ -107,7 +107,7 @@ OBJECT_H(DoIPMessagePayloadRoutineActivationResponse,
     Buffer * oem_reserved;
 )
 
-OBJECT_H(DoIPMessagePayloadAliveCheck,
+AD_OBJECT_H(DoIPMessagePayloadAliveCheck,
     DoIPMessageDef;
     Buffer * src_addr;
 )
@@ -119,7 +119,7 @@ typdef enum {
     DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET = 0x03
 } DOIP_MESSAGE_ENTITY_NODE_TYPE;
 
-OBJECT_H(DoIPMessagePayloadEntityStatusResponse,
+AD_OBJECT_H(DoIPMessagePayloadEntityStatusResponse,
     DoIPMessageDef;
     uint16_t node_type;
     byte max_concurrent_connections;
@@ -128,15 +128,15 @@ OBJECT_H(DoIPMessagePayloadEntityStatusResponse,
 )
 #define DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE 0xFF
 
-OBJECT_H(DoIPMessagePayloadRequestWithEID,
+AD_OBJECT_H(DoIPMessagePayloadRequestWithEID,
     DoIPMessageDef;
     Buffer * eid;
 )
-OBJECT_H(DoIPMessagePayloadRequestWithVIN,
+AD_OBJECT_H(DoIPMessagePayloadRequestWithVIN,
     DoIPMessageDef;
     Buffer * vin;
 )
-OBJECT_H(DoIPMessagePayloadVehicleIdResponse,
+AD_OBJECT_H(DoIPMessagePayloadVehicleIdResponse,
     Buffer * vin;
     Buffer * addr;
     Buffer * eid;
