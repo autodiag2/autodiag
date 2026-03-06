@@ -435,7 +435,7 @@ static int doip_send(final ad_object_DoIPDevice * device, const char * command) 
     }
     ad_object_DoIPMessage * msg = doip_message_diag(
         device->node.address, 
-        ad_buffer_from_uint16(device->address),
+        ad_buffer_be_from_uint16(device->address),
         diag_message
     );
     ad_buffer_free(diag_message);
@@ -523,6 +523,15 @@ static int doip_recv(final ad_object_DoIPDevice * device) {
             return DEVICE_RECV_NULL;
         }
         switch(msg->payload_type) {
+            case DOIP_ALIVE_CHECK_REQUEST: {
+                log_msg(LOG_DEBUG, "Received alive check request, sending response");
+                ad_object_DoIPMessage * response = doip_message_new(DOIP_ALIVE_CHECK_RESPONSE);
+                ad_object_DoIPMessagePayloadAliveCheck * payload = (ad_object_DoIPMessagePayloadAliveCheck*)response->payload;
+                ad_buffer_assign_uint16(payload->src_addr, device->address);
+                doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(response)), AD_DOIP_SEND_INTERNAL_AUTO_LEN);
+                ad_object_DoIPMessage_free(response);
+                return doip_recv(device);
+            } break;
             case DOIP_DIAGNOSTIC_MESSAGE: {
                 if ( ! accepted ) {
                     log_msg(LOG_WARNING, "Received a diag message without previous ACK (suspisious) never mind ...");

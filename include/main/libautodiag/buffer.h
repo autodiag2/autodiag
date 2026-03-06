@@ -97,10 +97,22 @@ Buffer* ad_buffer_from_ints_arr(const unsigned *vals, size_t n);
 #define ad_buffer_from_ints(...) \
     ad_buffer_from_ints_arr((unsigned[]){ __VA_ARGS__ }, \
                        sizeof((unsigned[]){ __VA_ARGS__ })/sizeof(unsigned))
-Buffer * ad_buffer_from_uint8(uint8_t i);
-Buffer * ad_buffer_from_uint16(uint16_t i);
-Buffer * ad_buffer_from_uint32(uint32_t i);
-Buffer * ad_buffer_from_uint64(uint64_t i);
+/**
+ * Big endian
+ */
+Buffer * ad_buffer_be_from_uint8(uint8_t i);
+/**
+ * Big endian
+ */
+Buffer * ad_buffer_be_from_uint16(uint16_t i);
+/**
+ * Big endian
+ */
+Buffer * ad_buffer_be_from_uint32(uint32_t i);
+/**
+ * Big endian
+ */
+Buffer * ad_buffer_be_from_uint64(uint64_t i);
 Buffer * ad_buffer_from_bytes(byte * buf, int len);
 
 /**
@@ -114,6 +126,10 @@ char* ad_buffer_to_hex_string(Buffer *buffer);
 char * ad_buffer_to_ascii(final Buffer *buffer);
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer);
 char * ad_buffer_to_hexdump(final Buffer *buffer);
+uint8_t ad_buffer_to_be8(Buffer * buffer);
+uint16_t ad_buffer_to_be16(Buffer * buffer);
+uint32_t ad_buffer_to_be32(Buffer * buffer);
+uint64_t ad_buffer_to_be64(Buffer * buffer);
 
 AD_LIST_H(Buffer);
 AD_LIST_H_FIND(Buffer, Buffer*);

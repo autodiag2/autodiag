@@ -52,7 +52,7 @@ bool ad_buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final c
     return true;
 }
 #define AD_BUFFER_GEN_FROM_UINT(bitsize) \
-    Buffer * ad_buffer_from_uint##bitsize(uint##bitsize##_t i) { \
+    Buffer * ad_buffer_be_from_uint##bitsize(uint##bitsize##_t i) { \
         return ad_buffer_assign_uint##bitsize(ad_buffer_new(), i); \
     }
 AD_BUFFER_GEN_FROM_UINT(8)
@@ -379,6 +379,22 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer) {
 }
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
     return ascii_escape_breaking_chars_n((char *)buffer->buffer, buffer->size);
+}
+uint8_t ad_buffer_to_be8(Buffer * buffer) {
+    assert(1 <= buffer->size);
+    return buffer->buffer[0];
+}
+uint16_t ad_buffer_to_be16(Buffer * buffer) {
+    assert(2 <= buffer->size);
+    return (buffer->buffer[0] << 8) | buffer->buffer[1];
+}
+uint32_t ad_buffer_to_be32(Buffer * buffer) {
+    assert(4 <= buffer->size);
+    return (buffer->buffer[0] << (8 * 3)) | (buffer->buffer[1] << (8 * 2)) | (buffer->buffer[2] << 8) | buffer->buffer[3];
+}
+uint64_t ad_buffer_to_be64(Buffer * buffer) {
+    assert(8 <= buffer->size);
+    return (buffer->buffer[0] << (8 * 7)) | (buffer->buffer[1] << (8 * 6)) | (buffer->buffer[2] << (8 * 5)) | (buffer->buffer[3] << (8 * 4)) | (buffer->buffer[4] << (8 * 3)) | (buffer->buffer[5] << (8 * 2)) | (buffer->buffer[6] << 8) | buffer->buffer[7];
 }
 char * ad_buffer_to_ascii(final Buffer *buffer) {
     if ( buffer == null ) {

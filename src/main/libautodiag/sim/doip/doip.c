@@ -42,19 +42,6 @@ void sim_doip_loop_as_daemon(SimDoIp * sim) {
 bool sim_doip_loop_daemon_wait_ready(SimDoIp *sim) {
     return sim_loop_daemon_wait_ready(&((DoIpImplementation*)sim->implementation)->loop_ready);
 }
-static uint16_t be16_u(const byte *p) {
-    return (uint16_t)(((uint16_t)p[0] << 8) | (uint16_t)p[1]);
-}
-
-static Buffer *buf_u16be(uint16_t v) {
-    Buffer *b = (Buffer*)malloc(sizeof(Buffer));
-    b->size = 2;
-    b->buffer = (byte*)malloc(2);
-    b->buffer[0] = (byte)((v >> 8) & 0xFF);
-    b->buffer[1] = (byte)(v & 0xFF);
-    return b;
-}
-
 static ad_object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *data) {
     assert(data);
     ad_object_DoIPMessage *m = (ad_object_DoIPMessage*)malloc(sizeof(ad_object_DoIPMessage));
@@ -68,7 +55,7 @@ static ad_object_DoIPMessage *mk_doip_simple(DoIpPayloadType t, const Buffer *da
 }
 
 static ad_object_DoIPMessage *mk_doip_diag(uint16_t src, uint16_t dst, const Buffer *data_protocol) {
-    return doip_message_diag(buf_u16be(dst),buf_u16be(src),data_protocol ? ad_buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
+    return doip_message_diag(ad_buffer_be_from_uint16(dst),ad_buffer_be_from_uint16(src),data_protocol ? ad_buffer_slice((Buffer*)data_protocol, 0, data_protocol->size) : NULL);
 }
 static bool doip_send_msg(SimDoIp *sim, ad_object_DoIPMessage *m) {
     Buffer *out = doip_message_serialize(m);
@@ -104,7 +91,7 @@ static int handle_diag(SimDoIp *sim, ad_object_DoIPMessage *msg) {
         return 1;
     }
 
-    uint16_t tester = be16_u(diag->src_addr->buffer);
+    uint16_t tester = ad_buffer_to_be16(diag->src_addr->buffer);
     assert(2 == diag->dst_addr->size);
 
     SimECU *ecu = sim_search_ecu_by_address((Sim*)sim, diag->dst_addr->buffer[diag->dst_addr->size-1]);
