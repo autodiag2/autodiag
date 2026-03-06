@@ -63,6 +63,7 @@ int main (int argc, char *argv[]) {
         log_set_level(config.log.level);
     }
     
+    AD_DEVICE_TYPE gui_device_type = config.com.device.type;
     argForEach() {
         if ( argIs("help") || argIs("--help") || argIs("-h") ) {
             ABORT_WITH_HELP()
@@ -112,7 +113,7 @@ int main (int argc, char *argv[]) {
                         printf("elm\n");
                         return 0;
                     } else {
-                        config.com.device.type = ad_device_type_from_str(arg);
+                        gui_device_type = ad_device_type_from_str(arg);
                     }
                 } else if argIs("-b") {
                     argNext();
@@ -134,6 +135,12 @@ int main (int argc, char *argv[]) {
                         }
                         return 0;
                     } else {
+                        if ( config.com.device.location != null ) {
+                            if ( strcmp(config.com.device.location, arg) != 0 ) {
+                                gui_device_type = AD_DEVICE_TYPE_AUTO;
+                            }
+                            free(config.com.device.location);
+                        }
                         config.com.device.location = strdup(arg);
                     }
                 } else {
@@ -165,7 +172,8 @@ int main (int argc, char *argv[]) {
         }
     }
     
-
+    config.com.device.type = gui_device_type;
+    
     debug_show_config();
     log_msg(LOG_INFO, "Starting application ...");
     gtk_init (&argc, &argv);
