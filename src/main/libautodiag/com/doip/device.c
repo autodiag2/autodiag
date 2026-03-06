@@ -46,7 +46,7 @@ ad_object_DoIPMessage *doip_disc_recv(ad_object_DoIPDevice *device) {
 
     unsigned char buf[4096];
     #ifdef OS_POSIX
-        struct timeval tv = { device->timeout_ms / 1000, (device->timeout_ms % 1000) * 1000 };
+        struct timeval tv = { device->A_DoIP_Ctrl_ms / 1000, (device->A_DoIP_Ctrl_ms % 1000) * 1000 };
         setsockopt(device->implementation->disc_handle, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
         struct sockaddr_in src;
         socklen_t slen = sizeof(src);
@@ -55,7 +55,7 @@ ad_object_DoIPMessage *doip_disc_recv(ad_object_DoIPDevice *device) {
         if (recv_len <= 0) return null;
 
     #elif defined(OS_WINDOWS)
-        DWORD tv = device->timeout_ms;
+        DWORD tv = device->A_DoIP_Ctrl_ms;
         setsockopt(device->implementation->disc_handle, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
         struct sockaddr_in src;
         int slen = sizeof(src);
@@ -557,6 +557,7 @@ ad_object_DoIPDevice * ad_object_DoIPDevice_new() {
     ad_object_DoIPDevice * device = (ad_object_DoIPDevice*)malloc(sizeof(ad_object_DoIPDevice));
     device->type = AD_DEVICE_TYPE_DOIP;
     device->timeout_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_MS;
+    device->A_DoIP_Ctrl_ms = DEVICE_DOIP_DEFAULT_TIMEOUT_CTRL_MS;
     device->address = DEVICE_DOIP_DEFAULT_ADDRESS;
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
     device->recv_buffer = ad_buffer_new();

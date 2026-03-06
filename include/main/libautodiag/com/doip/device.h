@@ -34,12 +34,19 @@ typedef struct {
 } DoIPDeviceImplementation;
 
 #define DEVICE_DOIP_DEFAULT_ADDRESS 0x0E08
+// General timeout
 #define DEVICE_DOIP_DEFAULT_TIMEOUT_MS 1000
+// A_DoIP_Ctrl_ms
+#define DEVICE_DOIP_DEFAULT_TIMEOUT_CTRL_MS 2000
 AD_OBJECT_H(DoIPDevice,
     Device;
     DoIPDeviceImplementation * implementation;
     // timeout in ms before considering no reply from the remote
     int timeout_ms;
+    /**
+     * Maximum time to wait for a previously sent UDP message.
+     */
+    int A_DoIP_Ctrl_ms;
     // Address of the device on the DoIP network (tester address)
     uint16_t address;
     struct {
