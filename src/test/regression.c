@@ -20,6 +20,7 @@ bool testRecorder(VehicleIFace* iface);
 bool testSimUDS();
 bool testCycle();
 bool testDOIP();
+bool testNetwork();
 
 int main(int argc, char **argv) {
     sim_elm327_non_volatile_wipe_out();
@@ -33,6 +34,7 @@ int main(int argc, char **argv) {
     runIfSelected(testGlobals,null);
     runIfSelected(testSimELM327,null);
     runIfSelected(testISO3779,null);
+    runIfSelected(testNetwork,null);
     
     final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start());
 

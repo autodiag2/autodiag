@@ -21,7 +21,16 @@ int doip_disc_send(ad_object_DoIPDevice *device, ad_object_DoIPMessage *msg) {
     Buffer *serialized = doip_message_serialize(msg);
     if (!serialized) return -1;
 
+    
     struct sockaddr_in addr = network_location_to_object(device->location);
+    if ( addr.sin_addr.s_addr == INADDR_ANY ) {
+        log_msg(LOG_WARNING, "Invalid network location '%s', use 127.0.0.1", device->location);
+        if (inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr) != 1) {
+            log_msg(LOG_ERROR, "Failed to set loopback address");
+            memset(&addr, 0, sizeof(addr));
+        }
+    }
+    log_msg(LOG_DEBUG, "Sending : 0x%s to %s", ad_buffer_to_hex_string(serialized), network_location(addr));
     #ifdef OS_POSIX
         ssize_t sent = sendto(device->implementation->disc_handle,
                             serialized->buffer,
@@ -262,7 +271,6 @@ int doip_open(final ad_object_DoIPDevice * device) {
 
         int opt = 1;
         setsockopt(udp_fd, SOL_SOCKET, SO_BROADCAST, &opt, sizeof(opt));
-        setsockopt(udp_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
         struct sockaddr_in udp_sa;
         bzero(&udp_sa, sizeof(udp_sa));

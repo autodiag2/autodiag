@@ -46,6 +46,7 @@ void * sim_doip_discovery_loop(void *arg) {
             int n = (int)recvfrom(handle, request->buffer, request->size_allocated, 0, (struct sockaddr *)&from, &from_len);
             if (n <= 0) continue;
             request->size = (unsigned)n;
+            log_msg(LOG_DEBUG, "Received a message from %s (0x%s)", network_location(from), ad_buffer_to_hex_string(request));
             ad_object_DoIPMessage * requestMessage = doip_message_parse(request);
             bool vehicle_id_received = false;
             switch(requestMessage->payload_type) {
