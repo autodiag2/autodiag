@@ -345,12 +345,15 @@ void ad_buffer_padding(final Buffer * buffer, final unsigned padding_until, fina
     }
     buffer->size += remaining_size_to_pad;
 }
-Buffer* ad_buffer_from_ascii(const char *ascii) {
+Buffer* ad_buffer_from_ascii_n(const char *ascii, int len) {
     Buffer * result = ad_buffer_new();
-    ad_buffer_ensure_capacity(result, strlen(ascii));
-    memcpy(result->buffer,ascii,strlen(ascii));
-    result->size = strlen(ascii);
-    return result;
+    ad_buffer_ensure_capacity(result, len);
+    memcpy(result->buffer,ascii,len);
+    result->size = len;
+    return result; 
+}
+Buffer* ad_buffer_from_ascii(const char *ascii) {
+    return ad_buffer_from_ascii_n(ascii, strlen(ascii));
 }
 Buffer* ad_buffer_from_ascii_hex(const char * ascii_hex) {
     return ad_buffer_from_ascii_hex_n(ascii_hex,strlen(ascii_hex));

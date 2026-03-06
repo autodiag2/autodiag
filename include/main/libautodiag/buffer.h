@@ -87,6 +87,7 @@ bool ad_buffer_equals(final Buffer * b1, final Buffer * b2);
  * Only accept full ascii buffer, do not take in account OBD specific like printing of spaces.
  */
 Buffer* ad_buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size);
+Buffer* ad_buffer_from_ascii_n(const char *ascii, int len);
 /**
  * assuming ascii is null terminated
  */

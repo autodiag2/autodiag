@@ -26,7 +26,7 @@ bool testDOIP() {
         Buffer * serialized = doip_message_serialize(msg);
         char * serialized_str = ad_buffer_to_hex_string(serialized);
         log_msg(LOG_DEBUG, "serialized: '%s'", serialized_str);
-        doip_send_internal(device, serialized_str);
+        doip_send_internal(device, serialized_str, strlen(serialized_str));
         device->clear_data(device);
         device->recv(device);
         ad_buffer_dump(device->recv_buffer);

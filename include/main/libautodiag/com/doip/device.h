@@ -56,10 +56,11 @@ AD_OBJECT_H(DoIPDevice,
         Buffer * address;
     } node;
 );
+#define AD_DOIP_SEND_INTERNAL_AUTO_LEN -1
 /**
  * Use this to send/recv anything else other than diag messages.
  */
-int doip_send_internal(final ad_object_DoIPDevice * device, const char * command);
+int doip_send_internal(final ad_object_DoIPDevice * device, const char * command, int command_len);
 int doip_recv_internal(final ad_object_DoIPDevice * device);
 void doip_close(final ad_object_DoIPDevice * device);
 /**

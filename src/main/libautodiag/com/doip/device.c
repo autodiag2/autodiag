@@ -106,7 +106,7 @@ bool doip_configure(final ad_object_DoIPDevice * device) {
         requestPayload->src_addr[0] = (device->address >> 8) & 0xFF;
         requestPayload->src_addr[1] = device->address & 0xFF;
         request->payload = (DoIPMessageDef*)requestPayload;
-        doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
+        doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)), AD_DOIP_SEND_INTERNAL_AUTO_LEN);
         ad_object_DoIPMessage_free(request);
         ad_buffer_recycle(device->recv_buffer);
         doip_recv_internal(device);
@@ -192,7 +192,7 @@ bool doip_configure(final ad_object_DoIPDevice * device) {
 
 bool doip_node_queue_is_full(final ad_object_DoIPDevice * device) {
     ad_object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
-    doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)));
+    doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(request)), AD_DOIP_SEND_INTERNAL_AUTO_LEN);
     ad_object_DoIPMessage_free(request);
     ad_buffer_recycle(device->recv_buffer);
     doip_recv_internal(device);
@@ -431,14 +431,18 @@ static int doip_send(final ad_object_DoIPDevice * device, const char * command) 
         diag_message
     );
     ad_buffer_free(diag_message);
-    return doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(msg)));
+    return doip_send_internal(device, ad_buffer_to_hex_string(doip_message_serialize(msg)), AD_DOIP_SEND_INTERNAL_AUTO_LEN);
 }
-int doip_send_internal(final ad_object_DoIPDevice * device, const char * command) {
+int doip_send_internal(final ad_object_DoIPDevice * device, const char * command, int command_len) {
     assert(command != null);
+    if ( command_len == AD_DOIP_SEND_INTERNAL_AUTO_LEN ) {
+        command_len = strlen(command);
+    }
+    assert(0 <= command_len);
 
     Buffer * request = ad_buffer_from_ascii_hex(command);
     if ( request == null ) {
-        request = ad_buffer_from_ascii(command);
+        request = ad_buffer_from_ascii_n(command, command_len);
     }
     if ( log_has_level(LOG_DEBUG) ) {
         log_msg(LOG_DEBUG, "Sending");

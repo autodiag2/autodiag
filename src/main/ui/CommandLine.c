@@ -64,7 +64,8 @@ static void append_text_to_output(final char *text) {
     g_idle_add(append_text_to_output_gsource, (gpointer)strdup(text));
 }
 #include <ctype.h>
-static char *ascii_interpret_escape_sequences(const char *input) {
+static char *ascii_interpret_escape_sequences(const char *input, int * output_len_rv) {
+    int output_len = 0;
     const char *src = input;
     char *parsed = malloc(strlen(input) + 1);
     char *dst = parsed;
@@ -75,23 +76,32 @@ static char *ascii_interpret_escape_sequences(const char *input) {
                 char hex[3] = { src[1], src[2], 0 };
                 *dst++ = strtol(hex, NULL, 16);
                 src += 3;
+                output_len ++;
             } else if (*src == 'r') {
                 *dst++ = '\r';
                 src++;
+                output_len ++;
             } else if (*src == 'n') {
                 *dst++ = '\n';
                 src++;
+                output_len ++;
             } else if (*src == 't') {
                 *dst++ = '\t';
                 src++;
+                output_len ++;
             } else {
                 *dst++ = *src++;
+                output_len ++;
             }
         } else {
             *dst++ = *src++;
+            output_len ++;
         }
     }
     *dst = '\0';
+    if ( output_len_rv != null ) {
+        *output_len_rv = output_len;
+    }
     return parsed;
 }
 static void * send_command_wait_response_internal(final void * arg) {
@@ -107,8 +117,9 @@ static void * send_command_wait_response_internal(final void * arg) {
             append_text_to_output(msg);
             free(ctime);
         }
+        int command_len = strlen(command);
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.interpretEscapes))) {
-            char *tmp = ascii_interpret_escape_sequences(command);
+            char *tmp = ascii_interpret_escape_sequences(command, &command_len);
             command = tmp;
         }
         final int result;
@@ -116,7 +127,11 @@ static void * send_command_wait_response_internal(final void * arg) {
             switch( device->type ) {
                 case AD_DEVICE_TYPE_SERIAL: {
                     Serial * serial = (Serial*) device;
-                    result = serial_send_internal(serial, command, strlen(command));
+                    result = serial_send_internal(serial, command, command_len);
+                } break;
+                case AD_DEVICE_TYPE_DOIP: {
+                    ad_object_DoIPDevice * doip = (ad_object_DoIPDevice*)device;
+                    doip_send_internal(doip, command, command_len);
                 } break;
                 default: {
                     result = DEVICE_ERROR; 
