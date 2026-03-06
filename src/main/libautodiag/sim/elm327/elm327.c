@@ -334,7 +334,7 @@ bool sim_elm327_loop_daemon_wait_ready(SimELM327 *sim) {
 }
 
 bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) {
-    if ( sim_read((Sim*)elm327, timeout, buffer) == -1 ) {
+    if ( sim_read((Sim*)elm327, timeout, buffer) == AD_SIM_IO_RET_ERROR ) {
         return false;
     }
     ad_buffer_ensure_termination(buffer);

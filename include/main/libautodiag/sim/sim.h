@@ -40,7 +40,13 @@ typedef struct {
 int sim_load_from_json(Sim * sim, char * json_context);
 #define AD_SIM_IO_RET_ERROR -1
 #define AD_SIM_IO_RET_TIMEOUT -2
+/**
+ * Return the number of bytes writed, AD_SIM_IO_RET_ERROR if error
+ */
 int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len);
+/**
+ * Return the number of bytes readed, AD_SIM_IO_RET_ERROR if error, AD_SIM_IO_RET_TIMEOUT if timeout
+ */
 int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
 /**
  * Namedpipes for windows for instance,
