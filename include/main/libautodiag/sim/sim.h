@@ -38,6 +38,8 @@ typedef struct {
  * @param sim sim into which to load the context (eg ELM327 sim)
  */
 int sim_load_from_json(Sim * sim, char * json_context);
+#define AD_SIM_IO_RET_ERROR -1
+#define AD_SIM_IO_RET_TIMEOUT -2
 int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len);
 int sim_read(Sim * sim, int timeout_ms, Buffer * readed);
 /**

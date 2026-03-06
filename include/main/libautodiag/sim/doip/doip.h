@@ -43,6 +43,7 @@ typedef struct {
 
 #define SIM_DOIP_TIMEOUT_MS_RW 5000
 #define SIM_DOIP_TIMEOUT_MS_BROADCAST 1000
+#define AD_SIM_DOIP_ALIVE_CHECK_MS 1000
 
 typedef struct _SimDoIp {
     Sim;

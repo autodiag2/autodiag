@@ -30,6 +30,10 @@ AD_OBJECT_H(handle_t,
         #endif
     #endif
 );
+/** 
+ * Handle must represent a network connection, UDP, or TCP.
+ */
+void ad_object_handle_t_network_stop(ad_object_handle_t * handle);
 
 /**
  * Test if a handle is unset (invalid)

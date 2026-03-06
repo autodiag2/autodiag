@@ -45,6 +45,16 @@ ad_object_handle_t * ad_object_handle_t_assign(ad_object_handle_t * to, ad_objec
     #endif
     return to;
 }
+void ad_object_handle_t_network_stop(ad_object_handle_t * handle) {
+    if ( ad_object_handle_t_invalid(handle) ) {
+        return;
+    }
+    #ifdef OS_POSIX
+        network_stop(handle->posix_handle);
+    #elif defined OS_WINDOWS
+        network_stop(handle->win_socket);
+    #endif
+}
 bool ad_object_handle_t_invalid(ad_object_handle_t * h) {
     bool result = true;
     #ifdef OS_POSIX

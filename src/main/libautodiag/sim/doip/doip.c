@@ -91,7 +91,7 @@ static int handle_diag(SimDoIp *sim, ad_object_DoIPMessage *msg) {
         return 1;
     }
 
-    uint16_t tester = ad_buffer_to_be16(diag->src_addr->buffer);
+    uint16_t tester = ad_buffer_to_be16(diag->src_addr);
     assert(2 == diag->dst_addr->size);
 
     SimECU *ecu = sim_search_ecu_by_address((Sim*)sim, diag->dst_addr->buffer[diag->dst_addr->size-1]);
@@ -162,6 +162,7 @@ void sim_doip_loop(SimDoIp * sim) {
     // Need to be turned on for diag messages to be sent
     bool routing_activated = false;
 
+    uint64_t tester_doip_entity_last_seen = time_ms();
     while(sim_doip_should_continue(sim)) {
         ad_buffer_recycle(recv_buffer);
         if (!impl->loop_ready) impl->loop_ready = true;
@@ -198,10 +199,32 @@ void sim_doip_loop(SimDoIp * sim) {
             free(location);
         }
 
-        if ( sim_read((Sim*)sim, impl->timeout_ms, recv_buffer) == -1 ) {
+        int ret = sim_read((Sim*)sim, impl->timeout_ms, recv_buffer);
+        if ( ret == AD_SIM_IO_RET_ERROR ) {
             log_msg(LOG_ERROR, "Error during reception, exiting the loop");
             return;
         }
+        if ( ret == AD_SIM_IO_RET_TIMEOUT ) {
+            uint64_t now_ms = time_ms();
+            if ( AD_SIM_DOIP_ALIVE_CHECK_MS < (now_ms - tester_doip_entity_last_seen) ) {
+                ad_object_DoIPMessage * probe = doip_message_new(DOIP_ALIVE_CHECK_REQUEST);
+                doip_send_msg(sim, probe);
+                ad_buffer_recycle(recv_buffer);
+                int retR = sim_read((Sim*)sim, impl->timeout_ms, recv_buffer);
+                if ( retR == AD_SIM_IO_RET_ERROR ) {
+                    return;
+                } else if ( retR == AD_SIM_IO_RET_TIMEOUT ) {
+                    log_msg(LOG_DEBUG, "Inactivity detected, shutting down connection");
+                    ad_object_handle_t_network_stop(impl->handle);
+                    ad_object_handle_t_init(impl->handle);
+                } else {
+                    tester_doip_entity_last_seen = time_ms();
+                    log_msg(LOG_DEBUG, "We should test for received data frame, for now considering any activity from tester");
+                } 
+            }
+            continue;
+        }
+        tester_doip_entity_last_seen = time_ms();
 
         if (recv_buffer->size < 8) {
             log_msg(LOG_WARNING, "Received message appears truncated (len: %d)", recv_buffer->size);

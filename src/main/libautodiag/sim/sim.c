@@ -122,7 +122,7 @@ int sim_write(Sim * sim, int timeout_ms, byte * data, unsigned data_len) {
     final int poll_result = ad_object_handle_t_poll_write(client_handle, timeout_ms);
     if ( poll_result <= 0 ) {
         log_msg(LOG_WARNING, "timeout reached waiting for the other end");
-        return -1;
+        return AD_SIM_IO_RET_ERROR;
     }
     int bytes_written = ad_object_handle_t_write(client_handle, data, data_len);
     if ( bytes_written == -1 ) {
@@ -139,12 +139,15 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     final int poll_result = ad_object_handle_t_poll_read(client_handle, null, timeout_ms);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "poll error: %s", strerror(errno));
-        return -1;
+        return AD_SIM_IO_RET_ERROR;
+    }
+    if ( poll_result == 0 ) {
+        return AD_SIM_IO_RET_TIMEOUT;
     }
     int rv = ad_object_handle_t_read(client_handle, readed->buffer, readed->size_allocated);
     if ( rv == -1 ) {
         log_msg(LOG_ERROR, "read error: %s", strerror(errno));
-        return -1;
+        return AD_SIM_IO_RET_ERROR;
     }
     readed->size = rv;
     return rv;
