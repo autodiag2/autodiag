@@ -83,7 +83,6 @@ void ad_object_DoIPMessage_free(ad_object_DoIPMessage * msg) {
                 ad_object_DoIPMessagePayloadDiagPowerModeResponse_free((ad_object_DoIPMessagePayloadDiagPowerModeResponse*)msg->payload);
             } break;
             case DOIP_DIAG_POWER_MODE_REQUEST:
-            case DOIP_ROUTING_ACTIVATION_REQUEST:
             case DOIP_ENTITY_STATUS_REQUEST:
             case DOIP_VEHICLE_IDENT_REQUEST: {
                 ad_object_DoIPMessagePayloadEmpty_free((ad_object_DoIPMessagePayloadEmpty*)msg->payload);
@@ -172,6 +171,7 @@ ad_object_DoIPMessage * doip_message_parse(const Buffer * in) {
         } break;
         case DOIP_DIAG_POWER_MODE_RESPONSE: {
             ad_object_DoIPMessagePayloadDiagPowerModeResponse * payload = ad_object_DoIPMessagePayloadDiagPowerModeResponse_new();
+            msg->payload = (DoIPMessageDef*)payload;
             assert(1 <= msg->payload_raw->size);
             if ( 1 < msg->payload_raw->size ) {
                 log_msg(LOG_WARNING, "extract bytes for power mode");
@@ -179,7 +179,6 @@ ad_object_DoIPMessage * doip_message_parse(const Buffer * in) {
             payload->type = msg->payload_raw->buffer[0];
         } break;
         case DOIP_DIAG_POWER_MODE_REQUEST:
-        case DOIP_ROUTING_ACTIVATION_REQUEST:
         case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             ad_object_DoIPMessagePayloadEmpty * payload = ad_object_DoIPMessagePayloadEmpty_new();
@@ -294,7 +293,6 @@ void doip_message_dump(ad_object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    sync_status: 0x%02X", payload->sync_status);
             } break;
             case DOIP_DIAG_POWER_MODE_REQUEST:
-            case DOIP_ROUTING_ACTIVATION_REQUEST:
             case DOIP_ENTITY_STATUS_REQUEST:
             case DOIP_VEHICLE_IDENT_REQUEST: {
                 // nothing to do
@@ -370,7 +368,6 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
             plen = 17 + 2 + 6 + 6 + 1 + 1;
         } break;
         case DOIP_DIAG_POWER_MODE_REQUEST:
-        case DOIP_ROUTING_ACTIVATION_REQUEST:
         case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             plen = 0;
@@ -515,7 +512,6 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
         } break;
         case DOIP_DIAG_POWER_MODE_REQUEST:
-        case DOIP_ROUTING_ACTIVATION_REQUEST:
         case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             // no payload

@@ -118,7 +118,7 @@ bool doip_configure(final ad_object_DoIPDevice * device) {
                 switch(responsePayload->code) {
                     case DOIP_MESSAGE_RARES_CODE_SUCCESS: {
                         ad_object_DoIPMessage_free(response);
-                    } return true;
+                    } break;
                     default: {
                         log_msg(LOG_ERROR, "Doip node refusing to start diagnostic maybe implement manufacturer specific process");
                         ad_object_DoIPMessage_free(response);
@@ -131,7 +131,38 @@ bool doip_configure(final ad_object_DoIPDevice * device) {
             } return false;
         }
     }
-    return false;
+    {
+        ad_object_DoIPMessage * request = doip_message_new(DOIP_DIAG_POWER_MODE_REQUEST);
+        if ( doip_disc_send(device, request) < 0 ) {
+            log_msg(LOG_ERROR, "Error while sending request");
+            return false;
+        }
+        ad_object_DoIPMessage_free(request);
+        ad_object_DoIPMessage * response = doip_disc_recv(device);
+        if ( response == null ) {
+            log_msg(LOG_ERROR, "Error while receiving");
+            return false;
+        }
+        if ( response->payload_type != DOIP_DIAG_POWER_MODE_RESPONSE ) {
+            log_msg(LOG_ERROR, "Payload 0x%X received instead of 0x%X", response->payload_type, DOIP_DIAG_POWER_MODE_RESPONSE);
+            return false;
+        }
+        ad_object_DoIPMessagePayloadDiagPowerModeResponse * responsePayload = (ad_object_DoIPMessagePayloadDiagPowerModeResponse*)response->payload;
+        log_msg(LOG_DEBUG, "Received power mode : 0x%02X", responsePayload->type);
+        switch ( doip_message_payload_diag_power_mode_byte_to_type(responsePayload->type) ) {
+            case DOIP_MESSAGE_DIAG_POWER_MODE_READY:
+            case DOIP_MESSAGE_DIAG_POWER_MODE_UNSUPPORTED:
+                break;
+            case DOIP_MESSAGE_DIAG_POWER_MODE_RESERVED:
+                log_msg(LOG_WARNING, "Reserved specific diag power mode response, assuming success");
+                break;
+            case DOIP_MESSAGE_DIAG_POWER_MODE_NOT_READY:
+                log_msg(LOG_ERROR, "Diag Power mode not ready");
+                return false;
+        }
+        ad_object_DoIPMessage_free(response);
+    }
+    return true;
 }
 
 bool doip_node_queue_is_full(final ad_object_DoIPDevice * device) {
