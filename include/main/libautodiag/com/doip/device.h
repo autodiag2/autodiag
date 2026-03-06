@@ -52,6 +52,7 @@ AD_OBJECT_H(DoIPDevice,
     struct {
         int node_type;
         int max_data_size;
+        int max_concurrent_connections;
         Buffer * address;
     } node;
 );

@@ -134,6 +134,29 @@ bool doip_configure(final ad_object_DoIPDevice * device) {
         }
     }
     {
+        ad_object_DoIPMessage * request = doip_message_new(DOIP_ENTITY_STATUS_REQUEST);
+        if ( doip_disc_send(device, request) < 0 ) {
+            log_msg(LOG_ERROR, "Error while sending request");
+            return false;
+        }
+        ad_object_DoIPMessage_free(request);
+        ad_object_DoIPMessage * response = doip_disc_recv(device);
+        if ( response == null ) {
+            log_msg(LOG_ERROR, "Error while receiving");
+            return false;
+        }
+        if ( response->payload_type == DOIP_ENTITY_STATUS_RESPONSE ) {
+            ad_object_DoIPMessagePayloadEntityStatusResponse * responsePayload = (ad_object_DoIPMessagePayloadEntityStatusResponse*)response->payload;
+            log_msg(LOG_DEBUG, "Received entity status");
+            device->node.max_data_size = responsePayload->max_data_size;
+            device->node.node_type = responsePayload->node_type;
+            device->node.max_concurrent_connections = responsePayload->max_concurrent_connections;
+            ad_object_DoIPMessage_free(response);
+        } else {
+            log_msg(LOG_ERROR, "Payload 0x%X received instead of 0x%X", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
+        }
+    }
+    {
         ad_object_DoIPMessage * request = doip_message_new(DOIP_DIAG_POWER_MODE_REQUEST);
         if ( doip_disc_send(device, request) < 0 ) {
             log_msg(LOG_ERROR, "Error while sending request");
@@ -595,6 +618,7 @@ ad_object_DoIPDevice * ad_object_DoIPDevice_new() {
     device->implementation = (DoIPDeviceImplementation*)malloc(sizeof(DoIPDeviceImplementation));
     device->recv_buffer = ad_buffer_new();
     device->node.max_data_size = DOIP_MESSAGE_ENTITY_STATUS_DEFAULT_MAX_DATA_SIZE;
+    device->node.max_concurrent_connections = 1;
     device->node.node_type = DOIP_MESSAGE_ENTITY_NODE_TYPE_UNSET;
     device->implementation->handle = SOCK_T_INVALID;
     device->implementation->disc_handle = SOCK_T_INVALID;
