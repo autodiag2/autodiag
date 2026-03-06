@@ -610,6 +610,18 @@ DOIP_MESSAGE_RARES_CODE doip_message_rares_n_to_code(unsigned rares_n) {
 
     return DOIP_MESSAGE_RARES_CODE_UNKNOWN;
 }
+DOIP_MESSAGE_DIAG_POWER_MODE_TYPE doip_message_payload_diag_power_mode_byte_to_type(byte type) {
+    final DOIP_MESSAGE_DIAG_POWER_MODE_TYPE type_enum;
+    switch(type) {
+        case DOIP_MESSAGE_DIAG_POWER_MODE_READY:
+        case DOIP_MESSAGE_DIAG_POWER_MODE_NOT_READY:
+        case DOIP_MESSAGE_DIAG_POWER_MODE_UNSUPPORTED:
+            type_enum = type;
+        default:
+            type_enum = DOIP_MESSAGE_DIAG_POWER_MODE_RESERVED;
+    }
+    return type_enum;
+}
 // start of payload object definitions
 AD_OBJECT_SRC(DoIPMessagePayloadEmpty)
 AD_OBJECT_SRC(DoIPMessage)

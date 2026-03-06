@@ -156,6 +156,10 @@ AD_OBJECT_H(DoIPMessagePayloadDiagPowerModeResponse,
     DoIPMessageDef;
     byte type;
 )
+/**
+ * Convert the diag power mode to enum.
+ */
+DOIP_MESSAGE_DIAG_POWER_MODE_TYPE doip_message_payload_diag_power_mode_byte_to_type(byte type);
 
 #include "libautodiag/com/doip/device.h"
 #include "libautodiag/com/doip/message/diag.h"

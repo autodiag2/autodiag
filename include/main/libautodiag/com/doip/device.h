@@ -44,7 +44,7 @@ AD_OBJECT_H(DoIPDevice,
     // timeout in ms before considering no reply from the remote
     int timeout_ms;
     /**
-     * Maximum time to wait for a previously sent UDP message.
+     * Maximum time to wait for the doip entity (the device) for a previously sent UDP message (eg power mode request).
      */
     int A_DoIP_Ctrl_ms;
     // Address of the device on the DoIP network (tester address)
