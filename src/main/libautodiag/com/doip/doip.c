@@ -27,11 +27,17 @@ void doip_message_init(final ad_object_DoIPMessage * msg, final DoIpPayloadType 
     msg->payload_raw = null;
     msg->payload = null;
     switch(type) {
-        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
-            msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadVehicleIdResponse_new();
-        } break;
+        case DOIP_DIAG_POWER_MODE_REQUEST:
+        case DOIP_ROUTING_ACTIVATION_REQUEST:
+        case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadEmpty_new();
+        } break;
+        case DOIP_DIAG_POWER_MODE_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadDiagPowerModeResponse_new();
+        } break;
+        case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
+            msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadVehicleIdResponse_new();
         } break;
         case DOIP_VEHICLE_IDENT_REQUEST_EID: {
             msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadRequestWithEID_new();
@@ -41,12 +47,6 @@ void doip_message_init(final ad_object_DoIPMessage * msg, final DoIpPayloadType 
         } break;
         case DOIP_DIAGNOSTIC_MESSAGE: {
             msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadDiag_new();
-        } break;
-        case DOIP_ROUTING_ACTIVATION_REQUEST: {
-            msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadEmpty_new();
-        } break;
-        case DOIP_ENTITY_STATUS_REQUEST: {
-            msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadEmpty_new();
         } break;
         case DOIP_ENTITY_STATUS_RESPONSE: {
             msg->payload = (DoIPMessageDef*)ad_object_DoIPMessagePayloadEntityStatusResponse_new();
@@ -79,6 +79,12 @@ void ad_object_DoIPMessage_free(ad_object_DoIPMessage * msg) {
             case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
                 ad_object_DoIPMessagePayloadVehicleIdResponse_free((ad_object_DoIPMessagePayloadVehicleIdResponse*)msg->payload);
             } break;
+            case DOIP_DIAG_POWER_MODE_RESPONSE: {
+                ad_object_DoIPMessagePayloadDiagPowerModeResponse_free((ad_object_DoIPMessagePayloadDiagPowerModeResponse*)msg->payload);
+            } break;
+            case DOIP_DIAG_POWER_MODE_REQUEST:
+            case DOIP_ROUTING_ACTIVATION_REQUEST:
+            case DOIP_ENTITY_STATUS_REQUEST:
             case DOIP_VEHICLE_IDENT_REQUEST: {
                 ad_object_DoIPMessagePayloadEmpty_free((ad_object_DoIPMessagePayloadEmpty*)msg->payload);
             } break;
@@ -97,9 +103,6 @@ void ad_object_DoIPMessage_free(ad_object_DoIPMessage * msg) {
             } break;
             case DOIP_ROUTING_ACTIVATION_REQUEST: {
                 ad_object_DoIPMessagePayloadRoutineActivationRequest_free((ad_object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload);
-            } break;
-            case DOIP_ENTITY_STATUS_REQUEST: {
-                ad_object_DoIPMessagePayloadEmpty_free((ad_object_DoIPMessagePayloadEmpty*)msg->payload);
             } break;
             case DOIP_ENTITY_STATUS_RESPONSE: {
                 ad_object_DoIPMessagePayloadEntityStatusResponse_free((ad_object_DoIPMessagePayloadEntityStatusResponse*)msg->payload);
@@ -167,6 +170,17 @@ ad_object_DoIPMessage * doip_message_parse(const Buffer * in) {
             payload->further_action_required = msg->payload_raw->buffer[31];
             payload->sync_status = msg->payload_raw->buffer[32];
         } break;
+        case DOIP_DIAG_POWER_MODE_RESPONSE: {
+            ad_object_DoIPMessagePayloadDiagPowerModeResponse * payload = ad_object_DoIPMessagePayloadDiagPowerModeResponse_new();
+            assert(1 <= msg->payload_raw->size);
+            if ( 1 < msg->payload_raw->size ) {
+                log_msg(LOG_WARNING, "extract bytes for power mode");
+            }
+            payload->type = msg->payload_raw->buffer[0];
+        } break;
+        case DOIP_DIAG_POWER_MODE_REQUEST:
+        case DOIP_ROUTING_ACTIVATION_REQUEST:
+        case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             ad_object_DoIPMessagePayloadEmpty * payload = ad_object_DoIPMessagePayloadEmpty_new();
             msg->payload = (DoIPMessageDef*)payload;
@@ -219,10 +233,6 @@ ad_object_DoIPMessage * doip_message_parse(const Buffer * in) {
             }
             payload->type = ptype;
         } break;
-        case DOIP_ENTITY_STATUS_REQUEST: {
-            ad_object_DoIPMessagePayloadEmpty * payload = ad_object_DoIPMessagePayloadEmpty_new();
-            msg->payload = (DoIPMessageDef*)payload;
-        } break;
         case DOIP_ENTITY_STATUS_RESPONSE: {
             ad_object_DoIPMessagePayloadEntityStatusResponse * payload = ad_object_DoIPMessagePayloadEntityStatusResponse_new();
             msg->payload = (DoIPMessageDef*)payload;
@@ -270,6 +280,10 @@ void doip_message_dump(ad_object_DoIPMessage * msg) {
         log_msg(LOG_DEBUG, "    version: 0x%02hhX", msg->protocol_version);
         log_msg(LOG_DEBUG, "    payload_type: 0x%04X", msg->payload_type);
         switch(msg->payload_type) {
+            case DOIP_DIAG_POWER_MODE_RESPONSE: {
+                ad_object_DoIPMessagePayloadDiagPowerModeResponse * payload = (ad_object_DoIPMessagePayloadDiagPowerModeResponse*)msg->payload;
+                log_msg(LOG_DEBUG, "    type: 0x%02X", payload->type);
+            } break;
             case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
                 ad_object_DoIPMessagePayloadVehicleIdResponse * payload = (ad_object_DoIPMessagePayloadVehicleIdResponse*)msg->payload;
                 log_msg(LOG_DEBUG, "    vin: %s", ad_buffer_to_hex_string(payload->vin));
@@ -279,6 +293,9 @@ void doip_message_dump(ad_object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    further_action_required: 0x%02X", payload->further_action_required);
                 log_msg(LOG_DEBUG, "    sync_status: 0x%02X", payload->sync_status);
             } break;
+            case DOIP_DIAG_POWER_MODE_REQUEST:
+            case DOIP_ROUTING_ACTIVATION_REQUEST:
+            case DOIP_ENTITY_STATUS_REQUEST:
             case DOIP_VEHICLE_IDENT_REQUEST: {
                 // nothing to do
             } break;
@@ -307,9 +324,6 @@ void doip_message_dump(ad_object_DoIPMessage * msg) {
                 log_msg(LOG_DEBUG, "    activation_type: 0x%02x", payload->activation_type);
                 log_msg(LOG_DEBUG, "    iso_reserved: 0x%02x%02x%02x%02x", payload->iso_reserved[0], payload->iso_reserved[1], payload->iso_reserved[2], payload->iso_reserved[3]);
                 log_msg(LOG_DEBUG, "    vendor_reserved: 0x%02x%02x%02x%02x", payload->vendor_reserved[0], payload->vendor_reserved[1], payload->vendor_reserved[2], payload->vendor_reserved[3]);
-            } break;
-            case DOIP_ENTITY_STATUS_REQUEST: {
-                log_msg(LOG_DEBUG, "    no payload");
             } break;
             case DOIP_ENTITY_STATUS_RESPONSE: {
                 ad_object_DoIPMessagePayloadEntityStatusResponse * payload = (ad_object_DoIPMessagePayloadEntityStatusResponse*)msg->payload;
@@ -349,9 +363,15 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
 
     int plen = 0;
     switch(msg->payload_type) {
+        case DOIP_DIAG_POWER_MODE_RESPONSE: {
+            plen = 1;
+        } break;
         case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
             plen = 17 + 2 + 6 + 6 + 1 + 1;
         } break;
+        case DOIP_DIAG_POWER_MODE_REQUEST:
+        case DOIP_ROUTING_ACTIVATION_REQUEST:
+        case DOIP_ENTITY_STATUS_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST: {
             plen = 0;
         } break;
@@ -404,9 +424,6 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
             ad_object_DoIPMessagePayloadRoutineActivationRequest * payload = (ad_object_DoIPMessagePayloadRoutineActivationRequest*)msg->payload;
             plen = 2 + 1 + 4 + 4;
         } break;
-        case DOIP_ENTITY_STATUS_REQUEST: {
-            plen = 0;
-        } break;
         case DOIP_ENTITY_STATUS_RESPONSE: {
             ad_object_DoIPMessagePayloadEntityStatusResponse * payload = (ad_object_DoIPMessagePayloadEntityStatusResponse*)msg->payload;
             plen = 2 + 1 + 1 + 1;
@@ -457,6 +474,10 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
     byte * payload_start = p + 8;
 
     switch(msg->payload_type) {
+        case DOIP_DIAG_POWER_MODE_RESPONSE: {
+            ad_object_DoIPMessagePayloadDiagPowerModeResponse * payload = (ad_object_DoIPMessagePayloadDiagPowerModeResponse*)msg->payload;
+            payload_start[0] = payload->type;
+        } break;
         case DOIP_VEHICLE_ANNOUNCEMENT_RESPONSE: {
             ad_object_DoIPMessagePayloadVehicleIdResponse * payload = (ad_object_DoIPMessagePayloadVehicleIdResponse*)msg->payload;
             memcpy(payload_start, payload->vin->buffer, payload->vin->size);
@@ -493,8 +514,10 @@ Buffer *doip_message_serialize(const ad_object_DoIPMessage *msg) {
             memcpy(payload_start + 3, payload->iso_reserved, 4);
             memcpy(payload_start + 7, payload->vendor_reserved, 4);
         } break;
-        case DOIP_VEHICLE_IDENT_REQUEST:
-        case DOIP_ENTITY_STATUS_REQUEST: {
+        case DOIP_DIAG_POWER_MODE_REQUEST:
+        case DOIP_ROUTING_ACTIVATION_REQUEST:
+        case DOIP_ENTITY_STATUS_REQUEST:
+        case DOIP_VEHICLE_IDENT_REQUEST: {
             // no payload
         } break;
         case DOIP_ENTITY_STATUS_RESPONSE: {
@@ -597,6 +620,22 @@ AD_OBJECT_SRC(DoIPMessagePayloadEntityStatusResponse)
 AD_OBJECT_SRC(DoIPMessagePayloadRequestWithEID)
 AD_OBJECT_SRC(DoIPMessagePayloadRequestWithVIN)
 AD_OBJECT_SRC(DoIPMessagePayloadVehicleIdResponse)
+AD_OBJECT_SRC(DoIPMessagePayloadDiagPowerModeResponse)
+ad_object_DoIPMessagePayloadDiagPowerModeResponse * ad_object_DoIPMessagePayloadDiagPowerModeResponse_new() {
+    ad_object_DoIPMessagePayloadDiagPowerModeResponse * r = (ad_object_DoIPMessagePayloadDiagPowerModeResponse*)malloc(sizeof(ad_object_DoIPMessagePayloadDiagPowerModeResponse));
+    r->type = DOIP_MESSAGE_DIAG_POWER_MODE_UNSUPPORTED;
+    return r;
+}
+ad_object_DoIPMessagePayloadDiagPowerModeResponse * ad_object_DoIPMessagePayloadDiagPowerModeResponse_assign(ad_object_DoIPMessagePayloadDiagPowerModeResponse*to, ad_object_DoIPMessagePayloadDiagPowerModeResponse *from) {
+    assert(to != null && from != null);
+    to->type = from->type;
+    return to;
+}
+void ad_object_DoIPMessagePayloadDiagPowerModeResponse_free(ad_object_DoIPMessagePayloadDiagPowerModeResponse* r) {
+    if ( r != null ) {
+        free(r);
+    }
+}
 ad_object_DoIPMessagePayloadRequestWithEID * ad_object_DoIPMessagePayloadRequestWithEID_new() {
     ad_object_DoIPMessagePayloadRequestWithEID * r = (ad_object_DoIPMessagePayloadRequestWithEID*)malloc(sizeof(ad_object_DoIPMessagePayloadRequestWithEID));
     r->eid = ad_buffer_new();

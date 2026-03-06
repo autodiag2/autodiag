@@ -137,12 +137,24 @@ AD_OBJECT_H(DoIPMessagePayloadRequestWithVIN,
     Buffer * vin;
 )
 AD_OBJECT_H(DoIPMessagePayloadVehicleIdResponse,
+    DoIPMessageDef;
     Buffer * vin;
     Buffer * addr;
     Buffer * eid;
     Buffer * gid;
     byte further_action_required;
     byte sync_status;
+)
+typedef enum {
+    DOIP_MESSAGE_DIAG_POWER_MODE_READY = 0x00,
+    DOIP_MESSAGE_DIAG_POWER_MODE_NOT_READY = 0x01,
+    DOIP_MESSAGE_DIAG_POWER_MODE_UNSUPPORTED = 0x02,
+    DOIP_MESSAGE_DIAG_POWER_MODE_RESERVED = 0x03 // to 0xFF
+} DOIP_MESSAGE_DIAG_POWER_MODE_TYPE;
+
+AD_OBJECT_H(DoIPMessagePayloadDiagPowerModeResponse,
+    DoIPMessageDef;
+    byte type;
 )
 
 #include "libautodiag/com/doip/device.h"
