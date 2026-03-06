@@ -216,7 +216,7 @@ void doip_close(final ad_object_DoIPDevice * device) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     } 
-    assert(device_location_is_network((Device*)device));
+    assert(device_is_network((Device*)device));
     
     network_stop(device->implementation->handle);
     network_stop(device->implementation->disc_handle);
@@ -234,7 +234,7 @@ int doip_open(final ad_object_DoIPDevice * device) {
     }
 
     doip_close(device);
-    assert(device_location_is_network((Device*)device));
+    assert(device_is_network((Device*)device));
 
     const char *addr = device->location;
     char host[500];

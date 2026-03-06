@@ -12,21 +12,19 @@ const char * device_describe_state(final Device * device) {
     }
     return null;
 }
-
-bool device_location_is_network(final Device *device) {
-    if (device == null || device->location == null) {
-        return false;
-    }
-
-    const char *s = device->location;
+bool ad_device_location_is_network(char *location, char **ip_rv, int *port_rv) {
+    const char *s = location;
+    const char *ip_start = location;
+    const char *port_start = null;
     int dots = 0;
+    int port = -1;
 
     while (*s) {
         if (isdigit((unsigned char)*s)) {
             int v = 0;
             while (isdigit((unsigned char)*s)) {
                 v = v * 10 + (*s - '0');
-                if (v > 255) return false;
+                if (255 < v) return false;
                 s++;
             }
             if (*s == '.') {
@@ -44,18 +42,54 @@ bool device_location_is_network(final Device *device) {
 
     if (*s == ':') {
         s++;
+        port_start = s;
         int p = 0;
         int digits = 0;
         while (isdigit((unsigned char)*s)) {
             p = p * 10 + (*s - '0');
-            if (p > 65535) return false;
+            if (65535 < p) return false;
             s++;
             digits++;
         }
         if (digits == 0) return false;
+        port = p;
     }
 
-    return *s == '\0';
+    if (*s != '\0') return false;
+
+    if (ip_rv != null) {
+        size_t len = (port_start != null ? (size_t)(port_start - ip_start - 1) : strlen(ip_start));
+        char *ip = malloc(len + 1);
+        memcpy(ip, ip_start, len);
+        ip[len] = '\0';
+        *ip_rv = ip;
+    }
+
+    if (port_rv != null) {
+        *port_rv = (port < 0 ? 0 : port);
+    }
+
+    return true;
+}
+bool device_is_network(final Device *device) {
+    if (device == null || device->location == null) {
+        return false;
+    }
+    return ad_device_location_is_network(device->location, null, null);
+}
+AD_DEVICE_TYPE ad_device_type_from_location(char * location) {
+    char * ip;
+    int port;
+    if ( ad_device_location_is_network(location, &ip, &port) ) {
+        free(ip);
+        if ( 35000 <= port ) {
+            return AD_DEVICE_TYPE_SERIAL;
+        }
+        if ( 13400 <= port ) {
+            return AD_DEVICE_TYPE_DOIP;
+        }
+    }
+    return AD_DEVICE_TYPE_SERIAL;
 }
 AD_DEVICE_TYPE ad_device_type_from_str(char * type_str) {
     if ( strcasecmp(type_str, "auto") == 0 ) {

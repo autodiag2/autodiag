@@ -45,6 +45,9 @@ Device * device_table_add_if_not_in(ad_object_DeviceTable * table, Device * elem
 Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, char * location, AD_DEVICE_TYPE type) {
     assert(location != null);
     Device * device = device_table_find_by_location(table, location);
+    if ( type == AD_DEVICE_TYPE_AUTO ) {
+        type = ad_device_type_from_location(location);
+    }
     if ( device == null || device->type != type ) {
         switch(type) {
             case AD_DEVICE_TYPE_SERIAL: {

@@ -131,7 +131,7 @@ static void * send_command_wait_response_internal(final void * arg) {
                 } break;
                 case AD_DEVICE_TYPE_DOIP: {
                     ad_object_DoIPDevice * doip = (ad_object_DoIPDevice*)device;
-                    doip_send_internal(doip, command, command_len);
+                    result = doip_send_internal(doip, command, command_len);
                 } break;
                 default: {
                     result = DEVICE_ERROR; 

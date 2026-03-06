@@ -27,6 +27,10 @@ typedef enum {
     AD_DEVICE_TYPE_DOIP = 2
 } AD_DEVICE_TYPE;
 
+#define AD_DEVICE_TYPE_DEFAULT AD_DEVICE_TYPE_AUTO
+
+AD_DEVICE_TYPE ad_device_type_from_location(char * location);
+
 typedef enum {
     AD_DEVICE_STATE_UNDEFINED = 0,
     AD_DEVICE_STATE_READY = 1,
@@ -136,7 +140,7 @@ AD_DEVICE_TYPE ad_device_type_from_str(char * type_str);
 /**
  * If network location is an ip addresse + port
  */
-bool device_location_is_network(final Device *device);
+bool device_is_network(final Device *device);
 /**
  * Default handler for a device.
  */

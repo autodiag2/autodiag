@@ -96,6 +96,9 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
         }
     }
     device->lock(AD_DEVICE(device));
+    if ( device->type == AD_DEVICE_TYPE_AUTO ) {
+        device->type = ad_device_type_from_location(device->location);
+    }
     switch(device->type) {
         case AD_DEVICE_TYPE_SERIAL: {
             Serial * serial = (Serial*)device;

@@ -120,7 +120,7 @@ int serial_open(final Serial * port) {
     const char *addr = port->location;
     char host[500];
     char port_str[8] = "35000";
-    if ( device_location_is_network((Device*)port) ) {
+    if ( device_is_network((Device*)port) ) {
         const char *colon = strchr(addr, ':');
         if (colon) {
             size_t len = colon - addr;
@@ -133,7 +133,7 @@ int serial_open(final Serial * port) {
         }
     }
 
-    if (device_location_is_network((Device*)port)) {
+    if (device_is_network((Device*)port)) {
         #if defined OS_POSIX
             int fd = socket(AF_INET, SOCK_STREAM, 0);
             if (fd < 0) {
@@ -345,7 +345,7 @@ void serial_close(final Serial * port) {
     }
     #ifdef OS_POSIX
         #ifndef OS_WINDOWS
-            if (!device_location_is_network((Device*)port)) {
+            if (!device_is_network((Device*)port)) {
                 tcsetattr(port->implementation->handle->posix_handle,
                         TCSANOW,
                         &port->implementation->oldtio);

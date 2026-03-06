@@ -7,7 +7,7 @@ PRINT_MODULAR(terminal_cli_help,
     " -h                : display this help\n"
     " -l [log level]    : set or list the log level\n"
     " -n [name]         : set or list terminal location (comport, pseudo terminals, named pipes, doip)\n"
-    " -t [type]         : set or list the type of device to connect to (serial: default, doip)\n"
+    " -t [type]         : set or list the type of device to connect to (auto: default, serial/elm, doip)\n"
     " Serial options:\n"
     "  -b <baud rate>    : set the baud rate\n"
     "\n"
@@ -51,6 +51,7 @@ int terminal_cli_main(int argc, char *argv[]) {
             char * arg = argCurrent();
             if ( arg == null ) {
                 printf("device types:\n");
+                printf("auto\n");
                 printf("serial\n");
                 printf("doip\n");
                 return 0;

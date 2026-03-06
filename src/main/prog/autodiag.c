@@ -41,7 +41,7 @@ static void display_gui_help() {
     "\n"
     " -h                : display this help\n"
     " -n [name]         : device location (comport, pseudo terminals, named pipes, ip:port)\n"
-    " -t [type]         : device type (serial/elm: default, doip)\n"
+    " -t [type]         : device type (auto: default, serial/elm, doip)\n"
     " Serial speficic options:\n"
     "  -b <baud rate>    : set the baud rate\n"
     "\n"

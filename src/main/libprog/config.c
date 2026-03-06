@@ -4,7 +4,7 @@
     .com = { \
         .connectAtStartup = true, \
         .device = { \
-            .type = AD_DEVICE_TYPE_SERIAL, \
+            .type = AD_DEVICE_TYPE_DEFAULT, \
             .location = null, \
              .serial = { \
                 .baud_rate = SERIAL_DEFAULT_BAUD_RATE \

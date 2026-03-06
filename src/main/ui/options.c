@@ -178,7 +178,7 @@ static void recovery_mode() {
     viface_close(iface);
     config_initiated_check();
     if ( config.com.device.location != null ) {
-        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.device.location, AD_DEVICE_TYPE_SERIAL);
+        device_table_add_if_not_in_by_location(config.ephemere.device_table, config.com.device.location, AD_DEVICE_TYPE_AUTO);
         log_msg(LOG_ERROR, "TODO add more type of device (doip)");
         device_table_set_selected_by_location(config.ephemere.device_table, config.com.device.location);
     }
