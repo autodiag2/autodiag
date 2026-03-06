@@ -613,8 +613,10 @@ DOIP_MESSAGE_DIAG_POWER_MODE_TYPE doip_message_payload_diag_power_mode_byte_to_t
         case DOIP_MESSAGE_DIAG_POWER_MODE_NOT_READY:
         case DOIP_MESSAGE_DIAG_POWER_MODE_UNSUPPORTED:
             type_enum = type;
+            break;
         default:
             type_enum = DOIP_MESSAGE_DIAG_POWER_MODE_RESERVED;
+            break;
     }
     return type_enum;
 }
