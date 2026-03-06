@@ -177,7 +177,7 @@
                             break;
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                            ad_buffer_append_melt(binResponse,buffer_from_ascii(vin));   
+                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii(vin));   
                             useParent = false;             
                             break;
                         }
@@ -187,7 +187,7 @@
                             break;
                         }
                         case 0x04: {
-                            ad_buffer_append_melt(binResponse,buffer_new_random(16));  
+                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(16));  
                             useParent = false;
                             break;
                         }
@@ -197,7 +197,7 @@
                             break;
                         }
                         case 0x06: {
-                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
                             useParent = false;
                             break;
                         }
@@ -207,7 +207,7 @@
                             break;
                         }
                         case 0x08: {
-                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
                             useParent = false;
                             break;
                         }
@@ -224,7 +224,7 @@
                             break;
                         }
                         case 0x0B: {
-                            ad_buffer_append_melt(binResponse,buffer_new_random(4));
+                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
                             useParent = false;
                             break;
                         }
