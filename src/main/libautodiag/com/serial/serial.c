@@ -15,13 +15,13 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         bytes_dump((byte*)tx_buf,bytes_to_send);
     }
     
-    if ( ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
+    if ( ad_object_handle_t_invalid(port->implementation->handle) ) {
         port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
 
     int write_len_rv = 0;
-    int poll_result = ad_object_handle_t_poll_write(port->implementation->handle_rename, port->timeout);
+    int poll_result = ad_object_handle_t_poll_write(port->implementation->handle, port->timeout);
     if ( poll_result == -1 ) {
         log_msg(LOG_ERROR, "Error while polling");
         return DEVICE_ERROR;
@@ -29,7 +29,7 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
         log_msg(LOG_ERROR, "Timeout while polling for write");
         return 0;
     }
-    int result = ad_object_handle_t_write(port->implementation->handle_rename, (byte*)tx_buf, bytes_to_send);
+    int result = ad_object_handle_t_write(port->implementation->handle, (byte*)tx_buf, bytes_to_send);
     if ( result == -1 ) {
         serial_close(port);
         return DEVICE_ERROR;
@@ -53,18 +53,18 @@ int serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     }
-    if ( ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
+    if ( ad_object_handle_t_invalid(port->implementation->handle) ) {
         port->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
     final unsigned initial_buffer_sz = port->recv_buffer->size;
     int maxReadLen = 1024;
     log_msg(LOG_DEBUG, "polling");
-    int res = ad_object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout);
+    int res = ad_object_handle_t_poll_read(port->implementation->handle, null, port->timeout);
     if ( 0 < res ) {
-        while ( 0 < res && ! ad_object_handle_t_invalid(port->implementation->handle_rename) ) {
+        while ( 0 < res && ! ad_object_handle_t_invalid(port->implementation->handle) ) {
             ad_buffer_ensure_capacity(port->recv_buffer, maxReadLen);
-            final int bytes_readed = ad_object_handle_t_read(port->implementation->handle_rename, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
+            final int bytes_readed = ad_object_handle_t_read(port->implementation->handle, port->recv_buffer->buffer + port->recv_buffer->size, maxReadLen);
             if( 0 < bytes_readed ) {
                 port->recv_buffer->size += bytes_readed;
             } else if ( bytes_readed == 0 ) {
@@ -73,7 +73,7 @@ int serial_recv_internal(final Serial * port) {
                 perror("read");
                 break;
             }
-            res = ad_object_handle_t_poll_read(port->implementation->handle_rename, null, port->timeout_seq);
+            res = ad_object_handle_t_poll_read(port->implementation->handle, null, port->timeout_seq);
         }
         if ( log_has_level(LOG_DEBUG) ) {
             log_msg(LOG_DEBUG, "Serial data received");
@@ -158,7 +158,7 @@ int serial_open(final Serial * port) {
                 return GENERIC_FUNCTION_ERROR;
             }
 
-            port->implementation->handle_rename->posix_handle = fd;
+            port->implementation->handle->posix_handle = fd;
             port->state = AD_DEVICE_STATE_READY;
             log_msg(LOG_DEBUG, "Open: Serial openned as posix socket");
             return GENERIC_FUNCTION_SUCCESS;
@@ -195,7 +195,7 @@ int serial_open(final Serial * port) {
                 return GENERIC_FUNCTION_ERROR;
             }
 
-            port->implementation->handle_rename->win_socket = s;
+            port->implementation->handle->win_socket = s;
             port->state = AD_DEVICE_STATE_READY;
             log_msg(LOG_DEBUG, "Open: Serial openned as windows socket");
             return GENERIC_FUNCTION_SUCCESS;
@@ -206,8 +206,8 @@ int serial_open(final Serial * port) {
 
     #if defined OS_WINDOWS
     {
-        port->implementation->handle_rename->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
-        if (port->implementation->handle_rename->win_handle == INVALID_HANDLE_VALUE) {
+        port->implementation->handle->win_handle = CreateFile(port->location, GENERIC_READ | GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
+        if (port->implementation->handle->win_handle == INVALID_HANDLE_VALUE) {
             log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
             port->serial_state = SERIAL_STATE_OPEN_ERROR;
@@ -215,7 +215,7 @@ int serial_open(final Serial * port) {
         }
         log_msg(LOG_DEBUG, "Openning port: %s", port->location);
         
-        if ( isComPort(port->implementation->handle_rename->win_handle) ) {
+        if ( isComPort(port->implementation->handle->win_handle) ) {
             assert(0 <= port->baud_rate);
             #define TX_TIMEOUT_MULTIPLIER    0
             #define TX_TIMEOUT_CONSTANT      1000
@@ -226,9 +226,9 @@ int serial_open(final Serial * port) {
 
             ZeroMemory(&dcb, sizeof(DCB));
             dcb.DCBlength = sizeof(DCB);
-            if (!GetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
+            if (!GetCommState(port->implementation->handle->win_handle, &dcb)) {
                 log_msg(LOG_ERROR, "GetCommState failed for %s", port->location);
-                CloseHandle(port->implementation->handle_rename->win_handle);
+                CloseHandle(port->implementation->handle->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
             dcb.BaudRate = port->baud_rate;
@@ -245,9 +245,9 @@ int serial_open(final Serial * port) {
             dcb.fDsrSensitivity = FALSE;
             dcb.fErrorChar = FALSE;
             dcb.fAbortOnError = FALSE;
-            if (!SetCommState(port->implementation->handle_rename->win_handle, &dcb)) {
+            if (!SetCommState(port->implementation->handle->win_handle, &dcb)) {
                 log_msg(LOG_ERROR, "SetCommState failed for %s", port->location);
-                CloseHandle(port->implementation->handle_rename->win_handle);
+                CloseHandle(port->implementation->handle->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
 
@@ -257,29 +257,29 @@ int serial_open(final Serial * port) {
             timeouts.ReadTotalTimeoutConstant = port->timeout;
             timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER;
             timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT;
-            if (!SetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts)) {
+            if (!SetCommTimeouts(port->implementation->handle->win_handle, &timeouts)) {
                 log_msg(LOG_ERROR, "SetCommTimeouts failed for %s", port->location);
-                CloseHandle(port->implementation->handle_rename->win_handle);
+                CloseHandle(port->implementation->handle->win_handle);
                 return GENERIC_FUNCTION_ERROR;
             }
 
             // Hack to get around Windows 2000 multiplying timeout values by 15
-            GetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts);
+            GetCommTimeouts(port->implementation->handle->win_handle, &timeouts);
             if (TX_TIMEOUT_MULTIPLIER > 0) {
                 timeouts.WriteTotalTimeoutMultiplier = TX_TIMEOUT_MULTIPLIER * TX_TIMEOUT_MULTIPLIER / timeouts.WriteTotalTimeoutMultiplier;
             }
             if (TX_TIMEOUT_CONSTANT > 0) {
                 timeouts.WriteTotalTimeoutConstant = TX_TIMEOUT_CONSTANT * TX_TIMEOUT_CONSTANT / timeouts.WriteTotalTimeoutConstant;
             }
-            SetCommTimeouts(port->implementation->handle_rename->win_handle, &timeouts);
+            SetCommTimeouts(port->implementation->handle->win_handle, &timeouts);
 
             // If the port is Bluetooth, make sure device is active
-            PurgeComm(port->implementation->handle_rename->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
-            WriteFile(port->implementation->handle_rename->win_handle, "?\r", 2, &bytes_written, 0);
-            PurgeComm(port->implementation->handle_rename->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            PurgeComm(port->implementation->handle->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
+            WriteFile(port->implementation->handle->win_handle, "?\r", 2, &bytes_written, 0);
+            PurgeComm(port->implementation->handle->win_handle, PURGE_TXCLEAR|PURGE_RXCLEAR);
             if (bytes_written != 2) { // If Tx timeout occured
                 log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
-                CloseHandle(port->implementation->handle_rename->win_handle);
+                CloseHandle(port->implementation->handle->win_handle);
                 port->serial_state = SERIAL_STATE_OPEN_ERROR;
                 port->state = AD_DEVICE_STATE_NOT_READY;
                 return GENERIC_FUNCTION_ERROR;
@@ -292,8 +292,8 @@ int serial_open(final Serial * port) {
     #elif defined OS_POSIX
     {
         assert(0 <= port->baud_rate);
-        port->implementation->handle_rename->posix_handle = open(port->location, O_RDWR | O_NOCTTY);
-        if (port->implementation->handle_rename->posix_handle < 0) {
+        port->implementation->handle->posix_handle = open(port->location, O_RDWR | O_NOCTTY);
+        if (port->implementation->handle->posix_handle < 0) {
             perror(port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
             if ( errno == ENOENT ) {
@@ -306,7 +306,7 @@ int serial_open(final Serial * port) {
             return GENERIC_FUNCTION_ERROR;
         }
 
-        tcgetattr(port->implementation->handle_rename->posix_handle, &(port->implementation->oldtio)); /* save current port settings */
+        tcgetattr(port->implementation->handle->posix_handle, &(port->implementation->oldtio)); /* save current port settings */
 
         bzero(&(port->implementation->newtio), sizeof(port->implementation->newtio));
 
@@ -327,8 +327,8 @@ int serial_open(final Serial * port) {
         port->implementation->newtio.c_cc[VTIME]    = 0;   /* inter-character timer unused */
         port->implementation->newtio.c_cc[VMIN]     = 0;   /* blocking read until 5 chars received */
 
-        tcflush(port->implementation->handle_rename->posix_handle, TCIFLUSH);
-        tcsetattr(port->implementation->handle_rename->posix_handle,TCSANOW,&(port->implementation->newtio));
+        tcflush(port->implementation->handle->posix_handle, TCIFLUSH);
+        tcsetattr(port->implementation->handle->posix_handle,TCSANOW,&(port->implementation->newtio));
     }
     #else
     #   warning Regular file openning not supported on this OS
@@ -346,13 +346,13 @@ void serial_close(final Serial * port) {
     #ifdef OS_POSIX
         #ifndef OS_WINDOWS
             if (!device_location_is_network((Device*)port)) {
-                tcsetattr(port->implementation->handle_rename->posix_handle,
+                tcsetattr(port->implementation->handle->posix_handle,
                         TCSANOW,
                         &port->implementation->oldtio);
             }
         #endif
     #endif
-    ad_object_handle_t_close(port->implementation->handle_rename);
+    ad_object_handle_t_close(port->implementation->handle);
     port->state = AD_DEVICE_STATE_NOT_READY;
 }
 const char * serial_describe_state(final Serial * port) {
@@ -425,7 +425,7 @@ void serial_init(final Serial* serial) {
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
     serial->describe_state = AD_DEVICE_DESCRIBE_STATE(serial_describe_state);
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
-    serial->implementation->handle_rename = ad_object_handle_t_new();
+    serial->implementation->handle = ad_object_handle_t_new();
 }
 
 void serial_free(final Serial * port) {

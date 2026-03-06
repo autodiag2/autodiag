@@ -39,7 +39,7 @@ typedef enum {
 typedef struct {
     pthread_mutex_t lock_mutex;    // thread lock on the port (both buffer and other data)
 
-    ad_object_handle_t * handle_rename;
+    ad_object_handle_t * handle;
 #if defined OS_WINDOWS
 
 #elif defined OS_POSIX
