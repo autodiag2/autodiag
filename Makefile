@@ -307,3 +307,4 @@ help:
 	@-echo "  AUTODIAG_LOG_LEVEL         - log messages with defined log level (none,info,warning,error,debug)"
 	@-echo "  AUTODIAG_LOG_TIMESTAMP     - log messages with timestamp (true, false and require log level)"
 	@-echo "  AUTODIAG_LOG_CODE_LOCATION - log messages with source code location (true, false and require log level)"
+	@-echo "  AUTODIAG_LOG_COLOR         - log messages with colors (true, false and require log level)"

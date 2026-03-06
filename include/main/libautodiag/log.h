@@ -27,6 +27,7 @@ typedef struct {
     LogLevel current_level;
     bool show_timestamp;
     bool show_code_location;
+    bool use_colors;
 } Logger;
 
 extern Logger logger;

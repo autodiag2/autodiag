@@ -4,7 +4,8 @@
 Logger logger = {
     .current_level = LOG_ERROR,
     .show_timestamp = false,
-    .show_code_location = false
+    .show_code_location = false,
+    .use_colors = false
 };
 
 bool log_level_is_env_set() {
@@ -33,6 +34,14 @@ void log_set_from_env() {
             logger.show_code_location = false;
         } else {
             logger.show_code_location = true;
+        }
+    }
+    char * useColors = getenv("AUTODIAG_LOG_COLOR");
+    if ( useColors != null ) {
+        if ( strcasecmp(useColors, "false") == 0 || strcasecmp(useColors, "0") == 0 ) {
+            logger.use_colors = false;
+        } else {
+            logger.use_colors = true;
         }
     }
 }
@@ -94,8 +103,31 @@ void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) 
             header = tmpHeader;
         }
 
+        char *colorSetter = strdup("");
+        const char * colorCleaner = "\033[0m";
+        if ( logger.use_colors ) {
+            free(colorSetter);
+            switch(level) {
+                case LOG_DEBUG:
+                    colorSetter = strdup("");
+                    break;
+                case LOG_INFO:
+                    colorSetter = strdup("\033[34m");
+                    break;
+                case LOG_WARNING:
+                    colorSetter = strdup("\033[33m");
+                    break;
+                case LOG_ERROR:
+                    colorSetter = strdup("\033[31m");
+                    break;
+                case LOG_NONE:
+                    colorSetter = strdup("");
+                    break;
+            }
+        }
         char *formatMod;
-        asprintf(&formatMod,"%s%s\n",header,format);
+        asprintf(&formatMod,"%s%s%s%s\n",header,colorSetter,format,colorCleaner);
+        free(colorSetter);
         char *txt;
         if ( compat_vasprintf(&txt, formatMod, ap) == -1 ) {
             log_msg(LOG_ERROR, "Fill label impossible");

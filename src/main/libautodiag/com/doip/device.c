@@ -10,6 +10,8 @@ int doip_disc_send(ad_object_DoIPDevice *device, ad_object_DoIPMessage *msg) {
         case DOIP_VEHICLE_IDENT_REQUEST:
         case DOIP_VEHICLE_IDENT_REQUEST_EID:
         case DOIP_VEHICLE_IDENT_REQUEST_VIN:
+        case DOIP_DIAG_POWER_MODE_REQUEST:
+        case DOIP_ENTITY_STATUS_REQUEST:
             break;
         default: {
             log_msg(LOG_WARNING, "Not supposed to send 0x%X payload with udp", msg->payload_type);
