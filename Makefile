@@ -6,7 +6,8 @@ INSTALL_DATA_FOLDER_APP = $(INSTALL_DATA_FOLDER)/$(APP_NAME)/
 # Programs
 SOURCES_PROGS := $(sort $(call rwildcard,src/main/,*.c))
 ifneq (,$(findstring release,$(MAKECMDGOALS)))
-	CFLAGS += -DCOMPILE_RELEASE
+#   keep the debug info in production for now
+#	CFLAGS += -DCOMPILE_RELEASE
 endif
 
 ifneq (,$(findstring compat,$(MAKECMDGOALS)))
