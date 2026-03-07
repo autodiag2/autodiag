@@ -65,13 +65,17 @@ static VehicleIFace* tf_serial_open(char *device_location) {
     printf("open port %s\n", device_location);
     final Serial * serial = serial_new();
     serial->location = strdup(device_location);
-    return viface_open_from_device(AD_DEVICE(serial));
+    VehicleIFace *iface = viface_open_from_device(AD_DEVICE(serial));
+    iface->connection_checking.disable(iface);
+    return iface;
 }
 static VehicleIFace* tf_doip_open(char *device_location) {
     printf("open doip %s\n", device_location);
     final ad_object_DoIPDevice * device = ad_object_DoIPDevice_new();
     device->location = strdup(device_location);
-    return viface_open_from_device(AD_DEVICE(device));
+    VehicleIFace *iface = viface_open_from_device(AD_DEVICE(device));
+    iface->connection_checking.disable(iface);
+    return iface;
 }
 static char* tf_sim_doip_start_with_ecu(SimECU *first) {
     SimDoIp* sim = sim_doip_new();

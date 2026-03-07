@@ -59,12 +59,22 @@ static void connection_checking_update_last_activity(VehicleIFace * iface) {
     assert( iface != null );
     iface->connection_checking.last_activity_ms = time_ms();
 }
+static void connection_checking_disable(VehicleIFace * iface) {
+    iface->connection_checking.enabled = false;
+    iface->connection_checking.stop(iface);
+}
 static bool connection_checking_should_probe(VehicleIFace * iface) {
     return ( iface->connection_checking.activity_threshold_ms <= (iface->connection_checking.last_activity_ms - time_ms()) );
 }
 static bool connection_checking_probe(VehicleIFace * iface) {
     assert( iface != null );
+    if ( ! iface->connection_checking.enabled ) {
+        log_msg(LOG_DEBUG, "probing is disabled");
+        return false;
+    }
+    
     log_msg(LOG_DEBUG, "Sending a probe");
+
     if ( iface->uds.enabled ) {
         if ( uds_tester_present(iface, true) ) {
             iface->connection_checking.update_last_activity(iface);
@@ -140,6 +150,8 @@ VehicleIFace* viface_new() {
     iface->connection_checking.activity_poll_ms = AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_POLL_MS;
     iface->connection_checking.start = connection_checking_start;
     iface->connection_checking.stop = connection_checking_stop;
+    iface->connection_checking.disable = connection_checking_disable;
+    iface->connection_checking.enabled = true;
     iface->recv = viface_recv;
     iface->send = viface_send;
     iface->lock = viface_lock;

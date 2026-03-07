@@ -34,10 +34,12 @@ typedef struct VehicleIFace {
     } uds;
 
     struct {
+        bool enabled;
         uint64_t last_activity_ms;
         uint64_t activity_threshold_ms;
         int activity_poll_ms;
         pthread_t * activity_thread;
+        void (*disable)(struct VehicleIFace * iface);
         void (*update_last_activity)(struct VehicleIFace * iface);
         bool (*probe)(struct VehicleIFace * iface);
         bool (*should_probe)(struct VehicleIFace * iface);
