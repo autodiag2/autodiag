@@ -169,7 +169,7 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
 static void * tester_present_timer_daemon(void *arg) {
     final VehicleIFace * iface = (VehicleIFace*)arg;
     while(true) {
-        if ( iface->state == VIFaceState_NOT_READY || iface->uds.tester_present_timer == null ) {
+        if ( iface->connection._state == VIFaceState_NOT_READY || iface->uds.tester_present_timer == null ) {
             break;
         } else {
             if ( ! uds_tester_present(iface, true) ) {

@@ -19,7 +19,7 @@ bool error_feedback_device(final ErrorFeedbackWindows ws, final Device * device)
 }
 
 bool error_feedback_obd(final ErrorFeedbackWindows ws, final VehicleIFace* iface, final Device * device) {
-    if ( iface->state == VIFaceState_READY ) {
+    if ( iface->connection._state == VIFaceState_READY ) {
         return error_feedback_device(ws, iface->device);
     } else {
         if ( ! error_feedback_device(ws, device) ) {

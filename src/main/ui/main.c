@@ -78,7 +78,7 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             }
         }
         final VehicleIFace* iface = config.ephemere.iface;
-        if ( iface->state == VIFaceState_READY ) {
+        if ( iface->connection._state == VIFaceState_READY ) {
             if ( iface->device->type == AD_DEVICE_TYPE_SERIAL ) {
                 viface_lock(iface);
                 final char * response = elm_print_id((Serial *)iface->device);

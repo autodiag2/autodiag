@@ -7,8 +7,10 @@
 
 typedef enum {
     VIFaceState_READY,
-    VIFaceState_NOT_READY
-}VIFaceState;
+    VIFaceState_NOT_READY,
+    
+} VIFaceState;
+
 typedef struct VehicleIFace {
     /**
      * Device onto which communication should start.
@@ -18,10 +20,6 @@ typedef struct VehicleIFace {
      * Data structure representing the data received from the vehicle itself.
      */
     Vehicle * vehicle;
-    /**
-     * State of this interface, whether ready to communicate with the vehicle or not.
-     */
-    int state;
     struct {
         /**
          * Does have uds on the current connexion.
@@ -34,18 +32,26 @@ typedef struct VehicleIFace {
     } uds;
 
     struct {
-        bool enabled;
-        uint64_t last_activity_ms;
-        uint64_t activity_threshold_ms;
-        int activity_poll_ms;
-        pthread_t * activity_thread;
-        void (*disable)(struct VehicleIFace * iface);
-        void (*update_last_activity)(struct VehicleIFace * iface);
-        bool (*probe)(struct VehicleIFace * iface);
-        bool (*should_probe)(struct VehicleIFace * iface);
-        bool (*start)(struct VehicleIFace * iface);
-        bool (*stop)(struct VehicleIFace * iface);
-    } connection_checking;
+        struct {
+            bool enabled;
+            uint64_t last_activity_ms;
+            uint64_t activity_threshold_ms;
+            int activity_poll_ms;
+            pthread_t * activity_thread;
+            void (*disable)(struct VehicleIFace * iface);
+            void (*update_last_activity)(struct VehicleIFace * iface);
+            bool (*probe)(struct VehicleIFace * iface);
+            bool (*should_probe)(struct VehicleIFace * iface);
+            bool (*start)(struct VehicleIFace * iface);
+            bool (*stop)(struct VehicleIFace * iface);
+        } checking;
+        /**
+         * State of this interface, whether ready to communicate with the vehicle or not.
+         */
+        VIFaceState _state;
+        EventHandlerHolder * onConnectionStateChanged;
+        void (*set_state)(struct VehicleIFace * iface, VIFaceState state);
+    } connection;
 
     void (*lock)(struct VehicleIFace * iface);
     void (*unlock)(struct VehicleIFace * iface);
@@ -66,6 +72,7 @@ typedef struct VehicleIFace {
         EventHandlerHolder * onRequest;
         EventHandlerHolder * onResponse;
     } internal;
+
 } VehicleIFace;
 
 #define AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_THRESHOLD_MS 2000

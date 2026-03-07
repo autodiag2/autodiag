@@ -17,7 +17,7 @@ static void thread_viface_cleanup_routine(void *arg) {
     final VehicleIFace* iface = config.ephemere.iface;
     assert(iface != null);
     log_msg(LOG_INFO, "clean up execution");
-    if ( iface->state == VIFaceState_READY ) {
+    if ( iface->connection._state == VIFaceState_READY ) {
         viface_unlock(iface);
     }
 }
