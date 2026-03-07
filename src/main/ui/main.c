@@ -62,10 +62,7 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
     pthread_exit(0);
 }
 
-static void viface_state_changed(VehicleIFace *iface, VIFaceState state) {
-    refresh_usb_adaptater_state_internal(null);
-}
-void* refresh_usb_adaptater_state_internal(void *arg) {
+static void refresh_iface_state() {
     final Device * device = device_table_get_selected(config.ephemere.device_table);
     if ( device == null ) {
         adaptater_state_set_text("No device selected", "orange");
@@ -108,6 +105,14 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             } break;
         }
     }
+}
+
+static void viface_state_changed(VehicleIFace *iface, VIFaceState state) {
+    refresh_iface_state();
+}
+
+void* refresh_usb_adaptater_state_internal(void *arg) {
+    refresh_iface_state();
     gtk_widget_set_visible(GTK_WIDGET(mainGui->adaptater.state.more.container), config.main.adaptater_detailled_settings_showned);
     pthread_exit(0);
 }

@@ -146,7 +146,11 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
     viface_send(iface, ad_buffer_from_ints( UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
     if ( response ) {
         viface_clear_data(iface);
-        viface_recv(iface);
+        if ( viface_recv(iface) <= 0 ) {
+            log_msg(LOG_ERROR, "Tester present response not received");
+            viface_unlock(iface);
+            return false;
+        }
         for(int i = 0; i < iface->vehicle->ecus_len; i++) {
             final ECU * ecu = iface->vehicle->ecus[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
