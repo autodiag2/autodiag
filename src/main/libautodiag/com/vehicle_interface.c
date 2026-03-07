@@ -55,7 +55,75 @@ void viface_dump(final VehicleIFace * iface) {
     log_msg(LOG_DEBUG, "VIFace dump state=%s", iface->state == VIFaceState_READY ? "ready" : "not ready");
     vehicle_dump(iface->vehicle);
 }
-
+static void connection_checking_update_last_activity(VehicleIFace * iface) {
+    assert( iface != null );
+    iface->connection_checking.last_activity_ms = time_ms();
+}
+static bool connection_checking_should_probe(VehicleIFace * iface) {
+    return ( iface->connection_checking.activity_threshold_ms <= (iface->connection_checking.last_activity_ms - time_ms()) );
+}
+static bool connection_checking_probe(VehicleIFace * iface) {
+    assert( iface != null );
+    if ( iface->uds.enabled ) {
+        if ( uds_tester_present(iface, true) ) {
+            iface->connection_checking.update_last_activity(iface);
+            log_msg(LOG_DEBUG, "Probe detected connection alive");
+            return true;
+        }
+    } else {
+        Buffer * request = ad_buffer_from_ascii_hex("0100");
+        iface->lock(iface);
+        if ( iface->send(iface, request) == DEVICE_ERROR ) {
+            iface->unlock(iface);
+            log_msg(LOG_WARNING, "Connection seem dead");
+            return false;
+        }
+        iface->clear_data(iface);
+        if ( iface->recv(iface) <= 0 ) {
+            iface->unlock(iface);
+            log_msg(LOG_WARNING, "Connection seem dead");
+            return false;
+        }
+        iface->connection_checking.update_last_activity(iface);
+        iface->unlock(iface);
+        log_msg(LOG_DEBUG, "Probe detected connection alive");
+        return true;
+    }
+    log_msg(LOG_WARNING, "Connection seem dead");
+    return false;
+}
+static void * connection_checking_activity_loop(void * arg) {
+    VehicleIFace * iface = (VehicleIFace*)iface;
+    while ( iface->connection_checking.activity_thread != null ) {
+        if ( iface->connection_checking.should_probe(iface) ) {
+            if ( iface->connection_checking.probe(iface) ) {
+                iface->connection_checking.update_last_activity(iface);
+            }
+        }
+        usleep(iface->connection_checking.activity_poll_ms * 1000);
+    }
+    return NULL;
+}
+static bool connection_checking_start(VehicleIFace * iface) {
+    if ( iface->connection_checking.activity_thread == null ) {
+        iface->connection_checking.activity_thread = (pthread_t*)malloc(sizeof(pthread_t));
+        if ( pthread_create(iface->connection_checking.activity_thread, null, connection_checking_activity_loop, (void*)iface) == 0 ) {
+            return true;
+        } else {
+            log_msg(LOG_ERROR, "thread creation");
+        }
+    }
+    return false;
+}
+static bool connection_checking_stop(VehicleIFace * iface) {
+    if ( iface->connection_checking.activity_thread != null ) {
+        THREAD_CANCEL(iface->connection_checking.activity_thread);
+        free(iface->connection_checking.activity_thread);
+        iface->connection_checking.activity_thread = null;
+        return true;
+    }
+    return false;
+}
 VehicleIFace* viface_new() {
     final VehicleIFace* iface = (VehicleIFace*)malloc(sizeof(VehicleIFace));
     iface->device = null;
@@ -63,6 +131,19 @@ VehicleIFace* viface_new() {
     iface->state = VIFaceState_NOT_READY;
     iface->uds.enabled = false;
     iface->uds.tester_present_timer = null;
+    iface->connection_checking.activity_threshold_ms = AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_THRESHOLD_MS;
+    iface->connection_checking.last_activity_ms = 0;
+    iface->connection_checking.probe = connection_checking_probe;
+    iface->connection_checking.should_probe = connection_checking_should_probe;
+    iface->connection_checking.update_last_activity = connection_checking_update_last_activity;
+    iface->connection_checking.activity_poll_ms = AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_POLL_MS;
+    iface->connection_checking.start = connection_checking_start;
+    iface->connection_checking.stop = connection_checking_stop;
+    iface->recv = viface_recv;
+    iface->send = viface_send;
+    iface->lock = viface_lock;
+    iface->unlock = viface_unlock;
+    iface->clear_data = viface_clear_data;
     iface->internal.onRequest = ehh_new();
     iface->internal.onResponse = ehh_new();
     return iface;
@@ -126,6 +207,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
     iface->device->unlock(AD_DEVICE(iface->device));
     viface_discover_vehicle(iface);
     iface->state = VIFaceState_READY;
+    iface->connection_checking.start(iface);
     return true;
 }
 VehicleIFace* viface_open_from_device(final Device* device) {
@@ -235,6 +317,7 @@ int viface_recv(final VehicleIFace* iface) {
             }
         }
     }
+    iface->connection_checking.update_last_activity(iface);
     vehicle_fill_global_data_buffer_from_ecus(v);
     return iface->vehicle->data_buffer->size - initial_data_buffer_received;
 }

@@ -9,7 +9,7 @@ typedef enum {
     VIFaceState_READY,
     VIFaceState_NOT_READY
 }VIFaceState;
-typedef struct {
+typedef struct VehicleIFace {
     /**
      * Device onto which communication should start.
      */
@@ -32,12 +32,42 @@ typedef struct {
          */
         pthread_t * tester_present_timer;
     } uds;
+
+    struct {
+        uint64_t last_activity_ms;
+        uint64_t activity_threshold_ms;
+        int activity_poll_ms;
+        pthread_t * activity_thread;
+        void (*update_last_activity)(struct VehicleIFace * iface);
+        bool (*probe)(struct VehicleIFace * iface);
+        bool (*should_probe)(struct VehicleIFace * iface);
+        bool (*start)(struct VehicleIFace * iface);
+        bool (*stop)(struct VehicleIFace * iface);
+    } connection_checking;
+
+    void (*lock)(struct VehicleIFace * iface);
+    void (*unlock)(struct VehicleIFace * iface);
+    /**
+     * @return number of bytes sent or DEVICE_ERROR
+     */
+    int (*send)(struct VehicleIFace * iface, Buffer * request);
+    /**
+     * @return number of data buffer received, negative on error
+     */
+    int (*recv)(struct VehicleIFace * iface);
+    /**
+     * clear any data received
+     */
+    void (*clear_data)(struct VehicleIFace * iface);
         
     struct {
         EventHandlerHolder * onRequest;
         EventHandlerHolder * onResponse;
     } internal;
 } VehicleIFace;
+
+#define AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_THRESHOLD_MS 2000
+#define AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_POLL_MS 1000
 
 #define viface_event_emit_on_request(iface, binRequest) \
     ehh_trigger(iface->internal.onRequest, (void(*)(Buffer*)), binRequest);
