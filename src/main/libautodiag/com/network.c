@@ -234,17 +234,30 @@ bool network_is_connected(sock_t s) {
     }
 }
 void network_stop(sock_t s) {
-    if (s != SOCK_T_INVALID) {
-        #if defined OS_POSIX
-            shutdown(s, SHUT_RDWR);
-            close(s);
-        #elif defined OS_WINDOWS
-            shutdown(s, SD_BOTH);
-            closesocket(s);
-        #else
-        #   warning not implemented
-        #endif
-    }
+    if (s == SOCK_T_INVALID)
+        return;
+
+    #if defined OS_POSIX
+        struct linger so_linger;
+        so_linger.l_onoff  = 1;  // enable linger
+        so_linger.l_linger = 0;  // timeout 0 -> abortive close (RST)
+        setsockopt(s, SOL_SOCKET, SO_LINGER, &so_linger, sizeof(so_linger));
+
+        shutdown(s, SHUT_RDWR);
+        close(s);
+
+    #elif defined OS_WINDOWS
+        struct linger so_linger;
+        so_linger.l_onoff  = 1;
+        so_linger.l_linger = 0;
+        setsockopt(s, SOL_SOCKET, SO_LINGER, (char*)&so_linger, sizeof(so_linger));
+
+        shutdown(s, SD_BOTH);
+        closesocket(s);
+
+    #else
+    #   warning not implemented
+    #endif
 }
 int network_udp_wait_readable(sock_t s, int timeout_ms) {
     fd_set rfds;

@@ -40,6 +40,14 @@ bool testDOIP() {
         for(int i = 0; i < dtcs->size; i++) {
             log_msg(LOG_INFO, "DTC: %s", UDS_DTC_to_string(dtcs->list[i]));
         }
+        viface_close(iface);
+    }
+    {
+        VehicleIFace * iface = tf_doip_open(location);
+        usleep(SIM_DOIP_TIMEOUT_MS_RW * 1000 * 2.5);
+        int res = viface_send(iface, ad_buffer_from_ascii_hex("0101"));
+        assert(res == DEVICE_ERROR);
+        viface_close(iface);
     }
     return true;
 }
