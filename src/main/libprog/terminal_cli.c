@@ -23,6 +23,7 @@ int terminal_cli_main(int argc, char *argv[]) {
     argForEach() {
         if ( argIs("-h") || argIs("help") || argIs("--help") ) {
             terminal_cli_help("");
+            ad_print_env_vars();
             return 0;
         } else if argIs("-b") {
             argNext();

@@ -64,6 +64,7 @@ static bool connection_checking_should_probe(VehicleIFace * iface) {
 }
 static bool connection_checking_probe(VehicleIFace * iface) {
     assert( iface != null );
+    log_msg(LOG_DEBUG, "Sending a probe");
     if ( iface->uds.enabled ) {
         if ( uds_tester_present(iface, true) ) {
             iface->connection_checking.update_last_activity(iface);
