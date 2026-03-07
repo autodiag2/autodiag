@@ -38,7 +38,7 @@ int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
     char * request = ad_buffer_to_hex_string(binRequest);
     final int result = iface->device->send(iface->device, request);
     free(request);
-    viface_event_emit_on_request(iface, binRequest);
+    ad_viface_event_emit_on_request(iface, binRequest);
     return result;
 }
 void viface_free(final VehicleIFace* iface) {
@@ -72,7 +72,7 @@ static bool connection_checking_probe(VehicleIFace * iface) {
         log_msg(LOG_DEBUG, "probing is disabled");
         return false;
     }
-    
+
     log_msg(LOG_DEBUG, "Sending a probe");
 
     if ( iface->uds.enabled ) {
@@ -298,7 +298,7 @@ int viface_recv(final VehicleIFace* iface) {
                 for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {
-                        viface_event_emit_on_response(iface, ecu, data);
+                        ad_viface_event_emit_on_response(iface, ecu, data);
                         byte service_id = data->buffer[0];
                         if ( service_id == OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE ) {
                             log_msg(LOG_DEBUG, "Diagnostic Service negative code found (cannot response to the request)");

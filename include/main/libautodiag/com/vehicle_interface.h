@@ -71,10 +71,10 @@ typedef struct VehicleIFace {
 #define AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_THRESHOLD_MS 2000
 #define AD_VIFACE_CONNECTION_CHECKING_ACTIVITY_POLL_MS 1000
 
-#define viface_event_emit_on_request(iface, binRequest) \
+#define ad_viface_event_emit_on_request(iface, binRequest) \
     ehh_trigger(iface->internal.onRequest, (void(*)(Buffer*)), binRequest);
 
-#define viface_event_emit_on_response(iface, ecu, binResponse) \
+#define ad_viface_event_emit_on_response(iface, ecu, binResponse) \
     ehh_trigger(iface->internal.onResponse, (void(*)(ECU*,Buffer*)), ecu, binResponse);
 
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state);
