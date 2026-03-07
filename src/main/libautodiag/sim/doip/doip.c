@@ -201,8 +201,8 @@ void sim_doip_loop(SimDoIp * sim) {
 
         int ret = sim_read((Sim*)sim, impl->timeout_ms, recv_buffer);
         if ( ret == AD_SIM_IO_RET_ERROR ) {
-            log_msg(LOG_ERROR, "Error during reception, exiting the loop");
-            return;
+            log_msg(LOG_DEBUG, "Dead connection detected");
+            continue;
         }
         if ( ret == AD_SIM_IO_RET_TIMEOUT ) {
             uint64_t now_ms = time_ms();
@@ -212,7 +212,7 @@ void sim_doip_loop(SimDoIp * sim) {
                 ad_buffer_recycle(recv_buffer);
                 int retR = sim_read((Sim*)sim, impl->timeout_ms, recv_buffer);
                 if ( retR == AD_SIM_IO_RET_ERROR ) {
-                    return;
+                    log_msg(LOG_DEBUG, "Dead connection detected");
                 } else if ( retR == AD_SIM_IO_RET_TIMEOUT ) {
                     log_msg(LOG_DEBUG, "Inactivity detected, shutting down connection");
                     ad_object_handle_t_network_stop(impl->handle);

@@ -454,7 +454,13 @@ int doip_send_internal(final ad_object_DoIPDevice * device, const char * command
     }
     if ( log_has_level(LOG_DEBUG) ) {
         log_msg(LOG_DEBUG, "Sending");
-        ad_buffer_dump(request);
+        ad_object_DoIPMessage * msg = doip_message_parse(request);
+        if ( msg == null ) {
+            ad_buffer_dump(request);
+        } else {
+            doip_message_dump(msg);
+            ad_object_DoIPMessage_free(msg);
+        }
     }
 
     if (device->implementation->handle == SOCK_T_INVALID) {
