@@ -38,6 +38,7 @@ static void display_protocols() {
 
 static void display_help() {
     sim_elm327_cli_help("");
+    ad_print_env_vars();
 }
 
 typedef struct {

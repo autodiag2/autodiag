@@ -71,7 +71,7 @@ static bool connection_checking_probe(VehicleIFace * iface) {
             return true;
         }
     } else {
-        Buffer * request = ad_buffer_from_ascii_hex("0100");
+        Buffer * request = ad_buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00);
         iface->lock(iface);
         if ( iface->send(iface, request) == DEVICE_ERROR ) {
             iface->unlock(iface);
@@ -93,7 +93,7 @@ static bool connection_checking_probe(VehicleIFace * iface) {
     return false;
 }
 static void * connection_checking_activity_loop(void * arg) {
-    VehicleIFace * iface = (VehicleIFace*)iface;
+    VehicleIFace * iface = (VehicleIFace*)arg;
     while ( iface->connection_checking.activity_thread != null ) {
         if ( iface->connection_checking.should_probe(iface) ) {
             if ( iface->connection_checking.probe(iface) ) {

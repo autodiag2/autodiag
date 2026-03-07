@@ -35,6 +35,7 @@ static void display_help() {
            " autodiag gui\n"
            "\n"
     );
+    ad_print_env_vars();
 }
 static void display_gui_help() {
     printf(

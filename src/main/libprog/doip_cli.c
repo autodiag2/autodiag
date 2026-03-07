@@ -26,6 +26,7 @@ PRINT_MODULAR(sim_doip_cli_help,
 
 static void display_help() {
     sim_doip_cli_help("");
+    ad_print_env_vars();
 }
 
 static void *launch(void *d) {
