@@ -31,11 +31,14 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
                 assert( pci_sz_value == dataRequest->size);
             }
         } else {
-            log_msg(LOG_DEBUG, "For now accepting only single frames");
-            assert((pci & 0xF0) == Iso15765SingleFrame);
-            if ( dataRequest->size != pci_sz_value ) {
-                log_msg(LOG_WARNING, "Single frame pci size does not match");
-                *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+            if ( (pci & 0xF0) == Iso15765SingleFrame ) {
+                if ( dataRequest->size != pci_sz_value ) {
+                    log_msg(LOG_WARNING, "Single frame pci size does not match");
+                    *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+                    return null;
+                }
+            } else {
+                log_msg(LOG_INFO, "TODO : implement more types of frames");
                 return null;
             }
         }

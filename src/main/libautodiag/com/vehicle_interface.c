@@ -103,7 +103,7 @@ static void * connection_checking_activity_loop(void * arg) {
         }
         usleep(iface->connection_checking.activity_poll_ms * 1000);
     }
-    return NULL;
+    return null;
 }
 static bool connection_checking_start(VehicleIFace * iface) {
     if ( iface->connection_checking.activity_thread == null ) {
@@ -170,6 +170,7 @@ static void viface_open_abort(final VehicleIFace * iface) {
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
     assert(iface != null);
     uds_viface_stop_tester_present_timer(iface);
+    iface->connection_checking.stop(iface);
     if ( device->state != AD_DEVICE_STATE_READY ) {
         if ( device->open(device) == DEVICE_ERROR ) {
             log_msg(LOG_ERROR, "Error while openning device");
@@ -185,6 +186,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
         case AD_DEVICE_TYPE_SERIAL: {
             Serial * serial = (Serial*)device;
             ELMDevice * elm = elm_open_from_serial(serial);
+            device->unlock(AD_DEVICE(device));
             if ( elm == null ) {
                 log_msg(LOG_ERROR, "Cannot open ELM interface from serial port %s: device config has failed", serial->location);
                 device->unlock(AD_DEVICE(device));
@@ -192,6 +194,7 @@ bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* dev
                 return false;
             }
             iface->device = AD_DEVICE(elm);
+            elm->lock(AD_DEVICE(elm));
         } break;
         case AD_DEVICE_TYPE_DOIP: {
             ad_object_DoIPDevice * doip_device = (ad_object_DoIPDevice*)device;
