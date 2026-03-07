@@ -433,6 +433,7 @@ static int doip_send(final ad_object_DoIPDevice * device, const char * command) 
         log_msg(LOG_ERROR, "Message sent is not ascii hex, cannot be sent");
         return DEVICE_ERROR;
     }
+    log_msg(LOG_DEBUG, "TODO : map to which ecu logical address the message should be sent and use it instead of the tester address");
     ad_object_DoIPMessage * msg = doip_message_diag(
         device->node.address, 
         ad_buffer_be_from_uint16(device->address),
