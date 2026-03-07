@@ -169,7 +169,7 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
 static void * tester_present_timer_daemon(void *arg) {
     final VehicleIFace * iface = (VehicleIFace*)arg;
     while(true) {
-        if ( iface->state == VIFaceState_NOT_READY || iface->uds_tester_present_timer == null ) {
+        if ( iface->state == VIFaceState_NOT_READY || iface->uds.tester_present_timer == null ) {
             break;
         } else {
             if ( ! uds_tester_present(iface, true) ) {
@@ -180,23 +180,23 @@ static void * tester_present_timer_daemon(void *arg) {
         }
     }
     log_msg(LOG_DEBUG, "Terminating the beacon thread");
-    if ( iface->uds_tester_present_timer != null ) {
-        free(iface->uds_tester_present_timer);
-        iface->uds_tester_present_timer = null;
+    if ( iface->uds.tester_present_timer != null ) {
+        free(iface->uds.tester_present_timer);
+        iface->uds.tester_present_timer = null;
     }
     return null;
 }
 void uds_viface_start_tester_present_timer(final VehicleIFace * iface) {
-    if ( iface->uds_tester_present_timer == null ) {
-        iface->uds_tester_present_timer = (pthread_t*)malloc(sizeof(pthread_t));
-        pthread_create(iface->uds_tester_present_timer, null, tester_present_timer_daemon, (void*)iface);
+    if ( iface->uds.tester_present_timer == null ) {
+        iface->uds.tester_present_timer = (pthread_t*)malloc(sizeof(pthread_t));
+        pthread_create(iface->uds.tester_present_timer, null, tester_present_timer_daemon, (void*)iface);
     }
 }
 void uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
-    if ( iface->uds_tester_present_timer != null ) {
-        pthread_t thread = *(iface->uds_tester_present_timer);
-        free(iface->uds_tester_present_timer);
-        iface->uds_tester_present_timer = null;
+    if ( iface->uds.tester_present_timer != null ) {
+        pthread_t thread = *(iface->uds.tester_present_timer);
+        free(iface->uds.tester_present_timer);
+        iface->uds.tester_present_timer = null;
         pthread_join(thread, null);
     }
 }

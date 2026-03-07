@@ -3,13 +3,25 @@ from autodiag.buffer import Buffer
 from autodiag.model.vehicle import Vehicle
 from autodiag.com.device import Device
 
+class UDSStruct(Structure):
+    _fields_ = [
+        ("enabled", c_bool),
+        ("tester_present_timer", c_void_p)  # pthread_t* mapped as void*
+    ]
+
+class InternalStruct(Structure):
+    _fields_ = [
+        ("onRequest", c_void_p),   # EventHandlerHolder* mapped as void*
+        ("onResponse", c_void_p)
+    ]
+
 class VehicleIFace(Structure):
     _fields_ = [
         ("device", POINTER(Device)),
         ("vehicle", POINTER(Vehicle)),
         ("state", c_int),
-        ("uds_enabled", c_bool),
-        ("uds_tester_present_timer", c_void_p)
+        ("uds", UDSStruct),
+        ("internal", InternalStruct)
     ]
 
     def __new__(cls):

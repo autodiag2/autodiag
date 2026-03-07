@@ -22,14 +22,17 @@ typedef struct {
      * State of this interface, whether ready to communicate with the vehicle or not.
      */
     int state;
-    /**
-     * Does have uds on the current connexion.
-     */
-    bool uds_enabled;
-    /**
-     * A thread that send periodically TesterPresent messages.
-     */
-    pthread_t *uds_tester_present_timer;
+    struct {
+        /**
+         * Does have uds on the current connexion.
+         */
+        bool enabled;
+        /**
+         * A thread that send periodically TesterPresent messages.
+         */
+        pthread_t * tester_present_timer;
+    } uds;
+        
     struct {
         EventHandlerHolder * onRequest;
         EventHandlerHolder * onResponse;

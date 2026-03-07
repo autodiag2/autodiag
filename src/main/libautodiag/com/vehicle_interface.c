@@ -61,8 +61,8 @@ VehicleIFace* viface_new() {
     iface->device = null;
     iface->vehicle = vehicle_new();
     iface->state = VIFaceState_NOT_READY;
-    iface->uds_enabled = false;
-    iface->uds_tester_present_timer = null;
+    iface->uds.enabled = false;
+    iface->uds.tester_present_timer = null;
     iface->internal.onRequest = ehh_new();
     iface->internal.onResponse = ehh_new();
     return iface;
@@ -82,7 +82,7 @@ void viface_unlock(final VehicleIFace* iface) {
 
 static void viface_open_abort(final VehicleIFace * iface) {
     iface->state = VIFaceState_NOT_READY;
-    iface->uds_enabled = false;
+    iface->uds.enabled = false;
     uds_viface_stop_tester_present_timer(iface);
 }
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
@@ -272,12 +272,12 @@ void viface_discover_vehicle(VehicleIFace* iface) {
         }
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
-    iface->uds_enabled = uds_is_enabled(iface);
+    iface->uds.enabled = uds_is_enabled(iface);
     saej1979_vehicle_info_discover_vin(iface);
     if ( iface->vehicle->vin == null ) {
         iface->vehicle->vin = ad_buffer_new();
     }
-    if ( iface->uds_enabled && iface->vehicle->vin->size == 0 ) {
+    if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
         final ad_list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
         assert(result->size <= 1);
         if ( 0 < result->size ) {
