@@ -53,6 +53,9 @@ AD_OBJECT_H(DoIPDevice,
         int node_type;
         int max_data_size;
         int max_concurrent_connections;
+        /**
+         * Logical address of the node (the VCI) on the DoIP network.
+         */
         Buffer * address;
     } node;
 );
@@ -61,6 +64,10 @@ AD_OBJECT_H(DoIPDevice,
  * Use this to send/recv anything else other than diag messages.
  */
 int doip_send_internal(final ad_object_DoIPDevice * device, const char * command, int command_len);
+/**
+ * Defined just to be correct with tests.
+ */
+#define AD_DOIP_SIM_BROADCAST_LOGICAL_ADDRESS 0xFFFF
 int doip_recv_internal(final ad_object_DoIPDevice * device);
 void doip_close(final ad_object_DoIPDevice * device);
 /**
