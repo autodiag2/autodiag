@@ -34,7 +34,10 @@ AD_OBJECT_H(handle_t,
  * Handle must represent a network connection, UDP, or TCP.
  */
 void ad_object_handle_t_network_stop(ad_object_handle_t * handle);
-
+/**
+ * Is this sim a network(TCP) and is it connected.
+ */
+bool ad_object_handle_t_network_is_connected(ad_object_handle_t * h);
 /**
  * Test if a handle is unset (invalid)
  */

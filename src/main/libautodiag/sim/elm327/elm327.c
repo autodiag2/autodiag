@@ -1032,7 +1032,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         }
         if ( elm327->device_type == SimELM327_DEVICE_TYPE_SOCKET || elm327->device_type == SimELM327_DEVICE_TYPE_NETWORK ) {
             struct sockaddr_in addr;
-            if ( ! sim_network_is_connected(impl->handle) ) {
+            if ( ! ad_object_handle_t_network_is_connected(impl->handle) ) {
                 #ifdef OS_POSIX
                     sock_t server_fd = impl->server_handle->posix_handle;
                 #elif defined OS_WINDOWS

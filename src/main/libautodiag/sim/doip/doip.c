@@ -169,7 +169,7 @@ void sim_doip_loop(SimDoIp * sim) {
 
         struct sockaddr_in addr;
 
-        if ( ! sim_network_is_connected(impl->handle) ) {
+        if ( ! ad_object_handle_t_network_is_connected(impl->handle) ) {
             routing_activated = false;
             sim->openned_connections = 0;
             log_msg(LOG_DEBUG, "Waiting for a client to connect");

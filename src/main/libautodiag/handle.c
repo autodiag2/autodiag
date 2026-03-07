@@ -55,6 +55,19 @@ void ad_object_handle_t_network_stop(ad_object_handle_t * handle) {
         network_stop(handle->win_socket);
     #endif
 }
+bool ad_object_handle_t_network_is_connected(ad_object_handle_t *h) {
+    assert(h != null);
+
+    #ifdef OS_POSIX
+        sock_t s = h->posix_handle;
+    #elif defined(OS_WINDOWS)
+        sock_t s = h->win_socket;
+    #else
+    #   warning unsupported os
+    #endif
+
+    return network_is_connected(s);
+}
 bool ad_object_handle_t_invalid(ad_object_handle_t * h) {
     bool result = true;
     #ifdef OS_POSIX

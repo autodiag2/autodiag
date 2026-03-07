@@ -3,75 +3,6 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
-
-bool sim_network_is_connected(ad_object_handle_t *h) {
-    assert(h != null);
-
-    #ifdef OS_POSIX
-        sock_t s = h->posix_handle;
-    #elif defined(OS_WINDOWS)
-        sock_t s = h->win_socket;
-    #else
-    #   warning unsupported os
-    #endif
-
-    if (s == SOCK_T_INVALID)
-        return false;
-
-    #ifdef OS_POSIX
-        int so_type;
-        socklen_t len = sizeof(so_type);
-        if (getsockopt(s, SOL_SOCKET, SO_TYPE, &so_type, &len) == -1) {
-            if (errno == ENOTSOCK)
-                return false;
-            return false;
-        }
-    #endif
-
-    fd_set readfds;
-    FD_ZERO(&readfds);
-    FD_SET(s, &readfds);
-
-    struct timeval tv;
-    tv.tv_sec  = 0;
-    tv.tv_usec = 0;
-
-    int sel = select((int)(s + 1), &readfds, NULL, NULL, &tv);
-    if (sel < 0)
-        return false;
-
-    if (sel == 0)
-        return true;
-
-    if (FD_ISSET(s, &readfds)) {
-        char buf;
-        #ifdef OS_POSIX
-            ssize_t ret = recv(s, &buf, 1, MSG_PEEK | MSG_DONTWAIT);
-            if (ret == 0)
-                return false;
-            if (ret < 0) {
-                if (errno == EAGAIN || errno == EWOULDBLOCK)
-                    return true;
-                return false;
-            }
-        #elif defined OS_WINDOWS
-            int ret = recv(s, &buf, 1, MSG_PEEK);
-            if (ret == 0)
-                return false;
-            if (ret == SOCKET_ERROR) {
-                int err = WSAGetLastError();
-                if (err == WSAEWOULDBLOCK)
-                    return true;
-                return false;
-            }
-        #else
-        #   warning unsupported OS
-        #endif
-    }
-
-    return true;
-}
-
 SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
     for (int i = 0; i < sim->ecus->size; i++) {
         SimECU *ecu = sim->ecus->list[i];
@@ -109,7 +40,7 @@ void sim_prevent_read_himself(Sim * sim) {
     SimImplementation * impl = sim->implementation;
     assert(impl != null);
     assert(impl->handle != null);
-    if ( ! sim_network_is_connected(impl->handle) ) {
+    if ( ! ad_object_handle_t_network_is_connected(impl->handle) ) {
         log_msg(LOG_DEBUG, "make a wait before sending the response to avoid write() before read() causing response loss");
         usleep(50e3);
     }

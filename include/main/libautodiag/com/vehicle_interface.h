@@ -54,8 +54,12 @@ void viface_close(final VehicleIFace* iface);
 /**
  * Send some data on the wire(less), without taking care of device implementation details
  * or communication protocol headers
+ * @return number of bytes sent or DEVICE_ERROR
  */
 int viface_send(final VehicleIFace * iface, final Buffer * binRequest);
+/**
+ * @return number of bytes sent or DEVICE_ERROR
+ */
 int viface_send_str(final VehicleIFace * iface, final char * request);
 /**
  * Generic error (eg any device reception error)

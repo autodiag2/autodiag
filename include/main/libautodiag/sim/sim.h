@@ -62,10 +62,6 @@ bool sim_loop_daemon_wait_ready(bool * var);
  * Search for an ECU by its address, return null if not found
  */
 SimECU * sim_search_ecu_by_address(Sim *sim, byte address);
-/**
- * Is this sim a network(TCP) and is it connected.
- */
-bool sim_network_is_connected(ad_object_handle_t * h);
 
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/doip/doip.h"

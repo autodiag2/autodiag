@@ -135,6 +135,104 @@ int network_udp_set_reuseaddr(sock_t s) {
     #endif
     return -1;
 }
+bool network_is_connected(sock_t s) {
+
+    if (s == SOCK_T_INVALID)
+        return false;
+
+    int so_type;
+    #ifdef OS_POSIX
+        socklen_t len = sizeof(so_type);
+        if (getsockopt(s, SOL_SOCKET, SO_TYPE, &so_type, &len) == -1) {
+            if (errno == ENOTSOCK)
+                return false;
+            return false;
+        }
+    #elif defined OS_WINDOWS
+        int len = sizeof(so_type);
+
+        if (getsockopt(s, SOL_SOCKET, SO_TYPE, (char *)&so_type, &len) == SOCKET_ERROR) {
+            int err = WSAGetLastError();
+            if (err == WSAENOTSOCK)
+                return false;
+            return false;
+        }
+    #else
+    #   warning unsupported OS
+        return false;
+    #endif
+
+    switch (so_type) {
+        case SOCK_STREAM: {
+            fd_set rfds;
+            fd_set efds;
+
+            FD_ZERO(&rfds);
+            FD_ZERO(&efds);
+
+            FD_SET(s, &rfds);
+            FD_SET(s, &efds);
+
+            struct timeval tv;
+            tv.tv_sec = 0;
+            tv.tv_usec = 0;
+
+            int sel = select((int)(s + 1), &rfds, NULL, &efds, &tv);
+            if (sel < 0)
+                return false;
+
+            if (FD_ISSET(s, &efds))
+                return false;
+
+            if (FD_ISSET(s, &rfds)) {
+                char buf;
+                #ifdef OS_POSIX
+                    ssize_t ret = recv(s, &buf, 1, MSG_PEEK | MSG_DONTWAIT);
+                    if (ret == 0)
+                        return false;
+                    if (ret < 0) {
+                        if (errno == EAGAIN || errno == EWOULDBLOCK)
+                            return true;
+                        return false;
+                    }
+                #elif defined OS_WINDOWS
+                    int ret = recv(s, &buf, 1, MSG_PEEK);
+                    if (ret == 0)
+                        return false;
+                    if (ret == SOCKET_ERROR) {
+                        int err = WSAGetLastError();
+                        if (err == WSAEWOULDBLOCK)
+                            return true;
+                        return false;
+                    }
+                #else
+                #   warning unsupported OS
+                #endif
+                #ifdef OS_POSIX
+                    int err = 0;
+                    socklen_t errlen = sizeof(err);
+                    if (getsockopt(s, SOL_SOCKET, SO_ERROR, &err, &errlen) < 0)
+                        return false;
+                    if (err != 0)
+                        return false;
+                #elif defined OS_WINDOWS
+                    int err = 0;
+                    int errlen = sizeof(err);
+                    if (getsockopt(s, SOL_SOCKET, SO_ERROR, (char *)&err, &errlen) == SOCKET_ERROR)
+                        return false;
+                    if (err != 0)
+                        return false;
+                #endif
+            }
+            return true;
+        } break;
+        case SOCK_DGRAM:
+            return true;
+        default:
+            log_msg(LOG_ERROR, "Unknown socket type: %d", so_type);
+            return false;
+    }
+}
 void network_stop(sock_t s) {
     if (s != SOCK_T_INVALID) {
         #if defined OS_POSIX

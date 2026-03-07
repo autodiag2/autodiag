@@ -462,6 +462,12 @@ int doip_send_internal(final ad_object_DoIPDevice * device, const char * command
         return DEVICE_ERROR;
     }
 
+    if ( ! network_is_connected(device->implementation->handle) ) {
+        log_msg(LOG_ERROR, "Connection to the DoIP node is lost");
+        device->state = AD_DEVICE_STATE_NOT_READY;
+        return DEVICE_ERROR;
+    }
+
     int bytes_sent = 0;
     int write_len_rv = 0;
     int poll_result = -1;
@@ -510,6 +516,10 @@ int doip_send_internal(final ad_object_DoIPDevice * device, const char * command
 static int doip_recv(final ad_object_DoIPDevice * device) {
     bool accepted = false;
     int tries = 10;
+    if ( device->implementation->handle == SOCK_T_INVALID) {
+        device->state = AD_DEVICE_STATE_NOT_READY;
+        return DEVICE_ERROR;
+    }
     for(int conv_state = 0; conv_state < tries; conv_state++) {
         int res = doip_recv_internal(device);
         if ( res == DEVICE_ERROR ) {
@@ -572,6 +582,12 @@ int doip_recv_internal(final ad_object_DoIPDevice * device) {
     int readLen = DEVICE_ERROR;
     
     if (device->implementation->handle == SOCK_T_INVALID) {
+        device->state = AD_DEVICE_STATE_NOT_READY;
+        return DEVICE_ERROR;
+    }
+
+    if ( ! network_is_connected(device->implementation->handle) ) {
+        log_msg(LOG_ERROR, "Connection to the DoIP node is lost");
         device->state = AD_DEVICE_STATE_NOT_READY;
         return DEVICE_ERROR;
     }
