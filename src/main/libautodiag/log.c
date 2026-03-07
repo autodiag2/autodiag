@@ -155,3 +155,58 @@ void log_set_level(final LogLevel level) {
 bool log_has_level(final LogLevel level) {
     return level <= logger.current_level;
 }
+#include <stdio.h>
+
+#if defined(OS_POSIX)
+#   include <execinfo.h>
+#   include <stdlib.h>
+
+    void log_backtrace(void) {
+        void *buffer[64];
+        int nptrs = backtrace(buffer, 64);
+        char **symbols = backtrace_symbols(buffer, nptrs);
+        if (!symbols) return;
+
+        printf("Backtrace (%d frames):\n", nptrs);
+        for (int i = 0; i < nptrs; i++) {
+            printf("%s\n", symbols[i]);
+        }
+        free(symbols);
+    }
+
+#elif defined(OS_WINDOWS)
+#   include <windows.h>
+#   include <dbghelp.h>
+
+#   pragma comment(lib, "dbghelp.lib")
+
+    void log_backtrace(void) {
+        void *stack[64];
+        unsigned short frames = CaptureStackBackTrace(0, 64, stack, NULL);
+
+        SYMBOL_INFO *symbol = (SYMBOL_INFO *)calloc(sizeof(SYMBOL_INFO) + 256, 1);
+        if (!symbol) return;
+
+        symbol->MaxNameLen = 255;
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+
+        HANDLE process = GetCurrentProcess();
+        SymInitialize(process, NULL, TRUE);
+
+        printf("Backtrace (%d frames):\n", frames);
+        for (int i = 0; i < frames; i++) {
+            if (SymFromAddr(process, (DWORD64)(stack[i]), 0, symbol)) {
+                printf("%i: %s - 0x%0llX\n", i, symbol->Name, symbol->Address);
+            } else {
+                printf("%i: ???\n", i);
+            }
+        }
+
+        free(symbol);
+        SymCleanup(process);
+    }
+
+#else
+#   warning log_backtrace not implemented for this platform
+    void log_backtrace(void) {}
+#endif
