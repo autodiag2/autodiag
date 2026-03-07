@@ -6,7 +6,7 @@
 
 #define AD_OBJECT(type) ad_object_##type
 #define AD_OBJECT_H(type, struct_def) \
-    typedef struct { \
+    typedef struct AD_OBJECT(type) { \
         struct_def; \
     } AD_OBJECT(type); \
     AD_OBJECT_H_NEW(type); \
