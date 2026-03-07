@@ -8,7 +8,7 @@
 typedef enum {
     VIFaceState_READY,
     VIFaceState_NOT_READY,
-    
+    VIFaceState_RECONNECTING,
 } VIFaceState;
 
 typedef struct VehicleIFace {

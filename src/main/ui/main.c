@@ -62,6 +62,9 @@ void*refresh_usb_adaptater_state_spinner(void *arg) {
     pthread_exit(0);
 }
 
+static void viface_state_changed(VehicleIFace *iface, VIFaceState state) {
+    refresh_usb_adaptater_state_internal(null);
+}
 void* refresh_usb_adaptater_state_internal(void *arg) {
     final Device * device = device_table_get_selected(config.ephemere.device_table);
     if ( device == null ) {
@@ -78,24 +81,31 @@ void* refresh_usb_adaptater_state_internal(void *arg) {
             }
         }
         final VehicleIFace* iface = config.ephemere.iface;
-        if ( iface->connection._state == VIFaceState_READY ) {
-            if ( iface->device->type == AD_DEVICE_TYPE_SERIAL ) {
-                viface_lock(iface);
-                final char * response = elm_print_id((Serial *)iface->device);
-                viface_unlock(iface);
-                adaptater_interface_set_text((char*)response);
-                free(response);
-            } else {
-                adaptater_interface_set_text("Generic DoIP adapter");
-            }
-            adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
-            gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.manufacturer), "%s", iface->vehicle->manufacturer);
-            gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.country), "%s", iface->vehicle->country);
-            gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.year), "%d", iface->vehicle->year);
-            gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.vin), "%s", ad_buffer_to_ascii(iface->vehicle->vin));
-        } else {
-            adaptater_protocol_set_text(device->describe_communication_layer(AD_DEVICE(device)));
-            adaptater_interface_set_text("Not an OBD interface");
+        switch( iface->connection._state ) {
+            case VIFaceState_READY: {
+                if ( iface->device->type == AD_DEVICE_TYPE_SERIAL ) {
+                    viface_lock(iface);
+                    final char * response = elm_print_id((Serial *)iface->device);
+                    viface_unlock(iface);
+                    adaptater_interface_set_text((char*)response);
+                    free(response);
+                } else {
+                    adaptater_interface_set_text("Generic DoIP adapter");
+                }
+                adaptater_protocol_set_text((char*)iface->device->describe_communication_layer(iface->device));
+                gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.manufacturer), "%s", iface->vehicle->manufacturer);
+                gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.country), "%s", iface->vehicle->country);
+                gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.year), "%d", iface->vehicle->year);
+                gtk_widget_printf(GTK_WIDGET(mainGui->vehicle.vin), "%s", ad_buffer_to_ascii(iface->vehicle->vin));
+            } break;
+            case VIFaceState_NOT_READY: {
+                adaptater_protocol_set_text(device->describe_communication_layer(AD_DEVICE(device)));
+                adaptater_interface_set_text("Not ready to communicate with the vehicle");
+            } break;
+            case VIFaceState_RECONNECTING: {
+                adaptater_protocol_set_text(device->describe_communication_layer(AD_DEVICE(device)));
+                adaptater_interface_set_text("Reconnecting to the vehicle...");
+            } break;
         }
     }
     gtk_widget_set_visible(GTK_WIDGET(mainGui->adaptater.state.more.container), config.main.adaptater_detailled_settings_showned);
@@ -310,10 +320,10 @@ void module_init_main() {
         gtk_builder_connect_signals (builder, NULL);
         g_object_unref (G_OBJECT (builder));
 
+        ehh_register(config.ephemere.iface->connection.onConnectionStateChanged, viface_state_changed);
         main_usb_adaptater_state_spinner_wait_for(&module_init_main_deferred);
         
         
-    } else {
-    
     }
+
 }
