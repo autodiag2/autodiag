@@ -132,7 +132,19 @@ void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) 
         if ( compat_vasprintf(&txt, formatMod, ap) == -1 ) {
             log_msg(LOG_ERROR, "Fill label impossible");
         } else {
-            fprintf(stderr,"%s",txt);
+            #if defined OS_ANDROID
+                int android_log_level = ANDROID_LOG_DEFAULT;
+                switch (level) {
+                    case LOG_NONE: android_log_level = ANDROID_LOG_SILENT;
+                    case LOG_ERROR: android_log_level = ANDROID_LOG_ERROR;
+                    case LOG_WARNING: android_log_level = ANDROID_LOG_WARN;
+                    case LOG_INFO: android_log_level = ANDROID_LOG_INFO;
+                    case LOG_DEBUG: android_log_level = ANDROID_LOG_DEBUG;
+                }
+                __android_log_print(android_log_level, "autodiag", "%s", txt);
+            #else
+                fprintf(stderr,"%s",txt);
+            #endif
             free(txt);
         }
         free(formatMod);
@@ -150,7 +162,10 @@ bool log_has_level(final LogLevel level) {
 }
 #include <stdio.h>
 
-#if defined(OS_POSIX)
+#ifdef OS_ANDROID
+#   warning log_backtrace not implemented for this platform
+    void log_backtrace() {}
+#elif defined(OS_POSIX)
 #   include <execinfo.h>
 #   include <stdlib.h>
 

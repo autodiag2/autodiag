@@ -11,6 +11,9 @@
 #include <stdarg.h>
 #include "libautodiag/lang/lang.h"
 #include "libautodiag/compile_target.h"
+#ifdef OS_ANDROID
+#   include <android/log.h>
+#endif
 
 // do not change order, it is linked to options gui
 typedef enum {
@@ -35,14 +38,7 @@ extern Logger logger;
 #ifdef COMPILE_RELEASE
 #   define log_msg(level, msg, ...)
 #else
-#   if defined OS_ANDROID
-#       include <android/log.h>
-//#     define log_msg(level, ...) __android_log_print(ANDROID_LOG_INFO, "autodiag", "%s", __VA_ARGS__)
-#       define log_msg(level, msg, ...) 
-#   else
-#       define log_msg(level, msg, ...) \
-            log_msg_internal(level, __FILE__, __LINE__, msg, ##__VA_ARGS__)
-#   endif
+#   define log_msg(level, msg, ...) log_msg_internal(level, __FILE__, __LINE__, msg, ##__VA_ARGS__)
 #endif
 
 /**
