@@ -6,9 +6,6 @@
 #ifndef __AD_COM_SERIAL_H
 #define __AD_COM_SERIAL_H
 
-#define _MODULE_SERIAL "Serial"
-#define MODULE_SERIAL _MODULE_SERIAL,
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>

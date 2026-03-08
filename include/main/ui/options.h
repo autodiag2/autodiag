@@ -1,8 +1,6 @@
 #ifndef __AD_OPTIONS_H
 #define __AD_OPTIONS_H
 
-#define MODULE_OPTIONS "Options", 
-
 #include "ui.h"
 #include "ui_mod.h"
 #include <stdlib.h>

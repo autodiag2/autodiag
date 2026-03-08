@@ -1,8 +1,6 @@
 #ifndef __AD_TROUBLE_CODE_READER_H
 #define __AD_TROUBLE_CODE_READER_H
 
-#define MODULE_CODES_READER "Trouble Code Reader"
-
 #include "main.h"
 #include "ui.h"
 #include "ui_mod.h"

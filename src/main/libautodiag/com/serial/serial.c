@@ -454,15 +454,11 @@ void serial_free(final Serial * port) {
 
 void serial_dump(final Serial * port) {
     const char * title = "Serial dump (name/baud_rate/state/eol):";
-    char *result = null;
     if ( port == null ) {
-        asprintf(&result, "%s NULL", title);
-        module_debug(MODULE_SERIAL result);
+        log_msg(LOG_DEBUG, "%s NULL", title);
     } else {
-        asprintf(&result, "%s %s/%d/%d/%s", title, port->location, port->baud_rate, port->state, port->eol);
-        module_debug(MODULE_SERIAL result);
+        log_msg(LOG_DEBUG, "%s %s/%d/%d/%s", title, port->location, port->baud_rate, port->state, port->eol);
     }
-    free(result);
 }
 
 void serial_debug(final Serial * port) {

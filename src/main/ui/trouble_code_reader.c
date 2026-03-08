@@ -291,7 +291,6 @@ static void hide() {
 }
 static void init(GtkBuilder *builder) {
     if ( gui == null ) {
-        module_debug_init(MODULE_CODES_READER);
         gui = (TroubleCodeReaderGui*)malloc(sizeof(TroubleCodeReaderGui));
         TroubleCodeReaderGui g = {
             .window = GTK_WIDGET (gtk_builder_get_object (builder, "window-read-codes")),
@@ -369,7 +368,7 @@ static void init(GtkBuilder *builder) {
         MENUBAR_DATA_CONNECT();
         
     } else {
-        module_debug(MODULE_CODES_READER, "Module already initialized");
+        log_msg(LOG_DEBUG, "Module already initialized");
     }
 }
 static void end() {

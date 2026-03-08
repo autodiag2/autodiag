@@ -335,7 +335,7 @@ void device_table_remove_undetected(ad_object_DeviceTable * table, bool except_n
 }
 
 void device_table_fill(ad_object_DeviceTable * table) {
-    module_debug(MODULE_SERIAL "Filling serial list (with update take care)");
+    log_msg(LOG_DEBUG, "Filling serial list (with update take care)");
     int i;
     char * selected_device_path = null;
     int baud_rate = SERIAL_DEFAULT_BAUD_RATE;

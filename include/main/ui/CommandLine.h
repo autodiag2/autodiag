@@ -1,8 +1,6 @@
 #ifndef __AD_COMMAND_LINE_H
 #define __AD_COMMAND_LINE_H
 
-#define MODULE_COMMAND_LINE "CommandLine",
-
 #include "ui.h"
 #include "ui_mod.h"
 #include "libautodiag/com/serial/serial.h"

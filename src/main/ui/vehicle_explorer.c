@@ -451,9 +451,9 @@ static void refresh_dynamic() {
     if (refresh_dynamic_thread == null) {
         refresh_dynamic_thread = (pthread_t*)malloc(sizeof(pthread_t));
         if (pthread_create(refresh_dynamic_thread, null, &refresh_dynamic_daemon, null) == 0) {
-            module_debug(MODULE_VEHICLE_DIAGNOSTIC "Checker thread created");
+            log_msg(LOG_DEBUG, "Checker thread created");
         } else {
-            module_debug(MODULE_VEHICLE_DIAGNOSTIC "Fatal error during thread creation");
+            log_msg(LOG_DEBUG, "Fatal error during thread creation");
         }
     }
 }
@@ -1054,7 +1054,7 @@ static void hide() {
 }
 static void init(final GtkBuilder *builder) {
     if (gui != null) {
-        module_debug(MODULE_VEHICLE_DIAGNOSTIC "module already initialized");
+        log_msg(LOG_DEBUG, "module already initialized");
         return;
     }
 

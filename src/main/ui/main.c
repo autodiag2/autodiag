@@ -14,7 +14,7 @@ void module_shutdown_main() {
 }
 
 gboolean main_onclose(final GtkWidget *dialog, final GdkEvent *event, gpointer unused) {
-    module_debug(MODULE_MAIN "Close event received");
+    log_msg(LOG_DEBUG, "Close event received");
     module_shutdown_main();
     return true;
 }

@@ -142,13 +142,6 @@ void log_msg_internal(LogLevel level, char * file, int line, char *format, ...) 
     }
 }
 
-void module_debug(char * modname, char *msg) {
-    log_msg(LOG_DEBUG, "%s: %s", modname, msg);
-}
-
-void module_debug_init(char * modname) {
-    module_debug(modname, "Module initialization");
-}
 void log_set_level(final LogLevel level) {
     logger.current_level = level;
 }
@@ -161,7 +154,7 @@ bool log_has_level(final LogLevel level) {
 #   include <execinfo.h>
 #   include <stdlib.h>
 
-    void log_backtrace(void) {
+    void log_backtrace() {
         void *buffer[64];
         int nptrs = backtrace(buffer, 64);
         char **symbols = backtrace_symbols(buffer, nptrs);
@@ -180,7 +173,7 @@ bool log_has_level(final LogLevel level) {
 
 #   pragma comment(lib, "dbghelp.lib")
 
-    void log_backtrace(void) {
+    void log_backtrace() {
         void *stack[64];
         unsigned short frames = CaptureStackBackTrace(0, 64, stack, NULL);
 
@@ -208,5 +201,5 @@ bool log_has_level(final LogLevel level) {
 
 #else
 #   warning log_backtrace not implemented for this platform
-    void log_backtrace(void) {}
+    void log_backtrace() {}
 #endif

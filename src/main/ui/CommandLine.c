@@ -297,7 +297,7 @@ static void init(final GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-command-line-output-copy",&output_copy);
         gtk_builder_add_callback_symbol(builder,"window-command-line-custom-clear-clicked",&custom_clear);
     } else {
-        module_debug(MODULE_COMMAND_LINE "Already initialized");        
+        log_msg(LOG_DEBUG, "Already initialized");        
     }
 }
 

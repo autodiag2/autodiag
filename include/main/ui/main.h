@@ -1,8 +1,6 @@
 #ifndef __AD_MAIN_H
 #define __AD_MAIN_H
 
-#define MODULE_MAIN "Main", 
-
 #define _GNU_SOURCE
 #include <stdio.h>
 #include "ui.h"

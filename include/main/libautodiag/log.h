@@ -49,8 +49,6 @@ extern Logger logger;
  * @param level N
  */
 void log_msg_internal(LogLevel level, char * file, int line, char *msg, ...);
-void module_debug(char * modname, char *msg);
-void module_debug_init(char * modname);
 void log_set_level(final LogLevel level);
 #define log_get_level() logger.current_level
 bool log_has_level(final LogLevel level);
@@ -68,5 +66,5 @@ bool log_level_is_env_set();
 /**
  * Print a call stack
  */
-void log_backtrace(void);
+void log_backtrace();
 #endif

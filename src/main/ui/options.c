@@ -158,7 +158,7 @@ static void hide_window() {
 }
 
 static void cancel() {
-   module_debug(MODULE_OPTIONS "Cancel options setup");
+   log_msg(LOG_DEBUG, "Cancel options setup");
    hide_window();
 }
 static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
@@ -209,7 +209,7 @@ static void recovery_mode() {
     }
 }
 static void* save_internal(void *arg) {
-    module_debug(MODULE_OPTIONS "Save options setup");
+    log_msg(LOG_DEBUG, "Save options setup");
     device_table_close_selected(config.ephemere.device_table);
     final const gchar * device_location = gtk_entry_get_text(gui->device_location);
     if ( device_location == null || strcmp(device_location,"") == 0 ) {
@@ -278,7 +278,7 @@ static void save() {
 static void list_serial_refresh() {
     device_table_fill(config.ephemere.device_table);
     if ( gui->deviceList == null ) {
-        module_debug(MODULE_OPTIONS "Cannot process without gui attached");
+        log_msg(LOG_DEBUG, "Cannot process without gui attached");
     } else {
         gtk_combo_box_text_remove_all(gui->deviceList);
         for(int device_i = 0; device_i < config.ephemere.device_table->list->size; device_i++) {
@@ -342,7 +342,7 @@ static void fill_vehicle_infos() {
     gtk_entry_set_text(gui->vehicleInfos.vin, config.vehicleInfos.vin ? config.vehicleInfos.vin : "");
 }
 static gboolean onclose(GtkWidget *dialog, GdkEvent *event, gpointer unused) {
-    module_debug(MODULE_OPTIONS "Close event received");
+    log_msg(LOG_DEBUG, "Close event received");
     cancel();
     return true;
 }
