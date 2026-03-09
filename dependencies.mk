@@ -3011,9 +3011,9 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h include/main/libprog/terminal_cli.h \
-  include/main/libprog/cli_helpers.h include/main/libprog/elm327_cli.h \
-  include/main/libprog/doip_cli.h
+  include/main/ui/dyno.h include/main/ui/vin.h \
+  include/main/libprog/terminal_cli.h include/main/libprog/cli_helpers.h \
+  include/main/libprog/elm327_cli.h include/main/libprog/doip_cli.h
 output/obj/main/prog/doipsim.o: src/main/prog/doipsim.c \
   include/main/libprog/doip_cli.h include/main/libautodiag/lib.h \
   include/main/libautodiag/compile_target.h \
@@ -3400,7 +3400,7 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h
+  include/main/ui/dyno.h include/main/ui/vin.h
 output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/ui/options.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -3475,7 +3475,7 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/ui/trouble_code_reader.h include/main/ui/widget/menubar.h \
   include/main/ui/CommandLine.h include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
-  include/main/ui/dyno.h
+  include/main/ui/dyno.h include/main/ui/vin.h
 output/obj/main/ui/trouble_code_reader.o: \
   src/main/ui/trouble_code_reader.c \
   include/main/ui/trouble_code_reader.h include/main/ui/main.h \
@@ -3552,7 +3552,8 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libprog/ui/counter.h include/main/ui/CommandLine.h \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/widget/menubar.h \
-  include/main/ui/documentation.h include/main/ui/dyno.h
+  include/main/ui/documentation.h include/main/ui/dyno.h \
+  include/main/ui/vin.h
 output/obj/main/ui/ui_mod.o: src/main/ui/ui_mod.c \
   include/main/ui/ui_mod.h include/main/ui/ui.h \
   include/main/libprog/ui/gtk_wrapper.h include/main/libprog/ui/gtk.h \
@@ -3720,7 +3721,8 @@ output/obj/main/ui/vin.o: src/main/ui/vin.c include/main/ui/vin.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/ui_mod.h
+  include/main/ui/ui_mod.h mongoose/mongoose.h \
+  
 output/obj/main/ui/widget/error_feedback.o: \
   src/main/ui/widget/error_feedback.c \
   include/main/ui/widget/error_feedback.h include/main/libautodiag/lib.h \

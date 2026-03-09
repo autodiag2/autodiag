@@ -34,11 +34,11 @@ else
     INSTALL_LIB_FOLDER = $(ROOT)/lib/
 endif
 
-CFLAGS_DEBUG    = -ggdb
-CGLAGS_GUI      = `pkg-config --cflags gtk+-3.0`
-CFLAGS          = -I include/main/ -I mongoose/ -I cJSON/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
-CFLAGS_LIBS     = -lpthread -lm
-CFLAGS_LIBS_GUI = `pkg-config --libs gtk+-3.0`
+CFLAGS_DEBUG            = -ggdb
+CGLAGS_GUI              = `pkg-config --cflags gtk+-3.0`
+CFLAGS                  = -DMG_TLS=MG_TLS_BUILTIN -I mongoose/ -I include/main/ -I cJSON/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
+CFLAGS_LIBS             = -lpthread -lm
+CFLAGS_LIBS_GUI         = `pkg-config --libs gtk+-3.0`
 COMPILE_NEED_OBJS       = false
 
 UNAME_S := $(shell uname -s)
@@ -49,25 +49,25 @@ ifeq ($(OS),Windows_NT)
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi
+    CFLAGS_LIBS += -lsetupapi -ldbghelp
 else ifneq (,$(findstring MINGW64_NT,$(UNAME_S)))
     SYSTEM := windows
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi
+    CFLAGS_LIBS += -lsetupapi -ldbghelp
 else ifneq (,$(findstring x86_64-w64-mingw32-,$(TOOLCHAIN)))
     SYSTEM := windows
     MACHINE := x86_64
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi -lws2_32
+    CFLAGS_LIBS += -lsetupapi -lws2_32 -ldbghelp
     COMPILE_NEED_OBJS = true
 else ifneq (,$(findstring i686-w64-mingw32-,$(TOOLCHAIN)))
     SYSTEM := windows
     MACHINE := i686
     EXT := dll
     CFLAGS_LIB_COMPILE := -shared
-    CFLAGS_LIBS += -lsetupapi -lws2_32
+    CFLAGS_LIBS += -lsetupapi -lws2_32 -ldbghelp
     COMPILE_NEED_OBJS = true
 else ifeq ($(UNAME_S),Darwin)
     SYSTEM := darwin

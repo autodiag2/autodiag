@@ -4,7 +4,7 @@ include $(ROOT)/app.mk
 include $(ROOT)/common.mk
 
 CFLAGS = -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument
-CFLAGS += -DCOMPILE_COMPAT
+CFLAGS += -DCOMPILE_COMPAT -DMG_TLS=MG_TLS_BUILTIN
 CFLAGS += -DAPP_NAME="\"$(APP_NAME)\"" -DAPP_VERSION="\"$(APP_VERSION)\""
 CFLAGS += -DAPP_MAINTAINER="\"$(APP_MAINTAINER)\"" -DAPP_DESC="\"$(APP_DESC)\""
 CFLAGS += -ffile-prefix-map=$(ROOT)=. -fdebug-prefix-map=$(ROOT)=.

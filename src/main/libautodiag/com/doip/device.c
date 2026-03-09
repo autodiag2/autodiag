@@ -382,7 +382,7 @@ int doip_open(final ad_object_DoIPDevice * device) {
             device->implementation->handle == SOCK_T_INVALID
         ) {
             log_msg(LOG_WARNING, "Cannot open the device %s", device->location);
-            device->status = DEVICE_DOIP_STATUS_ERROR;
+            device->state = AD_DEVICE_STATE_NOT_READY;
             return GENERIC_FUNCTION_ERROR;
         }
         log_msg(LOG_DEBUG, "Openning device: %s", device->location);
