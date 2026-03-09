@@ -18,6 +18,7 @@
 #include "vehicle_explorer.h"
 #include "documentation.h"
 #include "dyno.h"
+#include "vin.h"
 
 typedef struct {
     GtkWidget *window;

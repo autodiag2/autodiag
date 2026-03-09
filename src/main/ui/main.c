@@ -314,6 +314,7 @@ void module_init_main() {
         ad_list_mod_gui_append(mods, mod_gui_command_line_new());
         ad_list_mod_gui_append(mods, mod_gui_read_codes_new());
         ad_list_mod_gui_append(mods, mod_gui_documentation_new());
+        ad_list_mod_gui_append(mods, mod_gui_vin_new());
 
         ad_list_mod_gui_build(mods, builder);
         
