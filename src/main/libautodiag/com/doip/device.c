@@ -331,13 +331,13 @@ int doip_open(final ad_object_DoIPDevice * device) {
         sa.sin_port = htons(atoi(port_str));
 
         if (inet_pton(AF_INET, host, &sa.sin_addr) != 1) {
-            perror("inet_pton");
+            log_msg(LOG_ERROR, "inet_pton: %s", strerror(errno));
             close(fd);
             return GENERIC_FUNCTION_ERROR;
         }
 
         if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-            perror("connect");
+            log_msg(LOG_ERROR, "connect: %s", strerror(errno));
             close(fd);
             return GENERIC_FUNCTION_ERROR;
         }
