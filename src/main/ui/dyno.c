@@ -612,10 +612,7 @@ static GtkWidget *dyno_find_or_make_root_container(GtkWindow *w) {
 }
 
 static void dyno_build_gui_widgets() {
-    GtkWidget *root = dyno_find_or_make_root_container(gui->window);
-
-    GtkWidget *outer = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-    gtk_container_add(GTK_CONTAINER(root), outer);
+    GtkWidget *outer = GTK_WIDGET(gui->container);
 
     GtkWidget *top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
     gtk_box_pack_start(GTK_BOX(outer), top, false, false, 0);
@@ -707,6 +704,12 @@ static void dyno_build_gui_widgets() {
     gtk_box_pack_start(GTK_BOX(outer), peak, false, false, 0);
 
     GtkWidget *peak_metrics = gtk_grid_new();
+    gtk_grid_set_row_spacing(GTK_GRID(peak_metrics), 6);
+    gtk_grid_set_column_spacing(GTK_GRID(peak_metrics), 10);
+    gtk_widget_set_margin_start(peak_metrics, 10);
+    gtk_widget_set_margin_end(peak_metrics, 10);
+    gtk_widget_set_margin_top(peak_metrics, 10);
+    gtk_widget_set_margin_bottom(peak_metrics, 10);
     gtk_container_add(GTK_CONTAINER(peak), peak_metrics);
 
     gui->peak.lbl_time  = GTK_LABEL(gtk_label_new("0.00 s"));
@@ -716,23 +719,23 @@ static void dyno_build_gui_widgets() {
     gui->peak.lbl_hp    = GTK_LABEL(gtk_label_new("0.00 hp"));
     gui->peak.lbl_tq    = GTK_LABEL(gtk_label_new("0.0 N·m"));
 
-    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Time"),0,0,1,1);
-    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_time),1,0,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Time"),2,0,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_time),3,0,1,1);
 
     gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Speed"),0,1,1,1);
     gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_speed),1,1,1,1);
 
-    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("RPM"),0,2,1,1);
-    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_rpm),1,2,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("RPM"),2,1,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_rpm),3,1,1,1);
 
-    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Power"),0,3,1,1);
-    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_pwr),1,3,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Power"),0,2,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_pwr),1,2,1,1);
 
-    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Horse Power"),0,4,1,1);
-    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_hp),1,4,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Horse Power"),2,2,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_hp),3,2,1,1);
 
-    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Torque"),0,5,1,1);
-    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_tq),1,5,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Torque"),0,3,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_tq),1,3,1,1);
 
     GtkWidget *graphs_frame = gtk_frame_new("Graphs");
     gtk_box_pack_start(GTK_BOX(outer), graphs_frame, true, true, 0);
@@ -773,6 +776,7 @@ static void init(final GtkBuilder *builder) {
 
     DynoGui g = {
         .window = GTK_WINDOW(gtk_builder_get_object(builder, "dyno-window")),
+        .container = GTK_BOX(gtk_builder_get_object(builder, "dyno-widgets-container")),
         .menuBar = {
             .data = {
                 .all = GTK_MENU_ITEM(gtk_builder_get_object(builder, "dyno-menubar-data-all")),

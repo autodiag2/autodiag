@@ -20,6 +20,7 @@ typedef struct {
     } menuBar;
 
     GtkWindow *window;
+    GtkBox * container;
 
     ErrorFeedbackWindows errorFeedback;
 
