@@ -2800,7 +2800,22 @@ output/obj/main/libprog/terminal_cli.o: src/main/libprog/terminal_cli.c \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/com/doip/doip.h \
-  include/main/libautodiag/com/doip/message/diag.h
+  include/main/libautodiag/com/doip/message/diag.h \
+  include/main/libprog/cli_helpers.h \
+  include/main/libprog/sim_ecu_generator_gui.h \
+  include/main/libautodiag/sim/elm327/elm327.h \
+  include/main/libautodiag/sim/ecu/ecu.h \
+  include/main/libautodiag/sim/ecu/generator.h \
+  include/main/libautodiag/com/uds/uds.h \
+  include/main/libautodiag/com/uds/uds_service_read_dtc.h \
+  include/main/libautodiag/sim/sim.h \
+  include/main/libautodiag/sim/doip/doip.h \
+  include/main/libautodiag/sim/doip/doip_discover.h \
+  include/main/libautodiag/jni/target_device.h \
+  include/main/libautodiag/sim/elm327/network.h \
+  include/main/libautodiag/sim/elm327/nvm.h \
+  include/main/libprog/ui/gtk.h \
+  include/main/libprog/ui/counter.h
 output/obj/main/libprog/ui/counter.o: src/main/libprog/ui/counter.c \
   include/main/libprog/ui/counter.h include/main/libprog/ui/gtk.h \
   include/main/libautodiag/lib.h \
@@ -2997,7 +3012,7 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/ui/vehicle_explorer.h \
   include/main/libprog/ui/graph_data.h include/main/ui/documentation.h \
   include/main/ui/dyno.h include/main/libprog/terminal_cli.h \
-  include/main/libprog/elm327_cli.h include/main/libprog/cli_helpers.h \
+  include/main/libprog/cli_helpers.h include/main/libprog/elm327_cli.h \
   include/main/libprog/doip_cli.h
 output/obj/main/prog/doipsim.o: src/main/prog/doipsim.c \
   include/main/libprog/doip_cli.h include/main/libautodiag/lib.h \

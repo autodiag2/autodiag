@@ -10,3 +10,6 @@
 [submodule "pyautodiag/examples/external/jacobschaer_python-uds/python-uds"]
 	path = pyautodiag/examples/external/jacobschaer_python-uds/python-uds
 	url = https://github.com/jacobschaer/python-uds/
+[submodule "mongoose"]
+	path = mongoose
+	url = https://github.com/autodiag2/mongoose

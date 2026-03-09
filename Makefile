@@ -29,7 +29,7 @@ BINS_PROGS := $(sort $(patsubst src/main/prog/%.c,output/bin/%,$(call rwildcard,
 BINS_EXAMPLES := $(sort $(patsubst src/example/%.c,output/bin/example_%,$(call rwildcard,src/example/,*.c)))
 
 # Library shared object
-OBJS_LIB := $(sort output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
+OBJS_LIB := $(sort output/obj/mongoose.o output/obj/cJSON.o $(filter output/obj/main/libautodiag/%.o,$(subst src/main/,output/obj/main/,$(SOURCES_PROGS:.c=.o))))
 BIN_LIB := $(BIN_LIB_NAME)
 PYTHON_INSTALL_FOLDER_ROOT := pyautodiag/autodiag
 PYTHON_INSTALL_FOLDER_LIB := $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
@@ -117,6 +117,11 @@ output/obj/main/%.o:
 	$(COMPILE_MSG)
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
+
+output/obj/mongoose.o: mongoose/mongoose.h mongoose/mongoose.c
+	$(COMPILE_MSG)
+	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
+	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
 output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
 	$(COMPILE_MSG)
