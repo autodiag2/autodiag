@@ -23,6 +23,12 @@ typedef struct {
 } DynoSamples;
 
 static DynoSamples dyno_samples = {0};
+static double peak_time = 0;
+static double peak_speed = 0;
+static double peak_rpm = 0;
+static double peak_kw = 0;
+static double peak_hp = 0;
+static double peak_tq = 0;
 
 MENUBAR_DATA_ALL_IN_ONE
 
@@ -31,6 +37,13 @@ static void dyno_samples_clear() {
     dyno_samples.v = null;
     dyno_samples.n = 0;
     dyno_samples.cap = 0;
+
+    peak_time = 0;
+    peak_speed = 0;
+    peak_rpm = 0;
+    peak_kw = 0;
+    peak_hp = 0;
+    peak_tq = 0;
 }
 
 static void dyno_samples_push(double t_ms, double speed_kmh, double rpm) {
@@ -300,22 +313,33 @@ static Graph *dyno_get_graph(char *title) {
     return dyno_graphs ? ad_list_Graph_get_by_title(dyno_graphs, title) : null;
 }
 
-static void dyno_update_labels_locked(double t_s, double speed, double rpm, double p_kw, double tq_nm) {
+static void dyno_update_labels_locked(double t_s,double speed,double rpm,double p_kw,double hp,double tq_nm) {
     if (gui->status.lbl_state) gtk_widget_printf(GTK_WIDGET(gui->status.lbl_state), "%s", dyno_running ? "Running" : "Idle");
     if (gui->status.lbl_time)  gtk_widget_printf(GTK_WIDGET(gui->status.lbl_time), "%.2f s", t_s);
     if (gui->status.lbl_speed) gtk_widget_printf(GTK_WIDGET(gui->status.lbl_speed), "%.1f km/h", speed);
     if (gui->status.lbl_rpm)   gtk_widget_printf(GTK_WIDGET(gui->status.lbl_rpm), "%.0f r/min", rpm);
     if (gui->status.lbl_pwr)   gtk_widget_printf(GTK_WIDGET(gui->status.lbl_pwr), "%.2f kW", p_kw);
+    if (gui->status.lbl_hp)    gtk_widget_printf(GTK_WIDGET(gui->status.lbl_hp), "%.2f hp", hp);
     if (gui->status.lbl_tq)    gtk_widget_printf(GTK_WIDGET(gui->status.lbl_tq), "%.1f N·m", tq_nm);
+
+    if (gui->peak.lbl_time)  gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_time), "%.2f s", peak_time);
+    if (gui->peak.lbl_speed) gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_speed), "%.1f km/h", peak_speed);
+    if (gui->peak.lbl_rpm)   gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_rpm), "%.0f r/min", peak_rpm);
+    if (gui->peak.lbl_pwr)   gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_pwr), "%.2f kW", peak_kw);
+    if (gui->peak.lbl_hp)    gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_hp), "%.2f hp", peak_hp);
+    if (gui->peak.lbl_tq)    gtk_widget_printf(GTK_WIDGET(gui->peak.lbl_tq), "%.1f N·m", peak_tq);
 }
 
 static gboolean dyno_ui_tick(gpointer unused) {
+
     pthread_mutex_lock(&dyno_mutex);
+
     if (dyno_samples.n < 1) {
-        dyno_update_labels_locked(0, 0, 0, 0, 0);
+        dyno_update_labels_locked(0,0,0,0,0,0);
         pthread_mutex_unlock(&dyno_mutex);
         return true;
     }
+
     DynoSample s = dyno_samples.v[dyno_samples.n - 1];
     double t_s = (dyno_samples.v[dyno_samples.n - 1].t_ms - dyno_samples.v[0].t_ms) / 1000.0;
 
@@ -323,23 +347,46 @@ static gboolean dyno_ui_tick(gpointer unused) {
     double tq_nm = 0;
 
     if (2 <= dyno_samples.n) {
+
         DynoSample a = dyno_samples.v[dyno_samples.n - 2];
         DynoSample b = dyno_samples.v[dyno_samples.n - 1];
+
         double dt = (b.t_ms - a.t_ms) / 1000.0;
+
         if (0.001 < dt) {
+
             double v0 = a.speed_kmh / 3.6;
             double v1 = b.speed_kmh / 3.6;
+
             double acc = (v1 - v0) / dt;
+
             double mass = gui->params.mass_kg ? gtk_spin_button_get_value(gui->params.mass_kg) : 1200.0;
+
             double force = mass * acc;
+
             double power_w = force * v1;
+
             p_kw = power_w / 1000.0;
+
             double w_rad = (b.rpm * (2.0 * M_PI)) / 60.0;
+
             if (1.0 < w_rad) tq_nm = power_w / w_rad;
         }
     }
 
-    dyno_update_labels_locked(t_s, s.speed_kmh, s.rpm, p_kw, tq_nm);
+    double hp = p_kw * 1.341022;
+
+    if (hp > peak_hp) {
+        peak_hp = hp;
+        peak_kw = p_kw;
+        peak_tq = tq_nm;
+        peak_speed = s.speed_kmh;
+        peak_rpm = s.rpm;
+        peak_time = t_s;
+    }
+
+    dyno_update_labels_locked(t_s,s.speed_kmh,s.rpm,p_kw,hp,tq_nm);
+
     pthread_mutex_unlock(&dyno_mutex);
     return true;
 }
@@ -634,7 +681,17 @@ static void dyno_build_gui_widgets() {
     gui->status.lbl_speed = GTK_LABEL(gtk_label_new("0.0 km/h"));
     gui->status.lbl_rpm   = GTK_LABEL(gtk_label_new("0 r/min"));
     gui->status.lbl_pwr   = GTK_LABEL(gtk_label_new("0.00 kW"));
+    gui->status.lbl_hp    = GTK_LABEL(gtk_label_new("0.00 hp"));
     gui->status.lbl_tq    = GTK_LABEL(gtk_label_new("0.0 N·m"));
+
+    gtk_grid_attach(GTK_GRID(sg), gtk_label_new("Power"), 0, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_pwr), 1, 2, 1, 1);
+
+    gtk_grid_attach(GTK_GRID(sg), gtk_label_new("Horse Power"), 2, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_hp), 3, 2, 1, 1);
+
+    gtk_grid_attach(GTK_GRID(sg), gtk_label_new("Torque"), 0, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_tq), 1, 3, 1, 1);
 
     gtk_grid_attach(GTK_GRID(sg), gtk_label_new("State"), 0, 0, 1, 1);
     gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_state), 1, 0, 1, 1);
@@ -646,10 +703,36 @@ static void dyno_build_gui_widgets() {
     gtk_grid_attach(GTK_GRID(sg), gtk_label_new("RPM"), 2, 1, 1, 1);
     gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_rpm), 3, 1, 1, 1);
 
-    gtk_grid_attach(GTK_GRID(sg), gtk_label_new("Power"), 0, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_pwr), 1, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(sg), gtk_label_new("Torque"), 2, 2, 1, 1);
-    gtk_grid_attach(GTK_GRID(sg), GTK_WIDGET(gui->status.lbl_tq), 3, 2, 1, 1);
+    GtkWidget *peak = gtk_frame_new("Peak");
+    gtk_box_pack_start(GTK_BOX(outer), peak, false, false, 0);
+
+    GtkWidget *peak_metrics = gtk_grid_new();
+    gtk_container_add(GTK_CONTAINER(peak), peak_metrics);
+
+    gui->peak.lbl_time  = GTK_LABEL(gtk_label_new("0.00 s"));
+    gui->peak.lbl_speed = GTK_LABEL(gtk_label_new("0.0 km/h"));
+    gui->peak.lbl_rpm   = GTK_LABEL(gtk_label_new("0 r/min"));
+    gui->peak.lbl_pwr   = GTK_LABEL(gtk_label_new("0.00 kW"));
+    gui->peak.lbl_hp    = GTK_LABEL(gtk_label_new("0.00 hp"));
+    gui->peak.lbl_tq    = GTK_LABEL(gtk_label_new("0.0 N·m"));
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Time"),0,0,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_time),1,0,1,1);
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Speed"),0,1,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_speed),1,1,1,1);
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("RPM"),0,2,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_rpm),1,2,1,1);
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Power"),0,3,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_pwr),1,3,1,1);
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Horse Power"),0,4,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_hp),1,4,1,1);
+
+    gtk_grid_attach(GTK_GRID(peak_metrics), gtk_label_new("Torque"),0,5,1,1);
+    gtk_grid_attach(GTK_GRID(peak_metrics),GTK_WIDGET(gui->peak.lbl_tq),1,5,1,1);
 
     GtkWidget *graphs_frame = gtk_frame_new("Graphs");
     gtk_box_pack_start(GTK_BOX(outer), graphs_frame, true, true, 0);

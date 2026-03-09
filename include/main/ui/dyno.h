@@ -18,29 +18,45 @@ typedef struct {
             GtkWidget *filter_by_menu;
         } data;
     } menuBar;
+
     GtkWindow *window;
+
     ErrorFeedbackWindows errorFeedback;
+
     struct {
-        GtkLabel * lbl_state;
-        GtkLabel * lbl_time;
-        GtkLabel * lbl_speed;
-        GtkLabel * lbl_rpm;
-        GtkLabel * lbl_pwr;
-        GtkLabel * lbl_tq;
-        GtkSpinner * spinner;
+        GtkLabel *lbl_state;
+        GtkLabel *lbl_time;
+        GtkLabel *lbl_speed;
+        GtkLabel *lbl_rpm;
+        GtkLabel *lbl_pwr;
+        GtkLabel *lbl_hp;
+        GtkLabel *lbl_tq;
+        GtkSpinner *spinner;
     } status;
+
     struct {
-        GtkSpinButton * mass_kg;
-        GtkSpinButton * sample_hz;
+        GtkLabel *lbl_time;
+        GtkLabel *lbl_speed;
+        GtkLabel *lbl_rpm;
+        GtkLabel *lbl_pwr;
+        GtkLabel *lbl_hp;
+        GtkLabel *lbl_tq;
+    } peak;
+
+    struct {
+        GtkSpinButton *mass_kg;
+        GtkSpinButton *sample_hz;
     } params;
+
     struct {
-        GtkButton * btn_start;
-        GtkButton * btn_stop;
-        GtkButton * btn_reset;
+        GtkButton *btn_start;
+        GtkButton *btn_stop;
+        GtkButton *btn_reset;
     } actions;
+
 } DynoGui;
 
-mod_gui * mod_gui_dyno_new();
+mod_gui *mod_gui_dyno_new();
 
 #define dyno_error_feedback_obd(iface) \
  error_feedback_obd(gui->errorFeedback,iface,device_table_get_selected(config.ephemere.device_table))
