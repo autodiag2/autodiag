@@ -89,7 +89,7 @@ static char * vin_http_get(const char * url, int *status) {
     memset(&ctx, 0, sizeof(ctx));
 
     mg_mgr_init(&ctx.mgr);
-    ctx.url = url;
+    ctx.url = strdup(url);
 
     mg_http_connect(&ctx.mgr, url, vin_http_cb, &ctx);
 
@@ -102,6 +102,10 @@ static char * vin_http_get(const char * url, int *status) {
     if ( status ) *status = ctx.status;
 
     return ctx.result;
+}
+
+static void button_click_clean_up_routine(void *arg) {
+
 }
 
 static void hide() {
@@ -117,30 +121,45 @@ static int year_make_get() {
     if ( t == null || strlen(t) == 0 ) return 0;
     return atoi(t);
 }
-
-static void year_make_set(int year_make) {
+static gboolean tool_year_make_set_gsource(gpointer data) {
+    int year_make = *((int*)data);
     char * year_make_str = gprintf("%d", year_make);
     gtk_entry_set_text(gui->year_make, year_make_str);
     free(year_make_str);
+    free(data);
+    return false;
 }
-
+static void year_make_set(int year_make) {
+    g_idle_add(tool_year_make_set_gsource, intdup(year_make));
+}
+static gboolean tool_vin_set_gsource(gpointer data) {
+    char * text = (char*)data;
+    gtk_entry_set_text(gui->vin, text);
+    free(text);
+    return false;
+}
 static void vin_set(char * vin) {
-    gtk_entry_set_text(gui->vin, vin);
+    g_idle_add(tool_vin_set_gsource, strdup(vin));
 }
-
-static void tool_output_set(char * text) {
+static gboolean tool_output_set_gsource(gpointer data) {
+    char * text = (char*)data;
     gtk_text_buffer_set_text(gui->tool.output_buffer, text, strlen(text));
+    free(text);
+    return false;
+}
+static void tool_output_set(char * text) {
+    g_idle_add(tool_output_set_gsource, strdup(text));
 }
 
 static bool ensure_vehicle_connected() {
-    if ( config.ephemere.iface == null || config.ephemere.iface->vehicle == null ) {
+    if ( config.ephemere.iface == null || config.ephemere.iface->vehicle == null || config.ephemere.iface->connection._state != VIFaceState_READY ) {
         tool_output_set("Vehicle not connected");
         return false;
     }
     return true;
 }
 
-static void tool_query_clicked(GtkButton *button, gpointer user_data) {
+static void tool_query_action() {
 
     time_t now = time(null);
     if ( now - last_query < 1 ) {
@@ -244,22 +263,48 @@ static void tool_query_clicked(GtkButton *button, gpointer user_data) {
     cJSON_Delete(root);
     free(json);
 }
+THREAD_WRITE_DAEMON(
+    tool_query_daemon, tool_query_action,
+    button_click_clean_up_routine, gui->tool.queryThread
+)
 
-static void tool_vin_read_clicked(GtkButton *button, gpointer user_data) {
+static void tool_query_clicked(GtkButton *button, gpointer user_data) {
+    thread_allocate_and_start(&gui->tool.queryThread, &tool_query_daemon);
+}
+static void tool_vin_read_action() {
     if ( ! ensure_vehicle_connected() ) return;
 
-    char * vin = ad_buffer_to_ascii_espace_breaking_chars(config.ephemere.iface->vehicle->vin);
-    char * txt = gprintf("Reading VIN from this vehicle\nVIN : %s", vin);
+    char * vin = config.ephemere.iface->vehicle->vin == null ? strdup("") : ad_buffer_to_ascii_espace_breaking_chars(config.ephemere.iface->vehicle->vin);
+    char * txt = strlen(vin) == 0 ? strdup("cannot retrieve vin") : gprintf("Reading VIN from this vehicle\nVIN : %s", vin);
 
     tool_output_set(txt);
     vin_set(vin);
     year_make_set(config.ephemere.iface->vehicle->year);
 
     free(txt);
+    free(vin);
 }
 
-static void tool_vin_write_clicked(GtkButton *button, gpointer user_data) {
+THREAD_WRITE_DAEMON(
+    tool_vin_read_daemon, tool_vin_read_action,
+    button_click_clean_up_routine, gui->tool.vinReadThread
+)
+
+static void tool_vin_read_clicked(GtkButton *button, gpointer user_data) {
+    thread_allocate_and_start(&gui->tool.vinReadThread, &tool_vin_read_daemon);
+}
+
+static void tool_vin_write_action() {
     tool_output_set("Not implemented ...");
+}
+
+THREAD_WRITE_DAEMON(
+    tool_vin_write_daemon, tool_vin_write_action,
+    button_click_clean_up_routine, gui->tool.vinWriteThread
+)
+
+static void tool_vin_write_clicked(GtkButton *button, gpointer user_data) {
+    thread_allocate_and_start(&gui->tool.vinWriteThread, &tool_vin_write_daemon);
 }
 
 static void init(final GtkBuilder * builder) {

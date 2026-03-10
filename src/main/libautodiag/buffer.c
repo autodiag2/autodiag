@@ -378,21 +378,26 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer) {
     buffer->size -= 1;
 }
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
+    assert(buffer != null);
     return ascii_escape_breaking_chars_n((char *)buffer->buffer, buffer->size);
 }
 uint8_t ad_buffer_to_be8(Buffer * buffer) {
+    assert(buffer != null);
     assert(1 <= buffer->size);
     return buffer->buffer[0];
 }
 uint16_t ad_buffer_to_be16(Buffer * buffer) {
+    assert(buffer != null);
     assert(2 <= buffer->size);
     return ((uint16_t)buffer->buffer[0] << 8) | buffer->buffer[1];
 }
 uint32_t ad_buffer_to_be32(Buffer * buffer) {
+    assert(buffer != null);
     assert(4 <= buffer->size);
     return ((uint32_t)buffer->buffer[0] << (8 * 3)) | ((uint32_t)buffer->buffer[1] << (8 * 2)) | ((uint32_t)buffer->buffer[2] << 8) | buffer->buffer[3];
 }
 uint64_t ad_buffer_to_be64(Buffer * buffer) {
+    assert(buffer != null);
     assert(8 <= buffer->size);
     return ((uint64_t)buffer->buffer[0] << (8 * 7)) | ((uint64_t)buffer->buffer[1] << (8 * 6)) | ((uint64_t)buffer->buffer[2] << (8 * 5)) | ((uint64_t)buffer->buffer[3] << (8 * 4)) | ((uint64_t)buffer->buffer[4] << (8 * 3)) | ((uint64_t)buffer->buffer[5] << (8 * 2)) | ((uint64_t)buffer->buffer[6] << 8) | buffer->buffer[7];
 }

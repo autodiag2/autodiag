@@ -11,8 +11,11 @@ typedef struct {
     GtkEntry * year_make;
     struct {
         GtkButton * query;
+        pthread_t * queryThread;
         GtkButton * vinRead;
+        pthread_t * vinReadThread;
         GtkButton * vinWrite;
+        pthread_t * vinWriteThread;
         GtkTextView * output;
         GtkTextBuffer * output_buffer;
     } tool;
