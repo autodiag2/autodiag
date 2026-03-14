@@ -165,6 +165,7 @@ void vehicle_debug(Vehicle* v) {
 }
 
 void vehicle_dump(Vehicle* v) {
+    assert(v != null);
     log_msg(LOG_DEBUG, "Vehicle dump");
     log_msg(LOG_DEBUG, "Global data");
     ad_list_Buffer_dump(v->data_buffer);

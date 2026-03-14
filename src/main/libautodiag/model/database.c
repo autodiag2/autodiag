@@ -23,30 +23,42 @@ static bool db_str_eq(const char *a, const char *b) {
     if (a == null && b == null) {
         return true;
     }
+    if ( a == null && strlen(b) == 0 ) {
+        return true;
+    }
+    if ( b == null && strlen(a) == 0 ) {
+        return true;
+    }
     if (a == null || b == null) {
         return false;
     }
     return strcmp(a, b) == 0;
 }
 
-static Vehicle *db_vehicle_find_loaded(const char *manufacturer, const char *model, int year) {
+Vehicle *ad_db_vehicle_find_loaded(const char *manufacturer, const char *model, int year) {
+    log_msg(LOG_DEBUG, "search for %s %s %d", manufacturer, model, year);
+    Vehicle * result = null;
     for (int i = 0; i < database.size; i++) {
-        Vehicle *vehicle = database.list[i];
-        if (vehicle == null) {
+        Vehicle *candidate = database.list[i];
+        if (candidate == null) {
             continue;
         }
-        if (!db_str_eq(vehicle->manufacturer, manufacturer)) {
+        if (!db_str_eq(candidate->manufacturer, manufacturer)) {
             continue;
         }
-        if (!db_str_eq(vehicle->model, model)) {
+        if (!db_str_eq(candidate->model, model)) {
             continue;
         }
-        if (vehicle->year != year) {
+        if (year != -1 && candidate->year != year) {
             continue;
         }
-        return vehicle;
+        if ( result != null ) {
+            log_msg(LOG_WARNING, "multiple results for query (%s,%s,%d), returning the first one", manufacturer, model, year);
+            break;
+        }
+        result = candidate;
     }
-    return null;
+    return result;
 }
 
 static bool db_vehicle_has_ecu(Vehicle *vehicle, const char *manufacturer, const char *model) {
@@ -110,7 +122,7 @@ static Vehicle *db_vehicle_get_or_create(
 ) {
     int year = db_year_from_text(years);
 
-    Vehicle *vehicle = db_vehicle_find_loaded(manufacturer, model, year);
+    Vehicle *vehicle = ad_db_vehicle_find_loaded(manufacturer, model, year);
     if (vehicle != null) {
         if ((vehicle->engine == null || vehicle->engine[0] == 0) && engine_model != null) {
             vehicle->engine = strdup(engine_model);
@@ -202,6 +214,7 @@ static bool db_vehicle_load_in_memory_sqlite_file(const char *sqlite_path) {
         const char *ecu_manufacturer = (const char *)sqlite3_column_text(stmt, 5);
         const char *ecu_model = (const char *)sqlite3_column_text(stmt, 6);
 
+        log_msg(LOG_DEBUG, "Found vehicle: %s %s %s %s %s %s %s", vehicle_manufacturer, vehicle_model, years, engine_manufacturer, engine_model, ecu_manufacturer, ecu_model);
         Vehicle *vehicle = db_vehicle_get_or_create(
             vehicle_manufacturer,
             vehicle_model,

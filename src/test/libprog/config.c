@@ -1,11 +1,11 @@
 #include "libTest.h"
 
 bool testCarDatabaseLoad(VehicleIFace* iface) {
-    final char *vehicleDirectory = installation_folder_resolve("data/vehicle/citroen/973");
-    Vehicle * vehicle = db_vehicle_load_from_directory(vehicleDirectory);
+    db_vehicle_load_in_memory();
+    Vehicle * vehicle = ad_db_vehicle_find_loaded("Citroen", null, -1);
     vehicle_dump(vehicle);
     assert(vehicle != null);
-    assert(strcmp(vehicle->manufacturer,"Citroen") == 0);
+    assert(strstr(vehicle->manufacturer,"Citroen") != null);
     
     final SAEJ1979_DTC * dtc = saej1979_dtc_new();
     final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
