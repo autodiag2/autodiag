@@ -388,7 +388,15 @@ static bool db_dtc_description_already_present(
 
     return false;
 }
-
+static bool db_dtc_is_generic_scope(const char *vehicle_manufacturer) {
+    if (db_str_eq(vehicle_manufacturer, "Generic")) {
+        return true;
+    }
+    if (db_str_eq(vehicle_manufacturer, "saej2012.2002")) {
+        return true;
+    }
+    return false;
+}
 void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
     if (dtc == null) {
         return;
@@ -509,18 +517,20 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         (void)causes;
         (void)evidence;
 
-        if (!db_scope_matches_filter(
-            vehicle_manufacturer,
-            vehicle_model,
-            years,
-            engine_manufacturer,
-            engine_model,
-            ecu_manufacturer,
-            ecu_model,
-            filter
-        )) {
-            log_msg(LOG_DEBUG, "entry filtered");
-            continue;
+        if (!db_dtc_is_generic_scope(vehicle_manufacturer)) {
+            if (!db_scope_matches_filter(
+                vehicle_manufacturer,
+                vehicle_model,
+                years,
+                engine_manufacturer,
+                engine_model,
+                ecu_manufacturer,
+                ecu_model,
+                filter
+            )) {
+                log_msg(LOG_DEBUG, "entry filtered");
+                continue;
+            }
         }
 
         Vehicle *scope_vehicle = db_vehicle_from_scope_row(

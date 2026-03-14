@@ -51,11 +51,6 @@ DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtcStr) {
     return null;
 }
 
-void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter) {
-    final char * basepath = installation_folder_resolve("data/vehicle/");
-    log_msg(LOG_ERROR, "TODO");
-    free(basepath);
-}
 int DTC_cmp(DTC* e1, DTC* e2) {
     return memcmp(e1->data, e2->data, DTC_DATA_SZ);
 }

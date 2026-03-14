@@ -112,7 +112,7 @@ static ad_list_ad_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * if
                         dtc->status = data->buffer[i+DTC_DATA_SZ];
                         dtc->ecu = ecu;
                         ad_list_UDS_DTC_append(ecu_response, dtc);
-                        dtc_description_fetch_from_fs((DTC*)dtc, filter);
+                        ad_dtc_fetch_from_db((DTC*)dtc, filter);
                     }
                 }
             } else {

@@ -82,8 +82,6 @@ AD_LIST_H(DTC)
 void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another);
 DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtc);
 
-void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter);
-
 #include "libautodiag/model/database.h"
 
 #endif
