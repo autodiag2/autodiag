@@ -166,42 +166,50 @@ void vehicle_debug(Vehicle* v) {
 
 void vehicle_dump(Vehicle* v) {
     assert(v != null);
-    log_msg(LOG_DEBUG, "Vehicle dump");
-    log_msg(LOG_DEBUG, "Global data");
+    log_msg(LOG_DEBUG, "Vehicle dump: {");
+    log_msg(LOG_DEBUG, "  country: %s", v->country);
+    log_msg(LOG_DEBUG, "  manufacturer: %s", v->manufacturer);
+    log_msg(LOG_DEBUG, "  model: %s", v->model);
+    log_msg(LOG_DEBUG, "  engine_manufacturer: %s", v->engine_manufacturer);
+    log_msg(LOG_DEBUG, "  engine: %s", v->engine);
+    log_msg(LOG_DEBUG, "  data_buffer:");
     ad_list_Buffer_dump(v->data_buffer);
+    log_msg(LOG_DEBUG, "  ecus: [");
     for(int i = 0; i < v->ecus->size; i++) {
-        log_msg(LOG_DEBUG, "Dump of one ECU");
         ad_object_ECU * ecu = v->ecus->list[i];
-        log_msg(LOG_DEBUG, "Address");
-        Buffer * address = ecu->address;
-        ad_buffer_dump(address);
-        log_msg(LOG_DEBUG, "content");
+        log_msg(LOG_DEBUG, "    Dump of one ECU: {");
+        log_msg(LOG_DEBUG, "      Address: 0x%s", ad_buffer_to_hex_string(ecu->address));
+        log_msg(LOG_DEBUG, "      manufacturer: %s", ecu->manufacturer);
+        log_msg(LOG_DEBUG, "      model: %s", ecu->model);
+        log_msg(LOG_DEBUG, "      name: %s", ecu->name);
+        log_msg(LOG_DEBUG, "      in content:");
         ad_list_Buffer_dump(ecu->data_buffer);
-
-        log_msg(LOG_DEBUG, "in current_data");
+        log_msg(LOG_DEBUG, "      in current_data:");
         ad_list_Buffer_dump(ecu->obd_service.current_data);
-        log_msg(LOG_DEBUG, "in freeze_frame_data");
+        log_msg(LOG_DEBUG, "      in freeze_frame_data:");
         ad_list_Buffer_dump(ecu->obd_service.freeze_frame_data);
-        log_msg(LOG_DEBUG, "in tests_results");
+        log_msg(LOG_DEBUG, "      in tests_results:");
         ad_list_Buffer_dump(ecu->obd_service.tests_results);
-        log_msg(LOG_DEBUG, "in tests_results_other");
+        log_msg(LOG_DEBUG, "      in tests_results_other:");
         ad_list_Buffer_dump(ecu->obd_service.tests_results_other);
-        log_msg(LOG_DEBUG, "in control_operation");
+        log_msg(LOG_DEBUG, "      in control_operation:");
         ad_list_Buffer_dump(ecu->obd_service.control_operation);
-        log_msg(LOG_DEBUG, "in pending_dtc");
+        log_msg(LOG_DEBUG, "      in pending_dtc:");
         ad_list_Buffer_dump(ecu->obd_service.pending_dtc);
-        log_msg(LOG_DEBUG, "in none");
+        log_msg(LOG_DEBUG, "      in none:");
         ad_list_Buffer_dump(ecu->obd_service.none);
-        log_msg(LOG_DEBUG, "in current_dtc");
+        log_msg(LOG_DEBUG, "      in current_dtc:");
         ad_list_Buffer_dump(ecu->obd_service.current_dtc);
-        log_msg(LOG_DEBUG, "in clear_dtc");
+        log_msg(LOG_DEBUG, "      in clear_dtc:");
         ad_list_Buffer_dump(ecu->obd_service.clear_dtc);
-        log_msg(LOG_DEBUG, "in request_vehicle_information");
+        log_msg(LOG_DEBUG, "      in request_vehicle_information:");
         ad_list_Buffer_dump(ecu->obd_service.request_vehicle_information);
-        log_msg(LOG_DEBUG, "in permanent_dtc");
+        log_msg(LOG_DEBUG, "      in permanent_dtc:");
         ad_list_Buffer_dump(ecu->obd_service.permanent_dtc);
-    
+        log_msg(LOG_DEBUG, "    }");
     }
+    log_msg(LOG_DEBUG, "  ]");
+    log_msg(LOG_DEBUG, "}");
 }
 
 int Vehicle_cmp(Vehicle* e1, Vehicle* e2) {
