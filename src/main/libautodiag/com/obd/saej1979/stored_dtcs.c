@@ -1,9 +1,18 @@
 #include "libautodiag/com/obd/saej1979/stored_dtcs.h"
 
+static bool from_string(DTC * dtc, char * str) {
+    SAEJ1979_DTC * decoded = saej1979_dtc_from_string(str);
+    if ( decoded == null ) {
+        return false;
+    }
+    memcpy(dtc->data, decoded->data, DTC_DATA_SZ);
+    return true;
+}
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
     dtc->description = ad_list_DTC_DESCRIPTION_new();
     dtc->to_string = AD_DTC_TO_STRING(saej1979_dtc_to_string);
+    dtc->from_string = AD_DTC_FROM_STRING(saej1979_dtc_from_string);
     dtc->ecu = null;
     dtc->detection_method = ad_list_ad_object_string_new();
     return dtc;

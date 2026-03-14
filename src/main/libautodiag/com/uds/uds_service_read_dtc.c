@@ -14,6 +14,14 @@ void ad_object_UDS_DTC_free(ad_object_UDS_DTC *o) { return UDS_DTC_free(o); }
 char * UDS_DTC_to_string(final UDS_DTC * dtc) {
     return saej1979_dtc_to_string((DTC*)dtc);
 }
+static bool from_string(DTC * dtc, char * str) {
+    SAEJ1979_DTC * decoded = saej1979_dtc_from_string(str);
+    if ( decoded == null ) {
+        return false;
+    }
+    memcpy(dtc->data, decoded->data, DTC_DATA_SZ);
+    return true;
+}
 UDS_DTC * UDS_DTC_new() {
     UDS_DTC * dtc = (UDS_DTC*)malloc(sizeof(UDS_DTC));
     dtc->status = UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestNotCompletedThisOperationCycle;
@@ -21,6 +29,7 @@ UDS_DTC * UDS_DTC_new() {
     dtc->detection_method = ad_list_ad_object_string_new();
     ad_list_ad_object_string_append(dtc->detection_method, ad_object_string_new_from("UDS"));
     dtc->to_string = AD_DTC_TO_STRING(UDS_DTC_to_string);
+    dtc->from_string = AD_DTC_FROM_STRING(from_string);
     memset(dtc->data, 0x00, 3);
     dtc->ecu = null;
     return dtc;

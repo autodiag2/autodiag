@@ -61,6 +61,10 @@ typedef struct {
      */
     char* (*to_string)(final struct DTC * dtc);
     /**
+     * Load bytes from string representation
+     */
+    bool (*from_string)(final struct DTC * dtc, char * representation);
+    /**
      * ECU who has emitted this DTC.
      */
     ad_object_ECU * ecu;
@@ -72,6 +76,7 @@ typedef struct {
 
 #define AD_DTC(var) ((struct DTC*)var)
 #define AD_DTC_TO_STRING(var) ((char* (*)(final struct DTC*))var)
+#define AD_DTC_FROM_STRING(var) ((bool (*)(final struct DTC*, char *))var)
 
 AD_LIST_H(DTC)
 void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another);
