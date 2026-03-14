@@ -1,4 +1,54 @@
 #include "libautodiag/model/iso3779.h"
+#include "sqlite3.h"
+
+static sqlite3 *ISO3779_db_open() {
+    char *sqlite_path = installation_folder_resolve("data/ad_database.sqlite");
+    if (sqlite_path == null) {
+        log_msg(LOG_ERROR, "Cannot resolve sqlite database path");
+        return null;
+    }
+
+    sqlite3 *db = null;
+    int rc = sqlite3_open(sqlite_path, &db);
+    free(sqlite_path);
+
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_open failed: %s", db != null ? sqlite3_errmsg(db) : "unknown error");
+        if (db != null) {
+            sqlite3_close(db);
+        }
+        return null;
+    }
+
+    return db;
+}
+
+static char *ISO3779_db_select_text(sqlite3 *db, const char *sql, const char *wmi3, const char *wmi2) {
+    sqlite3_stmt *stmt = null;
+    char *result = null;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, null);
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_prepare_v2 failed: %s", sqlite3_errmsg(db));
+        return null;
+    }
+
+    sqlite3_bind_text(stmt, 1, wmi3, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, wmi2, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        const unsigned char *txt = sqlite3_column_text(stmt, 0);
+        if (txt != null) {
+            result = strdup((const char *)txt);
+        }
+    } else if (rc != SQLITE_DONE) {
+        log_msg(LOG_ERROR, "sqlite3_step failed: %s", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    return result;
+}
 
 char * ISO3779_region(final ISO3779 *decoder) {
     final char * vin = ad_buffer_to_ascii(decoder->vin);
@@ -34,6 +84,7 @@ ISO3779 * ISO3779_new() {
     decoder->vis = null;
     return decoder;
 }
+
 void ISO3779_dump(final ISO3779 *decoder) {
     printf("ISO3779: {\n");
     printf("    country: %s\n", decoder->country);
@@ -45,6 +96,7 @@ void ISO3779_dump(final ISO3779 *decoder) {
     printf("    vin: %s\n", ad_buffer_to_ascii(decoder->vin));
     printf("}\n");
 }
+
 void ISO3779_free(ISO3779 *decoder) {
     ad_buffer_free(decoder->vin);
     decoder->vin = null;
@@ -57,89 +109,124 @@ void ISO3779_free(ISO3779 *decoder) {
     free(decoder);
 }
 
-bool ISO3779_country_read_tsv_line(Buffer * line, void*data) {
-    void** ptrs = (void**)data; 
-    char *vin_prefix = (char *)ptrs[0];
-    char **result = (char**)ptrs[1];
-    char *start = strtok((char*)line->buffer, "\t");
-    char *end = strtok(NULL, "\t");
-    char *country = strtok(NULL, "\t");
-    if (!start || !end || !country) return true;
-    if (ad_buffer_alphabet_compare(vin_prefix, start, end)) {
-        *result = strdup(country);
-        return false;
-    }
-    return true;
-}
 char * ISO3779_country(final ISO3779 *decoder) {
-    final char *wmi = (char*)decoder->wmi;
-    char *result = NULL;
-
-    char *countries_file = installation_folder_resolve("data/vehicle/countries.tsv");
-    if (countries_file == NULL) {
-        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
-        return null;
+    if (decoder == null || decoder->wmi == null) {
+        return strdup("Unassigned");
     }
 
-    char vin_prefix[] = { wmi[0], wmi[1], '\0' };
-    void* parameters[] = {vin_prefix, &result};
-    file_read_lines(countries_file, ISO3779_country_read_tsv_line, parameters);
-    return result ? result : strdup("Unassigned");
-}
-
-bool ISO3779_manufacturers_read_tsv_line(Buffer * line, void*data) {
-    void **ptrs = data;
-    char * searched_wmi = (char*)ptrs[0];
-    char **manufacturer = (char **)ptrs[1];
-    char *searched_manufacturer_code = (char *)ptrs[2];
-
-    if ( 0 < line->size ) {
-        char * firstTab = strchr((char*)line->buffer,'\t');
-        char * secondTab = null;
-        if ( firstTab != null ) {
-            *firstTab = 0;
-            secondTab = strchr(firstTab+1,'\t');
-            if ( secondTab != null ) {
-                *secondTab = 0;
-            }
-        }
-        if ( strncasecmp(searched_wmi,(char*)line->buffer, strlen((char*)line->buffer)) == 0 ) {
-            if ( firstTab != null ) {
-                if ( searched_manufacturer_code == null ) {
-                    *manufacturer = strdup(firstTab + 1);
-                } else {
-                    if ( secondTab != null ) {
-                        if ( strncasecmp(searched_manufacturer_code,secondTab+1, strlen(secondTab+1)) == 0 ) {
-                            *manufacturer = strdup(firstTab + 1);
-                        }
-                    }
-                }
-            }
-        }
+    sqlite3 *db = ISO3779_db_open();
+    if (db == null) {
+        return strdup("Unassigned");
     }
 
-    return true;
+    char wmi3[4];
+    char wmi2[3];
+
+    wmi3[0] = decoder->wmi[0];
+    wmi3[1] = decoder->wmi[1];
+    wmi3[2] = decoder->wmi[2];
+    wmi3[3] = 0;
+
+    wmi2[0] = decoder->wmi[0];
+    wmi2[1] = decoder->wmi[1];
+    wmi2[2] = 0;
+
+    const char *sql =
+        "SELECT c.name "
+        "FROM vpic_wmi w "
+        "LEFT JOIN vpic_country c ON c.id = w.countryid "
+        "WHERE w.wmi = ? OR w.wmi = ? "
+        "ORDER BY CASE WHEN w.wmi = ? THEN 0 ELSE 1 END "
+        "LIMIT 1;";
+
+    sqlite3_stmt *stmt = null;
+    char *result = null;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, null);
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_prepare_v2 failed: %s", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return strdup("Unassigned");
+    }
+
+    sqlite3_bind_text(stmt, 1, wmi3, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, wmi2, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, wmi3, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        const unsigned char *txt = sqlite3_column_text(stmt, 0);
+        if (txt != null) {
+            result = strdup((const char *)txt);
+        }
+    } else if (rc != SQLITE_DONE) {
+        log_msg(LOG_ERROR, "sqlite3_step failed: %s", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return result != null ? result : strdup("Unassigned");
 }
 
 char * ISO3779_manufacturer(final ISO3779 *decoder) {
-    final char * vin = ad_buffer_to_ascii(decoder->vin);
-    char *manufacturers_file = installation_folder_resolve("data/vehicle/manufacturers.tsv");
-    if (manufacturers_file == NULL) {
-        log_msg(LOG_ERROR, "Data directory not found, try reinstalling the software");
-        return null;
-    }
-    char *manufacturer = null;
-    char *manufacturer_code = null;
-    if ( ISO3779_manufacturer_is_less_500(decoder) ) {
-        manufacturer_code = (char*)malloc(sizeof(char) * 4);
-        strncpy(manufacturer_code,(char*)&decoder->vis[2],3);
-    }
-    void* parameters[] = {vin, &manufacturer, manufacturer_code};
-    if ( file_read_lines(manufacturers_file,ISO3779_manufacturers_read_tsv_line,parameters) ) {
-        return manufacturer;
-    } else {
+    if (decoder == null || decoder->wmi == null) {
         return strdup("Unknown manufacturer");
     }
+
+    sqlite3 *db = ISO3779_db_open();
+    if (db == null) {
+        return strdup("Unknown manufacturer");
+    }
+
+    char wmi3[4];
+    char wmi2[3];
+
+    wmi3[0] = decoder->wmi[0];
+    wmi3[1] = decoder->wmi[1];
+    wmi3[2] = decoder->wmi[2];
+    wmi3[3] = 0;
+
+    wmi2[0] = decoder->wmi[0];
+    wmi2[1] = decoder->wmi[1];
+    wmi2[2] = 0;
+
+    const char *sql =
+        "SELECT m.name "
+        "FROM vpic_wmi w "
+        "LEFT JOIN vpic_manufacturer m ON m.id = w.manufacturerid "
+        "WHERE w.wmi = ? OR w.wmi = ? "
+        "ORDER BY CASE WHEN w.wmi = ? THEN 0 ELSE 1 END "
+        "LIMIT 1;";
+
+    sqlite3_stmt *stmt = null;
+    char *result = null;
+
+    int rc = sqlite3_prepare_v2(db, sql, -1, &stmt, null);
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_prepare_v2 failed: %s", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return strdup("Unknown manufacturer");
+    }
+
+    sqlite3_bind_text(stmt, 1, wmi3, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, wmi2, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, wmi3, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+        const unsigned char *txt = sqlite3_column_text(stmt, 0);
+        if (txt != null) {
+            result = strdup((const char *)txt);
+        }
+    } else if (rc != SQLITE_DONE) {
+        log_msg(LOG_ERROR, "sqlite3_step failed: %s", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return result != null ? result : strdup("Unknown manufacturer");
 }
 
 const char YEAR_MAPPING[] = "123456789ABCDEFGHJKLMNPRSTVWXY";
@@ -154,6 +241,7 @@ int ISO3779_year(final ISO3779 *decoder, final int current_year) {
     final int period_year = current_year - offset_to_start + period_offset;
     return period_year;
 }
+
 int ISO3779_year_recent(final ISO3779 *decoder) {
     time_t t = time(NULL);
     struct tm *tm_info = localtime(&t);
@@ -182,8 +270,4 @@ void ISO3779_decode_at_year(final ISO3779 *decoder, final Buffer *vin, final int
 void ISO3779_decode(final ISO3779 *decoder, final Buffer *vin) {
     ISO3779_decode_internal(decoder, vin);
     decoder->year = ISO3779_year_recent(decoder);
-}
-
-bool ISO3779_manufacturer_is_less_500(final ISO3779 *decoder) {
-    return decoder->wmi[2] == ISO3779_WMI_MANUFACTURER_LESS_500;
 }

@@ -33,7 +33,6 @@ ISO3779 * ISO3779_new();
 void ISO3779_free(ISO3779 *decoder);
 void ISO3779_decode(final ISO3779 *decoder, final Buffer * vin);
 void ISO3779_decode_at_year(final ISO3779 *decoder, final Buffer * vin, final int year);
-bool ISO3779_manufacturer_is_less_500(final ISO3779 *decoder);
 /**
  * Get the geographical region associated with VIN.
  */
