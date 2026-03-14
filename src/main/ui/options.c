@@ -1,5 +1,6 @@
 #include "ui/options.h"
 #include "ui/main.h"
+#include "sqlite3.h"
 
 static OptionsGui *gui = null;
 static void set_device_location(char * location) {
@@ -291,6 +292,121 @@ static void list_serial_refresh() {
         }
     }
 }
+static void fill_vehicle_filter_from_db() {
+    char *sqlite_path = installation_folder_resolve("data/ad_database.sqlite");
+    if (sqlite_path == null) {
+        log_msg(LOG_ERROR, "Cannot resolve sqlite database path");
+        return;
+    }
+
+    VehicleIFace *iface = config.ephemere.iface;
+    int manufacturer_i = 1, engine_i = 1;
+    int manufacturer_active_i = -1, engine_active_i = -1;
+    sqlite3 *db = null;
+    sqlite3_stmt *stmt = null;
+    int rc = sqlite3_open(sqlite_path, &db);
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_open failed for %s: %s", sqlite_path, db != null ? sqlite3_errmsg(db) : "unknown error");
+        if (db != null) {
+            sqlite3_close(db);
+        }
+        free(sqlite_path);
+        return;
+    }
+
+    rc = sqlite3_prepare_v2(
+        db,
+        "SELECT DISTINCT m.name "
+        "FROM ad_vehicle v "
+        "LEFT JOIN ad_manufacturer m ON m.id = v.manufacturer_id "
+        "WHERE m.name IS NOT NULL AND m.name <> '' "
+        "ORDER BY m.name;",
+        -1,
+        &stmt,
+        null
+    );
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_prepare_v2 manufacturers failed: %s", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        free(sqlite_path);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        const char *manufacturer = (const char *)sqlite3_column_text(stmt, 0);
+        if (manufacturer == null) {
+            continue;
+        }
+
+        gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, null, manufacturer);
+
+        if (iface != null
+        && iface->connection._state == VIFaceState_READY
+        && iface->vehicle != null
+        && iface->vehicle->manufacturer != null
+        && strcmp(iface->vehicle->manufacturer, manufacturer) == 0) {
+            manufacturer_active_i = manufacturer_i;
+        }
+
+        manufacturer_i++;
+    }
+
+    if (rc != SQLITE_DONE) {
+        log_msg(LOG_ERROR, "sqlite3_step manufacturers failed: %s", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    stmt = null;
+
+    rc = sqlite3_prepare_v2(
+        db,
+        "SELECT DISTINCT e.model "
+        "FROM ad_engine e "
+        "WHERE e.model IS NOT NULL AND e.model <> '' "
+        "ORDER BY e.model;",
+        -1,
+        &stmt,
+        null
+    );
+    if (rc != SQLITE_OK) {
+        log_msg(LOG_ERROR, "sqlite3_prepare_v2 engines failed: %s", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        free(sqlite_path);
+        return;
+    }
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        const char *engine = (const char *)sqlite3_column_text(stmt, 0);
+        if (engine == null) {
+            continue;
+        }
+
+        gtk_combo_box_text_append(gui->vehicleInfos.engine, null, engine);
+
+        if (iface != null
+        && iface->vehicle != null
+        && iface->vehicle->engine != null
+        && strcmp(iface->vehicle->engine, engine) == 0) {
+            engine_active_i = engine_i;
+        }
+
+        engine_i++;
+    }
+
+    if (rc != SQLITE_DONE) {
+        log_msg(LOG_ERROR, "sqlite3_step engines failed: %s", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+    free(sqlite_path);
+    if ( manufacturer_active_i != -1 ) {
+        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.manufacturer, manufacturer_active_i);
+    }
+    if ( engine_active_i != -1 ) {
+        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.engine, engine_active_i);
+    }
+}
 static void fill_vehicle_infos() {
     gtk_combo_box_text_remove_all(gui->vehicleInfos.manufacturer);
     gtk_combo_box_text_remove_all(gui->vehicleInfos.engine);
@@ -298,49 +414,7 @@ static void fill_vehicle_infos() {
     gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, null, "");
     gtk_combo_box_text_append(gui->vehicleInfos.engine, null, "");
 
-    GHashTable *manufacturers = g_hash_table_new(g_str_hash, g_str_equal);
-    GHashTable *engines = g_hash_table_new(g_str_hash, g_str_equal);
-
-    VehicleIFace *iface = config.ephemere.iface;
-    int manufacturer_i = 1, engine_i = 1;
-    int manufacturer_active_i = -1, engine_active_i = -1;
-
-    log_msg(LOG_ERROR, "TODO");
-    /*
-    for (int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
-        final Vehicle *vehicle = database.list[vehicle_i];
-
-        if (vehicle->manufacturer != null && !g_hash_table_contains(manufacturers, vehicle->manufacturer)) {
-            g_hash_table_add(manufacturers, vehicle->manufacturer);
-            gtk_combo_box_text_append(gui->vehicleInfos.manufacturer, null, vehicle->manufacturer);
-            if (( iface->connection._state == VIFaceState_READY ) && iface->vehicle->manufacturer != null) {
-                if (strcmp(iface->vehicle->manufacturer, vehicle->manufacturer) == 0) {
-                    manufacturer_active_i = manufacturer_i;
-                }
-            }
-            manufacturer_i++;
-        }
-
-        if (vehicle->engine != null && !g_hash_table_contains(engines, vehicle->engine)) {
-            g_hash_table_add(engines, vehicle->engine);
-            gtk_combo_box_text_append(gui->vehicleInfos.engine, null, vehicle->engine);
-            if (iface != null && iface->vehicle->engine != null) {
-                if (strcmp(iface->vehicle->engine, vehicle->engine) == 0) {
-                    engine_active_i = engine_i;
-                }
-            }
-            engine_i++;
-        }
-    }
-    */
-    if ( manufacturer_active_i != -1 ) {
-        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.manufacturer, manufacturer_active_i);
-    }
-    if ( engine_active_i != -1 ) {
-        gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.engine, engine_active_i);
-    }
-    g_hash_table_destroy(manufacturers);
-    g_hash_table_destroy(engines);
+    fill_vehicle_filter_from_db();
 
     gtk_entry_set_text(gui->vehicleInfos.vin, config.vehicleInfos.vin ? config.vehicleInfos.vin : "");
 }

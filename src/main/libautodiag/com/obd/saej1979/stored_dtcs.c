@@ -6,13 +6,14 @@ static bool from_string(DTC * dtc, char * str) {
         return false;
     }
     memcpy(dtc->data, decoded->data, DTC_DATA_SZ);
+    saej1979_dtc_free(decoded);
     return true;
 }
 SAEJ1979_DTC * saej1979_dtc_new() {
     SAEJ1979_DTC * dtc = (SAEJ1979_DTC*)malloc(sizeof(SAEJ1979_DTC));
     dtc->description = ad_list_DTC_DESCRIPTION_new();
     dtc->to_string = AD_DTC_TO_STRING(saej1979_dtc_to_string);
-    dtc->from_string = AD_DTC_FROM_STRING(saej1979_dtc_from_string);
+    dtc->from_string = AD_DTC_FROM_STRING(from_string);
     dtc->ecu = null;
     dtc->detection_method = ad_list_ad_object_string_new();
     return dtc;
@@ -73,7 +74,13 @@ char * saej1979_dtc_to_string(final DTC * dtc) {
     return result;
 }
 SAEJ1979_DTC * saej1979_dtc_from_string(final char *dtc_string) {
-    return saej1979_dtc_from_bin(saej1979_dtc_bin_from_string(dtc_string));
+    Buffer * dtc_bin = saej1979_dtc_bin_from_string(dtc_string);
+    if ( dtc_bin == null ) {
+        return null;
+    }
+    SAEJ1979_DTC * dtc = saej1979_dtc_from_bin(dtc_bin);
+    ad_buffer_free(dtc_bin);
+    return dtc;
 }
 ISO15031_DTC_TYPE saej1979_dtc_type(final DTC * dtc) {
     return (dtc->data[0] & 0xC0) >> 6;
@@ -96,18 +103,20 @@ SAEJ1979_DTC * saej1979_dtc_from_bin(final Buffer * buffer) {
     return dtc;
 }
 Buffer* saej1979_dtc_bin_from_string(final char *dtc_string) {
+    if ( strlen(dtc_string) < 2 ) {
+        return null;
+    }
     final Buffer * dtc_bin = ad_buffer_from_ascii_hex(&(dtc_string[1]));
     if ( dtc_bin == null ) {
         return null;
+    }
+    ISO15031_DTC_TYPE dtc_type = iso15031_dtc_first_letter_to_type(dtc_string[0]);
+    if ( ISO15031_DTC_TYPE_UNKNOWN == dtc_type ) {
+        ad_buffer_free(dtc_bin);
+        return null;
     } else {
-        ISO15031_DTC_TYPE dtc_type = iso15031_dtc_first_letter_to_type(dtc_string[0]);
-        if ( ISO15031_DTC_TYPE_UNKNOWN == dtc_type ) {
-            ad_buffer_free(dtc_bin);
-            return null;
-        } else {
-            dtc_bin->buffer[0] |= dtc_type << 6;
-            return dtc_bin;
-        }
+        dtc_bin->buffer[0] |= dtc_type << 6;
+        return dtc_bin;
     }
 }
 

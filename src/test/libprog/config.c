@@ -44,5 +44,23 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
         }
         assert(1 == dtc->description->size);
     }
+    {
+        Vehicle * vehicle = vehicle_new();
+        vehicle->manufacturer = "Citroen";
+        vehicle->engine_manufacturer = "Citroen";
+        vehicle->engine = "EP6CDT";
+        final SAEJ1979_DTC * dtc = saej1979_dtc_new();
+        final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
+        dtc_desc->vehicle = vehicle;
+        dtc->from_string(dtc, "P11A3");
+        log_info("as str : %s", dtc->to_string(dtc));
+    
+        ad_dtc_fetch_from_db(dtc, vehicle);
+        for(int i = 0; i < dtc->description->size; i++) {
+            DTC_DESCRIPTION desc = dtc->description->list[i];
+            log_msg(LOG_INFO, "reason: %s", desc.reason);
+        }
+        assert(1 == dtc->description->size);
+    }
     return true;
 }
