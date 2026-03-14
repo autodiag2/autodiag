@@ -32,11 +32,11 @@ void dtc_description_free(DTC_DESCRIPTION *desc) {
 }
 
 void dtc_description_dump(DTC_DESCRIPTION *desc) {
-    printf("DTC_DESCRIPTION {\n");
-    printf("    reason: %s\n", desc->reason);
-    printf("    solution: %s\n", desc->solution);
+    log_msg(LOG_DEBUG, "DTC_DESCRIPTION {");
+    log_msg(LOG_DEBUG, "    reason: %s", desc->reason);
+    log_msg(LOG_DEBUG, "    solution: %s", desc->solution);
     vehicle_dump(desc->vehicle);
-    printf("}\n");
+    log_msg(LOG_DEBUG, "}");
 }
 
 DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtcStr) {

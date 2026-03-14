@@ -3,7 +3,6 @@
 
 #include "libautodiag/lang/all.h"
 #include "libautodiag/model/vehicle.h"
-#include "libautodiag/model/database.h"
 
 typedef enum {
     SAE_J2012_DA_DTCFormat_00 = 0x00, //	SAE_J2012-DA_DTCFormat_00 (Diagnostic & Analysis)
@@ -79,5 +78,7 @@ void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another);
 DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtc);
 
 void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter);
+
+#include "libautodiag/model/database.h"
 
 #endif

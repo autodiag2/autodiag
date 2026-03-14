@@ -305,6 +305,8 @@ static void fill_vehicle_infos() {
     int manufacturer_i = 1, engine_i = 1;
     int manufacturer_active_i = -1, engine_active_i = -1;
 
+    log_msg(LOG_ERROR, "TODO");
+    /*
     for (int vehicle_i = 0; vehicle_i < database.size; vehicle_i++) {
         final Vehicle *vehicle = database.list[vehicle_i];
 
@@ -330,6 +332,7 @@ static void fill_vehicle_infos() {
             engine_i++;
         }
     }
+    */
     if ( manufacturer_active_i != -1 ) {
         gtk_combo_box_set_active((GtkComboBox *)gui->vehicleInfos.manufacturer, manufacturer_active_i);
     }
@@ -575,7 +578,6 @@ static void init(GtkBuilder *builder) {
         };
         *gui = g;
 
-        db_vehicle_load_in_memory();
         assert(0 != g_signal_connect(gui->simulator.nvm_override, "changed", G_CALLBACK(on_nvm_override_changed), null));
         assert(0 != g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file));
         assert(0 != g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file));
