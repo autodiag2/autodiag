@@ -1,13 +1,13 @@
 #include "libautodiag/model/vehicle.h"
 
-int ECU_cmp(ECU * ecu1, ECU * ecu2) {
+int ad_object_ECU_cmp(ad_object_ECU * ecu1, ad_object_ECU * ecu2) {
     return ecu1 - ecu2;
 }
-AD_LIST_SRC(ECU)
+AD_LIST_SRC(ad_object_ECU)
 
-ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size) {
+ad_object_ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size) {
     for(int i = 0; i < v->ecus->size; i++) {
-        ECU* ecu = v->ecus->list[i];
+        ad_object_ECU* ecu = v->ecus->list[i];
         if ( size == ecu->address->size ) {
             if ( memcmp(ecu->address->buffer,address, size) == 0 ) {
                 return ecu;
@@ -18,15 +18,15 @@ ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size) {
     return vehicle_ecu_add(v,address,size);
 }
 
-ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
-    final ECU* ecu = vehicle_ecu_new();
+ad_object_ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size) {
+    final ad_object_ECU* ecu = ad_object_ECU_new();
     ad_buffer_append_bytes(ecu->address,address,size);
-    ad_list_ECU_append(v->ecus, ecu);
+    ad_list_ad_object_ECU_append(v->ecus, ecu);
     return ecu;
 }
 
-ECU* vehicle_ecu_new() {
-    ECU* ecu = (ECU*)malloc(sizeof(ECU));
+ad_object_ECU* ad_object_ECU_new() {
+    ad_object_ECU* ecu = (ad_object_ECU*)malloc(sizeof(ad_object_ECU));
     ecu->address = ad_buffer_new();
     ecu->name = null;
     ecu->manufacturer = null;
@@ -45,7 +45,7 @@ ECU* vehicle_ecu_new() {
     ecu->obd_service.permanent_dtc = ad_list_Buffer_new();
     return ecu;
 }
-ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address) {
+ad_object_ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address) {
     for(int i = 0; i < v->ecus->size; i++) {
         if ( ad_buffer_cmp(v->ecus->list[i]->address, address) == 0 ) {
             return v->ecus->list[i];
@@ -53,11 +53,11 @@ ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address) {
     }
     return null;
 }
-void vehicle_ecu_empty(ECU* ecu) {
+void vehicle_ecu_empty(ad_object_ECU* ecu) {
     ad_list_Buffer_empty(ecu->data_buffer);
     vehicle_ecu_empty_duplicated_info(ecu);
 }
-void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
+void vehicle_ecu_empty_duplicated_info(ad_object_ECU* ecu) {
     ad_list_Buffer_empty(ecu->obd_service.current_data);
     ad_list_Buffer_empty(ecu->obd_service.freeze_frame_data);
     ad_list_Buffer_empty(ecu->obd_service.tests_results);
@@ -70,14 +70,14 @@ void vehicle_ecu_empty_duplicated_info(ECU* ecu) {
     ad_list_Buffer_empty(ecu->obd_service.request_vehicle_information);
     ad_list_Buffer_empty(ecu->obd_service.permanent_dtc);
 }
-void vehicle_ecu_free(ECU* ecu) {
+void ad_object_ECU_free(ad_object_ECU* ecu) {
     ad_list_Buffer_free(ecu->data_buffer);
     MEMORY_FREE_POINTER(ecu->address);
     MEMORY_FREE_POINTER(ecu->name);
     MEMORY_FREE_POINTER(ecu->manufacturer);
     MEMORY_FREE_POINTER(ecu->model);
 }
-void vehicle_ecu_debug(final ECU *ecu) {
+void vehicle_ecu_debug(final ad_object_ECU *ecu) {
     assert(ecu != null);
     printf("ECU debug: {\n");
     printf("  address: %p\n", ecu->address);
@@ -103,7 +103,7 @@ void vehicle_ecu_debug(final ECU *ecu) {
 
 Vehicle * vehicle_new() {
     Vehicle * v = (Vehicle *)malloc(sizeof(Vehicle));
-    v->ecus = ad_list_ECU_new();
+    v->ecus = ad_list_ad_object_ECU_new();
     v->data_buffer = ad_list_Buffer_new();
     v->country = null;
     v->manufacturer = null;
@@ -123,9 +123,9 @@ void vehicle_free(Vehicle * v) {
         ad_list_Buffer_free(v->data_buffer);
         if ( v->ecus != null ) {
             for(int i = 0; i < v->ecus->size; i++) {
-                vehicle_ecu_free(v->ecus->list[i]);
+                ad_object_ECU_free(v->ecus->list[i]);
             }
-            ad_list_ECU_free(v->ecus);
+            ad_list_ad_object_ECU_free(v->ecus);
         }
         MEMORY_FREE_POINTER(v->country)
         MEMORY_FREE_POINTER(v->manufacturer)
@@ -147,7 +147,7 @@ void vehicle_free(Vehicle * v) {
 void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v) {
     ad_list_Buffer_empty(v->data_buffer);
     for ( int i = 0; i < v->ecus->size; i++) {
-        ECU* ecu = v->ecus->list[i];
+        ad_object_ECU* ecu = v->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             ad_list_Buffer_append(v->data_buffer,ad_buffer_copy(ecu->data_buffer->list[j]));
         }
@@ -157,7 +157,7 @@ void vehicle_debug(Vehicle* v) {
     printf("Vehicle debug: {\n");
     printf("  ecus: %p\n", v->ecus);
     for(int i = 0; i < v->ecus->size; i++) {
-        ECU * ecu = v->ecus->list[i];
+        ad_object_ECU * ecu = v->ecus->list[i];
         vehicle_ecu_debug(ecu);
     }
     printf("  data_buffer: %p\n", v->data_buffer);
@@ -171,7 +171,7 @@ void vehicle_dump(Vehicle* v) {
     ad_list_Buffer_dump(v->data_buffer);
     for(int i = 0; i < v->ecus->size; i++) {
         log_msg(LOG_DEBUG, "Dump of one ECU");
-        ECU * ecu = v->ecus->list[i];
+        ad_object_ECU * ecu = v->ecus->list[i];
         log_msg(LOG_DEBUG, "Address");
         Buffer * address = ecu->address;
         ad_buffer_dump(address);

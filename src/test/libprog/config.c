@@ -14,8 +14,8 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
     dtc->data[0] = 0x11 | (ISO15031_DTC_TYPE_POWERTRAIN << 6);
     dtc->data[1] = 0x52;
     dtc->data[2] = 0x00;
-    
-    dtc_desc_fill_from_codes_file(dtc, dtc_desc);
+
+    log_msg(LOG_ERROR, "TODO"); // decode from fs
     tf_test_output("codes filled for citroen");
     dtc_description_dump(dtc_desc);
     assert(dtc_desc != null);

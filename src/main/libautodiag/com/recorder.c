@@ -74,7 +74,7 @@ void record_on_request(final Buffer * binRequest) {
     record->binRequest = ad_buffer_copy(binRequest);
     ad_list_ad_object_Record_append(recorder, record);
 }
-ad_list_ECUBufferRecord * ecu_response_list_find(final ad_list_ad_list_ECUBufferRecord * list, final ECU * ecu) {
+ad_list_ECUBufferRecord * ecu_response_list_find(final ad_list_ad_list_ECUBufferRecord * list, final ad_object_ECU * ecu) {
     for(int i = 0; i < list->size; i++) {
         ad_list_ECUBufferRecord * o = list->list[i];
         if ( ecu == o->ecu ) {
@@ -83,7 +83,7 @@ ad_list_ECUBufferRecord * ecu_response_list_find(final ad_list_ad_list_ECUBuffer
     }
     return null;
 }
-void record_on_response(final ECU * ecu, final Buffer * binResponse) {
+void record_on_response(final ad_object_ECU * ecu, final Buffer * binResponse) {
     ensure_init();
     assert(0 < recorder->size);
     final ad_object_Record * record = recorder->list[recorder->size-1];

@@ -44,7 +44,7 @@ static void show_ecus_buffer_internal() {
     if ( iface->connection._state == VIFaceState_READY ) {
         Vehicle * vehicle = iface->vehicle;    
         for(int i = 0; i < vehicle->ecus->size; i++) {
-            ECU* ecu = vehicle->ecus->list[i];
+            ad_object_ECU* ecu = vehicle->ecus->list[i];
             {
                 char *tmp;
                 char * ascii_dump = ad_buffer_to_hex_string(ecu->address);

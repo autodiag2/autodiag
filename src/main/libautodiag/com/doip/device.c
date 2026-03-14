@@ -403,7 +403,7 @@ static char* doip_describe_communication_layer(final ad_object_DoIPDevice* devic
 static bool doip_parse_data(final ad_object_DoIPDevice* device, final Vehicle* vehicle) {
     final Buffer * address = ad_buffer_slice(device->recv_buffer, 0, DOIP_MESSAGE_DIAG_ADDR_SZ); 
     ad_buffer_left_shift(device->recv_buffer, DOIP_MESSAGE_DIAG_ADDR_SZ);
-    final ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
+    final ad_object_ECU* ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); 
     ad_buffer_free(address); 
     ad_list_Buffer_append(ecu->data_buffer,ad_buffer_copy(device->recv_buffer));
     return true;

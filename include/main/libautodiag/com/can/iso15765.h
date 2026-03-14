@@ -49,13 +49,13 @@ typedef struct {
      * ECU that has initiated this conversation, this is only a pointer, the associtated ecu
      * should not be free after use of the conversation
      */
-    ECU * ecu;
+    ad_object_ECU * ecu;
 } Iso15765Conversation;
 
 Iso15765Conversation* iso15765_init_conversation(int expected_bytes);
 void iso15765_conversation_free(Iso15765Conversation *conv);
 
 AD_LIST_H(Iso15765Conversation)
-Iso15765Conversation* ad_list_Iso15765Conversation_find(ad_list_Iso15765Conversation* list, ECU* ecu);
+Iso15765Conversation* ad_list_Iso15765Conversation_find(ad_list_Iso15765Conversation* list, ad_object_ECU* ecu);
 
 #endif

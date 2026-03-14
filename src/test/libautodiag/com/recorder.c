@@ -21,7 +21,7 @@ bool testRecorder(VehicleIFace* iface) {
     printf("result:\n");
     for(int i = 0; i < record->binResponses->size; i ++) {
         ad_list_ECUBufferRecord * r = record->binResponses->list[i];
-        ECU * ecu = r->ecu;
+        ad_object_ECU * ecu = r->ecu;
         assert(ecu != null);
         vehicle_ecu_debug(ecu);
         for(int j = 0; j < r->size; j++) {

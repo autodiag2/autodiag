@@ -47,7 +47,7 @@ bool testSAEJ1979(VehicleIFace* iface) {
         Vehicle * v = iface->vehicle;
         if ( 0 < v->ecus->size ) {
             for(unsigned i = 0; i < v->ecus->size; i++) {
-                ECU * ecu = v->ecus->list[i];
+                ad_object_ECU * ecu = v->ecus->list[i];
                 for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {

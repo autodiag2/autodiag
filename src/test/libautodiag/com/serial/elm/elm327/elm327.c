@@ -38,7 +38,7 @@ bool testELM327(VehicleIFace* iface) {
         
         bool found = false;
         for(unsigned i = 0; i < tmp->vehicle->ecus->size; i++) {
-            final ECU* ecu = tmp->vehicle->ecus->list[i];
+            final ad_object_ECU* ecu = tmp->vehicle->ecus->list[i];
             for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 if ( 14 == data->size ) {
@@ -64,7 +64,7 @@ bool testELM327(VehicleIFace* iface) {
         
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus->size; i++) {
-            final ECU* ecu = tmp->vehicle->ecus->list[i];
+            final ad_object_ECU* ecu = tmp->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 assert( 14 == data->size );
@@ -86,7 +86,7 @@ bool testELM327(VehicleIFace* iface) {
         final Buffer * should_obtain = ad_buffer_from_ascii_hex("43010300000000");
         bool found = false;
         for(int i = 0; i < tmp->vehicle->ecus->size; i++) {
-            final ECU* ecu = tmp->vehicle->ecus->list[i];
+            final ad_object_ECU* ecu = tmp->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 assert(ad_buffer_equals(should_obtain,data));

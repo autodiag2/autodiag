@@ -303,7 +303,7 @@ int viface_recv(final VehicleIFace* iface) {
     Vehicle * v = iface->vehicle;
     if ( 0 < v->ecus->size ) {
         for(unsigned i = 0; i < v->ecus->size; i++) {
-            ECU * ecu = v->ecus->list[i];
+            ad_object_ECU * ecu = v->ecus->list[i];
             vehicle_ecu_empty_duplicated_info(ecu);
             if ( 0 < v->internal.filter->size && ! ad_list_Buffer_contains(v->internal.filter, ecu->address) ) {
                 ad_list_Buffer_empty(ecu->data_buffer);
@@ -377,7 +377,7 @@ void viface_fill_infos_from_vin(final VehicleIFace * iface) {
 void viface_discover_vehicle(VehicleIFace* iface) {
     saej1979_data_is_pid_supported(iface, false, 0x01);
     for(int i = 0; i < iface->vehicle->ecus->size; i++) {
-        ECU* ecu = iface->vehicle->ecus->list[i];
+        ad_object_ECU* ecu = iface->vehicle->ecus->list[i];
         MEMORY_FREE_POINTER(ecu->name);
         MEMORY_FREE_POINTER(ecu->manufacturer);
         MEMORY_FREE_POINTER(ecu->model);

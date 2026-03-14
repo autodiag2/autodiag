@@ -64,7 +64,7 @@ typedef struct {
     /**
      * ECU who has emitted this DTC.
      */
-    ECU * ecu;
+    ad_object_ECU * ecu;
     /**
      * How did this DTC has been detected
      */
@@ -78,10 +78,6 @@ AD_LIST_H(DTC)
 void ad_list_DTC_append_list(ad_list_DTC * list, ad_list_DTC * another);
 DTC * ad_list_DTC_get(ad_list_DTC * list, char *dtc);
 
-/**
- * Fill DTC description fields from the file codes.tsv
- */
-void dtc_desc_fill_from_codes_file(final DTC * dtc, final DTC_DESCRIPTION * dtc_desc);
 void dtc_description_fetch_from_fs(final DTC * dtc, final Vehicle* filter);
 
 #endif

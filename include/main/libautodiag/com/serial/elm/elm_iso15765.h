@@ -27,7 +27,7 @@ int oneHex(char c);
                 log_msg(LOG_ERROR, "Data has been detected but address cannot be decoded, maybe it is not ISO15765 frame"); \
                 return false; \
             } \
-            final ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
+            final ad_object_ECU* current_ecu = vehicle_ecu_add_if_not_in(vehicle, address->buffer, address->size); \
             ad_buffer_free(address); \
             Iso15765Conversation *conversation = ad_list_Iso15765Conversation_find(conversations, current_ecu); \
             \

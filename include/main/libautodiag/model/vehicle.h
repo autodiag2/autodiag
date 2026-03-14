@@ -7,7 +7,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/buffer.h"
 
-typedef struct {
+AD_OBJECT_H(ECU,
     /**
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this ECU.
@@ -56,23 +56,21 @@ typedef struct {
         ad_list_Buffer * none;
     } obd_service;
 
-} ECU;
+);
 
-ECU* vehicle_ecu_new();
-void vehicle_ecu_free(ECU* ecu);
 /**
  * Do not destruct the address and so on, only empty.
  */
-void vehicle_ecu_empty(ECU* ecu);
+void vehicle_ecu_empty(ad_object_ECU* ecu);
 #define VEHICLE_YEAR_EMPTY -1
 
-AD_LIST_H(ECU)
+AD_LIST_H(ad_object_ECU)
 
 typedef struct {
     /**
      * List of ECUs currently detected in the vehicle.
      */
-    ad_list_ECU * ecus;
+    ad_list_ad_object_ECU * ecus;
     /**
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this vehicle (any ECU).
@@ -110,7 +108,7 @@ typedef struct {
 } Vehicle;
 
 #define vehicle_event_emit_on_ecu_register(v, ecu) \
-    ehh_trigger(v->internal.events.onECURegister, (void(*)(ECU*)), ecu);
+    ehh_trigger(v->internal.events.onECURegister, (void(*)(ad_object_ECU*)), ecu);
 
 #define vehicle_event_emit_on_filter_change(v, type, address) \
     ehh_trigger(v->internal.events.onFilterChange, (void(*)(char*,Buffer*)), type, address)
@@ -127,11 +125,11 @@ void vehicle_fill_global_data_buffer_from_ecus(Vehicle* v);
 void vehicle_dump(Vehicle* v);
 void vehicle_debug(Vehicle* v);
 
-ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
-void vehicle_ecu_debug(final ECU *ecu);
-ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
-void vehicle_ecu_empty_duplicated_info(ECU* ecu);
-ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address);
+ad_object_ECU* vehicle_ecu_add(Vehicle* v, byte* address, int size);
+void vehicle_ecu_debug(final ad_object_ECU *ecu);
+ad_object_ECU* vehicle_ecu_add_if_not_in(Vehicle* v, byte* address, int size);
+void vehicle_ecu_empty_duplicated_info(ad_object_ECU* ecu);
+ad_object_ECU* vehicle_search_ecu_by_address(Vehicle* v, Buffer* address);
 
 AD_LIST_H(Vehicle)
 void ad_list_Vehicle_empty(ad_list_Vehicle * list);

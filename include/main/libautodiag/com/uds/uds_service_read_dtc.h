@@ -67,7 +67,7 @@ char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted);
 
 AD_LIST_H_DEEP(UDS_DTC,
     byte Status_Availability_Mask;
-    ECU * ecu;
+    ad_object_ECU * ecu;
 );
 AD_LIST_H(ad_list_UDS_DTC);
 

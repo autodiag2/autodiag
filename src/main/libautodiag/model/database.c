@@ -67,7 +67,7 @@ static bool db_vehicle_has_ecu(Vehicle *vehicle, const char *manufacturer, const
     }
 
     for (int i = 0; i < vehicle->ecus->size; i++) {
-        ECU *ecu = vehicle->ecus->list[i];
+        ad_object_ECU *ecu = vehicle->ecus->list[i];
         if (ecu == null) {
             continue;
         }
@@ -96,7 +96,7 @@ static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const
         return true;
     }
 
-    ECU *ecu = vehicle_ecu_new();
+    ad_object_ECU *ecu = ad_object_ECU_new();
     if (ecu == null) {
         log_msg(LOG_ERROR, "ecu_new failed");
         return false;
@@ -109,7 +109,7 @@ static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const
         ecu->model = strdup(model);
     }
 
-    ad_list_ECU_append(vehicle->ecus, ecu);
+    ad_list_ad_object_ECU_append(vehicle->ecus, ecu);
     return true;
 }
 

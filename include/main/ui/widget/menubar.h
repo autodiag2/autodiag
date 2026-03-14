@@ -3,15 +3,15 @@
 
 #define MENUBAR_DATA_ALL_IN_ONE \
 static void menubar_data_filter_by_on_filter_check_toggled(GtkCheckMenuItem *check_item, gpointer user_data){ \
-    ECU *ecu=g_object_get_data(G_OBJECT(check_item),"ecu"); \
+    ad_object_ECU *ecu=g_object_get_data(G_OBJECT(check_item),"ecu"); \
     if(gtk_check_menu_item_get_active(check_item))viface_recv_filter_add(config.ephemere.iface,ecu->address); \
     else viface_recv_filter_rm(config.ephemere.iface,ecu->address); \
 } \
-static GtkWidget* menubar_data_filter_by_find_widget_for_ecu(GtkWidget *menu, ECU *ecu){ \
+static GtkWidget* menubar_data_filter_by_find_widget_for_ecu(GtkWidget *menu, ad_object_ECU *ecu){ \
     GList *children=gtk_container_get_children(GTK_CONTAINER(menu)); \
     for(GList *l=children;l!=NULL;l=l->next){ \
         GtkWidget *w=GTK_WIDGET(l->data); \
-        ECU *attached=g_object_get_data(G_OBJECT(w),"ecu"); \
+        ad_object_ECU *attached=g_object_get_data(G_OBJECT(w),"ecu"); \
         if(attached==ecu){ \
             g_list_free(children); \
             return w; \
@@ -29,7 +29,7 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
         } \
         g_list_free(children); \
     }else{ \
-        ECU *ecu=vehicle_search_ecu_by_address(config.ephemere.iface->vehicle,address); \
+        ad_object_ECU *ecu=vehicle_search_ecu_by_address(config.ephemere.iface->vehicle,address); \
         if(ecu==null){ \
             log_msg(LOG_WARNING,"ecu with address '%s' not found",ad_buffer_to_hex_string(address)); \
         }else{ \
@@ -41,10 +41,10 @@ static void menubar_data_filter_by_filter_change(const char *type,Buffer *addres
         } \
     } \
 } \
-static void menubar_data_filter_by_register(const ECU *ecu){ \
+static void menubar_data_filter_by_register(const ad_object_ECU *ecu){ \
     char *displayLabel; \
     asprintf(&displayLabel,"%s (%s)",ecu->name,ad_buffer_to_hex_string(ecu->address)); \
-    GtkWidget *filter_check=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,(ECU*)ecu); \
+    GtkWidget *filter_check=menubar_data_filter_by_find_widget_for_ecu(gui->menuBar.data.filter_by_menu,(ad_object_ECU*)ecu); \
     if(filter_check==null){ \
         filter_check=gtk_check_menu_item_new_with_label(displayLabel); \
         gtk_menu_shell_append(GTK_MENU_SHELL(gui->menuBar.data.filter_by_menu),filter_check); \

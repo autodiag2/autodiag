@@ -7,7 +7,7 @@
 typedef Buffer ECUBufferRecord;
 
 AD_LIST_H_DEEP(ECUBufferRecord,
-    ECU * ecu;
+    ad_object_ECU * ecu;
 )
 AD_LIST_H(ad_list_ECUBufferRecord)
 
@@ -18,7 +18,7 @@ AD_OBJECT_H(Record,
 
 AD_LIST_H(ad_object_Record)
 void record_on_request(final Buffer * binRequest);
-void record_on_response(final ECU * ecu, final Buffer * binResponse);
+void record_on_response(final ad_object_ECU * ecu, final Buffer * binResponse);
 void record_clear();
 ad_list_ad_object_Record * recorder_get();
 bool record_to_json_file(char *filepath);

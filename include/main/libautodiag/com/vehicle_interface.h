@@ -82,7 +82,7 @@ typedef struct VehicleIFace {
     ehh_trigger(iface->internal.onRequest, (void(*)(Buffer*)), binRequest);
 
 #define ad_viface_event_emit_on_response(iface, ecu, binResponse) \
-    ehh_trigger(iface->internal.onResponse, (void(*)(ECU*,Buffer*)), ecu, binResponse);
+    ehh_trigger(iface->internal.onResponse, (void(*)(ad_object_ECU*,Buffer*)), ecu, binResponse);
 
 void viface_recorder_set_state(final VehicleIFace* iface, final bool state);
 void viface_recorder_reset(final VehicleIFace* iface);
