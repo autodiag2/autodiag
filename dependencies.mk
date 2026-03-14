@@ -1518,7 +1518,7 @@ output/obj/main/libautodiag/model/database.o: \
   include/main/libautodiag/lang/hashmap_common.h \
   include/main/libautodiag/time.h include/main/libautodiag/handle.h \
   include/main/libautodiag/com/network.h \
-  include/main/libautodiag/model/vehicle.h
+  include/main/libautodiag/model/vehicle.h sqlite3/sqlite3.h
 output/obj/main/libautodiag/model/dtc.o: src/main/libautodiag/model/dtc.c \
   include/main/libautodiag/model/dtc.h \
   include/main/libautodiag/lang/all.h \
@@ -3721,8 +3721,7 @@ output/obj/main/ui/vin.o: src/main/ui/vin.c include/main/ui/vin.h \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/ui/widget/error_feedback.h include/main/libprog/config.h \
-  include/main/ui/ui_mod.h mongoose/mongoose.h \
-  
+  include/main/ui/ui_mod.h mongoose/mongoose.h cJSON/cJSON.h
 output/obj/main/ui/widget/error_feedback.o: \
   src/main/ui/widget/error_feedback.c \
   include/main/ui/widget/error_feedback.h include/main/libautodiag/lib.h \
