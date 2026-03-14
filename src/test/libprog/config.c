@@ -35,7 +35,7 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
         dtc->data[0] = 0x11 | (ISO15031_DTC_TYPE_POWERTRAIN << 6);
         dtc->data[1] = 0x52;
         dtc->data[2] = 0x00;
-        log_msg(LOG_INFO,"as str : %s", dtc->to_string(dtc));
+        log_info("as str : %s", dtc->to_string(dtc));
     
         ad_dtc_fetch_from_db(dtc, vehicle);
         for(int i = 0; i < dtc->description->size; i++) {
