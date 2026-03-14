@@ -341,7 +341,7 @@ temperature
                   <object class="GtkEntry" id="vin">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
-                    <property name="text" translatable="yes">VF7RD5FV8FL507366</property>
+                    <property name="text" translatable="yes">VF1BB05CF26010203</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>

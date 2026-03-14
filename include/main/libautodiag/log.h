@@ -42,7 +42,7 @@ extern Logger logger;
 #endif
 #define log_warn(msg, ...) log_msg(LOG_WARNING, msg, ##__VA_ARGS__)
 #define log_info(msg, ...) log_msg(LOG_INFO, msg, ##__VA_ARGS__)
-#define log_error(msg, ...) log_msg(LOG_ERROR, msg, ##__VA_ARGS__)
+#define log_err(msg, ...) log_msg(LOG_ERROR, msg, ##__VA_ARGS__)
 #define log_debug(msg, ...) log_msg(LOG_DEBUG, msg, ##__VA_ARGS__)
 
 /**

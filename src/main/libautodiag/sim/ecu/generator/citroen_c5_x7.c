@@ -370,7 +370,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->uds.session_timer = null;
     state->uds.session_continue = true;
 
-    state->vin = ad_buffer_from_ascii("VF7RD5FV8FL507366");
+    state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     state->uds.dtcs = ad_list_UDS_DTC_new();
     state->obd.dtcs = ad_list_DTC_new();
     generator->context = (unsigned*)malloc(sizeof(unsigned));

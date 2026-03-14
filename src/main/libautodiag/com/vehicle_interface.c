@@ -390,8 +390,12 @@ void viface_discover_vehicle(VehicleIFace* iface) {
     }
     if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
         final ad_list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
-        assert(result->size <= 1);
-        if ( 0 < result->size ) {
+        if ( 0 == result->size ) {
+            log_err("VIN not received");
+        } else if ( 1 == result->size ) {
+            iface->vehicle->vin = ad_buffer_copy(result->list[0]);
+        } else {
+            log_warn("More than on vin received, selecting the first one");
             iface->vehicle->vin = ad_buffer_copy(result->list[0]);
         }
     }

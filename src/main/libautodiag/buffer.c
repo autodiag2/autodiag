@@ -373,9 +373,11 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer) {
             offset ++;
             continue;
         }
-        buffer->buffer[i-offset] = buffer->buffer[i];
+        if ( 0 < offset ) {
+            buffer->buffer[i-offset] = buffer->buffer[i];
+        }
     }
-    buffer->size -= 1;
+    buffer->size -= offset;
 }
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
     assert(buffer != null);

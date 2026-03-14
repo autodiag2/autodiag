@@ -51,5 +51,13 @@ bool testISO3779() {
         assert(decoder->year == 2022);
     }
     */
+    {
+        TEST_VIN_DECODE("VF7RD5FV8FL50736");
+        assert(strstr(decoder->country, "FRANCE") != null);
+        char *region = ISO3779_region(decoder);
+        assert(strcmp(region, "Europe") == 0);
+        assert(strstr(decoder->manufacturer, "Peugeot") != null);
+        assert(decoder->year == 2022);
+    }
     return true;
 }

@@ -253,16 +253,12 @@ static void* save_internal(void *arg) {
         viface_fill_infos_from_vin(iface);
         final char * manufacturer = gtk_combo_box_text_get_active_text(gui->vehicleInfos.manufacturer);
         if ( manufacturer != null ) {
-            if ( iface->vehicle->manufacturer != null ) {
-                free(iface->vehicle->manufacturer);
-            }
+            MEMORY_FREE_POINTER(iface->vehicle->manufacturer);
             iface->vehicle->manufacturer = manufacturer;
         }
         final char * engine = gtk_combo_box_text_get_active_text(gui->vehicleInfos.engine);
         if ( engine != null ) {
-            if ( iface->vehicle->engine != null ) {
-                free(iface->vehicle->engine);
-            }
+            MEMORY_FREE_POINTER(iface->vehicle->engine);
             iface->vehicle->engine = engine;
         }
         iface->vehicle->engine = engine;
