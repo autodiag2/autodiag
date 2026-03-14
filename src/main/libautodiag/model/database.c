@@ -432,6 +432,7 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         return;
     }
 
+    log_debug("searching for '%s'", dtc_code);
     const char *sql =
         "SELECT "
         "    d.definition, "
@@ -463,7 +464,7 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         "    ON ecu.id = sl.ecu_id "
         "LEFT JOIN ad_manufacturer eum "
         "    ON eum.id = ecu.manufacturer_id "
-        "WHERE d.code = ?;";
+        "WHERE lower(d.code) = lower(?);";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &stmt, null);
     if (rc != SQLITE_OK) {
