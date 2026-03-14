@@ -14,8 +14,8 @@ bool testSimUDS() {
         viface_clear_data(iface);
         viface_recv(iface);
         bool passed = false;
-        for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-            final ECU * ecu = iface->vehicle->ecus[i];
+        for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+            final ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
                 assert(data->buffer[0] == UDS_NEGATIVE_RESPONSE);

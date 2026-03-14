@@ -80,8 +80,8 @@ static ad_list_ad_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * if
     ad_buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         final ad_list_UDS_DTC * ecu_response = ad_list_UDS_DTC_new();
         ecu_response->ecu = ecu;
         for(int j = 0; j < ecu->data_buffer->size; j++) {

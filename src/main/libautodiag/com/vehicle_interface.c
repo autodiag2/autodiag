@@ -301,9 +301,9 @@ int viface_recv(final VehicleIFace* iface) {
 
     log_msg(LOG_DEBUG, "Storing in the corresponding service");
     Vehicle * v = iface->vehicle;
-    if ( 0 < v->ecus_len ) {
-        for(unsigned i = 0; i < v->ecus_len; i++) {
-            ECU * ecu = v->ecus[i];
+    if ( 0 < v->ecus->size ) {
+        for(unsigned i = 0; i < v->ecus->size; i++) {
+            ECU * ecu = v->ecus->list[i];
             vehicle_ecu_empty_duplicated_info(ecu);
             if ( 0 < v->internal.filter->size && ! ad_list_Buffer_contains(v->internal.filter, ecu->address) ) {
                 ad_list_Buffer_empty(ecu->data_buffer);
@@ -354,8 +354,8 @@ int viface_recv(final VehicleIFace* iface) {
 
 void viface_clear_data(final VehicleIFace* iface) {
     iface->device->clear_data(iface->device);
-    for ( int i = 0; i < iface->vehicle->ecus_len; i ++) {
-        vehicle_ecu_empty(iface->vehicle->ecus[i]);
+    for ( int i = 0; i < iface->vehicle->ecus->size; i ++) {
+        vehicle_ecu_empty(iface->vehicle->ecus->list[i]);
     }
     ad_list_Buffer_empty(iface->vehicle->data_buffer);
 }
@@ -376,12 +376,11 @@ void viface_fill_infos_from_vin(final VehicleIFace * iface) {
 }
 void viface_discover_vehicle(VehicleIFace* iface) {
     saej1979_data_is_pid_supported(iface, false, 0x01);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        ECU* ecu = iface->vehicle->ecus[i];
-        if ( ecu->name != null ) {
-            free(ecu->name);
-            ecu->name = null;
-        }
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        ECU* ecu = iface->vehicle->ecus->list[i];
+        MEMORY_FREE_POINTER(ecu->name);
+        MEMORY_FREE_POINTER(ecu->manufacturer);
+        MEMORY_FREE_POINTER(ecu->model);
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
     iface->uds.enabled = uds_is_enabled(iface);

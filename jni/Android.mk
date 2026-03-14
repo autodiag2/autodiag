@@ -11,9 +11,10 @@ CFLAGS += -ffile-prefix-map=$(ROOT)=. -fdebug-prefix-map=$(ROOT)=.
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := libautodiag
-LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/ $(ROOT)/mongoose/
+LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/ $(ROOT)/mongoose/ $(ROOT)/sqlite3/
 LOCAL_SRC_FILES := $(sort \
   ../cJSON/cJSON.c \
+  ../sqlite3/sqlite3.c \
   ../mongoose/mongoose.c \
   $(patsubst $(LOCAL_PATH)/%,%,$(call rwildcard,$(ROOT)/src/main/libautodiag/,*.c)) \
 )
@@ -30,7 +31,7 @@ include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := elm327sim
-LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/ $(ROOT)/mongoose/
+LOCAL_C_INCLUDES := $(ROOT)/include/main/ $(ROOT)/cJSON/ $(ROOT)/mongoose/ $(ROOT)/sqlite3/
 SRC_FILES_LIBPROG := $(sort $(call filterout-multi, \
   ..//src/main/libprog/sim_ecu_generator_gui.c \
   ..//src/main/libprog/ui/% \

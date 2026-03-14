@@ -12,7 +12,7 @@ bool testELM327(VehicleIFace* iface) {
             if ( ! elm327_iso15765_parse_response(elm,tmp->vehicle) ) return false;
         }
         vehicle_dump(tmp->vehicle);
-        if ( tmp->vehicle->ecus_len != 1 ) return false;
+        if ( tmp->vehicle->ecus->size != 1 ) return false;
     }
     {
         VehicleIFace* tmp = tf_fake_can_iface();
@@ -23,7 +23,7 @@ bool testELM327(VehicleIFace* iface) {
         elm->recv_buffer = buffer;
         assert(elm327_iso15765_parse_response(elm,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
-        assert(tmp->vehicle->ecus_len == 2);
+        assert(tmp->vehicle->ecus->size == 2);
     }
     {
         tf_test_output("Consecutive from one ecu");
@@ -34,11 +34,11 @@ bool testELM327(VehicleIFace* iface) {
         elm327->recv_buffer = buffer;
         assert(elm327_iso15765_parse_response(elm327,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
-        assert(tmp->vehicle->ecus_len == 2);
+        assert(tmp->vehicle->ecus->size == 2);
         
         bool found = false;
-        for(unsigned i = 0; i < tmp->vehicle->ecus_len; i++) {
-            final ECU* ecu = tmp->vehicle->ecus[i];
+        for(unsigned i = 0; i < tmp->vehicle->ecus->size; i++) {
+            final ECU* ecu = tmp->vehicle->ecus->list[i];
             for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 if ( 14 == data->size ) {
@@ -58,13 +58,13 @@ bool testELM327(VehicleIFace* iface) {
         elm327->recv_buffer = buffer;
         assert(elm327_iso15765_parse_response(elm327,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
-        assert(tmp->vehicle->ecus_len == 2);
+        assert(tmp->vehicle->ecus->size == 2);
 
         final Buffer * should_obtain = ad_buffer_from_ascii_hex("4306133613401338008713371339");
         
         bool found = false;
-        for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
-            final ECU* ecu = tmp->vehicle->ecus[i];
+        for(int i = 0; i < tmp->vehicle->ecus->size; i++) {
+            final ECU* ecu = tmp->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 assert( 14 == data->size );
@@ -82,11 +82,11 @@ bool testELM327(VehicleIFace* iface) {
         elm327->recv_buffer = buffer;
         assert(elm_standard_obd_message_parse_response((ELMDevice*)elm327,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
-        assert(tmp->vehicle->ecus_len == 2);
+        assert(tmp->vehicle->ecus->size == 2);
         final Buffer * should_obtain = ad_buffer_from_ascii_hex("43010300000000");
         bool found = false;
-        for(int i = 0; i < tmp->vehicle->ecus_len; i++) {
-            final ECU* ecu = tmp->vehicle->ecus[i];
+        for(int i = 0; i < tmp->vehicle->ecus->size; i++) {
+            final ECU* ecu = tmp->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 Buffer * data = ecu->data_buffer->list[j];
                 assert(ad_buffer_equals(should_obtain,data));
@@ -104,10 +104,10 @@ bool testELM327(VehicleIFace* iface) {
         elm327->recv_buffer = buffer;
         assert(elm_standard_obd_message_parse_response((ELMDevice*)elm327,tmp->vehicle));
         vehicle_dump(tmp->vehicle);
-        assert(tmp->vehicle->ecus_len == 1);
+        assert(tmp->vehicle->ecus->size == 1);
 
-        assert(ad_buffer_equals(ad_buffer_from_ascii_hex("43010301040105"),tmp->vehicle->ecus[0]->data_buffer->list[0]));
-        assert(ad_buffer_equals(ad_buffer_from_ascii_hex("43010601070108"),tmp->vehicle->ecus[0]->data_buffer->list[1]));
+        assert(ad_buffer_equals(ad_buffer_from_ascii_hex("43010301040105"),tmp->vehicle->ecus->list[0]->data_buffer->list[0]));
+        assert(ad_buffer_equals(ad_buffer_from_ascii_hex("43010601070108"),tmp->vehicle->ecus->list[0]->data_buffer->list[1]));
     }
     return true;
 }

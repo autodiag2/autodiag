@@ -29,8 +29,8 @@ bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type) {
     ));
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( result == bool_unset ) {
@@ -66,8 +66,8 @@ bool uds_clear_dtcs(final VehicleIFace * iface) {
     ));
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( result == bool_unset ) {
@@ -96,8 +96,8 @@ ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final i
     ad_buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
@@ -151,8 +151,8 @@ bool uds_tester_present(final VehicleIFace *iface, final bool response) {
             viface_unlock(iface);
             return false;
         }
-        for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-            final ECU * ecu = iface->vehicle->ecus[i];
+        for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+            final ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * ecu_buffer = ecu->data_buffer->list[j];
                 if ( ecu_buffer->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
@@ -215,8 +215,8 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
     ));
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
@@ -245,8 +245,8 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
         ));
         viface_clear_data(iface);
         viface_recv(iface);
-        for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-            final ECU * ecu = iface->vehicle->ecus[i];
+        for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+            final ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
                 if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
@@ -293,8 +293,8 @@ ad_object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, fina
     ad_buffer_free(binRequest);
     viface_clear_data(iface);
     viface_recv(iface);
-    for(int i = 0; i < iface->vehicle->ecus_len; i++) {
-        final ECU * ecu = iface->vehicle->ecus[i];
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
             if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {

@@ -21,8 +21,12 @@ typedef struct {
      * Name of this ECU.
      */
     char *name;
-   /**
-     * eg BOSCH MED 17.4
+    /**
+     * BOSCH
+     */
+    char * manufacturer;
+    /**
+     * eg MED 17.4
      */
     char *model;
     /**
@@ -62,12 +66,13 @@ void vehicle_ecu_free(ECU* ecu);
 void vehicle_ecu_empty(ECU* ecu);
 #define VEHICLE_YEAR_EMPTY -1
 
+AD_LIST_H(ECU)
+
 typedef struct {
     /**
      * List of ECUs currently detected in the vehicle.
      */
-    ECU ** ecus;
-    int ecus_len;
+    ad_list_ECU * ecus;
     /**
      * Binary data (as hex string when on the interecting 
      * through serial devices) received from this vehicle (any ECU).
@@ -80,6 +85,10 @@ typedef struct {
      */
     char *manufacturer;
     /**
+     * C5 X7
+     */
+    char * model;
+    /**
      * Make year of the car
      */
     int year;
@@ -87,11 +96,11 @@ typedef struct {
      * eg EP6DT
      */
     char *engine;
+    /**
+     * eg Citroen
+     */
+    char * engine_manufacturer;
     struct {
-        /**
-         * Directory containing meta datas for this car
-         */
-        char *directory;
         struct {
             EventHandlerHolder * onECURegister;
             EventHandlerHolder * onFilterChange;

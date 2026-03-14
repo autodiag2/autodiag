@@ -45,9 +45,9 @@ bool testSAEJ1979(VehicleIFace* iface) {
 
         log_msg(LOG_DEBUG, "Storing in the corresponding service");
         Vehicle * v = iface->vehicle;
-        if ( 0 < v->ecus_len ) {
-            for(unsigned i = 0; i < v->ecus_len; i++) {
-                ECU * ecu = v->ecus[i];
+        if ( 0 < v->ecus->size ) {
+            for(unsigned i = 0; i < v->ecus->size; i++) {
+                ECU * ecu = v->ecus->list[i];
                 for(unsigned j = 0; j < ecu->data_buffer->size; j++) {
                     final Buffer * data = ecu->data_buffer->list[j];
                     if ( 0 < data->size ) {

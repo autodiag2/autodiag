@@ -22,9 +22,7 @@ SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
         } else { \
             n = data->size; \
         } \
-        if (ecu->name != NULL) { \
-            free(ecu->name); \
-        } \
+        MEMORY_FREE_POINTER(ecu->name); \
         ecu->name = malloc(n + 1); \
         memcpy(ecu->name, data->buffer, n); \
         ecu->name[n] = '\0'; \
