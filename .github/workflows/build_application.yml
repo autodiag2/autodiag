@@ -23,7 +23,7 @@ jobs:
       fail-fast: false
       matrix:
         #    amd64          arm64         amd64
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest, fedora-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -45,6 +45,8 @@ jobs:
             /c/tools/msys64/usr/bin/bash -lc 'pacman -S --noconfirm mingw-w64-ucrt-x86_64-gtk3 git mingw-w64-ucrt-x86_64-toolchain base-devel gcc pkg-config mingw-w64-x86_64-gtk3'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export LIBRARY_PATH=/mingw64/lib:\$LIBRARY_PATH" >> ~/.profile'
             /c/tools/msys64/usr/bin/bash -lc 'echo "export PKG_CONFIG_PATH=/mingw64/lib/pkgconfig:/mingw64/share/pkgconfig" >> ~/.profile'
+          elif [[ "${{ matrix.os }}" == fedora* ]]; then
+            sudo dnf install -y make gcc gcc-c++ glibc-devel gtk3 gtk3-devel git rpm-build rpmdevtools cpio
           fi
 
       - name: Clone external database
@@ -63,6 +65,8 @@ jobs:
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
             /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib/ make distWindows"
+          elif [[ "${{ matrix.os }}" == fedora* ]]; then
+            make distFedora
           else
             echo "unsupported OS"
             exit 1
@@ -76,6 +80,8 @@ jobs:
             output/bin/*.so
             output/bin/*.dylib
             output/bin/*.dll
+            output/bin/*.rpm
+            output/bin/*.src.rpm
             output/bin/*.dmg
             output/bin/*Setup.exe
           tag_name: ${{ needs.tag.outputs.tag_name }}
