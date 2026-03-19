@@ -354,9 +354,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * serial_request, char * serial_r
         asprintf(&response,"%s%s", serial_response, elm327->eol);
     }
     sim_prevent_read_himself((Sim*)elm327);
-    char * resp_str = ascii_escape_breaking_chars(response);
-    log_msg(LOG_DEBUG, "sending back %s", resp_str);
-    free(resp_str);
+    log_msg(LOG_DEBUG, "sending back %s", ascii_escape_breaking_chars(response));
 
     int bytes_written = sim_write((Sim*)elm327, ((SimELM327Implementation*)elm327->implementation)->timeout_ms, (byte*)response, strlen(response));
     free(response);
