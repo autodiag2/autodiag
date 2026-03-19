@@ -330,13 +330,31 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         } break;
         case UDS_SERVICE_ECU_RESET: {
             if ( 1 < binRequest->size ) {
-                final byte resetType = binRequest->buffer[0];
+                final byte resetType = binRequest->buffer[1];
                 uds_reset_default_session(state);
                 ad_buffer_append_byte(binResponse, resetType);
             } else {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
-        }
+        } break;
+        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
+            if ( 2 < binRequest->size ) {
+                Buffer * did_buffer = ad_buffer_slice(binRequest, 1, 2);
+                uint16_t did = ad_buffer_to_be16(did_buffer);
+                ad_buffer_free(did_buffer);
+                switch(did) {
+                    case UDS_DID_VIN: {
+                        if ( (3 + 17) == binRequest->size ) {
+                            state->vin = ad_buffer_slice(binRequest, 3, 17);
+                        } else {
+                            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_REQUEST_OUT_OF_RANGE);
+                        }
+                    } break;
+                }
+            } else {
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        } break;
     }
     return binResponse;
 }

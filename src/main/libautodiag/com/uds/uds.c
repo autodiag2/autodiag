@@ -1,5 +1,71 @@
 #include "libautodiag/com/uds/uds.h"
 
+bool uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
+    assert(vin_ascii != null);
+    bool result = bool_unset;
+
+    if ( ! uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
+        return false;
+    }
+
+    if ( ! uds_security_access(iface, 0) ) {
+        return false;
+    }
+
+    viface_lock(iface);
+
+    Buffer * request = ad_buffer_new();
+    ad_buffer_append_byte(request, UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
+    Buffer * did = ad_buffer_new();
+    ad_buffer_assign_uint16(did, UDS_DID_VIN);
+    ad_buffer_append(request, did);
+    ad_buffer_append(request, vin_ascii);
+
+    viface_send(iface, request);
+    ad_buffer_free(request);
+
+    viface_clear_data(iface);
+    viface_recv(iface);
+
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            final Buffer * data = ecu->data_buffer->list[j];
+
+            if ( result == bool_unset ) {
+                result = true;
+            }
+
+            if ( data->size <= 0 ) {
+                log_msg(LOG_WARNING, "Empty response buffer");
+                result &= false;
+                continue;
+            }
+
+            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                log_msg(LOG_ERROR, "Negative response while writing VIN");
+                ad_buffer_dump(data);
+                result &= false;
+            } else if ( data->size == 3
+                     && data->buffer[0] == (UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE)
+                     && data->buffer[1] == did->buffer[0]
+                     && data->buffer[2] == did->buffer[1] ) {
+                result &= true;
+            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                log_msg(LOG_WARNING, "Unexpected positive response payload while writing VIN");
+                ad_buffer_dump(data);
+                result &= false;
+            } else {
+                log_msg(LOG_WARNING, "Unknown byte at first");
+                ad_buffer_dump(data);
+                result &= false;
+            }
+        }
+    }
+    ad_buffer_free(did);
+    viface_unlock(iface);
+    return result == bool_unset ? false : result;
+}
 bool uds_security_access(final VehicleIFace * iface, int level) {
     return uds_security_access_ecu_generator_citroen_c5_x7(iface);
 }

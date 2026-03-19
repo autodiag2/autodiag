@@ -4,6 +4,7 @@
 #include "ui/ui.h"
 #include "ui/ui_mod.h"
 #include "libprog/config.h"
+#include "libautodiag/com/uds/uds.h"
 
 typedef struct {
     GtkWidget * window;

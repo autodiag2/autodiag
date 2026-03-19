@@ -150,7 +150,20 @@ static gboolean tool_output_set_gsource(gpointer data) {
 static void tool_output_set(char * text) {
     g_idle_add(tool_output_set_gsource, strdup(text));
 }
+static gboolean tool_output_append_gsource(gpointer data) {
+    char * text = (char*)data;
 
+    GtkTextIter end;
+    gtk_text_buffer_get_end_iter(gui->tool.output_buffer, &end);
+    gtk_text_buffer_insert(gui->tool.output_buffer, &end, text, strlen(text));
+
+    free(text);
+    return false;
+}
+
+static void tool_output_append(char * text) {
+    g_idle_add(tool_output_append_gsource, strdup(text));
+}
 static bool ensure_vehicle_connected() {
     if ( config.ephemere.iface == null || config.ephemere.iface->vehicle == null || config.ephemere.iface->connection._state != VIFaceState_READY ) {
         tool_output_set("Vehicle not connected");
@@ -295,7 +308,15 @@ static void tool_vin_read_clicked(GtkButton *button, gpointer user_data) {
 }
 
 static void tool_vin_write_action() {
-    tool_output_set("Not implemented ...");
+    if ( ! ensure_vehicle_connected() ) return;
+    char * vin = (char*)gtk_entry_get_text(gui->vin);
+    if ( ! uds_write_vin(config.ephemere.iface, ad_buffer_from_ascii(vin) ) ) {
+        tool_output_set("Error while writting your vin, check format, check permission");
+        return;
+    }
+    tool_output_set("VIN written, retrieve again informations from iface ...");
+    config_onchange();
+    tool_output_append("Informations loaded !");
 }
 
 THREAD_WRITE_DAEMON(

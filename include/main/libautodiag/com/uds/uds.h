@@ -184,6 +184,10 @@ typedef enum {
 
 const char *uds_reset_type_to_string(uds_reset_type v);
 bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type);
+/**
+ * @param vin_ascii ascii values of the vin
+ */
+bool uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 

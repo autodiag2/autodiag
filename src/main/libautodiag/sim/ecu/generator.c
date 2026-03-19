@@ -33,14 +33,24 @@ bool sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_CURRENT_DATA:
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
             } else {
                 ad_buffer_recycle(binResponse);
                 return false;
             }
-            break;
+        } break;
+        // Only one data to write per request
+        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
+            if ( 2 < binRequest->size ) {
+                AD_BUFFER_APPEND_BYTES(binResponse, binRequest->buffer[1], binRequest->buffer[2]);
+            } else {
+                log_debug("Should send incorrect message length");
+                ad_buffer_recycle(binResponse);
+                return false;
+            }
+        } break;
     }
     return true;
 }
