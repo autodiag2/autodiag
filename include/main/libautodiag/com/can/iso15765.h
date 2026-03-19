@@ -58,4 +58,8 @@ void iso15765_conversation_free(Iso15765Conversation *conv);
 AD_LIST_H(Iso15765Conversation)
 Iso15765Conversation* ad_list_Iso15765Conversation_find(ad_list_Iso15765Conversation* list, ad_object_ECU* ecu);
 
+#define AD_ISO15765_SINGLE_FRAME_MAX_BYTES CAN_MAX_BYTES_PER_MESSAGE-1
+#define AD_ISO15765_FIRST_FRAME_MAX_BYTES CAN_MAX_BYTES_PER_MESSAGE-2
+#define AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES CAN_MAX_BYTES_PER_MESSAGE-1
+
 #endif

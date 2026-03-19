@@ -4,47 +4,68 @@
  * Response of the controller to the tester.
  * @return empty buffer in case not addressed to this ECU, null on error, OBD/UDS data on success
  */
-static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer * binRequest, char ** errorCauseReturn) {
+static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list_Buffer * requestFrames, char ** errorCauseReturn) {
     Buffer * dataRequest = ad_buffer_new();
-    log_msg(LOG_DEBUG, "Receving incoming request by the tester");
     log_msg(LOG_DEBUG, "TODO: addressing of ECUs in the bus, for now all ECUs receive all messages");
-    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
-            assert(4 <= binRequest->size);
-            ad_buffer_slice_append(dataRequest, binRequest, 4, binRequest->size - 4);
-        } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
-            assert(2 <= binRequest->size);
-            ad_buffer_slice_append(dataRequest, binRequest, 2, binRequest->size - 2);
-        } else {
-            log_msg(LOG_WARNING, "Missing case here");
-        }
-        if ( elm327->can.extended_addressing ) {
-            ad_buffer_left_shift(dataRequest, 1);
-        }
-        assert(0 < dataRequest->size);
-        byte pci = dataRequest->buffer[0];
-        final int pci_sz_value = pci & 0x0F;
-        ad_buffer_left_shift(dataRequest, 1);
-        if ( elm327->can.auto_format ) {
-            if ( pci_sz_value != dataRequest->size ) {
-                log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", pci_sz_value, dataRequest->size);
-                assert( pci_sz_value == dataRequest->size);
-            }
-        } else {
-            if ( (pci & 0xF0) == Iso15765SingleFrame ) {
-                if ( dataRequest->size != pci_sz_value ) {
-                    log_msg(LOG_WARNING, "Single frame pci size does not match");
-                    *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
-                    return null;
-                }
+    for(int i = 0; i < requestFrames->size; i ++) {
+        Buffer * requestFrame = requestFrames->list[i];
+        Buffer * requestFrameHeader = ad_buffer_new();
+        log_msg(LOG_DEBUG, "Receving incoming request by the tester %s", ad_buffer_to_hex_string(requestFrame));
+        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+            if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
+                assert(4 <= requestFrame->size);
+                ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 4);
+            } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
+                assert(2 <= requestFrame->size);
+                ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 2);
             } else {
-                log_msg(LOG_INFO, "TODO : implement more types of frames");
-                return null;
+                log_msg(LOG_WARNING, "Missing case here");
             }
+            ad_buffer_left_shift(requestFrame, requestFrameHeader->size);
+            if ( elm327->can.extended_addressing ) {
+                ad_buffer_left_shift(requestFrame, 1);
+            }
+            assert(0 < requestFrame->size);
+            byte pci = ad_buffer_extract_0(requestFrame);
+            byte pci_ft = pci >> 4;
+            switch(pci_ft) {
+                case Iso15765SingleFrame: {
+                    log_debug("single frame");
+                    int data_length = pci & 0x0F;
+                    if ( data_length != requestFrame->size ) {
+                        if ( elm327->can.auto_format ) {
+                            log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", data_length, requestFrame->size);
+                            assert( data_length == requestFrame->size);
+                        } else {
+                            log_msg(LOG_WARNING, "Single frame pci size does not match (%d/%d)", data_length, requestFrame->size);
+                            *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
+                            return null;
+                        }
+                    }                    
+                } break;
+                case Iso15765FirstFrame: {
+                    log_debug("first frame");
+                    assert(0 < requestFrame->size);
+                    byte pci2 = ad_buffer_extract_0(requestFrame);
+                    //int data_length = ((pci & 0x0F) << 8) + pci2;
+                    log_debug("todo : data length check (for user generated headers for example)");
+                } break;
+                case Iso15765ConsecutiveFrame: {
+                    log_debug("consecutive frame");
+                    //int sn = pci & 0xF;
+                    log_debug("todo : order check (for user generated headers for example)");
+                } break;
+                case Iso15765FlowControlFrame: {
+                    log_debug("flow control frame - ignoring");
+                } break;
+            }
+        } else {
+            assert(3 <= requestFrame->size);
+            ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 3);
+            ad_buffer_left_shift(requestFrame, requestFrameHeader->size);
         }
-    } else {
-        assert(3 <= binRequest->size);
-        ad_buffer_slice_append(dataRequest, binRequest, 3, binRequest->size - 3);
+        ad_buffer_append(dataRequest, requestFrame);
+        ad_buffer_free(requestFrameHeader);
     }
     return dataRequest;
 }
@@ -54,7 +75,7 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, Buffer 
  * @param dataRequest OBD/UDS
  * @return header to send to the vehicle (emu).
  */
-static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequest) {
+static Buffer* request_header(SimELM327* elm327, SimECU * ecu) {
     log_msg(LOG_DEBUG, "Generating the tester request header");
     Buffer *protocolSpecificHeader = ad_buffer_new();
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
@@ -97,13 +118,6 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
                 elm327->can.extended_addressing_target_address
             );
         }
-        if ( elm327->can.auto_format ) {
-            final byte pci = dataRequest->size | Iso15765SingleFrame;
-            AD_BUFFER_APPEND_BYTES(
-                protocolSpecificHeader,
-                pci   
-            );
-        }
     } else {
         if ( elm327->custom_header->size == 3 ) {
             ad_buffer_append(protocolSpecificHeader, elm327->custom_header);
@@ -114,6 +128,47 @@ static Buffer* request_header(SimELM327* elm327, SimECU * ecu, Buffer * dataRequ
         }
     }
     return protocolSpecificHeader;     
+}
+/**
+ * Split if needed the request into multiple ones
+ */
+static ad_list_Buffer * request_frames(SimELM327* elm327, SimECU * ecu, Buffer * dataRequest) {
+    Buffer * requestHeader = request_header(elm327, ecu);
+    ad_list_Buffer * requestFrames = ad_list_Buffer_new();
+    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+        Buffer * one_frame = ad_buffer_new();
+        ad_list_Buffer_append(requestFrames, one_frame);
+        if ( elm327->can.auto_format ) {
+            ad_buffer_append(one_frame, requestHeader);
+            if ( AD_ISO15765_SINGLE_FRAME_MAX_BYTES < dataRequest->size ) {
+                int data_length = dataRequest->size;
+                ad_buffer_append_byte(one_frame, (Iso15765FirstFrame << 4) | ((data_length >> 8) & 0xF));
+                ad_buffer_append_byte(one_frame, data_length & 0xF);
+                ad_buffer_slice_append(one_frame, dataRequest, 0, AD_ISO15765_FIRST_FRAME_MAX_BYTES);
+                for(int i = AD_ISO15765_FIRST_FRAME_MAX_BYTES, sn = 0; i < dataRequest->size; i += AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES, sn ++) {
+                    Buffer * consecutive_frame = ad_buffer_new();
+                    ad_buffer_append(consecutive_frame, requestHeader);
+                    ad_buffer_append_byte(consecutive_frame, (Iso15765ConsecutiveFrame << 4) | sn);
+                    int upper_bound = dataRequest->size - i;
+                    ad_buffer_slice_append(consecutive_frame, dataRequest, i, min(AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES, upper_bound));
+                    ad_list_Buffer_append(requestFrames, consecutive_frame);
+                }
+            } else {
+                final byte pci = dataRequest->size | Iso15765SingleFrame;
+                ad_buffer_append_byte(one_frame, pci);
+                ad_buffer_append(one_frame, dataRequest);
+            }
+        } else {
+            ad_buffer_append(one_frame, dataRequest);
+        }
+    } else {
+        log_debug("For now non can devices have infinite length");
+        Buffer * request_frame = ad_buffer_new();
+        ad_buffer_append(request_frame, requestHeader);
+        ad_buffer_append(request_frame, dataRequest);
+        ad_list_Buffer_append(requestFrames, request_frame);
+    }
+    return requestFrames;
 }
 /**
  * Generate the response header to the tester by the bus.
@@ -263,7 +318,6 @@ static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src)
     }
     return result;
 }
-
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
@@ -292,15 +346,11 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 }
             }
 
-            Buffer * binRequest = ad_buffer_new();
-            final Buffer * requestHeader = request_header(elm327, ecu, dataRequest);
-            ad_buffer_append(binRequest, requestHeader);
-            ad_buffer_append(binRequest, dataRequest);
-            ad_buffer_free(requestHeader);
+            ad_list_Buffer * requestFrames = request_frames(elm327, ecu, dataRequest);
 
             char * errorCauseReturn;
-            final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, binRequest, &errorCauseReturn);
-            ad_buffer_free(binRequest);
+            final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, requestFrames, &errorCauseReturn);
+            ad_list_Buffer_free(requestFrames);
             if ( extractedDataRequest == null ) {
                 response = errorCauseReturn;
                 break;

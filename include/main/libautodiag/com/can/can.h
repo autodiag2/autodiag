@@ -5,7 +5,7 @@
 #define __AD_CAN_H
 
 /**
- * Standard can messages are 8 bytes length
+ * Standard can messages are 8 bytes length (including the pci in case CAN-TP)
  */
 #define CAN_MAX_BYTES_PER_MESSAGE 8
 
