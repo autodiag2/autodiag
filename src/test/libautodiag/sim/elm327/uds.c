@@ -86,5 +86,21 @@ bool testSimUDS() {
         assert(uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
         assert(uds_security_access_ecu_generator_citroen_c5_x7(iface));
     }
+    {
+        Buffer * vin = ad_buffer_from_ascii("5UXCR6C00N9K68159");
+        assert(uds_write_vin(iface, vin));
+        if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
+            final ad_list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
+            if ( 0 == result->size ) {
+                log_err("VIN not received");
+            } else if ( 1 == result->size ) {
+                iface->vehicle->vin = ad_buffer_copy(result->list[0]);
+            } else {
+                log_warn("More than on vin received, selecting the first one");
+                iface->vehicle->vin = ad_buffer_copy(result->list[0]);
+            }
+        }
+        assert(ad_buffer_cmp(iface->vehicle->vin, vin) == 0);
+    }
     return true;
 }
