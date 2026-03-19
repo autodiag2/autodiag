@@ -29,9 +29,14 @@ else ifdef XDG_DATA_DIRS
     INSTALL_BIN_FOLDER = $(ROOT)/bin/
     INSTALL_LIB_FOLDER = $(ROOT)/lib/
 else
+    IS_FEDORA := $(shell sh -c '. /etc/os-release 2>/dev/null; [ "$$ID" = "fedora" ] && echo 1 || echo 0')
     ROOT = /usr/
     INSTALL_BIN_FOLDER = $(ROOT)/bin/
-    INSTALL_LIB_FOLDER = $(ROOT)/lib/
+    ifeq ($(IS_FEDORA),1)
+        INSTALL_LIB_FOLDER = $(ROOT)/lib64/
+    else
+        INSTALL_LIB_FOLDER = $(ROOT)/lib/
+    endif
 endif
 
 CFLAGS_DEBUG            = -ggdb

@@ -26,6 +26,10 @@ brew install gtk+3
 ```bash
 sudo apt-get install make gcc build-essential debhelper dh-make devscripts libgtk-3-0 libgtk-3-dev git
 ```
+#### Fedora based 
+```bash
+sudo dnf install make gcc gcc-c++ glibc-devel gtk3 gtk3-devel git rpm-build rpmdevtools
+```
 ## Build
 ### Retrieving the repo
 ```bash

@@ -1,0 +1,4 @@
+docker container create -it --name autodiag_fedora -v /Users/jean/Desktop/fun/autodiag/autodiag/:/DATA/ -w /DATA/ -e DISPLAY=host.docker.internal:0 fedora
+docker start autodiag_fedora
+xhost +
+docker exec -ti autodiag_fedora bash

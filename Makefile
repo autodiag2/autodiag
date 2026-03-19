@@ -234,6 +234,26 @@ distMacOS: tools_prerequistes release_progs
 
 distDebian: tools_prerequistes distDebianBin
 
+distFedora: tools_prerequistes tarball
+	@command -v rpmbuild > /dev/null 2>&1 || { echo "rpmbuild is required"; exit 1; }
+	@command -v rpmdev-setuptree > /dev/null 2>&1 || { echo "rpmdev-setuptree is required"; exit 1; }
+
+	rpmdev-setuptree
+
+	cp "$(APP_NAME)-$(APP_VERSION).tar.bz2" "$$HOME/rpmbuild/SOURCES/"
+	cp "dist/fedora/$(APP_NAME).spec" "$$HOME/rpmbuild/SPECS/"
+
+	rpmbuild -ba "$$HOME/rpmbuild/SPECS/$(APP_NAME).spec" \
+		--define "_topdir $$HOME/rpmbuild" \
+		--define "app_name $(APP_NAME)" \
+		--define "app_version $(APP_VERSION)"
+
+	mkdir -p ./output/bin/
+	cp -f "$$HOME"/rpmbuild/RPMS/*/$(APP_NAME)-*$(APP_VERSION)*.rpm ./output/bin/ 2>/dev/null || true
+	cp -f "$$HOME"/rpmbuild/SRPMS/$(APP_NAME)-*$(APP_VERSION)*.src.rpm ./output/bin/ 2>/dev/null || true
+
+	rpm -qpi ./output/bin/$(APP_NAME)-*$(APP_VERSION)*.rpm
+
 newVersion: tools_prerequistes
 	@command -v git > /dev/null 2>&1 || { echo "git is required to create a new version"; exit 1; }
 	@command -v debchange > /dev/null 2>&1 || { echo "debchange is required to create a new version"; exit 1; }
@@ -285,9 +305,10 @@ help:
 	@-echo " release_progs            - compile progs with debugging info removed"
 	@-echo " release_progs_compat     - compile progs maximizing compatibility with debugging info removed"
 	@-echo " release_lib              - compile the library with debugging info removed"
-	@-echo " distDebian               - package for debian"
+	@-echo " distDebian               - package as .deb"
 	@-echo " distWindows              - package in an installer for windows"
 	@-echo " distMacOS                - package as DMG for macOS"
+	@-echo " distFedora               - package as .rpm"
 	@-echo " doc                      - generate documentation"
 	@-echo " install                  - install on this computer"
 	@-echo " uninstall                - uninstall"
