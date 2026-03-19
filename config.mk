@@ -78,7 +78,7 @@ else ifeq ($(UNAME_S),Darwin)
     SYSTEM := darwin
     EXT := dylib
     CFLAGS_LIB_COMPILE := -dynamiclib
-else ifeq ($(UNAME_S), Linux)
+else ifeq ($(UNAME_S),Linux)
     SYSTEM := linux
     EXT := so
     CFLAGS_LIB_COMPILE := -shared

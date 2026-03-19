@@ -208,9 +208,15 @@ tarball: tools_prerequistes
 	@command -v tar > /dev/null 2>&1 || { echo "tar is required"; exit 1; }
 	prefix="$(APP_NAME)-$(APP_VERSION)" && \
 	tmp="/tmp/$(APP_NAME)fileList" && \
+	rm -rf "$${prefix}" && \
 	mkdir -p "$${prefix}" && \
 	git ls-tree -r HEAD --name-only | grep -v '^.git' | grep -v '^\.' > "$${tmp}" && \
 	cpio -pdm "$${prefix}" < "$${tmp}" && \
+	cp -a mongoose "$${prefix}/" && \
+	cp -a sqlite3 "$${prefix}/" && \
+	cp -a cJSON "$${prefix}/" && \
+	mkdir -p "$${prefix}/data" && \
+	cp -a data/data "$${prefix}/data/" && \
 	tar jcf "$${prefix}".tar.bz2 "$${prefix}" && \
 	rm -rf "$${prefix}"
 
@@ -280,7 +286,9 @@ install: tools_prerequistes _install
 	cp -fr ui "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr data/data "$(INSTALL_DATA_FOLDER_APP)"
 	cp -fr media "$(INSTALL_DATA_FOLDER_APP)"
-	-cp ./output/bin/* "$(INSTALL_BIN_FOLDER)"
+	-cp ./output/bin/autodiag "$(INSTALL_BIN_FOLDER)"
+	-cp ./output/bin/elm327sim "$(INSTALL_BIN_FOLDER)"
+	-cp ./output/bin/doipsim "$(INSTALL_BIN_FOLDER)"
 	cp ./output/bin/libautodiag* "$(INSTALL_LIB_FOLDER)"
 installDev: tools_prerequistes _install
 	ln -s "$${PWD}/data/data" "$(INSTALL_DATA_FOLDER_APP)"

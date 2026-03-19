@@ -24,12 +24,20 @@ make
 
 %install
 rm -rf %{buildroot}
-make DESTDIR=%{buildroot} install
+make \
+  INSTALL_LIB_FOLDER=%{buildroot}/usr/lib64/ \
+  INSTALL_BIN_FOLDER=%{buildroot}/usr/bin/ \
+  INSTALL_DATA_FOLDER=%{buildroot}/usr/share/ \
+  install
 
 %files
 %license LICENSE*
 %doc README*
-/usr/bin/%{name}
+/usr/bin/autodiag
+/usr/bin/doipsim
+/usr/bin/elm327sim
+/usr/lib64/libautodiag-*.so
+/usr/share/autodiag
 
 %changelog
 * Thu Mar 19 2026 autodiag2 <autodiag@netcourrier.com> - %{version}-1

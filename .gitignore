@@ -5,6 +5,7 @@ libs/
 **/#**#
 TODO
 *.swp
+*.tar.bz2
 experiments/
 build/
 dist/debian/autodiag*
