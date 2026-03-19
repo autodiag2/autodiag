@@ -63,6 +63,10 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list
             assert(3 <= requestFrame->size);
             ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 3);
             ad_buffer_left_shift(requestFrame, requestFrameHeader->size);
+            if ( 7 < requestFrame->size ) {
+                log_warn("Undefined behaviour, wanted to send %d bytes over elm327 device (ignore extract bytes or send to KWP2000)", requestFrame->size);
+                log_warn("Use all the bytes for now");
+            }
         }
         ad_buffer_append(dataRequest, requestFrame);
         ad_buffer_free(requestFrameHeader);

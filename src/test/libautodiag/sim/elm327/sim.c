@@ -1,5 +1,22 @@
 #include "libTest.h"
 
+void testKWP2000LongMessages() {
+    SimELM327* elm327 = tf_sim_elm327_new();
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    iface->lock(iface);
+    iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_14230_4_KWP2000_2));
+    iface->device->recv(iface->device);
+    elm327->protocolRunning = ELM327_PROTO_ISO_14230_4_KWP2000_2;
+    ELM327Device * device = (ELM327Device *)iface->device;
+    device->protocol = ELM327_PROTO_ISO_14230_4_KWP2000_2;
+    iface->send(iface, ad_buffer_from_ascii_hex("01010101010101010101010101"));
+    iface->clear_data(iface);
+    iface->recv(iface);
+    assert(0 < iface->vehicle->data_buffer->size);
+    iface->unlock(iface);
+}
 void testSimELM327_1() {
 
     SimELM327* elm327 = tf_sim_elm327_new();
@@ -247,6 +264,7 @@ static void ensureNetworkOK() {
     assert(iface != null);
 }
 bool testSimELM327() {
+    testKWP2000LongMessages();
     ensureSerialOK();
     ensureNetworkOK();
     ensureWithoutHeadersDontSendNull();
