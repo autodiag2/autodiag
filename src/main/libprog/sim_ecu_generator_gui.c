@@ -111,6 +111,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 }
                 for(int i = 0; i < dtcs->size; i++) {
                     ad_buffer_append_melt(binResponse, dtcs->list[i]);
+                    dtcs->list[i] = null;
                 }
                 ad_list_Buffer_free(dtcs);
             }
