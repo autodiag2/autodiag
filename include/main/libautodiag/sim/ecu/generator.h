@@ -19,6 +19,19 @@ typedef struct SimECUGenerator {
      * it is not expected to be modified by external parts using the generator.
      */
     void *state;
+
+    /**
+     * Holds any information on ECU that may alter the way the generator respond.
+     * Avoid to write a generator for CAN ECU, one generator for non CAN ECU.
+     */
+    struct {
+        /**
+         * ECU may respond slightly different.
+         * eg. DTC_count for SID 03
+         */
+        bool is_Iso15765_4;
+    } flavour ;
+    
     /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance

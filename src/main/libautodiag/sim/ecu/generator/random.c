@@ -37,8 +37,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC: {
-            ad_buffer_append_melt(binResponse,
-                ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));
+            Buffer * payload = ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
+            if ( generator->flavour.is_Iso15765_4 ) {
+                ad_buffer_append_byte(binResponse, payload->size / 2);
+            }
+            ad_buffer_append_melt(binResponse,payload);
         } break;
 
         case OBD_SERVICE_CLEAR_DTC: {
@@ -126,6 +129,7 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("random");
+    generator->flavour.is_Iso15765_4 = 0;
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;

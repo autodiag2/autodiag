@@ -84,6 +84,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_DTC: {
             if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
                 GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+                ad_list_Buffer * dtcs = ad_list_Buffer_new();
                 while (ptr != NULL) {
                     GList *ptr_next = ptr->next;
                     GtkWidget *row = GTK_WIDGET(ptr->data);
@@ -96,7 +97,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             if ( dtc_bin == null ) {
                                 log_msg(LOG_ERROR, "invalid dtc found");
                             } else {
-                                ad_buffer_append_melt(binResponse, dtc_bin);
+                                ad_list_Buffer_append(dtcs, dtc_bin);
                             }
                         } else {
                             g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
@@ -105,6 +106,13 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 
                     ptr = ptr_next;
                 }
+                if ( generator->flavour.is_Iso15765_4 ) {
+                    ad_buffer_append_byte(binResponse, dtcs->size);
+                }
+                for(int i = 0; i < dtcs->size; i++) {
+                    ad_buffer_append_melt(binResponse, dtcs->list[i]);
+                }
+                ad_list_Buffer_free(dtcs);
             }
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
@@ -150,6 +158,7 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
+    generator->flavour.is_Iso15765_4 = 0;
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;

@@ -364,6 +364,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 continue;
             }
             char * ecuResponse = null;
+            ecu->generator->flavour.is_Iso15765_4 = elm327_protocol_is_can(elm327->protocolRunning);
             final Buffer * dataResponse = sim_ecu_response(ecu,extractedDataRequest);
 
             assert(dataResponse != null);

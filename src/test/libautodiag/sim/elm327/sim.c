@@ -1,5 +1,26 @@
 #include "libTest.h"
 
+void testDTCcountonSAEJ1979() {
+    SimELM327* elm327 = tf_sim_elm327_new();
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    iface->lock(iface);
+    iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_15765_4_CAN_1));
+    iface->device->recv(iface->device);
+    elm327->protocolRunning = ELM327_PROTO_ISO_15765_4_CAN_1;
+    ELM327Device * device = (ELM327Device *)iface->device;
+    device->protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
+    iface->send(iface, ad_buffer_from_ascii_hex("03"));
+    iface->clear_data(iface);
+    iface->recv(iface);
+    assert(iface->vehicle->data_buffer->size == 1);
+    Buffer * data_buffer = iface->vehicle->data_buffer->list[0];
+    assert(1 < data_buffer->size);
+    int DTC_count = data_buffer->buffer[1];
+    assert((data_buffer->size % 2) == 0);
+    assert(((data_buffer->size - 2) / 2) == DTC_count);
+}
 void testKWP2000LongMessages() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
@@ -264,6 +285,7 @@ static void ensureNetworkOK() {
     assert(iface != null);
 }
 bool testSimELM327() {
+    testDTCcountonSAEJ1979();
     testKWP2000LongMessages();
     ensureSerialOK();
     ensureNetworkOK();
