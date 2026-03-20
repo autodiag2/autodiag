@@ -379,7 +379,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("Citroen C5 X7");
-    generator->flavour.is_Iso15765_4 = 0;
+    generator->flavour.is_Iso15765_4 = false;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

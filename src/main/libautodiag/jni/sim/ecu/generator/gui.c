@@ -91,6 +91,7 @@
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_DTC: {
+                ad_list_Buffer * dtcs = ad_list_Buffer_new();
                 if ( ! dtc_cleared ) {
                     for (jsize i = 0; i < dtc_count; i++) {
                         jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
@@ -100,13 +101,21 @@
                         if ( dtc_bin == null ) {
                             log_msg(LOG_ERROR, "invalid dtc found");
                         } else {
-                            ad_buffer_append_melt(binResponse, dtc_bin);
+                            ad_list_Buffer_append(dtcs, dtc_bin);
                         }
                         
                         (*env)->ReleaseStringUTFChars(env, s, dtc);
                         (*env)->DeleteLocalRef(env, s);
                     }
                 }
+                if ( generator->flavour.is_Iso15765_4 ) {
+                    ad_buffer_append_byte(binResponse, dtcs->size);
+                }
+                for(int i = 0; i < dtcs->size; i++) {
+                    ad_buffer_append_melt(binResponse, dtcs->list[i]);
+                    dtcs->list[i] = null;
+                }
+                ad_list_Buffer_free(dtcs);
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_CURRENT_DATA: {
@@ -253,6 +262,7 @@
         generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
         generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
         generator->type = strdup("GUI");
+        generator->flavour.is_Iso15765_4 = false;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;
