@@ -156,7 +156,6 @@ bool elm329_configure(final ELM329Device* elm329) {
     }
     return false;
 }
-
 void elm329_init(ELM329Device* d) {
     d->send = AD_DEVICE_SEND(elm329_send);
     d->recv = AD_DEVICE_RECV(elm329_recv);
@@ -165,6 +164,7 @@ void elm329_init(ELM329Device* d) {
     d->protocol = ELM329_PROTO_NONE;
     d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm329_guess_response);
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm329_configure);
+    d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(elm329_is_can);
     d->printing_of_spaces = true;
 }
 

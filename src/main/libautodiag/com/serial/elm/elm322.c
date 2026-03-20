@@ -39,6 +39,9 @@ bool elm322_configure(final ELM322Device* elm322) {
     }
 GEN_SERIAL_RECV(elm322_recv,ELM322Device,ELM322_RECV_ITERATOR)
 
+static bool proto_is_can(ELM322Device* d) {
+    return false;
+}
 void elm322_init(ELM322Device* d) {
     d->send = AD_DEVICE_SEND(serial_send);
     d->recv = AD_DEVICE_RECV(elm322_recv);
@@ -47,6 +50,7 @@ void elm322_init(ELM322Device* d) {
     d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm322_guess_response);
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm322_configure);
     d->printing_of_spaces = true;
+    d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
 }
 
 ELM322Device* elm322_new() {

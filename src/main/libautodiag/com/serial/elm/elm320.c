@@ -41,6 +41,9 @@ bool elm320_configure(final ELM320Device* elm320) {
     }
 GEN_SERIAL_RECV(elm320_recv,ELM320Device,ELM320_RECV_ITERATOR)
 
+static bool proto_is_can(ELM320Device* d) {
+    return false;
+}
 void elm320_init(ELM320Device* d) {
     d->send = AD_DEVICE_SEND(serial_send);
     d->recv = AD_DEVICE_RECV(elm320_recv);
@@ -49,6 +52,7 @@ void elm320_init(ELM320Device* d) {
     d->guess_response = elm320_guess_response;
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm320_configure);
     d->printing_of_spaces = true;
+    d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
 }
 
 ELM320Device* elm320_new() {

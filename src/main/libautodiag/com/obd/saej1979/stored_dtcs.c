@@ -30,7 +30,17 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
     if ( result == null ) { \
         result = ad_list_DTC_new(); \
     } \
-    for(unsigned byte = 0; 0 < data_buffer->size && byte < data_buffer->size-1; byte += 2) { \
+    bool has_dtc_count = false; \
+    Device * device = iface->device; \
+    if ( device->type == AD_DEVICE_TYPE_SERIAL ) { \
+        ELMDevice * elm = (ELMDevice*)device; \
+        if ( elm->proto_is_can(AD_DEVICE(elm)) ) { \
+            has_dtc_count = true; \
+        } \
+    } else { \
+        log_warn("DTC count not implemented for device type 0x%X", device->type); \
+    } \
+    for(unsigned byte = has_dtc_count; has_dtc_count < data_buffer->size && byte < data_buffer->size-1; byte += 2) { \
         unsigned char byte_0 = data_buffer->buffer[byte]; \
         unsigned char byte_1 = data_buffer->buffer[byte+1]; \
         if ( byte_0 == 0 && byte_1 == 0 ) { \

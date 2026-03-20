@@ -143,7 +143,9 @@ bool elm327_set_filter_by_address(final ELM327Device* elm327, final ad_list_Buff
         }
     }
 }
-
+static bool proto_is_can(ELM327Device* d) {
+    return elm327_protocol_is_can(d->protocol);
+}
 void elm327_init(ELM327Device* d) {
     d->send = AD_DEVICE_SEND(elm327_send);
     d->recv = AD_DEVICE_RECV(elm327_recv);
@@ -154,6 +156,7 @@ void elm327_init(ELM327Device* d) {
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm327_configure);
     d->protocol = ELM327_PROTO_NONE;
     d->printing_of_spaces = true;
+    d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
 }
 
 ELM327Device* elm327_new() {
