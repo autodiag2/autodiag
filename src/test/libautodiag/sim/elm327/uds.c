@@ -1,6 +1,53 @@
 #include "libTest.h"
 
+/**
+ * SAEJ1979 allow multiple PIDs to be sent if generator->flavour.is_Iso15765_4
+ */
+void testMultiplePIDsPerFrame() {
+    SimELM327* elm327 = tf_sim_elm327_new();
+    LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    {
+        log_info("Ensure the non flavoured generator reply only to one PID");
+        iface->lock(iface);
+        iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_14230_4_KWP2000_2));
+        iface->device->recv(iface->device);
+        elm327->protocolRunning = ELM327_PROTO_ISO_14230_4_KWP2000_2;
+        ELM327Device * device = (ELM327Device *)iface->device;
+        device->protocol = ELM327_PROTO_ISO_14230_4_KWP2000_2;
+        iface->unlock(iface);
+        iface->send(iface, ad_buffer_from_ascii_hex("010100"));
+        iface->clear_data(iface);
+        iface->recv(iface);
+        assert(iface->vehicle->data_buffer->size == 1);
+        Buffer * data_buffer = iface->vehicle->data_buffer->list[0];
+        assert(data_buffer->buffer[0] == 0x41);
+        assert(data_buffer->buffer[1] == 0x01);
+        assert(data_buffer->size == 2 + 4);
+    }
+    {
+        log_info("Ensure the flavoured generator reply to many PIDs");
+        iface->lock(iface);
+        iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_15765_4_CAN_1));
+        iface->device->recv(iface->device);
+        elm327->protocolRunning = ELM327_PROTO_ISO_15765_4_CAN_1;
+        ELM327Device * device = (ELM327Device *)iface->device;
+        device->protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
+        iface->unlock(iface);
+        iface->send(iface, ad_buffer_from_ascii_hex("010100"));
+        iface->clear_data(iface);
+        iface->recv(iface);
+        assert(iface->vehicle->data_buffer->size == 1);
+        Buffer * data_buffer = iface->vehicle->data_buffer->list[0];
+        assert(data_buffer->buffer[0] == 0x41);
+        assert(data_buffer->buffer[1] == 0x01);
+        assert(data_buffer->size > 2 + 4);
+    }
+}
 bool testSimUDS() {
+    testMultiplePIDsPerFrame();
     SimELM327* elm327 = tf_sim_elm327_new();
     LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
     sim_elm327_loop_as_daemon(elm327);

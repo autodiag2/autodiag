@@ -94,19 +94,30 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_CURRENT_DATA: {
-            bool generic_behaviour = true;
-            switch(binRequest->buffer[1]) {
-                case 0x01: {
-                    Buffer* status = ad_buffer_new();
-                    ad_buffer_padding(status, 4, 0x00);
-                    status->buffer[0] = state->obd.dtcs->size;
-                    status->buffer[0] |= state->obd.mil_on << 7;
-                    ad_buffer_append_melt(binResponse, status);
-                    generic_behaviour = false;
-                }
-            }
-            if ( generic_behaviour ) {
-                ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+            if ( 1 < binRequest->size ) {
+                ad_buffer_recycle(binResponse);
+                ad_buffer_append_byte(binResponse, OBD_SERVICE_SHOW_CURRENT_DATA | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+                int pid_i = 1;
+                do {
+                    bool generic_behaviour = true;
+                    ad_buffer_append_byte(binResponse, binRequest->buffer[pid_i]);
+                    switch(binRequest->buffer[pid_i]) {
+                        case 0x01: {
+                            Buffer* status = ad_buffer_new();
+                            ad_buffer_padding(status, 4, 0x00);
+                            status->buffer[0] = state->obd.dtcs->size;
+                            status->buffer[0] |= state->obd.mil_on << 7;
+                            ad_buffer_append_melt(binResponse, status);
+                            generic_behaviour = false;
+                        }
+                    }
+                    if ( generic_behaviour ) {
+                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+                    }
+                    pid_i ++;
+                } while (generator->flavour.is_Iso15765_4 && pid_i < binRequest->size);
+            } else {
+                ad_buffer_recycle(binResponse);
             }
         } break;
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
