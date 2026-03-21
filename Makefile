@@ -244,19 +244,20 @@ distFedora: tools_prerequistes tarball
 	@command -v rpmbuild > /dev/null 2>&1 || { echo "rpmbuild is required"; exit 1; }
 	@command -v rpmdev-setuptree > /dev/null 2>&1 || { echo "rpmdev-setuptree is required"; exit 1; }
 
-	rpmdev-setuptree
+	@rpmdev-setuptree
+	@mkdir -p ./output/bin/
 
-	cp "$(APP_NAME)-$(APP_VERSION).tar.bz2" "$$HOME/rpmbuild/SOURCES/"
-	cp "dist/fedora/$(APP_NAME).spec" "$$HOME/rpmbuild/SPECS/"
+	cp -f "$(APP_NAME)-$(APP_VERSION).tar.bz2" "$$HOME/rpmbuild/SOURCES/"
+	cp -f "dist/fedora/$(APP_NAME).spec" "$$HOME/rpmbuild/SPECS/"
 
-	rpmbuild -ba "$$HOME/rpmbuild/SPECS/$(APP_NAME).spec" \
+	rpmbuild -bb "$$HOME/rpmbuild/SPECS/$(APP_NAME).spec" \
 		--define "_topdir $$HOME/rpmbuild" \
 		--define "app_name $(APP_NAME)" \
 		--define "app_version $(APP_VERSION)"
 
-	mkdir -p ./output/bin/
-	cp -f "$$HOME"/rpmbuild/RPMS/*/$(APP_NAME)-*$(APP_VERSION)*.rpm ./output/bin/ 2>/dev/null || true
-	cp -f "$$HOME"/rpmbuild/SRPMS/$(APP_NAME)-*$(APP_VERSION)*.src.rpm ./output/bin/ 2>/dev/null || true
+	@rpms="$$(find "$$HOME/rpmbuild/RPMS" -type f -name "$(APP_NAME)-*$(APP_VERSION)*.rpm")"; \
+	test -n "$$rpms" || { echo "no binary rpm produced"; exit 1; }; \
+	cp -f $$rpms ./output/bin/
 
 	rpm -qpi ./output/bin/$(APP_NAME)-*$(APP_VERSION)*.rpm
 

@@ -353,7 +353,7 @@ void device_table_fill(ad_object_DeviceTable * table) {
         device_table_fill_comports(table, selected_device_path,&baud_rate);
         device_table_fill_pipes(table, selected_device_path, &baud_rate);
     #elif defined OS_POSIX 
-		char part1[][20] = {"ttys","ttyS","ttyUSB"};
+		char part1[][20] = {"ttys","ttyS","ttyUSB","rfcomm"};
 	    device_table_fill_from_dir(table, "/dev/",3,part1,selected_device_path,&baud_rate);
 		char part2[][20] = {""};
 		device_table_fill_from_dir(table, "/dev/pts/",1,part2,selected_device_path,&baud_rate);
