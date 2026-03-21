@@ -40,28 +40,28 @@ static MetricType metric_from_title(const char *activeGraph, int *out_arg) {
     return METRIC_SPEED;
 }
 
-static double metric_get(VehicleIFace *iface, bool freeze, MetricType t, int arg, double error) {
+static double metric_get(VehicleIFace *iface, int dataFrameNumber, MetricType t, int arg, double error) {
     switch (t) {
-        case METRIC_SPEED: return saej1979_data_vehicle_speed(iface, freeze);
-        case METRIC_COOLANT_TEMP: return saej1979_data_engine_coolant_temperature(iface, freeze);
-        case METRIC_INTAKE_AIR_TEMP: return saej1979_data_intake_air_temperature(iface, freeze);
-        case METRIC_INTAKE_MANIFOLD_PRESSURE: return saej1979_data_intake_manifold_pressure(iface, freeze);
-        case METRIC_MAF_RATE: return saej1979_data_maf_air_flow_rate(iface, freeze);
-        case METRIC_ENGINE_SPEED: return saej1979_data_engine_speed(iface, freeze);
-        case METRIC_FUEL_PRESSURE: return saej1979_data_fuel_pressure(iface, freeze);
-        case METRIC_FUEL_LEVEL: return saej1979_data_fuel_tank_level_input(iface, freeze);
-        case METRIC_FUEL_ETHANOL: return saej1979_data_ethanol_fuel_percent(iface, freeze);
-        case METRIC_FUEL_RAIL_PRESSURE: return saej1979_data_frp_relative(iface, freeze);
-        case METRIC_FUEL_RATE: return saej1979_data_engine_fuel_rate(iface, freeze);
-        case METRIC_FUEL_TRIM_LT_B1: return saej1979_data_long_term_fuel_trim_bank_1(iface, freeze);
-        case METRIC_FUEL_TRIM_LT_B2: return saej1979_data_long_term_fuel_trim_bank_2(iface, freeze);
-        case METRIC_FUEL_TRIM_ST_B1: return saej1979_data_short_term_fuel_trim_bank_1(iface, freeze);
-        case METRIC_FUEL_TRIM_ST_B2: return saej1979_data_short_term_fuel_trim_bank_2(iface, freeze);
-        case METRIC_INJECTION_TIMING: return saej1979_data_fuel_injection_timing(iface, freeze);
-        case METRIC_INJECTION_ADV_BTDC: return saej1979_data_timing_advance_cycle_1(iface, freeze);
-        case METRIC_OX_VOLTAGE: return saej1979_data_oxygen_sensor_voltage(iface, freeze, arg);
-        case METRIC_OX_CURRENT: return saej1979_data_oxygen_sensor_current(iface, freeze, arg);
-        case METRIC_OX_RATIO: return saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, freeze, arg);
+        case METRIC_SPEED: return saej1979_data_vehicle_speed(iface, dataFrameNumber);
+        case METRIC_COOLANT_TEMP: return saej1979_data_engine_coolant_temperature(iface, dataFrameNumber);
+        case METRIC_INTAKE_AIR_TEMP: return saej1979_data_intake_air_temperature(iface, dataFrameNumber);
+        case METRIC_INTAKE_MANIFOLD_PRESSURE: return saej1979_data_intake_manifold_pressure(iface, dataFrameNumber);
+        case METRIC_MAF_RATE: return saej1979_data_maf_air_flow_rate(iface, dataFrameNumber);
+        case METRIC_ENGINE_SPEED: return saej1979_data_engine_speed(iface, dataFrameNumber);
+        case METRIC_FUEL_PRESSURE: return saej1979_data_fuel_pressure(iface, dataFrameNumber);
+        case METRIC_FUEL_LEVEL: return saej1979_data_fuel_tank_level_input(iface, dataFrameNumber);
+        case METRIC_FUEL_ETHANOL: return saej1979_data_ethanol_fuel_percent(iface, dataFrameNumber);
+        case METRIC_FUEL_RAIL_PRESSURE: return saej1979_data_frp_relative(iface, dataFrameNumber);
+        case METRIC_FUEL_RATE: return saej1979_data_engine_fuel_rate(iface, dataFrameNumber);
+        case METRIC_FUEL_TRIM_LT_B1: return saej1979_data_long_term_fuel_trim_bank_1(iface, dataFrameNumber);
+        case METRIC_FUEL_TRIM_LT_B2: return saej1979_data_long_term_fuel_trim_bank_2(iface, dataFrameNumber);
+        case METRIC_FUEL_TRIM_ST_B1: return saej1979_data_short_term_fuel_trim_bank_1(iface, dataFrameNumber);
+        case METRIC_FUEL_TRIM_ST_B2: return saej1979_data_short_term_fuel_trim_bank_2(iface, dataFrameNumber);
+        case METRIC_INJECTION_TIMING: return saej1979_data_fuel_injection_timing(iface, dataFrameNumber);
+        case METRIC_INJECTION_ADV_BTDC: return saej1979_data_timing_advance_cycle_1(iface, dataFrameNumber);
+        case METRIC_OX_VOLTAGE: return saej1979_data_oxygen_sensor_voltage(iface, dataFrameNumber, arg);
+        case METRIC_OX_CURRENT: return saej1979_data_oxygen_sensor_current(iface, dataFrameNumber, arg);
+        case METRIC_OX_RATIO: return saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, dataFrameNumber, arg);
     }
     return error;
 }
@@ -97,8 +97,8 @@ static void button_click_clean_up_routine(void *arg) {
     gtk_spinner_stop(gui->refreshIcon);
 }
 
-static bool show_freeze_frame_get_state() {
-    return gtk_check_menu_item_get_active(gui->menuBar.showFreezeFrame);
+static bool get_data_frame_selected() {
+    return gtk_check_menu_item_get_active(gui->menuBar.showFreezeFrame) ? 0 : AD_SAEJ1979_DATA_FRAME_LIVE;
 }
 
 static void freeze_frame_error_ok() {
@@ -275,7 +275,7 @@ static gboolean saej1979_data_seconds_since_engine_start_gsource(gpointer data) 
 
 #define VH_REFRESH_WIDGET(w,data_gen,type) \
     if (VH_SHOULD_REFRESH_WIDGET(w)) { \
-        g_idle_add(data_gen##_gsource, type##dup(data_gen(iface, show_freeze_frame_get_state()))); \
+        g_idle_add(data_gen##_gsource, type##dup(data_gen(iface, get_data_frame_selected()))); \
     }
 
 #define VH_REFRESH_GRAPH_GSOURCE_SYM(name) static gboolean name(gpointer data)
@@ -326,13 +326,13 @@ VH_OX_SENSOR_GSOURCE_SYM(7) VH_OX_SENSOR_GSOURCE_SYM(8)
 
 #define VH_REFRESH_OX_SENSOR(sensor_i) \
     if (VH_SHOULD_REFRESH_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.voltage)) { \
-        g_idle_add(saej1979_data_oxygen_sensor_voltage_##sensor_i##_gsource, doubledup(saej1979_data_oxygen_sensor_voltage(iface, show_freeze_frame_get_state(), sensor_i))); \
+        g_idle_add(saej1979_data_oxygen_sensor_voltage_##sensor_i##_gsource, doubledup(saej1979_data_oxygen_sensor_voltage(iface, get_data_frame_selected(), sensor_i))); \
     } \
     if (VH_SHOULD_REFRESH_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.current)) { \
-        g_idle_add(saej1979_data_oxygen_sensor_current_##sensor_i##_gsource, intdup(saej1979_data_oxygen_sensor_current(iface, show_freeze_frame_get_state(), sensor_i))); \
+        g_idle_add(saej1979_data_oxygen_sensor_current_##sensor_i##_gsource, intdup(saej1979_data_oxygen_sensor_current(iface, get_data_frame_selected(), sensor_i))); \
     } \
     if (VH_SHOULD_REFRESH_WIDGET(gui->engine.oxSensors.sensor_##sensor_i.ratio)) { \
-        g_idle_add(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio_##sensor_i##_gsource, doubledup(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, show_freeze_frame_get_state(), sensor_i))); \
+        g_idle_add(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio_##sensor_i##_gsource, doubledup(saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, get_data_frame_selected(), sensor_i))); \
     }
 
 static gboolean saej1979_data_tests_gsource(gpointer data) {
@@ -368,7 +368,7 @@ static void ad_list_Graph_append_data_for_series(Graph *g, unsigned series_idx, 
     ad_list_GraphData_append(s->data, d);
 }
 
-static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
+static void graphs_refresh_all_series(VehicleIFace *iface, int dataFrameNumber) {
     if (!graphs) return;
     if (!graphs_should_refresh) return;
 
@@ -381,7 +381,7 @@ static void graphs_refresh_all_series(VehicleIFace *iface, bool freeze) {
             GraphSeries *s = g->series->list[si];
             if (!s) continue;
             double err = metric_error(s->type);
-            double v = metric_get(iface, freeze, s->type, s->arg, err);
+            double v = metric_get(iface, dataFrameNumber, s->type, s->arg, err);
             if (v != err) ad_list_Graph_append_data_for_series(g, si, v);
         }
 
@@ -393,7 +393,7 @@ static bool refresh_dynamic_internal() {
     final VehicleIFace *iface = config.ephemere.iface;
     if (vehicle_explorer_error_feedback_obd(iface)) return false;
 
-    bool useFreezeFrame = show_freeze_frame_get_state();
+    int dataFrameNumber = get_data_frame_selected();
     VH_REFRESH_WIDGET(gui->engine.coolant.temperature,                        saej1979_data_engine_coolant_temperature,   int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
@@ -418,16 +418,16 @@ static bool refresh_dynamic_internal() {
     VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 
     pthread_mutex_lock(&graphs_mutex);
-    graphs_refresh_all_series(iface, useFreezeFrame);
+    graphs_refresh_all_series(iface, dataFrameNumber);
     pthread_mutex_unlock(&graphs_mutex);
 
     if (VH_SHOULD_REFRESH_WIDGET(gtk_widget_get_parent(GTK_WIDGET(gui->engine.tests)))) {
-        ad_list_SAEJ1979_DATA_Test *testsList = saej1979_data_tests(iface, useFreezeFrame, false);
+        ad_list_SAEJ1979_DATA_Test *testsList = saej1979_data_tests(iface, dataFrameNumber, false);
         if (testsList != null) g_idle_add(saej1979_data_tests_gsource, testsList);
     }
 
     if (VH_SHOULD_REFRESH_WIDGET(gui->engine.fuel.status)) {
-        char **status = saej1979_data_fuel_system_status(iface, useFreezeFrame);
+        char **status = saej1979_data_fuel_system_status(iface, dataFrameNumber);
         if (status != null) g_idle_add(saej1979_data_fuel_system_status_gsource, status[0]);
     }
 
@@ -467,7 +467,7 @@ static void refresh_dynamic() {
     }
 
 #define VH_REFRESH_LABEL(sym) \
-    g_idle_add(sym##_gsource, sym(iface, show_freeze_frame_get_state()))
+    g_idle_add(sym##_gsource, sym(iface, get_data_frame_selected()))
 
 VH_GTK_LABEL_SET_TEXT_SYM(saej1979_data_engine_type_as_string, gui->engine.type)
 VH_GTK_LABEL_SET_TEXT_SYM(saej1979_data_obd_standard_as_string, gui->engine.ecu.obdStandard)

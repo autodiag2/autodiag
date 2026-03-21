@@ -212,8 +212,8 @@ unsigned saej1979_data_buffer_get_uint(final Buffer* buffer) {
     return (buffer->buffer[0] >> 24) + (buffer->buffer[1] >> 16) + (buffer->buffer[2] >> 8) + buffer->buffer[3];
 }
 
-bool saej1979_data_is_pid_supported(final VehicleIFace* iface, bool useFreezedData, int pid) {
-    return saej1979_is_pid_supported(iface,1 + useFreezedData, pid);
+bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int dataFrameNumber, int pid) {
+    return saej1979_is_pid_supported(iface,1 + dataFrameNumber, pid);
 }
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
@@ -232,8 +232,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_engine_type_iterator,
                         SAEJ1979_DATA_ENGINE_TYPE_UNKNOWN
                     )
-char* saej1979_data_engine_type_as_string(final VehicleIFace* iface, bool useFreezedData) {
-    return strdup(SAEJ1979_DATA_ENGINE_TYPES_STR[saej1979_data_engine_type(iface,useFreezedData)]);
+char* saej1979_data_engine_type_as_string(final VehicleIFace* iface, int dataFrameNumber) {
+    return strdup(SAEJ1979_DATA_ENGINE_TYPES_STR[saej1979_data_engine_type(iface,dataFrameNumber)]);
 }
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
@@ -261,9 +261,9 @@ int SAEJ1979_DATA_Test_cmp(SAEJ1979_DATA_Test* e1, SAEJ1979_DATA_Test* e2) {
 }
 AD_LIST_SRC(SAEJ1979_DATA_Test)
 
-ad_list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, bool useFreezedData, byte* (*data_accessor)(final VehicleIFace* iface, bool useFreezedData)) {
+ad_list_SAEJ1979_DATA_Test *saej1979_data_tests_generic(final VehicleIFace* iface, int dataFrameNumber, byte* (*data_accessor)(final VehicleIFace* iface, int dataFrameNumber)) {
     ad_list_SAEJ1979_DATA_Test *list = ad_list_SAEJ1979_DATA_Test_new();
-    byte * buffer = data_accessor(iface,useFreezedData);
+    byte * buffer = data_accessor(iface,dataFrameNumber);
     if ( buffer != null ) {
         byte B = buffer[1];
         char *names1[100] = {"Misfire","Fuel System", "Components"};
@@ -311,11 +311,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, bool useFreezedData, bool thisDriveCycleOnly) {
+ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, int dataFrameNumber, bool thisDriveCycleOnly) {
     if ( thisDriveCycleOnly ) {
-        return saej1979_data_tests_generic(iface, useFreezedData, saej1979_data_status_this_cycle);
+        return saej1979_data_tests_generic(iface, dataFrameNumber, saej1979_data_status_this_cycle);
     } else {
-        return saej1979_data_tests_generic(iface, useFreezedData, saej1979_data_status);
+        return saej1979_data_tests_generic(iface, dataFrameNumber, saej1979_data_status);
     }
 }
 bool saej1979_data_freeze_frame(final VehicleIFace* iface) {
@@ -444,9 +444,9 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_oxygen_sensors_present_generic_iterator,
                         0
                     )
-bool saej1979_data_oxygen_sensors_present(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+bool saej1979_data_oxygen_sensors_present(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 8);
-    byte b = saej1979_data_oxygen_sensors_present_generic(iface,useFreezedData);
+    byte b = saej1979_data_oxygen_sensors_present_generic(iface,dataFrameNumber);
     int bitmask = 1 >> (sensor_i-1);
     return (bitmask & b) != 0;
 }
@@ -491,16 +491,16 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_OXYGEN_SENSOR_VOLTAGE_GENERIC(
                         saej1979_data_oxygen_sensor_8_voltage,
                         "1B"
                     )
-double saej1979_data_oxygen_sensor_voltage(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+double saej1979_data_oxygen_sensor_voltage(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_oxygen_sensor_1_voltage(iface,useFreezedData);
-        case 2: return saej1979_data_oxygen_sensor_2_voltage(iface,useFreezedData);
-        case 3: return saej1979_data_oxygen_sensor_3_voltage(iface,useFreezedData);
-        case 4: return saej1979_data_oxygen_sensor_4_voltage(iface,useFreezedData);
-        case 5: return saej1979_data_oxygen_sensor_5_voltage(iface,useFreezedData);
-        case 6: return saej1979_data_oxygen_sensor_6_voltage(iface,useFreezedData);
-        case 7: return saej1979_data_oxygen_sensor_7_voltage(iface,useFreezedData);
-        case 8: return saej1979_data_oxygen_sensor_8_voltage(iface,useFreezedData);
+        case 1: return saej1979_data_oxygen_sensor_1_voltage(iface,dataFrameNumber);
+        case 2: return saej1979_data_oxygen_sensor_2_voltage(iface,dataFrameNumber);
+        case 3: return saej1979_data_oxygen_sensor_3_voltage(iface,dataFrameNumber);
+        case 4: return saej1979_data_oxygen_sensor_4_voltage(iface,dataFrameNumber);
+        case 5: return saej1979_data_oxygen_sensor_5_voltage(iface,dataFrameNumber);
+        case 6: return saej1979_data_oxygen_sensor_6_voltage(iface,dataFrameNumber);
+        case 7: return saej1979_data_oxygen_sensor_7_voltage(iface,dataFrameNumber);
+        case 8: return saej1979_data_oxygen_sensor_8_voltage(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_ERROR;
@@ -542,26 +542,26 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_OXYGEN_SENSOR_TRIM_GENERIC(
                         saej1979_data_oxygen_sensor_8_trim,
                         "1B"
                     )
-double saej1979_data_oxygen_sensor_trim(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+double saej1979_data_oxygen_sensor_trim(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_oxygen_sensor_1_trim(iface,useFreezedData);
-        case 2: return saej1979_data_oxygen_sensor_2_trim(iface,useFreezedData);
-        case 3: return saej1979_data_oxygen_sensor_3_trim(iface,useFreezedData);
-        case 4: return saej1979_data_oxygen_sensor_4_trim(iface,useFreezedData);
-        case 5: return saej1979_data_oxygen_sensor_5_trim(iface,useFreezedData);
-        case 6: return saej1979_data_oxygen_sensor_6_trim(iface,useFreezedData);
-        case 7: return saej1979_data_oxygen_sensor_7_trim(iface,useFreezedData);
-        case 8: return saej1979_data_oxygen_sensor_8_trim(iface,useFreezedData);
+        case 1: return saej1979_data_oxygen_sensor_1_trim(iface,dataFrameNumber);
+        case 2: return saej1979_data_oxygen_sensor_2_trim(iface,dataFrameNumber);
+        case 3: return saej1979_data_oxygen_sensor_3_trim(iface,dataFrameNumber);
+        case 4: return saej1979_data_oxygen_sensor_4_trim(iface,dataFrameNumber);
+        case 5: return saej1979_data_oxygen_sensor_5_trim(iface,dataFrameNumber);
+        case 6: return saej1979_data_oxygen_sensor_6_trim(iface,dataFrameNumber);
+        case 7: return saej1979_data_oxygen_sensor_7_trim(iface,dataFrameNumber);
+        case 8: return saej1979_data_oxygen_sensor_8_trim(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_OXYGEN_SENSOR_TRIM_ERROR;
 }
 
-byte saej1979_data_oxygen_sensors_present_bank1(final VehicleIFace* iface,bool useFreezedData) {
-    return 0xF & saej1979_data_oxygen_sensors_present_generic(iface,useFreezedData);
+byte saej1979_data_oxygen_sensors_present_bank1(final VehicleIFace* iface,int dataFrameNumber) {
+    return 0xF & saej1979_data_oxygen_sensors_present_generic(iface,dataFrameNumber);
 }
-byte saej1979_data_oxygen_sensors_present_bank2(final VehicleIFace* iface,bool useFreezedData) {
-    return (0xF0 & saej1979_data_oxygen_sensors_present_generic(iface,useFreezedData)) >> 4;
+byte saej1979_data_oxygen_sensors_present_bank2(final VehicleIFace* iface,int dataFrameNumber) {
+    return (0xF0 & saej1979_data_oxygen_sensors_present_generic(iface,dataFrameNumber)) >> 4;
 }
 char * saej1979_data_obd_standard_convert_to_string(final SAEJ1979_DATA_OBD_STANDARD standard) {
     switch(standard) {
@@ -606,8 +606,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_obd_standard_iterator,
                         SAEJ1979_DATA_OBD_STANDARD_OBD_UNKNOWN
                     )
-char * saej1979_data_obd_standard_as_string(final VehicleIFace* iface,bool useFreezedData) {
-    return saej1979_data_obd_standard_convert_to_string(saej1979_data_obd_standard(iface,useFreezedData));
+char * saej1979_data_obd_standard_as_string(final VehicleIFace* iface,int dataFrameNumber) {
+    return saej1979_data_obd_standard_convert_to_string(saej1979_data_obd_standard(iface,dataFrameNumber));
 }
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
@@ -617,9 +617,9 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_oxygen_sensors_present_2_generic_iterator,
                         0
                     )
-bool saej1979_data_oxygen_sensors_present_2(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+bool saej1979_data_oxygen_sensors_present_2(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 8);
-    byte b = saej1979_data_oxygen_sensors_present_2_generic(iface,useFreezedData);
+    byte b = saej1979_data_oxygen_sensors_present_2_generic(iface,dataFrameNumber);
 
     int bitmask = 1 >> (sensor_i-1);
 
@@ -657,8 +657,8 @@ char* saej1979_get_seconds_to_time(final int seconds) {
     }
     return res;
 }
-char* saej1979_data_time_since_engine_start(final VehicleIFace* iface, bool useFreezedData) {
-    final int seconds = saej1979_data_seconds_since_engine_start(iface,useFreezedData);
+char* saej1979_data_time_since_engine_start(final VehicleIFace* iface, int dataFrameNumber) {
+    final int seconds = saej1979_data_seconds_since_engine_start(iface,dataFrameNumber);
     return seconds == -1 ? null : saej1979_get_seconds_to_time(seconds);
 }
 
@@ -723,16 +723,16 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_OXYGEN_SENSOR_AIR_FUEL_EQUIV_RATIO_GE
                         saej1979_data_oxygen_sensor_8_air_fuel_equiv_ratio,
                         "2B"
                     )
-double saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+double saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_oxygen_sensor_1_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 2: return saej1979_data_oxygen_sensor_2_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 3: return saej1979_data_oxygen_sensor_3_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 4: return saej1979_data_oxygen_sensor_4_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 5: return saej1979_data_oxygen_sensor_5_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 6: return saej1979_data_oxygen_sensor_6_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 7: return saej1979_data_oxygen_sensor_7_air_fuel_equiv_ratio(iface,useFreezedData);
-        case 8: return saej1979_data_oxygen_sensor_8_air_fuel_equiv_ratio(iface,useFreezedData);
+        case 1: return saej1979_data_oxygen_sensor_1_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 2: return saej1979_data_oxygen_sensor_2_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 3: return saej1979_data_oxygen_sensor_3_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 4: return saej1979_data_oxygen_sensor_4_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 5: return saej1979_data_oxygen_sensor_5_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 6: return saej1979_data_oxygen_sensor_6_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 7: return saej1979_data_oxygen_sensor_7_air_fuel_equiv_ratio(iface,dataFrameNumber);
+        case 8: return saej1979_data_oxygen_sensor_8_air_fuel_equiv_ratio(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_OXYGEN_SENSOR_AIR_FUEL_EQUIV_RATIO_ERROR;
@@ -774,16 +774,16 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_OXYGEN_SENSOR_VOLTAGE_EXT_RANGE_GENER
                         saej1979_data_oxygen_sensor_8_voltage_ext_range,
                         "2B"
                     )
-double saej1979_data_oxygen_sensor_voltage_ext_range(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+double saej1979_data_oxygen_sensor_voltage_ext_range(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_oxygen_sensor_1_voltage_ext_range(iface,useFreezedData);
-        case 2: return saej1979_data_oxygen_sensor_2_voltage_ext_range(iface,useFreezedData);
-        case 3: return saej1979_data_oxygen_sensor_3_voltage_ext_range(iface,useFreezedData);
-        case 4: return saej1979_data_oxygen_sensor_4_voltage_ext_range(iface,useFreezedData);
-        case 5: return saej1979_data_oxygen_sensor_5_voltage_ext_range(iface,useFreezedData);
-        case 6: return saej1979_data_oxygen_sensor_6_voltage_ext_range(iface,useFreezedData);
-        case 7: return saej1979_data_oxygen_sensor_7_voltage_ext_range(iface,useFreezedData);
-        case 8: return saej1979_data_oxygen_sensor_8_voltage_ext_range(iface,useFreezedData);
+        case 1: return saej1979_data_oxygen_sensor_1_voltage_ext_range(iface,dataFrameNumber);
+        case 2: return saej1979_data_oxygen_sensor_2_voltage_ext_range(iface,dataFrameNumber);
+        case 3: return saej1979_data_oxygen_sensor_3_voltage_ext_range(iface,dataFrameNumber);
+        case 4: return saej1979_data_oxygen_sensor_4_voltage_ext_range(iface,dataFrameNumber);
+        case 5: return saej1979_data_oxygen_sensor_5_voltage_ext_range(iface,dataFrameNumber);
+        case 6: return saej1979_data_oxygen_sensor_6_voltage_ext_range(iface,dataFrameNumber);
+        case 7: return saej1979_data_oxygen_sensor_7_voltage_ext_range(iface,dataFrameNumber);
+        case 8: return saej1979_data_oxygen_sensor_8_voltage_ext_range(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_EXT_RANGE_ERROR;
@@ -890,16 +890,16 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_OXYGEN_SENSOR_GENERIC(
                         saej1979_data_oxygen_sensor_current_8,
                         "3B"
                     )
-int saej1979_data_oxygen_sensor_current(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+int saej1979_data_oxygen_sensor_current(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_oxygen_sensor_current_1(iface,useFreezedData);
-        case 2: return saej1979_data_oxygen_sensor_current_2(iface,useFreezedData);
-        case 3: return saej1979_data_oxygen_sensor_current_3(iface,useFreezedData);
-        case 4: return saej1979_data_oxygen_sensor_current_4(iface,useFreezedData);
-        case 5: return saej1979_data_oxygen_sensor_current_5(iface,useFreezedData);
-        case 6: return saej1979_data_oxygen_sensor_current_6(iface,useFreezedData);
-        case 7: return saej1979_data_oxygen_sensor_current_7(iface,useFreezedData);
-        case 8: return saej1979_data_oxygen_sensor_current_8(iface,useFreezedData);
+        case 1: return saej1979_data_oxygen_sensor_current_1(iface,dataFrameNumber);
+        case 2: return saej1979_data_oxygen_sensor_current_2(iface,dataFrameNumber);
+        case 3: return saej1979_data_oxygen_sensor_current_3(iface,dataFrameNumber);
+        case 4: return saej1979_data_oxygen_sensor_current_4(iface,dataFrameNumber);
+        case 5: return saej1979_data_oxygen_sensor_current_5(iface,dataFrameNumber);
+        case 6: return saej1979_data_oxygen_sensor_current_6(iface,dataFrameNumber);
+        case 7: return saej1979_data_oxygen_sensor_current_7(iface,dataFrameNumber);
+        case 8: return saej1979_data_oxygen_sensor_current_8(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_OXYGEN_SENSOR_CURRENT_ERROR;
@@ -926,30 +926,30 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_CATALYST_TEMPERATURE_GENERIC(
                         saej1979_data_catalyst_4_temperature,
                         "3F"
                     )
-int saej1979_data_catalyst_tempature_with_bank(final VehicleIFace* iface, bool useFreezedData, final int bank_i, final int sensor_i) {
+int saej1979_data_catalyst_tempature_with_bank(final VehicleIFace* iface, int dataFrameNumber, final int bank_i, final int sensor_i) {
     if ( sensor_i == 1 ) {
         if ( bank_i == 1 ) {
-            return saej1979_data_catalyst_1_temperature(iface,useFreezedData);            
+            return saej1979_data_catalyst_1_temperature(iface,dataFrameNumber);            
         } else if ( bank_i == 2 ) {
-            return saej1979_data_catalyst_2_temperature(iface,useFreezedData);        
+            return saej1979_data_catalyst_2_temperature(iface,dataFrameNumber);        
         }
     } else if ( sensor_i == 2 ) {
         if ( bank_i == 1 ) {
-            return saej1979_data_catalyst_3_temperature(iface,useFreezedData);            
+            return saej1979_data_catalyst_3_temperature(iface,dataFrameNumber);            
         } else if ( bank_i == 2 ) {
-            return saej1979_data_catalyst_4_temperature(iface,useFreezedData);        
+            return saej1979_data_catalyst_4_temperature(iface,dataFrameNumber);        
         }
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_CATALYST_TEMPERATURE_ERROR;
 }
 
-int saej1979_data_catalyst_tempature(final VehicleIFace* iface, bool useFreezedData, final int sensor_i) {
+int saej1979_data_catalyst_tempature(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i) {
     switch(sensor_i) {
-        case 1: return saej1979_data_catalyst_1_temperature(iface,useFreezedData);
-        case 2: return saej1979_data_catalyst_2_temperature(iface,useFreezedData);
-        case 3: return saej1979_data_catalyst_3_temperature(iface,useFreezedData);
-        case 4: return saej1979_data_catalyst_4_temperature(iface,useFreezedData);
+        case 1: return saej1979_data_catalyst_1_temperature(iface,dataFrameNumber);
+        case 2: return saej1979_data_catalyst_2_temperature(iface,dataFrameNumber);
+        case 3: return saej1979_data_catalyst_3_temperature(iface,dataFrameNumber);
+        case 4: return saej1979_data_catalyst_4_temperature(iface,dataFrameNumber);
     }
     log_msg(LOG_ERROR, "Error");
     return SAEJ1979_DATA_CATALYST_TEMPERATURE_ERROR;
@@ -1098,8 +1098,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_fuel_type_iterator,
                         SAEJ1979_DATA_FUEL_TYPE_NOT_AVALIABLE
                     )
-char * saej1979_data_fuel_type_as_string(final VehicleIFace* iface, bool useFreezedData) {
-    return saej1979_data_fuel_type_convert_to_string(saej1979_data_fuel_type(iface, useFreezedData));
+char * saej1979_data_fuel_type_as_string(final VehicleIFace* iface, int dataFrameNumber) {
+    return saej1979_data_fuel_type_convert_to_string(saej1979_data_fuel_type(iface, dataFrameNumber));
 }
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
                         saej1979_data_ethanol_fuel_percent,
@@ -1174,24 +1174,24 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_secondary_oxygen_sensor_trim_2_iterator,
                         SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_ERROR
                     )                                                              
-int saej1979_data_short_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, bool useFreezedData, int bank_i) {
+int saej1979_data_short_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, int dataFrameNumber, int bank_i) {
     assert(1 <= bank_i && bank_i <= 4);
     switch(bank_i) {
-        case 1: return saej1979_data_short_term_secondary_oxygen_sensor_trim_1(iface, useFreezedData);
-        case 2: return saej1979_data_short_term_secondary_oxygen_sensor_trim_2(iface, useFreezedData);
-        case 3: return saej1979_data_short_term_secondary_oxygen_sensor_trim_3(iface, useFreezedData);
-        case 4: return saej1979_data_short_term_secondary_oxygen_sensor_trim_4(iface, useFreezedData);
+        case 1: return saej1979_data_short_term_secondary_oxygen_sensor_trim_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_short_term_secondary_oxygen_sensor_trim_2(iface, dataFrameNumber);
+        case 3: return saej1979_data_short_term_secondary_oxygen_sensor_trim_3(iface, dataFrameNumber);
+        case 4: return saej1979_data_short_term_secondary_oxygen_sensor_trim_4(iface, dataFrameNumber);
     }
     return SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_ERROR;
 }
 
-int saej1979_data_long_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, bool useFreezedData, int bank_i) {
+int saej1979_data_long_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, int dataFrameNumber, int bank_i) {
     assert(1 <= bank_i && bank_i <= 4);
     switch(bank_i) {
-        case 1: return saej1979_data_long_term_secondary_oxygen_sensor_trim_1(iface, useFreezedData);
-        case 2: return saej1979_data_long_term_secondary_oxygen_sensor_trim_2(iface, useFreezedData);
-        case 3: return saej1979_data_long_term_secondary_oxygen_sensor_trim_3(iface, useFreezedData);
-        case 4: return saej1979_data_long_term_secondary_oxygen_sensor_trim_4(iface, useFreezedData);
+        case 1: return saej1979_data_long_term_secondary_oxygen_sensor_trim_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_long_term_secondary_oxygen_sensor_trim_2(iface, dataFrameNumber);
+        case 3: return saej1979_data_long_term_secondary_oxygen_sensor_trim_3(iface, dataFrameNumber);
+        case 4: return saej1979_data_long_term_secondary_oxygen_sensor_trim_4(iface, dataFrameNumber);
     }
     return SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_ERROR;
 }
@@ -1302,11 +1302,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_maf_sensor_present_2_iterator,
                     false
                 )                
-bool saej1979_data_maf_sensor_present(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+bool saej1979_data_maf_sensor_present(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_maf_sensor_present_1(iface, useFreezedData);
-        case 2: return saej1979_data_maf_sensor_present_2(iface, useFreezedData);
+        case 1: return saej1979_data_maf_sensor_present_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_maf_sensor_present_2(iface, dataFrameNumber);
     }
     return false;
 }
@@ -1326,11 +1326,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_maf_sensor_2_iterator,
                     SAEJ1979_DATA_MAF_SENSOR_ERROR
                 )                 
-int saej1979_data_maf_sensor(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+int saej1979_data_maf_sensor(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_maf_sensor_1(iface, useFreezedData);
-        case 2: return saej1979_data_maf_sensor_2(iface, useFreezedData);
+        case 1: return saej1979_data_maf_sensor_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_maf_sensor_2(iface, dataFrameNumber);
     }
     return SAEJ1979_DATA_MAF_SENSOR_ERROR;
 }
@@ -1351,11 +1351,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_engine_coolant_temperature_sensor_present_2_iterator,
                     false
                 )                
-bool saej1979_data_engine_coolant_temperature_sensor_present(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+bool saej1979_data_engine_coolant_temperature_sensor_present(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_engine_coolant_temperature_sensor_present_1(iface, useFreezedData);
-        case 2: return saej1979_data_engine_coolant_temperature_sensor_present_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_coolant_temperature_sensor_present_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_engine_coolant_temperature_sensor_present_2(iface, dataFrameNumber);
     }
     return false;
 }
@@ -1375,11 +1375,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_engine_coolant_temperature_sensor_2_iterator,
                     SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_SENSOR_ERROR
                 )                 
-int saej1979_data_engine_coolant_temperature_sensor(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+int saej1979_data_engine_coolant_temperature_sensor(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_engine_coolant_temperature_sensor_1(iface, useFreezedData);
-        case 2: return saej1979_data_engine_coolant_temperature_sensor_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_coolant_temperature_sensor_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_engine_coolant_temperature_sensor_2(iface, dataFrameNumber);
     }
     return SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_SENSOR_ERROR;
 }
@@ -1400,11 +1400,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_engine_intake_air_temperature_sensor_present_2_iterator,
                     false
                 )                
-bool saej1979_data_engine_intake_air_temperature_sensor_present(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+bool saej1979_data_engine_intake_air_temperature_sensor_present(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_engine_intake_air_temperature_sensor_present_1(iface, useFreezedData);
-        case 2: return saej1979_data_engine_intake_air_temperature_sensor_present_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_intake_air_temperature_sensor_present_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_engine_intake_air_temperature_sensor_present_2(iface, dataFrameNumber);
     }
     return false;
 }
@@ -1424,11 +1424,11 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     saej1979_data_engine_intake_air_temperature_sensor_2_iterator,
                     SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR
                 )                 
-int saej1979_data_engine_intake_air_temperature_sensor(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+int saej1979_data_engine_intake_air_temperature_sensor(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 2);
     switch(sensor_i) {
-        case 1: return saej1979_data_engine_intake_air_temperature_sensor_1(iface, useFreezedData);
-        case 2: return saej1979_data_engine_intake_air_temperature_sensor_2(iface, useFreezedData);
+        case 1: return saej1979_data_engine_intake_air_temperature_sensor_1(iface, dataFrameNumber);
+        case 2: return saej1979_data_engine_intake_air_temperature_sensor_2(iface, dataFrameNumber);
     }
     return SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_SENSOR_ERROR;
 }
@@ -1447,13 +1447,13 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
         saej1979_egt_sensor_present_byte_iterator,
         0
     )
-bool saej1979_egt_sensor_present(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+bool saej1979_egt_sensor_present(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 8);
     final byte b;
     if ( sensor_i <= 4 ) {
-        b = saej1979_egt_sensor_bank_1_present_byte(iface, useFreezedData);
+        b = saej1979_egt_sensor_bank_1_present_byte(iface, dataFrameNumber);
     } else {
-        b = saej1979_egt_sensor_bank_2_present_byte(iface, useFreezedData);
+        b = saej1979_egt_sensor_bank_2_present_byte(iface, dataFrameNumber);
         sensor_i -= 4;
     }
     return bitRetrieve(b, sensor_i - 1);
@@ -1475,13 +1475,13 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
         saej1979_egt_sensor_temperature_iterator,
         null
     )
-int saej1979_egt_sensor_temperature(final VehicleIFace* iface, bool useFreezedData, int sensor_i) {
+int saej1979_egt_sensor_temperature(final VehicleIFace* iface, int dataFrameNumber, int sensor_i) {
     assert(1 <= sensor_i && sensor_i <= 8);
     byte *data;
     if ( sensor_i <= 4 ) {
-        data = saej1979_egt_sensor_temperature_bank_1(iface, useFreezedData);
+        data = saej1979_egt_sensor_temperature_bank_1(iface, dataFrameNumber);
     } else {
-        data = saej1979_egt_sensor_temperature_bank_2(iface, useFreezedData);
+        data = saej1979_egt_sensor_temperature_bank_2(iface, dataFrameNumber);
         sensor_i -= 4;
     }    
     if ( data == null ) {
@@ -1550,8 +1550,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     SAEJ1979_DATA_ODOMETER_ERROR
                 )
 
-bool saej1979_data_abs_switch_present(final VehicleIFace* iface, bool useFreezedData); 
-bool saej1979_data_abs_switch(final VehicleIFace* iface, bool useFreezedData);                 
+bool saej1979_data_abs_switch_present(final VehicleIFace* iface, int dataFrameNumber); 
+bool saej1979_data_abs_switch(final VehicleIFace* iface, int dataFrameNumber);                 
 
 #define saej1979_data_abs_switch_present_iterator(data) \
     if ( 0 < data->size ) result = bitRetrieve(data->buffer[0], 0);
