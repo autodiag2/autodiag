@@ -60,7 +60,7 @@ ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
     ad_buffer_recycle(elm329->recv_buffer);
     elm329->recv(AD_DEVICE(elm329));
 
-    ELM329_PROTO current_protocol = ELM329_PROTO_NONE;
+    ELM329_PROTO current_protocol = ELM329_PROTO_AUTO;
     SERIAL_BUFFER_ITERATE(elm329,ELM329_CURRENT_PROTOCOL_ITERATOR)
 
     free(command);
@@ -68,7 +68,8 @@ ELM329_PROTO elm329_get_current_protocol(final ELM329Device* elm329) {
 }
 
 bool elm329_obd_data_parse(final ELM329Device* elm329, final Vehicle* vehicle) {
-    if ( elm329->protocol == ELM329_PROTO_NONE ) {
+    if ( elm329->protocol == ELM329_PROTO_AUTO ) {
+        log_warn("Proto should be set at this point");
         return false;
     } else if ( elm329_is_can(elm329) ) {
         return elm329_iso15765_parse_response(elm329, vehicle);
@@ -114,7 +115,7 @@ GEN_SERIAL_RECV(elm329_recv,ELM329Device,ELM329_RECV_ITERATOR)
 
 char* elm329_describe_communication_layer(final ELM329Device* elm329) {
     switch (elm329->protocol) {
-        case ELM329_PROTO_NONE:                    return strdup("N/A");
+        case ELM329_PROTO_AUTO:                    return strdup("Auto");
         case ELM329_PROTO_SAE_J1850_1:             return strdup("SAE J1850 PWM (41.6 kBit/s)");
         case ELM329_PROTO_SAE_J1850_2:             return strdup("SAE J1850 VPW (10.4 kBit/s)");
         case ELM329_PROTO_ISO_9141_2:              return strdup("ISO 9141-2");
@@ -142,26 +143,23 @@ bool elm329_reset_protocol(final ELM329Device* elm329) {
 bool elm329_configure(final ELM329Device* elm329) {
     elm329_reset_protocol(elm329);
     elm329->protocol = elm329_get_current_protocol(elm329);
-    if ( elm329->protocol != ELM329_PROTO_NONE ) {
-        if ( ! serial_query_at_command((Serial*)elm329,"s%d",false) ) {
-            log_msg(LOG_ERROR, "Error during printing of spaces");
-        }
-        elm329->printing_of_spaces = false;
-        if ( elm329_is_can(elm329) ) {
-            serial_query_at_command((Serial*)elm329,"caf%d",true);
-        }
-        serial_query_at_command((Serial*)elm329,"h%d",true);
-        elm_ensure_protocol_config_success((ELMDevice*)elm329, ELM329_PROTO_USER5_CAN);
-        return true;
+    if ( ! serial_query_at_command((Serial*)elm329,"s%d",false) ) {
+        log_msg(LOG_ERROR, "Error during printing of spaces");
     }
-    return false;
+    elm329->printing_of_spaces = false;
+    if ( elm329_is_can(elm329) ) {
+        serial_query_at_command((Serial*)elm329,"caf%d",true);
+    }
+    serial_query_at_command((Serial*)elm329,"h%d",true);
+    elm_ensure_protocol_config_success((ELMDevice*)elm329, ELM329_PROTO_USER5_CAN);
+    return true;
 }
 void elm329_init(ELM329Device* d) {
     d->send = AD_DEVICE_SEND(elm329_send);
     d->recv = AD_DEVICE_RECV(elm329_recv);
     d->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm329_describe_communication_layer);
     d->parse_data = AD_DEVICE_PARSE_DATA(elm329_obd_data_parse);
-    d->protocol = ELM329_PROTO_NONE;
+    d->protocol = ELM329_PROTO_AUTO;
     d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm329_guess_response);
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm329_configure);
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(elm329_is_can);

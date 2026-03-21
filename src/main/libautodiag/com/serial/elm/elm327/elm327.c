@@ -1,7 +1,8 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
 bool elm327_obd_data_parse(final ELM327Device* elm327, final Vehicle* vehicle) {
-    if ( elm327->protocol == ELM327_PROTO_NONE ) {
+    if ( elm327->protocol == ELM327_PROTO_AUTOMATIC ) {
+        log_warn("Proto should be set at this point");
         return false;
     } else if ( elm327_is_can(elm327) ) {
         return elm327_iso15765_parse_response(elm327, vehicle);
@@ -92,7 +93,7 @@ bool elm327_configure(final ELM327Device* elm327) {
 }
 char* elm327_protocol_to_string(final ELM327_PROTO proto) {
     switch(proto) {
-        case ELM327_PROTO_NONE:                    return strdup("N/A");
+        case ELM327_PROTO_AUTOMATIC:               return strdup("Auto");
         case ELM327_PROTO_SAE_J1850_1:             return strdup("SAE J1850 PWM (41.6 kBit/s)");
         case ELM327_PROTO_SAE_J1850_2:             return strdup("SAE J1850 VPW (10.4 kBit/s)");
         case ELM327_PROTO_ISO_9141_2:              return strdup("ISO 9141-2");
@@ -154,7 +155,7 @@ void elm327_init(ELM327Device* d) {
     d->set_filter_by_address = AD_DEVICE_SET_FILTER_BY_ADDRESS(elm327_set_filter_by_address);
     d->guess_response = AD_SERIAL_GUESS_RESPONSE(elm327_guess_response);
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm327_configure);
-    d->protocol = ELM327_PROTO_NONE;
+    d->protocol = ELM327_PROTO_AUTOMATIC;
     d->printing_of_spaces = true;
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
 }
@@ -203,7 +204,7 @@ ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
     ad_buffer_recycle(elm327->recv_buffer);
     elm327->recv(AD_DEVICE(elm327));
 
-    ELM327_PROTO current_protocol = ELM327_PROTO_NONE;
+    ELM327_PROTO current_protocol = ELM327_PROTO_AUTOMATIC;
     SERIAL_BUFFER_ITERATE(elm327,ELM327_CURRENT_PROTOCOL_ITERATOR)
 
     free(command);

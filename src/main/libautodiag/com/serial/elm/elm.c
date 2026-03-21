@@ -228,6 +228,9 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
             protocol ++;
         }
     } while ( ! sanityCheck && protocol <= protocol_max_value);
+    if ( protocol == protocol_max_value && ! sanityCheck ) {
+        log_err("every protocol has been tried but none success (ensure ignition is turned on)");
+    }
     elm->timeout = oldTimeout;
     return sanityCheck;
 }
