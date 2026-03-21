@@ -1,5 +1,10 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
+static bool fetch_current_protocol(final ELM327Device *elm) {
+    ELM327_PROTO proto = elm327_get_current_protocol(elm);
+    elm->protocol = proto;
+    return true;
+}
 bool elm327_obd_data_parse(final ELM327Device* elm327, final Vehicle* vehicle) {
     if ( elm327->protocol == ELM327_PROTO_AUTOMATIC ) {
         log_warn("Proto should be set at this point");
@@ -20,6 +25,7 @@ int elm327_guess_response(final char * buffer) {
                 if ( i == ELM327_RESPONSE_NO_DATA ) {
                     return DEVICE_RECV_DATA_UNAVAILABLE;
                 } else {
+                    log_debug("found elm327 response : 0x%02X", i);
                     return ELM327_RESPONSE_OFFSET + i;
                 }
             }
@@ -158,6 +164,7 @@ void elm327_init(ELM327Device* d) {
     d->protocol = ELM327_PROTO_AUTOMATIC;
     d->printing_of_spaces = true;
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
+    d->fetch_protocol = AD_DEVICE_ELM_FETCH_PROTOCOL(fetch_current_protocol);
 }
 
 ELM327Device* elm327_new() {

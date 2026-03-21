@@ -7,7 +7,9 @@
 #include "libautodiag/com/device_table.h"
 #include "elm_iso15765.h"
 
-typedef struct {
+#define AD_DEVICE_ELM_PROTO_AUTO 0
+
+typedef struct ELMDevice {
     Serial;
     /**
      * Did responses print space between bytes
@@ -27,11 +29,16 @@ typedef struct {
      * e.g. ISO 15765-4 CAN (11-bit ID, 500 kBit/s)<br />
      */
     int protocol;
+    /**
+     * Fetch and store proto
+     */
+    bool (*fetch_protocol)(final struct ELMDevice * elm);
 } ELMDevice;
 
 #define AD_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
-#define AD_ELM_DEVICE(var) ((ELMDevice*)var)
+#define AD_ELM_DEVICE(var) ((struct ELMDevice*)var)
 #define AD_ELM_DEVICE_PROTO_IS_CAN(var) ((bool (*)(final Device*))var)
+#define AD_DEVICE_ELM_FETCH_PROTOCOL(var) ((bool (*)(struct ELMDevice *))var)
 
 #define ELM_RESPONSE_UNKNOWN                 0xF00
 

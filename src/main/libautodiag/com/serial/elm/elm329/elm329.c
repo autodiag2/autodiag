@@ -154,6 +154,11 @@ bool elm329_configure(final ELM329Device* elm329) {
     elm_ensure_protocol_config_success((ELMDevice*)elm329, ELM329_PROTO_USER5_CAN);
     return true;
 }
+static bool fetch_current_protocol(ELM329Device* d) {
+    ELM329_PROTO proto = elm329_get_current_protocol(d);
+    d->protocol = proto;
+    return true;
+}
 void elm329_init(ELM329Device* d) {
     d->send = AD_DEVICE_SEND(elm329_send);
     d->recv = AD_DEVICE_RECV(elm329_recv);
@@ -164,6 +169,7 @@ void elm329_init(ELM329Device* d) {
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm329_configure);
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(elm329_is_can);
     d->printing_of_spaces = true;
+    d->fetch_protocol = AD_DEVICE_ELM_FETCH_PROTOCOL(fetch_current_protocol);
 }
 
 ELM329Device* elm329_new() {

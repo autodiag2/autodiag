@@ -204,7 +204,6 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
     log_msg(LOG_DEBUG, "Detecting the connection sanity with show supported PIDS in current data");
     char * testerOrder = ad_buffer_to_hex_string(ad_buffer_from_ints(OBD_SERVICE_SHOW_CURRENT_DATA, 0x00));
     bool sanityCheck = false;
-    int protocol = 1;
     // ensure that the SEARCHING... on bus init
     // is effectively awaited, we take the worst case: ISO9141 / KWP2000 init: ~250 ms – 1 s per attempt
     // for devices that got protocol choice
@@ -212,6 +211,14 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
     final int oldTimeout = elm->timeout;
     final int second = 1000;
     elm->timeout = 10 * second;
+    // First check if auto detection from elm has succeed
+    if ( elm->protocol == AD_DEVICE_ELM_PROTO_AUTO ) {
+        elm->send(AD_DEVICE(elm), testerOrder);
+        elm->clear_data(AD_DEVICE(elm));
+        elm->recv(AD_DEVICE(elm));
+        elm->fetch_protocol(AD_ELM_DEVICE(elm));
+    }
+    int protocol = 1;
     do {
         elm->send(AD_DEVICE(elm), testerOrder);
         elm->clear_data(AD_DEVICE(elm));

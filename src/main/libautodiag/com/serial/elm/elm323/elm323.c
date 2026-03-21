@@ -44,6 +44,9 @@ GEN_SERIAL_RECV(elm323_recv,ELM323Device,ELM323_RECV_ITERATOR)
 static bool proto_is_can(ELM323Device* d) {
     return false;
 }
+static bool fetch_current_protocol(ELM323Device* d) {
+    return true;
+}
 void elm323_init(ELM323Device* d) {
     d->send = AD_DEVICE_SEND(serial_send);
     d->recv = AD_DEVICE_RECV(elm323_recv);
@@ -53,6 +56,8 @@ void elm323_init(ELM323Device* d) {
     d->configure = AD_ELM_DEVICE_CONFIGURE(elm323_configure);
     d->printing_of_spaces = true;
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
+    d->protocol = AD_DEVICE_ELM_PROTO_AUTO + 1;
+    d->fetch_protocol = AD_DEVICE_ELM_FETCH_PROTOCOL(fetch_current_protocol);
 }
 
 ELM323Device* elm323_new() {

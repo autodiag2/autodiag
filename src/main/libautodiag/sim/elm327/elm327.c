@@ -675,26 +675,17 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         bool success = true;
         if ( sscanf(AT_DATA_START, "a%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = true;
-            elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
         } else if ( sscanf(AT_DATA_START, "%01hX", &p) == 1 ) {
             elm327->protocol_is_auto_running = false;
-            elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
         } else {
             success = false;
         }
         if ( success ) {
-            if ( p == 0 ) {
-                log_msg(LOG_DEBUG, "resetting to the default factory setting");
-                elm327->protocolRunning = SIM_ELM327_DEFAULT_PROTO;
+            if ( p == ELM327_PROTO_AUTOMATIC ) {
                 elm327->protocol_is_auto_running = true;
-                elm327->nvm.protocol = elm327->protocolRunning;
-                elm327->nvm.protocol_is_auto = elm327->protocol_is_auto_running;
-            } else {
-                elm327->protocolRunning = p;
-                elm327->nvm.protocol = elm327->protocolRunning;
             }
+            elm327->protocolRunning = p;
             SIM_ELM327_REPLY_OK();
-            SIM_ELM327_SIGNAL_NVM_CHANGE();
         }
     } else if AT_PARSE("tp") {
         short unsigned p;
@@ -807,6 +798,13 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             SIM_ELM327_REPLY_OK();    
         }                    
     } else {
+        if ( elm327->protocolRunning == ELM327_PROTO_AUTOMATIC ) {
+            bool isHexRequest = true;
+            sim_elm327_parse_request(elm327, serial_request, &isHexRequest, null);
+            if ( isHexRequest ) {
+                elm327->protocolRunning = SIM_ELM327_DEFAULT_PROTO;
+            }
+        }
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if AT_PARSE("cs") {
                 SIM_ELM327_REPLY_GENERIC("T:00 R:00 ")

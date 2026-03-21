@@ -322,19 +322,27 @@ static char * elm327_response_header_str(SimELM327* elm327, Buffer * header_src)
     }
     return result;
 }
+bool sim_elm327_parse_request(SimELM327 * elm327, char * hex_string_request, bool * isHexString_rv, bool * hasSpaces_rv) {
+    for(int i = 0; i < strlen(hex_string_request); i++) {
+        char c = hex_string_request[i];
+        if ( c == ' ' ) {
+            if ( hasSpaces_rv != null ) {
+                *hasSpaces_rv = true;
+            }
+        }
+        if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 || 0x61 <= c && c <= 0x66 ) ) {
+            if ( isHexString_rv != null ) {
+                *isHexString_rv = false;
+            }
+        }
+    }
+    return true;
+}
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
     bool hasSpaces = false;
-    for(int i = 0; i < strlen(hex_string_request); i++) {
-        char c = hex_string_request[i];
-        if ( c == ' ' ) {
-            hasSpaces = true;
-        }
-        if ( !( c == SIM_ELM327_PP_GET(elm327,0x0D) || c == SIM_ELM327_PP_GET(elm327,0x0A) || c == ' ' || 0x30 <= c && c <= 0x39 || 0x41 <= c && c <= 0x46 || 0x61 <= c && c <= 0x66 ) ) {
-            isHexString = false;
-        }
-    }
+    sim_elm327_parse_request(elm327, hex_string_request, &isHexString, &hasSpaces);
     if ( isHexString && elm327->responses ) {
         
         final Buffer * dataRequest = ad_buffer_new();

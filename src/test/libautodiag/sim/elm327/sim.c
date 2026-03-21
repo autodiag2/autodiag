@@ -1,5 +1,23 @@
 #include "libTest.h"
 
+void testAutomaticMode() {
+    SimELM327* elm327 = tf_sim_elm327_new();
+    sim_elm327_loop_as_daemon(elm327);
+    sim_elm327_loop_daemon_wait_ready(elm327);
+    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    iface->lock(iface);
+    iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_AUTOMATIC));
+    iface->device->recv(iface->device);
+    elm327->protocolRunning = ELM327_PROTO_AUTOMATIC;
+    ELM327Device * device = (ELM327Device *)iface->device;
+    device->protocol = ELM327_PROTO_AUTOMATIC;
+    iface->send(iface, ad_buffer_from_ascii_hex("0100"));
+    iface->clear_data(iface);
+    iface->recv(iface);
+    device->fetch_protocol(device);
+    assert(device->protocol != 0);
+    iface->unlock(iface);
+}
 void testNODTCcountonSAEJ1979() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
@@ -311,6 +329,7 @@ static void ensureNetworkOK() {
     assert(iface != null);
 }
 bool testSimELM327() {
+    testAutomaticMode();
     testNODTCcountonSAEJ1979();
     testDTCcountonSAEJ1979();
     testKWP2000LongMessages();
