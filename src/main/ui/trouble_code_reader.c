@@ -236,10 +236,20 @@ static void append_multi_manufacturer_explanation(GtkTextBuffer *buffer, DTC_DES
     if ( part == null ) {
 
     } else {
-        char *textECU = strdup("(ecu: TODO)");
-        char *text;
-        asprintf(&text, " %s %s %s\n\t%s\n", desc->vehicle->manufacturer, desc->vehicle->engine == null ? "" : desc->vehicle->engine, textECU, part);
-        free(textECU);
+        ad_list_ad_object_ECU * ecus_scope = desc->vehicle->ecus;
+        if ( ecus_scope->size < 0 ) {
+            log_err("should never happen");
+            return;
+        }
+        if ( 0 == ecus_scope->size ) {
+            log_warn("vehicle without ecu cannot display desc");
+            return;
+        }
+        if ( 1 < ecus_scope->size ) {
+            log_warn("multiple ecus scoping is not supported, taking the first one");
+        }
+        ad_object_ECU * ecu = desc->vehicle->ecus->list[0];
+        char *text = gprintf(" %s (%s/%s)\n\t%s\n", ecu->type, ecu->manufacturer, ecu->model, part);
         GtkTextIter iter;
         gtk_text_buffer_get_iter_at_offset(buffer,&iter,-1);
         gtk_text_buffer_insert(buffer, &iter,text, -1);

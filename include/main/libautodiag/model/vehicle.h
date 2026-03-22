@@ -30,6 +30,10 @@ AD_OBJECT_H(ECU,
      */
     char *model;
     /**
+     * eg. ECM
+     */
+    char *type;
+    /**
      * Each ECU provide an obd service, each data recevied for
      * those services is divided and putted there
      */

@@ -1,22 +1,6 @@
 #include "libautodiag/model/database.h"
 #include "sqlite3.h"
 
-static int db_year_from_text(const char *years) {
-    if (years == null || years[0] == 0) {
-        return VEHICLE_YEAR_EMPTY;
-    }
-
-    while (*years != 0 && (*years < '0' || *years > '9')) {
-        years++;
-    }
-
-    if (*years == 0) {
-        return VEHICLE_YEAR_EMPTY;
-    }
-
-    return atoi(years);
-}
-
 static bool db_str_eq(const char *a, const char *b) {
     if (a == null && b == null) {
         return true;
@@ -31,6 +15,10 @@ static bool db_str_eq(const char *a, const char *b) {
     }
 
     return strcmp(a, b) == 0;
+}
+
+static bool db_is_empty_str(const char *s) {
+    return s == null || s[0] == 0;
 }
 
 static bool db_vehicle_has_ecu(Vehicle *vehicle, const char *manufacturer, const char *model) {
@@ -63,7 +51,7 @@ static bool db_vehicle_has_ecu(Vehicle *vehicle, const char *manufacturer, const
     return false;
 }
 
-static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const char *model) {
+static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const char *model, const char *type) {
     if (vehicle == null) {
         return false;
     }
@@ -91,6 +79,10 @@ static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const
         ecu->model = strdup(model);
     }
 
+    if ( type != null ) {
+        ecu->type = strdup(type);
+    }
+
     if (vehicle->ecus == null) {
         vehicle->ecus = ad_list_ad_object_ECU_new();
         if (vehicle->ecus == null) {
@@ -104,68 +96,17 @@ static bool db_vehicle_add_ecu(Vehicle *vehicle, const char *manufacturer, const
 
     return true;
 }
-static void db_replace_str(char **dst, const char *src) {
-    if (dst == null) {
-        return;
-    }
-    if (*dst != null) {
-        free(*dst);
-        *dst = null;
-    }
-    if (src != null) {
-        *dst = strdup(src);
-    }
-}
 
-static bool db_is_empty_str(const char *s) {
-    return s == null || s[0] == 0;
-}
-
-static bool db_scope_field_matches_filter_field(const char *scope_value, const char *filter_value) {
-    if (db_is_empty_str(filter_value)) {
-        return true;
-    }
-    if (db_is_empty_str(scope_value)) {
-        return true;
-    }
-    return strcmp(scope_value, filter_value) == 0;
-}
-
-static bool db_year_text_matches_filter_year(const char *years, int year) {
-    char year_str[32];
-
-    if (year == VEHICLE_YEAR_EMPTY || year <= 0) {
-        return true;
-    }
-    if (db_is_empty_str(years)) {
-        return true;
-    }
-
-    snprintf(year_str, sizeof(year_str), "%d", year);
-
-    if (strcmp(years, "any") == 0) {
-        return true;
-    }
-    if (strcmp(years, year_str) == 0) {
-        return true;
-    }
-    if (strstr(years, year_str) != null) {
-        return true;
-    }
-
-    return false;
-}
-
-static bool db_scope_ecu_matches_filter(
-    const char *scope_ecu_manufacturer,
-    const char *scope_ecu_model,
+static bool db_dtc_ecu_matches_filter(
+    const char *ecu_manufacturer,
+    const char *ecu_model,
     const Vehicle *filter
 ) {
     if (filter == null || filter->ecus == null || filter->ecus->size == 0) {
         return true;
     }
 
-    if (db_is_empty_str(scope_ecu_manufacturer) && db_is_empty_str(scope_ecu_model)) {
+    if (db_is_empty_str(ecu_manufacturer) && db_is_empty_str(ecu_model)) {
         return true;
     }
 
@@ -175,10 +116,11 @@ static bool db_scope_ecu_matches_filter(
             continue;
         }
 
-        if (!db_scope_field_matches_filter_field(scope_ecu_manufacturer, ecu->manufacturer)) {
+        if (!db_is_empty_str(ecu_manufacturer) && !db_str_eq(ecu_manufacturer, ecu->manufacturer)) {
             continue;
         }
-        if (!db_scope_field_matches_filter_field(scope_ecu_model, ecu->model)) {
+
+        if (!db_is_empty_str(ecu_model) && !db_str_eq(ecu_model, ecu->model)) {
             continue;
         }
 
@@ -188,125 +130,22 @@ static bool db_scope_ecu_matches_filter(
     return false;
 }
 
-static int db_scope_match_score(
-    const char *vehicle_manufacturer,
-    const char *vehicle_model,
-    const char *years,
-    const char *engine_manufacturer,
-    const char *engine_model,
-    const char *ecu_manufacturer,
-    const char *ecu_model
-) {
-    int score = 0;
-
-    if (!db_is_empty_str(vehicle_manufacturer)) {
-        score++;
-    }
-    if (!db_is_empty_str(vehicle_model)) {
-        score++;
-    }
-    if (!db_is_empty_str(years)) {
-        score++;
-    }
-    if (!db_is_empty_str(engine_manufacturer)) {
-        score++;
-    }
-    if (!db_is_empty_str(engine_model)) {
-        score++;
-    }
-    if (!db_is_empty_str(ecu_manufacturer)) {
-        score++;
-    }
-    if (!db_is_empty_str(ecu_model)) {
-        score++;
-    }
-
-    return score;
-}
-
-static bool db_scope_matches_filter(
-    const char *vehicle_manufacturer,
-    const char *vehicle_model,
-    const char *years,
-    const char *engine_manufacturer,
-    const char *engine_model,
+static Vehicle *db_vehicle_from_ecu_row(
     const char *ecu_manufacturer,
     const char *ecu_model,
-    const Vehicle *filter
-) {
-    if (filter == null) {
-        return true;
-    }
-
-    if (!db_scope_field_matches_filter_field(vehicle_manufacturer, filter->manufacturer)) {
-        return false;
-    }
-    if (!db_scope_field_matches_filter_field(vehicle_model, filter->model)) {
-        return false;
-    }
-    if (!db_year_text_matches_filter_year(years, filter->year)) {
-        return false;
-    }
-    if (!db_scope_field_matches_filter_field(engine_manufacturer, filter->engine_manufacturer)) {
-        return false;
-    }
-    if (!db_scope_field_matches_filter_field(engine_model, filter->engine)) {
-        return false;
-    }
-    if (!db_scope_ecu_matches_filter(ecu_manufacturer, ecu_model, filter)) {
-        return false;
-    }
-
-    return true;
-}
-static Vehicle *db_vehicle_from_scope_row(
-    const char *vehicle_manufacturer,
-    const char *vehicle_model,
-    const char *years,
-    const char *engine_manufacturer,
-    const char *engine_model,
-    const char *ecu_manufacturer,
-    const char *ecu_model
+    const char *ecu_type
 ) {
     Vehicle *vehicle = vehicle_new();
     if (vehicle == null) {
         return null;
     }
 
-    if (vehicle_manufacturer != null) {
-        vehicle->manufacturer = strdup(vehicle_manufacturer);
-    }
-    if (vehicle_model != null) {
-        vehicle->model = strdup(vehicle_model);
+    if (!db_vehicle_add_ecu(vehicle, ecu_manufacturer, ecu_model, ecu_type)) {
+        vehicle_free(vehicle);
+        return null;
     }
 
-    if (years != null && years[0] != 0) {
-        vehicle->year = db_year_from_text(years);
-    } else {
-        vehicle->year = VEHICLE_YEAR_EMPTY;
-    }
-
-    if (engine_manufacturer != null) {
-        vehicle->engine_manufacturer = strdup(engine_manufacturer);
-    }
-    if (engine_model != null) {
-        vehicle->engine = strdup(engine_model);
-    }
-
-    if ((ecu_manufacturer != null && ecu_manufacturer[0] != 0)
-    ||  (ecu_model != null && ecu_model[0] != 0)) {
-        if (!db_vehicle_add_ecu(vehicle, ecu_manufacturer, ecu_model)) {
-            vehicle_free(vehicle);
-            return null;
-        }
-    }
-
-    if (vehicle->manufacturer == null
-    &&  vehicle->model == null
-    &&  vehicle->year == VEHICLE_YEAR_EMPTY
-    &&  vehicle->engine_manufacturer == null
-    &&  vehicle->engine == null
-    &&  (vehicle->ecus == null || vehicle->ecus->size == 0)) {
+    if (vehicle->ecus == null || vehicle->ecus->size == 0) {
         vehicle_free(vehicle);
         return null;
     }
@@ -341,22 +180,6 @@ static bool db_dtc_description_already_present(
             continue;
         }
 
-        if (!db_str_eq(desc->vehicle->manufacturer, vehicle->manufacturer)) {
-            continue;
-        }
-        if (!db_str_eq(desc->vehicle->model, vehicle->model)) {
-            continue;
-        }
-        if (desc->vehicle->year != vehicle->year) {
-            continue;
-        }
-        if (!db_str_eq(desc->vehicle->engine_manufacturer, vehicle->engine_manufacturer)) {
-            continue;
-        }
-        if (!db_str_eq(desc->vehicle->engine, vehicle->engine)) {
-            continue;
-        }
-
         if ((desc->vehicle->ecus == null || desc->vehicle->ecus->size == 0)
         &&  (vehicle->ecus == null || vehicle->ecus->size == 0)) {
             return true;
@@ -375,6 +198,7 @@ static bool db_dtc_description_already_present(
             if (ecu == null) {
                 continue;
             }
+
             if (!db_vehicle_has_ecu(desc->vehicle, ecu->manufacturer, ecu->model)) {
                 all_ecus_match = false;
                 break;
@@ -388,15 +212,7 @@ static bool db_dtc_description_already_present(
 
     return false;
 }
-static bool db_dtc_is_generic_scope(const char *vehicle_manufacturer) {
-    if (db_str_eq(vehicle_manufacturer, "Generic")) {
-        return true;
-    }
-    if (db_str_eq(vehicle_manufacturer, "saej2012.2002")) {
-        return true;
-    }
-    return false;
-}
+
 void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
     if (dtc == null) {
         return;
@@ -433,6 +249,7 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
     }
 
     log_debug("searching for '%s'", dtc_code);
+
     const char *sql =
         "SELECT "
         "    d.definition, "
@@ -442,26 +259,12 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         "    d.causes, "
         "    d.repairs, "
         "    d.evidence, "
-        "    vm.name AS vehicle_manufacturer, "
-        "    v.model AS vehicle_model, "
-        "    v.years AS years, "
-        "    em.name AS engine_manufacturer, "
-        "    eng.model AS engine_model, "
         "    eum.name AS ecu_manufacturer, "
-        "    ecu.model AS ecu_model "
+        "    ecu.model AS ecu_model, "
+        "    ecu.type AS ecu_type "
         "FROM ad_dtc d "
-        "LEFT JOIN ad_dtc_scope_link sl "
-        "    ON sl.dtc_id = d.id "
-        "LEFT JOIN ad_vehicle v "
-        "    ON v.id = sl.vehicle_id "
-        "LEFT JOIN ad_manufacturer vm "
-        "    ON vm.id = v.manufacturer_id "
-        "LEFT JOIN ad_engine eng "
-        "    ON eng.id = sl.engine_id "
-        "LEFT JOIN ad_manufacturer em "
-        "    ON em.id = eng.manufacturer_id "
         "LEFT JOIN ad_ecu ecu "
-        "    ON ecu.id = sl.ecu_id "
+        "    ON ecu.id = d.ecu_id "
         "LEFT JOIN ad_manufacturer eum "
         "    ON eum.id = ecu.manufacturer_id "
         "WHERE lower(d.code) = lower(?);";
@@ -480,6 +283,7 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
     if (dtc->description != null) {
         ad_list_DTC_DESCRIPTION_free(dtc->description);
     }
+
     dtc->description = ad_list_DTC_DESCRIPTION_new();
     if (dtc->description == null) {
         log_msg(LOG_ERROR, "ad_list_DTC_DESCRIPTION_new failed");
@@ -500,17 +304,27 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         const char *causes = (const char *)sqlite3_column_text(stmt, 4);
         const char *repairs = (const char *)sqlite3_column_text(stmt, 5);
         const char *evidence = (const char *)sqlite3_column_text(stmt, 6);
+        const char *ecu_manufacturer = (const char *)sqlite3_column_text(stmt, 7);
+        const char *ecu_model = (const char *)sqlite3_column_text(stmt, 8);
+        const char *ecu_type = (const char*)sqlite3_column_text(stmt, 9);
 
-        const char *vehicle_manufacturer = (const char *)sqlite3_column_text(stmt, 7);
-        const char *vehicle_model = (const char *)sqlite3_column_text(stmt, 8);
-        const char *years = (const char *)sqlite3_column_text(stmt, 9);
-        const char *engine_manufacturer = (const char *)sqlite3_column_text(stmt, 10);
-        const char *engine_model = (const char *)sqlite3_column_text(stmt, 11);
-        const char *ecu_manufacturer = (const char *)sqlite3_column_text(stmt, 12);
-        const char *ecu_model = (const char *)sqlite3_column_text(stmt, 13);
-
-        log_msg(LOG_DEBUG, "Found row : %s %s %d %s %s %s %s", definition, description, mil, detection_condition, causes, repairs, evidence);
-        log_msg(LOG_DEBUG, " scope: %s %s %s %s %s %s %s", vehicle_manufacturer, vehicle_model, years, engine_manufacturer, engine_model, ecu_manufacturer, ecu_model);
+        log_msg(
+            LOG_DEBUG,
+            "Found row : %s %s %d %s %s %s %s",
+            definition,
+            description,
+            mil,
+            detection_condition,
+            causes,
+            repairs,
+            evidence
+        );
+        log_msg(
+            LOG_DEBUG,
+            " ecu: %s %s",
+            ecu_manufacturer != null ? ecu_manufacturer : "",
+            ecu_model != null ? ecu_model : ""
+        );
 
         (void)description;
         (void)mil;
@@ -518,30 +332,15 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         (void)causes;
         (void)evidence;
 
-        if (!db_dtc_is_generic_scope(vehicle_manufacturer)) {
-            if (!db_scope_matches_filter(
-                vehicle_manufacturer,
-                vehicle_model,
-                years,
-                engine_manufacturer,
-                engine_model,
-                ecu_manufacturer,
-                ecu_model,
-                filter
-            )) {
-                log_msg(LOG_DEBUG, "entry filtered");
-                continue;
-            }
+        if (!db_dtc_ecu_matches_filter(ecu_manufacturer, ecu_model, filter)) {
+            log_msg(LOG_DEBUG, "entry filtered");
+            continue;
         }
 
-        Vehicle *scope_vehicle = db_vehicle_from_scope_row(
-            vehicle_manufacturer,
-            vehicle_model,
-            years,
-            engine_manufacturer,
-            engine_model,
+        Vehicle *scope_vehicle = db_vehicle_from_ecu_row(
             ecu_manufacturer,
-            ecu_model
+            ecu_model,
+            ecu_type
         );
 
         const char *reason = definition;
@@ -565,9 +364,11 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         if (reason != null) {
             desc->reason = strdup(reason);
         }
+
         if (solution != null) {
             desc->solution = strdup(solution);
         }
+
         desc->vehicle = scope_vehicle;
 
         ad_list_DTC_DESCRIPTION_append(dtc->description, desc);

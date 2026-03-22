@@ -31,6 +31,7 @@ ad_object_ECU* ad_object_ECU_new() {
     ecu->name = null;
     ecu->manufacturer = null;
     ecu->model = null;
+    ecu->type = null;
     ecu->data_buffer = ad_list_Buffer_new();
     ecu->obd_service.current_data = ad_list_Buffer_new();
     ecu->obd_service.freeze_frame_data = ad_list_Buffer_new();
