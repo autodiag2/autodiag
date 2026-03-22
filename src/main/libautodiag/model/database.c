@@ -14,7 +14,7 @@ static bool db_str_eq(const char *a, const char *b) {
         return true;
     }
 
-    return strcmp(a, b) == 0;
+    return strcasecmp(a, b) == 0;
 }
 
 static bool db_is_empty_str(const char *s) {
@@ -321,7 +321,7 @@ void ad_dtc_fetch_from_db(final DTC *dtc, final Vehicle *filter) {
         );
         log_msg(
             LOG_DEBUG,
-            " ecu: %s %s",
+            " ecu filter: %s %s",
             ecu_manufacturer != null ? ecu_manufacturer : "",
             ecu_model != null ? ecu_model : ""
         );

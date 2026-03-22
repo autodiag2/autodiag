@@ -28,6 +28,10 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
         vehicle->manufacturer = "Citroen";
         vehicle->engine_manufacturer = "Citroen";
         vehicle->engine = "DV6TED4";
+        ad_object_ECU * ecu = ad_object_ECU_new();
+        ecu->model = strdup("EDC16C34");
+        ecu->manufacturer = strdup("bosch");
+        ad_list_ad_object_ECU_append(vehicle->ecus, ecu);
         final SAEJ1979_DTC * dtc = saej1979_dtc_new();
         final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
         dtc_desc->vehicle = vehicle;
@@ -49,6 +53,10 @@ bool testCarDatabaseLoad(VehicleIFace* iface) {
         vehicle->manufacturer = "Citroen";
         vehicle->engine_manufacturer = "Citroen";
         vehicle->engine = "EP6CDT";
+        ad_object_ECU * ecu = ad_object_ECU_new();
+        ecu->model = strdup("MED 17.4");
+        ecu->manufacturer = strdup("bosch");
+        ad_list_ad_object_ECU_append(vehicle->ecus, ecu);
         final SAEJ1979_DTC * dtc = saej1979_dtc_new();
         final DTC_DESCRIPTION * dtc_desc = dtc_description_new();
         dtc_desc->vehicle = vehicle;
