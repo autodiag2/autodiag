@@ -118,17 +118,17 @@ output/obj/main/%.o:
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(subst output/,,$(filter %.c,$(^))) -o '$@'
 
-output/obj/mongoose.o: mongoose/mongoose.h mongoose/mongoose.c
+output/obj/mongoose.o: dependencies/mongoose/mongoose.h dependencies/mongoose/mongoose.c
 	$(COMPILE_MSG)
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
-output/obj/cJSON.o: cJSON/cJSON.h cJSON/cJSON.c
+output/obj/cJSON.o: dependencies/cJSON/cJSON.h dependencies/cJSON/cJSON.c
 	$(COMPILE_MSG)
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
 
-output/obj/sqlite3.o: sqlite3/sqlite3.h sqlite3/sqlite3.c
+output/obj/sqlite3.o: dependencies/sqlite3/sqlite3.h dependencies/sqlite3/sqlite3.c
 	$(COMPILE_MSG)
 	$(PRINT_VOIDER)mkdir -p "$$(dirname '$@')"
 	$(PRINT_VOIDER)$(CC) $(CFLAGS) $(CFLAGS_COVERAGE) -c $(filter %.c,$(^)) -o '$@'
@@ -163,8 +163,8 @@ $(BIN_LIB): $(OBJS_LIB)
 	$(PRINT_VOIDER)cp "$@" output/bin/
 
 # Additionnal specific dependencies
-dependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
-dependencies: $(SOURCES)
+genDependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
+genDependencies: $(SOURCES)
 	@command -v sed > /dev/null 2>&1 || { echo "sed is required"; exit 1; }
 	@command -v grep > /dev/null 2>&1 || { echo "grep is required"; exit 1; }
 	@echo "Generating dependencies..."
@@ -212,9 +212,9 @@ tarball: tools_prerequistes
 	mkdir -p "$${prefix}" && \
 	git ls-tree -r HEAD --name-only | grep -v '^.git' | grep -v '^\.' > "$${tmp}" && \
 	cpio -pdm "$${prefix}" < "$${tmp}" && \
-	cp -a mongoose "$${prefix}/" && \
-	cp -a sqlite3 "$${prefix}/" && \
-	cp -a cJSON "$${prefix}/" && \
+	cp -a dependencies/mongoose "$${prefix}/" && \
+	cp -a dependencies/sqlite3 "$${prefix}/" && \
+	cp -a dependencies/cJSON "$${prefix}/" && \
 	mkdir -p "$${prefix}/data" && \
 	cp -a data/data "$${prefix}/data/" && \
 	tar jcf "$${prefix}".tar.bz2 "$${prefix}" && \
@@ -336,7 +336,7 @@ help:
 	@-echo " installPythonDev         - same but using symlinks"
 	@-echo " uninstallPython          - uninstall data from the python package"
 	@-echo " coverage                 - recompile project with coverage information included"
-	@-echo " dependencies             - update make dependencies"
+	@-echo " genDependencies          - update make dependencies"
 	@-echo " newVersion               - create a new version of the software"
 	@-echo "Environment variables"
 	@-echo " Compile time"

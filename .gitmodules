@@ -2,7 +2,7 @@
 	path = data
 	url = https://github.com/autodiag2/database/
 [submodule "cJSON"]
-	path = cJSON
+	path = dependencies/cJSON
 	url = https://github.com/autodiag2/cJSON
 [submodule "pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator"]
 	path = pyautodiag/examples/external/TonsenWei_doip-simulator/doip-simulator
@@ -11,5 +11,5 @@
 	path = pyautodiag/examples/external/jacobschaer_python-uds/python-uds
 	url = https://github.com/jacobschaer/python-uds/
 [submodule "mongoose"]
-	path = mongoose
+	path = dependencies/mongoose
 	url = https://github.com/autodiag2/mongoose
