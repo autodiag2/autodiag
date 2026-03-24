@@ -62,7 +62,7 @@ static char * ELM327ResponseStr[] = {
     "LV RESET",
     "<RX ERROR",
     "UNABLE TO CONNECT",
-    "BUS INIT"
+    "BUS INIT" // ... OK, UNABLE TO CONNECT, ERROR
 };
 
 ELM327Device* elm327_new();
