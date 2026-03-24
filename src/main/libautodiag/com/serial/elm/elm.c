@@ -25,6 +25,7 @@ int elm_guess_response(final char * buffer) {
         for(int i = 0; i < ELMResponseStrNumber; i++) {
             assert(ELMResponseStr[i] != null);
             if ( strncmp(buffer, ELMResponseStr[i], strlen(ELMResponseStr[i])) == 0 ) {
+                log_debug("found elm response : %s", ELMResponseStr[i]);
                 return ELMResponseOffset + i;
             }
         }

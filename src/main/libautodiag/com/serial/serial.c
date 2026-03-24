@@ -1,9 +1,11 @@
 #include "libautodiag/com/serial/serial.h"
 
 int serial_guess_response(final char * buffer) {
+    log_debug("guess for %s", buffer);
     for(int i = 0; i < SerialResponseStrNumber; i++) {
         assert(SerialResponseStr[i] != null);
         if ( strncmp(buffer, SerialResponseStr[i], strlen(SerialResponseStr[i])) == 0 ) {
+            log_debug("found serial response : %s", SerialResponseStr[i]);
             return SerialResponseOffset + i;
         }
     }
@@ -153,7 +155,7 @@ int serial_open(final Serial * port) {
             }
 
             if (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-                log_msg(LOG_ERROR, "connect: %s", strerror(errno));
+                log_msg(LOG_ERROR, "connect to %s: %s", network_location(sa), strerror(errno));
                 close(fd);
                 return GENERIC_FUNCTION_ERROR;
             }

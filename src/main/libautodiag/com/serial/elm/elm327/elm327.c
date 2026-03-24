@@ -25,7 +25,7 @@ int elm327_guess_response(final char * buffer) {
                 if ( i == ELM327_RESPONSE_NO_DATA ) {
                     return DEVICE_RECV_DATA_UNAVAILABLE;
                 } else {
-                    log_debug("found elm327 response : 0x%02X", i);
+                    log_debug("found elm327 response : %s", ELM327ResponseStr[i]);
                     return ELM327_RESPONSE_OFFSET + i;
                 }
             }

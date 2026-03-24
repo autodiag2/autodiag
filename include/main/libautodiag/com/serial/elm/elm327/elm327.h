@@ -40,15 +40,16 @@ typedef struct {
 #define ELM327_LOW_VOLTAGE_RESET                0xF00F
 #define ELM327_CAN_DATA_ERROR                   0xF010
 #define ELM327_UNABLE_TO_CONNECT                0xF011
+#define ELM327_BUS_INIT                         0xF012
 
-static int ELM327ResponseStrNumber = 18;
+static int ELM327ResponseStrNumber = 19;
 static char * ELM327ResponseStr[] = {
     "SEARCHING",
     "STOPPED",
     "NO DATA",
     "ACT ALERT",
     "!ACT ALERT",
-    "Buffer * FULL",
+    "BUFFER FULL",
     "BUS BUSY",
     "BUS ERROR",
     "CAN ERROR",
@@ -60,7 +61,8 @@ static char * ELM327ResponseStr[] = {
     "!LP ALERT",
     "LV RESET",
     "<RX ERROR",
-    "UNABLE TO CONNECT"
+    "UNABLE TO CONNECT",
+    "BUS INIT"
 };
 
 ELM327Device* elm327_new();

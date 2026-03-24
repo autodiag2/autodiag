@@ -36,14 +36,15 @@ typedef struct {
 #define ELM329_LOW_VOLTAGE_RESET                0xF00A
 #define ELM329_CAN_DATA_ERROR                   0xF00B
 #define ELM329_UNABLE_TO_CONNECT                0xF00C
+#define ELM329_BUS_INIT                         0xF00D
 
-static int ELM329ResponseStrNumber = 13;
+static int ELM329ResponseStrNumber = 14;
 static char * ELM329ResponseStr[] = {
     "SEARCHING",        
     "STOPPED",          
     "NO DATA",          
     "ACT ALERT",        
-    "Buffer * FULL",      
+    "BUFFER FULL",      
     "CAN ERROR",        
     "DATA ERROR",       
     "<DATA ERROR",      
@@ -51,7 +52,8 @@ static char * ELM329ResponseStr[] = {
     "LP ALERT",         
     "LV RESET",         
     "<RX ERROR",        
-    "UNABLE TO CONNECT"
+    "UNABLE TO CONNECT",
+    "BUS INIT"
 };
 
 ELM329Device* elm329_new();
