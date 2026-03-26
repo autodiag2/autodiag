@@ -21,6 +21,7 @@ bool testSimUDS();
 bool testCycle();
 bool testDOIP();
 bool testNetwork();
+bool testExpr();
 
 int main(int argc, char **argv) {
     sim_elm327_non_volatile_wipe_out();
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
     log_set_from_env();
     tf_init();
 
+    runIfSelected(testExpr, null);
     runIfSelected(testHashMap, null);
     runIfSelected(testBuffer,null);
     runIfSelected(testGlobals,null);
