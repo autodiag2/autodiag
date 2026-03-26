@@ -1,3 +1,7 @@
+#include "libautodiag/expr.h"
+
+// see https://github.com/antlr/grammars-v4/blob/master/python/python3_13/PythonParser.g4
+
 #include <ctype.h>
 #include <math.h>
 #include <stdarg.h>
@@ -941,4 +945,7 @@ double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **error
     }
 
     return v;
+}
+double ad_expr_reduce_buffer(Buffer * buffer, const char *expr, char **errorReturn) {
+    return ad_expr_reduce(buffer->buffer, buffer->size, expr, errorReturn);
 }

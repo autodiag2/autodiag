@@ -302,6 +302,21 @@ static void test_boolean_coercion_patterns(void) {
     expect_ok_int(bytes, 2, "($0 == 0) && ($1 == 1)", 1);
     expect_ok_int(bytes, 2, "($0 != 0) || ($1 == 1)", 1);
 }
+static void test_some_signals() {
+    char * errorReturn = null;
+    {
+        log_info("vehicle speed");
+        Buffer * data_buffer = ad_buffer_from_ascii_hex("FF");
+        assert(ad_expr_reduce_buffer(data_buffer, "$0", &errorReturn) == 255.0);
+    }
+    {
+        log_info("engine speed");
+        Buffer * data_buffer = ad_buffer_be_from_uint16(1000 * 4);
+        double result = ad_expr_reduce_buffer(data_buffer, "($0 * 256 + $1)/4", &errorReturn);
+        log_debug("result = %f", result);
+        assert(result == 1000.0);
+    }
+}
 
 #define ad_test_expr_run_with_message(func) { \
     log_info("running %s", #func); \
@@ -331,5 +346,6 @@ bool testExpr() {
     ad_test_expr_run_with_message(test_null_argument_errors);
     ad_test_expr_run_with_message(test_error_pointer_can_be_null);
     ad_test_expr_run_with_message(test_nested_function_calls);
+    ad_test_expr_run_with_message(test_some_signals);
     return true;
 }

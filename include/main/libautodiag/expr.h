@@ -1,6 +1,8 @@
 #ifndef __AD_EXPR_H
 #define __AD_EXPR_H
 
+#include "libautodiag/buffer.h"
+
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -12,5 +14,6 @@
 typedef uint8_t uint8;
 
 double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **errorReturn);
+double ad_expr_reduce_buffer(Buffer * buffer, const char *expr, char **errorReturn);
 
 #endif

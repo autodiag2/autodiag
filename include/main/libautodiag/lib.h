@@ -74,5 +74,6 @@ int compat_vasprintf(char **ret, const char *fmt, va_list ap);
 #include "libautodiag/lang/all.h"
 #include "libautodiag/time.h"
 #include "libautodiag/handle.h"
+#include "libautodiag/expr.h"
 
 #endif
