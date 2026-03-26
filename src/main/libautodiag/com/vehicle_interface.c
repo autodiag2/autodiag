@@ -38,15 +38,12 @@ int viface_send_str(final VehicleIFace * iface, final char * request) {
 bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * signal, double * result_rv) {
     assert(iface != null);
     assert(signal != null);
-    iface->lock(iface);
     if ( iface->send(iface, signal->input) == DEVICE_ERROR ) {
-        iface->unlock(iface);
         return false;
     }
     iface->clear_data(iface);
     int responses = iface->recv(iface);
     if ( responses <= 0 ) {
-        iface->unlock(iface);
         return false;
     }
     if ( 1 < responses ) {
@@ -65,7 +62,6 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * sig
                     if ( result == NAN || parsingResult != null ) {
                         log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
                         free(parsingResult);
-                        iface->unlock(iface);
                         return false;
                     }
                     if ( result_rv != null ) {
@@ -75,8 +71,7 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * sig
             }
         }
     }
-    
-    iface->unlock(iface);
+
     return true;
 }
 int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
