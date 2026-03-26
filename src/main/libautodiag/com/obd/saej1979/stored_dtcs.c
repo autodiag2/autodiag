@@ -37,8 +37,6 @@ void saej1979_dtc_free(SAEJ1979_DTC *dtc) {
         if ( elm->proto_is_can(AD_DEVICE(elm)) ) { \
             has_dtc_count = true; \
         } \
-    } else { \
-        log_warn("DTC count not implemented for device type 0x%X", device->type); \
     } \
     for(unsigned byte = has_dtc_count; has_dtc_count < data_buffer->size && byte < data_buffer->size-1; byte += 2) { \
         unsigned char byte_0 = data_buffer->buffer[byte]; \

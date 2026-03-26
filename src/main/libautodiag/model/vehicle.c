@@ -112,7 +112,7 @@ Vehicle * vehicle_new() {
     v->engine_manufacturer = null;
     v->year = VEHICLE_YEAR_EMPTY;
     v->engine = null;
-    v->vin = null;
+    v->vin = ad_buffer_new();
     v->internal.events.onECURegister = ehh_new();
     v->internal.events.onFilterChange = ehh_new();
     v->internal.filter = ad_list_Buffer_new();
