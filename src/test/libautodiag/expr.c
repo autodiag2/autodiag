@@ -317,6 +317,29 @@ static void test_some_signals() {
         assert(result == 1000.0);
     }
 }
+static void test_parse_fail() {
+    Buffer * data_buffer = ad_buffer_from_ascii_hex("123456");
+    {
+        char * errorReturn = null;
+        ad_expr_reduce_buffer(data_buffer, "aezrjlkeazr", &errorReturn);
+        assert(errorReturn != null);
+    }
+    {
+        char * errorReturn = null;
+        ad_expr_reduce_buffer(data_buffer, "1 + a", &errorReturn);
+        assert(errorReturn != null);
+    }
+    {
+        char * errorReturn = null;
+        ad_expr_reduce_buffer(data_buffer, "1 +/ a", &errorReturn);
+        assert(errorReturn != null);
+    }
+    {
+        char * errorReturn = null;
+        ad_expr_reduce_buffer(data_buffer, "1 qdsfdq a", &errorReturn);
+        assert(errorReturn != null);
+    }
+}
 
 #define ad_test_expr_run_with_message(func) { \
     log_info("running %s", #func); \
@@ -347,5 +370,6 @@ bool testExpr() {
     ad_test_expr_run_with_message(test_error_pointer_can_be_null);
     ad_test_expr_run_with_message(test_nested_function_calls);
     ad_test_expr_run_with_message(test_some_signals);
+    ad_test_expr_run_with_message(test_parse_fail);
     return true;
 }
