@@ -4,6 +4,7 @@
 #include "libautodiag/com/device.h"
 #include "libautodiag/model/vehicle.h"
 #include "libautodiag/com/recorder.h"
+#include "libautodiag/com/vehicle_signal.h"
 
 typedef enum {
     VIFaceState_READY,
@@ -148,5 +149,10 @@ bool viface_recv_filter_rm(final VehicleIFace* iface, final Buffer * address);
  * Messages filtering capabilities - clear filters
  */
 void viface_recv_filter_clear(final VehicleIFace* iface);
+/**
+ * Send a signal over the transport layer (ISO-TP, DOIP, KWP2000), parse and reply a signal.
+ * @return true if signal received and parsed else on any error false
+ */
+bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * signal, double * result_rv);
 
 #endif

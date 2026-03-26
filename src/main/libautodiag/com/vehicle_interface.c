@@ -2,6 +2,7 @@
 #include "libautodiag/com/serial/elm/elm.h"
 #include "libautodiag/com/uds/uds.h"
 #include "libautodiag/com/doip/doip.h"
+#include "libautodiag/com/vehicle_signal.h"
 
 void viface_recorder_reset(final VehicleIFace* iface) {
     record_clear();
@@ -33,6 +34,50 @@ int viface_send_str(final VehicleIFace * iface, final char * request) {
     final int result = viface_send(iface, binRequest);
     ad_buffer_free(binRequest);
     return result;
+}
+bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * signal, double * result_rv) {
+    assert(iface != null);
+    assert(signal != null);
+    iface->lock(iface);
+    if ( iface->send(iface, signal->input) == DEVICE_ERROR ) {
+        iface->unlock(iface);
+        return false;
+    }
+    iface->clear_data(iface);
+    int responses = iface->recv(iface);
+    if ( responses <= 0 ) {
+        iface->unlock(iface);
+        return false;
+    }
+    if ( 1 < responses ) {
+        log_warn("Multi responses not supported for now, using the last received");
+    }
+
+    final Vehicle* v = iface->vehicle;
+    for(unsigned i = 0; i < v->ecus->size; i++) {
+        final ad_object_ECU* ecu = v->ecus->list[i];
+        if ( 0 < ecu->data_buffer->size ) {
+            for(int j = ecu->data_buffer->size-1; 0 <= j; j--) {
+                Buffer * data = ecu->data_buffer->list[j];
+                if ( 0 < data->size ) {
+                    char * parsingResult = null;
+                    double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
+                    if ( result == NAN || parsingResult != null ) {
+                        log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
+                        free(parsingResult);
+                        iface->unlock(iface);
+                        return false;
+                    }
+                    if ( result_rv != null ) {
+                        *result_rv = result;
+                    }
+                }
+            }
+        }
+    }
+    
+    iface->unlock(iface);
+    return true;
 }
 int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
     char * request = ad_buffer_to_hex_string(binRequest);
