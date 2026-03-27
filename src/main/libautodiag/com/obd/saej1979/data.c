@@ -202,16 +202,6 @@ char * saej1979_data_secondary_air_status_to_string(SAEJ1979_DATA_SECONDARY_AIR_
     }
 }
 
-unsigned short saej1979_data_buffer_get_short(final Buffer* buffer) {
-    assert(1 < buffer->size);
-    return (unsigned short)buffer->buffer[0] * 256 + buffer->buffer[1];
-} 
-
-unsigned saej1979_data_buffer_get_uint(final Buffer* buffer) {
-    assert(3 < buffer->size);
-    return (buffer->buffer[0] >> 24) + (buffer->buffer[1] >> 16) + (buffer->buffer[2] >> 8) + buffer->buffer[3];
-}
-
 bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int dataFrameNumber, int pid) {
     return saej1979_is_pid_supported(iface,1 + dataFrameNumber, pid);
 }
@@ -1009,7 +999,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
                         "4C")
 #define saej1979_data_time_run_mil_on_iterator(data) \
     if ( 1 < data->size ) \
-        result = saej1979_data_buffer_get_short(data);
+        result = ad_buffer_to_be16(data);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,
                         saej1979_data_time_run_mil_on,
@@ -1019,7 +1009,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     )
 #define saej1979_data_time_since_trouble_codes_cleared_iterator(data) \
     if ( 1 < data->size ) \
-        result = saej1979_data_buffer_get_short(data);
+        result = ad_buffer_to_be16(data);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,
                         saej1979_data_time_since_trouble_codes_cleared,
@@ -1105,7 +1095,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
                         saej1979_data_ethanol_fuel_percent,
                         "52")
 #define saej1979_data_absolute_evap_system_vapor_pressure_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data)/200.0;
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data)/200.0;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         double,saej1979_data_absolute_evap_system_vapor_pressure,
                         "53",
@@ -1113,7 +1103,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DATA_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE_ERROR
                     )
 #define saej1979_data_relative_evap_system_vapor_pressure_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data);
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,saej1979_data_relative_evap_system_vapor_pressure,
                         "54",
@@ -1196,7 +1186,7 @@ int saej1979_data_long_term_secondary_oxygen_sensor_trim(final VehicleIFace* ifa
     return SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_ERROR;
 }
 #define saej1979_data_fuel_rail_absolute_pressure_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data) * 10;
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data) * 10;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,saej1979_data_fuel_rail_absolute_pressure,
                         "59",
@@ -1218,7 +1208,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     SAEJ1979_DATA_ENGINE_OIL_TEMPERATURE_ERROR
                 )
 #define saej1979_data_fuel_injection_timing_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data) / 128.0 - 210;
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data) / 128.0 - 210;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     double,saej1979_data_fuel_injection_timing,
                     "5D",
@@ -1226,7 +1216,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR
                 )
 #define saej1979_data_engine_fuel_rate_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data) / 20.0;
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data) / 20.0;
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     double,saej1979_data_engine_fuel_rate,
                     "5E",
@@ -1248,7 +1238,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_ERROR
                 )
 #define saej1979_data_engine_reference_torque_iterator(data) \
-    if ( 1 < data->size ) result = saej1979_data_buffer_get_short(data);
+    if ( 1 < data->size ) result = ad_buffer_to_be16(data);
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                     int,saej1979_data_engine_reference_torque,
                     "63",
