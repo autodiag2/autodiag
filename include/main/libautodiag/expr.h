@@ -13,6 +13,9 @@
 
 typedef uint8_t uint8;
 
+/**
+ * From an expression parse and compute for given input bytes.
+ */
 double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **errorReturn);
 double ad_expr_reduce_buffer(Buffer * buffer, const char *expr, char **errorReturn);
 

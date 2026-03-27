@@ -341,35 +341,29 @@ static void test_parse_fail() {
     }
 }
 
-#define ad_test_expr_run_with_message(func) { \
-    log_info("running %s", #func); \
-    func(); \
-    log_info(" -> %s passed", #func); \
-}
-
 bool testExpr() {
-    ad_test_expr_run_with_message(test_byte_access);
-    ad_test_expr_run_with_message(test_logical_and_comparison_ops);
-    ad_test_expr_run_with_message(test_ternary_operator);
-    ad_test_expr_run_with_message(test_mixed_realistic_expressions);
-    ad_test_expr_run_with_message(test_error_invalid_syntax);
-    ad_test_expr_run_with_message(test_error_invalid_buffer_access);
-    ad_test_expr_run_with_message(test_boolean_coercion_patterns);
-    ad_test_expr_run_with_message(test_basic_arithmetic_literals);
-    ad_test_expr_run_with_message(test_numeric_literal_formats);
-    ad_test_expr_run_with_message(test_parentheses_and_precedence);
-    ad_test_expr_run_with_message(test_bitwise_ops);
-    ad_test_expr_run_with_message(test_constants);
-    ad_test_expr_run_with_message(test_len_and_simple_functions);
-    ad_test_expr_run_with_message(test_unsigned_buffer_read_functions);
-    ad_test_expr_run_with_message(test_signed_buffer_read_functions);
-    ad_test_expr_run_with_message(test_bit_and_bits_functions);
-    ad_test_expr_run_with_message(test_error_invalid_bit_parameters);
-    ad_test_expr_run_with_message(test_error_invalid_runtime);
-    ad_test_expr_run_with_message(test_null_argument_errors);
-    ad_test_expr_run_with_message(test_error_pointer_can_be_null);
-    ad_test_expr_run_with_message(test_nested_function_calls);
-    ad_test_expr_run_with_message(test_some_signals);
-    ad_test_expr_run_with_message(test_parse_fail);
+    tf_run_case(test_byte_access);
+    tf_run_case(test_logical_and_comparison_ops);
+    tf_run_case(test_ternary_operator);
+    tf_run_case(test_mixed_realistic_expressions);
+    tf_run_case(test_error_invalid_syntax);
+    tf_run_case(test_error_invalid_buffer_access);
+    tf_run_case(test_boolean_coercion_patterns);
+    tf_run_case(test_basic_arithmetic_literals);
+    tf_run_case(test_numeric_literal_formats);
+    tf_run_case(test_parentheses_and_precedence);
+    tf_run_case(test_bitwise_ops);
+    tf_run_case(test_constants);
+    tf_run_case(test_len_and_simple_functions);
+    tf_run_case(test_unsigned_buffer_read_functions);
+    tf_run_case(test_signed_buffer_read_functions);
+    tf_run_case(test_bit_and_bits_functions);
+    tf_run_case(test_error_invalid_bit_parameters);
+    tf_run_case(test_error_invalid_runtime);
+    tf_run_case(test_null_argument_errors);
+    tf_run_case(test_error_pointer_can_be_null);
+    tf_run_case(test_nested_function_calls);
+    tf_run_case(test_some_signals);
+    tf_run_case(test_parse_fail);
     return true;
 }

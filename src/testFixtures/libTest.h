@@ -38,6 +38,11 @@ static bool tf_test_should_run(int argc, char **argv, char *element) {
     }
     return false;
 }
+#define tf_run_case(func) { \
+    log_info("    running %s", #func); \
+    func(); \
+    log_info("     -> %s passed", #func); \
+}
 
 #define runIfSelected(func,iface) \
     if ( tf_test_should_run(argc,argv,#func) ) { \
