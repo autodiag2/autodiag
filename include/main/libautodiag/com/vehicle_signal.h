@@ -70,11 +70,11 @@ ad_object_vehicle_signal * ad_signal_get(char * signal_location);
 void ad_signal_put(ad_object_vehicle_signal * signal);
 
 #define AD_SIGNAL_REGISTER( \
+    param_name, \
+    param_input_formula, \
     param_rv_min, \
     param_rv_max, \
     param_rv_formula, \
-    param_input_formula, \
-    param_name, \
     param_description, \
     param_category, \
     param_standard, \

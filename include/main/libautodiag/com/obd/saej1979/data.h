@@ -10,22 +10,22 @@
 #include "libautodiag/com/vehicle_signal.h"
 
 #define AD_SIGNAL_SAEJ1979_REGISTER( \
+    param_name, \
+    param_input_formula, \
     param_rv_min, \
     param_rv_max, \
     param_rv_formula, \
-    param_input_formula, \
-    param_name, \
     param_description, \
     param_category, \
     param_slug, \
     param_unit \
 ) \
 AD_SIGNAL_REGISTER( \
+    param_name, \
+    param_input_formula, \
     param_rv_min, \
     param_rv_max, \
     param_rv_formula, \
-    param_input_formula, \
-    param_name, \
     param_description, \
     param_category, \
     "SAEJ1979", \
