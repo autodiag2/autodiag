@@ -3,11 +3,13 @@
 void ad_saej1979_data_register_signals() {
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",          "${0}${1}04", 0,    100,            "$2 / 2.55",                    "Calculated engine load",           "Engine, ECM",  "engine_load",      "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Coolant Temperature",  "${0}${1}05", -40,  215,            "$2 - 40",                      "Engine Coolant Temperature",       "Engine, ECM",  "coolant_temp",     "°C")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel Pressure",        "${0}${1}0A", 0,    765,            "$2 * 3",                       "Fuel Pressure",                    "Engine, ECM",  "fuel_pressure",    "kPa")
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",         "${0}${1}0C", 0,    16383.75,       "($2 * 256 + $3) / 4.0",        "Rotational speed of engine",       "Engine, ECM",  "engine_speed",     "rpm")
     AD_SIGNAL_SAEJ1979_REGISTER("Vehicle Speed",        "${0}${1}0D", 0,    255,            "$2",                           "Vehicle Speed",                    "Engine, ECM",  "vehicle_speed",    "km/h")
 }
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_load", double, saej1979_data_engine_load)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("coolant_temp", int, saej1979_data_engine_coolant_temperature)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_pressure", int, saej1979_data_fuel_pressure)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_speed", double, saej1979_data_engine_speed)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("vehicle_speed", int, saej1979_data_vehicle_speed)
 /**
@@ -349,14 +351,6 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
     saej1979_data_short_term_fuel_trim_bank_2,"08")
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
     saej1979_data_long_term_fuel_trim_bank_2,"09")
-
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        int,
-                        saej1979_data_fuel_pressure,
-                        "0A",
-                        saej1979_data_fuel_pressure_iterator,
-                        SAEJ1979_DATA_FUEL_PRESSURE_ERROR
-                    )
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,

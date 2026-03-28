@@ -59,6 +59,7 @@ char* saej1979_data_data_gen_pid_map_get(void *key);
 
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_pressure);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
 
@@ -198,18 +199,7 @@ double saej1979_data_short_term_fuel_trim_bank_1(final VehicleIFace* iface, int 
 double saej1979_data_long_term_fuel_trim_bank_1(final VehicleIFace* iface, int dataFrameNumber);
 double saej1979_data_short_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
 double saej1979_data_long_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*0A
- * @return kPa [0;765] (gauge)
- */
-#define saej1979_data_fuel_pressure_iterator(data) \
-    if ( 0 < data->size ) \
-        result = ((unsigned char)data->buffer[0]) * 3; 
 
-#define SAEJ1979_DATA_FUEL_PRESSURE_MIN 0
-#define SAEJ1979_DATA_FUEL_PRESSURE_MAX 765
-#define SAEJ1979_DATA_FUEL_PRESSURE_ERROR -1
-int saej1979_data_fuel_pressure(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*0B
  * @return kPa [0;255] (absolute)

@@ -68,13 +68,9 @@ static double metric_get(VehicleIFace *iface, int dataFrameNumber, MetricType t,
 
 static double metric_error(MetricType t) {
     switch (t) {
-        case METRIC_SPEED: return NAN;
-        case METRIC_COOLANT_TEMP: return NAN;
         case METRIC_INTAKE_AIR_TEMP: return SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR;
         case METRIC_INTAKE_MANIFOLD_PRESSURE: return SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR;
         case METRIC_MAF_RATE: return SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR;
-        case METRIC_ENGINE_SPEED: return NAN;
-        case METRIC_FUEL_PRESSURE: return SAEJ1979_DATA_FUEL_PRESSURE_ERROR;
         case METRIC_FUEL_LEVEL: return SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_ERROR;
         case METRIC_FUEL_ETHANOL: return SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR;
         case METRIC_FUEL_RAIL_PRESSURE: return SAEJ1979_DATA_FRP_RELATIVE_ERROR;
@@ -88,8 +84,11 @@ static double metric_error(MetricType t) {
         case METRIC_OX_VOLTAGE: return SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_ERROR;
         case METRIC_OX_CURRENT: return SAEJ1979_DATA_OXYGEN_SENSOR_CURRENT_ERROR;
         case METRIC_OX_RATIO: return SAEJ1979_DATA_OXYGEN_SENSOR_AIR_FUEL_EQUIV_RATIO_ERROR;
+        default: {
+            return NAN;
+        }
     }
-    return -1;
+    return NAN;
 }
 
 static void button_click_clean_up_routine(void *arg) {
@@ -154,12 +153,6 @@ static void data_freeze_frame() {
                 true \
         ) && gtk_widget_get_mapped(GTK_WIDGET(widget)) \
     )
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_pressure,
-    int,
-    SAEJ1979_DATA_FUEL_PRESSURE_MIN,SAEJ1979_DATA_FUEL_PRESSURE_MAX,SAEJ1979_DATA_FUEL_PRESSURE_ERROR,
-    "%d kPa", gui->engine.fuel.pressure
-)
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_tank_level_input,
     double,
@@ -429,12 +422,12 @@ static bool refresh_dynamic_internal() {
     VH_REFRESH_WIDGET_V2(gui->engine.vehicleSpeed,          "SAEJ1979.vehicle_speed");
     VH_REFRESH_WIDGET_V2(gui->engine.load,                  "SAEJ1979.engine_load");
     VH_REFRESH_WIDGET_V2(gui->engine.coolant.temperature,   "SAEJ1979.coolant_temp");
+    VH_REFRESH_WIDGET_V2(gui->engine.fuel.pressure,         "SAEJ1979.fuel_pressure");
     VH_REFRESH_WIDGET(gui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.mafRate,                          saej1979_data_maf_air_flow_rate,            double);
     VH_REFRESH_WIDGET(gui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
     VH_REFRESH_WIDGET(gui->engine.secondsSinceStart,                          saej1979_data_seconds_since_engine_start,   int);
-    VH_REFRESH_WIDGET(gui->engine.fuel.pressure,                              saej1979_data_fuel_pressure,                int);
     VH_REFRESH_WIDGET(gui->engine.fuel.level,                                 saej1979_data_fuel_tank_level_input,        double);
     VH_REFRESH_WIDGET(gui->engine.fuel.ethanol,                               saej1979_data_ethanol_fuel_percent,         int);
     VH_REFRESH_WIDGET(gui->engine.fuel.rail.pressure,                         saej1979_data_frp_relative,                 double);
