@@ -400,7 +400,7 @@ static bool refresh_dynamic_internal() {
     VH_REFRESH_WIDGET(gui->engine.speed,                                      saej1979_data_engine_speed,                 double);
     VH_REFRESH_WIDGET(gui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
     VH_REFRESH_WIDGET(gui->engine.load,                                       saej1979_data_engine_load,                  int);
-    VH_REFRESH_WIDGET(gui->engine.vehicleSpeed,                               saej1979_data_vehicle_speed,                int);
+    VH_REFRESH_WIDGET(gui->engine.vehicleSpeed,                               saej1979_data_vehicle_speed,                double);
     VH_REFRESH_WIDGET(gui->engine.secondsSinceStart,                          saej1979_data_seconds_since_engine_start,   int);
     VH_REFRESH_WIDGET(gui->engine.fuel.pressure,                              saej1979_data_fuel_pressure,                int);
     VH_REFRESH_WIDGET(gui->engine.fuel.level,                                 saej1979_data_fuel_tank_level_input,        double);

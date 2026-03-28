@@ -59,6 +59,7 @@ int main (int argc, char *argv[]) {
     config_init();
     config_load();
     device_table_fill(config.ephemere.device_table);
+    ad_object_vehicle_signal_register_all();
     
     if ( ! log_level_is_env_set() ) {
         log_set_level(config.log.level);

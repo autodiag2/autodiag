@@ -226,7 +226,6 @@ static bool connection_checking_stop(VehicleIFace * iface) {
 }
 VehicleIFace* viface_new() {
     final VehicleIFace* iface = (VehicleIFace*)malloc(sizeof(VehicleIFace));
-    ad_saej1979_data_register_signals();
     iface->device = null;
     iface->vehicle = vehicle_new();
     iface->uds.enabled = false;

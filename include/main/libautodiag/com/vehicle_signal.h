@@ -107,5 +107,9 @@ void ad_signal_put(ad_object_vehicle_signal * signal);
     ad_signal_put(signal); \
 }
 void ad_signal_foreach(void (*cb)(ad_object_vehicle_signal *signal, void *userdata), void *userdata);
+/**
+ * Register hardcoded signals (eg. SAEJ1979)
+ */
+void ad_object_vehicle_signal_register_all();
 
 #endif

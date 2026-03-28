@@ -1,4 +1,5 @@
 #include "libautodiag/com/vehicle_signal.h"
+#include "libautodiag/com/obd/saej1979/data.h"
 
 AD_OBJECT_SRC(vehicle_signal)
 
@@ -13,6 +14,10 @@ double ad_object_vehicle_signal_to_percent(ad_object_vehicle_signal *signal, dou
 
     return ((value - signal->rv_min) / (signal->rv_max - signal->rv_min)) * 100.0;
 }
+void ad_object_vehicle_signal_register_all() {
+    ad_saej1979_data_register_signals();
+}
+
 ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     ad_object_vehicle_signal * signal = (ad_object_vehicle_signal*)malloc(sizeof(ad_object_vehicle_signal));
     signal->rv_min = 0;

@@ -12,9 +12,9 @@ static void engine_speed_set(SimECUGeneratorGui *gui, double speed) {
     counter_set_label(gui->data.engineSpeed, res);
     free(res);
 }
-static void vehicle_speed_set(SimECUGeneratorGui *gui, int speed) {
+static void vehicle_speed_set(SimECUGeneratorGui *gui, double speed) {
     char *res;
-    asprintf(&res, "%d km/h", speed);
+    asprintf(&res, "%.0f km/h", speed);
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
@@ -238,10 +238,8 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
     g_object_unref(G_OBJECT(builder));
 
     coolant_temperature_set(simGui, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
-    ad_object_vehicle_signal * engine_speed = ad_signal_get("SAEJ1979.engine_speed");
-    engine_speed_set(simGui, engine_speed->rv_min);
-    ad_object_vehicle_signal * vehicle_speed = ad_signal_get("SAEJ1979.vehicle_speed");
-    vehicle_speed_set(simGui, vehicle_speed->rv_min);
+    engine_speed_set(simGui, NAN);
+    vehicle_speed_set(simGui, NAN);
 
     generator->context = (void *)simGui;
 
