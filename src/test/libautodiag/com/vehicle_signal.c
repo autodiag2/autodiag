@@ -9,10 +9,26 @@ static Buffer * response(SimECUGenerator * g, Buffer * binRequest) {
     if ( binRequest->buffer[0] == 0x10 ) {
         return ad_buffer_be_from_uint16(some_signal);
     }
+    Buffer * binResponse = ad_buffer_new();
     if ( binRequest->buffer[0] == 0x01) {
         if ( binRequest->buffer[1] == 0x04 ) {
-            return ad_buffer_from_ints((byte)(engine_load * 2.55));
+            AD_BUFFER_APPEND_BYTES(binResponse, 0x41, 0x04, (byte)(engine_load * 2.55));
         }
+        return binResponse;
+    }
+    if ( binRequest->buffer[0] == 0x02 ) {
+        final int frameNumber = binRequest->buffer[1];
+        switch(binRequest->buffer[2]) {
+            case 0x04: {
+                if ( frameNumber == 0x01 ) {
+                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, (byte)(10 * 2.55));
+                }
+                if ( frameNumber == 0x02 ) {
+                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, (byte)(20 * 2.55));
+                }
+            } break;
+        }
+        return binResponse;
     }
     return ad_buffer_new_random(10);
 }
@@ -46,6 +62,10 @@ void testRawSignal() {
         double result = 0;
         assert(viface_use_signal(iface, signal, &result, "01", null));
         assert(round(result) == round(engine_load));
+        assert(viface_use_signal(iface, signal, &result, "02", "01", null));
+        assert(round(result) == round(10));
+        assert(viface_use_signal(iface, signal, &result, "02", "02", null));
+        assert(round(result) == round(20));
     }
 }
 bool testSignals() {
