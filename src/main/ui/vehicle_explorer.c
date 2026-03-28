@@ -161,9 +161,6 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_coolant_temperature,
     "%d °C", gui->engine.coolant.temperature
 )
 
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM_WITH_SIGNAL(saej1979_data_engine_speed, "SAEJ1979.engine_speed", gui->engine.speed)
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM_WITH_SIGNAL(saej1979_data_vehicle_speed, "SAEJ1979.vehicle_speed", gui->engine.vehicleSpeed)
-
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_pressure,
     int,
     SAEJ1979_DATA_FUEL_PRESSURE_MIN,SAEJ1979_DATA_FUEL_PRESSURE_MAX,SAEJ1979_DATA_FUEL_PRESSURE_ERROR,
@@ -271,6 +268,47 @@ static gboolean saej1979_data_seconds_since_engine_start_gsource(gpointer data) 
     free(data);
     return false;
 }
+typedef struct {
+    double value;
+    GtkProgressBar * bar;
+    ad_object_vehicle_signal * signal;
+} vh_sensor_refresh_params;
+
+static gboolean vh_refresh_widget_v2_generic(gpointer arg) {
+    vh_sensor_refresh_params * params = (vh_sensor_refresh_params*)arg;
+    char * fmt = gprintf("%%.2f %s", params->signal->unit);
+    gtk_progress_bar_fill_from_double(params->bar, params->value, params->signal->rv_min, params->signal->rv_max, NAN, fmt);
+    free(fmt);
+    free(params);
+    return false;
+}
+#define VH_REFRESH_WIDGET_V2(w,signal_path) \
+    if (VH_SHOULD_REFRESH_WIDGET(w)) { \
+        ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
+        if ( signal == null ) { \
+            log_err("Cannot find signal %s", signal_path); \
+        } else { \
+            iface->lock(iface); \
+            int frameNumber = get_data_frame_selected(); \
+            double result_value = NAN; \
+            if ( frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ) { \
+                if ( ! viface_use_signal(iface, signal, &result_value, "01", null) ) { \
+                    log_warn("error while retrieving sensor : %s", signal_path);    \
+                } \
+            } else { \
+                char * frameNumberStr = gprintf("%02hhX", frameNumber); \
+                if ( ! viface_use_signal(iface, signal, &result_value, "02", frameNumberStr, null) ) { \
+                    log_warn("error while retrieving sensor : %s", signal_path);    \
+                } \
+            } \
+            iface->unlock(iface); \
+            vh_sensor_refresh_params * params = (vh_sensor_refresh_params*)malloc(sizeof(vh_sensor_refresh_params)); \
+            params->value = result_value; \
+            params->signal = signal; \
+            params->bar = w; \
+            g_idle_add(vh_refresh_widget_v2_generic, params); \
+        } \
+    }
 
 #define VH_REFRESH_WIDGET(w,data_gen,type) \
     if (VH_SHOULD_REFRESH_WIDGET(w)) { \
@@ -393,14 +431,14 @@ static bool refresh_dynamic_internal() {
     if (vehicle_explorer_error_feedback_obd(iface)) return false;
 
     int dataFrameNumber = get_data_frame_selected();
+    VH_REFRESH_WIDGET_V2(gui->engine.speed,         "SAEJ1979.engine_speed");
+    VH_REFRESH_WIDGET_V2(gui->engine.vehicleSpeed,  "SAEJ1979.vehicle_speed");
+    VH_REFRESH_WIDGET_V2(gui->engine.load,          "SAEJ1979.engine_load");
     VH_REFRESH_WIDGET(gui->engine.coolant.temperature,                        saej1979_data_engine_coolant_temperature,   int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.mafRate,                          saej1979_data_maf_air_flow_rate,            double);
-    VH_REFRESH_WIDGET(gui->engine.speed,                                      saej1979_data_engine_speed,                 double);
     VH_REFRESH_WIDGET(gui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
-    VH_REFRESH_WIDGET(gui->engine.load,                                       saej1979_data_engine_load,                  int);
-    VH_REFRESH_WIDGET(gui->engine.vehicleSpeed,                               saej1979_data_vehicle_speed,                double);
     VH_REFRESH_WIDGET(gui->engine.secondsSinceStart,                          saej1979_data_seconds_since_engine_start,   int);
     VH_REFRESH_WIDGET(gui->engine.fuel.pressure,                              saej1979_data_fuel_pressure,                int);
     VH_REFRESH_WIDGET(gui->engine.fuel.level,                                 saej1979_data_fuel_tank_level_input,        double);
