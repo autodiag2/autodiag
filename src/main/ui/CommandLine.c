@@ -6,6 +6,8 @@ static CommandLineGui *gui = null;
 static ad_list_ad_object_string * commandHistory = null;
 static int commandHistoryIndex = -1;
 static gdouble output_scrollbar_current_upper = -1;
+static ad_object_vehicle_signal *selectedSignal = null;
+
 static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
         gdouble upper = gtk_adjustment_get_upper(adj);
@@ -16,7 +18,25 @@ static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data
         }
     }
 }
+static void command_line_signal_output_hide() {
+    gtk_widget_hide(GTK_WIDGET(gui->signals.output.container));
+    gtk_label_set_text(gui->signals.output.value, "");
+}
+static void command_line_signal_selection_clear() {
+    selectedSignal = null;
+    command_line_signal_output_hide();
+}
 
+static void command_line_signal_selection_set(ad_object_vehicle_signal *signal) {
+    selectedSignal = signal;
+}
+static void command_line_signal_output_show_value(ad_object_vehicle_signal *signal, double value) {
+    char buf[256];
+    const char *unit = signal != null && signal->unit != null ? signal->unit : "";
+    snprintf(buf, sizeof(buf), "%.17g%s%s", value, unit[0] != 0 ? " " : "", unit);
+    gtk_label_set_text(gui->signals.output.value, buf);
+    gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
+}
 static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpointer user_data) {
     if (commandHistory->size == 0)
         return FALSE;
@@ -104,19 +124,29 @@ static char *ascii_interpret_escape_sequences(const char *input, int * output_le
     }
     return parsed;
 }
+static void on_send_command_any(char * command) {
+    char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
+    char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
+    sprintf(msg, "%s> %s\n", ctime, command);
+    append_text_to_output(msg);
+    free(ctime);
+}
+static void on_send_command_reply_any(Buffer * buffer) {
+    final char * result = bytes_to_hexdump(buffer->buffer, buffer->size);
+    if ( result == null ) {
+        append_text_to_output("No data received from the device\n");
+    } else {
+        append_text_to_output(result);
+        free(result);
+    }   
+}
 static void * send_command_wait_response_internal(final void * arg) {
     char * command = (char*)arg;
     final Device * device = device_table_get_selected(config.ephemere.device_table);
     if ( ! error_feedback_device(gui->errorFeedback,device) ) {
         device->lock(AD_DEVICE(device));
         ad_buffer_recycle(device->recv_buffer);
-        {
-            char *ctime = config.commandLine.showTimestamp ? log_get_current_time() : strdup("");
-            char msg[strlen(ctime) + 2 + strlen(command) + 1 + 1];
-            sprintf(msg, "%s> %s\n", ctime, command);
-            append_text_to_output(msg);
-            free(ctime);
-        }
+        on_send_command_any(command);
         int command_len = strlen(command);
         if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->send.interpretEscapes))) {
             char *tmp = ascii_interpret_escape_sequences(command, &command_len);
@@ -145,15 +175,7 @@ static void * send_command_wait_response_internal(final void * arg) {
             error_feedback_device(gui->errorFeedback,device);                
         } else {
             device->recv(AD_DEVICE(device));
-            {
-                final char * result = bytes_to_hexdump(device->recv_buffer->buffer, device->recv_buffer->size);
-                if ( result == null ) {
-                    append_text_to_output("No data received from the device\n");
-                } else {
-                    append_text_to_output(result);
-                    free(result);
-                }
-            }
+            on_send_command_reply_any(device->recv_buffer);
         }
         device->unlock(AD_DEVICE(device));
     }
@@ -167,6 +189,7 @@ static void send_command_wait_response(final char * command) {
 static gboolean send_command_from_button_gsource(gpointer button) {
     final char * command = (char*)gtk_button_get_label((GtkButton*)button);
     gtk_entry_set_text(gui->customCommandInput, command);
+    command_line_signal_selection_clear();
 
     char *tooltipText = gtk_widget_get_tooltip_text((GtkWidget*)button);
     if ( tooltipText == null ) {
@@ -179,9 +202,9 @@ static gboolean send_command_from_button_gsource(gpointer button) {
 void command_line_generic_send_command_from_button(final GtkButton * button) {
     g_idle_add(send_command_from_button_gsource, (gpointer)button);
 }
-
 static void send_custom_command() {
     final char * command = (char *)gtk_entry_get_text(gui->customCommandInput);
+
     if ( -1 == commandHistoryIndex || strcmp(commandHistory->list[commandHistory->size-1-commandHistoryIndex]->data, command) != 0 ) {
         if ( 0 == commandHistory->size || strcmp(commandHistory->list[commandHistory->size-1]->data, command) != 0 ) {
             if ( 0 < strlen(command) ) {
@@ -189,9 +212,40 @@ static void send_custom_command() {
             }
         }
     }
-    send_command_wait_response(strdup(command));
+
+    if (selectedSignal != null) {
+        double value = 0.0;
+        bool ok;
+
+        if (config.ephemere.iface == null) {
+            command_line_signal_output_hide();
+            gtk_label_set_text(gui->tooltip, "No active vehicle interface");
+            return;
+        }
+        if ( error_feedback_obd(gui->errorFeedback, config.ephemere.iface, config.ephemere.iface->device) ) {
+            return;
+        }
+        
+        ad_object_vehicle_signal * custom_signal = ad_object_vehicle_signal_copy(selectedSignal);
+        custom_signal->input_formula = strdup(command);
+        on_send_command_any(custom_signal->input_formula);
+        ok = viface_use_signal(config.ephemere.iface, custom_signal, &value, null);
+        on_send_command_reply_any(config.ephemere.iface->device->recv_buffer);
+        if (!ok) {
+            gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
+            gtk_label_set_text(gui->signals.output.value, "Error");
+            return;
+        }
+
+        command_line_signal_output_show_value(custom_signal, value);
+        ad_object_vehicle_signal_free(custom_signal);
+    } else {
+        command_line_signal_output_hide();
+        send_command_wait_response(strdup(command));
+        gtk_entry_set_text(gui->customCommandInput, "");
+    }
+
     commandHistoryIndex = -1;
-    gtk_entry_set_text(gui->customCommandInput, "");
 }
 
 static void output_clear() {
@@ -201,6 +255,7 @@ static void output_clear() {
 static void custom_clear() {
     gtk_entry_set_text(gui->customCommandInput,"");
     gtk_label_set_text(gui->tooltip,"");
+    command_line_signal_selection_clear();
     commandHistoryIndex = -1;   
 }
 
@@ -236,34 +291,163 @@ static bool vehicle_set_tooltip_text(GtkButton* child) {
     ad_buffer_free(bin_buffer);
     return res;
 }
+typedef struct {
+    GtkWidget *root;
+    GtkWidget *groups_box;
+    GHashTable *groups;
+    const char *query;
+} CommandLineSignalsBuildCtx;
 
-static void vehicle_add_pid_buttons() {
-    // insert at the end
-    int rowi = 1000;
-    int rowSize = 10;
-    for(int pid = 0; pid < 0xC0; pid++) {
-        char *label;
-        asprintf(&label,"01%02X",pid);
-        GtkWidget* widget = GTK_WIDGET(gtk_button_new_with_label(label));
-        if ( vehicle_set_tooltip_text(GTK_BUTTON(widget)) ) {
-            assert(0 != g_signal_connect(G_OBJECT(widget),"clicked",G_CALLBACK(command_line_generic_send_command_from_button),null));
-            int columni = pid % rowSize;
-            if ( columni == 0 ) {
-                gtk_grid_insert_row (gui->vehicleOBDCodes, ++rowi);
-            }          
-            gtk_grid_attach(gui->vehicleOBDCodes,
-                     widget,
-                     columni,
-                     rowi,
-                     1,1);
-            gtk_widget_show(widget);
-        } else {
-            gtk_widget_destroy(widget);
-        }
-        free(label);
+static void widget_destroy_if_not_self(GtkWidget *widget, gpointer data) {
+    GtkWidget *self = GTK_WIDGET(data);
+    if (widget != self) {
+        gtk_widget_destroy(widget);
     }
 }
 
+static void box_remove_all_children(GtkWidget *box) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(box));
+    for (GList *it = children; it != null; it = it->next) {
+        gtk_widget_destroy(GTK_WIDGET(it->data));
+    }
+    g_list_free(children);
+}
+
+static gboolean string_contains_case_insensitive(const char *haystack, const char *needle) {
+    gchar *h;
+    gchar *n;
+    gboolean ok;
+
+    if (needle == null || needle[0] == 0) {
+        return TRUE;
+    }
+    if (haystack == null) {
+        return FALSE;
+    }
+
+    h = g_ascii_strdown(haystack, -1);
+    n = g_ascii_strdown(needle, -1);
+    ok = strstr(h, n) != null;
+    g_free(h);
+    g_free(n);
+    return ok;
+}
+
+static gboolean signal_matches_search(ad_object_vehicle_signal *signal, const char *query) {
+    if (query == null || query[0] == 0) {
+        return TRUE;
+    }
+    return string_contains_case_insensitive(signal->name, query)
+        || string_contains_case_insensitive(signal->description, query)
+        || string_contains_case_insensitive(signal->slug, query)
+        || string_contains_case_insensitive(signal->standard, query);
+}
+
+static void command_line_signal_fill(ad_object_vehicle_signal *signal) {
+    if (signal == null) {
+        return;
+    }
+
+    gtk_entry_set_text(gui->customCommandInput, signal->input_formula != null ? signal->input_formula : "");
+    gtk_label_set_text(gui->tooltip, signal->description != null ? signal->description : "");
+    gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
+    gtk_editable_set_position(GTK_EDITABLE(gui->customCommandInput), -1);
+}
+
+static void command_line_signal_button_clicked(GtkButton *button, gpointer userdata) {
+    ad_object_vehicle_signal *signal = (ad_object_vehicle_signal*)userdata;
+    double value = 0.0;
+    bool ok;
+
+    command_line_signal_fill(signal);
+    command_line_signal_selection_set(signal);
+
+    if (signal == null) {
+        command_line_signal_output_hide();
+        return;
+    }
+    if (config.ephemere.iface == null) {
+        command_line_signal_output_hide();
+        gtk_label_set_text(gui->tooltip, "No active vehicle interface");
+        return;
+    }
+
+    ok = viface_use_signal(config.ephemere.iface, signal, &value, null);
+    if (!ok) {
+        gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
+        gtk_label_set_text(gui->signals.output.value, "Error");
+        return;
+    }
+
+    command_line_signal_output_show_value(signal, value);
+}
+
+static GtkWidget *command_line_signals_get_or_create_group(CommandLineSignalsBuildCtx *ctx, const char *standard) {
+    GtkWidget *group_box;
+    GtkWidget *frame;
+    GtkWidget *inner;
+
+    group_box = g_hash_table_lookup(ctx->groups, standard);
+    if (group_box != null) {
+        return group_box;
+    }
+
+    frame = gtk_frame_new(standard != null ? standard : AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD);
+    gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
+
+    inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+    gtk_container_add(GTK_CONTAINER(frame), inner);
+
+    gtk_box_pack_start(GTK_BOX(ctx->groups_box), frame, FALSE, FALSE, 4);
+    gtk_widget_show(frame);
+    gtk_widget_show(inner);
+
+    g_hash_table_insert(ctx->groups, g_strdup(standard != null ? standard : AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD), inner);
+    return inner;
+}
+
+static void command_line_signals_add_one(ad_object_vehicle_signal *signal, void *userdata) {
+    CommandLineSignalsBuildCtx *ctx = (CommandLineSignalsBuildCtx*)userdata;
+    GtkWidget *group_box;
+    GtkWidget *button;
+
+    if (signal == null) {
+        return;
+    }
+    if (!signal_matches_search(signal, ctx->query)) {
+        return;
+    }
+
+    group_box = command_line_signals_get_or_create_group(ctx, signal->standard);
+    button = gtk_button_new_with_label(signal->name != null ? signal->name : "(unnamed signal)");
+
+    if (signal->description != null) {
+        gtk_widget_set_tooltip_text(button, signal->description);
+    }
+
+    g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(command_line_signal_button_clicked), signal);
+    gtk_box_pack_start(GTK_BOX(group_box), button, FALSE, FALSE, 2);
+    gtk_widget_show(button);
+}
+
+static void command_line_signals_rebuild() {
+    CommandLineSignalsBuildCtx ctx;
+
+    box_remove_all_children(GTK_WIDGET(gui->signals.categories));
+
+    ctx.root = GTK_WIDGET(gui->signals.categories);
+    ctx.groups_box = GTK_WIDGET(gui->signals.categories);
+    ctx.groups = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, null);
+    ctx.query = gtk_entry_get_text(GTK_ENTRY(gui->signals.search));
+
+    ad_signal_foreach(command_line_signals_add_one, &ctx);
+
+    g_hash_table_destroy(ctx.groups);
+}
+
+static void command_line_signals_search_changed(GtkEditable *editable, gpointer userdata) {
+    command_line_signals_rebuild();
+}
 static void init(final GtkBuilder *builder) {
     if ( gui == null ) {
         commandHistory = ad_list_ad_object_string_new();
@@ -282,10 +466,20 @@ static void init(final GtkBuilder *builder) {
             .send = {
                 .interpretEscapes = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "command-line-interpret-escapes")),
                 .raw = GTK_CHECK_BUTTON(gtk_builder_get_object(builder, "command-line-raw"))
+            },
+            .signals = {
+                .search = GTK_SEARCH_ENTRY(gtk_builder_get_object(builder, "command-line-signals-search")),
+                .categories = GTK_BOX(gtk_builder_get_object(builder, "command-line-signals-categories")),
+                .output = {
+                    .container = GTK_BOX(gtk_builder_get_object(builder, "command-line-signal-return-container")),
+                    .value = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-return"))
+                }
             }
         };
         *gui = g;
-        vehicle_add_pid_buttons();
+        command_line_signal_output_hide();
+        assert(0 != g_signal_connect(G_OBJECT(gui->signals.search), "changed", G_CALLBACK(command_line_signals_search_changed), null));
+        command_line_signals_rebuild();
         gtk_text_view_set_buffer(gui->output.frame, gui->output.text);
         assert(0 != g_signal_connect(G_OBJECT(gui->window),"delete-event",G_CALLBACK(gtk_widget_generic_onclose),null));
         assert(0 != g_signal_connect(gui->customCommandInput, "key-press-event", G_CALLBACK(input_line_keypress), NULL));

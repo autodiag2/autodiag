@@ -93,3 +93,32 @@ ad_object_hashmap_string_vehicle_signal * ad_object_hashmap_string_vehicle_signa
     return to;
 }
 AD_HASHMAP_SRC(string, vehicle_signal)
+typedef struct {
+    void (*cb)(ad_object_vehicle_signal *signal, void *userdata);
+    void *userdata;
+} ad_signal_foreach_ctx;
+
+static void ad_signal_foreach_iter(char *key, ad_object_vehicle_signal *signal, void *userdata) {
+    ad_signal_foreach_ctx *ctx = (ad_signal_foreach_ctx*)userdata;
+    if (signal != null && ctx->cb != null) {
+        ctx->cb(signal, ctx->userdata);
+    }
+}
+
+void ad_signal_foreach(void (*cb)(ad_object_vehicle_signal *signal, void *userdata), void *userdata) {
+    unsigned i;
+
+    if (cb == null) {
+        return;
+    }
+    if (ad_signals_registry == null) {
+        return;
+    }
+
+    for (i = 0; i < ad_signals_registry->size; i++) {
+        ad_object_vehicle_signal *signal = ad_signals_registry->values[i];
+        if (signal != null) {
+            cb(signal, userdata);
+        }
+    }
+}

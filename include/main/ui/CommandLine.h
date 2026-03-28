@@ -8,6 +8,8 @@
 #include "libautodiag/com/device_table.h"
 #include "libautodiag/buffer.h"
 #include "libprog/config.h"
+#include "libautodiag/com/vehicle_signal.h"
+#include <strings.h>
 
 typedef struct {
     GtkWidget *window;
@@ -24,6 +26,14 @@ typedef struct {
         GtkCheckButton * interpretEscapes;
         GtkCheckButton * raw;
     } send;
+    struct {
+        GtkSearchEntry * search;
+        GtkBox * categories;
+        struct {
+            GtkLabel * value;
+            GtkBox * container;
+        } output;
+    } signals;
 } CommandLineGui;
 
 void command_line_generic_send_command_from_button(final GtkButton * button);
