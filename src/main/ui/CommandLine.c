@@ -394,15 +394,27 @@ static GtkWidget *command_line_signals_get_or_create_group(CommandLineSignalsBui
 
     frame = gtk_frame_new(standard != null ? standard : AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD);
     gtk_frame_set_shadow_type(GTK_FRAME(frame), GTK_SHADOW_ETCHED_IN);
+    gtk_widget_set_hexpand(frame, TRUE);
 
-    inner = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+    inner = gtk_flow_box_new();
+    gtk_flow_box_set_selection_mode(GTK_FLOW_BOX(inner), GTK_SELECTION_NONE);
+    gtk_flow_box_set_max_children_per_line(GTK_FLOW_BOX(inner), INT_MAX);
+    gtk_flow_box_set_row_spacing(GTK_FLOW_BOX(inner), 4);
+    gtk_flow_box_set_column_spacing(GTK_FLOW_BOX(inner), 4);
+    gtk_widget_set_hexpand(inner, TRUE);
+    gtk_widget_set_vexpand(inner, FALSE);
+
     gtk_container_add(GTK_CONTAINER(frame), inner);
 
-    gtk_box_pack_start(GTK_BOX(ctx->groups_box), frame, FALSE, FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(ctx->groups_box), frame, TRUE, TRUE, 4);
     gtk_widget_show(frame);
     gtk_widget_show(inner);
 
-    g_hash_table_insert(ctx->groups, g_strdup(standard != null ? standard : AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD), inner);
+    g_hash_table_insert(
+        ctx->groups,
+        g_strdup(standard != null ? standard : AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD),
+        inner
+    );
     return inner;
 }
 
@@ -426,7 +438,9 @@ static void command_line_signals_add_one(ad_object_vehicle_signal *signal, void 
     }
 
     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(command_line_signal_button_clicked), signal);
-    gtk_box_pack_start(GTK_BOX(group_box), button, FALSE, FALSE, 2);
+    gtk_widget_set_halign(button, GTK_ALIGN_START);
+    gtk_widget_set_hexpand(button, FALSE);
+    gtk_flow_box_insert(GTK_FLOW_BOX(group_box), button, -1);
     gtk_widget_show(button);
 }
 
