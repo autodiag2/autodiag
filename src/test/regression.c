@@ -23,6 +23,7 @@ bool testDOIP();
 bool testNetwork();
 bool testExpr();
 bool testSignals();
+bool testSIB();
 
 int main(int argc, char **argv) {
     sim_elm327_non_volatile_wipe_out();
@@ -32,6 +33,7 @@ int main(int argc, char **argv) {
     tf_init();
 
     runIfSelected(testSignals, null);
+    runIfSelected(testSIB, null);
     runIfSelected(testExpr, null);
     runIfSelected(testHashMap, null);
     runIfSelected(testBuffer,null);
