@@ -587,8 +587,8 @@ static void *dyno_thread_main(void *unused) {
             double speed = saej1979_data_vehicle_speed(iface, false);
             double rpm = saej1979_data_engine_speed(iface, false);
 
-            if (speed == SAEJ1979_DATA_VEHICLE_SPEED_ERROR) speed = 0;
-            if (rpm == SAEJ1979_DATA_ENGINE_SPEED_ERROR) rpm = 0;
+            if (speed == NAN) speed = 0;
+            if (rpm == NAN) rpm = 0;
 
             pthread_mutex_lock(&dyno_mutex);
 

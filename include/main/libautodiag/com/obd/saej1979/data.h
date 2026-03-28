@@ -42,7 +42,20 @@ void ad_saej1979_data_register_signals();
 char* saej1979_data_data_gen_pid_map_get(void *key);
 
 #define AD_SAEJ1979_DATA_FRAME_LIVE -1
-
+#define AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(return_type, symbol) return_type symbol(final VehicleIFace* iface, int dataFrameNumber)
+#define AD_SAEJ1979_LEGACY_FROM_SIGNAL(signal_path, return_type, symbol) \
+    AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(return_type, symbol) { \
+        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979." signal_path); \
+        double result = NAN; \
+        if ( dataFrameNumber < 0 ) { \
+            viface_use_signal(iface, signal, &result, "01", null); \
+        } else { \
+            char * frameNumerStr = gprintf("%02hhX", dataFrameNumber); \
+            viface_use_signal(iface, signal, &result, "02", frameNumerStr, null); \
+            free(frameNumerStr); \
+        } \
+        return (return_type)result; \
+    }
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \
 type symbol(final VehicleIFace* iface, int dataFrameNumber) { \
     if ( dataFrameNumber < 0 ) { \
@@ -160,16 +173,8 @@ char * saej1979_data_fuel_system_status_code_to_str(final int fuel_system_status
 #define SAEJ1979_DATA_FUEL_SYSTEM_STATUS_CLOSED_LOOP_WITH_FEEDBACK_FAULT 16
 #define SAEJ1979_DATA_FUEL_SYSTEM_STATUS_STR_CLOSED_LOOP_WITH_FEEDBACK_FAULT "Closed loop, using at least one oxygen sensor but there is a fault in the feedback system"
 char** saej1979_data_fuel_system_status(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*04
- * @return calculated engine load (%) [0;100]
- */
-#define saej1979_data_engine_load_iterator(data) \
-    if ( 0 < data->size ) \
-        result = ((unsigned char)data->buffer[0]) / 2.55;
 
-#define SAEJ1979_DATA_ENGINE_LOAD_ERROR -1
-double saej1979_data_engine_load(final VehicleIFace* iface, int dataFrameNumber);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
 /**
  * Service 0*05
  * @return °C [-40;215] or INTEGER_MIN in case of error
@@ -224,30 +229,10 @@ int saej1979_data_fuel_pressure(final VehicleIFace* iface, int dataFrameNumber);
 #define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MAX 255
 #define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR -1
 int saej1979_data_intake_manifold_pressure(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*0C
- * @return rpm [0;16,383.75] or -1 on error
- */
-#define saej1979_data_engine_speed_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) / 4.0;
 
-#define SAEJ1979_DATA_ENGINE_SPEED_MIN 0
-#define SAEJ1979_DATA_ENGINE_SPEED_MAX 16383.75
-#define SAEJ1979_DATA_ENGINE_SPEED_ERROR -1
-double saej1979_data_engine_speed(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*0D
- * @return km/h [0;255] or -1 on error
- */
-#define saej1979_data_vehicle_speed_iterator(data) \
-    if ( 0 < data->size ) \
-        result = (int)((unsigned char)data->buffer[0]); 
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
 
-#define SAEJ1979_DATA_VEHICLE_SPEED_MIN 0
-#define SAEJ1979_DATA_VEHICLE_SPEED_MAX 255
-#define SAEJ1979_DATA_VEHICLE_SPEED_ERROR -1
-int saej1979_data_vehicle_speed(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*0E
  * Timing Advance (Cyl. #1)

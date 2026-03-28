@@ -68,12 +68,12 @@ static double metric_get(VehicleIFace *iface, int dataFrameNumber, MetricType t,
 
 static double metric_error(MetricType t) {
     switch (t) {
-        case METRIC_SPEED: return SAEJ1979_DATA_VEHICLE_SPEED_ERROR;
+        case METRIC_SPEED: return NAN;
         case METRIC_COOLANT_TEMP: return SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR;
         case METRIC_INTAKE_AIR_TEMP: return SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR;
         case METRIC_INTAKE_MANIFOLD_PRESSURE: return SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR;
         case METRIC_MAF_RATE: return SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR;
-        case METRIC_ENGINE_SPEED: return SAEJ1979_DATA_ENGINE_SPEED_ERROR;
+        case METRIC_ENGINE_SPEED: return NAN;
         case METRIC_FUEL_PRESSURE: return SAEJ1979_DATA_FUEL_PRESSURE_ERROR;
         case METRIC_FUEL_LEVEL: return SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_ERROR;
         case METRIC_FUEL_ETHANOL: return SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR;
@@ -135,6 +135,14 @@ static void data_freeze_frame() {
     thread_allocate_and_start(&gui->menuBar.freeze_frame_thread, &data_freeze_frame_daemon);
 }
 
+#define VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM_WITH_SIGNAL(sym, signal_path, bar) \
+    VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(sym, \
+        double, \
+        ad_signal_get(signal_path)->rv_min,ad_signal_get(signal_path)->rv_max, NAN, \
+        gprintf("%%.2f %s", ad_signal_get(signal_path)->unit), \
+        bar \
+    )
+
 #define VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(sym,type,min,max,error,format,bar) \
     static GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(sym##_gsource,type,min,max,error,format,bar)
 
@@ -153,11 +161,8 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_coolant_temperature,
     "%d °C", gui->engine.coolant.temperature
 )
 
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_speed,
-    double,
-    SAEJ1979_DATA_ENGINE_SPEED_MIN,SAEJ1979_DATA_ENGINE_SPEED_MAX,SAEJ1979_DATA_ENGINE_SPEED_ERROR,
-    "%.2f r/min", gui->engine.speed
-)
+VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM_WITH_SIGNAL(saej1979_data_engine_speed, "SAEJ1979.engine_speed", gui->engine.speed)
+VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM_WITH_SIGNAL(saej1979_data_vehicle_speed, "SAEJ1979.vehicle_speed", gui->engine.vehicleSpeed)
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_pressure,
     int,
@@ -217,12 +222,6 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_load,
     int,
     SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MIN,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MAX,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR,
     "%d %%", gui->engine.load
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_vehicle_speed,
-    int,
-    SAEJ1979_DATA_VEHICLE_SPEED_MIN,SAEJ1979_DATA_VEHICLE_SPEED_MAX,SAEJ1979_DATA_VEHICLE_SPEED_ERROR,"%d km/h",
-    gui->engine.vehicleSpeed
 )
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_ethanol_fuel_percent,

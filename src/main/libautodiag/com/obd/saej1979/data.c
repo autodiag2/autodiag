@@ -330,13 +330,7 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        double,
-                        saej1979_data_engine_load,
-                        "04",
-                        saej1979_data_engine_load_iterator,
-                        SAEJ1979_DATA_ENGINE_LOAD_ERROR
-                    )
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_load", double, saej1979_data_engine_load)
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         int,
@@ -376,21 +370,8 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR
                     )
 
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        double,
-                        saej1979_data_engine_speed,
-                        "0C",
-                        saej1979_data_engine_speed_iterator,
-                        SAEJ1979_DATA_ENGINE_SPEED_ERROR
-                    )
-
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        int,
-                        saej1979_data_vehicle_speed,
-                        "0D",
-                        saej1979_data_vehicle_speed_iterator,
-                        SAEJ1979_DATA_VEHICLE_SPEED_ERROR
-                    )
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_speed", double, saej1979_data_engine_speed)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("vehicle_speed", int, saej1979_data_vehicle_speed)
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         double,
