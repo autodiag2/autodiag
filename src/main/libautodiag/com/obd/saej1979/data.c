@@ -1,10 +1,15 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
 void ad_saej1979_data_register_signals() {
-    AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",      "${0}${1}04", 0,    100,            "$2 / 2.55",                    "Calculated engine load",           "Engine, ECM",  "engine_load",      "%")
-    AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",     "${0}${1}0C", 0,    16383.75,       "($2 * 256 + $3) / 4.0",        "Rotational speed of engine",       "Engine, ECM",  "engine_speed",     "rpm")
-    AD_SIGNAL_SAEJ1979_REGISTER("Vehicle Speed",    "${0}${1}0D", 0,    255,            "$2",                           "Vehicle Speed",                    "Engine, ECM",  "vehicle_speed",    "km/h")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",          "${0}${1}04", 0,    100,            "$2 / 2.55",                    "Calculated engine load",           "Engine, ECM",  "engine_load",      "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Coolant Temperature",  "${0}${1}05", -40,  215,            "$2 - 40",                      "Engine Coolant Temperature",       "Engine, ECM",  "coolant_temp",     "°C")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",         "${0}${1}0C", 0,    16383.75,       "($2 * 256 + $3) / 4.0",        "Rotational speed of engine",       "Engine, ECM",  "engine_speed",     "rpm")
+    AD_SIGNAL_SAEJ1979_REGISTER("Vehicle Speed",        "${0}${1}0D", 0,    255,            "$2",                           "Vehicle Speed",                    "Engine, ECM",  "vehicle_speed",    "km/h")
 }
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_load", double, saej1979_data_engine_load)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("coolant_temp", int, saej1979_data_engine_coolant_temperature)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_speed", double, saej1979_data_engine_speed)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("vehicle_speed", int, saej1979_data_vehicle_speed)
 /**
  * Actual data extracted from wikipedia OBDII PIDs page
  */
@@ -330,15 +335,6 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_load", double, saej1979_data_engine_load)
-
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        int,
-                        saej1979_data_engine_coolant_temperature,
-                        "05",
-                        saej1979_data_engine_coolant_temperature_iterator,
-                        SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR
-                    )
 
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(sym,obd_request) \
     SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE( \
@@ -369,9 +365,6 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         saej1979_data_intake_manifold_pressure_iterator,
                         SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR
                     )
-
-AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_speed", double, saej1979_data_engine_speed)
-AD_SAEJ1979_LEGACY_FROM_SIGNAL("vehicle_speed", int, saej1979_data_vehicle_speed)
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         double,

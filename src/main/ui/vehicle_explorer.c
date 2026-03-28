@@ -69,7 +69,7 @@ static double metric_get(VehicleIFace *iface, int dataFrameNumber, MetricType t,
 static double metric_error(MetricType t) {
     switch (t) {
         case METRIC_SPEED: return NAN;
-        case METRIC_COOLANT_TEMP: return SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR;
+        case METRIC_COOLANT_TEMP: return NAN;
         case METRIC_INTAKE_AIR_TEMP: return SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR;
         case METRIC_INTAKE_MANIFOLD_PRESSURE: return SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR;
         case METRIC_MAF_RATE: return SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR;
@@ -154,12 +154,6 @@ static void data_freeze_frame() {
                 true \
         ) && gtk_widget_get_mapped(GTK_WIDGET(widget)) \
     )
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_coolant_temperature,
-    int, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN,
-    SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX,SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR,
-    "%d °C", gui->engine.coolant.temperature
-)
 
 VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_pressure,
     int,
@@ -431,10 +425,10 @@ static bool refresh_dynamic_internal() {
     if (vehicle_explorer_error_feedback_obd(iface)) return false;
 
     int dataFrameNumber = get_data_frame_selected();
-    VH_REFRESH_WIDGET_V2(gui->engine.speed,         "SAEJ1979.engine_speed");
-    VH_REFRESH_WIDGET_V2(gui->engine.vehicleSpeed,  "SAEJ1979.vehicle_speed");
-    VH_REFRESH_WIDGET_V2(gui->engine.load,          "SAEJ1979.engine_load");
-    VH_REFRESH_WIDGET(gui->engine.coolant.temperature,                        saej1979_data_engine_coolant_temperature,   int);
+    VH_REFRESH_WIDGET_V2(gui->engine.speed,                 "SAEJ1979.engine_speed");
+    VH_REFRESH_WIDGET_V2(gui->engine.vehicleSpeed,          "SAEJ1979.vehicle_speed");
+    VH_REFRESH_WIDGET_V2(gui->engine.load,                  "SAEJ1979.engine_load");
+    VH_REFRESH_WIDGET_V2(gui->engine.coolant.temperature,   "SAEJ1979.coolant_temp");
     VH_REFRESH_WIDGET(gui->engine.intakeAir.temperature,                      saej1979_data_intake_air_temperature,       int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.manifoldPressure,                 saej1979_data_intake_manifold_pressure,     int);
     VH_REFRESH_WIDGET(gui->engine.intakeAir.mafRate,                          saej1979_data_maf_air_flow_rate,            double);

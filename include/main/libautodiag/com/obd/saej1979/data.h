@@ -56,6 +56,12 @@ char* saej1979_data_data_gen_pid_map_get(void *key);
         } \
         return (return_type)result; \
     }
+
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
+
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \
 type symbol(final VehicleIFace* iface, int dataFrameNumber) { \
     if ( dataFrameNumber < 0 ) { \
@@ -174,19 +180,6 @@ char * saej1979_data_fuel_system_status_code_to_str(final int fuel_system_status
 #define SAEJ1979_DATA_FUEL_SYSTEM_STATUS_STR_CLOSED_LOOP_WITH_FEEDBACK_FAULT "Closed loop, using at least one oxygen sensor but there is a fault in the feedback system"
 char** saej1979_data_fuel_system_status(final VehicleIFace* iface, int dataFrameNumber);
 
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
-/**
- * Service 0*05
- * @return °C [-40;215] or INTEGER_MIN in case of error
- */
-#define saej1979_data_engine_coolant_temperature_iterator(data) \
-    if ( 0 < data->size ) \
-        result = ((unsigned char)data->buffer[0]) - 40;
-
-#define SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN -40
-#define SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX 215
-#define SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR INT_MIN
-int saej1979_data_engine_coolant_temperature(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*06-0*09
  * Fuel trim status
@@ -229,9 +222,6 @@ int saej1979_data_fuel_pressure(final VehicleIFace* iface, int dataFrameNumber);
 #define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MAX 255
 #define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR -1
 int saej1979_data_intake_manifold_pressure(final VehicleIFace* iface, int dataFrameNumber);
-
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
 
 /**
  * Service 0*0E

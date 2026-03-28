@@ -56,10 +56,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     } break;
                     case 0x05: {
                         gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
-                        byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.coolant_temp");
+                        byte span = signal->rv_max - signal->rv_min;
                         int value = percent * span;
                         ad_buffer_append_byte(binResponse, (byte)(value));
-                        coolant_temperature_set(gui, value + SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
+                        coolant_temperature_set(gui, value + signal->rv_min);
                     } break;
                     case 0x0C: {
                         gdouble percent = counter_get_fraction(gui->data.engineSpeed);
@@ -237,7 +238,7 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
 
-    coolant_temperature_set(simGui, SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN);
+    coolant_temperature_set(simGui, NAN);
     engine_speed_set(simGui, NAN);
     vehicle_speed_set(simGui, NAN);
 
