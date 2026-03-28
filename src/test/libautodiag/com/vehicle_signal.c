@@ -45,6 +45,7 @@ void testRawSignal() {
         assert(signal);
         double result = 0;
         assert(viface_use_signal(iface, signal, &result));
+        printf("%f/%f\n", result, engine_load);
         assert(result == engine_load);
     }
 }

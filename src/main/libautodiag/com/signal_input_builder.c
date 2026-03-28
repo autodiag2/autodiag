@@ -441,7 +441,9 @@ Buffer *ad_signal_input_expr_builderv(const char *expr, const char **args, int a
     s = expr;
     while (*s != 0) {
         if (*s != '$') {
-            if (isxdigit((unsigned char)s[0]) && isxdigit((unsigned char)s[1])) {
+            if (s[0] != 0 && s[1] != 0 &&
+                isxdigit((unsigned char)s[0]) &&
+                isxdigit((unsigned char)s[1])) {
                 int hi = ad_signal_input_hex_value(s[0]);
                 int lo = ad_signal_input_hex_value(s[1]);
                 if (hi < 0 || lo < 0) {
@@ -532,14 +534,14 @@ Buffer *ad_signal_input_expr_builderv(const char *expr, const char **args, int a
                 return NULL;
             }
             s += len;
-            if (!ad_signal_input_arg_exists(args, argc, idx)) {
-                ad_buffer_free(out);
-                return NULL;
+
+            if (ad_signal_input_arg_exists(args, argc, idx)) {
+                if (!ad_signal_input_buffer_append_arg_raw(out, args[idx])) {
+                    ad_buffer_free(out);
+                    return NULL;
+                }
             }
-            if (!ad_signal_input_buffer_append_arg_raw(out, args[idx])) {
-                ad_buffer_free(out);
-                return NULL;
-            }
+
             continue;
         }
 

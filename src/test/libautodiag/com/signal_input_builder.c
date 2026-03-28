@@ -101,9 +101,9 @@ static void test_ad_signal_input_expr_builderv_spaces_ignored_in_expr(void) {
     expect_hex_builderv("$( flatten_be16( $0 + 1 ) )", args, 1, "0002");
 }
 
-static void test_ad_signal_input_expr_builderv_missing_required_arg_fails(void) {
+static void test_ad_signal_input_expr_builderv_missing_do_not_fails(void) {
     const char *args[] = { "1" };
-    expect_null_builderv("$0$1", args, 1);
+    expect_hex_builderv("$0$1", args, 1, "01");
 }
 
 static void test_ad_signal_input_expr_builderv_missing_expr_arg_fails(void) {
@@ -146,7 +146,7 @@ bool testSIB() {
     tf_run_case(test_ad_signal_input_expr_builderv_literals_only);
     tf_run_case(test_ad_signal_input_expr_builderv_mixed_literal_and_args);
     tf_run_case(test_ad_signal_input_expr_builderv_spaces_ignored_in_expr);
-    tf_run_case(test_ad_signal_input_expr_builderv_missing_required_arg_fails);
+    tf_run_case(test_ad_signal_input_expr_builderv_missing_do_not_fails);
     tf_run_case(test_ad_signal_input_expr_builderv_missing_expr_arg_fails);
     tf_run_case(test_ad_signal_input_expr_builderv_bad_syntax_fails);
     tf_run_case(test_ad_signal_input_expr_builderv_bad_token_fails);
