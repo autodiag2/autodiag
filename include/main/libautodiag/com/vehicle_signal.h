@@ -111,5 +111,6 @@ void ad_signal_foreach(void (*cb)(ad_object_vehicle_signal *signal, void *userda
  * Register hardcoded signals (eg. SAEJ1979)
  */
 void ad_object_vehicle_signal_register_all();
+ad_object_hashmap_string_vehicle_signal * ad_signals_get();
 
 #endif

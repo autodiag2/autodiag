@@ -65,6 +65,7 @@ ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_sign
     return to;
 }
 char * ad_object_vehicle_signal_get_exec_path(ad_object_vehicle_signal *signal) {
+    assert(signal != null);
     return gprintf("%s.%s",
         signal->standard == null ? AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD : signal->standard,
         signal->slug

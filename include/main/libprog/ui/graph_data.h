@@ -4,6 +4,7 @@
 #include <time.h>
 #include "libautodiag/lib.h"
 #include "libprog/ui/gtk.h"
+#include "libautodiag/com/vehicle_signal.h"
 
 typedef struct {
     double data;
@@ -12,34 +13,8 @@ typedef struct {
 
 AD_LIST_H(GraphData)
 
-typedef enum {
-    METRIC_SPEED,
-    METRIC_COOLANT_TEMP,
-    METRIC_INTAKE_AIR_TEMP,
-    METRIC_INTAKE_MANIFOLD_PRESSURE,
-    METRIC_MAF_RATE,
-    METRIC_ENGINE_SPEED,
-    METRIC_FUEL_PRESSURE,
-    METRIC_FUEL_LEVEL,
-    METRIC_FUEL_ETHANOL,
-    METRIC_FUEL_RAIL_PRESSURE,
-    METRIC_FUEL_RATE,
-    METRIC_FUEL_TRIM_LT_B1,
-    METRIC_FUEL_TRIM_LT_B2,
-    METRIC_FUEL_TRIM_ST_B1,
-    METRIC_FUEL_TRIM_ST_B2,
-    METRIC_INJECTION_TIMING,
-    METRIC_INJECTION_ADV_BTDC,
-    METRIC_OX_VOLTAGE,
-    METRIC_OX_CURRENT,
-    METRIC_OX_RATIO,
-} MetricType;
-
 typedef struct {
-    MetricType type;
-    int arg;                 // oxygen sensor index 1..8 (otherwise 0)
-    char *label;             // curve label
-    char *unit;              // curve unit (for legend only)
+    ad_object_vehicle_signal * signal;
     ad_list_GraphData *data;    // per-curve time series
 } GraphSeries;
 
@@ -63,6 +38,6 @@ double graph_time_ms_now();
 void graph_time_ms_reset(Graph *g);
 double graph_time_ms_ellapsed(Graph *g);
 void ad_list_Graph_time_ms_reset(ad_list_Graph * graphs);
-GraphSeries * graph_series_new(MetricType t, int arg);
+GraphSeries * graph_series_new(ad_object_vehicle_signal* signal);
 
 #endif

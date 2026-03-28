@@ -9,7 +9,7 @@ static gboolean dyno_running = false;
 static gboolean dyno_request_stop = false;
 
 static ad_list_Graph *dyno_graphs = null;
-
+/*
 typedef struct {
     double t_ms;
     double speed_kmh;
@@ -882,7 +882,7 @@ static void dyno_build_gui_widgets() {
 
     gtk_widget_show_all(outer);
 }
-
+*/
 static void init(final GtkBuilder *builder) {
     if (gui != null) {
         log_msg(LOG_WARNING, "Already init dyno mod");
@@ -908,9 +908,9 @@ static void init(final GtkBuilder *builder) {
 
     error_feedback_windows_init(gui->errorFeedback);
 
-    MENUBAR_DATA_CONNECT()
+    //MENUBAR_DATA_CONNECT()
 
-    dyno_build_gui_widgets();
+    //dyno_build_gui_widgets();
 }
 
 static void end() {
@@ -925,7 +925,7 @@ static void end() {
     }
 
     pthread_mutex_lock(&dyno_mutex);
-    dyno_samples_clear();
+    //dyno_samples_clear();
     pthread_mutex_unlock(&dyno_mutex);
 
     if (dyno_graphs) {

@@ -33,40 +33,10 @@ int GraphSeries_cmp(GraphSeries*g1, GraphSeries*g2) {
     return g1 - g2;
 }
 AD_LIST_SRC(GraphSeries)
-static void metric_info(MetricType t, int arg, const char **label, const char **unit) {
-    switch (t) {
-        case METRIC_SPEED: *label="Speed"; *unit="km/h"; return;
-        case METRIC_COOLANT_TEMP: *label="Coolant Temperature"; *unit="°C"; return;
-        case METRIC_INTAKE_AIR_TEMP: *label="Intake Air Temperature"; *unit="°C"; return;
-        case METRIC_INTAKE_MANIFOLD_PRESSURE: *label="Intake Air Manifold Pressure"; *unit="kPa"; return;
-        case METRIC_MAF_RATE: *label="Intake Air MAF Rate"; *unit="g/s"; return;
-        case METRIC_ENGINE_SPEED: *label="Engine Speed"; *unit="r/min"; return;
-        case METRIC_FUEL_PRESSURE: *label="Fuel Pressure"; *unit="kPa"; return;
-        case METRIC_FUEL_LEVEL: *label="Fuel Level"; *unit="%"; return;
-        case METRIC_FUEL_ETHANOL: *label="Fuel ethanol"; *unit="%"; return;
-        case METRIC_FUEL_RAIL_PRESSURE: *label="Fuel Rail Pressure"; *unit="kPa"; return;
-        case METRIC_FUEL_RATE: *label="Fuel rate"; *unit="L/h"; return;
-        case METRIC_FUEL_TRIM_LT_B1: *label="Fuel trim long term bank1"; *unit="%"; return;
-        case METRIC_FUEL_TRIM_LT_B2: *label="Fuel trim long term bank2"; *unit="%"; return;
-        case METRIC_FUEL_TRIM_ST_B1: *label="Fuel trim short term bank1"; *unit="%"; return;
-        case METRIC_FUEL_TRIM_ST_B2: *label="Fuel trim short term bank2"; *unit="%"; return;
-        case METRIC_INJECTION_TIMING: *label="Injection timing"; *unit="°"; return;
-        case METRIC_INJECTION_ADV_BTDC: *label="Injection timing advance before TDC"; *unit="°"; return;
-        case METRIC_OX_VOLTAGE: *label="Oxygen sensor voltage"; *unit="V"; return;
-        case METRIC_OX_CURRENT: *label="Oxygen sensor current"; *unit="mA"; return;
-        case METRIC_OX_RATIO: *label="Oxygen sensor air fuel equivalence ratio"; *unit="ratio"; return;
-    }
-    *label = "Unknown";
-    *unit = "";
-}
-GraphSeries * graph_series_new(MetricType t, int arg) {
+
+GraphSeries * graph_series_new(ad_object_vehicle_signal* signal) {
     GraphSeries *s = malloc(sizeof(*s));
-    const char *lbl = 0, *unit = 0;
-    metric_info(t, arg, &lbl, &unit);
-    s->type = t;
-    s->arg = arg;
-    s->label = strdup(lbl);
-    s->unit = strdup(unit);
+    s->signal = signal;
     s->data = ad_list_GraphData_new();
     return s;
 }

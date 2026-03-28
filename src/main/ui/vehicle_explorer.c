@@ -8,81 +8,16 @@ static bool graphs_should_refresh = false;
 
 MENUBAR_DATA_ALL_IN_ONE
 
-static MetricType metric_from_title(const char *activeGraph, int *out_arg) {
-    *out_arg = 0;
-    if (strcmp(activeGraph, "Speed") == 0) return METRIC_SPEED;
-    if (strcmp(activeGraph, "Coolant Temperature") == 0) return METRIC_COOLANT_TEMP;
-    if (strcmp(activeGraph, "Intake Air Temperature") == 0) return METRIC_INTAKE_AIR_TEMP;
-    if (strcmp(activeGraph, "Intake Air Manifold Pressure") == 0) return METRIC_INTAKE_MANIFOLD_PRESSURE;
-    if (strcmp(activeGraph, "Intake Air MAF Rate") == 0) return METRIC_MAF_RATE;
-    if (strcmp(activeGraph, "Engine Speed") == 0) return METRIC_ENGINE_SPEED;
-    if (strcmp(activeGraph, "Fuel Pressure") == 0) return METRIC_FUEL_PRESSURE;
-    if (strcmp(activeGraph, "Fuel Level") == 0) return METRIC_FUEL_LEVEL;
-    if (strcmp(activeGraph, "Fuel ethanol") == 0) return METRIC_FUEL_ETHANOL;
-    if (strcmp(activeGraph, "Fuel Rail Pressure") == 0) return METRIC_FUEL_RAIL_PRESSURE;
-    if (strcmp(activeGraph, "Fuel rate") == 0) return METRIC_FUEL_RATE;
-    if (strcmp(activeGraph, "Fuel trim long term bank1") == 0) return METRIC_FUEL_TRIM_LT_B1;
-    if (strcmp(activeGraph, "Fuel trim long term bank2") == 0) return METRIC_FUEL_TRIM_LT_B2;
-    if (strcmp(activeGraph, "Fuel trim short term bank1") == 0) return METRIC_FUEL_TRIM_ST_B1;
-    if (strcmp(activeGraph, "Fuel trim short term bank2") == 0) return METRIC_FUEL_TRIM_ST_B2;
-    if (strcmp(activeGraph, "Injection timing") == 0) return METRIC_INJECTION_TIMING;
-    if (strcmp(activeGraph, "Injection timing advance before TDC") == 0) return METRIC_INJECTION_ADV_BTDC;
-
-    for (int sensor_i = 1; sensor_i <= 8; sensor_i++) {
-        char graphTitle[64];
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i);
-        if (strcmp(activeGraph, graphTitle) == 0) { *out_arg = sensor_i; return METRIC_OX_VOLTAGE; }
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i);
-        if (strcmp(activeGraph, graphTitle) == 0) { *out_arg = sensor_i; return METRIC_OX_CURRENT; }
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i);
-        if (strcmp(activeGraph, graphTitle) == 0) { *out_arg = sensor_i; return METRIC_OX_RATIO; }
+static double metric_get(VehicleIFace *iface, int dataFrameNumber, ad_object_vehicle_signal * signal) {
+    double result = NAN;
+    if ( dataFrameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ) {
+        viface_use_signal(iface, signal, &result, "01", null);
+    } else {
+        char * frameNumberStr = gprintf("%02hhX", dataFrameNumber);
+        viface_use_signal(iface, signal, &result, "02", frameNumberStr, null);
+        free(frameNumberStr);
     }
-    return METRIC_SPEED;
-}
-
-static double metric_get(VehicleIFace *iface, int dataFrameNumber, MetricType t, int arg, double error) {
-    switch (t) {
-        case METRIC_SPEED: return saej1979_data_vehicle_speed(iface, dataFrameNumber);
-        case METRIC_COOLANT_TEMP: return saej1979_data_engine_coolant_temperature(iface, dataFrameNumber);
-        case METRIC_INTAKE_AIR_TEMP: return saej1979_data_intake_air_temperature(iface, dataFrameNumber);
-        case METRIC_INTAKE_MANIFOLD_PRESSURE: return saej1979_data_intake_manifold_pressure(iface, dataFrameNumber);
-        case METRIC_MAF_RATE: return saej1979_data_maf_air_flow_rate(iface, dataFrameNumber);
-        case METRIC_ENGINE_SPEED: return saej1979_data_engine_speed(iface, dataFrameNumber);
-        case METRIC_FUEL_PRESSURE: return saej1979_data_fuel_pressure(iface, dataFrameNumber);
-        case METRIC_FUEL_LEVEL: return saej1979_data_fuel_tank_level_input(iface, dataFrameNumber);
-        case METRIC_FUEL_ETHANOL: return saej1979_data_ethanol_fuel_percent(iface, dataFrameNumber);
-        case METRIC_FUEL_RAIL_PRESSURE: return saej1979_data_frp_relative(iface, dataFrameNumber);
-        case METRIC_FUEL_RATE: return saej1979_data_engine_fuel_rate(iface, dataFrameNumber);
-        case METRIC_FUEL_TRIM_LT_B1: return saej1979_data_long_term_fuel_trim_bank_1(iface, dataFrameNumber);
-        case METRIC_FUEL_TRIM_LT_B2: return saej1979_data_long_term_fuel_trim_bank_2(iface, dataFrameNumber);
-        case METRIC_FUEL_TRIM_ST_B1: return saej1979_data_short_term_fuel_trim_bank_1(iface, dataFrameNumber);
-        case METRIC_FUEL_TRIM_ST_B2: return saej1979_data_short_term_fuel_trim_bank_2(iface, dataFrameNumber);
-        case METRIC_INJECTION_TIMING: return saej1979_data_fuel_injection_timing(iface, dataFrameNumber);
-        case METRIC_INJECTION_ADV_BTDC: return saej1979_data_timing_advance_cycle_1(iface, dataFrameNumber);
-        case METRIC_OX_VOLTAGE: return saej1979_data_oxygen_sensor_voltage(iface, dataFrameNumber, arg);
-        case METRIC_OX_CURRENT: return saej1979_data_oxygen_sensor_current(iface, dataFrameNumber, arg);
-        case METRIC_OX_RATIO: return saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(iface, dataFrameNumber, arg);
-    }
-    return error;
-}
-
-static double metric_error(MetricType t) {
-    switch (t) {
-        case METRIC_FUEL_ETHANOL: return SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR;
-        case METRIC_FUEL_RATE: return SAEJ1979_DATA_ENGINE_FUEL_RATE_ERROR;
-        case METRIC_FUEL_TRIM_LT_B1: return SAEJ1979_DATA_FUEL_TRIM_ERROR;
-        case METRIC_FUEL_TRIM_LT_B2: return SAEJ1979_DATA_FUEL_TRIM_ERROR;
-        case METRIC_FUEL_TRIM_ST_B1: return SAEJ1979_DATA_FUEL_TRIM_ERROR;
-        case METRIC_FUEL_TRIM_ST_B2: return SAEJ1979_DATA_FUEL_TRIM_ERROR;
-        case METRIC_INJECTION_TIMING: return SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR;
-        case METRIC_OX_VOLTAGE: return SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_ERROR;
-        case METRIC_OX_CURRENT: return SAEJ1979_DATA_OXYGEN_SENSOR_CURRENT_ERROR;
-        case METRIC_OX_RATIO: return SAEJ1979_DATA_OXYGEN_SENSOR_AIR_FUEL_EQUIV_RATIO_ERROR;
-        default: {
-            return NAN;
-        }
-    }
-    return NAN;
+    return result;
 }
 
 static void button_click_clean_up_routine(void *arg) {
@@ -362,9 +297,8 @@ static void graphs_refresh_all_series(VehicleIFace *iface, int dataFrameNumber) 
         for (unsigned si = 0; si < g->series->size; si++) {
             GraphSeries *s = g->series->list[si];
             if (!s) continue;
-            double err = metric_error(s->type);
-            double v = metric_get(iface, dataFrameNumber, s->type, s->arg, err);
-            if (v != err) ad_list_Graph_append_data_for_series(g, si, v);
+            double v = metric_get(iface, dataFrameNumber, s->signal);
+            if (v != NAN) ad_list_Graph_append_data_for_series(g, si, v);
         }
 
         g_idle_add(graph_refresh_gsource, g);
@@ -682,11 +616,11 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
             }
         }
 
-        if (s->unit) {
+        if (s->signal->unit) {
             cairo_text_extents_t ux;
-            cairo_text_extents(cr, s->unit, &ux);
+            cairo_text_extents(cr, s->signal->unit, &ux);
             cairo_move_to(cr, axis_x - ux.width / 2 - ux.x_bearing, plot_top - 6);
-            cairo_show_text(cr, s->unit);
+            cairo_show_text(cr, s->signal->unit);
         }
 
         cairo_set_source_rgb(cr, rr, gg, bb);
@@ -725,11 +659,11 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
         cairo_set_source_rgb(cr, 0, 0, 0);
         char buf[160];
         snprintf(buf, sizeof(buf), "%s%s%s",
-            s->label ? s->label : "",
-            (s->unit && s->label) ? " (" : (s->unit ? "(" : ""),
-            s->unit ? s->unit : ""
+            s->signal->name ? s->signal->name : "",
+            (s->signal->unit && s->signal->name) ? " (" : (s->signal->unit? "(" : ""),
+            s->signal->unit ? s->signal->unit : ""
         );
-        if (s->unit) {
+        if (s->signal->unit) {
             size_t n = strlen(buf);
             if (n + 1 < sizeof(buf)) buf[n] = ')', buf[n + 1] = 0;
         }
@@ -752,28 +686,9 @@ static GtkWidget *metric_picker_dialog_new(GtkWindow *parent, GtkComboBoxText **
     GtkWidget *combo = gtk_combo_box_text_new();
     *out_combo = GTK_COMBO_BOX_TEXT(combo);
 
-    gtk_combo_box_text_append(*out_combo, NULL, "Speed");
-    gtk_combo_box_text_append(*out_combo, NULL, "Coolant Temperature");
-    gtk_combo_box_text_append(*out_combo, NULL, "Intake Air Temperature");
-    gtk_combo_box_text_append(*out_combo, NULL, "Intake Air Manifold Pressure");
-    gtk_combo_box_text_append(*out_combo, NULL, "Intake Air MAF Rate");
-    gtk_combo_box_text_append(*out_combo, NULL, "Engine Speed");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel Pressure");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel Level");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel ethanol");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel Rail Pressure");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel rate");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel trim long term bank1");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel trim long term bank2");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel trim short term bank1");
-    gtk_combo_box_text_append(*out_combo, NULL, "Fuel trim short term bank2");
-    gtk_combo_box_text_append(*out_combo, NULL, "Injection timing");
-    gtk_combo_box_text_append(*out_combo, NULL, "Injection timing advance before TDC");
-    for (int sensor_i = 1; sensor_i <= 8; sensor_i++) {
-        char t[64];
-        snprintf(t, sizeof(t), "Oxygen sensor %d voltage", sensor_i); gtk_combo_box_text_append(*out_combo, NULL, t);
-        snprintf(t, sizeof(t), "Oxygen sensor %d current", sensor_i); gtk_combo_box_text_append(*out_combo, NULL, t);
-        snprintf(t, sizeof(t), "Oxygen sensor %d air fuel equivalence ratio", sensor_i); gtk_combo_box_text_append(*out_combo, NULL, t);
+    ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
+    for(int i = 0; i < signals->size; i ++) {
+        gtk_combo_box_text_append(*out_combo, NULL, signals->keys[i]->data);
     }
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
@@ -795,9 +710,9 @@ static void graphs_add_curve_clicked(GtkButton *btn, gpointer unused) {
         const char *sel = gtk_combo_box_text_get_active_text(combo);
         if (sel) {
             int arg = 0;
-            MetricType t = metric_from_title(sel, &arg);
+            ad_object_vehicle_signal * signal = ad_signal_get((char*)sel);
             pthread_mutex_lock(&graphs_mutex);
-            ad_list_GraphSeries_append(graph->series, graph_series_new(t, arg));
+            ad_list_GraphSeries_append(graph->series, graph_series_new(signal));
             pthread_mutex_unlock(&graphs_mutex);
         }
     }
@@ -812,8 +727,6 @@ static void graphs_remove_curve_clicked(GtkButton *btn, gpointer unused) {
         GraphSeries *s = graph->series->list[idx];
         graph->series->size--;
         if (s) {
-            free(s->label);
-            free(s->unit);
             ad_list_GraphData_free(s->data);
             free(s);
         }
@@ -900,26 +813,25 @@ static void *graphs_add_daemon(void *arg) {
 
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(gui->graphs.list));
     if (0 <= active_index) {
-        final char *activeGraph = gtk_combo_box_text_get_active_text(gui->graphs.list);
-        if (!activeGraph) {
+        final char *activeGraphPath = gtk_combo_box_text_get_active_text(gui->graphs.list);
+        if (!activeGraphPath) {
             pthread_mutex_unlock(&graphs_mutex);
             return null;
         }
+        ad_object_vehicle_signal * signal = ad_signal_get(activeGraphPath);
 
         GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
         GtkWidget *drawing_area = gtk_drawing_area_new();
         gtk_widget_set_size_request(drawing_area, 300, 300);
         gtk_box_pack_start(GTK_BOX(vbox), drawing_area, TRUE, TRUE, 0);
 
-        Graph *graph = graph_new(drawing_area, activeGraph, "");
-        int argi = 0;
-        MetricType t = metric_from_title(activeGraph, &argi);
-        ad_list_GraphSeries_append(graph->series, graph_series_new(t, argi));
+        Graph *graph = graph_new(drawing_area, ad_object_vehicle_signal_get_exec_path(signal), signal->unit);
+        ad_list_GraphSeries_append(graph->series, graph_series_new(signal));
         ad_list_Graph_append(graphs, graph);
 
         graph_attach_controls(vbox, graph);
 
-        assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraph)));
+        assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraphPath)));
 
         final int col = graph_count % 2;
         final int row = graph_count / 2;
@@ -1116,31 +1028,9 @@ static void init(final GtkBuilder *builder) {
         .genericErrorFeedback = GTK_MESSAGE_DIALOG(gtk_builder_get_object(builder, "vehicle-explorer-feedback-info"))
     };
 
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Speed");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Coolant Temperature");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air Temperature");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air Manifold Pressure");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Intake Air MAF Rate");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Engine Speed");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Pressure");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Level");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel ethanol");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel Rail Pressure");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel rate");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim long term bank1");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim long term bank2");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim short term bank1");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Fuel trim short term bank2");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing");
-    gtk_combo_box_text_append(g.graphs.list, NULL, "Injection timing advance before TDC");
-    for (int sensor_i = 1; sensor_i <= 8; sensor_i++) {
-        char graphTitle[64];
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d voltage", sensor_i);
-        gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d current", sensor_i);
-        gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
-        snprintf(graphTitle, sizeof(graphTitle), "Oxygen sensor %d air fuel equivalence ratio", sensor_i);
-        gtk_combo_box_text_append(g.graphs.list, NULL, graphTitle);
+    ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
+    for(int i = 0; i < signals->size; i ++) {
+        gtk_combo_box_text_append(g.graphs.list, NULL, (char*)signals->keys[i]->data);
     }
 
     gui = (vehicleExplorerGui*)malloc(sizeof(vehicleExplorerGui));
