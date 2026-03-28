@@ -57,12 +57,6 @@ char* saej1979_data_data_gen_pid_map_get(void *key);
         return (return_type)result; \
     }
 
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_pressure);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
-
 #define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(type,symbol,data_pid_requested,iterator,errorValue) \
 type symbol(final VehicleIFace* iface, int dataFrameNumber) { \
     if ( dataFrameNumber < 0 ) { \
@@ -102,20 +96,6 @@ ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, int d
  * Service 0*00
  */
 bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int dataFrameNumber, final int pid);
-/**
- * Service 0*01
- * Get status (on/off) of MIL/CEL
- */
-
-#define saej1979_data_number_of_dtc_iterator(data) { \
-    if ( 0 < data->size ) { \
-        if ( SAEJ1979_DATA_NUMBER_OF_DTC_ERROR == result ) { \
-            result = 0; \
-        } \
-        result += (data->buffer[0] & 0x7F) ; \
-    } \
-}
-#define SAEJ1979_DATA_NUMBER_OF_DTC_ERROR -1
 
 #define saej1979_data_engine_type_iterator(data) \
     if ( 1 < data->size ) \
@@ -131,11 +111,7 @@ final static const char SAEJ1979_DATA_ENGINE_TYPES_STR[][100] = {
     {"Compression ignition"},
     {"Unknown"}
 };
-
-#define saej1979_data_mil_status_iterator(data) \
-    if ( 0 < data->size ) \
-        result |= bitRetrieve(data->buffer[0],7);
-bool saej1979_data_mil_status(final VehicleIFace* iface, int dataFrameNumber);/**
+/**
  * Get number of dtcs currently flagged in ECU
  */
 int saej1979_data_number_of_dtc(final VehicleIFace* iface, int dataFrameNumber);
@@ -200,66 +176,6 @@ double saej1979_data_long_term_fuel_trim_bank_1(final VehicleIFace* iface, int d
 double saej1979_data_short_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
 double saej1979_data_long_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
 
-/**
- * Service 0*0B
- * @return kPa [0;255] (absolute)
- */
-#define saej1979_data_intake_manifold_pressure_iterator(data) \
-    if ( 0 < data->size ) \
-        result = (unsigned char)data->buffer[0]; 
-
-#define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MIN 0
-#define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_MAX 255
-#define SAEJ1979_DATA_INTAKE_MANIFOLD_PRESSURE_ERROR -1
-int saej1979_data_intake_manifold_pressure(final VehicleIFace* iface, int dataFrameNumber);
-
-/**
- * Service 0*0E
- * Timing Advance (Cyl. #1)
- * @return [-64;63.5] ° before TDC or -65 in case of error
- */
-#define saej1979_data_timing_advance_cycle_1_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) / 2.0 - 64;
-
-#define SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_MIN -64
-#define SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_MAX 63.5
-#define SAEJ1979_DATA_TIMING_ADVANCE_CYCLE_1_ERROR -65
-double saej1979_data_timing_advance_cycle_1(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*0F
- * @return °C [-40;215]
- */
-#define saej1979_data_intake_air_temperature_iterator(data) \
-    if ( 0 < data->size ) \
-        result = (unsigned char)data->buffer[0];
-
-#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_MIN -40
-#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_MAX 215
-#define SAEJ1979_DATA_ENGINE_INTAKE_AIR_TEMPERATURE_ERROR INT_MIN
-int saej1979_data_intake_air_temperature(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*10
- * @return g/s [0;655.35]
- */
-#define saej1979_data_maf_air_flow_rate_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) / 100.0;
-
-#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MIN 0
-#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_MAX 655.35
-#define SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR -1
-double saej1979_data_maf_air_flow_rate(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*11
- * @return throttle position (%) [0;100]
- */
-#define saej1979_data_throttle_position_iterator(data) \
-    if ( 0 < data->size ) \
-        result = ((unsigned char)data->buffer[0]) / 2.55; 
-
-#define SAEJ1979_DATA_THROTTLE_POSITION_ERROR -1
-double saej1979_data_throttle_position(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*12
  */
@@ -357,63 +273,12 @@ char * saej1979_data_obd_standard_as_string(final VehicleIFace* iface, int dataF
     if ( 0 < data->size ) \
         result = data->buffer[0]; 
 bool saej1979_data_oxygen_sensors_present_2(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i);
-/**
- * Service 0*1E
- */
-#define saej1979_data_powertakeoff_status_iterator(data) \
-    if ( 0 < data->size ) \
-        result = bitRetrieve(data->buffer[0],0);
 
-#define SAEJ1979_DATA_POWERTAKEOFF_STATUS_ERROR false
-bool saej1979_data_powertakeoff_status(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*1F
- * @return seconds since engine start or -1 on error
- */
-#define saej1979_data_seconds_since_engine_start_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data);
-
-#define SAEJ1979_DATA_SECONDS_SINCE_ENGINE_START_ERROR -1
-int saej1979_data_seconds_since_engine_start(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * @return string describing time since or null on error
  */
 char * saej1979_data_time_since_engine_start(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*21
- * @return km or -1 on error
- */
-#define saej1979_data_distance_since_mil_activated_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data);
 
-#define SAEJ1979_DATA_DISTANCE_SINCE_MIL_ACTIVATED_ERROR -1
-int saej1979_data_distance_since_mil_activated(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*22
- * fuel rail pressure relative to manifold vacuum
- * @return [0;5177.265] kPa or -1 on error
- */
-#define saej1979_data_frp_relative_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * 0.079; 
-
-#define SAEJ1979_DATA_FRP_RELATIVE_ERROR -1
-#define SAEJ1979_DATA_FRP_RELATIVE_MIN   0
-#define SAEJ1979_DATA_FRP_RELATIVE_MAX   5177.265
-double saej1979_data_frp_relative(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*23
- * fuel rail pressure (gauge), wide range
- * @return [0;655350] kPa or -1 on error
- */
-#define saej1979_data_frp_widerange_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * 10;
-
-#define SAEJ1979_DATA_FRP_WIDERANGE_ERROR -1
-int saej1979_data_frp_widerange(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*24 0*25 0*26 0*27 0*28 0*29 0*2A 0*2B
  * @return ratio V
@@ -435,78 +300,6 @@ int saej1979_data_frp_widerange(final VehicleIFace* iface, int dataFrameNumber);
 #define SAEJ1979_DATA_OXYGEN_SENSOR_VOLTAGE_EXT_RANGE_ERROR -1
 double saej1979_data_oxygen_sensor_air_fuel_equiv_ratio(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i);
 double saej1979_data_oxygen_sensor_voltage_ext_range(final VehicleIFace* iface, int dataFrameNumber, final int sensor_i);
-/**
- * Service 0*2C
- * Commanded EGR : percent of exhaust gas that is routed back in the intake
- * @return [0;100] or -1 on error
- */
-#define SAEJ1979_DATA_COMMANDED_EGR_ERROR -1
-double saej1979_data_commanded_egr(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*2D
- * @return [-100;99.2] or -1
- */
-#define saej1979_data_egr_error_iterator(data) \
-    if ( 0 < data->size ) \
-        result = (unsigned char)(data->buffer[0]) * (100.0/128) - 100; 
-
-#define SAEJ1979_DATA_EGR_ERROR_ERROR -1
-double saej1979_data_egr_error(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*2E
- */
-#define SAEJ1979_DATA_COMMANDED_EVAP_PURGE_ERROR -1
-double saej1979_data_commanded_evap_purge(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*2F
- */
-#define SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_MIN SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MIN
-#define SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_MAX SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MAX
-#define SAEJ1979_DATA_FUEL_TANK_LEVEL_INPUT_ERROR SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR
-double saej1979_data_fuel_tank_level_input(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*30
- * warm ups since ECU reset
- * @return count or -1 on error
- */
-#define saej1979_data_warm_ups_since_ecu_reset_iterator(data) \
-    if ( 0 < data->size ) \
-        result = (unsigned char)(data->buffer[0]);
-
-#define SAEJ1979_DATA_WARM_UPS_SINCE_ECU_RESET_ERROR -1
-int saej1979_data_warm_ups_since_ecu_reset(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*31
- * Distance since ECU reset
- * @return km or -1 on error
- */
-#define saej1979_data_distance_since_ecu_reset_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data); 
-
-#define SAEJ1979_DATA_DISTANCE_SINCE_ECU_RESET_ERROR -1
-int saej1979_data_distance_since_ecu_reset(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*32
- * Evap System Vapor Pressure
- * @return Pa or -1 on error
- */
-#define saej1979_data_evap_system_vapor_pressure_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * 0.25;
-#define SAEJ1979_DATA_EVAP_SYSTEM_VAPOR_PRESSURE_ERROR -1
-double saej1979_data_evap_system_vapor_pressure(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*33
- * @return kPa or -1 on error
- */
-#define saej1979_data_baro_pressure_absolute_iterator(data) { \
-    if ( 0 < data->size ) { \
-        result = (unsigned char)(data->buffer[0]); \
-    } \
-}
-#define SAEJ1979_DATA_BARO_PRESSURE_ABSOLUTE_ERROR -1
-int saej1979_data_baro_pressure_absolute(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*34 0*35 0*36 0*37 0*38 0*39 0*3A 0*3B
  * @return mA
@@ -536,59 +329,6 @@ int saej1979_data_catalyst_tempature_with_bank(final VehicleIFace* iface, int da
 /**
  * Service 0*41
  */
-/**
- * Service 0*42 - control module voltage (ECU)
- * @return V or -1 on error
- */
-#define saej1979_data_ecu_voltage_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * 0.001; 
-
-#define SAEJ1979_DATA_ECU_VOLTAGE_ERROR -1
-double saej1979_data_ecu_voltage(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*43
- */
-#define saej1979_data_absolute_engine_load_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * ( 100.0/255 );
-
-#define SAEJ1979_DATA_ABSOLUTE_ENGINE_LOAD_MIN 0
-#define SAEJ1979_DATA_ABSOLUTE_ENGINE_LOAD_MAX 25700
-#define SAEJ1979_DATA_ABSOLUTE_ENGINE_LOAD_ERROR -1
-double saej1979_data_absolute_engine_load(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*44
- * ratio
- */
-#define saej1979_data_commanded_air_fuel_equivalence_ratio_iterator(data) \
-    if ( 1 < data->size ) \
-        result = ad_buffer_to_be16(data) * ( 2.0/65536 );
-
-#define SAEJ1979_DATA_COMMANDED_AIR_FUEL_EQUIVALENCE_RATIO_MIN 0
-#define SAEJ1979_DATA_COMMANDED_AIR_FUEL_EQUIVALENCE_RATIO_MAX 2
-#define SAEJ1979_DATA_COMMANDED_AIR_FUEL_EQUIVALENCE_RATIO_ERROR -1
-double saej1979_data_commanded_air_fuel_equivalence_ratio(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*45
- * %
- */
-#define SAEJ1979_DATA_RELATIVE_THROTTLE_POSITION_MIN SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MIN
-#define SAEJ1979_DATA_RELATIVE_THROTTLE_POSITION_MAX SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MAX
-#define SAEJ1979_DATA_RELATIVE_THROTTLE_POSITION_ERROR SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR
-double saej1979_data_relative_throttle_position(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*46
- * °C
- */
-#define saej1979_data_ambient_air_temperature_iterator(data) \
-    if ( 0 < data->size ) \
-        result = data->buffer[0] - 40;
-
-#define SAEJ1979_DATA_AMBIENT_AIR_TEMPERATURE_MIN -40
-#define SAEJ1979_DATA_AMBIENT_AIR_TEMPERATURE_MAX 215
-#define SAEJ1979_DATA_AMBIENT_AIR_TEMPERATURE_ERROR -41
-int saej1979_data_ambient_air_temperature(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*47
  * @return %
@@ -632,30 +372,6 @@ int saej1979_data_time_run_mil_on(final VehicleIFace* iface, int dataFrameNumber
 #define SAEJ1979_DATA_TIME_SINCE_TROUBLE_CODES_CLEARED_ERROR -1
 int saej1979_data_time_since_trouble_codes_cleared(final VehicleIFace* iface, int dataFrameNumber);
 /**
- * Service 0*4F
- * ratio V mA kPa
- */
-#define saej1979_data_max_fuel_air_equiv_ratio_iterator(data) \
-    if ( 0 < data->size ) \
-        result = data->buffer[0];
-#define SAEJ1979_DATA_MAX_FUEL_AIR_EQUIV_RATIO_ERROR -1
-#define saej1979_data_max_oxygen_sensor_voltage_iterator(data) \
-    if ( 1 < data->size ) \
-        result = data->buffer[1];
-#define SAEJ1979_DATA_MAX_OXYGEN_SENSOR_VOLTAGE_ERROR -1
-#define saej1979_data_max_oxygen_sensor_current_iterator(data) \
-    if ( 2 < data->size ) \
-        result = data->buffer[2];
-#define SAEJ1979_DATA_MAX_OXYGEN_SENSOR_CURRENT_ERROR -1
-#define saej1979_data_max_intake_manifold_absolute_pressure_iterator(data) \
-    if ( 3 < data->size ) \
-        result = data->buffer[3];
-#define SAEJ1979_DATA_MAX_INTAKE_MANIFOLD_ABSOLUTE_PRESSURE_ERROR -1
-int saej1979_data_max_fuel_air_equiv_ratio(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_max_oxygen_sensor_voltage(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_max_oxygen_sensor_current(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_max_intake_manifold_absolute_pressure(final VehicleIFace* iface, int dataFrameNumber);
-/**
  * Service 0*50
  * g/s
  */
@@ -687,14 +403,6 @@ SAEJ1979_DATA_FUEL_TYPE saej1979_data_fuel_type(final VehicleIFace* iface, int d
  */
 double saej1979_data_ethanol_fuel_percent(final VehicleIFace* iface, int dataFrameNumber);
 #define SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR -1
-/**
- * Service 0*53
- * kPa
- */
-#define SAEJ1979_DATA_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE_MIN 0
-#define SAEJ1979_DATA_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE_MAX 327.675
-#define SAEJ1979_DATA_ABSOLUTE_EVAP_SYSTEM_VAPOR_PRESSURE_ERROR -1
-double saej1979_data_absolute_evap_system_vapor_pressure(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*54
  * Pa
@@ -730,14 +438,6 @@ double saej1979_data_relative_accelerator_pedal_position(final VehicleIFace* ifa
  * @return %
  */
 double saej1979_data_hybrid_battery_pack_remaining_life(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5C
- * °C
- */
-#define SAEJ1979_DATA_ENGINE_OIL_TEMPERATURE_MIN -40
-#define SAEJ1979_DATA_ENGINE_OIL_TEMPERATURE_MAX 210
-#define SAEJ1979_DATA_ENGINE_OIL_TEMPERATURE_ERROR SAEJ1979_DATA_ENGINE_OIL_TEMPERATURE_MIN-1
-int saej1979_data_engine_oil_temperature(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*5D
  * °
@@ -932,16 +632,6 @@ int saej1979_data_diesel_particulate_filter_temperature(final VehicleIFace* ifac
  * Service 0*8D
  */
 /**
- * Service 0*8E
- * %
- */
-#define saej1979_data_engine_friction_percent_torque_iterator(data) \
-    if ( 0 < data->size ) result = data->buffer[0] - 125;
-#define SAEJ1979_DATA_ENGINE_FRICTION_PERCENT_TORQUE_MIN -125
-#define SAEJ1979_DATA_ENGINE_FRICTION_PERCENT_TORQUE_MAX 130
-#define SAEJ1979_DATA_ENGINE_FRICTION_PERCENT_TORQUE_ERROR SAEJ1979_DATA_ENGINE_FRICTION_PERCENT_TORQUE_MIN-1
-int saej1979_data_engine_friction_percent_torque(final VehicleIFace* iface, int dataFrameNumber);
-/**
  * Service 0*8F
  */
 /**
@@ -996,16 +686,6 @@ int saej1979_data_engine_friction_percent_torque(final VehicleIFace* iface, int 
  * Service 0*A1
  */
 /**
- * Service 0*A2
- * mg/stroke
- */
-#define saej1979_data_cylinder_fuel_rate_iterator(data) \
-    if ( 1 < data->size ) result = ad_buffer_to_be16(data)/32.0;
-#define SAEJ1979_DATA_CYLINDER_FUEL_RATE_MIN 0
-#define SAEJ1979_DATA_CYLINDER_FUEL_RATE_MAX 2047.96875
-#define SAEJ1979_DATA_CYLINDER_FUEL_RATE_ERROR -1
-double saej1979_data_cylinder_fuel_rate(final VehicleIFace* iface, int dataFrameNumber);
-/**
  * Service 0*A3
  */
 /**
@@ -1027,26 +707,11 @@ int saej1979_data_transmission_actual_gear(final VehicleIFace* iface, int dataFr
 bool saej1979_data_commanded_diesel_exhaust_fluid_dosing_present(final VehicleIFace* iface, int dataFrameNumber);
 int saej1979_data_commanded_diesel_exhaust_fluid_dosing(final VehicleIFace* iface, int dataFrameNumber);
 /**
- * Service 0*A6
- * km
- */
-#define saej1979_data_odometer_iterator(data) \
-    if ( 3 < data->size ) result = ad_buffer_to_be32(data) / 10.0;
-#define SAEJ1979_DATA_ODOMETER_MIN 0
-#define SAEJ1979_DATA_ODOMETER_MAX 429296729.5
-#define SAEJ1979_DATA_ODOMETER_ERROR SAEJ1979_DATA_ODOMETER_MAX+1
-double saej1979_data_odometer(final VehicleIFace* iface, int dataFrameNumber);
-/**
  * Service 0*A7
  */
 /**
  * Service 0*A8
  */
-/**
- * Service 0*A9
- */
-bool saej1979_data_abs_switch_present(final VehicleIFace* iface, int dataFrameNumber); 
-bool saej1979_data_abs_switch(final VehicleIFace* iface, int dataFrameNumber); 
 /**
  * Service 0*AA
  */
@@ -1125,5 +790,96 @@ bool saej1979_data_abs_switch(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*C4
  */
+
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_number_of_dtc);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_ENGINE_TYPES, saej1979_data_engine_type);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_mil_status);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_data_status);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_data_status_this_cycle);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(char**, saej1979_data_fuel_system_status);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_intake_manifold_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_timing_advance_cycle_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_intake_air_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_maf_air_flow_rate);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_throttle_position);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_SECONDARY_AIR_STATUS, saej1979_data_secondary_air_status);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte, saej1979_data_oxygen_sensors_present_generic);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_OBD_STANDARD, saej1979_data_obd_standard);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte, saej1979_data_oxygen_sensors_present_2_generic);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_powertakeoff_status);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_seconds_since_engine_start);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_distance_since_mil_activated);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_frp_relative);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_frp_widerange);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_commanded_egr);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_egr_error);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_commanded_evap_purge);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_fuel_tank_level_input);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_warm_ups_since_ecu_reset);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_distance_since_ecu_reset);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_evap_system_vapor_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_baro_pressure_absolute);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_ecu_voltage);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_absolute_engine_load);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_commanded_air_fuel_equivalence_ratio);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_relative_throttle_position);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_ambient_air_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_time_run_mil_on);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_time_since_trouble_codes_cleared);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_fuel_air_equiv_ratio);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_oxygen_sensor_voltage);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_oxygen_sensor_current);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_intake_manifold_absolute_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_air_flow_rate_from_maf_sensor);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_FUEL_TYPE, saej1979_data_fuel_type);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_absolute_evap_system_vapor_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_relative_evap_system_vapor_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_3);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_4);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_long_term_secondary_oxygen_sensor_trim_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_long_term_secondary_oxygen_sensor_trim_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_long_term_secondary_oxygen_sensor_trim_3);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_long_term_secondary_oxygen_sensor_trim_4);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_rail_absolute_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_oil_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_fuel_injection_timing);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_fuel_rate);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_driver_demand_engine_percent_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_actual_engine_percent_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_reference_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_idle);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_maf_sensor_present_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_maf_sensor_present_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_maf_sensor_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_maf_sensor_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_engine_coolant_temperature_sensor_present_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_engine_coolant_temperature_sensor_present_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature_sensor_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature_sensor_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_engine_intake_air_temperature_sensor_present_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_engine_intake_air_temperature_sensor_present_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_intake_air_temperature_sensor_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_intake_air_temperature_sensor_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte, saej1979_egt_sensor_bank_1_present_byte);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte, saej1979_egt_sensor_bank_2_present_byte);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_egt_sensor_temperature_bank_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_egt_sensor_temperature_bank_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_diesel_particulate_filter_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_friction_percent_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_cylinder_fuel_rate);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_transmission_actual_gear_present);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_transmission_actual_gear);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_commanded_diesel_exhaust_fluid_dosing_present);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_commanded_diesel_exhaust_fluid_dosing);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_odometer);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_abs_switch_present);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_abs_switch);
 
 #endif
