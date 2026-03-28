@@ -2,6 +2,7 @@
 #define __AD_COM_VEHICLE_SIGNAL_H
 
 #include "libautodiag/lib.h"
+#include "libautodiag/com/signal_input_builder.h"
 
 /**
  * A signal over transport layer (ISO-TP for example).
@@ -13,7 +14,7 @@ AD_OBJECT_H(vehicle_signal,
     double rv_min;
     double rv_max;
     char * rv_formula;
-    Buffer * input;
+    char * input_formula;
     char * name;
     char * description;
     char * category;

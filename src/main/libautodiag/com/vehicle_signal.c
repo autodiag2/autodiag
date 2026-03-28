@@ -18,7 +18,7 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     signal->rv_min = 0;
     signal->rv_max = 0;
     signal->rv_formula = null;
-    signal->input = null;
+    signal->input_formula = null;
     signal->name = null;
     signal->description = null;
     signal->category = null;
@@ -29,7 +29,7 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
 void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
     if ( signal != null ) {
         MEMORY_FREE_POINTER(signal->rv_formula);
-        ad_buffer_free(signal->input);
+        MEMORY_FREE_POINTER(signal->input_formula);
         MEMORY_FREE_POINTER(signal->name);
         MEMORY_FREE_POINTER(signal->description);
         MEMORY_FREE_POINTER(signal->category);
@@ -42,7 +42,7 @@ ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_sign
     to->rv_min = from->rv_min;
     to->rv_max = from->rv_max;
     to->rv_formula = strdup(from->rv_formula);
-    to->input = ad_buffer_copy(from->input);
+    to->input_formula = strdup(from->input_formula);
     to->name = strdup(from->name);
     to->description = strdup(from->description);
     to->category = strdup(from->category);

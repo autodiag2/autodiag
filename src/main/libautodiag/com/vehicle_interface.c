@@ -35,44 +35,82 @@ int viface_send_str(final VehicleIFace * iface, final char * request) {
     ad_buffer_free(binRequest);
     return result;
 }
-bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal * signal, double * result_rv) {
+bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *signal, double *result_rv, ...) {
     assert(iface != null);
     assert(signal != null);
-    if ( iface->send(iface, signal->input) == DEVICE_ERROR ) {
+
+    va_list ap;
+    int argc = 0;
+    const char *arg;
+    const char **args;
+    Buffer *signal_input;
+    bool ok = false;
+
+    va_start(ap, result_rv);
+    while ((arg = va_arg(ap, const char *)) != null) {
+        argc++;
+    }
+    va_end(ap);
+
+    args = argc == 0 ? null : (const char **)malloc(sizeof(const char *) * argc);
+    if (argc != 0 && args == null) {
         return false;
     }
+
+    va_start(ap, result_rv);
+    for (int i = 0; i < argc; i++) {
+        args[i] = va_arg(ap, const char *);
+    }
+    va_end(ap);
+
+    signal_input = ad_signal_input_expr_builderv(signal->input_formula, args, argc);
+    free(args);
+
+    if (signal_input == null) {
+        return false;
+    }
+
+    if (iface->send(iface, signal_input) == DEVICE_ERROR) {
+        ad_buffer_free(signal_input);
+        return false;
+    }
+
+    ad_buffer_free(signal_input);
     iface->clear_data(iface);
+
     int responses = iface->recv(iface);
-    if ( responses <= 0 ) {
+    if (responses <= 0) {
         return false;
     }
-    if ( 1 < responses ) {
+
+    if (1 < responses) {
         log_warn("Multi responses not supported for now, using the last received");
     }
 
-    final Vehicle* v = iface->vehicle;
-    for(unsigned i = 0; i < v->ecus->size; i++) {
-        final ad_object_ECU* ecu = v->ecus->list[i];
-        if ( 0 < ecu->data_buffer->size ) {
-            for(int j = ecu->data_buffer->size-1; 0 <= j; j--) {
-                Buffer * data = ecu->data_buffer->list[j];
-                if ( 0 < data->size ) {
-                    char * parsingResult = null;
+    final Vehicle *v = iface->vehicle;
+    for (unsigned i = 0; i < v->ecus->size; i++) {
+        final ad_object_ECU *ecu = v->ecus->list[i];
+        if (0 < ecu->data_buffer->size) {
+            for (int j = ecu->data_buffer->size - 1; 0 <= j; j--) {
+                Buffer *data = ecu->data_buffer->list[j];
+                if (0 < data->size) {
+                    char *parsingResult = null;
                     double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
-                    if ( result == NAN || parsingResult != null ) {
+                    if (isnan(result) || parsingResult != null) {
                         log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
                         free(parsingResult);
                         return false;
                     }
-                    if ( result_rv != null ) {
+                    if (result_rv != null) {
                         *result_rv = result;
                     }
+                    ok = true;
                 }
             }
         }
     }
 
-    return true;
+    return ok;
 }
 int viface_send(final VehicleIFace* iface, final Buffer * binRequest) {
     char * request = ad_buffer_to_hex_string(binRequest);
