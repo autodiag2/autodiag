@@ -70,6 +70,7 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
         return false;
     }
 
+    log_debug("signal produced : 0x%s", ad_buffer_to_hex_string(signal_input));
     if (iface->send(iface, signal_input) == DEVICE_ERROR) {
         ad_buffer_free(signal_input);
         return false;

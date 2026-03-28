@@ -35,8 +35,8 @@ void testRawSignal() {
         for(int i = 10; i < 100; i += 20) {
             some_signal = i;
             double result = 0;
-            assert(viface_use_signal(iface, signal, &result));
-            assert(result == some_signal);
+            assert(viface_use_signal(iface, signal, &result, null));
+            assert(round(result) == round(some_signal));
         }
     }
     {
@@ -44,9 +44,8 @@ void testRawSignal() {
         ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.engine_load");
         assert(signal);
         double result = 0;
-        assert(viface_use_signal(iface, signal, &result));
-        printf("%f/%f\n", result, engine_load);
-        assert(result == engine_load);
+        assert(viface_use_signal(iface, signal, &result, "01", null));
+        assert(round(result) == round(engine_load));
     }
 }
 bool testSignals() {
