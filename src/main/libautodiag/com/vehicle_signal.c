@@ -24,6 +24,7 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     signal->category = null;
     signal->standard = null;
     signal->unit = null;
+    signal->slug = null;
     return signal;
 }
 void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
@@ -35,6 +36,7 @@ void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
         MEMORY_FREE_POINTER(signal->category);
         MEMORY_FREE_POINTER(signal->standard);
         MEMORY_FREE_POINTER(signal->unit);
+        MEMORY_FREE_POINTER(signal->slug);
         MEMORY_FREE_POINTER(signal);
     }
 }
@@ -48,5 +50,46 @@ ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_sign
     to->category = strdup(from->category);
     to->standard = strdup(from->standard);
     to->unit = strdup(from->unit);
+    to->slug = strdup(from->slug);
     return to;
 }
+char * ad_object_vehicle_signal_get_exec_path(ad_object_vehicle_signal *signal) {
+    return gprintf("%s.%s",
+        signal->standard == null ? AD_OBJECT_VEHICLE_SIGNAL_NO_STANDARD : signal->standard,
+        signal->slug
+    );
+}
+static ad_object_hashmap_string_vehicle_signal * ad_signals_registry = null;
+ad_object_hashmap_string_vehicle_signal * ad_signals_get() {
+    if ( ad_signals_registry == null ) {
+        ad_signals_registry = ad_object_hashmap_string_vehicle_signal_new();
+    }
+    return ad_signals_registry;
+}
+ad_object_vehicle_signal * ad_signal_get(char * signal_location) {
+    ad_object_hashmap_string_vehicle_signal * registry = ad_signals_get();
+    ad_object_string * key = ad_object_string_new_from(signal_location);
+    ad_object_vehicle_signal * signal = 
+        ad_object_hashmap_string_vehicle_signal_get(
+            registry,
+            key
+        );
+    ad_object_string_free(key);
+    return signal;
+}
+void ad_signal_put(ad_object_vehicle_signal * signal) {
+    ad_object_hashmap_string_vehicle_signal * registry = ad_signals_get();
+    ad_object_string * key = ad_object_string_new_from(ad_object_vehicle_signal_get_exec_path(signal));
+    ad_object_hashmap_string_vehicle_signal_set(registry, key, signal);
+}
+int ad_object_hashmap_string_vehicle_signal_key_comparator(ad_object_string * k1, ad_object_string * k2) {
+    if ( (k1->data == null) ^ (k2->data == null) ) {
+        return 1;
+    }
+    return strcmp(k1->data, k2->data);
+}
+ad_object_hashmap_string_vehicle_signal * ad_object_hashmap_string_vehicle_signal_assign(ad_object_hashmap_string_vehicle_signal* to, ad_object_hashmap_string_vehicle_signal*from) {
+    log_err("TODO");
+    return to;
+}
+AD_HASHMAP_SRC(string, vehicle_signal)

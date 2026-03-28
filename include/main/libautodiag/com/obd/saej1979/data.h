@@ -7,6 +7,35 @@
 #include "libautodiag/buffer.h"
 #include "libautodiag/com/obd/obd.h"
 #include "saej1979.h"
+#include "libautodiag/com/vehicle_signal.h"
+
+#define AD_SIGNAL_SAEJ1979_REGISTER( \
+    param_rv_min, \
+    param_rv_max, \
+    param_rv_formula, \
+    param_input_formula, \
+    param_name, \
+    param_description, \
+    param_category, \
+    param_slug, \
+    param_unit \
+) \
+AD_SIGNAL_REGISTER( \
+    param_rv_min, \
+    param_rv_max, \
+    param_rv_formula, \
+    param_input_formula, \
+    param_name, \
+    param_description, \
+    param_category, \
+    "SAEJ1979", \
+    param_slug, \
+    param_unit \
+)
+/**
+ * Register all signal possible.
+ */
+void ad_saej1979_data_register_signals();
 
 char* saej1979_data_data_gen_pid_map_get(void *key);
 

@@ -1,16 +1,22 @@
 #include "libTest.h"
 #include "libautodiag/sim/elm327/elm327.h"
+#include "libautodiag/com/obd/saej1979/data.h"
 
 static uint16_t some_signal = 10;
+static double engine_load = 55.0;
 
 static Buffer * response(SimECUGenerator * g, Buffer * binRequest) {
     if ( binRequest->buffer[0] == 0x10 ) {
         return ad_buffer_be_from_uint16(some_signal);
     }
+    if ( binRequest->buffer[0] == 0x01) {
+        if ( binRequest->buffer[1] == 0x04 ) {
+            return ad_buffer_from_ints((byte)(engine_load * 2.55));
+        }
+    }
     return ad_buffer_new_random(10);
 }
-
-bool testSignals() {
+void testRawSignal() {
     SimELM327* elm327 = tf_sim_elm327_new();
     SimECUGenerator * g = sim_ecu_generator_new_citroen_c5_x7();
     g->response = response;
@@ -19,17 +25,30 @@ bool testSignals() {
     sim_elm327_loop_daemon_wait_ready(elm327);
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
 
-    ad_object_vehicle_signal * signal = ad_object_vehicle_signal_new();
-    signal->rv_formula = strdup("$0 * 256 + $1");
-    signal->rv_min = 0;
-    signal->rv_max = 100;
-    signal->input = ad_buffer_from_ascii_hex("10");
-    signal->unit = strdup("some");
-    for(int i = 10; i < 100; i += 20) {
-        some_signal = i;
+    {
+        ad_object_vehicle_signal * signal = ad_object_vehicle_signal_new();
+        signal->rv_formula = strdup("$0 * 256 + $1");
+        signal->rv_min = 0;
+        signal->rv_max = 100;
+        signal->input_formula = strdup("10");
+        signal->unit = strdup("some");
+        for(int i = 10; i < 100; i += 20) {
+            some_signal = i;
+            double result = 0;
+            assert(viface_use_signal(iface, signal, &result));
+            assert(result == some_signal);
+        }
+    }
+    {
+        ad_saej1979_data_register_signals();
+        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.engine_load");
+        assert(signal);
         double result = 0;
         assert(viface_use_signal(iface, signal, &result));
-        assert(result == some_signal);
+        assert(result == engine_load);
     }
+}
+bool testSignals() {
+    tf_run_case(testRawSignal);
     return true;
 }

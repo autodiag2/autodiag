@@ -1,5 +1,11 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
+void ad_saej1979_data_register_signals() {
+    AD_SIGNAL_SAEJ1979_REGISTER(
+        0, 100, "$0 / 2.55", "$0${1}04",
+        "Engine Load", "Calculated engine load", "Engine, ECM", "engine_load", "%"
+    )
+}
 /**
  * Actual data extracted from wikipedia OBDII PIDs page
  */
