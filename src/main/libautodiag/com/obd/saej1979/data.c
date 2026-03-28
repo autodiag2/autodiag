@@ -1,9 +1,9 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
 void ad_saej1979_data_register_signals() {
-    AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",      "${0}${1}04", 0,  100,          "$2 / 2.55",                    "Calculated engine load",           "Engine, ECM",  "engine_load",      "%")
-    AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",     "${0}${1}0C", 0,  16383.75,     "($2 * 256 + $3) / 4.0",        "Rotational speed of engine",       "Engine, ECM",  "engine_speed",     "rpm")
-    AD_SIGNAL_SAEJ1979_REGISTER("Vehicle Speed",    "${0}${1}0D", 0, 255,           "$2",                           "Vehicle Speed",                    "Engine, ECM",  "vehicle_speed",    "km/h")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",      "${0}${1}04", 0,    100,            "$2 / 2.55",                    "Calculated engine load",           "Engine, ECM",  "engine_load",      "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",     "${0}${1}0C", 0,    16383.75,       "($2 * 256 + $3) / 4.0",        "Rotational speed of engine",       "Engine, ECM",  "engine_speed",     "rpm")
+    AD_SIGNAL_SAEJ1979_REGISTER("Vehicle Speed",    "${0}${1}0D", 0,    255,            "$2",                           "Vehicle Speed",                    "Engine, ECM",  "vehicle_speed",    "km/h")
 }
 /**
  * Actual data extracted from wikipedia OBDII PIDs page

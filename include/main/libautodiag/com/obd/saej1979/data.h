@@ -30,7 +30,9 @@ AD_SIGNAL_REGISTER( \
     param_category, \
     "SAEJ1979", \
     param_slug, \
-    param_unit \
+    param_unit, \
+    null, \
+    null \
 )
 /**
  * Register all signal possible.
