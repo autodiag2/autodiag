@@ -168,7 +168,6 @@ static gboolean vh_refresh_widget_v2_generic(gpointer arg) {
         if ( signal == null ) { \
             log_err("Cannot find signal %s", signal_path); \
         } else { \
-            iface->lock(iface); \
             int frameNumber = get_data_frame_selected(); \
             double result_value = NAN; \
             if ( frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ) { \
@@ -180,8 +179,8 @@ static gboolean vh_refresh_widget_v2_generic(gpointer arg) {
                 if ( ! viface_use_signal(iface, signal, &result_value, "02", frameNumberStr, null) ) { \
                     log_warn("error while retrieving sensor : %s", signal_path);    \
                 } \
+                free(frameNumberStr); \
             } \
-            iface->unlock(iface); \
             vh_sensor_refresh_params * params = (vh_sensor_refresh_params*)malloc(sizeof(vh_sensor_refresh_params)); \
             params->value = result_value; \
             params->signal = signal; \

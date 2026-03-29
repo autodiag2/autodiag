@@ -933,6 +933,7 @@ double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **error
 
     if (!ad_expr_failed(&p) && p.tok.type != AD_EXPR_TOKEN_EOF) {
         log_warn("'%s': unexpected trailing input", expr);
+        return v;
     }
 
     if (p.error != NULL) {

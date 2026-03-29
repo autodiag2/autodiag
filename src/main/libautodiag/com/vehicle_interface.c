@@ -71,8 +71,10 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
     }
 
     log_debug("signal produced : 0x%s", ad_buffer_to_hex_string(signal_input));
+    iface->lock(iface);
     if (iface->send(iface, signal_input) == DEVICE_ERROR) {
         ad_buffer_free(signal_input);
+        iface->unlock(iface);
         return false;
     }
 
@@ -81,6 +83,7 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
 
     int responses = iface->recv(iface);
     if (responses <= 0) {
+        iface->unlock(iface);
         return false;
     }
 
@@ -89,27 +92,28 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
     }
 
     final Vehicle *v = iface->vehicle;
-    for (unsigned i = 0; i < v->ecus->size; i++) {
-        final ad_object_ECU *ecu = v->ecus->list[i];
-        if (0 < ecu->data_buffer->size) {
-            for (int j = ecu->data_buffer->size - 1; 0 <= j; j--) {
-                Buffer *data = ecu->data_buffer->list[j];
-                if (0 < data->size) {
-                    char *parsingResult = null;
-                    double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
-                    if (isnan(result) || parsingResult != null) {
-                        log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
-                        free(parsingResult);
-                        return false;
-                    }
-                    if (result_rv != null) {
-                        *result_rv = result;
-                    }
-                    ok = true;
-                }
+    if ( 0 < v->data_buffer->size ) {
+        if ( 1 < v->data_buffer->size ) {
+            log_warn("Many ECUs respond, you should target one, taking the first response");
+        }
+        Buffer * data = v->data_buffer->list[0];
+        if (0 < data->size) {
+            char *parsingResult = null;
+            double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
+            if (isnan(result) || parsingResult != null) {
+                log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
+                free(parsingResult);
+                iface->unlock(iface);
+                return false;
             }
+            log_debug("signal response : %.2f", result);
+            if (result_rv != null) {
+                *result_rv = result;
+            }
+            ok = true;
         }
     }
+    iface->unlock(iface);
 
     return ok;
 }
