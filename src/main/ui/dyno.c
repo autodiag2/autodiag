@@ -52,7 +52,8 @@ static const char *xunit_for_metric_title(const char *title) {
 
 static const char * signal_path_for_graph(const char *title) {
     if (strcmp(title, AD_GRAPH_TITLE_RPM) == 0) return "SAEJ1979.engine_speed";
-    return "SAEJ1979.vehicle_speed";
+    if (strcmp(title, AD_GRAPH_TITLE_SPEED) == 0) return "SAEJ1979.vehicle_speed";
+    return null;
 }
 
 static void graph_display_title(const char *title, char *buf, size_t n) {
