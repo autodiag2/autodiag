@@ -79,6 +79,9 @@ ad_object_hashmap_string_vehicle_signal * ad_signals_get() {
     return ad_signals_registry;
 }
 ad_object_vehicle_signal * ad_signal_get(char * signal_location) {
+    if ( signal_location == null ) {
+        return null;
+    }
     ad_object_hashmap_string_vehicle_signal * registry = ad_signals_get();
     ad_object_string * key = ad_object_string_new_from(signal_location);
     ad_object_vehicle_signal * signal = 

@@ -65,6 +65,7 @@ void ad_object_string_free(ad_object_string * object) {
     free(object);
 }
 ad_object_string * ad_object_string_new_from(char *data) {
+    assert(data != null);
     ad_object_string * s = ad_object_string_new();
     s->data = strdup(data);
     return s;

@@ -11,32 +11,32 @@ bool testSAEJ1979(VehicleIFace* iface) {
             double result = NAN;
             assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.vehicle_speed"), &result, "01", null));
             tf_test_output("current vehicle speed: %.2f km/h", result);
-            assert(result != NAN);
+            assert(!isnan(result));
         }
     }
     {
         double result = NAN;
         assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.fuel_pressure"), &result, "01", null));
         tf_test_output("engine fuel pressure: %.2f kPa", result);
-        assert(result != NAN);
+        assert(!isnan(result));
     }
     {
         double result = NAN;
         assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.maf_air_flow_rate"), &result, "01", null));
         tf_test_output("current maf air flow rate: %.2f g/s", result);
-        assert(result != NAN);
+        assert(!isnan(result));
     }
     {
         double result = NAN;
         assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.throttle_position"), &result, "01", null));
         tf_test_output("current throttle position: %.2f %%", result);
-        assert(result != NAN);
+        assert(!isnan(result));
     }
     {
         double result = NAN;
         assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.coolant_temp"), &result, "01", null));
         tf_test_output("engine coolant temperature: %.2f °C", result);
-        assert(result != NAN);
+        assert(!isnan(result));
     }
     {
         bool result = true;

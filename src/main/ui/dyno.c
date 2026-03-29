@@ -94,8 +94,14 @@ static GraphSeries *dyno_graph_ensure_series(Graph *g, unsigned si, char * signa
         s->label = strdup(buf);
     }
     ad_object_vehicle_signal * s_signal = s->signal;
-    if (s->y_unit) free(s->y_unit);
-    if ( s->x_unit) free(s->x_unit);
+    if (s->y_unit) {
+        free(s->y_unit);
+        s->y_unit = null;
+    }
+    if ( s->x_unit) {
+        free(s->x_unit);
+        s->x_unit = null;
+    }
     if ( s_signal == null ) {
         s->x_unit = strdup(xunit_for_metric_title(g->title));
         s->y_unit = strdup(yunit_for_metric_title(g->title));
@@ -501,8 +507,8 @@ static void dyno_build_results_from_samples() {
 
     dyno_graph_ensure_series(g_speed, dyno_run_index, "SAEJ1979.vehicle_speed");
     dyno_graph_ensure_series(g_rpm, dyno_run_index, "SAEJ1979.engine_speed");
-    dyno_graph_ensure_series(g_pwr, dyno_run_index, "SAEJ1979.vehicle_speed");
-    dyno_graph_ensure_series(g_tq, dyno_run_index, "SAEJ1979.vehicle_speed");
+    dyno_graph_ensure_series(g_pwr, dyno_run_index, null);
+    dyno_graph_ensure_series(g_tq, dyno_run_index, null);
 
     dyno_graph_reset_series(g_speed, dyno_run_index);
     dyno_graph_reset_series(g_rpm, dyno_run_index);
@@ -592,8 +598,8 @@ static void *dyno_thread_main(void *unused) {
             double speed = saej1979_data_vehicle_speed(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
             double rpm = saej1979_data_engine_speed(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
 
-            if (speed == NAN) speed = 0;
-            if (rpm == NAN) rpm = 0;
+            if (isnan(speed)) continue;
+            if (isnan(rpm)) continue;
 
             pthread_mutex_lock(&dyno_mutex);
 

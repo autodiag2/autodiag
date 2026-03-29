@@ -133,7 +133,7 @@ VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_fuel_rate,
 
 static gboolean saej1979_data_ecu_voltage_gsource(gpointer data) {
     double *currentECUvoltage = data;
-    if (*currentECUvoltage != NAN) {
+    if (!isnan(*currentECUvoltage)) {
         gtk_widget_printf(GTK_WIDGET(gui->engine.ecu.voltage), "%.3f V", *currentECUvoltage);
     }
     free(data);
@@ -142,7 +142,7 @@ static gboolean saej1979_data_ecu_voltage_gsource(gpointer data) {
 
 static gboolean saej1979_data_seconds_since_engine_start_gsource(gpointer data) {
     int *secondsSinceStart = data;
-    if (*secondsSinceStart != NAN) {
+    if (!isnan(*secondsSinceStart)) {
         gtk_widget_printf(GTK_WIDGET(gui->engine.secondsSinceStart), "%d secs", *secondsSinceStart);
     }
     free(data);
@@ -297,7 +297,7 @@ static void graphs_refresh_all_series(VehicleIFace *iface, int dataFrameNumber) 
             GraphSeries *s = g->series->list[si];
             if (!s) continue;
             double v = metric_get(iface, dataFrameNumber, s->signal);
-            if (v != NAN) ad_list_Graph_append_data_for_series(g, si, v);
+            if (!isnan(v)) ad_list_Graph_append_data_for_series(g, si, v);
         }
 
         g_idle_add(graph_refresh_gsource, g);
