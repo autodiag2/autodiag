@@ -9,7 +9,7 @@ static gboolean dyno_running = false;
 static gboolean dyno_request_stop = false;
 
 static ad_list_Graph *dyno_graphs = null;
-/*
+
 typedef struct {
     double t_ms;
     double speed_kmh;
@@ -38,66 +38,71 @@ MENUBAR_DATA_ALL_IN_ONE
 #define AD_GRAPH_TITLE_POWER "Power(kW) (rpm)"
 #define AD_GRAPH_TITLE_TORQUE "Torque(N.m) (rpm)"
 
-static const char *unit_for_metric_title(const char *title) {
-    if (strcmp(title, AD_GRAPH_TITLE_SPEED) == 0) return "km/h";
-    if (strcmp(title, AD_GRAPH_TITLE_RPM) == 0) return "r/min";
+static const char *yunit_for_metric_title(const char *title) {
     if (strcmp(title, AD_GRAPH_TITLE_POWER) == 0) return "kW";
     if (strcmp(title, AD_GRAPH_TITLE_TORQUE) == 0) return "N·m";
     return "";
 }
 
 static const char *xunit_for_metric_title(const char *title) {
-    if (strcmp(title, AD_GRAPH_TITLE_SPEED) == 0) return "s";
-    if (strcmp(title, AD_GRAPH_TITLE_RPM) == 0) return "s";
     if (strcmp(title, AD_GRAPH_TITLE_POWER) == 0) return "r/min";
     if (strcmp(title, AD_GRAPH_TITLE_TORQUE) == 0) return "r/min";
     return "";
 }
 
-static MetricType metric_type_for_graph_title(const char *title) {
-    if (strcmp(title, AD_GRAPH_TITLE_RPM) == 0) return METRIC_ENGINE_SPEED;
-    return METRIC_SPEED;
+static const char * signal_path_for_graph(const char *title) {
+    if (strcmp(title, AD_GRAPH_TITLE_RPM) == 0) return "SAEJ1979.engine_speed";
+    return "SAEJ1979.vehicle_speed";
 }
 
 static void graph_display_title(const char *title, char *buf, size_t n) {
     snprintf(buf, n, "%s", title ? title : "");
 }
 
-static GraphSeries *dyno_graph_ensure_series(Graph *g, unsigned si, MetricType type) {
+static GraphSeries *dyno_graph_ensure_series(Graph *g, unsigned si, char * signal_path) {
     if (!g) return null;
     if (!g->series) g->series = ad_list_GraphSeries_new();
 
     while (g->series->size <= si) {
-        GraphSeries *s = graph_series_new(type, 0);
+        ad_object_vehicle_signal * signal = ad_signal_get(signal_path);
+        GraphSeries *s = graph_series_new(signal);
         if (!s) return null;
 
         if (s->label) free(s->label);
-        if (s->unit) free(s->unit);
 
         char buf[64];
         snprintf(buf, sizeof(buf), "Run %u", g->series->size + 1);
 
         s->label = strdup(buf);
-        s->unit = strdup(unit_for_metric_title(g->title));
+        if ( signal == null ) {
+            s->x_unit = strdup(xunit_for_metric_title(g->title));
+            s->y_unit = strdup(yunit_for_metric_title(g->title));
+        } else {
+            s->x_unit = strdup("ms");
+            s->y_unit = strdup(signal->unit);
+        }
 
         ad_list_GraphSeries_append(g->series, s);
     }
 
     GraphSeries *s = g->series->list[si];
     if (!s) return null;
-
-    s->type = type;
-
     {
         char buf[64];
         snprintf(buf, sizeof(buf), "Run %u", si + 1);
         if (s->label) free(s->label);
         s->label = strdup(buf);
     }
-
-    if (s->unit) free(s->unit);
-    s->unit = strdup(unit_for_metric_title(g->title));
-
+    ad_object_vehicle_signal * s_signal = s->signal;
+    if (s->y_unit) free(s->y_unit);
+    if ( s->x_unit) free(s->x_unit);
+    if ( s_signal == null ) {
+        s->x_unit = strdup(xunit_for_metric_title(g->title));
+        s->y_unit = strdup(yunit_for_metric_title(g->title));
+    } else {
+        s->x_unit = strdup("ms");
+        s->y_unit = strdup(s_signal->unit);
+    }
     if (!s->data) s->data = ad_list_GraphData_new();
     return s;
 }
@@ -191,8 +196,8 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
         cairo_show_text(cr, title_buf);
     }
 
-    double min_val = 0;
-    double max_val = 0;
+    double min_y = 0;
+    double max_y = 0;
     double min_x = 0;
     double max_x = 0;
     gboolean has = false;
@@ -206,14 +211,14 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
             if (!d) continue;
 
             if (!has) {
-                min_val = max_val = d->data;
-                min_x = max_x = d->time;
+                min_y = max_y = d->y_value;
+                min_x = max_x = d->x_value;
                 has = true;
             } else {
-                if (d->data < min_val) min_val = d->data;
-                if (max_val < d->data) max_val = d->data;
-                if (d->time < min_x) min_x = d->time;
-                if (max_x < d->time) max_x = d->time;
+                if (d->y_value < min_y) min_y = d->y_value;
+                if (max_y < d->y_value) max_y = d->y_value;
+                if (d->x_value < min_x) min_x = d->x_value;
+                if (max_x < d->x_value) max_x = d->x_value;
             }
         }
     }
@@ -234,9 +239,9 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
         return false;
     }
 
-    if (min_val == max_val) {
-        min_val -= 0.5;
-        max_val += 0.5;
+    if (min_y == max_y) {
+        min_y -= 0.5;
+        max_y += 0.5;
     }
     if (min_x == max_x) {
         min_x -= 1.0;
@@ -246,7 +251,7 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     double px_w = (double)(width - margin_left - margin_right);
     double px_h = (double)(height - margin_top - margin_bottom);
 
-    double y_scale = px_h / (max_val - min_val);
+    double y_scale = px_h / (max_y - min_y);
     double x_scale = px_w / (max_x - min_x);
 
     cairo_set_source_rgb(cr, 0, 0, 0);
@@ -276,8 +281,8 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     }
 
     for (int ti = 0; ti <= ticks; ti++) {
-        double vy = min_val + (max_val - min_val) * ((double)ti / (double)ticks);
-        double y = (double)(height - margin_bottom) - (vy - min_val) * y_scale;
+        double vy = min_y + (max_y - min_y) * ((double)ti / (double)ticks);
+        double y = (double)(height - margin_bottom) - (vy - min_y) * y_scale;
 
         cairo_move_to(cr, margin_left, y);
         cairo_line_to(cr, width - margin_right, y);
@@ -306,8 +311,8 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
     }
 
     for (int ti = 0; ti <= ticks; ti++) {
-        double v = min_val + (max_val - min_val) * ((double)ti / (double)ticks);
-        double y = (double)(height - margin_bottom) - (v - min_val) * y_scale;
+        double v = min_y + (max_y - min_y) * ((double)ti / (double)ticks);
+        double y = (double)(height - margin_bottom) - (v - min_y) * y_scale;
 
         cairo_set_source_rgb(cr, 0, 0, 0);
         cairo_set_line_width(cr, 1.0);
@@ -336,15 +341,15 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
 
         {
             GraphData *d0 = s->data->list[0];
-            double x0 = margin_left + (d0->time - min_x) * x_scale;
-            double y0 = (double)(height - margin_bottom) - (d0->data - min_val) * y_scale;
+            double x0 = margin_left + (d0->x_value - min_x) * x_scale;
+            double y0 = (double)(height - margin_bottom) - (d0->y_value - min_y) * y_scale;
             cairo_move_to(cr, x0, y0);
         }
 
         for (unsigned i = 1; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
-            double x = margin_left + (d->time - min_x) * x_scale;
-            double y = (double)(height - margin_bottom) - (d->data - min_val) * y_scale;
+            double x = margin_left + (d->x_value - min_x) * x_scale;
+            double y = (double)(height - margin_bottom) - (d->y_value - min_y) * y_scale;
             cairo_line_to(cr, x, y);
         }
         cairo_stroke(cr);
@@ -377,14 +382,14 @@ static gboolean dyno_graph_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user
 static void dyno_graph_add_series_point(Graph *g, unsigned si, double x, double y) {
     if (!g) return;
 
-    GraphSeries *s = dyno_graph_ensure_series(g, si, metric_type_for_graph_title(g->title));
+    GraphSeries *s = dyno_graph_ensure_series(g, si, (char*)signal_path_for_graph(g->title));
     if (!s) return;
 
     GraphData *d = malloc(sizeof(*d));
     if (!d) return;
 
-    d->time = x;
-    d->data = y;
+    d->x_value = x;
+    d->y_value = y;
     ad_list_GraphData_append(s->data, d);
 }
 
@@ -494,10 +499,10 @@ static void dyno_build_results_from_samples() {
         return;
     }
 
-    dyno_graph_ensure_series(g_speed, dyno_run_index, METRIC_SPEED);
-    dyno_graph_ensure_series(g_rpm, dyno_run_index, METRIC_ENGINE_SPEED);
-    dyno_graph_ensure_series(g_pwr, dyno_run_index, METRIC_SPEED);
-    dyno_graph_ensure_series(g_tq, dyno_run_index, METRIC_SPEED);
+    dyno_graph_ensure_series(g_speed, dyno_run_index, "SAEJ1979.vehicle_speed");
+    dyno_graph_ensure_series(g_rpm, dyno_run_index, "SAEJ1979.engine_speed");
+    dyno_graph_ensure_series(g_pwr, dyno_run_index, "SAEJ1979.vehicle_speed");
+    dyno_graph_ensure_series(g_tq, dyno_run_index, "SAEJ1979.vehicle_speed");
 
     dyno_graph_reset_series(g_speed, dyno_run_index);
     dyno_graph_reset_series(g_rpm, dyno_run_index);
@@ -584,8 +589,8 @@ static void *dyno_thread_main(void *unused) {
 
         {
             double t_ms = dyno_now_ms();
-            double speed = saej1979_data_vehicle_speed(iface, false);
-            double rpm = saej1979_data_engine_speed(iface, false);
+            double speed = saej1979_data_vehicle_speed(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
+            double rpm = saej1979_data_engine_speed(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
 
             if (speed == NAN) speed = 0;
             if (rpm == NAN) rpm = 0;
@@ -599,11 +604,11 @@ static void *dyno_thread_main(void *unused) {
                 Graph *g_rpm   = dyno_get_graph(AD_GRAPH_TITLE_RPM);
 
                 if (g_speed && dyno_samples.n == 1) {
-                    GraphSeries *s = dyno_graph_ensure_series(g_speed, dyno_run_index, METRIC_SPEED);
+                    GraphSeries *s = dyno_graph_ensure_series(g_speed, dyno_run_index, "SAEJ1979.vehicle_speed");
                     if (s) dyno_graph_reset_series(g_speed, dyno_run_index);
                 }
                 if (g_rpm && dyno_samples.n == 1) {
-                    GraphSeries *s = dyno_graph_ensure_series(g_rpm, dyno_run_index, METRIC_ENGINE_SPEED);
+                    GraphSeries *s = dyno_graph_ensure_series(g_rpm, dyno_run_index, "SAEJ1979.engine_speed");
                     if (s) dyno_graph_reset_series(g_rpm, dyno_run_index);
                 }
 
@@ -706,7 +711,7 @@ static GtkWidget *dyno_make_graph_box(char *title) {
     gtk_widget_set_size_request(da, 320, 240);
     gtk_box_pack_start(GTK_BOX(v), da, true, true, 0);
 
-    Graph *g = graph_new(da, title, (char*)unit_for_metric_title(title));
+    Graph *g = graph_new(da, title);
     if (!g->series) g->series = ad_list_GraphSeries_new();
 
     if (!dyno_graphs) dyno_graphs = ad_list_Graph_new();
@@ -882,7 +887,6 @@ static void dyno_build_gui_widgets() {
 
     gtk_widget_show_all(outer);
 }
-*/
 static void init(final GtkBuilder *builder) {
     if (gui != null) {
         log_msg(LOG_WARNING, "Already init dyno mod");
@@ -908,9 +912,9 @@ static void init(final GtkBuilder *builder) {
 
     error_feedback_windows_init(gui->errorFeedback);
 
-    //MENUBAR_DATA_CONNECT()
+    MENUBAR_DATA_CONNECT()
 
-    //dyno_build_gui_widgets();
+    dyno_build_gui_widgets();
 }
 
 static void end() {
@@ -925,7 +929,7 @@ static void end() {
     }
 
     pthread_mutex_lock(&dyno_mutex);
-    //dyno_samples_clear();
+    dyno_samples_clear();
     pthread_mutex_unlock(&dyno_mutex);
 
     if (dyno_graphs) {

@@ -245,8 +245,8 @@ char * saej1979_data_secondary_air_status_to_string(SAEJ1979_DATA_SECONDARY_AIR_
     }
 }
 
-bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int dataFrameNumber, int pid) {
-    return saej1979_is_pid_supported(iface,1 + dataFrameNumber, pid);
+bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int pid) {
+    return saej1979_is_pid_supported(iface, 0x01, pid);
 }
 
 

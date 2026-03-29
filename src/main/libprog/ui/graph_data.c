@@ -38,9 +38,12 @@ GraphSeries * graph_series_new(ad_object_vehicle_signal* signal) {
     GraphSeries *s = malloc(sizeof(*s));
     s->signal = signal;
     s->data = ad_list_GraphData_new();
+    s->label = null;
+    s->x_unit = null;
+    s->y_unit = null;
     return s;
 }
-Graph * graph_new(GtkWidget *drawing_area, char *title, char *unit_unused) {
+Graph * graph_new(GtkWidget *drawing_area, char *title) {
     Graph *g = malloc(sizeof(*g));
     g->widget = drawing_area;
     g->title = strdup(title);
@@ -67,7 +70,7 @@ Graph * ad_list_Graph_get_by_title(ad_list_Graph * list, char * title) {
     return null;
 }
 
-bool ad_list_Graph_append_data(ad_list_Graph * list, char * title, double data) {
+bool ad_list_Graph_append_data(ad_list_Graph * list, char * title, double y_value) {
     log_msg(LOG_ERROR, "TODO");
     return true;
 }

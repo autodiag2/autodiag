@@ -280,8 +280,8 @@ static void ad_list_Graph_append_data_for_series(Graph *g, unsigned series_idx, 
     if (!s) return;
 
     GraphData *d = malloc(sizeof(*d));
-    d->time = graph_time_ms_ellapsed(g);
-    d->data = value;
+    d->x_value = graph_time_ms_ellapsed(g);
+    d->y_value = value;
     ad_list_GraphData_append(s->data, d);
 }
 
@@ -470,21 +470,21 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     cairo_show_text(cr, graph->title ? graph->title : "");
 
     bool has_any = false;
-    double min_time = 0, max_time = 0;
+    double x_value_min = 0, x_value_max = 0;
 
     for (unsigned si = 0; si < series_n; si++) {
         GraphSeries *s = graph->series->list[si];
         if (!s || !s->data || s->data->size == 0) continue;
         GraphData *d0 = s->data->list[0];
         if (!has_any) {
-            min_time = d0->time;
-            max_time = d0->time;
+            x_value_min = d0->x_value;
+            x_value_max = d0->x_value;
             has_any = true;
         }
         for (unsigned i = 0; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
-            if (d->time < min_time) min_time = d->time;
-            if (max_time < d->time) max_time = d->time;
+            if (d->x_value < x_value_min) x_value_min = d->x_value;
+            if (x_value_max < d->x_value) x_value_max = d->x_value;
         }
     }
 
@@ -512,7 +512,7 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     const double plot_w = (double)(plot_right - plot_left);
 
     double x_scale = 0.0;
-    if (min_time < max_time) x_scale = plot_w / (max_time - min_time);
+    if (x_value_min < x_value_max) x_scale = plot_w / (x_value_max - x_value_min);
 
     const int tick_count = 8;
 
@@ -529,14 +529,14 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
     cairo_select_font_face(cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL);
     cairo_set_font_size(cr, 9.0);
 
-    if (min_time < max_time && 1 < tick_count) {
-        double x_tick_step = (max_time - min_time) / (double)tick_count;
+    if (x_value_min < x_value_max && 1 < tick_count) {
+        double x_tick_step = (x_value_max - x_value_min) / (double)tick_count;
 
         cairo_set_source_rgb(cr, 0.9, 0.9, 0.9);
         cairo_set_line_width(cr, 0.5);
         for (int ti = 0; ti <= tick_count; ti++) {
-            double t = min_time + (double)ti * x_tick_step;
-            double x = (double)plot_left + (t - min_time) * x_scale;
+            double t = x_value_min + (double)ti * x_tick_step;
+            double x = (double)plot_left + (t - x_value_min) * x_scale;
             cairo_move_to(cr, x, plot_top);
             cairo_line_to(cr, x, plot_bottom);
             cairo_stroke(cr);
@@ -545,8 +545,8 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
         cairo_set_source_rgb(cr, 0, 0, 0);
         cairo_set_line_width(cr, 0.8);
         for (int ti = 0; ti <= tick_count; ti++) {
-            double t = min_time + (double)ti * x_tick_step;
-            double x = (double)plot_left + (t - min_time) * x_scale;
+            double t = x_value_min + (double)ti * x_tick_step;
+            double x = (double)plot_left + (t - x_value_min) * x_scale;
             cairo_move_to(cr, x, plot_bottom);
             cairo_line_to(cr, x, plot_bottom + 5);
             cairo_stroke(cr);
@@ -571,10 +571,10 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
         double rr, gg, bb;
         curve_color(si, &rr, &gg, &bb);
 
-        double s_min = s->data->list[0]->data;
-        double s_max = s->data->list[0]->data;
+        double s_min = s->data->list[0]->y_value;
+        double s_max = s->data->list[0]->y_value;
         for (unsigned i = 1; i < s->data->size; i++) {
-            double v = s->data->list[i]->data;
+            double v = s->data->list[i]->y_value;
             if (v < s_min) s_min = v;
             if (s_max < v) s_max = v;
         }
@@ -628,16 +628,16 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
 
         GraphData *d0 = s->data->list[0];
         double x0 = (double)plot_left;
-        if (min_time < max_time) x0 += (d0->time - min_time) * x_scale;
+        if (x_value_min < x_value_max) x0 += (d0->x_value - x_value_min) * x_scale;
 
-        double y0 = (double)plot_bottom - (d0->data - s_min) * y_scale;
+        double y0 = (double)plot_bottom - (d0->x_value - s_min) * y_scale;
         cairo_move_to(cr, x0, y0);
 
         for (unsigned i = 1; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             double x = (double)plot_left;
-            if (min_time < max_time) x += (d->time - min_time) * x_scale;
-            double y = (double)plot_bottom - (d->data - s_min) * y_scale;
+            if (x_value_min < x_value_max) x += (d->x_value - x_value_min) * x_scale;
+            double y = (double)plot_bottom - (d->x_value - s_min) * y_scale;
             cairo_line_to(cr, x, y);
         }
         cairo_stroke(cr);
@@ -658,14 +658,18 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
 
         cairo_set_source_rgb(cr, 0, 0, 0);
         char buf[160];
-        snprintf(buf, sizeof(buf), "%s%s%s",
-            s->signal->name ? s->signal->name : "",
-            (s->signal->unit && s->signal->name) ? " (" : (s->signal->unit? "(" : ""),
-            s->signal->unit ? s->signal->unit : ""
-        );
-        if (s->signal->unit) {
-            size_t n = strlen(buf);
-            if (n + 1 < sizeof(buf)) buf[n] = ')', buf[n + 1] = 0;
+        if ( s->label == null ) {
+            snprintf(buf, sizeof(buf), "%s%s%s",
+                s->signal->name ? s->signal->name : "",
+                (s->signal->unit && s->signal->name) ? " (" : (s->signal->unit? "(" : ""),
+                s->signal->unit ? s->signal->unit : ""
+            );
+            if (s->signal->unit) {
+                size_t n = strlen(buf);
+                if (n + 1 < sizeof(buf)) buf[n] = ')', buf[n + 1] = 0;
+            }
+        } else {
+            snprintf(buf, sizeof(buf), "%s", s->label);
         }
         cairo_move_to(cr, plot_left + 20, ly - 5);
         cairo_show_text(cr, buf);
@@ -825,7 +829,7 @@ static void *graphs_add_daemon(void *arg) {
         gtk_widget_set_size_request(drawing_area, 300, 300);
         gtk_box_pack_start(GTK_BOX(vbox), drawing_area, TRUE, TRUE, 0);
 
-        Graph *graph = graph_new(drawing_area, ad_object_vehicle_signal_get_exec_path(signal), signal->unit);
+        Graph *graph = graph_new(drawing_area, ad_object_vehicle_signal_get_exec_path(signal));
         ad_list_GraphSeries_append(graph->series, graph_series_new(signal));
         ad_list_Graph_append(graphs, graph);
 

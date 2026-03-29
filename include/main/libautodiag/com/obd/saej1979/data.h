@@ -95,7 +95,7 @@ ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, int d
  * For given pid number (eg 0, 1, 2, 3, 4, ...) show if it is currently supported by ECU<br />
  * Service 0*00
  */
-bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int dataFrameNumber, final int pid);
+bool saej1979_data_is_pid_supported(final VehicleIFace* iface, final int pid);
 
 #define saej1979_data_engine_type_iterator(data) \
     if ( 1 < data->size ) \

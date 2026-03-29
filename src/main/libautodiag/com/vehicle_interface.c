@@ -454,7 +454,7 @@ void viface_fill_infos_from_vin(final VehicleIFace * iface) {
     }
 }
 void viface_discover_vehicle(VehicleIFace* iface) {
-    saej1979_data_is_pid_supported(iface, false, 0x01);
+    saej1979_data_is_pid_supported(iface, 0x01);
     for(int i = 0; i < iface->vehicle->ecus->size; i++) {
         ad_object_ECU* ecu = iface->vehicle->ecus->list[i];
         MEMORY_FREE_POINTER(ecu->name);
