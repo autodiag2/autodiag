@@ -3,8 +3,13 @@
 void ad_saej1979_data_register_signals() {
     AD_SIGNAL_SAEJ1979_REGISTER("Number Of DTC",                            "${0}${1}01", 0,        127,        "$2 & 0x7F",                                 "Get number of DTCs currently flagged in ECU",                   "Engine, ECM",              "number_of_dtc",                                       "count")
     AD_SIGNAL_SAEJ1979_REGISTER("MIL Status",                               "${0}${1}01", 0,        1,          "($2 >> 7) & 1",                             "Get status of MIL/CEL",                                         "Engine, ECM",              "mil_status",                                          "bool")
+    AD_SIGNAL_SAEJ1979_REGISTER("Type of engine",                           "${0}${1}01", 0,        1,          "($3 >> 3) & 1",                             "Get the type of engine (0: spark, 1: compression)",             "Engine, ECM",              "engine_spark_or_compression",                         "bool")
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Load",                              "${0}${1}04", 0,        100,        "$2 / 2.55",                                 "Calculated engine load",                                        "Engine, ECM",              "engine_load",                                         "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Coolant Temperature",                      "${0}${1}05", -40,      215,        "$2 - 40",                                   "Engine Coolant Temperature",                                    "Engine, ECM",              "coolant_temp",                                        "°C")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel Trim Short Term bank 1",              "${0}${1}06", -100,     99.2,       "$2 / 1.28 - 100",                           "Fuel Trim Short Term bank 1",                                   "Engine, ECM",              "fuel_trim_short_term_bank_1",                         "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel Trim Long Term bank 1",               "${0}${1}07", -100,     99.2,       "$2 / 1.28 - 100",                           "Fuel Trim Long Term bank 1",                                    "Engine, ECM",              "fuel_trim_long_term_bank_1",                          "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel Trim Short Term bank 2",              "${0}${1}08", -100,     99.2,       "$2 / 1.28 - 100",                           "Fuel Trim Short Term bank 2",                                   "Engine, ECM",              "fuel_trim_short_term_bank_2",                         "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel Trim Long Term bank 2",               "${0}${1}09", -100,     99.2,       "$2 / 1.28 - 100",                           "Fuel Trim Long Term bank 2",                                    "Engine, ECM",              "fuel_trim_long_term_bank_2",                          "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Fuel Pressure",                            "${0}${1}0A", 0,        765,        "$2 * 3",                                    "Fuel Pressure",                                                 "Engine, ECM",              "fuel_pressure",                                       "kPa")
     AD_SIGNAL_SAEJ1979_REGISTER("Intake Manifold Pressure",                 "${0}${1}0B", 0,        255,        "$2",                                        "Intake manifold pressure",                                      "Engine, ECM",              "intake_manifold_pressure",                            "kPa")
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Speed",                             "${0}${1}0C", 0,        16383.75,   "($2 * 256 + $3) / 4.0",                     "Rotational speed of engine",                                    "Engine, ECM",              "engine_speed",                                        "rpm")
@@ -35,7 +40,22 @@ void ad_saej1979_data_register_signals() {
     AD_SIGNAL_SAEJ1979_REGISTER("Max Oxygen Sensor Voltage",                "${0}${1}4F", 0,        255,        "$3",                                        "Maximum oxygen sensor voltage",                                 "Engine, ECM",              "max_oxygen_sensor_voltage",                           "raw")
     AD_SIGNAL_SAEJ1979_REGISTER("Max Oxygen Sensor Current",                "${0}${1}4F", 0,        255,        "$4",                                        "Maximum oxygen sensor current",                                 "Engine, ECM",              "max_oxygen_sensor_current",                           "raw")
     AD_SIGNAL_SAEJ1979_REGISTER("Max Intake Manifold Absolute Pressure",    "${0}${1}4F", 0,        2550,       "$5 * 10",                                   "Maximum intake manifold absolute pressure",                     "Engine, ECM",              "max_intake_manifold_absolute_pressure",               "kPa")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel ethanol percent",                     "${0}${1}52", 0,        100,        "$2 * (100.0/255)",                          "Fuel ethanol percent",                                          "Engine, ECM",              "fuel_ethanol_percent",                                "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Absolute EVAP System Vapor Pressure",      "${0}${1}53", 0,        327.675,    "($2 * 256 + $3) / 200.0",                   "Absolute EVAP system vapor pressure",                           "Engine, ECM",              "absolute_evap_system_vapor_pressure",                 "kPa")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel rail absolute pressure",              "${0}${1}59", 0,        655350,     "($2 * 256 + $3) * 10",                      "Get the fuel rail absolute pressure",                           "Engine, ECM",              "fuel_rail_absolute_pressure",                         "kPa")
+    AD_SIGNAL_SAEJ1979_REGISTER("Relative accelerator pedal position",      "${0}${1}5A", 0,        100,        "$2 / 2.55",                                 "Get the relative accelerator pedal position",                   "Engine, ECM",              "relative_accelerator_pedal_position",                 "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Hybrid battery pack remaining life",       "${0}${1}5B", 0,        100,        "$2 / 2.55",                                 "Get the hybrid battery pack remaining life",                    "Engine, ECM",              "hybrid_battery_pack_remaining_life",                  "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Fuel injection timing",                    "${0}${1}5D", -210,     301.992,    "(($2 * 256) + $3) / 128.0 - 210",           "Get the fuel injection timing",                                 "Engine, ECM",              "fuel_injection_timing",                               "°")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine fuel rate",                         "${0}${1}5E", 0,        3212.75,    "(($2 * 256) + $3) / 20.0",                  "Get the engine fuel rate",                                      "Engine, ECM",              "engine_fuel_rate",                                    "L/h")
+    AD_SIGNAL_SAEJ1979_REGISTER("Emission requirements to which vehicle is designed", "${0}${1}5F", 0, 255, "$2", "Get the emission requirements to which vehicle is designed",                                               "Engine, ECM",              "emission_requirements_vehicle_designed",              "not found")
+    AD_SIGNAL_SAEJ1979_REGISTER("Driver demand engine percent torque",      "${0}${1}61", -125,     130,        "$2 - 125",                                  "Get the driver demand engine percent torque",                   "Engine, ECM",              "driver_demand_engine_percent_torque",                 "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Actual engine percent torque",             "${0}${1}62", -125,     130,        "$2 - 125",                                  "Get the actual engine percent torque",                          "Engine, ECM",              "actual_engine_percent_torque",                        "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine reference torque",                  "${0}${1}63", 0,        65535,      "($2 * 256) + $3",                           "Get the engine reference torque",                               "Engine, ECM",              "engine_reference_torque",                             "N.m")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine percent torque data idle",          "${0}${1}64", -125,     130,        "$2 - 125",                                  "Get the engine percent torque data idle",                       "Engine, ECM",              "engine_percent_torque_data_idle",                     "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine percent torque data point 1",       "${0}${1}64", -125,     130,        "$3 - 125",                                  "Get the engine percent torque data point 1",                    "Engine, ECM",              "engine_percent_torque_data_point_1",                  "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine percent torque data point 2",       "${0}${1}64", -125,     130,        "$4 - 125",                                  "Get the engine percent torque data point 2",                    "Engine, ECM",              "engine_percent_torque_data_point_2",                  "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine percent torque data point 3",       "${0}${1}64", -125,     130,        "$5 - 125",                                  "Get the engine percent torque data point 3",                    "Engine, ECM",              "engine_percent_torque_data_point_3",                  "%")
+    AD_SIGNAL_SAEJ1979_REGISTER("Engine percent torque data point 4",       "${0}${1}64", -125,     130,        "$6 - 125",                                  "Get the engine percent torque data point 4",                    "Engine, ECM",              "engine_percent_torque_data_point_4",                  "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Oil Temperature",                   "${0}${1}5C", -40,      210,        "$2 - 40",                                   "Engine oil temperature",                                        "Engine, ECM",              "engine_oil_temperature",                              "°C")
     AD_SIGNAL_SAEJ1979_REGISTER("Engine Friction Percent Torque",           "${0}${1}8E", -125,     130,        "$2 - 125",                                  "Engine friction percent torque",                                "Engine, ECM",              "engine_friction_percent_torque",                      "%")
     AD_SIGNAL_SAEJ1979_REGISTER("Cylinder Fuel Rate",                       "${0}${1}A2", 0,        2047.96875, "($2 * 256 + $3) / 32.0",                    "Cylinder fuel rate",                                            "Engine, ECM",              "cylinder_fuel_rate",                                  "mg/stroke")
@@ -248,17 +268,8 @@ char * saej1979_data_secondary_air_status_to_string(SAEJ1979_DATA_SECONDARY_AIR_
 bool saej1979_data_is_pid_supported(final VehicleIFace* iface, int pid) {
     return saej1979_is_pid_supported(iface, 0x01, pid);
 }
-
-
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        SAEJ1979_DATA_ENGINE_TYPES,
-                        saej1979_data_engine_type,
-                        "01",
-                        saej1979_data_engine_type_iterator,
-                        SAEJ1979_DATA_ENGINE_TYPE_UNKNOWN
-                    )
 char* saej1979_data_engine_type_as_string(final VehicleIFace* iface, int dataFrameNumber) {
-    return strdup(SAEJ1979_DATA_ENGINE_TYPES_STR[saej1979_data_engine_type(iface,dataFrameNumber)]);
+    return strdup(SAEJ1979_DATA_ENGINE_TYPES_STR[saej1979_data_engine_spark_or_compression(iface,dataFrameNumber)]);
 }
 
 #define saej1979_data_status_iterator(data) \
@@ -352,20 +363,6 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         null
                     )
 
-
-#define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(sym,obd_request) \
-    SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE( \
-                        double, sym, obd_request, \
-                        saej1979_data_get_fuel_trim_bank_generic_iterator, SAEJ1979_DATA_FUEL_TRIM_ERROR \
-                    )
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
-    saej1979_data_short_term_fuel_trim_bank_1,"06")
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
-    saej1979_data_long_term_fuel_trim_bank_1,"07")
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
-    saej1979_data_short_term_fuel_trim_bank_2,"08")
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_FUEL_TRIM_GENERIC(
-    saej1979_data_long_term_fuel_trim_bank_2,"09")
 
 SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
                         SAEJ1979_DATA_SECONDARY_AIR_STATUS,
@@ -878,9 +875,6 @@ SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
 char * saej1979_data_fuel_type_as_string(final VehicleIFace* iface, int dataFrameNumber) {
     return saej1979_data_fuel_type_convert_to_string(saej1979_data_fuel_type(iface, dataFrameNumber));
 }
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
-                        saej1979_data_ethanol_fuel_percent,
-                        "52")
 
 #define saej1979_data_relative_evap_system_vapor_pressure_iterator(data) \
     if ( 1 < data->size ) result = ad_buffer_to_be16(data);
@@ -965,88 +959,6 @@ int saej1979_data_long_term_secondary_oxygen_sensor_trim(final VehicleIFace* ifa
     }
     return SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_ERROR;
 }
-#define saej1979_data_fuel_rail_absolute_pressure_iterator(data) \
-    if ( 1 < data->size ) result = ad_buffer_to_be16(data) * 10;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                        int,saej1979_data_fuel_rail_absolute_pressure,
-                        "59",
-                        saej1979_data_fuel_rail_absolute_pressure_iterator,
-                        SAEJ1979_DATA_FUEL_RAIL_ABSOLUTE_PRESSURE_ERROR
-                    )
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
-                        saej1979_data_relative_accelerator_pedal_position,
-                        "5A")
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_PERCENTAGE(
-                        saej1979_data_hybrid_battery_pack_remaining_life,
-                        "5B")
-#define saej1979_data_fuel_injection_timing_iterator(data) \
-    if ( 1 < data->size ) result = ad_buffer_to_be16(data) / 128.0 - 210;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    double,saej1979_data_fuel_injection_timing,
-                    "5D",
-                    saej1979_data_fuel_injection_timing_iterator,
-                    SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR
-                )
-#define saej1979_data_engine_fuel_rate_iterator(data) \
-    if ( 1 < data->size ) result = ad_buffer_to_be16(data) / 20.0;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    double,saej1979_data_engine_fuel_rate,
-                    "5E",
-                    saej1979_data_engine_fuel_rate_iterator,
-                    SAEJ1979_DATA_ENGINE_FUEL_RATE_ERROR
-                )
-#define saej1979_data_engine_torque_percent_iterator(data) \
-    if ( 0 < data->size ) result = data->buffer[0] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_driver_demand_engine_percent_torque,
-                    "61",
-                    saej1979_data_engine_torque_percent_iterator,
-                    SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_ERROR
-                )
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_actual_engine_percent_torque,
-                    "62",
-                    saej1979_data_engine_torque_percent_iterator,
-                    SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_ERROR
-                )
-#define saej1979_data_engine_reference_torque_iterator(data) \
-    if ( 1 < data->size ) result = ad_buffer_to_be16(data);
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_engine_reference_torque,
-                    "63",
-                    saej1979_data_engine_reference_torque_iterator,
-                    SAEJ1979_DATA_ENGINE_REFERENCE_TORQUE_ERROR
-                )    
-
-#define saej1979_data_engine_percent_torque_data_idle_iterator(data) \
-    if ( 0 < data->size ) result = data->buffer[0] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE(
-                    int,saej1979_data_engine_percent_torque_data_idle,
-                    "64",
-                    saej1979_data_engine_percent_torque_data_idle_iterator,
-                    SAEJ1979_DATA_ENGINE_PERCENT_TORQUE_DATA_ERROR
-                ) 
-
-#define SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_TORQUE_DATA_I(point_i) \
-    SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE( \
-        int,saej1979_data_engine_percent_torque_data_point_##point_i, \
-        "64", \
-        saej1979_data_engine_percent_torque_data_point_##point_i##_iterator, \
-        SAEJ1979_DATA_ENGINE_PERCENT_TORQUE_DATA_ERROR \
-    ) 
-
-#define saej1979_data_engine_percent_torque_data_point_1_iterator(data) \
-    if ( 1 < data->size ) result = data->buffer[1] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_TORQUE_DATA_I(1)
-#define saej1979_data_engine_percent_torque_data_point_2_iterator(data) \
-    if ( 2 < data->size ) result = data->buffer[2] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_TORQUE_DATA_I(2)
-#define saej1979_data_engine_percent_torque_data_point_3_iterator(data) \
-    if ( 3 < data->size ) result = data->buffer[3] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_TORQUE_DATA_I(3)
-#define saej1979_data_engine_percent_torque_data_point_4_iterator(data) \
-    if ( 4 < data->size ) result = data->buffer[4] - 125;
-SAEJ1979_DATA_GENERATE_OBD_REQUEST_ITERATE_TORQUE_DATA_I(4)
 
 #define saej1979_data_maf_sensor_present_1_iterator(data) \
     if ( 0 < data->size ) result = bitRetrieve(data->buffer[0], 0);
@@ -1300,7 +1212,6 @@ char* saej1979_data_data_gen_pid_map_get(void *key) {
     if ( _saej1979_data_data_gen_pid_map == null ) {
         _saej1979_data_data_gen_pid_map = ad_object_hashmap_Ptr_string_new();
         ad_object_hashmap_Ptr_string_set(_saej1979_data_data_gen_pid_map, ad_object_Ptr_new_from(saej1979_data_number_of_dtc), ad_object_string_new_from("01"));
-        ad_object_hashmap_Ptr_string_set(_saej1979_data_data_gen_pid_map, ad_object_Ptr_new_from(saej1979_data_engine_type), ad_object_string_new_from("01"));
         ad_object_hashmap_Ptr_string_set(_saej1979_data_data_gen_pid_map, ad_object_Ptr_new_from(saej1979_data_mil_status), ad_object_string_new_from("01"));
         ad_object_hashmap_Ptr_string_set(_saej1979_data_data_gen_pid_map, ad_object_Ptr_new_from(saej1979_data_status), ad_object_string_new_from("01"));
         ad_object_hashmap_Ptr_string_set(_saej1979_data_data_gen_pid_map, ad_object_Ptr_new_from(saej1979_data_status_this_cycle), ad_object_string_new_from("41"));
@@ -1399,6 +1310,11 @@ char* saej1979_data_data_gen_pid_map_get(void *key) {
 }
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_load", double, saej1979_data_engine_load)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("coolant_temp", int, saej1979_data_engine_coolant_temperature)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_trim_short_term_bank_1", double, saej1979_data_short_term_fuel_trim_bank_1)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_trim_long_term_bank_1", double, saej1979_data_long_term_fuel_trim_bank_1)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_trim_short_term_bank_2", double, saej1979_data_short_term_fuel_trim_bank_2)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_trim_long_term_bank_2", double, saej1979_data_long_term_fuel_trim_bank_2)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_spark_or_compression", bool, saej1979_data_engine_spark_or_compression)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_pressure", int, saej1979_data_fuel_pressure)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_speed", double, saej1979_data_engine_speed)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("vehicle_speed", int, saej1979_data_vehicle_speed)
@@ -1420,6 +1336,7 @@ AD_SAEJ1979_LEGACY_FROM_SIGNAL("commanded_evap_purge", double, saej1979_data_com
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_tank_level_input", double, saej1979_data_fuel_tank_level_input)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("warm_ups_since_ecu_reset", int, saej1979_data_warm_ups_since_ecu_reset)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("distance_since_ecu_reset", int, saej1979_data_distance_since_ecu_reset)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_ethanol_percent", double, saej1979_data_ethanol_fuel_percent)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("evap_system_vapor_pressure", double, saej1979_data_evap_system_vapor_pressure)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("baro_pressure_absolute", int, saej1979_data_baro_pressure_absolute)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("ecu_voltage", double, saej1979_data_ecu_voltage)
@@ -1432,6 +1349,19 @@ AD_SAEJ1979_LEGACY_FROM_SIGNAL("max_oxygen_sensor_voltage", int, saej1979_data_m
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("max_oxygen_sensor_current", int, saej1979_data_max_oxygen_sensor_current)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("max_intake_manifold_absolute_pressure", int, saej1979_data_max_intake_manifold_absolute_pressure)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("absolute_evap_system_vapor_pressure", double, saej1979_data_absolute_evap_system_vapor_pressure)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_rail_absolute_pressure", int, saej1979_data_fuel_rail_absolute_pressure)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("relative_accelerator_pedal_position", double, saej1979_data_relative_accelerator_pedal_position)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("hybrid_battery_pack_remaining_life", double, saej1979_data_hybrid_battery_pack_remaining_life)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("fuel_injection_timing", double, saej1979_data_fuel_injection_timing)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_fuel_rate", double, saej1979_data_engine_fuel_rate)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("driver_demand_engine_percent_torque", int, saej1979_data_driver_demand_engine_percent_torque)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("actual_engine_percent_torque", int, saej1979_data_actual_engine_percent_torque)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_reference_torque", int, saej1979_data_engine_reference_torque)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_percent_torque_data_idle", int, saej1979_data_engine_percent_torque_data_idle)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_percent_torque_data_point_1", int, saej1979_data_engine_percent_torque_data_point_1)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_percent_torque_data_point_2", int, saej1979_data_engine_percent_torque_data_point_2)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_percent_torque_data_point_3", int, saej1979_data_engine_percent_torque_data_point_3)
+AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_percent_torque_data_point_4", int, saej1979_data_engine_percent_torque_data_point_4)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_oil_temperature", int, saej1979_data_engine_oil_temperature)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("engine_friction_percent_torque", int, saej1979_data_engine_friction_percent_torque)
 AD_SAEJ1979_LEGACY_FROM_SIGNAL("cylinder_fuel_rate", double, saej1979_data_cylinder_fuel_rate)

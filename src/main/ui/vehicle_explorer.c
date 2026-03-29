@@ -83,86 +83,25 @@ static void data_freeze_frame() {
         ) && gtk_widget_get_mapped(GTK_WIDGET(widget)) \
     )
 
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_1,
-    double,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%",
-    gui->engine.fuel.trim.longTerm.bank1
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_long_term_fuel_trim_bank_2,
-    double,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%",
-    gui->engine.fuel.trim.longTerm.bank2
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_short_term_fuel_trim_bank_1,
-    double,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%",
-    gui->engine.fuel.trim.shortTerm.bank1
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_short_term_fuel_trim_bank_2,
-    double,
-    SAEJ1979_DATA_FUEL_TRIM_MIN,SAEJ1979_DATA_FUEL_TRIM_MAX,SAEJ1979_DATA_FUEL_TRIM_ERROR,"%.2f %%",
-    gui->engine.fuel.trim.shortTerm.bank2
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_load,
-    int,
-    SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MIN,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MAX,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR,
-    "%d %%", gui->engine.load
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_ethanol_fuel_percent,
-    int,
-    SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MIN,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_MAX,SAEJ1979_DATA_GENERIC_ONE_BYTE_PERCENTAGE_ERROR,
-    "%d %%", gui->engine.fuel.ethanol
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_fuel_injection_timing,
-    double,
-    SAEJ1979_DATA_FUEL_INJECTION_TIMING_MIN,SAEJ1979_DATA_FUEL_INJECTION_TIMING_MAX,SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR,
-    "%.2f °", gui->engine.injectionSystem.injectionTiming
-)
-
-VH_GTK_PROGRESS_BAR_FILL_GSOURCE_SYM(saej1979_data_engine_fuel_rate,
-    double,
-    SAEJ1979_DATA_ENGINE_FUEL_RATE_MIN,SAEJ1979_DATA_ENGINE_FUEL_RATE_MAX,SAEJ1979_DATA_ENGINE_FUEL_RATE_ERROR,
-    "%.2f L/h", gui->engine.fuel.rate
-)
-
-static gboolean saej1979_data_ecu_voltage_gsource(gpointer data) {
-    double *currentECUvoltage = data;
-    if (!isnan(*currentECUvoltage)) {
-        gtk_widget_printf(GTK_WIDGET(gui->engine.ecu.voltage), "%.3f V", *currentECUvoltage);
-    }
-    free(data);
-    return false;
-}
-
-static gboolean saej1979_data_seconds_since_engine_start_gsource(gpointer data) {
-    int *secondsSinceStart = data;
-    if (!isnan(*secondsSinceStart)) {
-        gtk_widget_printf(GTK_WIDGET(gui->engine.secondsSinceStart), "%d secs", *secondsSinceStart);
-    }
-    free(data);
-    return false;
-}
 typedef struct {
     double value;
-    GtkProgressBar * bar;
+    GtkWidget * widget;
     ad_object_vehicle_signal * signal;
 } vh_sensor_refresh_params;
 
-static gboolean vh_refresh_widget_v2_generic(gpointer arg) {
+static gboolean vh_signal_refresh(gpointer arg) {
     vh_sensor_refresh_params * params = (vh_sensor_refresh_params*)arg;
     char * fmt = gprintf("%%.2f %s", params->signal->unit);
-    gtk_progress_bar_fill_from_double(params->bar, params->value, params->signal->rv_min, params->signal->rv_max, NAN, fmt);
+    if ( GTK_IS_PROGRESS_BAR(params->widget) ) {
+        gtk_progress_bar_fill_from_double(GTK_PROGRESS_BAR(params->widget), params->value, params->signal->rv_min, params->signal->rv_max, NAN, fmt);
+    } else {
+        gtk_widget_printf(GTK_WIDGET(params->widget), fmt, params->value);
+    }
     free(fmt);
     free(params);
     return false;
 }
-#define VH_REFRESH_WIDGET_V2(w,signal_path) \
+#define VH_SIGNAL_REFRESH(w,signal_path) \
     if (VH_SHOULD_REFRESH_WIDGET(w)) { \
         ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
         if ( signal == null ) { \
@@ -184,14 +123,9 @@ static gboolean vh_refresh_widget_v2_generic(gpointer arg) {
             vh_sensor_refresh_params * params = (vh_sensor_refresh_params*)malloc(sizeof(vh_sensor_refresh_params)); \
             params->value = result_value; \
             params->signal = signal; \
-            params->bar = w; \
-            g_idle_add(vh_refresh_widget_v2_generic, params); \
+            params->widget = GTK_WIDGET(w); \
+            g_idle_add(vh_signal_refresh, params); \
         } \
-    }
-
-#define VH_REFRESH_WIDGET(w,data_gen,type) \
-    if (VH_SHOULD_REFRESH_WIDGET(w)) { \
-        g_idle_add(data_gen##_gsource, type##dup(data_gen(iface, get_data_frame_selected()))); \
     }
 
 #define VH_REFRESH_GRAPH_GSOURCE_SYM(name) static gboolean name(gpointer data)
@@ -310,26 +244,26 @@ static bool refresh_dynamic_internal() {
 
     int dataFrameNumber = get_data_frame_selected();
 
-    VH_REFRESH_WIDGET_V2(gui->engine.speed,                         "SAEJ1979.engine_speed");
-    VH_REFRESH_WIDGET_V2(gui->engine.vehicleSpeed,                  "SAEJ1979.vehicle_speed");
-    VH_REFRESH_WIDGET_V2(gui->engine.load,                          "SAEJ1979.engine_load");
-    VH_REFRESH_WIDGET_V2(gui->engine.coolant.temperature,           "SAEJ1979.coolant_temp");
-    VH_REFRESH_WIDGET_V2(gui->engine.fuel.pressure,                 "SAEJ1979.fuel_pressure");
-    VH_REFRESH_WIDGET_V2(gui->engine.intakeAir.temperature,         "SAEJ1979.intake_air_temperature");
-    VH_REFRESH_WIDGET_V2(gui->engine.intakeAir.manifoldPressure,    "SAEJ1979.intake_manifold_pressure");
-    VH_REFRESH_WIDGET_V2(gui->engine.intakeAir.mafRate,             "SAEJ1979.maf_air_flow_rate");
-    VH_REFRESH_WIDGET_V2(gui->engine.fuel.level,                    "SAEJ1979.fuel_tank_level_input");
-    VH_REFRESH_WIDGET_V2(gui->engine.fuel.rail.pressure,            "SAEJ1979.frp_relative");
-    VH_REFRESH_WIDGET_V2(gui->engine.injectionSystem.timingAdvance, "SAEJ1979.timing_advance_cycle_1");
-    VH_REFRESH_WIDGET(gui->engine.ecu.voltage,                                saej1979_data_ecu_voltage,                  double);
-    VH_REFRESH_WIDGET(gui->engine.secondsSinceStart,                          saej1979_data_seconds_since_engine_start,   int);
-    VH_REFRESH_WIDGET(gui->engine.fuel.ethanol,                               saej1979_data_ethanol_fuel_percent,         int);
-    VH_REFRESH_WIDGET(gui->engine.fuel.rate,                                  saej1979_data_engine_fuel_rate,             double);
-    VH_REFRESH_WIDGET(gui->engine.fuel.trim.longTerm.bank1,                   saej1979_data_long_term_fuel_trim_bank_1,   double);
-    VH_REFRESH_WIDGET(gui->engine.fuel.trim.longTerm.bank2,                   saej1979_data_long_term_fuel_trim_bank_2,   double);
-    VH_REFRESH_WIDGET(gui->engine.fuel.trim.shortTerm.bank1,                  saej1979_data_short_term_fuel_trim_bank_1,  double);
-    VH_REFRESH_WIDGET(gui->engine.fuel.trim.shortTerm.bank2,                  saej1979_data_short_term_fuel_trim_bank_2,  double);
-    VH_REFRESH_WIDGET(gui->engine.injectionSystem.injectionTiming,            saej1979_data_fuel_injection_timing,        double);
+    VH_SIGNAL_REFRESH(gui->engine.speed,                             "SAEJ1979.engine_speed");
+    VH_SIGNAL_REFRESH(gui->engine.vehicleSpeed,                      "SAEJ1979.vehicle_speed");
+    VH_SIGNAL_REFRESH(gui->engine.load,                              "SAEJ1979.engine_load");
+    VH_SIGNAL_REFRESH(gui->engine.coolant.temperature,               "SAEJ1979.coolant_temp");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.pressure,                     "SAEJ1979.fuel_pressure");
+    VH_SIGNAL_REFRESH(gui->engine.intakeAir.temperature,             "SAEJ1979.intake_air_temperature");
+    VH_SIGNAL_REFRESH(gui->engine.intakeAir.manifoldPressure,        "SAEJ1979.intake_manifold_pressure");
+    VH_SIGNAL_REFRESH(gui->engine.intakeAir.mafRate,                 "SAEJ1979.maf_air_flow_rate");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.level,                        "SAEJ1979.fuel_tank_level_input");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.rail.pressure,                "SAEJ1979.frp_relative");
+    VH_SIGNAL_REFRESH(gui->engine.injectionSystem.timingAdvance,     "SAEJ1979.timing_advance_cycle_1");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.trim.longTerm.bank1,          "SAEJ1979.fuel_trim_long_term_bank_1");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.trim.longTerm.bank2,          "SAEJ1979.fuel_trim_long_term_bank_2");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.trim.shortTerm.bank1,         "SAEJ1979.fuel_trim_short_term_bank_1");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.trim.shortTerm.bank2,         "SAEJ1979.fuel_trim_short_term_bank_2");
+    VH_SIGNAL_REFRESH(gui->engine.ecu.voltage,                       "SAEJ1979.ecu_voltage");
+    VH_SIGNAL_REFRESH(gui->engine.secondsSinceStart,                 "SAEJ1979.seconds_since_engine_start");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.ethanol,                      "SAEJ1979.fuel_ethanol_percent");
+    VH_SIGNAL_REFRESH(gui->engine.fuel.rate,                         "SAEJ1979.engine_fuel_rate");
+    VH_SIGNAL_REFRESH(gui->engine.injectionSystem.injectionTiming,   "SAEJ1979.fuel_injection_timing");
     VH_REFRESH_OX_SENSOR(1) VH_REFRESH_OX_SENSOR(2) VH_REFRESH_OX_SENSOR(3) VH_REFRESH_OX_SENSOR(4)
     VH_REFRESH_OX_SENSOR(5) VH_REFRESH_OX_SENSOR(6) VH_REFRESH_OX_SENSOR(7) VH_REFRESH_OX_SENSOR(8)
 

@@ -98,29 +98,12 @@ ad_list_SAEJ1979_DATA_Test *saej1979_data_tests(final VehicleIFace* iface, int d
  */
 bool saej1979_data_is_pid_supported(final VehicleIFace* iface, final int pid);
 
-#define saej1979_data_engine_type_iterator(data) \
-    if ( 1 < data->size ) \
-        result = bitRetrieve(data->buffer[1],3) ? \
-            SAEJ1979_DATA_ENGINE_TYPE_COMPRESSION_IGNITION : SAEJ1979_DATA_ENGINE_TYPE_SPARK_IGNITION;
-typedef enum {
-    SAEJ1979_DATA_ENGINE_TYPE_SPARK_IGNITION,
-    SAEJ1979_DATA_ENGINE_TYPE_COMPRESSION_IGNITION,
-    SAEJ1979_DATA_ENGINE_TYPE_UNKNOWN
-} SAEJ1979_DATA_ENGINE_TYPES;
 final static const char SAEJ1979_DATA_ENGINE_TYPES_STR[][100] = {
     {"Spark Ignition"}, 
     {"Compression ignition"},
     {"Unknown"}
 };
-/**
- * Get number of dtcs currently flagged in ECU
- */
-int saej1979_data_number_of_dtc(final VehicleIFace* iface, int dataFrameNumber);
 
-/**
- * Spark ignition, Compression ignition (eg Diesel)
- */
-SAEJ1979_DATA_ENGINE_TYPES saej1979_data_engine_type(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * @return malloc'ed string describing current engine type
  */
@@ -157,26 +140,6 @@ char * saej1979_data_fuel_system_status_code_to_str(final int fuel_system_status
 #define SAEJ1979_DATA_FUEL_SYSTEM_STATUS_CLOSED_LOOP_WITH_FEEDBACK_FAULT 16
 #define SAEJ1979_DATA_FUEL_SYSTEM_STATUS_STR_CLOSED_LOOP_WITH_FEEDBACK_FAULT "Closed loop, using at least one oxygen sensor but there is a fault in the feedback system"
 char** saej1979_data_fuel_system_status(final VehicleIFace* iface, int dataFrameNumber);
-
-/**
- * Service 0*06-0*09
- * Fuel trim status
- * Fuel trim balance
- * -100 reduce fuel: too rich, 99 add fuel: too lean
- * @return percent [-100;99.2]
- */
-#define saej1979_data_get_fuel_trim_bank_generic_iterator(data) \
-    if ( 0 < data->size ) \
-        result = ((unsigned char)data->buffer[0])/1.28 - 100; 
-
-#define SAEJ1979_DATA_FUEL_TRIM_MIN -100
-#define SAEJ1979_DATA_FUEL_TRIM_MAX 99.2
-#define SAEJ1979_DATA_FUEL_TRIM_ERROR -101
-double saej1979_data_short_term_fuel_trim_bank_1(final VehicleIFace* iface, int dataFrameNumber);
-double saej1979_data_long_term_fuel_trim_bank_1(final VehicleIFace* iface, int dataFrameNumber);
-double saej1979_data_short_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
-double saej1979_data_long_term_fuel_trim_bank_2(final VehicleIFace* iface, int dataFrameNumber);
-
 /**
  * Service 0*12
  */
@@ -399,12 +362,6 @@ typedef enum {
 char * saej1979_data_fuel_type_as_string(final VehicleIFace* iface, int dataFrameNumber);
 SAEJ1979_DATA_FUEL_TYPE saej1979_data_fuel_type(final VehicleIFace* iface, int dataFrameNumber);
 /**
- * Service 0*52
- * @return %
- */
-double saej1979_data_ethanol_fuel_percent(final VehicleIFace* iface, int dataFrameNumber);
-#define SAEJ1979_DATA_ETHANOL_FUEL_PERCENT_ERROR -1
-/**
  * Service 0*54
  * Pa
  */
@@ -421,71 +378,6 @@ int saej1979_data_relative_evap_system_vapor_pressure(final VehicleIFace* iface,
 #define SAEJ1979_DATA_SECONDARY_OXYGEN_SENSOR_TRIM_MAX 99.2
 int saej1979_data_short_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, int dataFrameNumber, int bank_i);
 int saej1979_data_long_term_secondary_oxygen_sensor_trim(final VehicleIFace* iface, int dataFrameNumber, int bank_i);
-/**
- * Service 0*59
- * kPa
- */
-#define SAEJ1979_DATA_FUEL_RAIL_ABSOLUTE_PRESSURE_MIN 0
-#define SAEJ1979_DATA_FUEL_RAIL_ABSOLUTE_PRESSURE_MAX 655350
-#define SAEJ1979_DATA_FUEL_RAIL_ABSOLUTE_PRESSURE_ERROR -1
-int saej1979_data_fuel_rail_absolute_pressure(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5A
- * @return %
- */
-double saej1979_data_relative_accelerator_pedal_position(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5B
- * @return %
- */
-double saej1979_data_hybrid_battery_pack_remaining_life(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5D
- * °
- */
-#define SAEJ1979_DATA_FUEL_INJECTION_TIMING_MIN -210
-#define SAEJ1979_DATA_FUEL_INJECTION_TIMING_MAX 301.992
-#define SAEJ1979_DATA_FUEL_INJECTION_TIMING_ERROR SAEJ1979_DATA_FUEL_INJECTION_TIMING_MIN-1
-double saej1979_data_fuel_injection_timing(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5E
- * L/h
- */
-#define SAEJ1979_DATA_ENGINE_FUEL_RATE_MIN 0
-#define SAEJ1979_DATA_ENGINE_FUEL_RATE_MAX 3212.75
-#define SAEJ1979_DATA_ENGINE_FUEL_RATE_ERROR -1
-double saej1979_data_engine_fuel_rate(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*5F
- */
-/**
- * Service 0*61 0*62
- * @return %
- */
-#define SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_MIN -125
-#define SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_MAX 130
-#define SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_ERROR SAEJ1979_DATA_ENGINE_TORQUE_PERCENT_MIN-1
-int saej1979_data_actual_engine_percent_torque(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_driver_demand_engine_percent_torque(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*63
- * N.m
- */
-#define SAEJ1979_DATA_ENGINE_REFERENCE_TORQUE_MIN 0
-#define SAEJ1979_DATA_ENGINE_REFERENCE_TORQUE_MAX 65535
-#define SAEJ1979_DATA_ENGINE_REFERENCE_TORQUE_ERROR -1
-int saej1979_data_engine_reference_torque(final VehicleIFace* iface, int dataFrameNumber);
-/**
- * Service 0*64
- */
-#define SAEJ1979_DATA_ENGINE_PERCENT_TORQUE_DATA_ERROR -126
-#define SAEJ1979_DATA_ENGINE_PERCENT_TORQUE_DATA_MIN -125
-#define SAEJ1979_DATA_ENGINE_PERCENT_TORQUE_DATA_MAX 130
-int saej1979_data_engine_percent_torque_data_idle(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_engine_percent_torque_data_point_1(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_engine_percent_torque_data_point_2(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_engine_percent_torque_data_point_3(final VehicleIFace* iface, int dataFrameNumber);
-int saej1979_data_engine_percent_torque_data_point_4(final VehicleIFace* iface, int dataFrameNumber);
 /**
  * Service 0*65
  * @return grams/sec
@@ -791,14 +683,17 @@ int saej1979_data_commanded_diesel_exhaust_fluid_dosing(final VehicleIFace* ifac
 /**
  * Service 0*C4
  */
-
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_engine_spark_or_compression);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_load);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_coolant_temperature);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_short_term_fuel_trim_bank_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_long_term_fuel_trim_bank_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_short_term_fuel_trim_bank_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_long_term_fuel_trim_bank_2);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_pressure);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_speed);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_vehicle_speed);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_number_of_dtc);
-AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_ENGINE_TYPES, saej1979_data_engine_type);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(bool, saej1979_data_mil_status);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_data_status);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(byte*, saej1979_data_status_this_cycle);
@@ -838,7 +733,21 @@ AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_oxygen_sensor_current);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_intake_manifold_absolute_pressure);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_max_air_flow_rate_from_maf_sensor);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(SAEJ1979_DATA_FUEL_TYPE, saej1979_data_fuel_type);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_ethanol_fuel_percent);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_absolute_evap_system_vapor_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_fuel_rail_absolute_pressure);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_relative_accelerator_pedal_position);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_hybrid_battery_pack_remaining_life);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_fuel_injection_timing);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(double, saej1979_data_engine_fuel_rate);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_driver_demand_engine_percent_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_actual_engine_percent_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_reference_torque);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_idle);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_point_1);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_point_2);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_point_3);
+AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_engine_percent_torque_data_point_4);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_relative_evap_system_vapor_pressure);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_1);
 AD_SAEJ1979_LEGACY_FROM_SIGNAL_H(int, saej1979_data_short_term_secondary_oxygen_sensor_trim_2);
