@@ -629,14 +629,14 @@ static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_dat
         double x0 = (double)plot_left;
         if (x_value_min < x_value_max) x0 += (d0->x_value - x_value_min) * x_scale;
 
-        double y0 = (double)plot_bottom - (d0->x_value - s_min) * y_scale;
+        double y0 = (double)plot_bottom - (d0->y_value - s_min) * y_scale;
         cairo_move_to(cr, x0, y0);
 
         for (unsigned i = 1; i < s->data->size; i++) {
             GraphData *d = s->data->list[i];
             double x = (double)plot_left;
             if (x_value_min < x_value_max) x += (d->x_value - x_value_min) * x_scale;
-            double y = (double)plot_bottom - (d->x_value - s_min) * y_scale;
+            double y = (double)plot_bottom - (d->y_value - s_min) * y_scale;
             cairo_line_to(cr, x, y);
         }
         cairo_stroke(cr);
