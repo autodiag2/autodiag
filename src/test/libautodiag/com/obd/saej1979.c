@@ -8,30 +8,35 @@ bool testSAEJ1979(VehicleIFace* iface) {
     }
     {
         for(int i = 0; i < 5; i++) {
-            int result = saej1979_data_vehicle_speed(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
-            tf_test_output("current vehicle speed: %d km/h", result);
-            assert(SAEJ1979_DATA_VEHICLE_SPEED_ERROR != result);
+            double result = NAN;
+            assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.vehicle_speed"), &result, "01", null));
+            tf_test_output("current vehicle speed: %.2f km/h", result);
+            assert(result != NAN);
         }
     }
     {
-        int result = saej1979_data_fuel_pressure(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
-        tf_test_output("engine fuel pressure: %d kPa", result);
-        assert(SAEJ1979_DATA_FUEL_PRESSURE_ERROR != result);
+        double result = NAN;
+        assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.fuel_pressure"), &result, "01", null));
+        tf_test_output("engine fuel pressure: %.2f kPa", result);
+        assert(result != NAN);
     }
     {
-        double result = saej1979_data_maf_air_flow_rate(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
+        double result = NAN;
+        assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.maf_air_flow_rate"), &result, "01", null));
         tf_test_output("current maf air flow rate: %.2f g/s", result);
-        assert(SAEJ1979_DATA_VEHICLE_MAF_AIR_FLOW_RATE_ERROR != result);
+        assert(result != NAN);
     }
     {
-        double result = saej1979_data_throttle_position(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
-        tf_test_output("current throttle position: %.2f", result);
-        assert(SAEJ1979_DATA_THROTTLE_POSITION_ERROR != result);
+        double result = NAN;
+        assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.throttle_position"), &result, "01", null));
+        tf_test_output("current throttle position: %.2f %%", result);
+        assert(result != NAN);
     }
     {
-        int result = saej1979_data_engine_coolant_temperature(iface, AD_SAEJ1979_DATA_FRAME_LIVE);
-        tf_test_output("engine coolant temperature: %d °C", result);
-        assert(result != SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_ERROR);
+        double result = NAN;
+        assert(viface_use_signal(iface, ad_signal_get("SAEJ1979.coolant_temp"), &result, "01", null));
+        tf_test_output("engine coolant temperature: %.2f °C", result);
+        assert(result != NAN);
     }
     {
         bool result = true;

@@ -196,7 +196,18 @@ static void test_mixed_realistic_expressions(void) {
     expect_ok_int(bytes, 6, "s16be(4)", -129);
     expect_ok_double(bytes, 6, "clamp(u16be(1) / 10.0, 0, 1000)", 689.6);
 }
-
+static void test_only_warn() {
+    {
+        uint8 bytes[] = {0x12, 0x34};
+        expect_ok_double(bytes, 2, "1 2", 0x01);
+    }
+    {
+        Buffer * data_buffer = ad_buffer_from_ascii_hex("123456");
+        char * errorReturn = null;
+        double result = ad_expr_reduce_buffer(data_buffer, "1 qdsfdq a", &errorReturn);
+        assert(result == 1.0);
+    }
+}
 static void test_error_invalid_syntax(void) {
     uint8 bytes[] = {0x12, 0x34};
 
@@ -204,7 +215,6 @@ static void test_error_invalid_syntax(void) {
     expect_error_contains(bytes, 2, "(", "unexpected token");
     expect_error_contains(bytes, 2, "(1 + 2", "expected ')'");
     expect_error_contains(bytes, 2, "1 +", "unexpected token");
-    expect_error_contains(bytes, 2, "1 2", "unexpected trailing input");
     expect_error_contains(bytes, 2, "1 ?", "unexpected token");
     expect_error_contains(bytes, 2, "1 ? 2", "expected ':'");
     expect_error_contains(bytes, 2, "foo", "unknown function");
@@ -334,11 +344,6 @@ static void test_parse_fail() {
         ad_expr_reduce_buffer(data_buffer, "1 +/ a", &errorReturn);
         assert(errorReturn != null);
     }
-    {
-        char * errorReturn = null;
-        ad_expr_reduce_buffer(data_buffer, "1 qdsfdq a", &errorReturn);
-        assert(errorReturn != null);
-    }
 }
 
 bool testExpr() {
@@ -347,6 +352,7 @@ bool testExpr() {
     tf_run_case(test_ternary_operator);
     tf_run_case(test_mixed_realistic_expressions);
     tf_run_case(test_error_invalid_syntax);
+    tf_run_case(test_only_warn);
     tf_run_case(test_error_invalid_buffer_access);
     tf_run_case(test_boolean_coercion_patterns);
     tf_run_case(test_basic_arithmetic_literals);
