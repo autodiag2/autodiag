@@ -290,7 +290,7 @@ static double ad_expr_read_u(ad_expr_parser *p, int off, int width, bool little_
     unsigned long long v;
     int i;
     if (off < 0 || width < 1 || p->sz < off + width) {
-        ad_expr_set_error(p, "out of range");
+        ad_expr_set_error(p, "out of range (1)");
         return NAN;
     }
     v = 0;
@@ -482,11 +482,11 @@ static double ad_expr_function_call(ad_expr_parser *p, const char *name, double 
         off = (int)ad_expr_to_i64(args[0]);
         bit_index = (int)ad_expr_to_i64(args[1]);
         if (off < 0 || p->sz <= off) {
-            ad_expr_set_error(p, "out of range");
+            ad_expr_set_error(p, "out of range (2)");
             return NAN;
         }
         if (bit_index < 0 || 8 <= bit_index) {
-            ad_expr_set_error(p, "bit index out of range");
+            ad_expr_set_error(p, "bit index out of range (2)");
             return NAN;
         }
         return (double)((p->bytes[off] >> bit_index) & 1);
@@ -503,15 +503,15 @@ static double ad_expr_function_call(ad_expr_parser *p, const char *name, double 
         start = (int)ad_expr_to_i64(args[1]);
         width = (int)ad_expr_to_i64(args[2]);
         if (off < 0 || p->sz <= off) {
-            ad_expr_set_error(p, "out of range");
+            ad_expr_set_error(p, "out of range (3)");
             return NAN;
         }
         if (start < 0 || 8 <= start) {
-            ad_expr_set_error(p, "bits start out of range");
+            ad_expr_set_error(p, "bits start out of range (3)");
             return NAN;
         }
         if (width < 1 || 8 < width || 8 < start + width) {
-            ad_expr_set_error(p, "bits width out of range");
+            ad_expr_set_error(p, "bits width out of range (3)");
             return NAN;
         }
         return (double)((p->bytes[off] >> start) & ((1U << width) - 1U));
@@ -706,7 +706,7 @@ static double ad_expr_parse_shift_expr(ad_expr_parser *p) {
                 return NAN;
             }
             if (right < 0 || 64 <= right) {
-                ad_expr_set_error(p, "shift count out of range");
+                ad_expr_set_error(p, "shift count out of range (4)");
                 return NAN;
             }
             left = (long long)left << (long long)right;
@@ -719,7 +719,7 @@ static double ad_expr_parse_shift_expr(ad_expr_parser *p) {
                 return NAN;
             }
             if (right < 0 || 64 <= right) {
-                ad_expr_set_error(p, "shift count out of range");
+                ad_expr_set_error(p, "shift count out of range (5)");
                 return NAN;
             }
             left = (long long)left >> (long long)right;
@@ -852,7 +852,7 @@ static double ad_expr_parse_atom(ad_expr_parser *p) {
         idx = (int)p->tok.integer;
         ad_expr_next_token(p);
         if (idx < 0 || p->sz <= idx) {
-            ad_expr_set_error(p, "out of range");
+            ad_expr_set_error(p, "out of range (6)");
             return NAN;
         }
         return (double)p->bytes[idx];
