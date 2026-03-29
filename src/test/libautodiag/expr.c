@@ -345,7 +345,6 @@ static void test_parse_fail() {
         assert(errorReturn != null);
     }
 }
-
 bool testExpr() {
     tf_run_case(test_byte_access);
     tf_run_case(test_logical_and_comparison_ops);
