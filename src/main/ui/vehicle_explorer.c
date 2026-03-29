@@ -441,8 +441,7 @@ static void curve_color(unsigned i, double *r, double *g, double *b) {
 static gboolean graphs_on_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data) {
     pthread_mutex_lock(&graphs_mutex);
 
-    char *graph_title = (char*)user_data;
-    Graph *graph = ad_list_Graph_get_by_title(graphs, graph_title);
+    Graph *graph = (Graph*)user_data;
     assert(graph != null);
 
     GtkAllocation a;
@@ -691,7 +690,8 @@ static GtkWidget *metric_picker_dialog_new(GtkWindow *parent, GtkComboBoxText **
 
     ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
     for(int i = 0; i < signals->size; i ++) {
-        gtk_combo_box_text_append(*out_combo, NULL, signals->keys[i]->data);
+        ad_object_vehicle_signal * signal = signals->values[i];
+        gtk_combo_box_text_append(*out_combo, ad_object_vehicle_signal_get_exec_path(signal), signal->name);
     }
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(combo), 0);
@@ -710,7 +710,7 @@ static void graphs_add_curve_clicked(GtkButton *btn, gpointer unused) {
     GtkWidget *d = metric_picker_dialog_new(GTK_WINDOW(gui->window), &combo);
     int resp = gtk_dialog_run(GTK_DIALOG(d));
     if (resp == GTK_RESPONSE_OK) {
-        const char *sel = gtk_combo_box_text_get_active_text(combo);
+        const char *sel = gtk_combo_box_get_active_id(GTK_COMBO_BOX(combo));
         if (sel) {
             int arg = 0;
             ad_object_vehicle_signal * signal = ad_signal_get((char*)sel);
@@ -816,7 +816,7 @@ static void *graphs_add_daemon(void *arg) {
 
     int active_index = gtk_combo_box_get_active(GTK_COMBO_BOX(gui->graphs.list));
     if (0 <= active_index) {
-        final char *activeGraphPath = gtk_combo_box_text_get_active_text(gui->graphs.list);
+        final char *activeGraphPath = (char*)gtk_combo_box_get_active_id(GTK_COMBO_BOX(gui->graphs.list));
         if (!activeGraphPath) {
             pthread_mutex_unlock(&graphs_mutex);
             return null;
@@ -831,10 +831,11 @@ static void *graphs_add_daemon(void *arg) {
         Graph *graph = graph_new(drawing_area, ad_object_vehicle_signal_get_exec_path(signal));
         ad_list_GraphSeries_append(graph->series, graph_series_new(signal));
         ad_list_Graph_append(graphs, graph);
+        graph->title = strdup("Signal plot");
 
         graph_attach_controls(vbox, graph);
 
-        assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), strdup(activeGraphPath)));
+        assert(0 != g_signal_connect(G_OBJECT(drawing_area), "draw", G_CALLBACK(graphs_on_draw), graph));
 
         final int col = graph_count % 2;
         final int row = graph_count / 2;
@@ -1033,7 +1034,8 @@ static void init(final GtkBuilder *builder) {
 
     ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
     for(int i = 0; i < signals->size; i ++) {
-        gtk_combo_box_text_append(g.graphs.list, NULL, (char*)signals->keys[i]->data);
+        ad_object_vehicle_signal * signal = signals->values[i];
+        gtk_combo_box_text_append(g.graphs.list, ad_object_vehicle_signal_get_exec_path(signal), signal->name);
     }
 
     gui = (vehicleExplorerGui*)malloc(sizeof(vehicleExplorerGui));
