@@ -32,7 +32,8 @@ AD_SIGNAL_REGISTER( \
     param_slug, \
     param_unit, \
     null, \
-    null \
+    null, \
+    "$0=01 | $0=02, $1=01" \
 )
 /**
  * Register all signal possible.

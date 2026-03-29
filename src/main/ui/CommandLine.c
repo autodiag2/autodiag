@@ -21,6 +21,7 @@ static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data
 static void command_line_signal_output_hide() {
     gtk_widget_hide(GTK_WIDGET(gui->signals.output.container));
     gtk_label_set_text(gui->signals.output.value, "");
+    gtk_label_set_text(gui->signals.output.examples, "");
 }
 static void command_line_signal_selection_clear() {
     selectedSignal = null;
@@ -35,6 +36,7 @@ static void command_line_signal_output_show_value(ad_object_vehicle_signal *sign
     const char *unit = signal != null && signal->unit != null ? signal->unit : "";
     snprintf(buf, sizeof(buf), "%.17g%s%s", value, unit[0] != 0 ? " " : "", unit);
     gtk_label_set_text(gui->signals.output.value, buf);
+    gtk_label_set_text(gui->signals.output.examples, signal->examples ? signal->examples : "");
     gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
 }
 static gboolean input_line_keypress(GtkWidget *entry, GdkEventKey  *event, gpointer user_data) {
@@ -234,6 +236,7 @@ static void send_custom_command() {
         if (!ok) {
             gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
             gtk_label_set_text(gui->signals.output.value, "Error");
+            gtk_label_set_text(gui->signals.output.examples, custom_signal->examples ? custom_signal->examples : "");
             return;
         }
 
@@ -376,6 +379,7 @@ static void command_line_signal_button_clicked(GtkButton *button, gpointer userd
     if (!ok) {
         gtk_widget_show(GTK_WIDGET(gui->signals.output.container));
         gtk_label_set_text(gui->signals.output.value, "Error");
+        gtk_label_set_text(gui->signals.output.examples, signal->examples ? signal->examples : "");
         return;
     }
 
@@ -486,7 +490,8 @@ static void init(final GtkBuilder *builder) {
                 .categories = GTK_BOX(gtk_builder_get_object(builder, "command-line-signals-categories")),
                 .output = {
                     .container = GTK_BOX(gtk_builder_get_object(builder, "command-line-signal-return-container")),
-                    .value = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-return"))
+                    .value = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-return")),
+                    .examples = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-examples"))
                 }
             }
         };

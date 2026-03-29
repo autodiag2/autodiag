@@ -31,6 +31,7 @@ typedef struct {
         GtkBox * categories;
         struct {
             GtkLabel * value;
+            GtkLabel * examples;
             GtkBox * container;
         } output;
     } signals;

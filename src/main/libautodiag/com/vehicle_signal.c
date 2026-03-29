@@ -32,6 +32,7 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     signal->slug = null;
     signal->dst_address = null;
     signal->src_address = null;
+    signal->examples = null;
     return signal;
 }
 void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
@@ -46,22 +47,24 @@ void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
         MEMORY_FREE_POINTER(signal->slug);
         ad_buffer_free(signal->dst_address);
         ad_buffer_free(signal->src_address);
+        MEMORY_FREE_POINTER(signal->examples);
         MEMORY_FREE_POINTER(signal);
     }
 }
 ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_signal* to, ad_object_vehicle_signal* from) {
     to->rv_min = from->rv_min;
     to->rv_max = from->rv_max;
-    to->rv_formula = strdup(from->rv_formula);
-    to->input_formula = strdup(from->input_formula);
-    to->name = strdup(from->name);
-    to->description = strdup(from->description);
-    to->category = strdup(from->category);
-    to->standard = strdup(from->standard);
-    to->unit = strdup(from->unit);
-    to->slug = strdup(from->slug);
+    to->rv_formula = from->rv_formula ? strdup(from->rv_formula) : null;
+    to->input_formula = from->input_formula ? strdup(from->input_formula) : null;
+    to->name = from->name ? strdup(from->name) : null;
+    to->description = from->description ? strdup(from->description) : null;
+    to->category = from->category ? strdup(from->category) : null;
+    to->standard = from->standard ? strdup(from->standard) : null;
+    to->unit = from->unit ? strdup(from->unit) : null;
+    to->slug = from->slug ? strdup(from->slug) : null;
     to->dst_address = ad_buffer_copy(from->dst_address);
     to->src_address = ad_buffer_copy(from->src_address);
+    to->examples = from->examples ? strdup(from->examples) : null;
     return to;
 }
 char * ad_object_vehicle_signal_get_exec_path(ad_object_vehicle_signal *signal) {

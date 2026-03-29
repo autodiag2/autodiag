@@ -59,6 +59,10 @@ AD_OBJECT_H(vehicle_signal,
      * Destination address of the signal (ecu)
      */
     Buffer * dst_address;
+    /**
+     * Examples for the signal.
+     */
+    char * examples;
 )
 
 AD_HASHMAP_H(string, vehicle_signal)
@@ -89,7 +93,8 @@ void ad_signal_put(ad_object_vehicle_signal * signal);
     param_slug, \
     param_unit, \
     param_src_address, \
-    param_dst_address \
+    param_dst_address, \
+    param_examples \
 ) { \
     ad_object_vehicle_signal *signal = ad_object_vehicle_signal_new(); \
     signal->rv_min = (param_rv_min); \
@@ -104,6 +109,7 @@ void ad_signal_put(ad_object_vehicle_signal * signal);
     signal->unit = ((param_unit) != null ? strdup(param_unit) : null); \
     signal->src_address = param_src_address == null ? null : ad_buffer_from_ascii_hex(param_src_address); \
     signal->dst_address = param_dst_address == null ? null : ad_buffer_from_ascii_hex(param_dst_address); \
+    signal->examples = param_examples == null ? null : strdup(param_examples); \
     ad_signal_put(signal); \
 }
 void ad_signal_foreach(void (*cb)(ad_object_vehicle_signal *signal, void *userdata), void *userdata);

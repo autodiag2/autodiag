@@ -165,7 +165,9 @@ void ad_buffer_memcpy(Buffer * buffer, void * src, int sz) {
     buffer->size = sz;
 }
 Buffer * ad_buffer_copy(Buffer* buffer) {
-    assert(buffer != null);
+    if ( buffer == null ) {
+        return null;
+    }
     Buffer * b = ad_buffer_new();
     ad_buffer_ensure_capacity(b,buffer->size);
     b->size = buffer->size;
