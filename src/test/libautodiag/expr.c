@@ -345,7 +345,16 @@ static void test_parse_fail() {
         assert(errorReturn != null);
     }
 }
+static void test_particular_case() {
+    Buffer * data = ad_buffer_from_ascii_hex("41070000000000");
+    {
+        char * errorReturn = null;
+        double result = ad_expr_reduce_buffer(data, "$2 / 1.28 - 100", &errorReturn);
+        assert(result != NAN && result == -100.0);
+    }
+}
 bool testExpr() {
+    tf_run_case(test_particular_case);
     tf_run_case(test_byte_access);
     tf_run_case(test_logical_and_comparison_ops);
     tf_run_case(test_ternary_operator);

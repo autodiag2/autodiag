@@ -100,12 +100,13 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
         if (0 < data->size) {
             char *parsingResult = null;
             double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
-            if (isnan(result) || parsingResult != null) {
+            if ( isnan(result) ) {
                 log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
-                free(parsingResult);
+                MEMORY_FREE_POINTER(parsingResult);
                 iface->unlock(iface);
                 return false;
             }
+            MEMORY_FREE_POINTER(parsingResult); 
             log_debug("signal response : %.2f", result);
             if (result_rv != null) {
                 *result_rv = result;
