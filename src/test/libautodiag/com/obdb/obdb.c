@@ -2,12 +2,12 @@
 #include "libautodiag/com/obdb/obdb.h"
 
 static Buffer *(*parent_response)(SimECUGenerator *, Buffer *) = null;
-
+static int dtc_count = 2;
 static Buffer *response_wrapper(SimECUGenerator *generator, Buffer *binRequest) {
     assert(parent_response != null);
     if ( binRequest->buffer[0] == 0x01 ) {
         if ( binRequest->buffer[1] == 0x01 ) {
-            return ad_buffer_from_ascii_hex("410101000000");
+            return ad_buffer_from_ascii_hex(gprintf("4101%02hhX000000", dtc_count));
         }
     }
     return parent_response(generator, binRequest);
@@ -22,10 +22,12 @@ void test_real_life() {
     assert(ad_obdb_fetch_signals("SAEJ1979"));
     ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.DTC_CNT");
     assert(signal != null);
-    double result = NAN;
-    assert(viface_use_signal(iface, signal, &result, null));
-    printf("result = %.2f\n", result);
-    assert(result == 2.0);
+    {
+        double result = NAN;
+        dtc_count = 2;
+        assert(viface_use_signal(iface, signal, &result, null));
+        assert(result == 2.0);
+    }
 }
 bool testOBDB() {
     assert(ad_obdb_fetch_signals("SAEJ1979"));

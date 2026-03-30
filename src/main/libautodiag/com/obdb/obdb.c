@@ -234,18 +234,52 @@ static char *ad_obdb_build_input_formula(cJSON *cmd_obj) {
     return expr;
 }
 
+/**
+ * bix as fmt:
+ * index: 01234567  89101112131415
+ *        |
+ * byte:  A7A6...A0 B7B6
+ * bit_off_bix = 0
+ * 
+ * we want to convert the bix to index in autodiag where: (only the remaining)
+ * index: 01234567  89101112131415
+ *               |
+ * byte:  A0A1...A7 B7B6
+ * bit_off_ad = 7
+ *
+ * now with bix = 1, len = 1
+ * bix as fmt:
+ * index: 01234567  89101112131415
+ *         |
+ * byte: A7A6...A0 B7B6
+ * bit_off_bix = 1
+ * result = 1
+ * 
+ * we want to convert the bix to index in autodiag where: (only the remaining)
+ * index: 01234567  89101112131415
+ *              |
+ * byte:  A0A1...A7 B7B6
+ * bit_off_ad = 7
+ */
+/**
+ * 7  6  5  4  3  2  1  0  15 14 = ad index  (-)
+ * 0  1  2  3  4  5  6  7  8  9  = bix index (+)
+ * A7 A6 A5 A4 A3 A2 A1 A0 B7 B6
+ *    +  +                        1 + 2
+ *    -  -                        5 + 2 soit 8 + 1 - len = 5
+ *       +  +                     2 + 2
+ *       -  -                     8 - 2 = 6 - 2 = 4
+ */
 static char *ad_obdb_base_extract_expr(int bix, int len, int sign) {
-    int byte_off;
-    int bit_off;
+    int byte_off = bix / 8;
+    int bit_off_bix = bix % 8;
+    int bit_off_ad = 8 - bit_off_bix - len;
 
-    if (len <= 0) {
+    if ( len <= 0 ) {
         return null;
     }
 
-    byte_off = bix / 8;
-    bit_off = bix % 8;
-
-    if (bit_off == 0) {
+    if (bit_off_bix == 0) {
         if (sign && len == 8) return ad_obdb_strdup_printf("s8(%d)", byte_off);
         if (sign && len == 16) return ad_obdb_strdup_printf("s16be(%d)", byte_off);
         if (sign && len == 32) return ad_obdb_strdup_printf("s32be(%d)", byte_off);
@@ -256,14 +290,15 @@ static char *ad_obdb_base_extract_expr(int bix, int len, int sign) {
         if (!sign && len == 64) return ad_obdb_strdup_printf("u64be(%d)", byte_off);
     }
 
-    if (len == 1) {
-        return ad_obdb_strdup_printf("bit(%d,%d)", byte_off, bit_off);
+    if ( 8 < len ) {
+        log_err("multi byte overlapping not supported");
+        return null;
     }
 
-    return ad_obdb_strdup_printf("bits(%d,%d,%d)", byte_off, bit_off, len);
+    return ad_obdb_strdup_printf("bits(%d,%d,%d)", byte_off, bit_off_ad, len);
 }
 
-static char *ad_obdb_build_rv_formula(cJSON *fmt) {
+static char *ad_obdb_build_rv_formula(cJSON *fmt, char * input_cmd) {
     int bix;
     int len;
     int sign;
@@ -290,6 +325,9 @@ static char *ad_obdb_build_rv_formula(cJSON *fmt) {
     mul = ad_obdb_json_get_number_or_default(fmt, "mul", 1.0);
     div = ad_obdb_json_get_number_or_default(fmt, "div", 1.0);
 
+    Buffer * input_buffer = ad_buffer_from_ascii_hex(input_cmd);
+    bix += input_buffer->size * 8;
+    ad_buffer_free(input_buffer);
     expr = ad_obdb_base_extract_expr(bix, len, sign);
     if (expr == null) {
         return null;
@@ -361,7 +399,7 @@ static int ad_obdb_register_signal(const char *registry,
     rv_min = fmt != null ? ad_obdb_json_get_number_or_default(fmt, "min", 0.0) : 0.0;
     rv_max = fmt != null ? ad_obdb_json_get_number_or_default(fmt, "max", 0.0) : 0.0;
 
-    rv_formula = ad_obdb_build_rv_formula(fmt);
+    rv_formula = ad_obdb_build_rv_formula(fmt, (char*)input_formula);
     category = ad_obdb_category_from_path(path);
     standard = ad_obdb_standard_from_registry(registry);
     slug = ad_obdb_slug_from_id_or_name(id, name);
