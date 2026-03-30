@@ -18,6 +18,23 @@ void ad_object_vehicle_signal_register_all() {
     ad_saej1979_data_register_signals();
 }
 
+void ad_object_vehicle_signal_dump(ad_object_vehicle_signal * signal) {
+    log_debug("signal %s {", ad_object_vehicle_signal_get_exec_path(signal));
+    log_debug("     name: %s", signal->name);
+    log_debug("     category: %s", signal->category);
+    log_debug("     description: %s", signal->description);
+    log_debug("     rv_formula: %s", signal->rv_formula);
+    log_debug("     rv_min: %.2f", signal->rv_min);
+    log_debug("     rv_max: %.2f", signal->rv_max);
+    log_debug("     input_formula: %s", signal->input_formula);
+    log_debug("     dst_address: %s", ad_buffer_to_hex_string(signal->dst_address));
+    log_debug("     src_address: %s", ad_buffer_to_hex_string(signal->src_address));
+    log_debug("     examples: %s", signal->examples);
+    log_debug("     slug: %s", signal->slug);
+    log_debug("     standard: %s", signal->standard);
+    log_debug("     unit: %s", signal->unit);
+    log_debug("}");
+}
 ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     ad_object_vehicle_signal * signal = (ad_object_vehicle_signal*)malloc(sizeof(ad_object_vehicle_signal));
     signal->rv_min = 0;

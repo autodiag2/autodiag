@@ -227,9 +227,7 @@ static char *ad_obdb_build_input_formula(cJSON *cmd_obj) {
         if (cJSON_IsString(child) == 0 || child->valuestring == null) {
             continue;
         }
-        ad_obdb_str_append(&expr, "${");
         ad_obdb_str_append(&expr, child->string);
-        ad_obdb_str_append(&expr, "}");
         ad_obdb_str_append(&expr, child->valuestring);
     }
 

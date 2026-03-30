@@ -76,6 +76,7 @@ double ad_object_vehicle_signal_to_percent(ad_object_vehicle_signal *signal, dou
  * Retrieve a signal from the registry.
  */
 ad_object_vehicle_signal * ad_signal_get(char * signal_location);
+void ad_object_vehicle_signal_dump(ad_object_vehicle_signal * signal);
 /**
  * Register a new signal in the registry.
  */
