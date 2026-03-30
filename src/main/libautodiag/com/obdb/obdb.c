@@ -330,8 +330,7 @@ static char *ad_obdb_build_rv_formula(cJSON *fmt) {
 }
 
 static int ad_obdb_register_signal(const char *registry,
-                                   const char *hdr,
-                                   const char *rax,
+                                   const char *target_ecu,
                                    const char *input_formula,
                                    cJSON *signal_json) {
     cJSON *fmt;
@@ -379,8 +378,8 @@ static int ad_obdb_register_signal(const char *registry,
         standard,
         slug,
         unit,
-        hdr,
-        rax,
+        null,
+        target_ecu,
         examples
     );
 
@@ -445,14 +444,13 @@ bool ad_obdb_fetch_signals(char *registry) {
         }
 
         hdr = ad_obdb_json_get_string(command, "hdr");
-        rax = ad_obdb_json_get_string(command, "rax");
         cmd_obj = cJSON_GetObjectItemCaseSensitive(command, "cmd");
         signals = cJSON_GetObjectItemCaseSensitive(command, "signals");
         input_formula = ad_obdb_build_input_formula(cmd_obj);
 
         if (cJSON_IsArray(signals)) {
             cJSON_ArrayForEach(signal, signals) {
-                registered += ad_obdb_register_signal(registry, hdr, rax, input_formula, signal);
+                registered += ad_obdb_register_signal(registry, hdr, input_formula, signal);
             }
         }
 
