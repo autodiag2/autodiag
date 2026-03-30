@@ -155,7 +155,7 @@ static char *ad_obdb_slug_from_id_or_name(const char *id, const char *name) {
     for (i = 0; src[i] != 0; i++) {
         unsigned char ch = (unsigned char) src[i];
         if (isalnum(ch)) {
-            out[j++] = (char) tolower(ch);
+            out[j++] = (char) ch;
         } else {
             if (j == 0 || out[j - 1] == '_') {
                 continue;
@@ -411,7 +411,6 @@ bool ad_obdb_fetch_signals(char *registry) {
 
     int status = 0;
     json_text = ad_http_get(url, &status);
-    printf("json_text = %s\n", json_text);
     free(url);
     if (json_text == null) {
         return false;
