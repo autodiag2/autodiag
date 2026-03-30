@@ -13,4 +13,5 @@ bool testCycle() {
     viface_clear_data(iface);
     viface_recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
+    return true;
 }
