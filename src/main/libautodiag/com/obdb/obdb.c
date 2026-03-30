@@ -193,10 +193,7 @@ static char *ad_obdb_standard_from_registry(const char *registry) {
     if (registry == null) {
         return ad_obdb_strdup("OBDb");
     }
-    if (strstr(registry, "SAEJ1979") != null) {
-        return ad_obdb_strdup("SAEJ1979");
-    }
-    return ad_obdb_strdup("OBDb");
+    return gprintf("OBDb/%s", registry);
 }
 
 static const char *ad_obdb_json_get_string(cJSON *obj, const char *key) {
@@ -403,7 +400,7 @@ static int ad_obdb_register_signal(const char *registry,
     category = ad_obdb_category_from_path(path);
     standard = ad_obdb_standard_from_registry(registry);
     slug = ad_obdb_slug_from_id_or_name(id, name);
-    examples = ad_obdb_json_to_compact_string(signal_json);
+    examples = null;
 
     AD_SIGNAL_REGISTER(
         name,
