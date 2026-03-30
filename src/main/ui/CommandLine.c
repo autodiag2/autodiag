@@ -1,4 +1,5 @@
 #include "ui/CommandLine.h"
+#include "libautodiag/com/obdb/obdb.h"
 
 #include <limits.h>
 
@@ -7,6 +8,7 @@ static ad_list_ad_object_string * commandHistory = null;
 static int commandHistoryIndex = -1;
 static gdouble output_scrollbar_current_upper = -1;
 static ad_object_vehicle_signal *selectedSignal = null;
+static void command_line_signals_rebuild();
 
 static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
@@ -356,7 +358,14 @@ static void command_line_signal_fill(ad_object_vehicle_signal *signal) {
     gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
     gtk_editable_set_position(GTK_EDITABLE(gui->customCommandInput), -1);
 }
-
+static void obdb_fetch_clicked(GtkButton *button, gpointer userdata) {
+    if ( ad_obdb_fetch_signals((char*)gtk_entry_get_text(gui->signals.obdb.registry)) ) {
+        command_line_signals_rebuild();
+        gtk_label_set_text(gui->signals.obdb.status, "fetch success");
+    } else {
+        gtk_label_set_text(gui->signals.obdb.status, "fetch error");
+    }
+}
 static void command_line_signal_button_clicked(GtkButton *button, gpointer userdata) {
     ad_object_vehicle_signal *signal = (ad_object_vehicle_signal*)userdata;
     double value = 0.0;
@@ -492,11 +501,17 @@ static void init(final GtkBuilder *builder) {
                     .container = GTK_BOX(gtk_builder_get_object(builder, "command-line-signal-return-container")),
                     .value = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-return")),
                     .examples = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signal-examples"))
+                },
+                .obdb = {
+                    .registry = GTK_ENTRY(gtk_builder_get_object(builder, "command-line-signals-obdb-registry")),
+                    .fetch = GTK_BUTTON(gtk_builder_get_object(builder, "command-line-signals-obdb-fetch")),
+                    .status = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signals-obdb-error"))
                 }
             }
         };
         *gui = g;
         command_line_signal_output_hide();
+        g_signal_connect(G_OBJECT(gui->signals.obdb.fetch), "clicked", G_CALLBACK(obdb_fetch_clicked), null);
         assert(0 != g_signal_connect(G_OBJECT(gui->signals.search), "changed", G_CALLBACK(command_line_signals_search_changed), null));
         command_line_signals_rebuild();
         gtk_text_view_set_buffer(gui->output.frame, gui->output.text);

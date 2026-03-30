@@ -41,7 +41,7 @@ endif
 
 CFLAGS_DEBUG            = -ggdb
 CGLAGS_GUI              = `pkg-config --cflags gtk+-3.0`
-CFLAGS                  = -DMG_TLS=MG_TLS_BUILTIN -I dependencies/sqlite3/ -I dependencies/mongoose/ -I include/main/ -I dependencies/cJSON/ -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
+CFLAGS                  = -DMG_TLS=MG_TLS_BUILTIN -I dependencies/sqlite3/ -I dependencies/mongoose/ -I include/main/ -I dependencies/cJSON/ -DENABLE_LOCALES=true -fms-extensions -Wno-microsoft-anon-tag -Wno-unused-command-line-argument -fPIC $(CFLAGS_DEBUG)
 CFLAGS_LIBS             = -lpthread -lm
 CFLAGS_LIBS_GUI         = `pkg-config --libs gtk+-3.0`
 COMPILE_NEED_OBJS       = false

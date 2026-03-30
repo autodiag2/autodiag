@@ -34,6 +34,11 @@ typedef struct {
             GtkLabel * examples;
             GtkBox * container;
         } output;
+        struct {
+            GtkEntry * registry;
+            GtkButton * fetch;
+            GtkLabel * status;
+        } obdb;
     } signals;
 } CommandLineGui;
 

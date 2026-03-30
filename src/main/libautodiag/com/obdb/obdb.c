@@ -451,18 +451,28 @@ bool ad_obdb_fetch_signals(char *registry) {
     json_text = ad_http_get(url, &status);
     free(url);
     if (json_text == null) {
+        log_err("no text returned");
         return false;
     }
 
     root = cJSON_Parse(json_text);
-    free(json_text);
     if (root == null) {
+        const char *err = cJSON_GetErrorPtr();
+        log_info("json_text:\n%s\n", json_text);
+        if (err != null) {
+            log_err("json parse error near: %.80s", err);
+        } else {
+            log_err("json parse error");
+        }
+        free(json_text);
         return false;
     }
+    free(json_text);
 
     commands = cJSON_GetObjectItemCaseSensitive(root, "commands");
     if (cJSON_IsArray(commands) == 0) {
         cJSON_Delete(root);
+        log_err("commands not an array");
         return false;
     }
 
@@ -495,5 +505,6 @@ bool ad_obdb_fetch_signals(char *registry) {
     }
 
     cJSON_Delete(root);
+    log_info("registered %d signals", registered);
     return 0 < registered;
 }
