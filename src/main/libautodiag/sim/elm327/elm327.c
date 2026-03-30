@@ -661,12 +661,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             SIM_ELM327_SIGNAL_NVM_CHANGE();
         }
     } else if AT_PARSE("m") {
-        if ( sscanf(AT_DATA_START,"%d", &elm327->isMemoryEnabled) == 1 ) {
-            if ( ! elm327->isMemoryEnabled ) {
+        int enabled = 0;
+        if ( sscanf(AT_DATA_START,"%d", &enabled) == 1 ) {
+            if ( ! enabled ) {
                 sim_elm327_non_volatile_wipe_out();
             }
             SIM_ELM327_REPLY_OK();                    
         }
+        elm327->isMemoryEnabled = enabled != 0;
     } else if AT_PARSE("ta") {
         sscanf(AT_DATA_START, "%02hhX", &elm327->testerAddress);
         SIM_ELM327_REPLY_OK();                    

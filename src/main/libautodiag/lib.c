@@ -3,7 +3,11 @@
 GENERATE_TYPE_DUP(int)
 GENERATE_TYPE_DUP(double)
 GENERATE_TYPE_DUP(byte)
-
+bool * booldup(bool i) {
+    bool* v = (bool*)malloc(sizeof(bool));
+    *v = i;
+    return v;
+}
 char * gprintf(char * format, ...) {
     char *result;
     va_list ap;

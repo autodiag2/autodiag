@@ -43,7 +43,7 @@ static bool ascii_is_alphanum(char c) {
 GENERATE_TYPE_DUP_HEADER(int);
 GENERATE_TYPE_DUP_HEADER(double);
 GENERATE_TYPE_DUP_HEADER(byte);
-#define booldup(...) intdup(__VA_ARGS__)
+bool * booldup(bool i);
 
 #define MEMORY_FREE_POINTER(ptr) \
     if ( ptr != null ) { \
