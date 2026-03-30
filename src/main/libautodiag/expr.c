@@ -10,12 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#ifndef NAN
-#define NAN (0.0/0.0)
-#endif
-
-typedef uint8_t uint8;
+#include <locale.h>
+#include <ctype.h>
+#include "libautodiag/math.h"
 
 typedef struct ad_expr_parser ad_expr_parser;
 
@@ -59,7 +56,7 @@ typedef struct {
 } ad_expr_token;
 
 struct ad_expr_parser {
-    const uint8 *bytes;
+    const byte *bytes;
     int sz;
     const char *expr;
     const char *cur;
@@ -115,6 +112,72 @@ static bool ad_expr_is_name_continue(int c) {
     return isalnum(c) || c == '_';
 }
 
+static double ad_expr_strtod(const char *s, char **endptr) {
+    const char *p = s;
+
+    while (isspace((unsigned char)*p)) p++;
+
+    int sign = 1;
+    if (*p == '+') p++;
+    else if (*p == '-') { sign = -1; p++; }
+
+    double int_part = 0.0;
+    int any = 0;
+
+    while (*p >= '0' && *p <= '9') {
+        int_part = int_part * 10.0 + (*p - '0');
+        p++;
+        any = 1;
+    }
+
+    double frac_part = 0.0;
+    double frac_div = 1.0;
+
+    if (*p == '.') {
+        p++;
+        while (*p >= '0' && *p <= '9') {
+            frac_part = frac_part * 10.0 + (*p - '0');
+            frac_div *= 10.0;
+            p++;
+            any = 1;
+        }
+    }
+
+    double value = int_part + frac_part / frac_div;
+
+    if ((*p == 'e' || *p == 'E') && any) {
+        const char *exp_start = p;
+        p++;
+
+        int exp_sign = 1;
+        if (*p == '+') p++;
+        else if (*p == '-') { exp_sign = -1; p++; }
+
+        int exp_val = 0;
+        int exp_any = 0;
+
+        while (*p >= '0' && *p <= '9') {
+            exp_val = exp_val * 10 + (*p - '0');
+            p++;
+            exp_any = 1;
+        }
+
+        if (exp_any) {
+            value *= pow(10.0, exp_sign * exp_val);
+        } else {
+            p = exp_start;
+        }
+    }
+
+    if (!any) {
+        if (endptr) *endptr = (char*)s;
+        return 0.0;
+    }
+
+    if (endptr) *endptr = (char*)p;
+
+    return sign * value;
+}
 static void ad_expr_next_token(ad_expr_parser *p) {
     const char *s;
     char *endptr;
@@ -178,6 +241,7 @@ static void ad_expr_next_token(ad_expr_parser *p) {
         return;
     }
 
+    log_debug("found operator : %c", *s);
     switch (*s) {
         case '(': p->tok.type = AD_EXPR_TOKEN_LPAREN; p->cur++; return;
         case ')': p->tok.type = AD_EXPR_TOKEN_RPAREN; p->cur++; return;
@@ -253,7 +317,7 @@ static void ad_expr_next_token(ad_expr_parser *p) {
             return;
         }
         p->tok.type = AD_EXPR_TOKEN_NUMBER;
-        p->tok.number = strtod(s, &endptr);
+        p->tok.number = ad_expr_strtod(s, &endptr);
         p->cur = endptr;
         return;
     }
@@ -802,7 +866,9 @@ static double ad_expr_parse_factor(ad_expr_parser *p) {
 }
 
 static double ad_expr_parse_power(ad_expr_parser *p) {
-    return ad_expr_parse_primary(p);
+    double v = ad_expr_parse_primary(p);
+    log_debug("v=%.2f", v);
+    return v;
 }
 
 static double ad_expr_parse_call_arguments(ad_expr_parser *p, const char *name) {
@@ -897,7 +963,7 @@ static double ad_expr_parse_atom(ad_expr_parser *p) {
     return NAN;
 }
 
-double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **errorReturn) {
+double ad_expr_reduce(const byte *bytes, int sz, const char *expr, char **errorReturn) {
     ad_expr_parser p;
     double v;
 

@@ -10,6 +10,10 @@
 #   define max(a,b) (a < b ? b : a)
 #endif
 
+#ifndef NAN
+#   define NAN (0.0/0.0)
+#endif
+
 /**
  * Convert a value on arbitrary given interval into a value [0;1]
  */
