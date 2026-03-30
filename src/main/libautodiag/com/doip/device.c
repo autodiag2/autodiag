@@ -217,7 +217,7 @@ bool doip_node_queue_is_full(final ad_object_DoIPDevice * device) {
         default: {
             log_msg(LOG_ERROR, "Received 0x%04X instead of 0x%04X aborting the configure", response->payload_type, DOIP_ENTITY_STATUS_RESPONSE);
             ad_object_DoIPMessage_free(response);
-        } return bool_unset;
+        } return false;
     }
 }
 void doip_close(final ad_object_DoIPDevice * device) {

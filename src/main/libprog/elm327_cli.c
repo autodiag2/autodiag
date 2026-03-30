@@ -107,10 +107,10 @@ int sim_elm327_cli_main(int argc, char **argv) {
                 return 0;
             } else if ( sscanf(arg,"A%1x", &p) == 1 ) {
                 proto = (ELM327_PROTO *)intdup(p);
-                proto_is_auto = intdup(true);
+                proto_is_auto = booldup(true);
             } else if ( sscanf(arg,"%1x", &p) == 1 ) {
                 proto = (ELM327_PROTO *)intdup(p);
-                proto_is_auto = intdup(false);
+                proto_is_auto = booldup(false);
             } else {
                 display_help();
                 return 1;

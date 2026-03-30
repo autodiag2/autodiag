@@ -5,6 +5,7 @@
 #define __AD_LANG_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 #define final
 #define null NULL
