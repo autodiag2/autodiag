@@ -38,6 +38,7 @@ typedef struct {
             GtkEntry * registry;
             GtkButton * fetch;
             GtkLabel * status;
+            GtkComboBoxText * choices;
         } obdb;
     } signals;
 } CommandLineGui;

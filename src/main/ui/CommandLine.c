@@ -10,6 +10,51 @@ static gdouble output_scrollbar_current_upper = -1;
 static ad_object_vehicle_signal *selectedSignal = null;
 static void command_line_signals_rebuild();
 
+static gboolean choices_changed_gsource(gpointer data) {
+    gtk_entry_set_text(gui->signals.obdb.registry, gtk_combo_box_text_get_active_text(gui->signals.obdb.choices));
+    return false;
+}
+static void * choices_changed_daemon(void * arg) {
+    g_idle_add(choices_changed_gsource, null);
+    return null;
+}
+static void choices_changed(GtkComboBoxText *combo, gpointer user_data) {
+    pthread_t t;
+    pthread_create(&t, null, choices_changed_daemon, null);
+}
+static bool obdb_file_reader(Buffer *line, void *data) {
+    GtkComboBoxText *cb = GTK_COMBO_BOX_TEXT(data);
+    char * eol = strstr((char*)line->buffer, "\n");
+    if ( eol ) {
+        *eol = '\0';
+    }
+    char *text = strdup((char*)line->buffer);
+
+    if (text != null && text[0] != 0) {
+        gtk_combo_box_text_append_text(cb, text);
+    }
+
+    free(text);
+    return true;
+}
+
+static void obdb_fill_choices(GtkComboBoxText *cb) {
+    bool result;
+
+    gtk_combo_box_text_remove_all(cb);
+
+    result = file_read_lines(
+        installation_folder_resolve("data/obdb-repositories.txt"),
+        obdb_file_reader,
+        cb
+    );
+
+    if (result) {
+        gtk_widget_printf(GTK_WIDGET(gui->signals.obdb.status), "registries loaded");
+    } else {
+        gtk_widget_printf(GTK_WIDGET(gui->signals.obdb.status), "failed to load registries");
+    }
+}
 static void output_scrollbar_size_changed(GtkAdjustment *adj, gpointer user_data) {
     if ( config.commandLine.autoScrollEnabled ) {
         gdouble upper = gtk_adjustment_get_upper(adj);
@@ -358,13 +403,23 @@ static void command_line_signal_fill(ad_object_vehicle_signal *signal) {
     gtk_widget_grab_focus(GTK_WIDGET(gui->customCommandInput));
     gtk_editable_set_position(GTK_EDITABLE(gui->customCommandInput), -1);
 }
-static void obdb_fetch_clicked(GtkButton *button, gpointer userdata) {
-    if ( ad_obdb_fetch_signals((char*)gtk_entry_get_text(gui->signals.obdb.registry)) ) {
+static gboolean obdb_fetch_clicked_gsource(gpointer data) {
+    if ( *((bool*)data) ) {
         command_line_signals_rebuild();
         gtk_label_set_text(gui->signals.obdb.status, "fetch success");
     } else {
         gtk_label_set_text(gui->signals.obdb.status, "fetch error");
     }
+    return false;
+}
+static void * obdb_fetch_daemon(void *arg) {
+    bool result = ad_obdb_fetch_signals((char*)arg);
+    g_idle_add(obdb_fetch_clicked_gsource, booldup(result));
+    return null;
+}
+static void obdb_fetch_clicked(GtkButton *button, gpointer userdata) {
+    pthread_t t;
+    pthread_create(&t, null, obdb_fetch_daemon, (char*)gtk_entry_get_text(gui->signals.obdb.registry));
 }
 static void command_line_signal_button_clicked(GtkButton *button, gpointer userdata) {
     ad_object_vehicle_signal *signal = (ad_object_vehicle_signal*)userdata;
@@ -505,12 +560,16 @@ static void init(final GtkBuilder *builder) {
                 .obdb = {
                     .registry = GTK_ENTRY(gtk_builder_get_object(builder, "command-line-signals-obdb-registry")),
                     .fetch = GTK_BUTTON(gtk_builder_get_object(builder, "command-line-signals-obdb-fetch")),
-                    .status = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signals-obdb-error"))
+                    .status = GTK_LABEL(gtk_builder_get_object(builder, "command-line-signals-obdb-error")),
+                    .choices = GTK_COMBO_BOX_TEXT(gtk_builder_get_object(builder, "command-line-signals-choices"))
                 }
             }
         };
         *gui = g;
         command_line_signal_output_hide();
+        obdb_fill_choices(gui->signals.obdb.choices);
+        assert(0 != g_signal_connect(gui->signals.obdb.choices, "changed", G_CALLBACK(choices_changed), null));
+
         g_signal_connect(G_OBJECT(gui->signals.obdb.fetch), "clicked", G_CALLBACK(obdb_fetch_clicked), null);
         assert(0 != g_signal_connect(G_OBJECT(gui->signals.search), "changed", G_CALLBACK(command_line_signals_search_changed), null));
         command_line_signals_rebuild();
