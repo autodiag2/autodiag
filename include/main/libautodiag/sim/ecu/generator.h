@@ -43,11 +43,19 @@ typedef struct SimECUGenerator {
     /**
      * Wraps to have the dtc count.
      */
-    static Buffer * (*response_saej1979_dtcs_wrapper)(struct SimECUGenerator *generator, int service_id);
+    Buffer * (*response_saej1979_dtcs_wrapper)(struct SimECUGenerator *generator, int service_id);
     /**
      * Raw byte of DTCs
      */
-    static Buffer * (*response_saej1979_dtcs)(struct SimECUGenerator *generator, int service_id);
+    Buffer * (*response_saej1979_dtcs)(struct SimECUGenerator *generator, int service_id);
+    /**
+     * Generalize over flavours of SAEJ1979 info types.
+     */
+    Buffer * (*response_saej1979_vehicle_identification_request)(struct SimECUGenerator * generator, Buffer * binRequest);
+    /**
+     * How to respond to a specific info type for OBD_SERVICE_REQUEST_VEHICLE_INFORMATION service
+     */
+    Buffer * (*response_saej1979_vehicle_identification_request_info_type)(struct SimECUGenerator * generator, byte infoType);
     /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance

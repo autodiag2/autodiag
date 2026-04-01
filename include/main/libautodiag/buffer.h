@@ -162,7 +162,7 @@ int ad_buffer_get_free_space(Buffer * buffer);
  */
 int ad_buffer_cmp(final Buffer *buf1, final Buffer *buf2);
 bool ad_buffer_alphabet_compare(final char *ascii_hex, final char* cmp1, final char* cmp2);
-void ad_buffer_padding(final Buffer * buffer, unsigned until, final byte pad);
+Buffer * ad_buffer_pad(final Buffer * buffer, unsigned until, final byte pad);
 void ad_buffer_slice_non_alphanum(final Buffer *buffer);
 
 #define __PPARG_N(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,N,...) N

@@ -96,7 +96,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
     switch(pid) {
         case 0x01: {
             Buffer* status = ad_buffer_new();
-            ad_buffer_padding(status, 4, 0x00);
+            ad_buffer_pad(status, 4, 0x00);
             status->buffer[0] = state->obd.dtcs->size;
             status->buffer[0] |= state->obd.mil_on << 7;
             ad_buffer_append_melt(binResponse, status);
@@ -194,7 +194,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     }
                     case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                         final Buffer * name = ad_buffer_from_ascii("ECU citroen C5 X7");
-                        ad_buffer_padding(name, 20, 0x00);
+                        ad_buffer_pad(name, 20, 0x00);
                         ad_buffer_append_melt(binResponse, name);
                         break;
                     }

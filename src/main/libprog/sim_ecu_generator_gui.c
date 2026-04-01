@@ -72,7 +72,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
         case 0x01: {
             gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
             Buffer* status = ad_buffer_new();
-            ad_buffer_padding(status, 4, 0x00);
+            ad_buffer_pad(status, 4, 0x00);
             if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
                 GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
                 final int dtc_count = g_list_length(ptr);
@@ -138,7 +138,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         const gchar * vin = gtk_entry_get_text(gui->vin);
                         if ( 0 < strlen(vin) ) {
                             final Buffer * vinBuffer = ad_buffer_from_ascii((char*)vin);
-                            ad_buffer_padding(vinBuffer, 17, 0x00);
+                            ad_buffer_pad(vinBuffer, 17, 0x00);
                             ad_buffer_append_melt(binResponse, vinBuffer);
                         }
                     } break;
@@ -146,7 +146,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                         const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
                         if ( 0 < strlen(ecuName) ) {
                             final Buffer * name = ad_buffer_from_ascii((char*)ecuName);
-                            ad_buffer_padding(name, 20, 0x00);
+                            ad_buffer_pad(name, 20, 0x00);
                             ad_buffer_append_melt(binResponse, name);
                         }
                     } break;

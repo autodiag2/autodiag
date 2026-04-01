@@ -48,6 +48,63 @@ static Buffer * response_saej1979_pids(SimECUGenerator *generator, final Buffer 
     }
     return binResponse;
 }
+
+static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator * generator, Buffer * binRequest) {
+    Buffer * payload = ad_buffer_new();
+    int infoType_i = 1;
+    byte infoType = binRequest->buffer[infoType_i];
+
+    do {
+        infoType = binRequest->buffer[infoType_i];
+        switch(infoType) {
+            case 0x00: {
+                ad_buffer_append_byte(payload, infoType);
+                ad_buffer_append_melt(payload, response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+            } break;
+            default: {
+                log_warn("multiple info type not implemented for info type %02X", infoType);
+            } break;
+        }
+        infoType_i++;
+    } while(generator->flavour.is_Iso15765_4 && infoType_i < binRequest->size);
+
+    if ( infoType != 0x00 ) {
+        if ( infoType % 2 == 0 ) {
+            ad_buffer_append_byte(payload, infoType);
+            if ( generator->flavour.is_Iso15765_4 ) {
+                int number_of_data_items = 1;
+                ad_buffer_append_byte(payload, number_of_data_items);                
+            }
+            ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+        } else {
+            if ( ! generator->flavour.is_Iso15765_4 ) {
+                ad_buffer_append_byte(payload, infoType);
+                ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+            }
+        }
+    }
+
+    Buffer * binResponse = ad_buffer_new();
+    if ( generator->flavour.is_Iso15765_4 ) {
+        ad_buffer_append_byte(binResponse, OBD_SERVICE_REQUEST_VEHICLE_INFORMATION | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+        ad_buffer_append(binResponse, payload);
+    } else {
+        // split message in multiple frames if not Iso15765-4
+        if ( (infoType % 2) == 0 ) {
+            for(int message_in = 1; message_in < payload->size; message_in+=4) {
+                ad_buffer_append_byte(binResponse, OBD_SERVICE_REQUEST_VEHICLE_INFORMATION | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+                ad_buffer_append_byte(binResponse, infoType);
+                ad_buffer_append_byte(binResponse, message_in);
+                ad_buffer_slice_append(binResponse, payload, message_in, 4);
+            }
+        } else {
+            ad_buffer_append_byte(binResponse, OBD_SERVICE_REQUEST_VEHICLE_INFORMATION | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+            ad_buffer_append_byte(binResponse, infoType);
+            ad_buffer_append_melt(binResponse, payload);
+        }
+    }
+    return binResponse;
+}
 SimECUGenerator * sim_ecu_generator_new() {
     SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
@@ -57,6 +114,8 @@ SimECUGenerator * sim_ecu_generator_new() {
     generator->response_saej1979_pid = null;
     generator->response_saej1979_dtcs_wrapper = response_saej1979_dtcs_wrapper;
     generator->response_saej1979_dtcs = null;
+    generator->response_saej1979_vehicle_identification_request = response_saej1979_vehicle_identification_request;
+    generator->response_saej1979_vehicle_identification_request_info_type = null;
     generator->type = null;
     generator->state = null;
     return generator;

@@ -76,7 +76,7 @@
             case 0x01: {
                 bool is_checked = mil_status;
                 Buffer* status = ad_buffer_new();
-                ad_buffer_padding(status, 4, 0x00);
+                ad_buffer_pad(status, 4, 0x00);
                 if ( ! dtc_cleared ) {
                     status->buffer[0] = dtc_count;
                     status->buffer[0] |= is_checked << 7;
@@ -241,7 +241,7 @@
                         }
                         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                             final Buffer * name = ad_buffer_from_ascii(ecu_name);
-                            ad_buffer_padding(name, 20, 0x00);
+                            ad_buffer_pad(name, 20, 0x00);
                             ad_buffer_append_melt(binResponse, name);
                             useParent = false;
                             break;

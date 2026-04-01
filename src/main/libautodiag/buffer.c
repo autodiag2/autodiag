@@ -338,7 +338,7 @@ Buffer * ad_buffer_from_ascii_hex_n(const char * ascii_hex, unsigned size) {
     free(ascii_internal);
     return bin;
 }
-void ad_buffer_padding(final Buffer * buffer, final unsigned padding_until, final byte pad) {
+Buffer* ad_buffer_pad(final Buffer * buffer, final unsigned padding_until, final byte pad) {
     assert(buffer != null);
     final unsigned remaining_size_to_pad = max(padding_until - buffer->size, 0);
     ad_buffer_ensure_capacity(buffer, remaining_size_to_pad);
@@ -346,6 +346,7 @@ void ad_buffer_padding(final Buffer * buffer, final unsigned padding_until, fina
         buffer->buffer[i] = pad;
     }
     buffer->size += remaining_size_to_pad;
+    return buffer;
 }
 Buffer* ad_buffer_from_ascii_n(const char *ascii, int len) {
     Buffer * result = ad_buffer_new();
