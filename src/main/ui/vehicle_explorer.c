@@ -25,7 +25,7 @@ static void button_click_clean_up_routine(void *arg) {
     gtk_spinner_stop(gui->refreshIcon);
 }
 
-static bool get_data_frame_selected() {
+static int get_data_frame_selected() {
     return gtk_check_menu_item_get_active(gui->menuBar.showFreezeFrame) ? 0 : AD_SAEJ1979_DATA_FRAME_LIVE;
 }
 
