@@ -48,7 +48,7 @@
         }
         return env;
     }
-    static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+    static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
         unsigned * seed = generator->context;
         Buffer * binResponse = ad_buffer_new();
         JNIEnv *env = get_env();
@@ -117,7 +117,7 @@
         }
         return binResponse;
     }
-    static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+    static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
         JNIEnv *env = get_env();
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
@@ -179,12 +179,12 @@
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_DTC: {
-                binResponse = generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
+                binResponse = generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_CURRENT_DATA:
             case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-                binResponse = generator->saej1979_response_pids(generator, binRequest);
+                binResponse = generator->response_saej1979_pids(generator, binRequest);
                 break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
                 if ( 1 < binRequest->size ) {            
@@ -277,8 +277,8 @@
         generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
         generator->type = strdup("GUI");
         generator->flavour.is_Iso15765_4 = false;
-        generator->saej1979_response_pid = saej1979_response_pid;
-        generator->saej1979_response_dtcs = saej1979_response_dtcs;
+        generator->response_saej1979_pid = response_saej1979_pid;
+        generator->response_saej1979_dtcs = response_saej1979_dtcs;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;

@@ -1,16 +1,16 @@
 #include "libautodiag/sim/ecu/generator.h"
 
-static Buffer * saej1979_response_dtcs_wrapper(SimECUGenerator *generator, int service_id) {
+static Buffer * response_saej1979_dtcs_wrapper(SimECUGenerator *generator, int service_id) {
     Buffer * binResponse = ad_buffer_new();
     ad_buffer_append_byte(binResponse, service_id | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
-    Buffer * payload = generator->saej1979_response_dtcs(generator, service_id);
+    Buffer * payload = generator->response_saej1979_dtcs(generator, service_id);
     if ( generator->flavour.is_Iso15765_4 ) {
         ad_buffer_append_byte(binResponse, payload->size / 2);
     }
     ad_buffer_append_melt(binResponse,payload);
     return binResponse
 }
-static Buffer * saej1979_response_pids(SimECUGenerator *generator, final Buffer *binRequest) {
+static Buffer * response_saej1979_pids(SimECUGenerator *generator, final Buffer *binRequest) {
     if ( 0 == binRequest->size ) {
         return ad_buffer_new();
     }
@@ -26,8 +26,8 @@ static Buffer * saej1979_response_pids(SimECUGenerator *generator, final Buffer 
                 ad_buffer_recycle(binResponse);
                 break;
             }
-            if ( generator->saej1979_response_pid == null ) {
-                log_err("saej1979_response_pid is not set for generator of type %s", generator->type);
+            if ( generator->response_saej1979_pid == null ) {
+                log_err("response_saej1979_pid is not set for generator of type %s", generator->type);
                 ad_buffer_recycle(binResponse);
                 break;
             }
@@ -40,7 +40,7 @@ static Buffer * saej1979_response_pids(SimECUGenerator *generator, final Buffer 
                 }
                 ad_buffer_append_melt(
                     binResponse,
-                    generator->saej1979_response_pid(generator, binRequest->buffer[pid_i], frameNumber)
+                    generator->response_saej1979_pid(generator, binRequest->buffer[pid_i], frameNumber)
                 );
                 pid_i += 1 + pidHasFrameNumber;
             } while(generator->flavour.is_Iso15765_4 && pid_i < binRequest->size);
@@ -53,10 +53,10 @@ SimECUGenerator * sim_ecu_generator_new() {
     generator->context = null;
     generator->response = null;
     generator->response_for_python = null;
-    generator->saej1979_response_pids = saej1979_response_pids;
-    generator->saej1979_response_pid = null;
-    generator->saej1979_response_dtcs_wrapper = saej1979_response_dtcs_wrapper;
-    generator->saej1979_response_dtcs = null;
+    generator->response_saej1979_pids = response_saej1979_pids;
+    generator->response_saej1979_pid = null;
+    generator->response_saej1979_dtcs_wrapper = response_saej1979_dtcs_wrapper;
+    generator->response_saej1979_dtcs = null;
     generator->type = null;
     generator->state = null;
     return generator;

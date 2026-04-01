@@ -71,7 +71,7 @@ static bool uds_service_allowed(GState *state, byte service_id) {
     }
     return false;
 }
-static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     GState * state = (GState*)generator->state;
     Buffer * binResponse = ad_buffer_new();
     switch(service_id) {
@@ -88,7 +88,7 @@ static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_i
     }
     return binResponse;
 }
-static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     unsigned * seed = generator->context;
     GState * state = (GState*)generator->state;
     Buffer * binResponse = ad_buffer_new();
@@ -139,12 +139,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
-            return generator->saej1979_response_pids(generator, binRequest);
+            return generator->response_saej1979_pids(generator, binRequest);
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC:
-            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
+            return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
         case OBD_SERVICE_CLEAR_DTC: {
             ad_list_DTC_clear(state->obd.dtcs);
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -396,8 +396,8 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("Citroen C5 X7");
     generator->flavour.is_Iso15765_4 = false;
-    generator->saej1979_response_pid = saej1979_response_pid;
-    generator->saej1979_response_dtcs = saej1979_response_dtcs;
+    generator->response_saej1979_pid = response_saej1979_pid;
+    generator->response_saej1979_dtcs = response_saej1979_dtcs;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

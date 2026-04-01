@@ -18,7 +18,7 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, double speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
-static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
     if ( service_id == OBD_SERVICE_SHOW_DTC ) {
@@ -55,7 +55,7 @@ static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_i
     }
     return binResponse;
 }
-static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
     // Should append only bytes according to the PID, but for simplicity we just append random data
@@ -125,9 +125,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
-            return generator->saej1979_response_pids(generator, binRequest);
+            return generator->response_saej1979_pids(generator, binRequest);
         case OBD_SERVICE_SHOW_DTC:
-            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
+            return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
@@ -172,8 +172,8 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
     generator->flavour.is_Iso15765_4 = 0;
-    generator->saej1979_response_pid = saej1979_response_pid;
-    generator->saej1979_response_dtcs = saej1979_response_dtcs;
+    generator->response_saej1979_pid = response_saej1979_pid;
+    generator->response_saej1979_dtcs = response_saej1979_dtcs;
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;

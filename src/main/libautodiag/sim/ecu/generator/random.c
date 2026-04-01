@@ -1,10 +1,10 @@
 #include "libautodiag/sim/ecu/generator.h"
 
-static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     unsigned * seed = generator->context;
     return ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
 }
-static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     Buffer * binResponse = ad_buffer_new();
     // Should append only bytes according to the PID, but for simplicity we just append random data
     switch(pid) {
@@ -39,12 +39,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
-            return generator->saej1979_response_pids(generator, binRequest);
+            return generator->response_saej1979_pids(generator, binRequest);
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC:
-            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
+            return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
 
         case OBD_SERVICE_CLEAR_DTC: {
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -132,8 +132,8 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("random");
     generator->flavour.is_Iso15765_4 = 0;
-    generator->saej1979_response_pid = saej1979_response_pid;
-    generator->saej1979_response_dtcs = saej1979_response_dtcs;
+    generator->response_saej1979_pid = response_saej1979_pid;
+    generator->response_saej1979_dtcs = response_saej1979_dtcs;
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;

@@ -3,12 +3,12 @@
 typedef struct {
     byte cycle_percent[256][256];
 } GState;
-static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     GState * state = (GState*)generator->state;
     return ad_buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1,
                     state->cycle_percent[binRequest->buffer[0]][0]);
 }
-static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     Buffer * binResponse = ad_buffer_new();
     GState * state = (GState*)generator->state;
     // Should append only bytes according to the PID, but for simplicity we just append random data
@@ -50,12 +50,12 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
-            return generator->saej1979_response_pids(generator, binRequest);
+            return generator->response_saej1979_pids(generator, binRequest);
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC:
-            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
+            return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
 
         case OBD_SERVICE_CLEAR_DTC: {
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -168,8 +168,8 @@ SimECUGenerator* sim_ecu_generator_new_cycle() {
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("cycle");
     generator->flavour.is_Iso15765_4 = 0;
-    generator->saej1979_response_pid = saej1979_response_pid;
-    generator->saej1979_response_dtcs = saej1979_response_dtcs;
+    generator->response_saej1979_pid = response_saej1979_pid;
+    generator->response_saej1979_dtcs = response_saej1979_dtcs;
     GState * state = (GState*)calloc(1, sizeof(GState));
     generator->state = (void*)state;
     unsigned * gears = (unsigned*)malloc(sizeof(unsigned));

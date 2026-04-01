@@ -35,19 +35,19 @@ typedef struct SimECUGenerator {
     /**
      * Generate response to a given pid (single unit).
      */
-    Buffer * (*saej1979_response_pid)(struct SimECUGenerator *generator, final byte pid, int frameNumber);
+    Buffer * (*response_saej1979_pid)(struct SimECUGenerator *generator, final byte pid, int frameNumber);
     /**
      * Wrapp the result in a standard OBD frame.
      */
-    Buffer * (*saej1979_response_pids)(struct SimECUGenerator *generator, final Buffer *binRequest);
+    Buffer * (*response_saej1979_pids)(struct SimECUGenerator *generator, final Buffer *binRequest);
     /**
      * Wraps to have the dtc count.
      */
-    static Buffer * (*saej1979_response_dtcs_wrapper)(struct SimECUGenerator *generator, int service_id);
+    static Buffer * (*response_saej1979_dtcs_wrapper)(struct SimECUGenerator *generator, int service_id);
     /**
      * Raw byte of DTCs
      */
-    static Buffer * (*saej1979_response_dtcs)(struct SimECUGenerator *generator, int service_id);
+    static Buffer * (*response_saej1979_dtcs)(struct SimECUGenerator *generator, int service_id);
     /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance
