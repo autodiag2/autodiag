@@ -18,6 +18,43 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, double speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
+static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    Buffer * binResponse = ad_buffer_new();
+    if ( service_id == OBD_SERVICE_SHOW_DTC ) {
+        if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
+            GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+            ad_list_Buffer * dtcs = ad_list_Buffer_new();
+            while (ptr != NULL) {
+                GList *ptr_next = ptr->next;
+                GtkWidget *row = GTK_WIDGET(ptr->data);
+
+                if (GTK_IS_LIST_BOX_ROW(row)) {
+                    GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
+                    if (GTK_IS_LABEL(child)) {
+                        const char *dtc = gtk_label_get_text(GTK_LABEL(child));
+                        Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
+                        if ( dtc_bin == null ) {
+                            log_msg(LOG_ERROR, "invalid dtc found");
+                        } else {
+                            ad_list_Buffer_append(dtcs, dtc_bin);
+                        }
+                    } else {
+                        g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
+                    }
+                }
+
+                ptr = ptr_next;
+            }
+            for(int i = 0; i < dtcs->size; i++) {
+                ad_buffer_append_melt(binResponse, dtcs->list[i]);
+                dtcs->list[i] = null;
+            }
+            ad_list_Buffer_free(dtcs);
+        }
+    }
+    return binResponse;
+}
 static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
@@ -89,41 +126,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
             return generator->saej1979_response_pids(generator, binRequest);
-        case OBD_SERVICE_SHOW_DTC: {
-            if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
-                GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
-                ad_list_Buffer * dtcs = ad_list_Buffer_new();
-                while (ptr != NULL) {
-                    GList *ptr_next = ptr->next;
-                    GtkWidget *row = GTK_WIDGET(ptr->data);
-
-                    if (GTK_IS_LIST_BOX_ROW(row)) {
-                        GtkWidget *child = gtk_bin_get_child(GTK_BIN(row));
-                        if (GTK_IS_LABEL(child)) {
-                            const char *dtc = gtk_label_get_text(GTK_LABEL(child));
-                            Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
-                            if ( dtc_bin == null ) {
-                                log_msg(LOG_ERROR, "invalid dtc found");
-                            } else {
-                                ad_list_Buffer_append(dtcs, dtc_bin);
-                            }
-                        } else {
-                            g_print("Row contains widget type: %s\n", G_OBJECT_TYPE_NAME(child));
-                        }
-                    }
-
-                    ptr = ptr_next;
-                }
-                if ( generator->flavour.is_Iso15765_4 ) {
-                    ad_buffer_append_byte(binResponse, dtcs->size);
-                }
-                for(int i = 0; i < dtcs->size; i++) {
-                    ad_buffer_append_melt(binResponse, dtcs->list[i]);
-                    dtcs->list[i] = null;
-                }
-                ad_list_Buffer_free(dtcs);
-            }
-        } break;
+        case OBD_SERVICE_SHOW_DTC:
+            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
@@ -168,7 +172,8 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
     generator->flavour.is_Iso15765_4 = 0;
-    generator->saej1979_response_pid = saej1979_response_pid
+    generator->saej1979_response_pid = saej1979_response_pid;
+    generator->saej1979_response_dtcs = saej1979_response_dtcs;
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;

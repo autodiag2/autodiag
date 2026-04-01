@@ -117,6 +117,36 @@
         }
         return binResponse;
     }
+    static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+        JNIEnv *env = get_env();
+        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
+        jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
+        ad_list_Buffer * dtcs_list = ad_list_Buffer_new();
+        if ( service_id == OBD_SERVICE_SHOW_DTC ) {
+            if ( ! dtc_cleared ) {
+                for (jsize i = 0; i < dtc_count; i++) {
+                    jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
+                    const char *dtc = (*env)->GetStringUTFChars(env, s, 0);
+
+                    Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
+                    if ( dtc_bin == null ) {
+                        log_msg(LOG_ERROR, "invalid dtc found");
+                    } else {
+                        ad_list_Buffer_append(dtcs_list, dtc_bin);
+                    }
+                    
+                    (*env)->ReleaseStringUTFChars(env, s, dtc);
+                    (*env)->DeleteLocalRef(env, s);
+                }
+            }
+            for(int i = 0; i < dtcs_list->size; i++) {
+                ad_buffer_append_melt(binResponse, dtcs_list->list[i]);
+                dtcs_list->list[i] = null;
+            }
+            ad_list_Buffer_free(dtcs_list);
+        }
+        return binResponse;
+    }
     static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         JNIEnv *env = get_env();
         if ( binRequest->size == 0 ) {
@@ -128,10 +158,6 @@
 
         const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
-
-        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
-
-        jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
 
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         final Buffer *binResponse = ad_buffer_new();
@@ -153,36 +179,12 @@
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_DTC: {
-                ad_list_Buffer * dtcs = ad_list_Buffer_new();
-                if ( ! dtc_cleared ) {
-                    for (jsize i = 0; i < dtc_count; i++) {
-                        jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
-                        const char *dtc = (*env)->GetStringUTFChars(env, s, 0);
-
-                        Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
-                        if ( dtc_bin == null ) {
-                            log_msg(LOG_ERROR, "invalid dtc found");
-                        } else {
-                            ad_list_Buffer_append(dtcs, dtc_bin);
-                        }
-                        
-                        (*env)->ReleaseStringUTFChars(env, s, dtc);
-                        (*env)->DeleteLocalRef(env, s);
-                    }
-                }
-                if ( generator->flavour.is_Iso15765_4 ) {
-                    ad_buffer_append_byte(binResponse, dtcs->size);
-                }
-                for(int i = 0; i < dtcs->size; i++) {
-                    ad_buffer_append_melt(binResponse, dtcs->list[i]);
-                    dtcs->list[i] = null;
-                }
-                ad_list_Buffer_free(dtcs);
+                binResponse = generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
                 useParent = false;
             } break;
             case OBD_SERVICE_SHOW_CURRENT_DATA:
             case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-                binResponse = ad_buffer_copy(generator->saej1979_response_pids(generator, binRequest));
+                binResponse = generator->saej1979_response_pids(generator, binRequest);
                 break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
                 if ( 1 < binRequest->size ) {            
@@ -276,6 +278,7 @@
         generator->type = strdup("GUI");
         generator->flavour.is_Iso15765_4 = false;
         generator->saej1979_response_pid = saej1979_response_pid;
+        generator->saej1979_response_dtcs = saej1979_response_dtcs;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;

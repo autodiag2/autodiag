@@ -71,6 +71,23 @@ static bool uds_service_allowed(GState *state, byte service_id) {
     }
     return false;
 }
+static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+    GState * state = (GState*)generator->state;
+    Buffer * binResponse = ad_buffer_new();
+    switch(service_id) {
+        case OBD_SERVICE_SHOW_DTC: {
+            for(int i = 0; i < state->obd.dtcs->size; i++) {
+                final DTC * dtc = state->obd.dtcs->list[i];
+                ad_buffer_append_byte(binResponse, dtc->data[0]);
+                ad_buffer_append_byte(binResponse, dtc->data[1]);
+            }
+        } break;
+        case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
+            ad_buffer_append_melt(binResponse, ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed));
+        } break;
+    }
+    return binResponse;
+}
 static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     unsigned * seed = generator->context;
     GState * state = (GState*)generator->state;
@@ -124,23 +141,10 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case OBD_SERVICE_SHOW_CURRENT_DATA:
             return generator->saej1979_response_pids(generator, binRequest);
 
-        case OBD_SERVICE_SHOW_DTC: {
-            if ( generator->flavour.is_Iso15765_4 ) {
-                ad_buffer_append_byte(binResponse, state->obd.dtcs->size);
-            }
-            for(int i = 0; i < state->obd.dtcs->size; i++) {
-                final DTC * dtc = state->obd.dtcs->list[i];
-                ad_buffer_append_byte(binResponse, dtc->data[0]);
-                ad_buffer_append_byte(binResponse, dtc->data[1]);
-            }
-        } break;
-        case OBD_SERVICE_PENDING_DTC: case OBD_SERVICE_PERMANENT_DTC: {
-            Buffer * payload = ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
-            if ( generator->flavour.is_Iso15765_4 ) {
-                ad_buffer_append_byte(binResponse, payload->size / 2);
-            }
-            ad_buffer_append_melt(binResponse,payload);                
-        } break;
+        case OBD_SERVICE_PENDING_DTC:
+        case OBD_SERVICE_PERMANENT_DTC:
+        case OBD_SERVICE_SHOW_DTC:
+            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
         case OBD_SERVICE_CLEAR_DTC: {
             ad_list_DTC_clear(state->obd.dtcs);
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -393,6 +397,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->type = strdup("Citroen C5 X7");
     generator->flavour.is_Iso15765_4 = false;
     generator->saej1979_response_pid = saej1979_response_pid;
+    generator->saej1979_response_dtcs = saej1979_response_dtcs;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

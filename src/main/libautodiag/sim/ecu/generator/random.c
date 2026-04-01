@@ -1,5 +1,9 @@
 #include "libautodiag/sim/ecu/generator.h"
 
+static Buffer * saej1979_response_dtcs(SimECUGenerator *generator, int service_id) {
+    unsigned * seed = generator->context;
+    return ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
+}
 static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     Buffer * binResponse = ad_buffer_new();
     // Should append only bytes according to the PID, but for simplicity we just append random data
@@ -39,13 +43,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
-        case OBD_SERVICE_SHOW_DTC: {
-            Buffer * payload = ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
-            if ( generator->flavour.is_Iso15765_4 ) {
-                ad_buffer_append_byte(binResponse, payload->size / 2);
-            }
-            ad_buffer_append_melt(binResponse,payload);
-        } break;
+        case OBD_SERVICE_SHOW_DTC:
+            return generator->saej1979_response_dtcs_wrapper(generator, binRequest->buffer[0]);
 
         case OBD_SERVICE_CLEAR_DTC: {
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -134,6 +133,7 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->type = strdup("random");
     generator->flavour.is_Iso15765_4 = 0;
     generator->saej1979_response_pid = saej1979_response_pid;
+    generator->saej1979_response_dtcs = saej1979_response_dtcs;
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;
