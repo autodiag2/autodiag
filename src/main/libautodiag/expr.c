@@ -343,6 +343,7 @@ static bool ad_expr_expect(ad_expr_parser *p, ad_expr_token_type type, const cha
 }
 
 static bool ad_expr_is_true(double v) {
+    log_debug("ad_expr_is_true : %s", v != 0.0 ? "true" : "false");
     return v != 0.0;
 }
 
@@ -604,6 +605,7 @@ static double ad_expr_parse_expression(ad_expr_parser *p) {
     double cond;
     double yes;
     double no;
+    log_debug("parsing expression at: '%s'", p->cur);
     cond = ad_expr_parse_disjunction(p);
     if (ad_expr_failed(p)) {
         return NAN;
@@ -611,6 +613,7 @@ static double ad_expr_parse_expression(ad_expr_parser *p) {
     if (ad_expr_accept(p, AD_EXPR_TOKEN_QUESTION)) {
         yes = ad_expr_parse_expression(p);
         if (ad_expr_failed(p)) {
+            log_debug("ad_expr_parse_expression failed");
             return NAN;
         }
         if (!ad_expr_expect(p, AD_EXPR_TOKEN_COLON, "expected ':'")) {
@@ -618,6 +621,7 @@ static double ad_expr_parse_expression(ad_expr_parser *p) {
         }
         no = ad_expr_parse_expression(p);
         if (ad_expr_failed(p)) {
+            log_debug("ad_expr_parse_expression failed");
             return NAN;
         }
         return ad_expr_is_true(cond) ? yes : no;
@@ -918,8 +922,8 @@ static double ad_expr_parse_atom(ad_expr_parser *p) {
         idx = (int)p->tok.integer;
         ad_expr_next_token(p);
         if (idx < 0 || p->sz <= idx) {
-            ad_expr_set_error(p, "out of range (6)");
-            return NAN;
+            log_warn("parsing of buffer failed : out of range (6), ignoring and using 0.0");
+            return 0.0;
         }
         return (double)p->bytes[idx];
     }

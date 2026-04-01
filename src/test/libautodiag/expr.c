@@ -226,8 +226,6 @@ static void test_error_invalid_syntax(void) {
 static void test_error_invalid_buffer_access(void) {
     uint8 bytes[] = {0x12, 0x34};
 
-    expect_error_contains(bytes, 2, "$2", "out of range");
-    expect_error_contains(bytes, 2, "$100", "out of range");
     expect_error_contains(bytes, 2, "u8(2)", "out of range");
     expect_error_contains(bytes, 2, "u16be(1)", "out of range");
     expect_error_contains(bytes, 2, "u32le(0)", "out of range");

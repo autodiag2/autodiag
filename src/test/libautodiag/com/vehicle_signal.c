@@ -17,14 +17,14 @@ static Buffer * response(SimECUGenerator * g, Buffer * binRequest) {
         return binResponse;
     }
     if ( binRequest->buffer[0] == 0x02 ) {
-        final int frameNumber = binRequest->buffer[1];
-        switch(binRequest->buffer[2]) {
+        switch(binRequest->buffer[1]) {
             case 0x04: {
+                final int frameNumber = binRequest->buffer[2];
                 if ( frameNumber == 0x01 ) {
-                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, (byte)(10 * 2.55));
+                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, 0x01, (byte)(10 * 2.55));
                 }
                 if ( frameNumber == 0x02 ) {
-                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, (byte)(20 * 2.55));
+                    AD_BUFFER_APPEND_BYTES(binResponse, 0x42, 0x04, 0x02, (byte)(20 * 2.55));
                 }
             } break;
         }
