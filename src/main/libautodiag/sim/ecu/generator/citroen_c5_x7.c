@@ -73,6 +73,7 @@ static bool uds_service_allowed(GState *state, byte service_id) {
 }
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     GState * state = (GState*)generator->state;
+    unsigned * seed = generator->context;
     Buffer * binResponse = ad_buffer_new();
     switch(service_id) {
         case OBD_SERVICE_SHOW_DTC: {

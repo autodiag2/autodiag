@@ -26,6 +26,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
     return binResponse;
 }
 static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
+    unsigned * seed = generator->context;
     switch(infoType) {
         case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
         case 0x01:                                          return ad_buffer_from_ascii_hex("05");
@@ -66,7 +67,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
 
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return response_saej1979_vehicle_identification_request(generator, binRequest);        
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return generator->response_saej1979_vehicle_identification_request(generator, binRequest);        
     }
     return binResponse;
 }

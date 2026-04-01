@@ -6,7 +6,7 @@ typedef struct {
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     GState * state = (GState*)generator->state;
     return ad_buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1,
-                    state->cycle_percent[binRequest->buffer[0]][0]);
+                    state->cycle_percent[service_id][0]);
 }
 static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     Buffer * binResponse = ad_buffer_new();

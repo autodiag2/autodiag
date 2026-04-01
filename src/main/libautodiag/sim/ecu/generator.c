@@ -8,7 +8,7 @@ static Buffer * response_saej1979_dtcs_wrapper(SimECUGenerator *generator, int s
         ad_buffer_append_byte(binResponse, payload->size / 2);
     }
     ad_buffer_append_melt(binResponse,payload);
-    return binResponse
+    return binResponse;
 }
 static Buffer * response_saej1979_pids(SimECUGenerator *generator, final Buffer *binRequest) {
     if ( 0 == binRequest->size ) {
@@ -65,7 +65,7 @@ static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator
             case 0x20:
             case 0x00: {
                 ad_buffer_append_byte(payload, infoType);
-                ad_buffer_append_melt(payload, response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+                ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
             } break;
             default: {
                 log_warn("multiple info type not implemented for info type %02X", infoType);
