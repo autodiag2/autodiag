@@ -71,7 +71,34 @@ static bool uds_service_allowed(GState *state, byte service_id) {
     }
     return false;
 }
-
+static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+    unsigned * seed = generator->context;
+    GState * state = (GState*)generator->state;
+    Buffer * binResponse = ad_buffer_new();
+    // Should append only bytes according to the PID, but for simplicity we just append random data
+    switch(pid) {
+        case 0x01: {
+            Buffer* status = ad_buffer_new();
+            ad_buffer_padding(status, 4, 0x00);
+            status->buffer[0] = state->obd.dtcs->size;
+            status->buffer[0] |= state->obd.mil_on << 7;
+            ad_buffer_append_melt(binResponse, status);
+        } break;
+        case 0xC0:
+        case 0xA0:
+        case 0x80:
+        case 0x60:
+        case 0x40:
+        case 0x20:
+        case 0x00: {
+            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
+        } break;
+        default: {
+            ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+        } break;
+    }
+    return binResponse;
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
     GState * state = (GState*)generator->state;
@@ -93,36 +120,10 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
 
     switch(binRequest->buffer[0]) {
-        case OBD_SERVICE_SHOW_CURRENT_DATA: {
-            if ( 1 < binRequest->size ) {
-                ad_buffer_recycle(binResponse);
-                ad_buffer_append_byte(binResponse, OBD_SERVICE_SHOW_CURRENT_DATA | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
-                int pid_i = 1;
-                do {
-                    bool generic_behaviour = true;
-                    ad_buffer_append_byte(binResponse, binRequest->buffer[pid_i]);
-                    switch(binRequest->buffer[pid_i]) {
-                        case 0x01: {
-                            Buffer* status = ad_buffer_new();
-                            ad_buffer_padding(status, 4, 0x00);
-                            status->buffer[0] = state->obd.dtcs->size;
-                            status->buffer[0] |= state->obd.mil_on << 7;
-                            ad_buffer_append_melt(binResponse, status);
-                            generic_behaviour = false;
-                        }
-                    }
-                    if ( generic_behaviour ) {
-                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
-                    }
-                    pid_i ++;
-                } while (generator->flavour.is_Iso15765_4 && pid_i < binRequest->size);
-            } else {
-                ad_buffer_recycle(binResponse);
-            }
-        } break;
-        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
-            ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
-        } break;
+        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+        case OBD_SERVICE_SHOW_CURRENT_DATA:
+            return generator->saej1979_response_pids(generator, binRequest);
+
         case OBD_SERVICE_SHOW_DTC: {
             if ( generator->flavour.is_Iso15765_4 ) {
                 ad_buffer_append_byte(binResponse, state->obd.dtcs->size);
@@ -391,6 +392,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("Citroen C5 X7");
     generator->flavour.is_Iso15765_4 = false;
+    generator->saej1979_response_pid = saej1979_response_pid;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

@@ -48,18 +48,80 @@
         }
         return env;
     }
-
-    static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
+    static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+        unsigned * seed = generator->context;
+        Buffer * binResponse = ad_buffer_new();
         JNIEnv *env = get_env();
-        if ( binRequest->size == 0 ) {
-            return ad_buffer_new();
-        }
-
+        final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
+        bool useParent = true;
         int vehicle_speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_vehicle_speed);
         int coolant_temperature  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_coolant_temperature);
         int engine_rpm   = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_engine_rpm);
         bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status);
         bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
+        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
+        jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
+        // Should append only bytes according to the PID, but for simplicity we just append random data
+        switch(pid) {
+            case 0xC0:
+            case 0xA0:
+            case 0x80:
+            case 0x60:
+            case 0x40:
+            case 0x20:
+            case 0x00: {
+                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
+                useParent = false;
+            } break;
+            case 0x01: {
+                bool is_checked = mil_status;
+                Buffer* status = ad_buffer_new();
+                ad_buffer_padding(status, 4, 0x00);
+                if ( ! dtc_cleared ) {
+                    status->buffer[0] = dtc_count;
+                    status->buffer[0] |= is_checked << 7;
+                }
+                ad_buffer_append_melt(binResponse, status);
+                useParent = false;
+            } break;
+            case 0x05: {
+                int coolant_coolant_temperature_abs = coolant_temperature - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
+                double percent = (1.0 * coolant_coolant_temperature_abs) / span;
+                int value = percent * span;
+                ad_buffer_append_byte(binResponse, (byte)(value));
+                useParent = false;
+            } break;
+            case 0x0C: {
+                int engine_rpm_abs = engine_rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
+                double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
+                double percent = (1.0 * engine_rpm_abs) / span;
+                int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
+                byte bA = (0xFF00 & value) >> 8;
+                byte bB = 0xFF & value;
+                ad_buffer_append_byte(binResponse, bA);
+                ad_buffer_append_byte(binResponse, bB);
+                useParent = false;
+            } break;
+            case 0x0D: {
+                int vehicle_speed_abs = vehicle_speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
+                byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
+                double percent = (1.0 * vehicle_speed_abs) / span;
+                int value = percent * span;
+                ad_buffer_append_byte(binResponse, (byte)value);
+                useParent = false;
+            } break;
+        }
+        if ( useParent ) {
+            return parent->response(parent, binRequest);
+        }
+        return binResponse;
+    }
+    static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
+        JNIEnv *env = get_env();
+        if ( binRequest->size == 0 ) {
+            return ad_buffer_new();
+        }
 
         jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
@@ -118,60 +180,10 @@
                 ad_list_Buffer_free(dtcs);
                 useParent = false;
             } break;
-            case OBD_SERVICE_SHOW_CURRENT_DATA: {
-                if ( 1 < binRequest->size ) {            
-                    switch(binRequest->buffer[1]) {
-                        case 0xC0:
-                        case 0xA0:
-                        case 0x80:
-                        case 0x60:
-                        case 0x40:
-                        case 0x20:
-                        case 0x00: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                            useParent = false;
-                        } break;
-                        case 0x01: {
-                            bool is_checked = mil_status;
-                            Buffer* status = ad_buffer_new();
-                            ad_buffer_padding(status, 4, 0x00);
-                            if ( ! dtc_cleared ) {
-                                status->buffer[0] = dtc_count;
-                                status->buffer[0] |= is_checked << 7;
-                            }
-                            ad_buffer_append_melt(binResponse, status);
-                            useParent = false;
-                        } break;
-                        case 0x05: {
-                            int coolant_coolant_temperature_abs = coolant_temperature - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                            byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                            double percent = (1.0 * coolant_coolant_temperature_abs) / span;
-                            int value = percent * span;
-                            ad_buffer_append_byte(binResponse, (byte)(value));
-                            useParent = false;
-                        } break;
-                        case 0x0C: {
-                            int engine_rpm_abs = engine_rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
-                            double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
-                            double percent = (1.0 * engine_rpm_abs) / span;
-                            int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
-                            byte bA = (0xFF00 & value) >> 8;
-                            byte bB = 0xFF & value;
-                            ad_buffer_append_byte(binResponse, bA);
-                            ad_buffer_append_byte(binResponse, bB);
-                            useParent = false;
-                        } break;
-                        case 0x0D: {
-                            int vehicle_speed_abs = vehicle_speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
-                            byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
-                            double percent = (1.0 * vehicle_speed_abs) / span;
-                            int value = percent * span;
-                            ad_buffer_append_byte(binResponse, (byte)value);
-                            useParent = false;
-                        } break;
-                    }
-                }
-            } break;
+            case OBD_SERVICE_SHOW_CURRENT_DATA:
+            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+                binResponse = ad_buffer_copy(generator->saej1979_response_pids(generator, binRequest));
+                break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
                 if ( 1 < binRequest->size ) {            
                     switch(binRequest->buffer[1]) {
@@ -263,6 +275,7 @@
         generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
         generator->type = strdup("GUI");
         generator->flavour.is_Iso15765_4 = false;
+        generator->saej1979_response_pid = saej1979_response_pid;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;

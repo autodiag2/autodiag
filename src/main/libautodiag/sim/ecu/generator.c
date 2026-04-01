@@ -1,10 +1,50 @@
 #include "libautodiag/sim/ecu/generator.h"
 
+static Buffer * saej1979_response_pids(SimECUGenerator *generator, final Buffer *binRequest) {
+    if ( 0 == binRequest->size ) {
+        return ad_buffer_new();
+    }
+    bool pidHasFrameNumber = false;
+    Buffer * binResponse = ad_buffer_new();
+    switch(binRequest->buffer[0]) {
+        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+            pidHasFrameNumber = true;
+        case OBD_SERVICE_SHOW_CURRENT_DATA: {
+            int pid_i = 1;
+            ad_buffer_append_byte(binResponse, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
+            if ( binRequest->size <= pid_i ) {
+                ad_buffer_recycle(binResponse);
+                break;
+            }
+            if ( generator->saej1979_response_pid == null ) {
+                log_err("saej1979_response_pid is not set for generator of type %s", generator->type);
+                ad_buffer_recycle(binResponse);
+                break;
+            }
+            do {
+                ad_buffer_append_byte(binResponse, binRequest->buffer[pid_i]);
+                int frameNumber = -1;
+                if ( pidHasFrameNumber ) {
+                    frameNumber = binRequest->buffer[pid_i+1];
+                    ad_buffer_append_byte(binResponse, frameNumber);
+                }
+                ad_buffer_append_melt(
+                    binResponse,
+                    generator->saej1979_response_pid(generator, binRequest->buffer[pid_i], frameNumber)
+                );
+                pid_i += 1 + pidHasFrameNumber;
+            } while(generator->flavour.is_Iso15765_4 && pid_i < binRequest->size);
+        } break;
+    }
+    return binResponse;
+}
 SimECUGenerator * sim_ecu_generator_new() {
     SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
     generator->response = null;
     generator->response_for_python = null;
+    generator->saej1979_response_pids = saej1979_response_pids;
+    generator->saej1979_response_pid = null;
     generator->type = null;
     generator->state = null;
     return generator;

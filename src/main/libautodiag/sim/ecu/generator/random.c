@@ -1,5 +1,26 @@
 #include "libautodiag/sim/ecu/generator.h"
 
+static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+    Buffer * binResponse = ad_buffer_new();
+    // Should append only bytes according to the PID, but for simplicity we just append random data
+    switch(pid) {
+        case 0xC0:
+        case 0xA0:
+        case 0x80:
+        case 0x60:
+        case 0x40:
+        case 0x20:
+        case 0x00: {
+            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
+        } break;
+        default: {
+            unsigned * seed = generator->context;
+            ad_buffer_append_melt(binResponse,
+                ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
+        } break;
+    }
+    return binResponse;
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     assert(generator->context != null);
     unsigned * seed = generator->context;
@@ -12,27 +33,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
 
     switch(binRequest->buffer[0]) {
-
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-        case OBD_SERVICE_SHOW_CURRENT_DATA: {
-            if ( 1 < binRequest->size ) {
-                switch(binRequest->buffer[1]) {
-                    case 0xC0:
-                    case 0xA0:
-                    case 0x80:
-                    case 0x60:
-                    case 0x40:
-                    case 0x20:
-                    case 0x00: {
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                    } break;
-                    default: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
-                    } break;
-                }
-            }
-        } break;
+        case OBD_SERVICE_SHOW_CURRENT_DATA:
+            return generator->saej1979_response_pids(generator, binRequest);
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
@@ -130,6 +133,7 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->type = strdup("random");
     generator->flavour.is_Iso15765_4 = 0;
+    generator->saej1979_response_pid = saej1979_response_pid;
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;

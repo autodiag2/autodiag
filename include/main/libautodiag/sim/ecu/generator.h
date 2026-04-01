@@ -33,6 +33,14 @@ typedef struct SimECUGenerator {
     } flavour ;
     
     /**
+     * Generate response to a given pid (single unit).
+     */
+    Buffer * (*saej1979_response_pid)(struct SimECUGenerator *generator, final byte pid, int frameNumber);
+    /**
+     * Wrapp the result in a standard OBD frame.
+     */
+    Buffer * (*saej1979_response_pids)(struct SimECUGenerator *generator, final Buffer *binRequest);
+    /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance
      * @param binRequest Pointer to the binary request buffer

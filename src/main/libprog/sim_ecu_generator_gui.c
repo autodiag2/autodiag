@@ -18,6 +18,63 @@ static void vehicle_speed_set(SimECUGeneratorGui *gui, double speed) {
     counter_set_label(gui->data.vehicleSpeed, res);
     free(res);
 }
+static Buffer * saej1979_response_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    Buffer * binResponse = ad_buffer_new();
+    // Should append only bytes according to the PID, but for simplicity we just append random data
+    switch(pid) {
+        case 0xC0:
+        case 0xA0:
+        case 0x80:
+        case 0x60:
+        case 0x40:
+        case 0x20:
+        case 0x00: {
+            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
+        } break;
+        case 0x01: {
+            gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
+            Buffer* status = ad_buffer_new();
+            ad_buffer_padding(status, 4, 0x00);
+            if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
+                GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+                final int dtc_count = g_list_length(ptr);
+                status->buffer[0] = dtc_count;
+                g_list_free(ptr);
+                status->buffer[0] |= is_checked << 7;
+            }
+            ad_buffer_append_melt(binResponse, status);
+        } break;
+        case 0x05: {
+            gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
+            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.coolant_temp");
+            byte span = signal->rv_max - signal->rv_min;
+            int value = percent * span;
+            ad_buffer_append_byte(binResponse, (byte)(value));
+            coolant_temperature_set(gui, value + signal->rv_min);
+        } break;
+        case 0x0C: {
+            gdouble percent = counter_get_fraction(gui->data.engineSpeed);
+            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.engine_speed");
+            double span = signal->rv_max - signal->rv_min;
+            int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
+            byte bA = (0xFF00 & value) >> 8;
+            byte bB = 0xFF & value;
+            ad_buffer_append_byte(binResponse, bA);
+            ad_buffer_append_byte(binResponse, bB);
+            engine_speed_set(gui, value/4.0 + signal->rv_min);
+        } break;
+        case 0x0D: {
+            gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
+            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
+            byte span = signal->rv_max - signal->rv_min;
+            int value = percent * span;
+            ad_buffer_append_byte(binResponse, (byte)value);
+            vehicle_speed_set(gui, value + signal->rv_min);
+        } break;
+    }
+    return binResponse;
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     final Buffer *binResponse = ad_buffer_new();
@@ -29,61 +86,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     }
     
     switch(binRequest->buffer[0]) {
-        case OBD_SERVICE_SHOW_CURRENT_DATA: {
-            if ( 1 < binRequest->size ) {            
-                switch(binRequest->buffer[1]) {
-                    case 0xC0:
-                    case 0xA0:
-                    case 0x80:
-                    case 0x60:
-                    case 0x40:
-                    case 0x20:
-                    case 0x00: {
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                    } break;
-                    case 0x01: {
-                        gboolean is_checked = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn));
-                        Buffer* status = ad_buffer_new();
-                        ad_buffer_padding(status, 4, 0x00);
-                        if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
-                            GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
-                            final int dtc_count = g_list_length(ptr);
-                            status->buffer[0] = dtc_count;
-                            g_list_free(ptr);
-                            status->buffer[0] |= is_checked << 7;
-                        }
-                        ad_buffer_append_melt(binResponse, status);
-                    } break;
-                    case 0x05: {
-                        gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
-                        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.coolant_temp");
-                        byte span = signal->rv_max - signal->rv_min;
-                        int value = percent * span;
-                        ad_buffer_append_byte(binResponse, (byte)(value));
-                        coolant_temperature_set(gui, value + signal->rv_min);
-                    } break;
-                    case 0x0C: {
-                        gdouble percent = counter_get_fraction(gui->data.engineSpeed);
-                        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.engine_speed");
-                        double span = signal->rv_max - signal->rv_min;
-                        int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
-                        byte bA = (0xFF00 & value) >> 8;
-                        byte bB = 0xFF & value;
-                        ad_buffer_append_byte(binResponse, bA);
-                        ad_buffer_append_byte(binResponse, bB);
-                        engine_speed_set(gui, value/4.0 + signal->rv_min);
-                    } break;
-                    case 0x0D: {
-                        gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
-                        ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
-                        byte span = signal->rv_max - signal->rv_min;
-                        int value = percent * span;
-                        ad_buffer_append_byte(binResponse, (byte)value);
-                        vehicle_speed_set(gui, value + signal->rv_min);
-                    } break;
-                }
-            }
-        } break;
+        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
+        case OBD_SERVICE_SHOW_CURRENT_DATA:
+            return generator->saej1979_response_pids(generator, binRequest);
         case OBD_SERVICE_SHOW_DTC: {
             if ( ! gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared)) ) {
                 GList *ptr = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
@@ -163,6 +168,7 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->type = strdup("gui");
     generator->flavour.is_Iso15765_4 = 0;
+    generator->saej1979_response_pid = saej1979_response_pid
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;
