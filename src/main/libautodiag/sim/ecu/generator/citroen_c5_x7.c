@@ -116,6 +116,24 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
     }
     return binResponse;
 }
+static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
+    GState * state = (GState*)generator->state;
+    unsigned * seed = generator->context;
+    switch(infoType) {
+        case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
+        case 0x01:                                          return ad_buffer_from_ascii_hex("05");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   return ad_buffer_copy(state->vin);
+        case 0x03:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x04:                                          return ad_buffer_new_random_with_seed(16, seed);
+        case 0x05:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x06:                                          return ad_buffer_new_random_with_seed(4, seed);
+        case 0x07:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x08:                                          return ad_buffer_new_random_with_seed(4, seed);
+        case 0x09:                                          return ad_buffer_from_ascii_hex("01");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: return ad_buffer_pad(ad_buffer_from_ascii("ECU citroen C5 X7"), 20, 0x00);
+    }
+    return ad_buffer_new();
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
     GState * state = (GState*)generator->state;
@@ -149,64 +167,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             ad_list_DTC_clear(state->obd.dtcs);
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
-            if ( 1 < binRequest->size ) {            
-                switch(binRequest->buffer[1]) {
-                    case 0x00: {
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                        break;
-                    }
-                    case 0x01: {
-                        ad_buffer_append_byte(binResponse, 0x05);
-                        break;
-                    }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        ad_buffer_append(binResponse,state->vin);                
-                        break;
-                    }
-                    case 0x03: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x04: {
-                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(16, seed));                
-                        break;
-                    }
-                    case 0x05: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x06: {
-                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
-                        break;
-                    }
-                    case 0x07: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x08: {
-                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
-                        break;
-                    }
-                    case 0x09: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        final Buffer * name = ad_buffer_from_ascii("ECU citroen C5 X7");
-                        ad_buffer_pad(name, 20, 0x00);
-                        ad_buffer_append_melt(binResponse, name);
-                        break;
-                    }
-                    case 0x0B: {
-                        ad_buffer_append_melt(binResponse,ad_buffer_new_random_with_seed(4, seed));
-                        break;
-                    }
-                }
-            } else {
-                log_msg(LOG_ERROR, "Missing PID");
-            }
-        } break;
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return generator->response_saej1979_vehicle_identification_request(generator, binRequest);
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
                 if ( binRequest->buffer[1] == UDS_SESSION_DEFAULT ) {
@@ -398,6 +359,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->flavour.is_Iso15765_4 = false;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
+    generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

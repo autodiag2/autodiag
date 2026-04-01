@@ -66,8 +66,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
 
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
-            return response_saej1979_vehicle_identification_request(generator, binRequest);        
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return response_saej1979_vehicle_identification_request(generator, binRequest);        
     }
     return binResponse;
 }

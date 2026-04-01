@@ -112,6 +112,38 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
     }
     return binResponse;
 }
+static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    unsigned * seed = generator->context;
+    switch(infoType) {
+        case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
+        case 0x01:                                          return ad_buffer_from_ascii_hex("05");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
+            const gchar * vin = gtk_entry_get_text(gui->vin);
+            if ( 0 < strlen(vin) ) {
+                final Buffer * vinBuffer = ad_buffer_from_ascii((char*)vin);
+                ad_buffer_pad(vinBuffer, 17, 0x00);
+                return vinBuffer;
+            }
+        } break;
+        case 0x03:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x04:                                          return ad_buffer_new_random_with_seed(16, seed);
+        case 0x05:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x06:                                          return ad_buffer_new_random_with_seed(4, seed);
+        case 0x07:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x08:                                          return ad_buffer_new_random_with_seed(4, seed);
+        case 0x09:                                          return ad_buffer_from_ascii_hex("01");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
+            const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
+            if ( 0 < strlen(ecuName) ) {
+                final Buffer * name = ad_buffer_from_ascii((char*)ecuName);
+                ad_buffer_pad(name, 20, 0x00);
+                return name;
+            }
+        } break;
+    }
+    return ad_buffer_new();
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     final Buffer *binResponse = ad_buffer_new();
@@ -128,31 +160,8 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             return generator->response_saej1979_pids(generator, binRequest);
         case OBD_SERVICE_SHOW_DTC:
             return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
-            if ( 1 < binRequest->size ) {
-                switch(binRequest->buffer[1]) {
-                    case 0x00: {
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                    } break;
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        const gchar * vin = gtk_entry_get_text(gui->vin);
-                        if ( 0 < strlen(vin) ) {
-                            final Buffer * vinBuffer = ad_buffer_from_ascii((char*)vin);
-                            ad_buffer_pad(vinBuffer, 17, 0x00);
-                            ad_buffer_append_melt(binResponse, vinBuffer);
-                        }
-                    } break;
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        const gchar * ecuName = gtk_entry_get_text(gui->ecuName);
-                        if ( 0 < strlen(ecuName) ) {
-                            final Buffer * name = ad_buffer_from_ascii((char*)ecuName);
-                            ad_buffer_pad(name, 20, 0x00);
-                            ad_buffer_append_melt(binResponse, name);
-                        }
-                    } break;
-                }
-            }
-        } break;
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
+            return generator->response_saej1979_vehicle_identification_request(generator, binRequest);
         case OBD_SERVICE_CLEAR_DTC: {
             gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), true);
             log_msg(LOG_DEBUG, "Clearing DTCs");
@@ -174,6 +183,7 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->flavour.is_Iso15765_4 = 0;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
+    generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     return generator;

@@ -57,6 +57,12 @@ static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator
     do {
         infoType = binRequest->buffer[infoType_i];
         switch(infoType) {
+            case 0xC0:
+            case 0xA0:
+            case 0x80:
+            case 0x60:
+            case 0x40:
+            case 0x20:
             case 0x00: {
                 ad_buffer_append_byte(payload, infoType);
                 ad_buffer_append_melt(payload, response_saej1979_vehicle_identification_request_info_type(generator, infoType));
@@ -68,20 +74,30 @@ static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator
         infoType_i++;
     } while(generator->flavour.is_Iso15765_4 && infoType_i < binRequest->size);
 
-    if ( infoType != 0x00 ) {
-        if ( infoType % 2 == 0 ) {
-            ad_buffer_append_byte(payload, infoType);
-            if ( generator->flavour.is_Iso15765_4 ) {
-                int number_of_data_items = 1;
-                ad_buffer_append_byte(payload, number_of_data_items);                
-            }
-            ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
-        } else {
-            if ( ! generator->flavour.is_Iso15765_4 ) {
+    switch(infoType) {
+        case 0xC0:
+        case 0xA0:
+        case 0x80:
+        case 0x60:
+        case 0x40:
+        case 0x20:
+        case 0x00:
+            break;
+        default: {
+            if ( infoType % 2 == 0 ) {
                 ad_buffer_append_byte(payload, infoType);
+                if ( generator->flavour.is_Iso15765_4 ) {
+                    int number_of_data_items = 1;
+                    ad_buffer_append_byte(payload, number_of_data_items);                
+                }
                 ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+            } else {
+                if ( ! generator->flavour.is_Iso15765_4 ) {
+                    ad_buffer_append_byte(payload, infoType);
+                    ad_buffer_append_melt(payload, generator->response_saej1979_vehicle_identification_request_info_type(generator, infoType));
+                }
             }
-        }
+        } break;
     }
 
     Buffer * binResponse = ad_buffer_new();

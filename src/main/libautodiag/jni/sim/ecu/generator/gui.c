@@ -147,17 +147,37 @@
         }
         return binResponse;
     }
-    static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
+    static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
         JNIEnv *env = get_env();
-        if ( binRequest->size == 0 ) {
-            return ad_buffer_new();
-        }
-
         jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
 
         const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
+        switch(infoType) {
+            case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
+            case 0x01:                                          return ad_buffer_from_ascii_hex("05");
+            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   return ad_buffer_from_ascii(vin);
+            case 0x03:                                          return ad_buffer_from_ascii_hex("01");
+            case 0x04:                                          return ad_buffer_new_random_with_seed(16, seed);
+            case 0x05:                                          return ad_buffer_from_ascii_hex("01");
+            case 0x06:                                          return ad_buffer_new_random_with_seed(4, seed);
+            case 0x07:                                          return ad_buffer_from_ascii_hex("01");
+            case 0x08:                                          return ad_buffer_new_random_with_seed(4, seed);
+            case 0x09:                                          return ad_buffer_from_ascii_hex("01");
+            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
+                final Buffer * name = ad_buffer_from_ascii(ecu_name);
+                ad_buffer_pad(name, 20, 0x00);
+                return name;
+            } break;
+        }
+        return ad_buffer_new();
+    }
+    static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
+        JNIEnv *env = get_env();
+        if ( binRequest->size == 0 ) {
+            return ad_buffer_new();
+        }
 
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         final Buffer *binResponse = ad_buffer_new();
@@ -185,77 +205,12 @@
             case OBD_SERVICE_SHOW_CURRENT_DATA:
             case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
                 binResponse = generator->response_saej1979_pids(generator, binRequest);
+                useParent = false;
                 break;
-            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
-                if ( 1 < binRequest->size ) {            
-                    switch(binRequest->buffer[1]) {
-                        case 0x00: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                            useParent = false;
-                            break;
-                        }
-                        case 0x01: {
-                            ad_buffer_append_byte(binResponse, 0x05);
-                            useParent = false;
-                            break;
-                        }
-                        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii(vin));   
-                            useParent = false;             
-                            break;
-                        }
-                        case 0x03: {
-                            ad_buffer_append_byte(binResponse,0x01);
-                            useParent = false;
-                            break;
-                        }
-                        case 0x04: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(16));  
-                            useParent = false;
-                            break;
-                        }
-                        case 0x05: {
-                            ad_buffer_append_byte(binResponse,0x01);
-                            useParent = false;
-                            break;
-                        }
-                        case 0x06: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
-                            useParent = false;
-                            break;
-                        }
-                        case 0x07: {
-                            ad_buffer_append_byte(binResponse,0x01);
-                            useParent = false;
-                            break;
-                        }
-                        case 0x08: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
-                            useParent = false;
-                            break;
-                        }
-                        case 0x09: {
-                            ad_buffer_append_byte(binResponse,0x01);
-                            useParent = false;
-                            break;
-                        }
-                        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                            final Buffer * name = ad_buffer_from_ascii(ecu_name);
-                            ad_buffer_pad(name, 20, 0x00);
-                            ad_buffer_append_melt(binResponse, name);
-                            useParent = false;
-                            break;
-                        }
-                        case 0x0B: {
-                            ad_buffer_append_melt(binResponse, ad_buffer_new_random(4));
-                            useParent = false;
-                            break;
-                        }
-                    }
-                } else {
-                    log_msg(LOG_ERROR, "Missing PID");
-                }
-            } break;
+            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
+                binResponse = generator->response_saej1979_vehicle_identification_request(generator, binRequest);
+                useParent = false;
+                break;
         }
         (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
         (*env)->ReleaseStringUTFChars(env, vin_j, vin);
@@ -279,6 +234,7 @@
         generator->flavour.is_Iso15765_4 = false;
         generator->response_saej1979_pid = response_saej1979_pid;
         generator->response_saej1979_dtcs = response_saej1979_dtcs;
+        generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
         generator->context = null;
         return generator;

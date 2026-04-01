@@ -34,7 +34,37 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
     }
     return binResponse;
 }
-
+static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
+    GState * state = (GState*)generator->state;
+    switch(infoType) {
+        case 0xC0:
+        case 0xA0:
+        case 0x80:
+        case 0x60:
+        case 0x40:
+        case 0x20:
+        case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
+        case 0x01:                                          return ad_buffer_from_ascii_hex("05");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   return ad_buffer_new_cycle(17,
+                                                                state->cycle_percent[OBD_SERVICE_REQUEST_VEHICLE_INFORMATION][infoType]
+                                                            );
+        case 0x03:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x04:                                          return ad_buffer_new_cycle(16,
+                                                                state->cycle_percent[OBD_SERVICE_REQUEST_VEHICLE_INFORMATION][infoType]
+                                                            );
+        case 0x05:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x06:                                          return ad_buffer_new_cycle(4,
+                                                                state->cycle_percent[OBD_SERVICE_REQUEST_VEHICLE_INFORMATION][infoType]
+                                                            );
+        case 0x07:                                          return ad_buffer_from_ascii_hex("01");
+        case 0x08:                                          return ad_buffer_new_cycle(4,
+                                                                state->cycle_percent[OBD_SERVICE_REQUEST_VEHICLE_INFORMATION][infoType]
+                                                            );
+        case 0x09:                                          return ad_buffer_from_ascii_hex("01");
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: return ad_buffer_pad(ad_buffer_from_ascii("ECU cycle"), 20, 0x00);
+    }
+    return ad_buffer_new();
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     assert(generator->context != null);
     unsigned gears = *((unsigned*)generator->context);
@@ -61,90 +91,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
 
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: {
-            if ( 1 < binRequest->size ) {
-                switch(binRequest->buffer[1]) {
-                    case 0xC0:
-                    case 0xA0:
-                    case 0x80:
-                    case 0x60:
-                    case 0x40:
-                    case 0x20:
-                    case 0x00: {
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
-                        break;
-                    }
-                    case 0x01: {
-                        ad_buffer_append_byte(binResponse, 0x05);
-                        break;
-                    }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(17,
-                                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]
-                            )
-                        );
-                        break;
-                    }
-                    case 0x03: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x04: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(16,
-                                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]
-                            )
-                        );
-                        break;
-                    }
-                    case 0x05: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x06: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(4,
-                                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]
-                            )
-                        );
-                        break;
-                    }
-                    case 0x07: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case 0x08: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(4,
-                                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]
-                            )
-                        );
-                        break;
-                    }
-                    case 0x09: {
-                        ad_buffer_append_byte(binResponse,0x01);
-                        break;
-                    }
-                    case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
-                        final Buffer * name = ad_buffer_from_ascii("ECU cycle");
-                        ad_buffer_pad(name, 20, 0x00);
-                        ad_buffer_append_melt(binResponse, name);
-                        break;
-                    }
-                    case 0x0B: {
-                        ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(4,
-                                state->cycle_percent[binRequest->buffer[0]][binRequest->buffer[1]]
-                            )
-                        );
-                        break;
-                    }
-                }
-            } else {
-                log_msg(LOG_ERROR, "Missing PID");
-            }
-        } break;
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return generator->response_saej1979_vehicle_identification_request(generator, binRequest);
     }
 
     int service_id = binRequest->buffer[0];
@@ -170,6 +117,7 @@ SimECUGenerator* sim_ecu_generator_new_cycle() {
     generator->flavour.is_Iso15765_4 = 0;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
+    generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     GState * state = (GState*)calloc(1, sizeof(GState));
     generator->state = (void*)state;
     unsigned * gears = (unsigned*)malloc(sizeof(unsigned));
