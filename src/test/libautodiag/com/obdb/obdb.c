@@ -20,7 +20,7 @@ void test_real_life() {
     ecu->generator = g;
     final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start_with_ecu(ecu));
     assert(ad_obdb_fetch_signals("SAEJ1979"));
-    ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.DTC_CNT");
+    ad_object_vehicle_signal * signal = ad_signal_get("OBDb/SAEJ1979.DTC_CNT");
     assert(signal != null);
     {
         double result = NAN;
@@ -32,7 +32,7 @@ void test_real_life() {
 bool testOBDB() {
     assert(ad_obdb_fetch_signals("SAEJ1979"));
     assert(ad_obdb_fetch_signals("ACURA-TLX"));
-    ad_object_vehicle_signal * signal = ad_signal_get("OBDb.TLX_GENERATOR");
+    ad_object_vehicle_signal * signal = ad_signal_get("OBDb/ACURA-TLX.TLX_GENERATOR");
     assert(signal != null);
     tf_test_output("OBDb.tlx_generator: formula = %s\n", signal->rv_formula);
     ad_object_vehicle_signal_dump(signal);

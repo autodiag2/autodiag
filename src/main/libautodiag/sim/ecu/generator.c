@@ -111,7 +111,7 @@ static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator
                 ad_buffer_append_byte(binResponse, OBD_SERVICE_REQUEST_VEHICLE_INFORMATION | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
                 ad_buffer_append_byte(binResponse, infoType);
                 ad_buffer_append_byte(binResponse, message_in);
-                ad_buffer_slice_append(binResponse, payload, message_in, 4);
+                ad_buffer_slice_append(binResponse, payload, message_in, min(4, payload->size - message_in));
             }
         } else {
             ad_buffer_append_byte(binResponse, OBD_SERVICE_REQUEST_VEHICLE_INFORMATION | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);

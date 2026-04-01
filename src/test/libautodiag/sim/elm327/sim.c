@@ -389,26 +389,28 @@ bool testSimELM327() {
         assert(strstr(serial->recv_buffer->buffer, "?") != null);
         iface->unlock(iface);
     }
-    /* TODO {
+    {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
         final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
+        iface->device->send(iface->device,"atsp 6");
+        iface->device->recv(iface->device);
         iface->device->send(iface->device,"ath0");
         iface->device->recv(iface->device);
         viface_clear_data(iface);
         iface->device->send(iface->device,"0902");
         iface->device->recv(iface->device);
         final Serial* serial = (Serial*)iface->device;
-        assert(strstr(serial->recv_buffer->buffer, "019") != null);
+        assert(strstr(serial->recv_buffer->buffer, "020") != null);
         assert(strstr(serial->recv_buffer->buffer, "0:") != null);
         assert(strstr(serial->recv_buffer->buffer, "1:") != null);
         assert(strstr(serial->recv_buffer->buffer, "2:") != null);
         assert(strstr(serial->recv_buffer->buffer, "4902") != null);
         iface->unlock(iface);
-    }*/
+    }
     {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
