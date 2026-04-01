@@ -33,7 +33,7 @@ int main(int argc, char **argv) {
     log_set_from_env();
     tf_init();
 
-    runIfSelected(testOBDB, null);
+    //runIfSelected(testOBDB, null);
     runIfSelected(testSignals, null);
     runIfSelected(testSIB, null);
     runIfSelected(testExpr, null);

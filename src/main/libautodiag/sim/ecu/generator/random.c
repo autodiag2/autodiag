@@ -15,7 +15,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
         case 0x40:
         case 0x20:
         case 0x00: {
-            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFFFF"));
+            ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFF"));
         } break;
         default: {
             unsigned * seed = generator->context;
