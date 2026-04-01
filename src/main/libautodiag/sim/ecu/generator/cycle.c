@@ -27,7 +27,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
             ad_buffer_append_melt(binResponse,
                             ad_buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2,
                                 state->cycle_percent[
-                                    frameNumber == -1 ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
+                                    frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
                                 ][pid])
                         );
         } break;
