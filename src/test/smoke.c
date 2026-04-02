@@ -1,6 +1,6 @@
 #include "libTest.h"
 
-void testExprSmoke();
+bool testExprSmoke();
 
 int main(int argc, char **argv) {
 

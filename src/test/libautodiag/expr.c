@@ -505,8 +505,10 @@ static void test_random_signals() {
         test_inv_case(signal_value, ad_object_vehicle_signal_get_exec_path(signal));
     }
 }
-void testExprSmoke() {
+bool testExprSmoke() {
+    ad_saej1979_data_register_signals();
     tf_run_case(test_random_signals);
+    return true;
 }
 bool testExpr() {
     ad_saej1979_data_register_signals();
