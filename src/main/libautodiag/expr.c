@@ -1159,41 +1159,82 @@ static bool ad_expr_ast_narrow_binary(ad_expr_inv_ctx *ctx, ad_expr_ast *ast, do
         ast->a != NULL &&
         ast->a->type == AD_EXPR_AST_BINARY &&
         ast->a->op == AD_EXPR_TOKEN_PLUS &&
-        ad_expr_ast_is_number(ast->a->a, &lhsn) == false &&
         ad_expr_ast_is_number(ast->b, &rhs)) {
-        ad_expr_ast *left = ast->a->a;
-        ad_expr_ast *right = ast->a->b;
-        double n256;
+        ad_expr_ast *p3 = ast->a;
+        ad_expr_ast *p2 = p3->a;
+        ad_expr_ast *p1 = NULL;
+        int b0;
+        int b1;
+        int b2;
+        int b3;
+        double m0;
+        double m1;
+        double m2;
+        unsigned long long raw;
 
-        if (ad_expr_ast_is_number(right, &n256) && n256 == 0.0) {
+        if (rhs == 0.0) {
+            ad_expr_inv_set_error(ctx, "division by zero");
+            return false;
         }
 
-        if (left != NULL &&
-            left->type == AD_EXPR_AST_BINARY &&
-            left->op == AD_EXPR_TOKEN_STAR &&
-            ad_expr_ast_extract_selected_byte(left->a, &idx_true, &idx_false) &&
-            ad_expr_ast_is_number(left->b, &lhsn) &&
-            lhsn == 256.0 &&
-            ad_expr_ast_extract_selected_byte(right, NULL, NULL)) {
-            int idx_true_lo;
-            int idx_false_lo;
-            int value;
-            if (!ad_expr_ast_extract_selected_byte(right, &idx_true_lo, &idx_false_lo)) {
-                return true;
-            }
-            value = (int)llround(target * rhs);
-            if (value < 0 || 65535 < value) {
-                ad_expr_inv_set_error(ctx, "target out of 16-bit range");
-                return false;
-            }
-            hi = (value >> 8) & 0xFF;
-            lo = value & 0xFF;
-            if (!ad_expr_domain_allow_only(ctx, idx_true, hi)) return false;
-            if (!ad_expr_domain_allow_only(ctx, idx_false, hi)) return false;
-            if (!ad_expr_domain_allow_only(ctx, idx_true_lo, lo)) return false;
-            if (!ad_expr_domain_allow_only(ctx, idx_false_lo, lo)) return false;
+        if (p2 == NULL || p2->type != AD_EXPR_AST_BINARY || p2->op != AD_EXPR_TOKEN_PLUS) {
             return true;
         }
+
+        p1 = p2->a;
+        if (p1 == NULL || p1->type != AD_EXPR_AST_BINARY || p1->op != AD_EXPR_TOKEN_PLUS) {
+            return true;
+        }
+
+        if (p1->a == NULL || p1->a->type != AD_EXPR_AST_BINARY || p1->a->op != AD_EXPR_TOKEN_STAR) {
+            return true;
+        }
+        if (p1->b == NULL || p1->b->type != AD_EXPR_AST_BINARY || p1->b->op != AD_EXPR_TOKEN_STAR) {
+            return true;
+        }
+        if (p2->b == NULL || p2->b->type != AD_EXPR_AST_BINARY || p2->b->op != AD_EXPR_TOKEN_STAR) {
+            return true;
+        }
+        if (p3->b == NULL || p3->b->type != AD_EXPR_AST_BUFFER) {
+            return true;
+        }
+
+        if (p1->a->a == NULL || p1->a->a->type != AD_EXPR_AST_BUFFER) {
+            return true;
+        }
+        if (p1->b->a == NULL || p1->b->a->type != AD_EXPR_AST_BUFFER) {
+            return true;
+        }
+        if (p2->b->a == NULL || p2->b->a->type != AD_EXPR_AST_BUFFER) {
+            return true;
+        }
+
+        if (!ad_expr_ast_is_number(p1->a->b, &m0) || m0 != 16777216.0) {
+            return true;
+        }
+        if (!ad_expr_ast_is_number(p1->b->b, &m1) || m1 != 65536.0) {
+            return true;
+        }
+        if (!ad_expr_ast_is_number(p2->b->b, &m2) || m2 != 256.0) {
+            return true;
+        }
+
+        b0 = p1->a->a->buffer_index;
+        b1 = p1->b->a->buffer_index;
+        b2 = p2->b->a->buffer_index;
+        b3 = p3->b->buffer_index;
+
+        raw = (unsigned long long)llround(target * rhs);
+        if (0xFFFFFFFFULL < raw) {
+            ad_expr_inv_set_error(ctx, "target out of 32-bit range");
+            return false;
+        }
+
+        if (!ad_expr_domain_allow_only(ctx, b0, (int)((raw >> 24) & 0xFF))) return false;
+        if (!ad_expr_domain_allow_only(ctx, b1, (int)((raw >> 16) & 0xFF))) return false;
+        if (!ad_expr_domain_allow_only(ctx, b2, (int)((raw >> 8) & 0xFF))) return false;
+        if (!ad_expr_domain_allow_only(ctx, b3, (int)(raw & 0xFF))) return false;
+        return true;
     }
 
     return true;
@@ -2392,7 +2433,7 @@ Buffer *ad_expr_reduce_invert_nearest(
         return NULL;
     }
 
-    if (isfinite(best_diff) && best_diff <= tolerance) {
+    if (isfinite(best_diff)) {
         found = true;
         for (i = 0; i <= ctx.max_index; i++) {
             ctx.values[i] = best_values[i];

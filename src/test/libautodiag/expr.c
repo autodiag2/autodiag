@@ -10,7 +10,6 @@
 typedef uint8_t uint8;
 
 double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **errorReturn);
-
 static void expect_ok_double(const uint8 *bytes, int sz, const char *expr, double expected) {
     char *err = NULL;
     double v = ad_expr_reduce(bytes, sz, expr, &err);
@@ -490,15 +489,18 @@ static void test_inv_case(double signal_value, char * signal_path) {
         assert(err == NULL);
         free(err);
     }
-    log_debug("signal value: %f, computed value: %f\n", signal_value, signal_computed_value);
+    log_debug("signal value: %f, computed value: %f", signal_value, signal_computed_value);
     assert(fabs(signal_computed_value - signal_value) <= AD_EXPR_REDUCE_INVERT_TOLERANCE_DEFAULT);
 }
 static void test_inv_case_fuel_tank_level_input() {
     test_inv_case(50.000000, "SAEJ1979.fuel_tank_level_input");
 }
+static void test_inv_case_odometer() {
+    test_inv_case(60950949.093986, "SAEJ1979.odometer");
+}
 static void test_random_signals() {
     ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
-    for(int i = 0; i < 10; i++) {
+    for(int i = 0; i < 100; i++) {
         ad_object_vehicle_signal * signal = signals->values[rand() % signals->size];
         double signal_value_span = (signal->rv_max - signal->rv_min) / 2.0;
         double signal_value = signal->rv_min + ((double)rand() / RAND_MAX) * signal_value_span;
@@ -512,6 +514,7 @@ bool testExprSmoke() {
 }
 bool testExpr() {
     ad_saej1979_data_register_signals();
+    tf_run_case(test_inv_case_odometer);
     tf_run_case(test_particular_case);
     tf_run_case(test_byte_access);
     tf_run_case(test_logical_and_comparison_ops);
