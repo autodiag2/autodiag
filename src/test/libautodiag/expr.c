@@ -527,6 +527,7 @@ static void test_inv_case(double signal_value, char * signal_path) {
     );
     if ( err != NULL) {
         log_err("failed to invert signal %s with formula %s for target value %f: %s", ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
+        log_err("out = %s\n", ad_buffer_to_hex_string(out));
         assert(err == NULL);
         free(err);
     }
@@ -548,29 +549,7 @@ static void test_random_signals() {
         ad_object_vehicle_signal * signal = signals->values[rand() % signals->size];
         double signal_value_span = (signal->rv_max - signal->rv_min) / 2.0;
         double signal_value = signal->rv_min + ((double)rand() / RAND_MAX) * signal_value_span;
-        int signal_offset = -1;
-        char *err = NULL;
-        double actual_value = NAN;
-        Buffer *out = ad_expr_reduce_invert_nearest(
-            signal_value,
-            signal->rv_formula,
-            0.3,
-            &signal_offset,
-            &actual_value,
-            &err
-        );
-        if ( err != NULL) {
-            log_err("failed to invert signal %s(%s) with formula %s for target value %f: %s", signal->name, ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
-            assert(err == NULL);
-            free(err);
-        }
-        double signal_reduced_value = ad_expr_reduce_buffer(out, signal->rv_formula, &err);
-        if ( err != NULL) {
-            log_err("failed to reduce signal %s(%s) with formula %s for target value %f: %s", signal->name, ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
-            assert(err == NULL);
-            free(err);
-        }
-        assert(fabs(signal_reduced_value - signal_value) < 1);
+        test_inv_case(signal_value, ad_object_vehicle_signal_get_exec_path(signal));
     }
 }
 bool testExpr() {
