@@ -2118,7 +2118,8 @@ static ad_expr_ast *ad_expr_parse_ast(const char *expr, char **errorReturn) {
     return root;
 }
 
-Buffer *ad_expr_reduce_invert(double target, const char *expr, int *signal_start_offset_return, char **errorReturn) {    ad_expr_inv_ctx ctx;
+Buffer *ad_expr_reduce_invert_legacy(double target, const char *expr, int *signal_start_offset_return, char **errorReturn) {    
+    ad_expr_inv_ctx ctx;
     ad_expr_ast *root;
     int i;
     Buffer *out;
@@ -2420,4 +2421,11 @@ Buffer *ad_expr_reduce_invert_nearest(
     }
 
     return out;
+}
+Buffer *ad_expr_reduce_invert(
+    double target,
+    const char *expr,
+    char **errorReturn
+) {
+    return ad_expr_reduce_invert_nearest(target, expr, AD_EXPR_REDUCE_INVERT_TOLERANCE_DEFAULT, NULL, NULL, errorReturn);
 }

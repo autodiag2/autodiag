@@ -36,7 +36,7 @@ PYTHON_INSTALL_FOLDER_LIB := $(PYTHON_INSTALL_FOLDER_ROOT)/libs/
 PYTHON_INSTALL_FOLDER_DATA := $(PYTHON_INSTALL_FOLDER_ROOT)/data/
 
 # Tests
-BINS_TESTS := $(sort output/bin/regression output/bin/fuzz)
+BINS_TESTS := $(sort output/bin/regression output/bin/fuzz output/bin/smoke)
 SOURCES_TESTS := $(sort $(call rwildcard,src/test/,*.c))
 OBJS_TESTS := $(sort $(patsubst src/test/%.c,output/obj/test/%.o,$(SOURCES_TESTS)))
 OBJS_TESTS := $(sort $(filter-out $(patsubst output/bin/%,output/obj/test/%.o,$(BINS_TESTS)),$(OBJS_TESTS)))
@@ -195,6 +195,9 @@ testRegression: tools_prerequistes ./output/bin/regression
 testFuzz: tools_prerequistes ./output/bin/fuzz
 	./output/bin/fuzz $(args)
 
+testSmoke: tools_prerequistes ./output/bin/smoke
+	./output/bin/smoke $(args)
+
 info:
 	@-echo "OBJS=$(OBJS)"
 	@-echo "OBJS_TESTS=$(OBJS_TESTS)"
@@ -331,6 +334,7 @@ help:
 	@-echo " installDev               - install using symlinks"
 	@-echo " runDebug                 - run with debug flags"
 	@-echo " testRegression           - run regression test"
+	@-echo " testSmoke                - run smoke test"
 	@-echo " testFuzz                 - run fuzz test"
 	@-echo " installPython            - install data in the python package"
 	@-echo " installPythonDev         - same but using symlinks"

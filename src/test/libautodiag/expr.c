@@ -353,15 +353,10 @@ static void test_particular_case() {
 }
 static void test_invert_masked_selected_byte() {
     char *err = NULL;
-    int signal_offset = -1;
     const char * expr = "$0 & 0x7F";
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         4.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
 
@@ -375,15 +370,10 @@ static void test_invert_masked_selected_byte() {
 
 static void test_invert_shifted_bit_selected_byte() {
     char *err = NULL;
-    int signal_offset = -1;
     const char * expr = "($0 >> 7) & 1";
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         1.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
 
@@ -397,15 +387,10 @@ static void test_invert_shifted_bit_selected_byte() {
 
 static void test_invert_byte_div_minus_formula() {
     char *err = NULL;
-    int signal_offset = -1;
     const char * expr = "$0 / 2 - 40";
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         60.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
     assert(err == NULL);
@@ -418,15 +403,10 @@ static void test_invert_byte_div_minus_formula() {
 
 static void test_invert_u16_div_formula() {
     char *err = NULL;
-    int signal_offset = -1;
     const char * expr = "(($0 * 256) + $1) / 4";
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         1000.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
 
@@ -441,15 +421,10 @@ static void test_invert_u16_div_formula() {
 
 static void test_invert_fails_when_target_out_of_byte_range() {
     char *err = NULL;
-    int signal_offset = -1;
-    double actual_value = NAN;
     const char * expr = "$0 & 0x7F";
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         300.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
 
@@ -460,15 +435,10 @@ static void test_invert_fails_when_target_out_of_byte_range() {
 
 static void test_invert_round_trip_masked_selected_byte() {
     char *err = NULL;
-    int signal_offset = -1;
-    double actual_value = NAN;
     const char * expr = "$0 & 0x7F";
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         37.0,
         expr,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
     double v_true;
@@ -477,12 +447,10 @@ static void test_invert_round_trip_masked_selected_byte() {
     assert(err == NULL);
     assert(out != NULL);
 
-    out->buffer[0] = 0x41;
     v_true = ad_expr_reduce_buffer(out, expr, &err);
     assert(err == NULL);
     assert(v_true == 37.0);
 
-    out->buffer[0] = 0x42;
     v_false = ad_expr_reduce_buffer(out, expr, &err);
     assert(err == NULL);
     assert(v_false == 37.0);
@@ -491,15 +459,10 @@ static void test_invert_round_trip_masked_selected_byte() {
 }
 static void test_buffer_creation_vehicle_speed() {
     ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
-    int signal_offset = -1;
     char *err = NULL;
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         155.0,
         signal->rv_formula,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
     assert(err == NULL);
@@ -509,15 +472,10 @@ static void test_buffer_creation_vehicle_speed() {
 }
 static void test_inv_case(double signal_value, char * signal_path) {
     ad_object_vehicle_signal * signal = ad_signal_get(signal_path);
-    int signal_offset = -1;
     char *err = NULL;
-    double actual_value = NAN;
-    Buffer *out = ad_expr_reduce_invert_nearest(
+    Buffer *out = ad_expr_reduce_invert(
         signal_value,
         signal->rv_formula,
-        0.3,
-        &signal_offset,
-        &actual_value,
         &err
     );
     if ( err != NULL) {
@@ -532,8 +490,8 @@ static void test_inv_case(double signal_value, char * signal_path) {
         assert(err == NULL);
         free(err);
     }
-    printf("signal value: %f, computed value: %f\n", signal_value, signal_computed_value);
-    assert(fabs(signal_computed_value - signal_value) < 1);
+    log_debug("signal value: %f, computed value: %f\n", signal_value, signal_computed_value);
+    assert(fabs(signal_computed_value - signal_value) <= AD_EXPR_REDUCE_INVERT_TOLERANCE_DEFAULT);
 }
 static void test_inv_case_fuel_tank_level_input() {
     test_inv_case(50.000000, "SAEJ1979.fuel_tank_level_input");
@@ -546,6 +504,9 @@ static void test_random_signals() {
         double signal_value = signal->rv_min + ((double)rand() / RAND_MAX) * signal_value_span;
         test_inv_case(signal_value, ad_object_vehicle_signal_get_exec_path(signal));
     }
+}
+void testExprSmoke() {
+    tf_run_case(test_random_signals);
 }
 bool testExpr() {
     ad_saej1979_data_register_signals();
@@ -582,6 +543,5 @@ bool testExpr() {
     tf_run_case(test_invert_round_trip_masked_selected_byte);
     tf_run_case(test_buffer_creation_vehicle_speed);
     tf_run_case(test_inv_case_fuel_tank_level_input);
-    tf_run_case(test_random_signals);
     return true;
 }

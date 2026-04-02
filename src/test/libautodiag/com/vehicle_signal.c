@@ -32,6 +32,15 @@ static Buffer * response(SimECUGenerator * g, Buffer * binRequest) {
     }
     return ad_buffer_new_random(10);
 }
+static int response_bytes_offset(Buffer * buffer) {
+    if ( buffer->size >= 3 && buffer->buffer[0] == 0x41 ) {
+        return 2;
+    }
+    if ( buffer->size >= 4 && buffer->buffer[0] == 0x42 ) {
+        return 3;
+    }
+    return 0;
+}
 void testRawSignal() {
     SimELM327* elm327 = tf_sim_elm327_new();
     SimECUGenerator * g = sim_ecu_generator_new_citroen_c5_x7();
@@ -48,6 +57,7 @@ void testRawSignal() {
         signal->rv_max = 100;
         signal->input_formula = strdup("10");
         signal->unit = strdup("some");
+        signal->rv_offset_bytes = response_bytes_offset;
         for(int i = 10; i < 100; i += 20) {
             some_signal = i;
             double result = 0;
