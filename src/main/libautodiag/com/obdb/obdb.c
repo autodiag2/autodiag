@@ -363,7 +363,9 @@ static char *ad_obdb_build_rv_formula(cJSON *fmt, char * input_cmd) {
 
     return expr;
 }
-
+static int ad_obdb_rv_offset_bytes(Buffer * input_signal) {
+    return input_signal->size;
+}
 static int ad_obdb_register_signal(const char *registry,
                                    const char *target_ecu,
                                    const char *input_formula,
@@ -415,7 +417,8 @@ static int ad_obdb_register_signal(const char *registry,
         unit,
         null,
         target_ecu,
-        examples
+        examples,
+        ad_obdb_rv_offset_bytes
     );
 
     free(rv_formula);

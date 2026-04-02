@@ -63,6 +63,11 @@ AD_OBJECT_H(vehicle_signal,
      * Examples for the signal.
      */
     char * examples;
+    /**
+     * If the signal is located at a fixed offset in the response, this is the number of bytes to skip to get to the signal value.
+     * For example for a signal located at $2 in the response, this value should be 2. This is used for auto-inverting signals.
+     */
+    int (*rv_offset_bytes)(Buffer * input_signal);
 )
 
 AD_HASHMAP_H(string, vehicle_signal)
@@ -95,7 +100,8 @@ void ad_signal_put(ad_object_vehicle_signal * signal);
     param_unit, \
     param_src_address, \
     param_dst_address, \
-    param_examples \
+    param_examples, \
+    param_rv_offset_bytes \
 ) { \
     ad_object_vehicle_signal *signal = ad_object_vehicle_signal_new(); \
     signal->rv_min = (param_rv_min); \
@@ -111,6 +117,7 @@ void ad_signal_put(ad_object_vehicle_signal * signal);
     signal->src_address = param_src_address == null ? null : ad_buffer_from_ascii_hex(param_src_address); \
     signal->dst_address = param_dst_address == null ? null : ad_buffer_from_ascii_hex(param_dst_address); \
     signal->examples = param_examples == null ? null : strdup(param_examples); \
+    signal->rv_offset_bytes = param_rv_offset_bytes; \
     ad_signal_put(signal); \
 }
 void ad_signal_foreach(void (*cb)(ad_object_vehicle_signal *signal, void *userdata), void *userdata);

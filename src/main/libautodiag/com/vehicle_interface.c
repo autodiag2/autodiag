@@ -78,7 +78,6 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
         return false;
     }
 
-    ad_buffer_free(signal_input);
     iface->clear_data(iface);
 
     int responses = iface->recv(iface);
@@ -99,13 +98,16 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
         Buffer * data = v->data_buffer->list[0];
         if (0 < data->size) {
             char *parsingResult = null;
-            double result = ad_expr_reduce_buffer(data, signal->rv_formula, &parsingResult);
+            assert(signal->rv_offset_bytes != null);
+            Buffer * signal_data = ad_buffer_slice(data, signal->rv_offset_bytes(data), data->size - signal->rv_offset_bytes(data));
+            double result = ad_expr_reduce_buffer(signal_data, signal->rv_formula, &parsingResult);
             if ( isnan(result) ) {
-                log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(data), signal->rv_formula, parsingResult);
+                log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(signal_data), signal->rv_formula, parsingResult);
                 MEMORY_FREE_POINTER(parsingResult);
                 iface->unlock(iface);
                 return false;
             }
+            ad_buffer_free(signal_data);
             MEMORY_FREE_POINTER(parsingResult); 
             log_debug("signal response : %.2f", result);
             if (result_rv != null) {
@@ -115,6 +117,7 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
         }
     }
     iface->unlock(iface);
+    ad_buffer_free(signal_input);
 
     return ok;
 }

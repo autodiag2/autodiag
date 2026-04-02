@@ -9,6 +9,8 @@
 #include "saej1979.h"
 #include "libautodiag/com/vehicle_signal.h"
 
+int ad_saej1979_signal_rv_offset_bytes_default(Buffer * input_signal);
+
 #define AD_SIGNAL_SAEJ1979_REGISTER( \
     param_name, \
     param_input_formula, \
@@ -33,7 +35,8 @@ AD_SIGNAL_REGISTER( \
     param_unit, \
     null, \
     null, \
-    "$0=01 | $0=02, $1=01" \
+    "$0=01 | $0=02, $1=01", \
+    ad_saej1979_signal_rv_offset_bytes_default \
 )
 /**
  * Register all signal possible.
