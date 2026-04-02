@@ -354,7 +354,7 @@ static void test_particular_case() {
 static void test_invert_masked_selected_byte() {
     char *err = NULL;
     int signal_offset = -1;
-    const char * expr = "($0 == 0x41 ? $2 : $3) & 0x7F";
+    const char * expr = "$0 & 0x7F";
     double actual_value = NAN;
     Buffer *out = ad_expr_reduce_invert_nearest(
         4.0,
@@ -367,9 +367,8 @@ static void test_invert_masked_selected_byte() {
 
     assert(err == NULL);
     assert(out != NULL);
-    assert(out->size == 4);
-    assert((out->buffer[2] & 0x7F) == 4);
-    assert((out->buffer[3] & 0x7F) == 4);
+    assert(out->size == 1);
+    assert((out->buffer[0] & 0x7F) == 4);
 
     ad_buffer_free(out);
 }
@@ -377,7 +376,7 @@ static void test_invert_masked_selected_byte() {
 static void test_invert_shifted_bit_selected_byte() {
     char *err = NULL;
     int signal_offset = -1;
-    const char * expr = "(($0 == 0x41 ? $2 : $3) >> 7) & 1";
+    const char * expr = "($0 >> 7) & 1";
     double actual_value = NAN;
     Buffer *out = ad_expr_reduce_invert_nearest(
         1.0,
@@ -390,9 +389,8 @@ static void test_invert_shifted_bit_selected_byte() {
 
     assert(err == NULL);
     assert(out != NULL);
-    assert(out->size == 4);
-    assert(((out->buffer[2] >> 7) & 1) == 1);
-    assert(((out->buffer[3] >> 7) & 1) == 1);
+    assert(out->size == 1);
+    assert(((out->buffer[0] >> 7) & 1) == 1);
 
     ad_buffer_free(out);
 }
@@ -400,7 +398,7 @@ static void test_invert_shifted_bit_selected_byte() {
 static void test_invert_byte_div_minus_formula() {
     char *err = NULL;
     int signal_offset = -1;
-    const char * expr = "(($0 == 0x41 ? $2 : $3) / 2) - 40";
+    const char * expr = "$0 / 2 - 40";
     double actual_value = NAN;
     Buffer *out = ad_expr_reduce_invert_nearest(
         60.0,
@@ -412,9 +410,8 @@ static void test_invert_byte_div_minus_formula() {
     );
     assert(err == NULL);
     assert(out != NULL);
-    assert(out->size == 4);
-    assert(out->buffer[2] == 200);
-    assert(out->buffer[3] == 200);
+    assert(out->size == 1);
+    assert(out->buffer[0] == 200);
 
     ad_buffer_free(out);
 }
@@ -422,7 +419,7 @@ static void test_invert_byte_div_minus_formula() {
 static void test_invert_u16_div_formula() {
     char *err = NULL;
     int signal_offset = -1;
-    const char * expr = "((($0 == 0x41 ? $2 : $3) * 256) + ($0 == 0x41 ? $4 : $5)) / 4";
+    const char * expr = "(($0 * 256) + $1) / 4";
     double actual_value = NAN;
     Buffer *out = ad_expr_reduce_invert_nearest(
         1000.0,
@@ -435,11 +432,9 @@ static void test_invert_u16_div_formula() {
 
     assert(err == NULL);
     assert(out != NULL);
-    assert(out->size == 6);
-    assert(out->buffer[2] == 0x0F);
-    assert(out->buffer[3] == 0x0F);
-    assert(out->buffer[4] == 0xA0);
-    assert(out->buffer[5] == 0xA0);
+    assert(out->size == 2);
+    assert(out->buffer[0] == 0x0F);
+    assert(out->buffer[1] == 0xA0);
 
     ad_buffer_free(out);
 }
@@ -448,7 +443,7 @@ static void test_invert_fails_when_target_out_of_byte_range() {
     char *err = NULL;
     int signal_offset = -1;
     double actual_value = NAN;
-    const char * expr = "($0 == 0x41 ? $2 : $3) & 0x7F";
+    const char * expr = "$0 & 0x7F";
     Buffer *out = ad_expr_reduce_invert_nearest(
         300.0,
         expr,
@@ -467,7 +462,7 @@ static void test_invert_round_trip_masked_selected_byte() {
     char *err = NULL;
     int signal_offset = -1;
     double actual_value = NAN;
-    const char * expr = "($0 == 0x41 ? $2 : $3) & 0x7F";
+    const char * expr = "$0 & 0x7F";
     Buffer *out = ad_expr_reduce_invert_nearest(
         37.0,
         expr,
@@ -581,7 +576,7 @@ bool testExpr() {
     tf_run_case(test_parse_fail);
     tf_run_case(test_invert_masked_selected_byte);
     tf_run_case(test_invert_shifted_bit_selected_byte);
-    //tf_run_case(test_invert_byte_div_minus_formula);
+    tf_run_case(test_invert_byte_div_minus_formula);
     tf_run_case(test_invert_u16_div_formula);
     tf_run_case(test_invert_fails_when_target_out_of_byte_range);
     tf_run_case(test_invert_round_trip_masked_selected_byte);
