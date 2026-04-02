@@ -96,6 +96,8 @@ struct ad_expr_inv_ctx {
     char *error;
 };
 
+static bool ad_expr_ast_narrow_binary(ad_expr_inv_ctx *ctx, ad_expr_ast *ast, double target);
+
 static char *ad_expr_strdup(const char *s) {
     size_t n;
     char *r;
@@ -1139,17 +1141,15 @@ static bool ad_expr_ast_narrow_binary(ad_expr_inv_ctx *ctx, ad_expr_ast *ast, do
     }
 
     if (ast->op == AD_EXPR_TOKEN_MINUS &&
-        ast->a != NULL &&
-        ast->a->type == AD_EXPR_AST_BINARY &&
-        ast->a->op == AD_EXPR_TOKEN_SLASH &&
-        ad_expr_ast_extract_selected_byte(ast->a->a, &idx_true, &idx_false) &&
-        ad_expr_ast_is_number(ast->a->b, &lhsn) &&
+        ad_expr_ast_extract_selected_byte(ast->a, &idx_true, &idx_false) &&
         ad_expr_ast_is_number(ast->b, &rhs)) {
-        raw = (int)llround((target + rhs) * lhsn);
+        int raw = (int)llround(target + rhs);
+
         if (raw < 0 || 255 < raw) {
             ad_expr_inv_set_error(ctx, "target out of byte range");
             return false;
         }
+
         if (!ad_expr_domain_allow_only(ctx, idx_true, raw)) return false;
         if (!ad_expr_domain_allow_only(ctx, idx_false, raw)) return false;
         return true;
@@ -2194,6 +2194,226 @@ Buffer *ad_expr_reduce_invert(double target, const char *expr, int *signal_start
     out = ad_expr_inv_build_buffer(&ctx);
     ad_expr_ast_free(root);
     free(ctx.error);
+
+    if (out == NULL && errorReturn != NULL) {
+        *errorReturn = ad_expr_strdup("out of memory");
+    }
+
+    return out;
+}
+static bool ad_expr_inv_eval_current_tolerance(ad_expr_inv_ctx *ctx, double target, double tolerance, double *actual_value_return) {
+    byte buf[16];
+    char *err = NULL;
+    double v;
+    int i;
+
+    for (i = 0; i <= ctx->max_index; i++) {
+        buf[i] = ctx->values[i];
+    }
+
+    v = ad_expr_ast_eval(ctx->root, buf, ctx->max_index + 1, &err);
+    if (err != NULL) {
+        free(err);
+        return false;
+    }
+    if (isnan(v)) {
+        return false;
+    }
+    if (fabs(v - target) <= tolerance) {
+        if (actual_value_return != NULL) {
+            *actual_value_return = v;
+        }
+        return true;
+    }
+    return false;
+}
+
+static bool ad_expr_inv_search_nearest(
+    ad_expr_inv_ctx *ctx,
+    double target,
+    double tolerance,
+    double *best_diff_io,
+    double *best_value_io,
+    byte *best_values
+) {
+    int idx;
+    int i;
+
+    if (ctx->nodes_limit <= ctx->nodes_visited) {
+        ad_expr_inv_set_error(ctx, "inversion search limit reached");
+        return false;
+    }
+    ctx->nodes_visited++;
+
+    idx = ad_expr_pick_next_var(ctx);
+    if (idx < 0) {
+        byte buf[16];
+        char *err = NULL;
+        double v;
+        double diff;
+
+        for (i = 0; i <= ctx->max_index; i++) {
+            buf[i] = ctx->values[i];
+        }
+
+        v = ad_expr_ast_eval(ctx->root, buf, ctx->max_index + 1, &err);
+        if (err != NULL) {
+            free(err);
+            return false;
+        }
+        if (isnan(v)) {
+            return false;
+        }
+
+        diff = fabs(v - target);
+        if (diff <= tolerance && diff < *best_diff_io) {
+            *best_diff_io = diff;
+            *best_value_io = v;
+            for (i = 0; i <= ctx->max_index; i++) {
+                best_values[i] = ctx->values[i];
+            }
+            if (diff == 0.0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    ctx->assigned[idx] = true;
+    for (i = 0; i < 256; i++) {
+        if (!ctx->domains[idx][i]) {
+            continue;
+        }
+        ctx->values[idx] = (byte)i;
+        if (ad_expr_inv_search_nearest(ctx, target, tolerance, best_diff_io, best_value_io, best_values)) {
+            ctx->assigned[idx] = false;
+            return true;
+        }
+        if (ctx->error != NULL) {
+            break;
+        }
+    }
+    ctx->assigned[idx] = false;
+    return false;
+}
+
+Buffer *ad_expr_reduce_invert_nearest(
+    double target,
+    const char *expr,
+    double tolerance,
+    int *signal_start_offset_return,
+    double *actual_value_return,
+    char **errorReturn
+) {
+    ad_expr_inv_ctx ctx;
+    ad_expr_ast *root;
+    int i;
+    Buffer *out;
+    byte best_values[16];
+    double best_diff = INFINITY;
+    double best_value = NAN;
+    bool found = false;
+
+    if (errorReturn != NULL) {
+        *errorReturn = NULL;
+    }
+    if (actual_value_return != NULL) {
+        *actual_value_return = NAN;
+    }
+
+    if (expr == NULL) {
+        if (errorReturn != NULL) {
+            *errorReturn = ad_expr_strdup("expr is NULL");
+        }
+        return NULL;
+    }
+
+    if (tolerance < 0.0) {
+        if (errorReturn != NULL) {
+            *errorReturn = ad_expr_strdup("tolerance is negative");
+        }
+        return NULL;
+    }
+
+    root = ad_expr_parse_ast(expr, errorReturn);
+    if (root == NULL) {
+        return NULL;
+    }
+
+    memset(&ctx, 0, sizeof(ctx));
+    ctx.root = root;
+    ctx.max_index = ad_expr_ast_max_buffer_index(root);
+    ctx.nodes_limit = 1000000;
+
+    if (ctx.max_index < 0) {
+        ad_expr_ast_free(root);
+        if (errorReturn != NULL) {
+            *errorReturn = ad_expr_strdup("expression has no buffer references");
+        }
+        return NULL;
+    }
+
+    if (15 < ctx.max_index) {
+        ad_expr_ast_free(root);
+        if (errorReturn != NULL) {
+            *errorReturn = ad_expr_strdup("too many buffer references for inversion");
+        }
+        return NULL;
+    }
+
+    for (i = 0; i < 16; i++) {
+        int j;
+        for (j = 0; j < 256; j++) {
+            ctx.domains[i][j] = true;
+        }
+    }
+
+    if (!ad_expr_ast_narrow_domains(&ctx, root, target)) {
+        ad_expr_ast_free(root);
+        if (errorReturn != NULL) {
+            *errorReturn = ctx.error != NULL ? ctx.error : ad_expr_strdup("failed to narrow domains");
+        } else {
+            free(ctx.error);
+        }
+        return NULL;
+    }
+
+    ad_expr_ast_pick_signal_offset(root, signal_start_offset_return);
+
+    ad_expr_inv_search_nearest(&ctx, target, tolerance, &best_diff, &best_value, best_values);
+    if (ctx.error != NULL && !isfinite(best_diff)) {
+        ad_expr_ast_free(root);
+        if (errorReturn != NULL) {
+            *errorReturn = ctx.error;
+        } else {
+            free(ctx.error);
+        }
+        return NULL;
+    }
+
+    if (isfinite(best_diff) && best_diff <= tolerance) {
+        found = true;
+        for (i = 0; i <= ctx.max_index; i++) {
+            ctx.values[i] = best_values[i];
+        }
+    }
+
+    if (!found) {
+        ad_expr_ast_free(root);
+        free(ctx.error);
+        if (errorReturn != NULL) {
+            *errorReturn = ad_expr_strdup("no satisfying payload found within tolerance");
+        }
+        return NULL;
+    }
+
+    out = ad_expr_inv_build_buffer(&ctx);
+    ad_expr_ast_free(root);
+    free(ctx.error);
+
+    if (actual_value_return != NULL) {
+        *actual_value_return = best_value;
+    }
 
     if (out == NULL && errorReturn != NULL) {
         *errorReturn = ad_expr_strdup("out of memory");
