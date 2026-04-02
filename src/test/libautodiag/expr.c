@@ -351,6 +351,143 @@ static void test_particular_case() {
         assert(result != NAN && result == -100.0);
     }
 }
+static void test_invert_masked_selected_byte() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        4.0,
+        "($0 == 0x41 ? $2 : $3) & 0x7F",
+        &signal_offset,
+        &err
+    );
+
+    assert(err == NULL);
+    assert(out != NULL);
+    assert(out->size == 4);
+    assert((out->buffer[2] & 0x7F) == 4);
+    assert((out->buffer[3] & 0x7F) == 4);
+
+    ad_buffer_free(out);
+}
+
+static void test_invert_shifted_bit_selected_byte() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        1.0,
+        "(($0 == 0x41 ? $2 : $3) >> 7) & 1",
+        &signal_offset,
+        &err
+    );
+
+    assert(err == NULL);
+    assert(out != NULL);
+    assert(out->size == 4);
+    assert(((out->buffer[2] >> 7) & 1) == 1);
+    assert(((out->buffer[3] >> 7) & 1) == 1);
+
+    ad_buffer_free(out);
+}
+
+static void test_invert_byte_div_minus_formula() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        60.0,
+        "(($0 == 0x41 ? $2 : $3) / 2) - 40",
+        &signal_offset,
+        &err
+    );
+
+    assert(err == NULL);
+    assert(out != NULL);
+    assert(out->size == 4);
+    assert(out->buffer[2] == 200);
+    assert(out->buffer[3] == 200);
+
+    ad_buffer_free(out);
+}
+
+static void test_invert_u16_div_formula() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        1000.0,
+        "((($0 == 0x41 ? $2 : $3) * 256) + ($0 == 0x41 ? $4 : $5)) / 4",
+        &signal_offset,
+        &err
+    );
+
+    assert(err == NULL);
+    assert(out != NULL);
+    assert(out->size == 6);
+    assert(out->buffer[2] == 0x0F);
+    assert(out->buffer[3] == 0x0F);
+    assert(out->buffer[4] == 0xA0);
+    assert(out->buffer[5] == 0xA0);
+
+    ad_buffer_free(out);
+}
+
+static void test_invert_fails_when_target_out_of_byte_range() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        300.0,
+        "($0 == 0x41 ? $2 : $3) & 0x7F",
+        &signal_offset,
+        &err
+    );
+
+    assert(out == NULL);
+    assert(err != NULL);
+    free(err);
+}
+
+static void test_invert_round_trip_masked_selected_byte() {
+    char *err = NULL;
+    int signal_offset = -1;
+    Buffer *out = ad_expr_reduce_invert(
+        37.0,
+        "($0 == 0x41 ? $2 : $3) & 0x7F",
+        &signal_offset,
+        &err
+    );
+    double v_true;
+    double v_false;
+
+    assert(err == NULL);
+    assert(out != NULL);
+
+    out->buffer[0] = 0x41;
+    v_true = ad_expr_reduce_buffer(out, "($0 == 0x41 ? $2 : $3) & 0x7F", &err);
+    assert(err == NULL);
+    assert(v_true == 37.0);
+
+    out->buffer[0] = 0x42;
+    v_false = ad_expr_reduce_buffer(out, "($0 == 0x41 ? $2 : $3) & 0x7F", &err);
+    assert(err == NULL);
+    assert(v_false == 37.0);
+
+    ad_buffer_free(out);
+}
+static void test_buffer_creation_vehicle_speed() {
+    ad_saej1979_data_register_signals();
+    ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
+    int signal_offset = -1;
+    char *err = NULL;
+    Buffer *out = ad_expr_reduce_invert(
+        155.0,
+        signal->rv_formula,
+        &signal_offset,
+        &err
+    );
+    assert(err == NULL);
+    double speed = ad_expr_reduce_buffer(out, signal->rv_formula, &err);
+    assert(err == NULL);
+    assert(fabs(speed - 155.0) < 1e-9);
+}
+
 bool testExpr() {
     tf_run_case(test_particular_case);
     tf_run_case(test_byte_access);
@@ -377,5 +514,12 @@ bool testExpr() {
     tf_run_case(test_nested_function_calls);
     tf_run_case(test_some_signals);
     tf_run_case(test_parse_fail);
+    tf_run_case(test_invert_masked_selected_byte);
+    tf_run_case(test_invert_shifted_bit_selected_byte);
+    tf_run_case(test_invert_byte_div_minus_formula);
+    tf_run_case(test_invert_u16_div_formula);
+    tf_run_case(test_invert_fails_when_target_out_of_byte_range);
+    tf_run_case(test_invert_round_trip_masked_selected_byte);
+    tf_run_case(test_buffer_creation_vehicle_speed);
     return true;
 }

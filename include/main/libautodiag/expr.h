@@ -18,5 +18,6 @@ typedef uint8_t uint8;
  */
 double ad_expr_reduce(const uint8 *bytes, int sz, const char *expr, char **errorReturn);
 double ad_expr_reduce_buffer(Buffer * buffer, const char *expr, char **errorReturn);
+Buffer *ad_expr_reduce_invert(double target, const char *expr, int *signal_start_offset_return, char **errorReturn);
 
 #endif
