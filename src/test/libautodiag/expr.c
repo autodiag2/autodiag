@@ -472,7 +472,6 @@ static void test_invert_round_trip_masked_selected_byte() {
     ad_buffer_free(out);
 }
 static void test_buffer_creation_vehicle_speed() {
-    ad_saej1979_data_register_signals();
     ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
     int signal_offset = -1;
     char *err = NULL;
@@ -487,8 +486,61 @@ static void test_buffer_creation_vehicle_speed() {
     assert(err == NULL);
     assert(fabs(speed - 155.0) < 1e-9);
 }
-
+static void test_inv_case(double signal_value, char * signal_path) {
+    ad_object_vehicle_signal * signal = ad_signal_get(signal_path);
+    int signal_offset = -1;
+    char *err = NULL;
+    Buffer *out = ad_expr_reduce_invert(
+        signal_value,
+        signal->rv_formula,
+        &signal_offset,
+        &err
+    );
+    if ( err != NULL) {
+        log_err("failed to invert signal %s with formula %s for target value %f: %s", ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
+        assert(err == NULL);
+        free(err);
+    }
+    double signal_computed_value = ad_expr_reduce_buffer(out, signal->rv_formula, &err);
+    if ( err != NULL) {
+        log_err("failed to reduce signal %s with formula %s for target value %f: %s", ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
+        assert(err == NULL);
+        free(err);
+    }
+    assert(fabs(signal_computed_value - signal_value) < 1e-9);
+}
+static void test_inv_case_fuel_tank_level_input() {
+    test_inv_case(1629947650.000000, "SAEJ1979.fuel_tank_level_input");
+}
+static void test_random_signals() {
+    ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
+    for(int i = 0; i < 10; i++) {
+        ad_object_vehicle_signal * signal = signals->values[rand() % signals->size];
+        double signal_value = rand();
+        int signal_offset = -1;
+        char *err = NULL;
+        Buffer *out = ad_expr_reduce_invert(
+            signal_value,
+            signal->rv_formula,
+            &signal_offset,
+            &err
+        );
+        if ( err != NULL) {
+            log_err("failed to invert signal %s(%s) with formula %s for target value %f: %s", signal->name, ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
+            assert(err == NULL);
+            free(err);
+        }
+        double signal_reduced_value = ad_expr_reduce_buffer(out, signal->rv_formula, &err);
+        if ( err != NULL) {
+            log_err("failed to reduce signal %s(%s) with formula %s for target value %f: %s", signal->name, ad_object_vehicle_signal_get_exec_path(signal), signal->rv_formula, signal_value, err);
+            assert(err == NULL);
+            free(err);
+        }
+        assert(fabs(signal_reduced_value - signal_value) < 1e-9);
+    }
+}
 bool testExpr() {
+    ad_saej1979_data_register_signals();
     tf_run_case(test_particular_case);
     tf_run_case(test_byte_access);
     tf_run_case(test_logical_and_comparison_ops);
@@ -521,5 +573,7 @@ bool testExpr() {
     tf_run_case(test_invert_fails_when_target_out_of_byte_range);
     tf_run_case(test_invert_round_trip_masked_selected_byte);
     tf_run_case(test_buffer_creation_vehicle_speed);
+    tf_run_case(test_inv_case_fuel_tank_level_input);
+    tf_run_case(test_random_signals);
     return true;
 }
