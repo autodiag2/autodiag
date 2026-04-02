@@ -17,6 +17,7 @@ void sim_init_with_defaults(Sim *sim) {
     final SimECU *ecu = sim_ecu_new(0xE8);
     ad_list_SimECU_append(LIST_SIM_ECU(sim->ecus),ecu);
     sim->device_location = null;
+    ad_saej1979_data_register_signals();
 }
 bool sim_loop_daemon_wait_ready(bool * var) {
     assert(var != null);

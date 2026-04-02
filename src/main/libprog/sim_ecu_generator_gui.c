@@ -1,23 +1,5 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
-static void coolant_temperature_set(SimECUGeneratorGui *gui, int temperature) {
-    char *res;
-    asprintf(&res, "%d °C", temperature);
-    counter_set_label(gui->data.coolantTemperature, res);
-    free(res);
-}
-static void engine_speed_set(SimECUGeneratorGui *gui, double speed) {
-    char *res;
-    asprintf(&res, "%.2f r/min", speed);
-    counter_set_label(gui->data.engineSpeed, res);
-    free(res);
-}
-static void vehicle_speed_set(SimECUGeneratorGui *gui, double speed) {
-    char *res;
-    asprintf(&res, "%.0f km/h", speed);
-    counter_set_label(gui->data.vehicleSpeed, res);
-    free(res);
-}
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
@@ -55,6 +37,29 @@ static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_i
     }
     return binResponse;
 }
+static void use_inverted_signal(SimECUGenerator *generator, Buffer * binResponse, char * signal_path) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    ad_object_hashmap_string_Ptr * signals_widgets = generator->state;
+    GtkWidget * signal_widget = null;
+    for(int i = 0; i < signals_widgets->size; i++) {
+        ad_object_string * key = signals_widgets->keys[i];
+        if ( strcmp(key->data, signal_path) == 0 ) {
+            signal_widget = GTK_WIDGET(((ad_object_Ptr*)signals_widgets->values[i])->value);
+            break;
+        }
+    }
+    assert(signal_widget != null);
+    gdouble percent = counter_get_fraction(signal_widget);
+    ad_object_vehicle_signal * signal = ad_signal_get(signal_path);
+    double value = signal->rv_max - signal->rv_min;
+    value = (percent * value) + signal->rv_min;
+    Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
+    ad_buffer_append(binResponse, signal_inverted);
+    char * txt = gprintf("%.2f %s", value, signal->unit);
+    counter_set_label(signal_widget, txt);
+    free(txt);
+    ad_buffer_free(signal_inverted);
+}
 static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
@@ -82,33 +87,9 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
             }
             ad_buffer_append_melt(binResponse, status);
         } break;
-        case 0x05: {
-            gdouble percent = counter_get_fraction(gui->data.coolantTemperature);
-            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.coolant_temp");
-            byte span = signal->rv_max - signal->rv_min;
-            int value = percent * span;
-            ad_buffer_append_byte(binResponse, (byte)(value));
-            coolant_temperature_set(gui, value + signal->rv_min);
-        } break;
-        case 0x0C: {
-            gdouble percent = counter_get_fraction(gui->data.engineSpeed);
-            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.engine_speed");
-            double span = signal->rv_max - signal->rv_min;
-            int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
-            byte bA = (0xFF00 & value) >> 8;
-            byte bB = 0xFF & value;
-            ad_buffer_append_byte(binResponse, bA);
-            ad_buffer_append_byte(binResponse, bB);
-            engine_speed_set(gui, value/4.0 + signal->rv_min);
-        } break;
-        case 0x0D: {
-            gdouble percent = counter_get_fraction(gui->data.vehicleSpeed);
-            ad_object_vehicle_signal * signal = ad_signal_get("SAEJ1979.vehicle_speed");
-            byte span = signal->rv_max - signal->rv_min;
-            int value = percent * span;
-            ad_buffer_append_byte(binResponse, (byte)value);
-            vehicle_speed_set(gui, value + signal->rv_min);
-        } break;
+        case 0x05: use_inverted_signal(generator, binResponse, "SAEJ1979.coolant_temp"); break;
+        case 0x0C: use_inverted_signal(generator, binResponse, "SAEJ1979.engine_speed"); break;
+        case 0x0D: use_inverted_signal(generator, binResponse, "SAEJ1979.vehicle_speed"); break;
     }
     return binResponse;
 }
@@ -144,9 +125,25 @@ static Buffer * response_saej1979_vehicle_identification_request_info_type(SimEC
     }
     return ad_buffer_new();
 }
+#define REGISTER_WIDGET_SIGNAL(generator, widget, signal_path) \
+    { \
+        if ( generator->state == null ) { \
+            generator->state = ad_object_hashmap_string_Ptr_new(); \
+        } \
+        ad_object_hashmap_string_Ptr * signals_widgets = generator->state; \
+        ad_object_string * signal = ad_object_string_new_from(signal_path); \
+        ad_object_Ptr * widget_ptr = ad_object_Ptr_new_from(widget); \
+        ad_object_hashmap_string_Ptr_set(signals_widgets, signal, widget_ptr); \
+    }
+
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     final Buffer *binResponse = ad_buffer_new();
+    if ( generator->state == null ) {
+        REGISTER_WIDGET_SIGNAL(generator, gui->data.coolantTemperature, "SAEJ1979.coolant_temp");
+        REGISTER_WIDGET_SIGNAL(generator, gui->data.engineSpeed, "SAEJ1979.engine_speed");
+        REGISTER_WIDGET_SIGNAL(generator, gui->data.vehicleSpeed, "SAEJ1979.vehicle_speed");
+    }
     if ( binRequest->size == 0 ) {
         return binResponse;
     }
@@ -186,6 +183,7 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
+    generator->state = null;
     return generator;
 }
 
@@ -228,8 +226,8 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
     gtk_window_set_title(GTK_WINDOW(window), title);
     free(title);
 
-    SimECUGeneratorGui *simGui = (SimECUGeneratorGui *)malloc(sizeof(SimECUGeneratorGui));
-    *simGui = (SimECUGeneratorGui){
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)malloc(sizeof(SimECUGeneratorGui));
+    *gui = (SimECUGeneratorGui){
         .window = GTK_WIDGET(gtk_builder_get_object(builder, "window-root")),
         .dtcs = {
             .listView = GTK_LIST_BOX(gtk_builder_get_object(builder, "dtcs-list-view")),
@@ -248,24 +246,24 @@ SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generato
         .vin = GTK_ENTRY(gtk_builder_get_object(builder,"vin"))
     };
 
-    assert(0 != g_signal_connect(G_OBJECT(simGui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
-    assert(0 != g_signal_connect(G_OBJECT(simGui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
-    assert(0 != g_signal_connect(simGui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), simGui));
+    assert(0 != g_signal_connect(G_OBJECT(gui->window), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
+    assert(0 != g_signal_connect(G_OBJECT(gui->dtcs.invalidDtc), "delete-event", G_CALLBACK(gtk_widget_generic_onclose), NULL));
+    assert(0 != g_signal_connect(gui->dtcs.inputButton, "clicked", G_CALLBACK(add_dtc), gui));
 
-    counter_init_modifiable(GTK_WIDGET(simGui->data.vehicleSpeed),"counter_85_2_255_0_0_255.png", true);
-    counter_init_modifiable(GTK_WIDGET(simGui->data.coolantTemperature),"gaugehalf_225_5_255_0_0_255.png", true);
-    counter_init_modifiable(GTK_WIDGET(simGui->data.engineSpeed),"counter_85_2_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_WIDGET(gui->data.vehicleSpeed),"counter_85_2_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_WIDGET(gui->data.coolantTemperature),"gaugehalf_225_5_255_0_0_255.png", true);
+    counter_init_modifiable(GTK_WIDGET(gui->data.engineSpeed),"counter_85_2_255_0_0_255.png", true);
 
     gtk_builder_connect_signals(builder, NULL);
     g_object_unref(G_OBJECT(builder));
 
-    coolant_temperature_set(simGui, NAN);
-    engine_speed_set(simGui, NAN);
-    vehicle_speed_set(simGui, NAN);
+    counter_set_label(gui->data.coolantTemperature, "0 °C");
+    counter_set_label(gui->data.engineSpeed, "0 RPM");
+    counter_set_label(gui->data.vehicleSpeed, "0 km/h");
 
-    generator->context = (void *)simGui;
+    generator->context = (void *)gui;
 
-    return simGui;
+    return gui;
 }
 static gboolean present_window_false(gpointer w) {
     sleep(1);
