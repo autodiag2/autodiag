@@ -285,11 +285,21 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
         final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
+            if ( 0 == data->size ) {
+                log_msg(LOG_WARNING, "Empty response buffer");
+                continue;
+            }
             if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
                 log_msg(LOG_ERROR, "ECU has responded negatively to seed request");
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                assert(3 < data->size);
-                assert(data->buffer[1] == UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED);
+                if ( data->size < 4 ) {
+                    log_msg(LOG_ERROR, "Incorrect seed response size, expected at least 4 bytes but got %d", data->size);
+                    continue;
+                }
+                if ( data->buffer[1] != UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED ) {
+                    log_warn("incorrect response");
+                    continue;
+                }
                 ad_object_hashmap_Int_Int_set(
                     seeds,
                     ad_object_Int_new_from(ecu->address->buffer[1]), 
@@ -315,6 +325,10 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
             final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
+                if ( 0 == data->size ) {
+                    log_msg(LOG_WARNING, "Empty response buffer");
+                    continue;
+                }
                 if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
                     log_msg(LOG_ERROR, "ECU has responded negatively to verify key request");
                     ad_object_hashmap_Int_Int_set(
@@ -323,8 +337,14 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
                         ad_object_Int_new_from(false)
                     );
                 } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                    assert(1 < data->size);
-                    assert(data->buffer[1] == UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY);
+                    if ( data->size < 2 ) {
+                        log_msg(LOG_ERROR, "Incorrect verify key response size, expected at least 2 bytes but got %d", data->size);
+                        continue;
+                    }
+                    if ( data->buffer[1] != UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY ) {
+                        log_warn("incorrect response");
+                        continue;
+                    }
                     ad_object_hashmap_Int_Int_set(
                         verify,
                         ad_object_Int_new_from(ecu->address->buffer[1]), 

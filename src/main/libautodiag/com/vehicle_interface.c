@@ -35,6 +35,22 @@ int viface_send_str(final VehicleIFace * iface, final char * request) {
     ad_buffer_free(binRequest);
     return result;
 }
+Buffer * ad_viface_find_first_response(final VehicleIFace * iface, byte service_id) {
+    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
+        final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
+        for(int j = 0; j < ecu->data_buffer->size; j++) {
+            final Buffer * data = ecu->data_buffer->list[j];
+            if ( 0 == data->size ) {
+                log_msg(LOG_WARNING, "Empty response buffer");
+                continue;
+            }
+            if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE && (data->buffer[0] & 0x7F) == service_id ) {
+                return data;
+            }
+        }
+    }
+    return null;
+}
 bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *signal, double *result_rv, ...) {
     assert(iface != null);
     assert(signal != null);

@@ -157,5 +157,9 @@ void viface_recv_filter_clear(final VehicleIFace* iface);
  * @return true if signal received and parsed else on any error false
  */
 bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *signal, double *result_rv, ...);
+/**
+ * No matter how many ECU have responded, use the first response.
+ */
+Buffer * ad_viface_find_first_response(final VehicleIFace * iface, byte service_id);
 
 #endif
