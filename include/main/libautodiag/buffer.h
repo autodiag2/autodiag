@@ -186,4 +186,7 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer);
 
 #define AD_BUFFER_APPEND_BYTES(dest, ...) __PPCAT(__BUFFER_APPEND_, __PPNARG(__VA_ARGS__))(dest, __VA_ARGS__)
 
+Buffer * ad_buffer_or(Buffer * b1, Buffer * b2);
+Buffer * ad_buffer_xor(Buffer * b1, Buffer * b2);
+
 #endif

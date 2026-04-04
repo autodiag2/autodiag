@@ -164,6 +164,42 @@ void ad_buffer_memcpy(Buffer * buffer, void * src, int sz) {
     memcpy(buffer->buffer, src, sz);
     buffer->size = sz;
 }
+Buffer * ad_buffer_or(Buffer * b1, Buffer * b2) {
+    assert(b1 != null);
+    assert(b2 != null);
+    Buffer * result = ad_buffer_new();
+    int result_sz = max(b1->size, b2->size);
+    ad_buffer_ensure_capacity(result, result_sz);
+    for(unsigned i = 0; i < result_sz; i++) {
+        if ( i < b1->size && i < b2->size ) {
+            result->buffer[i] = b1->buffer[i] | b2->buffer[i];
+        } else if ( i < b1->size ) {
+            result->buffer[i] = b1->buffer[i];
+        } else if ( i < b2->size ) {
+            result->buffer[i] = b2->buffer[i];
+        }
+    }
+    result->size = result_sz;
+    return result;
+}
+Buffer * ad_buffer_xor(Buffer * b1, Buffer * b2) {
+    assert(b1 != null);
+    assert(b2 != null);
+    Buffer * result = ad_buffer_new();
+    int result_sz = max(b1->size, b2->size);
+    ad_buffer_ensure_capacity(result, result_sz);
+    for(unsigned i = 0; i < result_sz; i++) {
+        if ( i < b1->size && i < b2->size ) {
+            result->buffer[i] = b1->buffer[i] ^ b2->buffer[i];
+        } else if ( i < b1->size ) {
+            result->buffer[i] = b1->buffer[i];
+        } else if ( i < b2->size ) {
+            result->buffer[i] = b2->buffer[i];
+        }
+    }
+    result->size = result_sz;
+    return result;
+}
 Buffer * ad_buffer_copy(Buffer* buffer) {
     if ( buffer == null ) {
         return null;
