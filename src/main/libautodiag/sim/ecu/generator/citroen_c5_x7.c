@@ -183,20 +183,123 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             }
         } break;
         case UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
-            if ( 2 < binRequest->size ) {
-                if ( (binRequest->size-1) % 2 != 0 ) {
+            if (2 < binRequest->size) {
+                if ((binRequest->size - 1) % 2 != 0) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 } else {
-                    for(unsigned i = 1; i < (binRequest->size-1); i+=2) {
-                        final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i+1];
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i+1]));
-                        switch(did) {
+                    for (unsigned i = 1; i < (unsigned)(binRequest->size - 1); i += 2) {
+                        final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i + 1];
+                        ad_buffer_append_melt(binResponse, ad_buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i + 1]));
+
+                        switch (did) {
+                            case UDS_DID_bootSoftwareIdentificationDataIdentifier: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_BTL_ECU_9666912580"));
+                            } break;
+
+                            case UDS_DID_applicationSoftwareIdentificationDataIdentifier: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_APP_ECU_9666912580"));
+                            } break;
+
+                            case UDS_DID_applicationDataIdentification: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_CAL_2.0HDI_163"));
+                            } break;
+
+                            case UDS_DID_bootSoftwareFingerprint: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("BTLFP20100415"));
+                            } break;
+
+                            case UDS_DID_applicationSoftwareFingerprint: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("APPFP20110422"));
+                            } break;
+
+                            case UDS_DID_applicationDataFingerprint: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CALFP20110503"));
+                            } break;
+
                             case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: {
                                 ad_buffer_append_byte(binResponse, state->uds.session_type);
                             } break;
-                            case UDS_DID_VIN: {
-                                ad_buffer_append(binResponse, state->vin);
+
+                            case UDS_DID_manufacturerSparePartNumber: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9666912580"));
                             } break;
+
+                            case UDS_DID_manufacturerECUSoftwareNumber: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9675495080"));
+                            } break;
+
+                            case UDS_DID_manufacturerECUSoftwareVersion: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("SW16.1"));
+                            } break;
+
+                            case UDS_DID_identifierOfSystemSupplier: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CONTINENTAL"));
+                            } break;
+
+                            case UDS_DID_ECUManufacturingDate: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110321"));
+                            } break;
+
+                            case UDS_DID_ECUSerialNumber: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7ECU00000001"));
+                            } break;
+
+                            case UDS_DID_SupportedFunctionnalUnit: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ints(0x00, 0x01));
+                            } break;
+
+                            case UDS_DID_ManufacturerKitAssemblyPartNumber: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("KITC5X7ECM001"));
+                            } break;
+
+                            case UDS_DID_VIN: {
+                                if (state->vin != null && state->vin->size == 17) {
+                                    ad_buffer_append(binResponse, state->vin);
+                                } else {
+                                    ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("VF7RD4HTHBL123456"));
+                                }
+                            } break;
+
+                            case UDS_DID_system_supplier_ECU_hardware_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("HWECMC5X7A01"));
+                            } break;
+
+                            case UDS_DID_system_supplier_ECU_hardware_version_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("HW01.00"));
+                            } break;
+
+                            case UDS_DID_system_supplier_ECU_software_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("SWECMC5X7A01"));
+                            } break;
+
+                            case UDS_DID_system_supplier_ECU_software_version_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9666A1.00"));
+                            } break;
+
+                            case UDS_DID_exhaust_regulation_type_approval_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("EU5"));
+                            } break;
+
+                            case UDS_DID_system_name_engine_type: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("DW10CTED4"));
+                            } break;
+
+                            case UDS_DID_repair_shop_code_tester_serial_number: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("PSA-TOOL-000001"));
+                            } break;
+
+                            case UDS_DID_programming_date: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110408"));
+                            } break;
+
+                            case UDS_DID_ECU_installation_date: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110419"));
+                            } break;
+
+                            case UDS_DID_ODX_file: {
+                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CITROEN_C5X7_DW10C_ECM.ODX"));
+                            } break;
+
                             default: {
                                 ad_buffer_append(binResponse, ad_buffer_new_random_with_seed(10, seed));
                             } break;
