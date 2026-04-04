@@ -451,10 +451,15 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_DEFAULTS);
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("e") {
-        bool echo = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Set echo %s", echo ? "on" : "off");
-        elm327->echo = echo;
-        SIM_ELM327_REPLY_OK();
+        int echo_rv;
+        if ( sscanf(AT_DATA_START, "%d", &echo_rv) == 1 ) {
+            if ( echo_rv == 0 || echo_rv == 1 ) {
+                bool echo = echo_rv == 0 ? false : true;
+                log_msg(LOG_INFO, "Set echo %s", echo ? "on" : "off");
+                elm327->echo = echo;
+                SIM_ELM327_REPLY_OK();
+            }
+        }
     } else if AT_PARSE("fe") {
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("fc") {
@@ -482,14 +487,19 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
     } else if AT_PARSE("je") {
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("l") {
-        bool lfe = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
-        if ( lfe ) {
-                asprintf(&elm327->eol,"%c%c", SIM_ELM327_PP_GET(elm327,0x0D), SIM_ELM327_PP_GET(elm327,0x0A));
-        } else {
-                asprintf(&elm327->eol,"%c", SIM_ELM327_PP_GET(elm327,0x0D));
+        int lfe_rv;
+        if ( sscanf(AT_DATA_START, "%d", &lfe_rv) == 1 ) {
+            if ( lfe_rv == 0 || lfe_rv == 1 ) {
+                bool lfe = lfe_rv == 0 ? false : true;
+                log_msg(LOG_INFO, "Set linefeeds %s", lfe ? "enabled" : "disabled");
+                if ( lfe ) {
+                    asprintf(&elm327->eol,"%c%c", SIM_ELM327_PP_GET(elm327,0x0D), SIM_ELM327_PP_GET(elm327,0x0A));
+                } else {
+                    asprintf(&elm327->eol,"%c", SIM_ELM327_PP_GET(elm327,0x0D));
+                }
+                SIM_ELM327_REPLY_OK();
+            }
         }
-        SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("nl") {
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("pb") {
@@ -723,9 +733,15 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         sim_elm327_go_low_power();
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("caf") {
-        elm327->can.auto_format = atoi(AT_DATA_START);
-        log_msg(LOG_INFO, "Can auto format %s", elm327->can.auto_format ? "enabled" : "disabled");
-        SIM_ELM327_REPLY_OK();
+        int caf_rv;
+        if ( sscanf(AT_DATA_START, "%d", &caf_rv) == 1 ) {
+            if ( caf_rv == 0 || caf_rv == 1 ) {
+                bool caf = caf_rv == 0 ? false : true;
+                elm327->can.auto_format = caf;
+                log_msg(LOG_INFO, "Can auto format %s", caf ? "enabled" : "disabled");
+                SIM_ELM327_REPLY_OK();
+            }
+        }
     } else if AT_PARSE("kw") {
         char number;
         if ( sscanf(AT_DATA_START,"%c",&number) == 1 ) {
