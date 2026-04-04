@@ -50,6 +50,7 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
     signal->dst_address = null;
     signal->src_address = null;
     signal->examples = null;
+    signal->rv_offset_bytes = null;
     return signal;
 }
 void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
@@ -65,6 +66,7 @@ void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
         ad_buffer_free(signal->dst_address);
         ad_buffer_free(signal->src_address);
         MEMORY_FREE_POINTER(signal->examples);
+        signal->rv_offset_bytes = null;
         MEMORY_FREE_POINTER(signal);
     }
 }
@@ -82,6 +84,7 @@ ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_sign
     to->dst_address = ad_buffer_copy(from->dst_address);
     to->src_address = ad_buffer_copy(from->src_address);
     to->examples = from->examples ? strdup(from->examples) : null;
+    to->rv_offset_bytes = from->rv_offset_bytes;
     return to;
 }
 char * ad_object_vehicle_signal_get_exec_path(ad_object_vehicle_signal *signal) {
