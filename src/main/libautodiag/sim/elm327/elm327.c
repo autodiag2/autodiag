@@ -713,11 +713,23 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
             SIM_ELM327_REPLY_OK();
         }
     } else if AT_PARSE("s") {
-        elm327->printing_of_spaces = atoi(AT_DATA_START);
-        SIM_ELM327_REPLY_OK();
+        int printing_of_spaces_rv;
+        if ( sscanf(AT_DATA_START, "%d", &printing_of_spaces_rv) == 1 ) {
+            if ( printing_of_spaces_rv == 0 || printing_of_spaces_rv == 1 ) {
+                bool printing_of_spaces = printing_of_spaces_rv == 0 ? false : true;
+                elm327->printing_of_spaces = printing_of_spaces;
+                SIM_ELM327_REPLY_OK();
+            }
+        }
     } else if AT_PARSE("h") {
-        elm327->printing_of_headers = atoi(AT_DATA_START);
-        SIM_ELM327_REPLY_OK();
+        int printing_of_headers_rv;
+        if ( sscanf(AT_DATA_START, "%d", &printing_of_headers_rv) == 1 ) {
+            if ( printing_of_headers_rv == 0 || printing_of_headers_rv == 1 ) {
+                bool printing_of_headers = printing_of_headers_rv == 0 ? false : true;
+                elm327->printing_of_headers = printing_of_headers;
+                SIM_ELM327_REPLY_OK();
+            }
+        }
     } else if AT_PARSE("@1") {
         SIM_ELM327_REPLY_GENERIC("%s", elm327->dev_description);
     } else if AT_PARSE("@2") {
