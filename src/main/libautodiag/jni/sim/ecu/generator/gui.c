@@ -48,15 +48,20 @@
         }
         return env;
     }
+
+    #define response_saej1979_pid_with_signal(signal_path, mid_signal) { \
+        const ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
+        double value = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_signal); \
+        Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
+        ad_buffer_append_melt(binResponse, signal_inverted); \
+    }
+
     static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
         unsigned * seed = generator->context;
         Buffer * binResponse = ad_buffer_new();
         JNIEnv *env = get_env();
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         bool useParent = true;
-        int vehicle_speed = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_vehicle_speed);
-        int coolant_temperature  = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_coolant_temperature);
-        int engine_rpm   = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_engine_rpm);
         bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status);
         bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
@@ -85,40 +90,27 @@
                 useParent = false;
             } break;
             case 0x05: {
-                int coolant_coolant_temperature_abs = coolant_temperature - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                byte span = SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MAX - SAEJ1979_DATA_ENGINE_COOLANT_TEMPERATURE_MIN;
-                double percent = (1.0 * coolant_coolant_temperature_abs) / span;
-                int value = percent * span;
-                ad_buffer_append_byte(binResponse, (byte)(value));
+                response_saej1979_pid_with_signal("SAEJ1979.coolant_temp", mid_coolant_temperature);
                 useParent = false;
             } break;
             case 0x0C: {
-                int engine_rpm_abs = engine_rpm - SAEJ1979_DATA_ENGINE_SPEED_MIN;
-                double span = SAEJ1979_DATA_ENGINE_SPEED_MAX - SAEJ1979_DATA_ENGINE_SPEED_MIN;
-                double percent = (1.0 * engine_rpm_abs) / span;
-                int value = percent * span * 4; // span * percent = (256 * A + B ) / 4
-                byte bA = (0xFF00 & value) >> 8;
-                byte bB = 0xFF & value;
-                ad_buffer_append_byte(binResponse, bA);
-                ad_buffer_append_byte(binResponse, bB);
+                response_saej1979_pid_with_signal("SAEJ1979.engine_speed", mid_engine_rpm);
                 useParent = false;
             } break;
             case 0x0D: {
-                int vehicle_speed_abs = vehicle_speed - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
-                byte span = SAEJ1979_DATA_VEHICLE_SPEED_MAX - SAEJ1979_DATA_VEHICLE_SPEED_MIN;
-                double percent = (1.0 * vehicle_speed_abs) / span;
-                int value = percent * span;
-                ad_buffer_append_byte(binResponse, (byte)value);
+                response_saej1979_pid_with_signal("SAEJ1979.vehicle_speed", mid_vehicle_speed);
                 useParent = false;
             } break;
         }
         if ( useParent ) {
-            return parent->response(parent, binRequest);
+            return parent->response_saej1979_pid(parent, pid, frameNumber);
         }
         return binResponse;
     }
     static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
         JNIEnv *env = get_env();
+        Buffer * binResponse = ad_buffer_new();
+        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
         ad_list_Buffer * dtcs_list = ad_list_Buffer_new();
@@ -149,6 +141,7 @@
     }
     static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
         JNIEnv *env = get_env();
+        unsigned * seed = generator->context;
         jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
 
@@ -183,8 +176,6 @@
         final Buffer *binResponse = ad_buffer_new();
         bool useParent = true;
         if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
-            (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
-            (*env)->ReleaseStringUTFChars(env, vin_j, vin);
             return ad_buffer_new();
         }
         switch(binRequest->buffer[0]) {
@@ -212,8 +203,6 @@
                 useParent = false;
                 break;
         }
-        (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
-        (*env)->ReleaseStringUTFChars(env, vin_j, vin);
         if ( useParent ) {
             return parent->response(parent, binRequest);
         }

@@ -54,11 +54,10 @@ static void use_inverted_signal(SimECUGenerator *generator, Buffer * binResponse
     double value = signal->rv_max - signal->rv_min;
     value = (percent * value) + signal->rv_min;
     Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
-    ad_buffer_append(binResponse, signal_inverted);
+    ad_buffer_append_melt(binResponse, signal_inverted);
     char * txt = gprintf("%.2f %s", value, signal->unit);
     counter_set_label(signal_widget, txt);
     free(txt);
-    ad_buffer_free(signal_inverted);
 }
 static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
