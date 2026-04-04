@@ -11,12 +11,6 @@ LOG_DEBUG = 4
 lib.log_msg_internal.argtypes = [LogLevel, c_char_p, c_int, c_char_p]
 lib.log_msg_internal.restype = None
 
-lib.module_debug.argtypes = [c_char_p, c_char_p]
-lib.module_debug.restype = None
-
-lib.module_debug_init.argtypes = [c_char_p]
-lib.module_debug_init.restype = None
-
 lib.log_set_level.argtypes = [LogLevel]
 lib.log_set_level.restype = None
 

@@ -68,5 +68,4 @@ lib.ad_list_DTC_append_list.argtypes = [POINTER(list_DTC), POINTER(list_DTC)]
 lib.ad_list_DTC_get.argtypes = [POINTER(list_DTC), c_char_p]
 lib.ad_list_DTC_get.restype = POINTER(DTC)
 
-lib.dtc_desc_fill_from_codes_file.argtypes = [POINTER(DTC), POINTER(DTC_DESCRIPTION)]
-lib.dtc_description_fetch_from_fs.argtypes = [POINTER(DTC), POINTER(Vehicle)]
+lib.ad_dtc_fetch_from_db.argtypes = [POINTER(DTC), POINTER(DTC_DESCRIPTION)]

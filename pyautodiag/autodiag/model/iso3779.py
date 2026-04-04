@@ -32,11 +32,6 @@ class ISO3779(Structure):
             lib.ISO3779_decode_at_year.argtypes = [POINTER(ISO3779), POINTER(Buffer), c_int]
             lib.ISO3779_decode_at_year(byref(self), pointer(vin), year)
     
-    def manufacturer_is_less_500(self):
-        lib.ISO3779_manufacturer_is_less_500.argtypes = [POINTER(ISO3779)]
-        lib.ISO3779_manufacturer_is_less_500.restype = c_bool
-        return lib.ISO3779_manufacturer_is_less_500(byref(self))
-
     def region(self):
         lib.ISO3779_region.argtypes = [POINTER(ISO3779)]
         lib.ISO3779_region.restype = c_char_p

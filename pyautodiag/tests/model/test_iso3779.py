@@ -4,8 +4,7 @@ from autodiag.log import *
 def test_decode():
     decoder = ISO3779()
     decoder.decode("VF1BB05CF26010203")
-    assert decoder.manufacturer_is_less_500() == False
-    assert decoder.region() == "Europe"
-    assert decoder.get_country() == "france"
-    assert "enault" in decoder.get_manufacturer()
+    assert decoder.region().lower() == "europe"
+    assert decoder.get_country().lower() == "france"
+    assert "renault" in decoder.get_manufacturer().lower()
     assert decoder.year == 2002

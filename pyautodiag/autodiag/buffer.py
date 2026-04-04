@@ -30,7 +30,7 @@ class Buffer(Structure):
     def ensure_termination(self): lib.ad_buffer_ensure_termination(byref(self))
     def equals(self, other): return lib.ad_buffer_equals(byref(self), byref(other))
     def cmp(self, other): return lib.ad_buffer_cmp(byref(self), byref(other))
-    def padding(self, until, pad): lib.ad_buffer_padding(byref(self), until, pad)
+    def padding(self, until, pad): lib.ad_buffer_pad(byref(self), until, pad)
     def to_hex_string(self): return lib.ad_buffer_to_hex_string(byref(self)).decode()
     def to_ascii(self): return lib.ad_buffer_to_ascii(byref(self)).decode()
     def get_free_space(self): return lib.ad_buffer_get_free_space(byref(self))
@@ -87,7 +87,7 @@ lib.ad_buffer_ensure_capacity.argtypes = [POINTER(Buffer), c_int]
 lib.ad_buffer_ensure_capacity.restype = bool
 lib.ad_buffer_get_free_space.argtypes = [POINTER(Buffer)]
 lib.ad_buffer_get_free_space.restype = c_int
-lib.ad_buffer_padding.argtypes = [POINTER(Buffer), c_int, c_ubyte]
+lib.ad_buffer_pad.argtypes = [POINTER(Buffer), c_int, c_ubyte]
 lib.ad_buffer_free.argtypes = [POINTER(Buffer)]   
 lib.ad_buffer_dump.argtypes = [POINTER(Buffer)]
 lib.ad_buffer_recycle.argtypes = [POINTER(Buffer)]

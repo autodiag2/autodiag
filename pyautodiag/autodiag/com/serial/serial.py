@@ -76,33 +76,12 @@ class Serial(Structure):
 
     def debug_from_python(self):
         print("Serial: {")
-        print("  Device:{")
-        print(f"    send: {addr(self.device.send)}")
-        print(f"    recv: {addr(self.device.recv)}")
-        print(f"    open: {addr(self.device.open)}")
-        print(f"    close: {addr(self.device.close)}")
-        print(f"    describe_communication_layer: {addr(self.device.describe_communication_layer)}")
-        print(f"    parse_data: {addr(self.device.parse_data)}")
-        print(f"    clear_data: {addr(self.device.clear_data)}")
-        print(f"    lock: {addr(self.device.lock)}")
-        print(f"    unlock: {addr(self.device.unlock)}")
-        print("  }")
+        self.device.debug_from_python()
         print(f"  echo: {self.echo}")
         print(f"  baud_rate: {self.baud_rate}")
-        print(f"  status: {self.status}")
-        print(f"  location: {self.device.location.decode('utf-8') if self.device.location else None}")
         print(f"  eol: {self.eol.decode('utf-8') if self.eol else None}")
         print(f"  timeout: {self.timeout}")
         print(f"  timeout_seq: {self.timeout_seq}")
-        if self.recv_buffer:
-            print(f"  recv_buffer: {self.recv_buffer.contents}")
-        else:
-            print("  recv_buffer: None")
-        print(f"  detected: {self.detected}")
-        if self.guess_response:
-            print(f"  guess_response: {addr(self.guess_response)}")
-        else:
-            print("  guess_response: None")
         print("}")
 
     def free(self):
