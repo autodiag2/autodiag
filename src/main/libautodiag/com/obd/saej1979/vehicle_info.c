@@ -56,7 +56,7 @@ SAEJ1979_VEHICLE_INFO_GENERATE_OBD_REQUEST_ITERATE_BODY(
             } else { \
                 n = ecu_name_bin->size; \
             } \
-            MEMORY_FREE_POINTER(ecu->name); \
+            AD_PTR_FREE(ecu->name); \
             ecu->name = malloc(n + 1); \
             memcpy(ecu->name, ecu_name_bin->buffer, n); \
             ecu->name[n] = '\0'; \

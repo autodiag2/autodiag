@@ -619,8 +619,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* seria
         sim_elm327_set_baud_rate_divisor_timeout(elm327, value);
         SIM_ELM327_REPLY_OK();                    
     } else if AT_PARSE("ar") {
-        if ( elm327->receive_address != null ) free(elm327->receive_address);
-        elm327->receive_address = null;
+        AD_PTR_FREE(elm327->receive_address);
         SIM_ELM327_REPLY_OK();
     } else if AT_PARSE("cp") {
         sscanf(AT_DATA_START,"%02hhx",&elm327->can.priority_29bits);

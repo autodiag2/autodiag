@@ -45,7 +45,7 @@ GENERATE_TYPE_DUP_HEADER(double);
 GENERATE_TYPE_DUP_HEADER(byte);
 bool * booldup(bool i);
 
-#define MEMORY_FREE_POINTER(ptr) \
+#define AD_PTR_FREE(ptr) \
     if ( ptr != null ) { \
         free(ptr); \
         ptr = null; \

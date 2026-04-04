@@ -119,12 +119,12 @@ bool viface_use_signal(final VehicleIFace *iface, ad_object_vehicle_signal *sign
             double result = ad_expr_reduce_buffer(signal_data, signal->rv_formula, &parsingResult);
             if ( isnan(result) ) {
                 log_err("Parsing of the signal 0x%s with %s failed : %s", ad_buffer_to_hex_string(signal_data), signal->rv_formula, parsingResult);
-                MEMORY_FREE_POINTER(parsingResult);
+                AD_PTR_FREE(parsingResult);
                 iface->unlock(iface);
                 return false;
             }
             ad_buffer_free(signal_data);
-            MEMORY_FREE_POINTER(parsingResult); 
+            AD_PTR_FREE(parsingResult); 
             log_debug("signal response : %.2f", result);
             if (result_rv != null) {
                 *result_rv = result;
@@ -481,9 +481,9 @@ void viface_discover_vehicle(VehicleIFace* iface) {
     saej1979_data_is_pid_supported(iface, 0x01);
     for(int i = 0; i < iface->vehicle->ecus->size; i++) {
         ad_object_ECU* ecu = iface->vehicle->ecus->list[i];
-        MEMORY_FREE_POINTER(ecu->name);
-        MEMORY_FREE_POINTER(ecu->manufacturer);
-        MEMORY_FREE_POINTER(ecu->model);
+        AD_PTR_FREE(ecu->name);
+        AD_PTR_FREE(ecu->manufacturer);
+        AD_PTR_FREE(ecu->model);
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
     iface->uds.enabled = uds_is_enabled(iface);

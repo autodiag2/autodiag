@@ -73,10 +73,10 @@ void vehicle_ecu_empty_duplicated_info(ad_object_ECU* ecu) {
 }
 void ad_object_ECU_free(ad_object_ECU* ecu) {
     ad_list_Buffer_free(ecu->data_buffer);
-    MEMORY_FREE_POINTER(ecu->address);
-    MEMORY_FREE_POINTER(ecu->name);
-    MEMORY_FREE_POINTER(ecu->manufacturer);
-    MEMORY_FREE_POINTER(ecu->model);
+    AD_PTR_FREE(ecu->address);
+    AD_PTR_FREE(ecu->name);
+    AD_PTR_FREE(ecu->manufacturer);
+    AD_PTR_FREE(ecu->model);
 }
 void vehicle_ecu_debug(final ad_object_ECU *ecu) {
     assert(ecu != null);
@@ -128,12 +128,12 @@ void vehicle_free(Vehicle * v) {
             }
             ad_list_ad_object_ECU_free(v->ecus);
         }
-        MEMORY_FREE_POINTER(v->country)
-        MEMORY_FREE_POINTER(v->manufacturer)
+        AD_PTR_FREE(v->country)
+        AD_PTR_FREE(v->manufacturer)
         v->year = VEHICLE_YEAR_EMPTY;
-        MEMORY_FREE_POINTER(v->engine)
-        MEMORY_FREE_POINTER(v->model);
-        MEMORY_FREE_POINTER(v->engine_manufacturer);
+        AD_PTR_FREE(v->engine)
+        AD_PTR_FREE(v->model);
+        AD_PTR_FREE(v->engine_manufacturer);
         if ( v->vin != null ) {
             ad_buffer_free(v->vin);
             v->vin = null;

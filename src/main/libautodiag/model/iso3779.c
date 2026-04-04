@@ -100,8 +100,8 @@ void ISO3779_dump(final ISO3779 *decoder) {
 void ISO3779_free(ISO3779 *decoder) {
     ad_buffer_free(decoder->vin);
     decoder->vin = null;
-    MEMORY_FREE_POINTER(decoder->country)
-    MEMORY_FREE_POINTER(decoder->manufacturer)
+    AD_PTR_FREE(decoder->country)
+    AD_PTR_FREE(decoder->manufacturer)
     decoder->year = -1;
     decoder->wmi = null;
     decoder->vds = null;

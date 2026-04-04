@@ -55,19 +55,19 @@ ad_object_vehicle_signal * ad_object_vehicle_signal_new() {
 }
 void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
     if ( signal != null ) {
-        MEMORY_FREE_POINTER(signal->rv_formula);
-        MEMORY_FREE_POINTER(signal->input_formula);
-        MEMORY_FREE_POINTER(signal->name);
-        MEMORY_FREE_POINTER(signal->description);
-        MEMORY_FREE_POINTER(signal->category);
-        MEMORY_FREE_POINTER(signal->standard);
-        MEMORY_FREE_POINTER(signal->unit);
-        MEMORY_FREE_POINTER(signal->slug);
+        AD_PTR_FREE(signal->rv_formula);
+        AD_PTR_FREE(signal->input_formula);
+        AD_PTR_FREE(signal->name);
+        AD_PTR_FREE(signal->description);
+        AD_PTR_FREE(signal->category);
+        AD_PTR_FREE(signal->standard);
+        AD_PTR_FREE(signal->unit);
+        AD_PTR_FREE(signal->slug);
         ad_buffer_free(signal->dst_address);
         ad_buffer_free(signal->src_address);
-        MEMORY_FREE_POINTER(signal->examples);
+        AD_PTR_FREE(signal->examples);
         signal->rv_offset_bytes = null;
-        MEMORY_FREE_POINTER(signal);
+        AD_PTR_FREE(signal);
     }
 }
 ad_object_vehicle_signal* ad_object_vehicle_signal_assign(ad_object_vehicle_signal* to, ad_object_vehicle_signal* from) {
