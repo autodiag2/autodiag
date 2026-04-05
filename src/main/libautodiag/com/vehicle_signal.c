@@ -101,6 +101,17 @@ ad_object_hashmap_string_vehicle_signal * ad_signals_get() {
     }
     return ad_signals_registry;
 }
+ad_object_vehicle_signal * ad_signal_get_from_saej1979_pid(byte pid) {
+    char * pidStr = gprintf("${0}%02hhX${1}", pid);
+    ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
+    for(int i = 0; i < signals->size; i++) {
+        ad_object_vehicle_signal * signal = signals->values[i];
+        if ( strstr(signal->input_formula, pidStr) != null ) {
+            return signal;
+        }
+    }
+    return null;
+}
 ad_object_vehicle_signal * ad_signal_get(char * signal_location) {
     if ( signal_location == null ) {
         return null;

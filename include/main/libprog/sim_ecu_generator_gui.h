@@ -10,9 +10,9 @@
 typedef struct {
     GtkWidget *window;
     struct {
-        GtkWidget* vehicleSpeed;
-        GtkWidget* coolantTemperature;
-        GtkWidget* engineSpeed;
+        GtkFlowBox* container;
+        GtkButton* add;
+        GtkComboBoxText* selector;
     } data;
     struct {
         GtkListBox* listView;
