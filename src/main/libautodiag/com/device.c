@@ -71,6 +71,28 @@ bool ad_device_location_is_network(char *location, char **ip_rv, int *port_rv) {
 
     return true;
 }
+void ad_device_debug(Device * device) {
+    assert(device != null);
+    printf("Device: {\n");
+    printf("    type: %d\n", device->type);
+    printf("    state: %d\n", device->state);
+    printf("    recv_buffer: %p\n", (void*)device->recv_buffer);
+    printf("    location: %s\n", device->location != null ? device->location : "null");
+    printf("    detected: %d\n", device->detected);
+    printf("    send: %p\n", (void*)device->send);
+    printf("    recv: %p\n", (void*)device->recv);
+    printf("    open: %p\n", (void*)device->open);
+    printf("    close: %p\n", (void*)device->close);
+    printf("    describe_communication_layer: %p\n", (void*)device->describe_communication_layer);
+    printf("    describe_state: %p\n", (void*)device->describe_state);
+    printf("    parse_data: %p\n", (void*)device->parse_data);
+    printf("    set_filter_by_address: %p\n", (void*)device->set_filter_by_address);
+    printf("    clear_data: %p\n", (void*)device->clear_data);
+    printf("    lock: %p\n", (void*)device->lock);
+    printf("    unlock: %p\n", (void*)device->unlock);
+    printf("    free: %p\n", (void*)device->free);
+    printf("}\n");
+}
 bool device_is_network(final Device *device) {
     if (device == null || device->location == null) {
         return false;

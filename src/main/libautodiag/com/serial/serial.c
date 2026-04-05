@@ -468,18 +468,7 @@ void serial_debug(final Serial * port) {
         log_msg(LOG_DEBUG, "Serial debug: NULL");
     } else {
         log_msg(LOG_DEBUG, "Serial: {");
-        log_msg(LOG_DEBUG, "    Device: {");
-        log_msg(LOG_DEBUG, "        send: %p", port->send);
-        log_msg(LOG_DEBUG, "        recv: %p", port->recv);
-        log_msg(LOG_DEBUG, "        open: %p", port->open);
-        log_msg(LOG_DEBUG, "        close: %p", port->close);
-        log_msg(LOG_DEBUG, "        describe_communication_layer: %p", port->describe_communication_layer);
-        log_msg(LOG_DEBUG, "        describe_state: %p", port->describe_state);
-        log_msg(LOG_DEBUG, "        parse_data: %p", port->parse_data);
-        log_msg(LOG_DEBUG, "        clear_data: %p", port->clear_data);
-        log_msg(LOG_DEBUG, "        lock: %p", port->lock);
-        log_msg(LOG_DEBUG, "        unlock: %p", port->unlock);
-        log_msg(LOG_DEBUG, "    }");
+        ad_device_debug((Device*)port);
         log_msg(LOG_DEBUG, "    echo: %s", port->echo ? "true" : "false");
         log_msg(LOG_DEBUG, "    baud_rate: %d", port->baud_rate);
         log_msg(LOG_DEBUG, "    state: %d", port->state);

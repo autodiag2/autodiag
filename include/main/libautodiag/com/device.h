@@ -145,5 +145,6 @@ bool device_is_network(final Device *device);
  * Default handler for a device.
  */
 const char * device_describe_state(final Device * device);
+void ad_device_debug(Device * device);
 
 #endif
