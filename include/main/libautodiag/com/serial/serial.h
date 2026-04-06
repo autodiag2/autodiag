@@ -48,7 +48,7 @@ typedef struct {
 
 typedef struct {
     Device;
-    SerialState serial_state;   // device specific state of the serial port 
+    SerialState ad_serial_state;   // device specific state of the serial port 
     bool echo;                  // Not part of the serial standard but defined here for convenience
     int baud_rate;              // RS232 speed in bauds
     char *eol;                  // Not part of the serial standard but defined here for convenience
@@ -68,7 +68,7 @@ typedef struct {
  * Responses defined by Hayes command set:
  *  https://en.wikipedia.org/wiki/Hayes_command_set
  *  /usr/share/doc/python3-serial/examples/at_protocol.py
- *  mm_serial_parser_v1_new from ModemManager
+ *  mm_ad_serial_parser_v1_new from ModemManager
  */
 #define SERIAL_RESPONSE_PROMPT                  0xF0
 #define SERIAL_RESPONSE_OK                      0xF1
@@ -91,7 +91,7 @@ static char * SerialResponseStr[] = {
     "BUSY", "NO ANSWER", "NO DIALTONE",
     "NA"
 };
-int serial_guess_response(final char * buffer);
+int ad_serial_guess_response(final char * buffer);
 
 /**
  * Iterate through buffer lines (eol separated) and call a handle defined as a macro that takes the current
@@ -118,28 +118,28 @@ int serial_guess_response(final char * buffer);
     ad_buffer_free(recv_buffer); \
 }
 
-void serial_init(final Serial * serial);
+void ad_serial_init(final Serial * serial);
 /**
  * Open currently selected serial or reopen if it is already openned. 
  */
-int serial_open(final Serial * port);
+int ad_serial_open(final Serial * port);
 /**
  * Close currently openned serial.
  */
-void serial_close(final Serial * port);
-Serial * serial_new();
+void ad_serial_close(final Serial * port);
+Serial * ad_serial_new();
 
 /**
  * Acquire and release exclusive lock over the serial port (no operation can be performed on the port while it is under lock)
  */
-void serial_lock(final Serial * port);
-void serial_unlock(final Serial * port);
+void ad_serial_lock(final Serial * port);
+void ad_serial_unlock(final Serial * port);
 /**
  * Debug information on a Serial
  */
-void serial_dump(final Serial * port);
-void serial_debug(final Serial * port);
-void serial_free(final Serial * port);
+void ad_serial_dump(final Serial * port);
+void ad_serial_debug(final Serial * port);
+void ad_serial_free(final Serial * port);
 
 /**
  * Timeout before considering remote has not alive (ms)
@@ -150,11 +150,11 @@ void serial_free(final Serial * port);
  * Send commands over the serial link at the specified speed (baud rate).
  * @return number of bytes sent or DEVICE_ERROR on error
  */
-int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
+int ad_serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send);
 /**
  * A non standard wrapper.
  */
-int serial_send(final Serial * port, const char *command);
+int ad_serial_send(final Serial * port, const char *command);
 
 #define GEN_SERIAL_RECV(sym,type,ITERATOR) int sym(final type* serial) { \
     if ( serial == null || serial->recv_buffer == null ) { \
@@ -163,7 +163,7 @@ int serial_send(final Serial * port, const char *command);
         int deduced_response = DEVICE_RECV_NULL; \
         bool continue_reception = true; \
         while(continue_reception) { \
-            final int bytes_received = serial_recv_internal((Serial *)serial); \
+            final int bytes_received = ad_serial_recv_internal((Serial *)serial); \
             if ( bytes_received == DEVICE_ERROR ) { \
                 return DEVICE_ERROR; \
             } else { \
@@ -179,32 +179,32 @@ int serial_send(final Serial * port, const char *command);
 }
 
 /**
- * serial_recv_internal with taking care of removing some eols, adding a null termination
+ * ad_serial_recv_internal with taking care of removing some eols, adding a null termination
  * and wait for the prompt char to be sent back back the serial terminal to which we connect to
  * @return SerialResponse(s)
  */
-int serial_recv(final Serial * port);
+int ad_serial_recv(final Serial * port);
 /**
  * @return number of bytes received or DEVICE_ERROR on error
  */
-int serial_recv_internal(final Serial * port);
+int ad_serial_recv_internal(final Serial * port);
 
 char * at_command(char * at_command, ...);
 char * at_command_va(char * at_command, va_list ap);
 char * at_command_boolean(char *cmd, final bool state);
 bool at_is_command(char * command);
-char * serial_describe_communication_layer(final Serial * serial);
-bool serial_query_at_command(final Serial* serial, char *cmd, ...);
-bool serial_send_at_command(final Serial* serial, char *cmd, ...);
+char * ad_serial_describe_communication_layer(final Serial * serial);
+bool ad_serial_query_at_command(final Serial* serial, char *cmd, ...);
+bool ad_serial_send_at_command(final Serial* serial, char *cmd, ...);
 /**
  * Default of ELM327 (non standard)
  */
-void serial_reset_to_default(final Serial* serial);
+void ad_serial_reset_to_default(final Serial* serial);
 
 /**
  * Scan the str for AT .*, at.*, AT.*, at .*
  */
-char *serial_at_reduce(char *str);
-int serial_at_parse_reduced(char *reduced, char *atcmd);
+char *ad_serial_at_reduce(char *str);
+int ad_serial_at_parse_reduced(char *reduced, char *atcmd);
 
 #endif

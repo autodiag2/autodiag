@@ -18,7 +18,7 @@ void test_real_life() {
     parent_response = g->response;
     g->response = response_wrapper;
     ecu->generator = g;
-    final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start_with_ecu(ecu));
+    final VehicleIFace* iface = tf_ad_serial_open(tf_sim_elm327_start_with_ecu(ecu));
     assert(ad_obdb_fetch_signals("SAEJ1979"));
     ad_object_vehicle_signal * signal = ad_signal_get("OBDb/SAEJ1979.DTC_CNT");
     assert(signal != null);

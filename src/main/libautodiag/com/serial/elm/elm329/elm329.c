@@ -89,14 +89,14 @@ int elm329_send(final ELM329Device* elm329, const char *command) {
                 case 0x02: {
                     char *commandLine;
                     asprintf(&commandLine,"%s%d",command,1);
-                    int bytes = serial_send((Serial *)elm329,commandLine);
+                    int bytes = ad_serial_send((Serial *)elm329,commandLine);
                     free(commandLine);
                     return bytes;
                 }
             }
         }
     }
-    return serial_send((Serial *)elm329,command);
+    return ad_serial_send((Serial *)elm329,command);
 }
 
 #define ELM329_RECV_ITERATOR(ptr,end_ptr) \
@@ -132,7 +132,7 @@ char* elm329_describe_communication_layer(final ELM329Device* elm329) {
         case ELM329_PROTO_USER4_CAN:               return strdup("USER4 CAN (11* bit ID, 95.2* kbaud)");
         case ELM329_PROTO_USER5_CAN:               return strdup("USER5 CAN (11* bit ID, 33.3* kbaud)");         
     }
-    return serial_describe_communication_layer((Serial *)elm329);
+    return ad_serial_describe_communication_layer((Serial *)elm329);
 }
 bool elm329_reset_protocol(final ELM329Device* elm329) {
     final char * command = at_command("sp0");
@@ -143,14 +143,14 @@ bool elm329_reset_protocol(final ELM329Device* elm329) {
 bool elm329_configure(final ELM329Device* elm329) {
     elm329_reset_protocol(elm329);
     elm329->protocol = elm329_get_current_protocol(elm329);
-    if ( ! serial_query_at_command((Serial*)elm329,"s%d",false) ) {
+    if ( ! ad_serial_query_at_command((Serial*)elm329,"s%d",false) ) {
         log_msg(LOG_ERROR, "Error during printing of spaces");
     }
     elm329->printing_of_spaces = false;
     if ( elm329_is_can(elm329) ) {
-        serial_query_at_command((Serial*)elm329,"caf%d",true);
+        ad_serial_query_at_command((Serial*)elm329,"caf%d",true);
     }
-    serial_query_at_command((Serial*)elm329,"h%d",true);
+    ad_serial_query_at_command((Serial*)elm329,"h%d",true);
     elm_ensure_protocol_config_success((ELMDevice*)elm329, ELM329_PROTO_USER5_CAN);
     return true;
 }

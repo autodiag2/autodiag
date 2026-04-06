@@ -44,7 +44,7 @@ int main(int argc, char **argv) {
     runIfSelected(testISO3779,null);
     runIfSelected(testNetwork,null);
     
-    final VehicleIFace* iface = tf_serial_open(tf_sim_elm327_start());
+    final VehicleIFace* iface = tf_ad_serial_open(tf_sim_elm327_start());
 
     runIfSelected(testIniTools, iface);
     runIfSelected(testELM327, iface);

@@ -24,8 +24,8 @@ char * elm320_describe_communication_layer(ELM320Device* elm320) {
 }
 
 bool elm320_configure(final ELM320Device* elm320) {
-    serial_query_at_command((Serial*)elm320,"fd"); 
-    serial_query_at_command((Serial*)elm320,"h%d",true); 
+    ad_serial_query_at_command((Serial*)elm320,"fd"); 
+    ad_serial_query_at_command((Serial*)elm320,"h%d",true); 
     return true;
 }
 
@@ -48,7 +48,7 @@ static bool fetch_current_protocol(ELM320Device* d) {
     return true;
 }
 void elm320_init(ELM320Device* d) {
-    d->send = AD_DEVICE_SEND(serial_send);
+    d->send = AD_DEVICE_SEND(ad_serial_send);
     d->recv = AD_DEVICE_RECV(elm320_recv);
     d->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm320_describe_communication_layer);
     d->parse_data = AD_DEVICE_PARSE_DATA(elm_standard_obd_message_parse_response);

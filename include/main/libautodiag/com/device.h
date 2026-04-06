@@ -118,7 +118,7 @@ typedef struct Device {
     void (*free)(final struct Device* device);
 } Device;
 
-void device_location_set(final Device * device, final char *location);
+void ad_device_location_set(final Device * device, final char *location);
 const char * ad_device_type_as_string(AD_DEVICE_TYPE type);
 AD_DEVICE_TYPE ad_device_type_from_str(char * type_str);
 
@@ -140,11 +140,11 @@ AD_DEVICE_TYPE ad_device_type_from_str(char * type_str);
 /**
  * If network location is an ip addresse + port
  */
-bool device_is_network(final Device *device);
+bool ad_device_is_network(final Device *device);
 /**
  * Default handler for a device.
  */
-const char * device_describe_state(final Device * device);
+const char * ad_device_describe_state(final Device * device);
 void ad_device_debug(Device * device);
 
 #endif

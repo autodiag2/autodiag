@@ -162,7 +162,7 @@ static void cancel() {
    log_msg(LOG_DEBUG, "Cancel options setup");
    hide_window();
 }
-static void serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
+static void ad_serial_list_changed(GtkComboBoxText *combo, gpointer user_data) {
     GtkEntry *entry = GTK_ENTRY(user_data);
     gchar *text = gtk_combo_box_text_get_active_text(combo);
     set_device_location(text);
@@ -272,7 +272,7 @@ static void save() {
     hide_window();
 }
 
-static void list_serial_refresh() {
+static void list_ad_serial_refresh() {
     device_table_fill(config.ephemere.device_table);
     if ( gui->deviceList == null ) {
         log_msg(LOG_DEBUG, "Cannot process without gui attached");
@@ -473,7 +473,7 @@ static gboolean sim_launch(gpointer data) {
     sim_launch_set_status(strdup("Starting simulation ..."));
     sim_elm327_loop_daemon_wait_ready(elm327);
     
-    list_serial_refresh();
+    list_ad_serial_refresh();
 
     char * fmt = elm327->device_location == null ? 
             "Simulation not started ..." 
@@ -651,7 +651,7 @@ static void init(GtkBuilder *builder) {
         assert(0 != g_signal_connect(gui->simulator.nvm_override, "changed", G_CALLBACK(on_nvm_override_changed), null));
         assert(0 != g_signal_connect(gui->simulator.replay.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->simulator.replay.file));
         assert(0 != g_signal_connect(gui->recorder.fileChooser, "file-set", G_CALLBACK(on_file_chosen), gui->recorder.file));
-        assert(0 != g_signal_connect(g.deviceList, "changed", G_CALLBACK(serial_list_changed), gui->device_location));
+        assert(0 != g_signal_connect(g.deviceList, "changed", G_CALLBACK(ad_serial_list_changed), gui->device_location));
         assert(0 != g_signal_connect(g.logLevel, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.deviceList, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
         assert(0 != g_signal_connect(g.simulator.ecus.generator, "scroll-event", G_CALLBACK(gtk_combo_box_text_prevent_scroll), null));
@@ -665,7 +665,7 @@ static void init(GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-simulation-launch-clicked",&launch_simulation);
         gtk_builder_add_callback_symbol(builder,"window-options-cancel",&cancel);
         gtk_builder_add_callback_symbol(builder,"window-options-save",&save);
-        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&list_serial_refresh);
+        gtk_builder_add_callback_symbol(builder,"window-options-serial-list-refresh-click",&list_ad_serial_refresh);
     } else {
     
     }
@@ -680,7 +680,7 @@ static void end() {
 
 static void show() {
     gtk_window_show_ensure_ontop(gui->window);
-    list_serial_refresh();
+    list_ad_serial_refresh();
     fill_vehicle_infos();
     recorder_set_status("");
     sim_launch_set_status("");

@@ -48,7 +48,7 @@ void testRawSignal() {
     elm327->ecus->list[0]->generator = g;
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
 
     {
         ad_object_vehicle_signal * signal = ad_object_vehicle_signal_new();

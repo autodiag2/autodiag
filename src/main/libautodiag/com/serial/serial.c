@@ -1,6 +1,6 @@
 #include "libautodiag/com/serial/serial.h"
 
-int serial_guess_response(final char * buffer) {
+int ad_serial_guess_response(final char * buffer) {
     log_debug("guess for %s", buffer);
     for(int i = 0; i < SerialResponseStrNumber; i++) {
         assert(SerialResponseStr[i] != null);
@@ -11,7 +11,7 @@ int serial_guess_response(final char * buffer) {
     }
     return DEVICE_RECV_DATA;
 }
-int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) {
+int ad_serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) {
     if ( log_has_level(LOG_DEBUG) ) {
         log_msg(LOG_DEBUG, "Sending");
         bytes_dump((byte*)tx_buf,bytes_to_send);
@@ -33,14 +33,14 @@ int serial_send_internal(final Serial * port, char * tx_buf, int bytes_to_send) 
     }
     int result = ad_object_handle_t_write(port->implementation->handle, (byte*)tx_buf, bytes_to_send);
     if ( result == -1 ) {
-        serial_close(port);
+        ad_serial_close(port);
         return DEVICE_ERROR;
     }
     assert(0 <= result);
     return result;
 }
 
-int serial_send(final Serial * port, const char *command) {
+int ad_serial_send(final Serial * port, const char *command) {
     if ( port == null || command == null ) {
         return DEVICE_ERROR;
     } else {
@@ -48,10 +48,10 @@ int serial_send(final Serial * port, const char *command) {
         final int bytes_to_send = strlen(command) + strlen(port->eol);
         char tx_buf[bytes_to_send + useless_termination];
         sprintf(tx_buf, "%s%s", command, port->eol);
-        return serial_send_internal(port, tx_buf, bytes_to_send);
+        return ad_serial_send_internal(port, tx_buf, bytes_to_send);
     }
 }
-int serial_recv_internal(final Serial * port) {
+int ad_serial_recv_internal(final Serial * port) {
     if ( port == null || port->recv_buffer == null ) {
         return DEVICE_ERROR;
     }
@@ -93,7 +93,7 @@ int serial_recv_internal(final Serial * port) {
 }
 
 #define SERIAL_RECV_ITERATOR(ptr,end_ptr) \
-    int recv_value = serial_guess_response(ptr); \
+    int recv_value = ad_serial_guess_response(ptr); \
     switch(recv_value) { \
         case SERIAL_RESPONSE_PROMPT: \
             continue_reception = false; \
@@ -103,9 +103,9 @@ int serial_recv_internal(final Serial * port) {
             break; \
     }
 
-GEN_SERIAL_RECV(serial_recv,Serial,SERIAL_RECV_ITERATOR)
+GEN_SERIAL_RECV(ad_serial_recv,Serial,SERIAL_RECV_ITERATOR)
 
-int serial_open(final Serial * port) {
+int ad_serial_open(final Serial * port) {
     if ( port == null ) {
         log_msg(LOG_INFO, "Open: Cannot open since not serial port info given");
         return GENERIC_FUNCTION_ERROR;
@@ -117,12 +117,12 @@ int serial_open(final Serial * port) {
         return GENERIC_FUNCTION_ERROR;
     }
 
-    serial_close(port);
+    ad_serial_close(port);
 
     const char *addr = port->location;
     char host[500];
     char port_str[8] = "35000";
-    if ( device_is_network((Device*)port) ) {
+    if ( ad_device_is_network((Device*)port) ) {
         const char *colon = strchr(addr, ':');
         if (colon) {
             size_t len = colon - addr;
@@ -135,7 +135,7 @@ int serial_open(final Serial * port) {
         }
     }
 
-    if (device_is_network((Device*)port)) {
+    if (ad_device_is_network((Device*)port)) {
         #if defined OS_POSIX
             int fd = socket(AF_INET, SOCK_STREAM, 0);
             if (fd < 0) {
@@ -212,7 +212,7 @@ int serial_open(final Serial * port) {
         if (port->implementation->handle->win_handle == INVALID_HANDLE_VALUE) {
             log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
-            port->serial_state = SERIAL_STATE_OPEN_ERROR;
+            port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
             return GENERIC_FUNCTION_ERROR;
         }
         log_msg(LOG_DEBUG, "Openning port: %s", port->location);
@@ -282,7 +282,7 @@ int serial_open(final Serial * port) {
             if (bytes_written != 2) { // If Tx timeout occured
                 log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
                 CloseHandle(port->implementation->handle->win_handle);
-                port->serial_state = SERIAL_STATE_OPEN_ERROR;
+                port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
                 port->state = AD_DEVICE_STATE_NOT_READY;
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -299,11 +299,11 @@ int serial_open(final Serial * port) {
             perror(port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
             if ( errno == ENOENT ) {
-                port->serial_state = SERIAL_STATE_DISCONNECTED;
+                port->ad_serial_state = SERIAL_STATE_DISCONNECTED;
             } else if ( errno == EPERM ) {
-                port->serial_state = SERIAL_STATE_MISSING_PERM;
+                port->ad_serial_state = SERIAL_STATE_MISSING_PERM;
             } else {
-                port->serial_state = SERIAL_STATE_OPEN_ERROR;
+                port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
             }
             return GENERIC_FUNCTION_ERROR;
         }
@@ -340,14 +340,14 @@ int serial_open(final Serial * port) {
     log_msg(LOG_DEBUG, "Open: Serial openned");
     return GENERIC_FUNCTION_SUCCESS;
 }
-void serial_close(final Serial * port) {
+void ad_serial_close(final Serial * port) {
     if ( port == null || port->state != AD_DEVICE_STATE_READY ) {
         log_msg(LOG_INFO, "Close: device not open");
         return;
     }
     #ifdef OS_POSIX
         #ifndef OS_WINDOWS
-            if (!device_is_network((Device*)port)) {
+            if (!ad_device_is_network((Device*)port)) {
                 tcsetattr(port->implementation->handle->posix_handle,
                         TCSANOW,
                         &port->implementation->oldtio);
@@ -357,14 +357,14 @@ void serial_close(final Serial * port) {
     ad_object_handle_t_close(port->implementation->handle);
     port->state = AD_DEVICE_STATE_NOT_READY;
 }
-const char * serial_describe_state(final Serial * port) {
-    const char * parent = device_describe_state((Device*)port);
+const char * ad_serial_describe_state(final Serial * port) {
+    const char * parent = ad_device_describe_state((Device*)port);
 
     if ( parent != null ) {
         return parent;
     }
 
-    switch(port->serial_state) {
+    switch(port->ad_serial_state) {
         case SERIAL_STATE_USER_IGNORED:
             return "User ignored (eg. user ignored the serial port during the scan)";
         case SERIAL_STATE_OPEN_ERROR:
@@ -377,7 +377,7 @@ const char * serial_describe_state(final Serial * port) {
 
     return null;
 }
-char * serial_describe_communication_layer(final Serial * serial) {
+char * ad_serial_describe_communication_layer(final Serial * serial) {
     char * res;
     asprintf(&res,"Serial (%d bauds)", serial->baud_rate);
     return res;
@@ -385,52 +385,52 @@ char * serial_describe_communication_layer(final Serial * serial) {
 static void clear_data(final Serial* serial) {
     ad_buffer_recycle(serial->recv_buffer);
 }
-void serial_lock(final Serial * port) {
+void ad_serial_lock(final Serial * port) {
     pthread_mutex_lock(&port->implementation->lock_mutex);
 }
-void serial_unlock(final Serial * port) {
+void ad_serial_unlock(final Serial * port) {
     pthread_mutex_unlock(&port->implementation->lock_mutex);
 }
 
-Serial * serial_new() {
+Serial * ad_serial_new() {
     final Serial * port = (Serial *)malloc(sizeof(Serial));
     port->implementation = (SerialImplementation *)malloc(sizeof(SerialImplementation));
     port->type = AD_DEVICE_TYPE_SERIAL;
-    serial_init(port);
+    ad_serial_init(port);
     return port;
 }
-void serial_reset_to_default(final Serial* serial) {
+void ad_serial_reset_to_default(final Serial* serial) {
     serial->echo = true;
     serial->eol = strdup("\r\n");
 }
 
-void serial_init(final Serial* serial) {
-    serial_reset_to_default(serial);
+void ad_serial_init(final Serial* serial) {
+    ad_serial_reset_to_default(serial);
     serial->location = null;
     serial->state = AD_DEVICE_STATE_UNDEFINED;
     serial->recv_buffer = ad_buffer_new();
     serial->timeout = SERIAL_DEFAULT_TIMEOUT;
     serial->timeout_seq = SERIAL_DEFAULT_SEQUENCIAL_TIMEOUT;
     serial->detected = false;
-    serial->open = AD_DEVICE_OPEN(serial_open);
-    serial->close = AD_DEVICE_CLOSE(serial_close);
-    serial->send = AD_DEVICE_SEND(serial_send);
-    serial->recv = AD_DEVICE_RECV(serial_recv);
-    serial->free = AD_DEVICE_FREE(serial_free);
-    serial->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(serial_describe_communication_layer);
+    serial->open = AD_DEVICE_OPEN(ad_serial_open);
+    serial->close = AD_DEVICE_CLOSE(ad_serial_close);
+    serial->send = AD_DEVICE_SEND(ad_serial_send);
+    serial->recv = AD_DEVICE_RECV(ad_serial_recv);
+    serial->free = AD_DEVICE_FREE(ad_serial_free);
+    serial->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(ad_serial_describe_communication_layer);
     serial->parse_data = null;
     serial->set_filter_by_address = null;
-    serial->guess_response = AD_SERIAL_GUESS_RESPONSE(serial_guess_response);
-    serial->lock = AD_DEVICE_LOCK(serial_lock);
-    serial->unlock = AD_DEVICE_UNLOCK(serial_unlock);
+    serial->guess_response = AD_SERIAL_GUESS_RESPONSE(ad_serial_guess_response);
+    serial->lock = AD_DEVICE_LOCK(ad_serial_lock);
+    serial->unlock = AD_DEVICE_UNLOCK(ad_serial_unlock);
     serial->clear_data = AD_DEVICE_CLEAR_DATA(clear_data);
     serial->baud_rate = SERIAL_DEFAULT_BAUD_RATE;
-    serial->describe_state = AD_DEVICE_DESCRIBE_STATE(serial_describe_state);
+    serial->describe_state = AD_DEVICE_DESCRIBE_STATE(ad_serial_describe_state);
     pthread_mutex_init(&serial->implementation->lock_mutex, NULL);
     serial->implementation->handle = ad_object_handle_t_new();
 }
 
-void serial_free(final Serial * port) {
+void ad_serial_free(final Serial * port) {
     if ( port != null ) {
         if (port->location != null ) {
             free(port->location);
@@ -454,7 +454,7 @@ void serial_free(final Serial * port) {
     }
 }
 
-void serial_dump(final Serial * port) {
+void ad_serial_dump(final Serial * port) {
     const char * title = "Serial dump (name/baud_rate/state/eol):";
     if ( port == null ) {
         log_msg(LOG_DEBUG, "%s NULL", title);
@@ -463,7 +463,7 @@ void serial_dump(final Serial * port) {
     }
 }
 
-void serial_debug(final Serial * port) {
+void ad_serial_debug(final Serial * port) {
     if ( port == null ) {
         log_msg(LOG_DEBUG, "Serial debug: NULL");
     } else {
@@ -514,7 +514,7 @@ char * at_command(char * at_command, ...) {
 char * at_command_boolean(char *cmd, final bool state) {
     return at_command("%s%d", cmd,state);
 }
-bool serial_send_at_command_internal(final Serial* serial, char *cmd, va_list ap) {
+bool ad_serial_send_at_command_internal(final Serial* serial, char *cmd, va_list ap) {
     
     char * cmdAt = at_command_va(cmd, ap);
 
@@ -526,15 +526,15 @@ bool serial_send_at_command_internal(final Serial* serial, char *cmd, va_list ap
     free(cmdAt);
     return true;
 }
-bool serial_send_at_command(final Serial* serial, char *cmd, ...) {
+bool ad_serial_send_at_command(final Serial* serial, char *cmd, ...) {
     va_list ap;
     va_start(ap, cmd);
-    return serial_send_at_command_internal(serial, cmd, ap);
+    return ad_serial_send_at_command_internal(serial, cmd, ap);
 }
-bool serial_query_at_command(final Serial* serial, char *cmd, ...) {
+bool ad_serial_query_at_command(final Serial* serial, char *cmd, ...) {
     va_list ap;
     va_start(ap, cmd);
-    if ( ! serial_send_at_command_internal(serial, cmd, ap) ) {
+    if ( ! ad_serial_send_at_command_internal(serial, cmd, ap) ) {
         return false;
     }
 
@@ -547,7 +547,7 @@ bool ascii_is_control_char(char c) {
     return (c >= 0 && c <= 31) || (c == 127);
 }
 
-char *serial_at_reduce(char *str) {
+char *ad_serial_at_reduce(char *str) {
     bool a_detected = false, t_detected = false;
     size_t len = strlen(str);
     char *result = malloc(len + 1);
@@ -585,7 +585,7 @@ char *serial_at_reduce(char *str) {
     return result;
 }
 
-int serial_at_parse_reduced(char *reduced, char *atcmd) {
+int ad_serial_at_parse_reduced(char *reduced, char *atcmd) {
     int idx = -1;
     char * cmdFull;
     asprintf(&cmdFull,"at%s",atcmd);

@@ -66,9 +66,9 @@ static FILE* tf_get_tmp_file(char **name) {
     return fopen(*name,"w+");
 }
 
-static VehicleIFace* tf_serial_open(char *device_location) {
+static VehicleIFace* tf_ad_serial_open(char *device_location) {
     printf("open port %s\n", device_location);
-    final Serial * serial = serial_new();
+    final Serial * serial = ad_serial_new();
     serial->location = strdup(device_location);
     VehicleIFace *iface = viface_open_from_device(AD_DEVICE(serial));
     iface->connection.checking.disable(iface);
@@ -116,7 +116,7 @@ static char* tf_sim_elm327_start() {
 
 static VehicleIFace* tf_fake_can_iface() {
     VehicleIFace* tmp = viface_new();
-    ELM327Device* device = elm327_new_from_serial(serial_new());
+    ELM327Device* device = elm327_new_from_serial(ad_serial_new());
     tmp->device = (Device*)device;
     device->printing_of_spaces = false;
     device->protocol = ELM327_PROTO_ISO_15765_4_CAN_1;

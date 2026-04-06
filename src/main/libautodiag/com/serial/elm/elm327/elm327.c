@@ -47,14 +47,14 @@ int elm327_send(final ELM327Device* elm327, const char *command) {
                 case 0x02: {
                     char *commandLine;
                     asprintf(&commandLine,"%s%d",command,1);
-                    int bytes = serial_send((Serial *)elm327,commandLine);
+                    int bytes = ad_serial_send((Serial *)elm327,commandLine);
                     free(commandLine);
                     return bytes;
                 }
             }
         }
     }
-    return serial_send((Serial *)elm327,command);
+    return ad_serial_send((Serial *)elm327,command);
 }
 
 #define ELM327_RECV_ITERATOR(ptr,end_ptr) \
@@ -91,9 +91,9 @@ bool elm327_configure(final ELM327Device* elm327) {
     }
     if ( elm327_is_can(elm327) ) {
         elm327_set_auto_formatting(elm327,true);
-        serial_query_at_command((Serial*)elm327,"d1");
+        ad_serial_query_at_command((Serial*)elm327,"d1");
     }
-    serial_query_at_command((Serial*)elm327,"h%d",true);
+    ad_serial_query_at_command((Serial*)elm327,"h%d",true);
     elm_ensure_protocol_config_success((ELMDevice*)elm327, ELM327_PROTO_USER2_CAN);
     return true;
 }
@@ -119,7 +119,7 @@ char* elm327_protocol_to_string(final ELM327_PROTO proto) {
 char* elm327_describe_communication_layer(final ELM327Device* elm327) {
     char * res = elm327_protocol_to_string(elm327->protocol);
     if ( res == null ) {
-        return serial_describe_communication_layer((Serial *)elm327);
+        return ad_serial_describe_communication_layer((Serial *)elm327);
     } else {
         return res;
     }
@@ -130,19 +130,19 @@ bool elm327_set_filter_by_address(final ELM327Device* elm327, final ad_list_Buff
         final Buffer * address = filter_addresses->list[0];
         if ( elm327_protocol_is_can_11_bits_id(elm327->protocol) ) {
             assert(address->size == 2);
-            serial_query_at_command((Serial*)elm327,"cra %01hhX%02hhX",address->buffer[0], address->buffer[1]);
+            ad_serial_query_at_command((Serial*)elm327,"cra %01hhX%02hhX",address->buffer[0], address->buffer[1]);
         } else if ( elm327_protocol_is_can_29_bits_id(elm327->protocol) ) {
             assert(address->size == 4);
-            serial_query_at_command((Serial*)elm327,"cra %s",ad_buffer_to_hex_string(address));
+            ad_serial_query_at_command((Serial*)elm327,"cra %s",ad_buffer_to_hex_string(address));
         } else {
             assert(0 < address->size);
-            serial_query_at_command((Serial*)elm327,"ra %02hhX",address->buffer[address->size-1]);
+            ad_serial_query_at_command((Serial*)elm327,"ra %02hhX",address->buffer[address->size-1]);
         }
         return true;
     } else {
         if ( filter_addresses->size == 0 ) {
-            serial_query_at_command((Serial*)elm327,"cra");
-            serial_query_at_command((Serial*)elm327,"ra");
+            ad_serial_query_at_command((Serial*)elm327,"cra");
+            ad_serial_query_at_command((Serial*)elm327,"ra");
             return true;
         } else {
             log_msg(LOG_ERROR, "elm327_set_filter_by_address: multiple addresses filtering not supported");
@@ -181,7 +181,7 @@ ELM327Device* elm327_new_from_serial(final Serial *serial) {
 }
 
 bool elm327_printing_of_spaces(final ELM327Device* elm327, bool state) {
-    if ( serial_query_at_command((Serial*)elm327,"s%d",state) ) {
+    if ( ad_serial_query_at_command((Serial*)elm327,"s%d",state) ) {
         elm327->printing_of_spaces = state;
         return true;
     } else {
@@ -219,7 +219,7 @@ ELM327_PROTO elm327_get_current_protocol(final ELM327Device* elm327) {
 }
 
 bool elm327_calibrate_battery_voltage(final ELM327Device* elm327, double voltage) {
-    return serial_query_at_command((Serial*)elm327,"cv%d",(int)(voltage * 100));
+    return ad_serial_query_at_command((Serial*)elm327,"cv%d",(int)(voltage * 100));
 }
 
 #define ELM327_CURRENT_BATTERY_VOLTAGE_ITERATOR(ptr,end_ptr) \
@@ -243,7 +243,7 @@ double elm327_get_current_battery_voltage(final ELM327Device* elm327) {
 }
 
 bool elm327_set_auto_formatting(final ELM327Device* elm327, final bool state) {
-    return serial_query_at_command((Serial*)elm327,"caf%d",state);
+    return ad_serial_query_at_command((Serial*)elm327,"caf%d",state);
 }
 
 bool elm327_protocol_is_can(final ELM327_PROTO proto) {

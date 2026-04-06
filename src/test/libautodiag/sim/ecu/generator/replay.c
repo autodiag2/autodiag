@@ -6,7 +6,7 @@ bool testReplay() {
         LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         viface_recorder_reset(iface);
         viface_recorder_set_state(iface, true);
         viface_send_str(iface, "0101");
@@ -35,7 +35,7 @@ bool testReplay() {
         LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_random();
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         {
             viface_recorder_reset(iface);
             viface_recorder_set_state(iface, true);

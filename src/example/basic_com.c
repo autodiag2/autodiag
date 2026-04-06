@@ -12,7 +12,7 @@ int main(int argc, char ** argv) {
             printf("Usage: %s <device location pseudo tty, network>\n", argv[0]);
             return 1;
     }
-    final Serial * serial = serial_new();
+    final Serial * serial = ad_serial_new();
     serial->location = strdup(device_location);
     printf("serial selected location: %s\n", serial->location);
     VehicleIFace * viface = viface_open_from_device(AD_DEVICE(serial));

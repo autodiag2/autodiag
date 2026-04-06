@@ -185,7 +185,7 @@ static void init_did(GState *state, unsigned *seed) {
     state->uds.did[AD_UDS_DID_system_supplier_ECU_software_version_number] = ad_buffer_from_ascii("9666A1.00");
     state->uds.did[AD_UDS_DID_exhaust_regulation_type_approval_number] = ad_buffer_from_ascii("EU5");
     state->uds.did[AD_UDS_DID_system_name_engine_type] = ad_buffer_from_ascii("DW10CTED4");
-    state->uds.did[AD_UDS_DID_repair_shop_code_tester_serial_number] = ad_buffer_from_ascii("PSA-TOOL-000001");
+    state->uds.did[AD_UDS_DID_repair_shop_code_tester_ad_serial_number] = ad_buffer_from_ascii("PSA-TOOL-000001");
     state->uds.did[AD_UDS_DID_programming_date] = ad_buffer_from_ascii("20110408");
     state->uds.did[AD_UDS_DID_ECU_installation_date] = ad_buffer_from_ascii("20110419");
     state->uds.did[AD_UDS_DID_ODX_file] = ad_buffer_from_ascii("CITROEN_C5X7_DW10C_ECM.ODX");

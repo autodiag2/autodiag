@@ -26,7 +26,7 @@ static void button_click_clean_up_routine(void *arg) {
 static void error_popup_ok() {
     gtk_widget_hide_on_main_thread(gui->errorFeedback.obd);
 }
-static void error_serial_ok() {
+static void error_ad_serial_ok() {
     gtk_widget_hide_on_main_thread(GTK_WIDGET(gui->errorFeedback.serial));
 }
 static void no_obd_data_ok() {
@@ -367,7 +367,7 @@ static void init(GtkBuilder *builder) {
         gtk_builder_add_callback_symbol(builder,"window-read-codes-confirm-cancel",&confirm_cancel);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-confirm-confirm",&confirm_confirm);        
         gtk_builder_add_callback_symbol(builder,"window-read-codes-no-obd-interface-openned-ok",&error_popup_ok);
-        gtk_builder_add_callback_symbol(builder,"window-read-codes-no-serial-selected-ok",&error_serial_ok);
+        gtk_builder_add_callback_symbol(builder,"window-read-codes-no-serial-selected-ok",&error_ad_serial_ok);
         gtk_builder_add_callback_symbol(builder,"window-no-obd-data-ok",&no_obd_data_ok);
         gtk_builder_add_callback_symbol(builder,"window-read-codes-show-ecus-buffer",&show_ecus_buffer);
 

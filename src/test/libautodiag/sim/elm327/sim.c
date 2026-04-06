@@ -4,7 +4,7 @@ void testAutomaticMode() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_AUTOMATIC));
     iface->device->recv(iface->device);
@@ -22,7 +22,7 @@ void testNODTCcountonSAEJ1979() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_14230_4_KWP2000_2));
     iface->device->recv(iface->device);
@@ -45,7 +45,7 @@ void testDTCcountonSAEJ1979() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_15765_4_CAN_1));
     iface->device->recv(iface->device);
@@ -69,7 +69,7 @@ void testKWP2000LongMessages() {
     SimELM327* elm327 = tf_sim_elm327_new();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     iface->device->send(iface->device, gprintf("atsp %x", ELM327_PROTO_ISO_14230_4_KWP2000_2));
     iface->device->recv(iface->device);
@@ -89,7 +89,7 @@ void testSimELM327_1() {
     ad_list_SimECU_append(elm327->ecus,sim_ecu_new(0x1A));        
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     {
         int sz = 4;
@@ -195,7 +195,7 @@ void ensureDisplayWithSpacesIsCorrect() {
     SimELM327* elm327 = tf_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     final Serial * serial = iface->device;
     iface->lock(iface);
     assert(elm327_printing_of_spaces(iface->device, true));
@@ -210,12 +210,12 @@ void ensureWithoutHeadersDontSendNull() {
     SimELM327* elm327 = tf_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     final Serial * serial = iface->device;
     iface->lock(iface);
     elm327_printing_of_spaces(iface->device, true);
     elm_echo(serial, true);
-    serial_query_at_command(serial, "h0");
+    ad_serial_query_at_command(serial, "h0");
     iface->device->send(iface->device, "0100");
     viface_clear_data(iface);
     iface->device->recv(iface->device);
@@ -227,7 +227,7 @@ void ensureReplayCommands() {
     SimELM327* elm327 = tf_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     viface_clear_data(iface);
     viface_send_str(iface, "0101");
@@ -242,7 +242,7 @@ void anyCommandShouldReplyUnknown() {
     SimELM327* elm327 = tf_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     viface_clear_data(iface);
     viface_send_str(iface, "azrer");
@@ -256,14 +256,14 @@ void incomplete_string_return_after_20_secs() {
     SimELM327* elm327 = tf_sim_elm327_new();       
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     final Serial* serial = (Serial*)iface->device;
     iface->lock(iface);
     ad_buffer_recycle(serial->recv_buffer);
-    serial_send_internal(serial, "ati", 3);
-    assert(serial_recv(serial) == DEVICE_RECV_NULL);
+    ad_serial_send_internal(serial, "ati", 3);
+    assert(ad_serial_recv(serial) == DEVICE_RECV_NULL);
     usleep(20 + 3);
-    assert(serial_recv_internal(serial) > 0);
+    assert(ad_serial_recv_internal(serial) > 0);
     assert(strncmp(serial->recv_buffer->buffer, "?", 1) == 0);
     iface->unlock(iface);
 }
@@ -273,7 +273,7 @@ bool fuzzSimELM327() {
     elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;  
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     iface->lock(iface);
     {
         int sz_rand = 0x0F;
@@ -317,7 +317,7 @@ static void ensureSerialOK() {
     elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     assert(iface != null);
 }
 static void ensureNetworkOK() {
@@ -325,7 +325,7 @@ static void ensureNetworkOK() {
     elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     assert(iface != null);
 }
 bool testSimELM327() {
@@ -345,7 +345,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->lock(iface);
         iface->device->send(iface->device,"0104");
@@ -362,7 +362,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->lock(iface);
         iface->device->send(iface->device,"atcaf0");
@@ -379,7 +379,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         final Serial* serial = (Serial*)iface->device;
         iface->lock(iface);
         viface_clear_data(iface);
@@ -393,7 +393,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         iface->device->send(iface->device,"atsp 6");
@@ -415,7 +415,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         iface->device->send(iface->device,"atbrd 12");
@@ -436,7 +436,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         iface->device->send(iface->device,"atcea 12");
@@ -453,7 +453,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         iface->device->send(iface->device,"atd");
@@ -465,7 +465,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         viface_send_str(iface, "0900");
@@ -478,7 +478,7 @@ bool testSimELM327() {
         SimELM327* elm327 = tf_sim_elm327_new();       
         sim_elm327_loop_as_daemon(elm327);
         sim_elm327_loop_daemon_wait_ready(elm327);
-        final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+        final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
         iface->lock(iface);
         viface_clear_data(iface);
         viface_send_str(iface, "0902");

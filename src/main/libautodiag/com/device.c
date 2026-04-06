@@ -1,6 +1,6 @@
 #include "libautodiag/com/device.h"
 
-const char * device_describe_state(final Device * device) {
+const char * ad_device_describe_state(final Device * device) {
     switch(device->state) {
         case AD_DEVICE_STATE_UNDEFINED:
             return "Undefined state";
@@ -93,7 +93,7 @@ void ad_device_debug(Device * device) {
     printf("    free: %p\n", (void*)device->free);
     printf("}\n");
 }
-bool device_is_network(final Device *device) {
+bool ad_device_is_network(final Device *device) {
     if (device == null || device->location == null) {
         return false;
     }
@@ -132,7 +132,7 @@ const char * ad_device_type_as_string(AD_DEVICE_TYPE type) {
         default: return "Unknown";
     }
 }
-void device_location_set(final Device * device, final char *location) {
+void ad_device_location_set(final Device * device, final char *location) {
     assert(location != null);
     if ( device->location != null ) {
         free(device->location);

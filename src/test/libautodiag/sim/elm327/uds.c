@@ -8,7 +8,7 @@ void testMultiplePIDsPerFrame() {
     LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     {
         log_info("Ensure the non flavoured generator reply only to one PID");
         iface->lock(iface);
@@ -52,7 +52,7 @@ bool testSimUDS() {
     LIST_SIM_ECU(elm327->ecus)[0].list[0]->generator = sim_ecu_generator_new_citroen_c5_x7();
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     {
         viface_send(iface, ad_buffer_from_ints(
             AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER,

@@ -52,7 +52,7 @@ Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, c
     if ( device == null || device->type != type ) {
         switch(type) {
             case AD_DEVICE_TYPE_SERIAL: {
-                ad_list_Device_append(table->list, AD_DEVICE(serial_new()));
+                ad_list_Device_append(table->list, AD_DEVICE(ad_serial_new()));
             } break;
             case AD_DEVICE_TYPE_DOIP: {
                 ad_list_Device_append(table->list, AD_DEVICE(ad_object_DoIPDevice_new()));
@@ -65,7 +65,7 @@ Device * device_table_add_if_not_in_by_location(ad_object_DeviceTable * table, c
             ad_list_Device_remove(table->list, device);
         }
         final Device * newOne = table->list->list[table->list->size-1];
-        device_location_set(AD_DEVICE(newOne),location);
+        ad_device_location_set(AD_DEVICE(newOne),location);
         return newOne;
     } else {
         return device;

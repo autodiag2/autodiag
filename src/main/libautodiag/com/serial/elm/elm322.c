@@ -22,8 +22,8 @@ char * elm322_describe_communication_layer(ELM322Device* elm322) {
 }
 
 bool elm322_configure(final ELM322Device* elm322) {
-    serial_query_at_command((Serial*)elm322,"fd"); 
-    serial_query_at_command((Serial*)elm322,"h%d",true); 
+    ad_serial_query_at_command((Serial*)elm322,"fd"); 
+    ad_serial_query_at_command((Serial*)elm322,"h%d",true); 
     return true;
 }
 
@@ -46,7 +46,7 @@ static bool fetch_current_protocol(ELM322Device * d) {
     return true;
 }
 void elm322_init(ELM322Device* d) {
-    d->send = AD_DEVICE_SEND(serial_send);
+    d->send = AD_DEVICE_SEND(ad_serial_send);
     d->recv = AD_DEVICE_RECV(elm322_recv);
     d->describe_communication_layer = AD_DEVICE_DESCRIBE_COMMUNICATION_LAYER(elm322_describe_communication_layer);
     d->parse_data = AD_DEVICE_PARSE_DATA(elm_standard_obd_message_parse_response);

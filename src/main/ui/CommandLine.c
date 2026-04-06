@@ -206,7 +206,7 @@ static void * send_command_wait_response_internal(final void * arg) {
             switch( device->type ) {
                 case AD_DEVICE_TYPE_SERIAL: {
                     Serial * serial = (Serial*) device;
-                    result = serial_send_internal(serial, command, command_len);
+                    result = ad_serial_send_internal(serial, command, command_len);
                 } break;
                 case AD_DEVICE_TYPE_DOIP: {
                     ad_object_DoIPDevice * doip = (ad_object_DoIPDevice*)device;

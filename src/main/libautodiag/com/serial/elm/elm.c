@@ -20,7 +20,7 @@ bool elm_standard_obd_message_parse_response(final ELMDevice* elm, final Vehicle
 }
 
 int elm_guess_response(final char * buffer) {
-    int res = serial_guess_response(buffer);
+    int res = ad_serial_guess_response(buffer);
     if ( res == DEVICE_RECV_DATA ) {
         for(int i = 0; i < ELMResponseStrNumber; i++) {
             assert(ELMResponseStr[i] != null);
@@ -38,7 +38,7 @@ int elm_linefeeds(final Serial * port, final bool state) {
 
     char *original_eol = port->eol;
         
-    if ( serial_send_at_command(port, "l%d", state) ) {
+    if ( ad_serial_send_at_command(port, "l%d", state) ) {
         port->eol =  strdup(state ? "\r\n" : "\r");
         ad_buffer_recycle(port->recv_buffer);
         if ( port->recv(AD_DEVICE(port)) == SERIAL_RESPONSE_OK ) {
@@ -52,7 +52,7 @@ int elm_linefeeds(final Serial * port, final bool state) {
 
 int elm_echo(final Serial * port, final bool state) {
     assert(port != null); 
-    if ( serial_query_at_command(port,"e%d",state) ) {
+    if ( ad_serial_query_at_command(port,"e%d",state) ) {
         port->echo = state;
         return state;    
     } else {
@@ -75,7 +75,7 @@ int elm_echo(final Serial * port, final bool state) {
 char * elm_print_id(final Serial * port) {
     assert(port != null);
     
-    serial_query_at_command(port,"i");
+    ad_serial_query_at_command(port,"i");
     
     char * id = null;
     
@@ -85,7 +85,7 @@ char * elm_print_id(final Serial * port) {
     return id;
 }
 
-ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
+ELMDevice* elm_open_from_ad_serial_internal2(final Serial ** port) {
     ELMDevice * device = null;
     final char * response = elm_print_id(*port);
     final bool deviceConfigured;
@@ -121,7 +121,7 @@ ELMDevice* elm_open_from_serial_internal2(final Serial ** port) {
         return null;
     }
 }
-ELMDevice* elm_open_from_serial_internal(final Serial * * port) {
+ELMDevice* elm_open_from_ad_serial_internal(final Serial * * port) {
     if ( elm_echo(*port,false) == DEVICE_ERROR ) {
         log_msg(LOG_ERROR, "Error while turn echo off");
         return null;
@@ -131,12 +131,12 @@ ELMDevice* elm_open_from_serial_internal(final Serial * * port) {
         return null;
     }
 
-    return elm_open_from_serial_internal2(port);
+    return elm_open_from_ad_serial_internal2(port);
 }
 
 void elm_debug(final ELMDevice * elm) {
     printf("ElmDevice: {\n");
-    serial_debug((Serial*)elm);
+    ad_serial_debug((Serial*)elm);
     printf("    printing_of_spaces: %d\n", elm->printing_of_spaces);
     printf("    configure: %p\n", elm->configure);
     printf("}\n");
@@ -144,19 +144,19 @@ void elm_debug(final ELMDevice * elm) {
 
 ELMDevice* elm_open_from_serial(final Serial * port) {
     assert(port != null);
-    ELMDevice* device = elm_open_from_serial_internal(&port);
+    ELMDevice* device = elm_open_from_ad_serial_internal(&port);
     if ( device == null ) {
         log_msg(LOG_DEBUG, "Configuration has failed, resetting and trying one more time");
-        serial_query_at_command(port, "d");
-        serial_reset_to_default(port);
-        device = elm_open_from_serial_internal(&port);
+        ad_serial_query_at_command(port, "d");
+        ad_serial_reset_to_default(port);
+        device = elm_open_from_ad_serial_internal(&port);
         if ( device == null ) {
             log_msg(LOG_DEBUG, "Configuration has failed, device maybe not using AT&T default, trying one more time");
             elm_echo(port,false);
             port->echo = false;
             elm_linefeeds(port,false);
             port->eol = strdup("\r");
-            device = elm_open_from_serial_internal2(&port);
+            device = elm_open_from_ad_serial_internal2(&port);
         }
     }
     if ( device == null ) {

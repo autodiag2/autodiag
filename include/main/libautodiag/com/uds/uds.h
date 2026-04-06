@@ -113,7 +113,7 @@ typedef enum {
     AD_UDS_DID_system_supplier_ECU_software_version_number             = 0xF195,
     AD_UDS_DID_exhaust_regulation_type_approval_number                 = 0xF196,
     AD_UDS_DID_system_name_engine_type                                 = 0xF197,
-    AD_UDS_DID_repair_shop_code_tester_serial_number                   = 0xF198,
+    AD_UDS_DID_repair_shop_code_tester_ad_serial_number                   = 0xF198,
     AD_UDS_DID_programming_date                                        = 0xF199,
     AD_UDS_DID_ECU_installation_date                                   = 0xF19D,
     AD_UDS_DID_ODX_file                                                = 0xF19E

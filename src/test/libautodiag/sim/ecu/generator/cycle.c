@@ -8,7 +8,7 @@ bool testCycle() {
     sim_elm327_loop_as_daemon(elm327);
     sim_elm327_loop_daemon_wait_ready(elm327);
 
-    final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
+    final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     viface_send_str(iface, "0101");
     viface_clear_data(iface);
     viface_recv(iface);
