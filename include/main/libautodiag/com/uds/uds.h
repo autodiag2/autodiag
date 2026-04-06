@@ -8,8 +8,8 @@
 #include "libautodiag/com/vehicle_interface.h"
 #include "libautodiag/com/obd/obd.h"
 
-#define UDS_NEGATIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE
-#define UDS_POSITIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE
+#define AD_UDS_NEGATIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_NEGATIVE_RESPONSE
+#define AD_UDS_POSITIVE_RESPONSE OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE
 
 // ISO 14229-1
 typedef enum {
@@ -40,83 +40,83 @@ typedef enum {
     AD_UDS_SERVICE_CONTROL_DTC_SETTING = 0x85,
     AD_UDS_SERVICE_RESPONSE_ON_EVENT = 0x86,
     AD_UDS_SERVICE_LINK_CONTROL = 0x87,
-    AD_UDS_SERVICE_NEGATIVE_RESPONSE = UDS_NEGATIVE_RESPONSE
-} UDSService;
+    AD_UDS_SERVICE_NEGATIVE_RESPONSE = AD_UDS_NEGATIVE_RESPONSE
+} ad_UDSService;
 
 typedef enum {
-    UDS_NRC_GENERAL_REJECT = 0x10,
-    UDS_NRC_SERVICE_NOT_SUPPORTED = 0x11,
-    UDS_NRC_SUBFUNCTION_NOT_SUPPORTED = 0x12,
-    UDS_NRC_IncorrectMessageLengthOrInvalidFormat = 0x13,
-    UDS_NRC_RESPONSE_TOO_LONG = 0x14,
-    UDS_NRC_BUSY_REPEAT_REQUEST = 0x21,
-    UDS_NRC_CONDITIONS_NOT_CORRECT = 0x22,
-    UDS_NRC_REQUEST_SEQUENCE_ERROR = 0x24,
-    UDS_NRC_NO_RESPONSE_FROM_SUBNET = 0x25,
-    UDS_NRC_FAILURE_PREVENTS_EXECUTION = 0x26,
-    UDS_NRC_REQUEST_OUT_OF_RANGE = 0x31,
-    UDS_NRC_SECURITY_ACCESS_DENIED = 0x33,
-    UDS_NRC_INVALID_KEY = 0x35,
-    UDS_NRC_EXCEEDED_NUMBER_OF_ATTEMPTS = 0x36,
-    UDS_NRC_REQUIRED_TIME_DELAY_NOT_EXPIRED = 0x37,
-    UDS_NRC_UPLOAD_DOWNLOAD_NOT_ACCEPTED = 0x70,
-    UDS_NRC_TRANSFER_DATA_SUSPENDED = 0x71,
-    UDS_NRC_PROGRAMMING_FAILURE = 0x72,
-    UDS_NRC_WRONG_BLOCK_SEQUENCE_COUNTER = 0x73,
-    UDS_NRC_REQUEST_RECEIVED_RESPONSE_PENDING = 0x78,
-    UDS_NRC_SUBFUNCTION_NOT_SUPPORTED_IN_SESSION = 0x7E,
-    UDS_NRC_SERVICE_NOT_SUPPORTED_IN_SESSION = 0x7F,
-    UDS_NRC_RPM_TOO_HIGH = 0x81,
-    UDS_NRC_RPM_TOO_LOW = 0x82,
-    UDS_NRC_ENGINE_RUNNING = 0x83,
-    UDS_NRC_ENGINE_NOT_RUNNING = 0x84,
-    UDS_NRC_ENGINE_RUN_TIME_TOO_LOW = 0x85,
-    UDS_NRC_TEMPERATURE_TOO_HIGH = 0x86,
-    UDS_NRC_TEMPERATURE_TOO_LOW = 0x87,
-    UDS_NRC_SPEED_TOO_HIGH = 0x88,
-    UDS_NRC_SPEED_TOO_LOW = 0x89,
-    UDS_NRC_THROTTLE_PEDAL_TOO_HIGH = 0x8A,
-    UDS_NRC_THROTTLE_PEDAL_TOO_LOW = 0x8B,
-    UDS_NRC_TRANSMISSION_RANGE_NOT_IN_NEUTRAL = 0x8C,
-    UDS_NRC_TRANSMISSION_RANGE_NOT_IN_DEAR = 0x8D,
-    UDS_NRC_BRAKE_SWITCHES_NOT_CLOSED = 0x8F,
-    UDS_NRC_SHIFTER_LEVEL_NOT_IN_PARK = 0x90,
-    UDS_NRC_TORK_CONVERTER_CLUTCH_LOCKED = 0x91,
-    UDS_NRC_VOLTAGE_TOO_HIGH = 0x92,
-    UDS_NRC_VOLTAGE_TOO_LOW = 0x93
-} UDS_NRC;
+    AD_UDS_NRC_GENERAL_REJECT = 0x10,
+    AD_UDS_NRC_SERVICE_NOT_SUPPORTED = 0x11,
+    AD_UDS_NRC_SUBFUNCTION_NOT_SUPPORTED = 0x12,
+    AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat = 0x13,
+    AD_UDS_NRC_RESPONSE_TOO_LONG = 0x14,
+    AD_UDS_NRC_BUSY_REPEAT_REQUEST = 0x21,
+    AD_UDS_NRC_CONDITIONS_NOT_CORRECT = 0x22,
+    AD_UDS_NRC_REQUEST_SEQUENCE_ERROR = 0x24,
+    AD_UDS_NRC_NO_RESPONSE_FROM_SUBNET = 0x25,
+    AD_UDS_NRC_FAILURE_PREVENTS_EXECUTION = 0x26,
+    AD_UDS_NRC_REQUEST_OUT_OF_RANGE = 0x31,
+    AD_UDS_NRC_SECURITY_ACCESS_DENIED = 0x33,
+    AD_UDS_NRC_INVALID_KEY = 0x35,
+    AD_UDS_NRC_EXCEEDED_NUMBER_OF_ATTEMPTS = 0x36,
+    AD_UDS_NRC_REQUIRED_TIME_DELAY_NOT_EXPIRED = 0x37,
+    AD_UDS_NRC_UPLOAD_DOWNLOAD_NOT_ACCEPTED = 0x70,
+    AD_UDS_NRC_TRANSFER_DATA_SUSPENDED = 0x71,
+    AD_UDS_NRC_PROGRAMMING_FAILURE = 0x72,
+    AD_UDS_NRC_WRONG_BLOCK_SEQUENCE_COUNTER = 0x73,
+    AD_UDS_NRC_REQUEST_RECEIVED_RESPONSE_PENDING = 0x78,
+    AD_UDS_NRC_SUBFUNCTION_NOT_SUPPORTED_IN_SESSION = 0x7E,
+    AD_UDS_NRC_SERVICE_NOT_SUPPORTED_IN_SESSION = 0x7F,
+    AD_UDS_NRC_RPM_TOO_HIGH = 0x81,
+    AD_UDS_NRC_RPM_TOO_LOW = 0x82,
+    AD_UDS_NRC_ENGINE_RUNNING = 0x83,
+    AD_UDS_NRC_ENGINE_NOT_RUNNING = 0x84,
+    AD_UDS_NRC_ENGINE_RUN_TIME_TOO_LOW = 0x85,
+    AD_UDS_NRC_TEMPERATURE_TOO_HIGH = 0x86,
+    AD_UDS_NRC_TEMPERATURE_TOO_LOW = 0x87,
+    AD_UDS_NRC_SPEED_TOO_HIGH = 0x88,
+    AD_UDS_NRC_SPEED_TOO_LOW = 0x89,
+    AD_UDS_NRC_THROTTLE_PEDAL_TOO_HIGH = 0x8A,
+    AD_UDS_NRC_THROTTLE_PEDAL_TOO_LOW = 0x8B,
+    AD_UDS_NRC_TRANSMISSION_RANGE_NOT_IN_NEUTRAL = 0x8C,
+    AD_UDS_NRC_TRANSMISSION_RANGE_NOT_IN_DEAR = 0x8D,
+    AD_UDS_NRC_BRAKE_SWITCHES_NOT_CLOSED = 0x8F,
+    AD_UDS_NRC_SHIFTER_LEVEL_NOT_IN_PARK = 0x90,
+    AD_UDS_NRC_TORK_CONVERTER_CLUTCH_LOCKED = 0x91,
+    AD_UDS_NRC_VOLTAGE_TOO_HIGH = 0x92,
+    AD_UDS_NRC_VOLTAGE_TOO_LOW = 0x93
+} ad_UDS_NRC;
 
-char* ad_uds_service_to_string(final UDSService key);
-char * ad_uds_nrc_to_string(final UDS_NRC nrc);
+char* ad_uds_service_to_string(final ad_UDSService key);
+char * ad_uds_nrc_to_string(final ad_UDS_NRC nrc);
 
 // UDS Standardized DID (ISO14229)
 typedef enum {
-    UDS_DID_bootSoftwareIdentificationDataIdentifier                = 0xF180,
-    UDS_DID_applicationSoftwareIdentificationDataIdentifier         = 0xF181,
-    UDS_DID_applicationDataIdentification                           = 0xF182,
-    UDS_DID_bootSoftwareFingerprint                                 = 0xF183,
-    UDS_DID_applicationSoftwareFingerprint                          = 0xF184,
-    UDS_DID_applicationDataFingerprint                              = 0xF185,
-    UDS_DID_Active_Diagnostic_Session_Data_Identifier_information   = 0xF186,
-    UDS_DID_manufacturerSparePartNumber                             = 0xF187,
-    UDS_DID_manufacturerECUSoftwareNumber                           = 0xF188,
-    UDS_DID_manufacturerECUSoftwareVersion                          = 0xF189,
-    UDS_DID_identifierOfSystemSupplier                              = 0xF18A,
-    UDS_DID_ECUManufacturingDate                                    = 0xF18B,
-    UDS_DID_ECUSerialNumber                                         = 0xF18C,
-    UDS_DID_SupportedFunctionnalUnit                                = 0xF18D,
-    UDS_DID_ManufacturerKitAssemblyPartNumber                       = 0xF18E,
-    UDS_DID_VIN                                                     = 0xF190,
-    UDS_DID_system_supplier_ECU_hardware_number                     = 0xF192,
-    UDS_DID_system_supplier_ECU_hardware_version_number             = 0xF193,
-    UDS_DID_system_supplier_ECU_software_number                     = 0xF194,
-    UDS_DID_system_supplier_ECU_software_version_number             = 0xF195,
-    UDS_DID_exhaust_regulation_type_approval_number                 = 0xF196,
-    UDS_DID_system_name_engine_type                                 = 0xF197,
-    UDS_DID_repair_shop_code_tester_serial_number                   = 0xF198,
-    UDS_DID_programming_date                                        = 0xF199,
-    UDS_DID_ECU_installation_date                                   = 0xF19D,
-    UDS_DID_ODX_file                                                = 0xF19E
+    AD_UDS_DID_bootSoftwareIdentificationDataIdentifier                = 0xF180,
+    AD_UDS_DID_applicationSoftwareIdentificationDataIdentifier         = 0xF181,
+    AD_UDS_DID_applicationDataIdentification                           = 0xF182,
+    AD_UDS_DID_bootSoftwareFingerprint                                 = 0xF183,
+    AD_UDS_DID_applicationSoftwareFingerprint                          = 0xF184,
+    AD_UDS_DID_applicationDataFingerprint                              = 0xF185,
+    AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information   = 0xF186,
+    AD_UDS_DID_manufacturerSparePartNumber                             = 0xF187,
+    AD_UDS_DID_manufacturerECUSoftwareNumber                           = 0xF188,
+    AD_UDS_DID_manufacturerECUSoftwareVersion                          = 0xF189,
+    AD_UDS_DID_identifierOfSystemSupplier                              = 0xF18A,
+    AD_UDS_DID_ECUManufacturingDate                                    = 0xF18B,
+    AD_UDS_DID_ECUSerialNumber                                         = 0xF18C,
+    AD_UDS_DID_SupportedFunctionnalUnit                                = 0xF18D,
+    AD_UDS_DID_ManufacturerKitAssemblyPartNumber                       = 0xF18E,
+    AD_UDS_DID_VIN                                                     = 0xF190,
+    AD_UDS_DID_system_supplier_ECU_hardware_number                     = 0xF192,
+    AD_UDS_DID_system_supplier_ECU_hardware_version_number             = 0xF193,
+    AD_UDS_DID_system_supplier_ECU_software_number                     = 0xF194,
+    AD_UDS_DID_system_supplier_ECU_software_version_number             = 0xF195,
+    AD_UDS_DID_exhaust_regulation_type_approval_number                 = 0xF196,
+    AD_UDS_DID_system_name_engine_type                                 = 0xF197,
+    AD_UDS_DID_repair_shop_code_tester_serial_number                   = 0xF198,
+    AD_UDS_DID_programming_date                                        = 0xF199,
+    AD_UDS_DID_ECU_installation_date                                   = 0xF19D,
+    AD_UDS_DID_ODX_file                                                = 0xF19E
 } AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER_DID;
 
 // WWH-OBD DID
@@ -128,36 +128,36 @@ ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, fina
 
 // SBF field (second byte after the service byte)
 typedef enum {
-    UDS_SESSION_DEFAULT = 0x01,
-    UDS_SESSION_PROGRAMMING = 0x02,
-    UDS_SESSION_EXTENDED_DIAGNOSTIC = 0x03,
-    UDS_SESSION_SYSTEM_SAFETY_DIAGNOSTIC = 0x04,
+    AD_UDS_SESSION_DEFAULT = 0x01,
+    AD_UDS_SESSION_PROGRAMMING = 0x02,
+    AD_UDS_SESSION_EXTENDED_DIAGNOSTIC = 0x03,
+    AD_UDS_SESSION_SYSTEM_SAFETY_DIAGNOSTIC = 0x04,
     // 0x05 – 0x3F ISO SAE reserved
     // 0x40 – 0x5F Vehicle Manufacturer Specific
     // 0x60 – 0x7E System Supplier Specific
     // 0x7F ISO SAE Reserved
-} UDS_SESSION;
+} AD_UDS_SESSION;
 /**
- * UDS_SESSION or a byte for ISO/SAE reserved
+ * AD_UDS_SESSION or a byte for ISO/SAE reserved
  */
 ad_object_hashmap_Int_Int* ad_uds_request_session(final VehicleIFace * iface, final byte session_type);
 bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
 bool ad_uds_is_enabled(final VehicleIFace *iface);
 
 // Without a sub-function (default value), indicating that the ECU should remain in its current state and continue with the active diagnostic session.
-#define UDS_TESTER_PRESENT_SUB_ZERO 0x00
+#define AD_UDS_TESTER_PRESENT_SUB_ZERO 0x00
 // With the sub-function, indicating that the tester is present but does not require any response from the ECU
-#define UDS_TESTER_PRESENT_SUB_NO_RESPONSE 0x80
-#define UDS_SESSION_TIMEOUT_MS 2000
+#define AD_UDS_TESTER_PRESENT_SUB_NO_RESPONSE 0x80
+#define AD_UDS_SESSION_TIMEOUT_MS 2000
 /**
  * Send a tester present query
  */
 bool ad_uds_tester_present(final VehicleIFace *iface, final bool response);
 void ad_uds_viface_start_tester_present_timer(final VehicleIFace * iface);
 void ad_uds_viface_stop_tester_present_timer(final VehicleIFace * iface);
-#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED 0x01
-#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY 0x02
-#define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY 0b0001000100010001
+#define AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED 0x01
+#define AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY 0x02
+#define AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY 0b0001000100010001
 /**
  * Unlock ECU for programming and other capabilities
  */
@@ -171,15 +171,15 @@ bool ad_uds_security_access(final VehicleIFace * iface, int level);
 bool ad_uds_clear_dtcs(final VehicleIFace * iface);
 
 typedef enum {
-    UDS_RESET_HARD                = 0x01, /* Hard Reset */
-    UDS_RESET_KEY_OFF_ON          = 0x02, /* Key Off/On Reset */
-    UDS_RESET_SOFT                = 0x03, /* Soft Reset */
-    UDS_RESET_ENABLE_RPSD         = 0x04, /* Enable Rapid Power Shut Down */
-    UDS_RESET_DISABLE_RPSD        = 0x05, /* Disable Rapid Power Shut Down */
+    AD_UDS_RESET_HARD                = 0x01, /* Hard Reset */
+    AD_UDS_RESET_KEY_OFF_ON          = 0x02, /* Key Off/On Reset */
+    AD_UDS_RESET_SOFT                = 0x03, /* Soft Reset */
+    AD_UDS_RESET_ENABLE_RPSD         = 0x04, /* Enable Rapid Power Shut Down */
+    AD_UDS_RESET_DISABLE_RPSD        = 0x05, /* Disable Rapid Power Shut Down */
     /* 0x06–0x3F ISO/SAE Reserved */
     /* 0x40–0x5F Vehicle Manufacturer Specific (OEM) */
     /* 0x60–0x7E System Supplier Specific */
-    UDS_RESET_RESERVED_07         = 0x07  /* ISO/SAE Reserved */
+    AD_UDS_RESET_RESERVED_07         = 0x07  /* ISO/SAE Reserved */
 } ad_uds_reset_type;
 
 const char *ad_uds_reset_type_to_string(ad_uds_reset_type v);

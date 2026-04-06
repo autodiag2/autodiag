@@ -125,9 +125,9 @@ static Buffer * response_uds_did_wrapper(SimECUGenerator * generator, Buffer * b
     Buffer * binResponse = ad_buffer_new();
     if (2 < binRequest->size) {
         if ((binRequest->size - 1) % 2 != 0) {
-            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
         } else {
-            ad_buffer_append_byte(binResponse, binRequest->buffer[0] | UDS_POSITIVE_RESPONSE);
+            ad_buffer_append_byte(binResponse, binRequest->buffer[0] | AD_UDS_POSITIVE_RESPONSE);
             for (unsigned i = 1; i < (unsigned)(binRequest->size - 1); i += 2) {
                 final uint16_t did = (binRequest->buffer[i] << 8) | binRequest->buffer[i + 1];
                 if ( generator->response_uds_did == null ) {
@@ -142,7 +142,7 @@ static Buffer * response_uds_did_wrapper(SimECUGenerator * generator, Buffer * b
             }
         }
     } else {
-        sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+        sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
     }
     return binResponse;
 }

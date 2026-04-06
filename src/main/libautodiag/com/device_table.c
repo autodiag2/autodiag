@@ -20,6 +20,7 @@ void ad_object_DeviceTable_free(ad_object_DeviceTable * table) {
 }
 ad_object_DeviceTable * ad_object_DeviceTable_assign(ad_object_DeviceTable * dest, ad_object_DeviceTable * src) {
     log_msg(LOG_ERROR, "Not implemented yet");
+    dest->selected_index = src->selected_index;
     return dest;
 }
 Device * device_table_get_selected(ad_object_DeviceTable * table) {

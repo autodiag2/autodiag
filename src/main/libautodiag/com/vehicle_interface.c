@@ -44,7 +44,7 @@ Buffer * ad_viface_find_first_response(final VehicleIFace * iface, byte service_
                 log_msg(LOG_WARNING, "Empty response buffer");
                 continue;
             }
-            if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE && (data->buffer[0] & 0x7F) == service_id ) {
+            if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE && (data->buffer[0] & 0x7F) == service_id ) {
                 return data;
             }
         }
@@ -492,7 +492,7 @@ void viface_discover_vehicle(VehicleIFace* iface) {
         iface->vehicle->vin = ad_buffer_new();
     }
     if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
-        final ad_list_Buffer * result = ad_uds_read_data_by_identifier(iface, UDS_DID_VIN);
+        final ad_list_Buffer * result = ad_uds_read_data_by_identifier(iface, AD_UDS_DID_VIN);
         if ( 0 == result->size ) {
             log_err("VIN not received");
         } else if ( 1 == result->size ) {

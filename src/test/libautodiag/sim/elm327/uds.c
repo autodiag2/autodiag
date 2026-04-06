@@ -56,7 +56,7 @@ bool testSimUDS() {
     {
         viface_send(iface, ad_buffer_from_ints(
             AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
         ));
         viface_clear_data(iface);
         viface_recv(iface);
@@ -65,79 +65,79 @@ bool testSimUDS() {
             final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
-                assert(data->buffer[0] == UDS_NEGATIVE_RESPONSE);
+                assert(data->buffer[0] == AD_UDS_NEGATIVE_RESPONSE);
                 assert(data->buffer[1] == AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER);
-                assert(data->buffer[2] == UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                assert(data->buffer[2] == AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 passed = true;
             }
         }
         assert(passed);
     }
     {
-        assert(ad_uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC));
+        assert(ad_uds_request_session_cond(iface, AD_UDS_SESSION_EXTENDED_DIAGNOSTIC));
         ad_list_Buffer *result = ad_uds_read_data_by_identifier(iface,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_EXTENDED_DIAGNOSTIC);
+        assert(result->list[0]->buffer[0] == AD_UDS_SESSION_EXTENDED_DIAGNOSTIC);
     }
     {
-        ad_list_ad_list_UDS_DTC * result = ad_uds_read_dtc_first_confirmed_dtc(iface, null);
+        ad_list_ad_list_AD_UDS_DTC * result = ad_uds_read_dtc_first_confirmed_dtc(iface, null);
         assert(result->size == 1);
-        ad_list_UDS_DTC * result_per_ecu = result->list[0];
+        ad_list_AD_UDS_DTC * result_per_ecu = result->list[0];
         assert(result_per_ecu->size == 2);
-        UDS_DTC * dtc = result_per_ecu->list[0];
+        AD_UDS_DTC * dtc = result_per_ecu->list[0];
         assert(strcmp(dtc->to_string(dtc), "P0103") == 0);
         dtc = result_per_ecu->list[1];
         assert(strcmp(dtc->to_string(dtc), "P0104") == 0);
     }
     {
-        assert(ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        assert(ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING));
         ad_uds_viface_stop_tester_present_timer(iface);
         ad_list_Buffer *result = ad_uds_read_data_by_identifier(iface,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
-        sleep(UDS_SESSION_TIMEOUT_MS/1000 - 1);
+        assert(result->list[0]->buffer[0] == AD_UDS_SESSION_PROGRAMMING);
+        sleep(AD_UDS_SESSION_TIMEOUT_MS/1000 - 1);
         assert(ad_uds_tester_present(iface, true));
-        sleep((UDS_SESSION_TIMEOUT_MS/1000) * 2);
+        sleep((AD_UDS_SESSION_TIMEOUT_MS/1000) * 2);
         result = ad_uds_read_data_by_identifier(iface,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_DEFAULT);
+        assert(result->list[0]->buffer[0] == AD_UDS_SESSION_DEFAULT);
     }
     {
-        assert(ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        assert(ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING));
         ad_list_Buffer *result = ad_uds_read_data_by_identifier(iface,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
-        sleep((UDS_SESSION_TIMEOUT_MS/1000) * 2);
+        assert(result->list[0]->buffer[0] == AD_UDS_SESSION_PROGRAMMING);
+        sleep((AD_UDS_SESSION_TIMEOUT_MS/1000) * 2);
         result = ad_uds_read_data_by_identifier(iface,
-            UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
+            AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information
         );
         assert(result->size == 1);
         assert(result->list[0]->size == 1);
-        assert(result->list[0]->buffer[0] == UDS_SESSION_PROGRAMMING);
+        assert(result->list[0]->buffer[0] == AD_UDS_SESSION_PROGRAMMING);
     }
     {
-        assert(ad_uds_request_session_cond(iface, UDS_SESSION_DEFAULT));
+        assert(ad_uds_request_session_cond(iface, AD_UDS_SESSION_DEFAULT));
         assert(!ad_uds_security_access_ecu_generator_citroen_c5_x7(iface));
-        assert(ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING));
+        assert(ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING));
         assert(ad_uds_security_access_ecu_generator_citroen_c5_x7(iface));
     }
     {
         Buffer * vin = ad_buffer_from_ascii("5UXCR6C00N9K68159");
         assert(ad_uds_write_vin(iface, vin));
         if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
-            final ad_list_Buffer * result = ad_uds_read_data_by_identifier(iface, UDS_DID_VIN);
+            final ad_list_Buffer * result = ad_uds_read_data_by_identifier(iface, AD_UDS_DID_VIN);
             if ( 0 == result->size ) {
                 log_err("VIN not received");
             } else if ( 1 == result->size ) {

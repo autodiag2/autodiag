@@ -285,7 +285,7 @@ static void dtc_selected(GtkListBox *box, GtkListBoxRow *row, gpointer user_data
         }
         if ( ad_list_ad_object_string_contains(dtc->detection_method, ad_object_string_new_from("UDS")) ) {
             char * result;
-            asprintf(&result, "%s%s", explanation, UDS_DTC_explanation((UDS_DTC*)dtc));
+            asprintf(&result, "%s%s", explanation, AD_UDS_DTC_explanation((AD_UDS_DTC*)dtc));
             free(explanation);
             explanation = result;
         }

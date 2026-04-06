@@ -8,18 +8,18 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
             vin_ascii->size
         );
     }
-    return ad_uds_write_did(iface, UDS_DID_VIN, vin_ascii, UDS_SESSION_PROGRAMMING, 0x01);
+    return ad_uds_write_did(iface, AD_UDS_DID_VIN, vin_ascii, AD_UDS_SESSION_PROGRAMMING, 0x01);
 }
 bool ad_uds_security_access(final VehicleIFace * iface, int level) {
     return ad_uds_security_access_ecu_generator_citroen_c5_x7(iface);
 }
 const char *ad_uds_reset_type_to_string(ad_uds_reset_type v) {
-    if (v == UDS_RESET_HARD) return "Hard Reset";
-    if (v == UDS_RESET_KEY_OFF_ON) return "Key Off On Reset";
-    if (v == UDS_RESET_SOFT) return "Soft Reset";
-    if (v == UDS_RESET_ENABLE_RPSD) return "Enable Rapid Power Shut Down";
-    if (v == UDS_RESET_DISABLE_RPSD) return "Disable Rapid Power Shut Down";
-    if (v == UDS_RESET_RESERVED_07) return "ISO/SAE Reserved";
+    if (v == AD_UDS_RESET_HARD) return "Hard Reset";
+    if (v == AD_UDS_RESET_KEY_OFF_ON) return "Key Off On Reset";
+    if (v == AD_UDS_RESET_SOFT) return "Soft Reset";
+    if (v == AD_UDS_RESET_ENABLE_RPSD) return "Enable Rapid Power Shut Down";
+    if (v == AD_UDS_RESET_DISABLE_RPSD) return "Disable Rapid Power Shut Down";
+    if (v == AD_UDS_RESET_RESERVED_07) return "ISO/SAE Reserved";
 
     if (0x06 < v && v < 0x40) return "ISO/SAE Reserved";
     if (0x40 <= v && v < 0x60) return "OEM Specific";
@@ -30,7 +30,7 @@ const char *ad_uds_reset_type_to_string(ad_uds_reset_type v) {
 
 bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type) {
     bool * result = null;
-    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
+    if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING) ) {
         return false;
     }
     viface_lock(iface);
@@ -46,11 +46,11 @@ bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type) 
             if ( result == null ) {
                 result = booldup(true);
             }
-            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+            if ( data->buffer[0] == AD_UDS_NEGATIVE_RESPONSE ) {
                 log_msg(LOG_DEBUG, "negative response found: ");
                 ad_buffer_dump(data);
                 *result &= false;
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+            } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                 *result &= true;
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");
@@ -64,7 +64,7 @@ bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type) 
 
 bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
     bool *result = null;
-    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {
+    if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {
         return false;
     }
     final byte emissionRelatedDTC = 0xFF;
@@ -83,11 +83,11 @@ bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
             if ( result == null ) {
                 result = booldup(true);
             }
-            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+            if ( data->buffer[0] == AD_UDS_NEGATIVE_RESPONSE ) {
                 log_msg(LOG_DEBUG, "negative response found: ");
                 ad_buffer_dump(data);
                 *result &= false;
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+            } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                 *result &= true;
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");
@@ -132,7 +132,7 @@ bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value, int se
             continue;
         }
         byte b0 = binResponse->buffer[0];
-        if ( b0 == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE) ) {
+        if ( b0 == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | AD_UDS_POSITIVE_RESPONSE) ) {
             Buffer * did_resp_buffer = ad_buffer_slice(binResponse, 1, 2);
             uint16_t did_resp = ad_buffer_to_be16(did_resp_buffer);
             if ( success == null ) {
@@ -171,10 +171,10 @@ ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, fina
         final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
-            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+            if ( data->buffer[0] == AD_UDS_NEGATIVE_RESPONSE ) {
                 log_msg(LOG_DEBUG, "negative response found: ");
                 ad_buffer_dump(data);
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+            } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                 final int received_did = data->buffer[1] << 8 | data->buffer[2];
                 if ( did != received_did ) {
                     log_msg(LOG_ERROR, "received did do not match the sent one, ignoring");
@@ -193,7 +193,7 @@ ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, fina
     return result;
 }
 bool ad_uds_is_enabled(final VehicleIFace *iface) {
-    return ad_uds_request_session_cond(iface, UDS_SESSION_DEFAULT);
+    return ad_uds_request_session_cond(iface, AD_UDS_SESSION_DEFAULT);
 }
 bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
     final ad_object_hashmap_Int_Int * result = ad_uds_request_session(iface, session_type);
@@ -214,7 +214,7 @@ bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_
 bool ad_uds_tester_present(final VehicleIFace *iface, final bool response) {
     bool result = true;
     viface_lock(iface);
-    viface_send(iface, ad_buffer_from_ints( AD_UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
+    viface_send(iface, ad_buffer_from_ints( AD_UDS_SERVICE_TESTER_PRESENT, response ? AD_UDS_TESTER_PRESENT_SUB_ZERO : AD_UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
     if ( response ) {
         viface_clear_data(iface);
         if ( viface_recv(iface) <= 0 ) {
@@ -226,9 +226,9 @@ bool ad_uds_tester_present(final VehicleIFace *iface, final bool response) {
             final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * ecu_buffer = ecu->data_buffer->list[j];
-                if ( ecu_buffer->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
+                if ( ecu_buffer->buffer[0] == AD_UDS_NEGATIVE_RESPONSE ) {
                     result &= false;
-                } else if ( (ecu_buffer->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                } else if ( (ecu_buffer->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                     result &= true;
                 } else {
                     log_msg(LOG_ERROR, "nor positive nor negative response received: %s", ad_buffer_to_hex_string(ecu_buffer));
@@ -251,7 +251,7 @@ static void * tester_present_timer_daemon(void *arg) {
                 log_msg(LOG_ERROR, "Periodic message tester present not sent, session will reset to default");
                 break;
             }
-            usleep((UDS_SESSION_TIMEOUT_MS * 1000) * 3/4);
+            usleep((AD_UDS_SESSION_TIMEOUT_MS * 1000) * 3/4);
         }
     }
     log_msg(LOG_DEBUG, "Terminating the beacon thread");
@@ -276,13 +276,13 @@ void ad_uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
     }
 }
 int ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
-    return seed ^ UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY;
+    return seed ^ AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY;
 }
 bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface) {
     final ad_object_hashmap_Int_Int * seeds = ad_object_hashmap_Int_Int_new();
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
-        AD_UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
+        AD_UDS_SERVICE_SECURITY_ACCESS, AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
     ));
     viface_clear_data(iface);
     viface_recv(iface);
@@ -294,14 +294,14 @@ bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * ifa
                 log_msg(LOG_WARNING, "Empty response buffer");
                 continue;
             }
-            if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
+            if ( ( ( data->buffer[0] & AD_UDS_NEGATIVE_RESPONSE ) == AD_UDS_NEGATIVE_RESPONSE ) ) {
                 log_msg(LOG_ERROR, "ECU has responded negatively to seed request");
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+            } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                 if ( data->size < 4 ) {
                     log_msg(LOG_ERROR, "Incorrect seed response size, expected at least 4 bytes but got %d", data->size);
                     continue;
                 }
-                if ( data->buffer[1] != UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED ) {
+                if ( data->buffer[1] != AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED ) {
                     log_warn("incorrect response");
                     continue;
                 }
@@ -320,7 +320,7 @@ bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * ifa
     for(int i = 0; i < seeds->size; i++) {
         final int encrypted = ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
         viface_send(iface, ad_buffer_from_ints(
-            AD_UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
+            AD_UDS_SERVICE_SECURITY_ACCESS, AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
             (encrypted & 0xFF00) >> 8,
             encrypted & 0x00FF
         ));
@@ -334,19 +334,19 @@ bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * ifa
                     log_msg(LOG_WARNING, "Empty response buffer");
                     continue;
                 }
-                if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
+                if ( ( ( data->buffer[0] & AD_UDS_NEGATIVE_RESPONSE ) == AD_UDS_NEGATIVE_RESPONSE ) ) {
                     log_msg(LOG_ERROR, "ECU has responded negatively to verify key request");
                     ad_object_hashmap_Int_Int_set(
                         verify,
                         ad_object_Int_new_from(ecu->address->buffer[1]), 
                         ad_object_Int_new_from(false)
                     );
-                } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+                } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                     if ( data->size < 2 ) {
                         log_msg(LOG_ERROR, "Incorrect verify key response size, expected at least 2 bytes but got %d", data->size);
                         continue;
                     }
-                    if ( data->buffer[1] != UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY ) {
+                    if ( data->buffer[1] != AD_UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY ) {
                         log_warn("incorrect response");
                         continue;
                     }
@@ -388,13 +388,13 @@ ad_object_hashmap_Int_Int * ad_uds_request_session(final VehicleIFace * iface, f
         final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
         for(int j = 0; j < ecu->data_buffer->size; j++) {
             final Buffer * data = ecu->data_buffer->list[j];
-            if ( ( ( data->buffer[0] & UDS_NEGATIVE_RESPONSE ) == UDS_NEGATIVE_RESPONSE ) ) {
+            if ( ( ( data->buffer[0] & AD_UDS_NEGATIVE_RESPONSE ) == AD_UDS_NEGATIVE_RESPONSE ) ) {
                 ad_object_hashmap_Int_Int_set(
                     result,
                     ad_object_Int_new_from(ecu->address->buffer[1]), 
                     ad_object_Int_new_from(false)
                 );
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
+            } else if ( (data->buffer[0] & AD_UDS_POSITIVE_RESPONSE) == AD_UDS_POSITIVE_RESPONSE ) {
                 ad_object_hashmap_Int_Int_set(
                     result,
                     ad_object_Int_new_from(ecu->address->buffer[1]), 

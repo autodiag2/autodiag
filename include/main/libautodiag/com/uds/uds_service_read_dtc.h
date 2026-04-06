@@ -42,40 +42,40 @@ AD_OBJECT_H(UDS_DTC,
     DTC;
     byte status;
 )
-typedef ad_object_UDS_DTC UDS_DTC;
+typedef ad_object_UDS_DTC AD_UDS_DTC;
 
-void ad_uds_dtc_dump(final UDS_DTC * dtc);
-UDS_DTC * UDS_DTC_new();
-UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc);
-void UDS_DTC_free(UDS_DTC * dtc);
-int UDS_DTC_cmp(final UDS_DTC * e1, final UDS_DTC * e2);
-char * UDS_DTC_to_string(final UDS_DTC * dtc);
-char * UDS_DTC_explanation(final UDS_DTC * dtc);
+void ad_uds_dtc_dump(final AD_UDS_DTC * dtc);
+AD_UDS_DTC * AD_UDS_DTC_new();
+AD_UDS_DTC * AD_UDS_DTC_new_from(final SAEJ1979_DTC *dtc);
+void AD_UDS_DTC_free(AD_UDS_DTC * dtc);
+int AD_UDS_DTC_cmp(final AD_UDS_DTC * e1, final AD_UDS_DTC * e2);
+char * AD_UDS_DTC_to_string(final AD_UDS_DTC * dtc);
+char * AD_UDS_DTC_explanation(final AD_UDS_DTC * dtc);
 
 typedef enum {
-    UDS_DTC_STATUS_TestFailed = 0b00000001,
-    UDS_DTC_STATUS_TestFailedThisOperationCycle = 0b00000010,
-    UDS_DTC_STATUS_PendingDTC = 0b00000100,
-    UDS_DTC_STATUS_ConfirmedDTC = 0b00001000,
-    UDS_DTC_STATUS_TestNotCompletedSinceLastClear = 0b00010000,
-    UDS_DTC_STATUS_TestFailedSinceLastClear = 0b00100000,
-    UDS_DTC_STATUS_TestNotCompletedThisOperationCycle = 0b01000000,
-    UDS_DTC_STATUS_WarningIndicatorRequested = 0b10000000,
-} UDS_DTC_STATUS;
+    AD_UDS_DTC_STATUS_TestFailed = 0b00000001,
+    AD_UDS_DTC_STATUS_TestFailedThisOperationCycle = 0b00000010,
+    AD_UDS_DTC_STATUS_PendingDTC = 0b00000100,
+    AD_UDS_DTC_STATUS_ConfirmedDTC = 0b00001000,
+    AD_UDS_DTC_STATUS_TestNotCompletedSinceLastClear = 0b00010000,
+    AD_UDS_DTC_STATUS_TestFailedSinceLastClear = 0b00100000,
+    AD_UDS_DTC_STATUS_TestNotCompletedThisOperationCycle = 0b01000000,
+    AD_UDS_DTC_STATUS_WarningIndicatorRequested = 0b10000000,
+} AD_UDS_DTC_STATUS;
 
-char * ad_uds_dtc_status_to_string(UDS_DTC_STATUS wanted);
+char * ad_uds_dtc_status_to_string(AD_UDS_DTC_STATUS wanted);
 
-AD_LIST_H_DEEP(UDS_DTC,
+AD_LIST_H_DEEP(AD_UDS_DTC,
     byte Status_Availability_Mask;
     ad_object_ECU * ecu;
 );
-AD_LIST_H(ad_list_UDS_DTC);
+AD_LIST_H(ad_list_AD_UDS_DTC);
 
-ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask);
-ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter);
+ad_list_ad_list_AD_UDS_DTC * ad_uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask);
+ad_list_ad_list_AD_UDS_DTC * ad_uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter);
 /**
  * No matter if they're confirmed, report any DTC
  */
-ad_list_UDS_DTC * ad_uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter);
+ad_list_AD_UDS_DTC * ad_uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter);
 
 #endif
