@@ -4,7 +4,6 @@ typedef struct {
     Buffer * vin;
 
     struct {
-        int session_type;
         bool security_access_granted;
         ad_list_UDS_DTC * dtcs;
         byte DTCSupportedStatusMask;
@@ -19,10 +18,21 @@ typedef struct {
 
 } GState;
 
+static int get_session_type(GState *state) {
+    Buffer * b = state->uds.did[UDS_DID_Active_Diagnostic_Session_Data_Identifier_information];
+    if ( b->size == 0 ) {
+        return -1;
+    }
+    return b->buffer[0];
+}
+static void set_session_type(GState * state, byte session_type) {
+    state->uds.did[UDS_DID_Active_Diagnostic_Session_Data_Identifier_information] = ad_buffer_be_from_uint8(session_type);
+}
 static void ad_uds_reset_default_session(GState * state) {
     log_msg(LOG_DEBUG, "should reset controls and settings leaving in the ram");
     state->uds.security_access_granted = false;
-    state->uds.session_type = UDS_SESSION_DEFAULT;
+    set_session_type(state, UDS_SESSION_DEFAULT);
+    state->uds.did[UDS_DID_Active_Diagnostic_Session_Data_Identifier_information] = ad_buffer_be_from_uint8(UDS_SESSION_DEFAULT);
 }
 static void * session_timer_daemon(void *arg) {
     GState * state = (GState*)arg;
@@ -54,7 +64,7 @@ static bool ad_uds_service_allowed(GState *state, byte service_id) {
             return true;
         
         case AD_UDS_SERVICE_SECURITY_ACCESS:
-            return state->uds.session_type == UDS_SESSION_PROGRAMMING;
+            return get_session_type(state) == UDS_SESSION_PROGRAMMING;
         case AD_UDS_SERVICE_ECU_RESET:
         case AD_UDS_SERVICE_REQUEST_DOWNLOAD:
         case AD_UDS_SERVICE_REQUEST_UPLOAD:
@@ -64,10 +74,10 @@ static bool ad_uds_service_allowed(GState *state, byte service_id) {
         case AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
         case AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
         case AD_UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS:
-            return state->uds.session_type == UDS_SESSION_PROGRAMMING && state->uds.security_access_granted;
+            return get_session_type(state) == UDS_SESSION_PROGRAMMING && state->uds.security_access_granted;
 
         case AD_UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
-            return state->uds.session_type == UDS_SESSION_EXTENDED_DIAGNOSTIC;
+            return get_session_type(state) == UDS_SESSION_EXTENDED_DIAGNOSTIC;
 
     }
     return false;
@@ -153,7 +163,7 @@ static void init_did(GState *state, unsigned *seed) {
     state->uds.did[UDS_DID_bootSoftwareFingerprint] = ad_buffer_from_ascii("BTLFP20100415");
     state->uds.did[UDS_DID_applicationSoftwareFingerprint] = ad_buffer_from_ascii("APPFP20110422");
     state->uds.did[UDS_DID_applicationDataFingerprint] = ad_buffer_from_ascii("CALFP20110503");
-    state->uds.did[UDS_DID_Active_Diagnostic_Session_Data_Identifier_information] = ad_buffer_from_ints(state->uds.session_type);
+    state->uds.did[UDS_DID_Active_Diagnostic_Session_Data_Identifier_information] = ad_buffer_be_from_uint8(UDS_SESSION_DEFAULT);
     state->uds.did[UDS_DID_manufacturerSparePartNumber] = ad_buffer_from_ascii("9666912580");
     state->uds.did[UDS_DID_manufacturerECUSoftwareNumber] = ad_buffer_from_ascii("9675495080");
     state->uds.did[UDS_DID_manufacturerECUSoftwareVersion] = ad_buffer_from_ascii("SW16.1");
@@ -230,9 +240,9 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 if ( binRequest->buffer[1] == UDS_SESSION_DEFAULT ) {
                     ad_uds_reset_default_session(state);
                 } else {
-                    state->uds.session_type = binRequest->buffer[1];
+                    set_session_type(state, binRequest->buffer[1]);
                 }
-                ad_buffer_append_byte(binResponse, state->uds.session_type);
+                ad_buffer_append_byte(binResponse, get_session_type(state));
                 ad_buffer_append_melt(binResponse, ad_buffer_from_ints( 
                     0x00, 0x19, 0x07, 0xD0 
                 ));
@@ -393,11 +403,15 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->response_uds_did = response_uds_did;
     generator->state = (GState*)malloc(sizeof(GState));
+    generator->context = (unsigned*)malloc(sizeof(unsigned));
+    *((unsigned *)generator->context) = 1;
     GState * state = (GState*)generator->state;
+    init_did(state, generator->context);
     state->vin = null;
     state->obd.dtcs = null;
     state->obd.mil_on = true;
-    state->uds.session_type = UDS_SESSION_DEFAULT;
+    set_session_type(state, UDS_SESSION_DEFAULT);
+
     state->uds.security_access_granted = false;
     state->uds.dtcs = null;
     state->uds.DTCSupportedStatusMask = 
@@ -411,9 +425,6 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     state->uds.dtcs = ad_list_UDS_DTC_new();
     state->obd.dtcs = ad_list_DTC_new();
-    generator->context = (unsigned*)malloc(sizeof(unsigned));
-    *((unsigned *)generator->context) = 1;
-    init_did(state, generator->context);
 
     ad_list_ad_object_string * dtcs = ad_list_ad_object_string_new();
     ad_list_ad_object_string_append(dtcs, ad_object_string_new_from("P0103"));
