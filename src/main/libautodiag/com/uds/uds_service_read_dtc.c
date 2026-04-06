@@ -78,11 +78,11 @@ int ad_list_UDS_DTC_cmp(final ad_list_UDS_DTC * e1, final ad_list_UDS_DTC * e2) 
 }
 AD_LIST_SRC(ad_list_UDS_DTC);
 
-static ad_list_ad_list_UDS_DTC * ad_uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
+static ad_list_ad_list_UDS_DTC * ad_uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
     ad_list_ad_list_UDS_DTC * result = ad_list_ad_list_UDS_DTC_new();
     viface_lock(iface);
-    final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DTC_INFORMATION, sub);
-    if ( sub == UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK ) {
+    final Buffer * binRequest = ad_buffer_from_ints(AD_UDS_SERVICE_READ_DTC_INFORMATION, sub);
+    if ( sub == AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK ) {
         ad_buffer_append_byte(binRequest, StatusMask);
     }
     viface_send(iface, binRequest);
@@ -126,10 +126,10 @@ static ad_list_ad_list_UDS_DTC * ad_uds_read_dtcs_with_mask(final VehicleIFace *
     return result;
 }
 ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask) {
-    return ad_uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
+    return ad_uds_read_dtcs_with_mask(iface, filter, AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
 }
 ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter) {
-    return ad_uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
+    return ad_uds_read_dtcs_with_mask(iface, filter, AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
 }
 ad_list_UDS_DTC * ad_uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter) {
     ad_list_ad_list_UDS_DTC * lists_dtcs = ad_uds_read_dtc_by_status_mask(iface, filter,

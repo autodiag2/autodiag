@@ -15,7 +15,7 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
     viface_lock(iface);
 
     Buffer * request = ad_buffer_new();
-    ad_buffer_append_byte(request, UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
+    ad_buffer_append_byte(request, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
     Buffer * did = ad_buffer_new();
     ad_buffer_assign_uint16(did, UDS_DID_VIN);
     ad_buffer_append(request, did);
@@ -47,7 +47,7 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
                 ad_buffer_dump(data);
                 *result &= false;
             } else if ( data->size == 3
-                     && data->buffer[0] == (UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE)
+                     && data->buffer[0] == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE)
                      && data->buffer[1] == did->buffer[0]
                      && data->buffer[2] == did->buffer[1] ) {
                 *result &= true;
@@ -91,7 +91,7 @@ bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type) 
     }
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
-        UDS_SERVICE_ECU_RESET, type
+        AD_UDS_SERVICE_ECU_RESET, type
     ));
     viface_clear_data(iface);
     viface_recv(iface);
@@ -128,7 +128,7 @@ bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
     final byte group3RelatedDTC = 0xFF;
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
-        UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION, emissionRelatedDTC, group2RelatedDTC, group3RelatedDTC
+        AD_UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION, emissionRelatedDTC, group2RelatedDTC, group3RelatedDTC
     ));
     viface_clear_data(iface);
     viface_recv(iface);
@@ -157,7 +157,7 @@ bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
 ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
     ad_list_Buffer * result = ad_list_Buffer_new();
     viface_lock(iface);
-    final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
+    final Buffer * binRequest = ad_buffer_from_ints(AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
     viface_send(iface, binRequest);
     ad_buffer_free(binRequest);
     viface_clear_data(iface);
@@ -209,7 +209,7 @@ bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_
 bool ad_uds_tester_present(final VehicleIFace *iface, final bool response) {
     bool result = true;
     viface_lock(iface);
-    viface_send(iface, ad_buffer_from_ints( UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
+    viface_send(iface, ad_buffer_from_ints( AD_UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
     if ( response ) {
         viface_clear_data(iface);
         if ( viface_recv(iface) <= 0 ) {
@@ -277,7 +277,7 @@ bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * ifa
     final ad_object_hashmap_Int_Int * seeds = ad_object_hashmap_Int_Int_new();
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
-        UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
+        AD_UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED
     ));
     viface_clear_data(iface);
     viface_recv(iface);
@@ -315,7 +315,7 @@ bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * ifa
     for(int i = 0; i < seeds->size; i++) {
         final int encrypted = ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
         viface_send(iface, ad_buffer_from_ints(
-            UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
+            AD_UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
             (encrypted & 0xFF00) >> 8,
             encrypted & 0x00FF
         ));
@@ -374,7 +374,7 @@ ad_object_hashmap_Int_Int * ad_uds_request_session(final VehicleIFace * iface, f
     viface_lock(iface);
     
     final ad_object_hashmap_Int_Int * result = ad_object_hashmap_Int_Int_new();
-    final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, session_type);
+    final Buffer * binRequest = ad_buffer_from_ints(AD_UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL, session_type);
     viface_send(iface, binRequest);
     ad_buffer_free(binRequest);
     viface_clear_data(iface);

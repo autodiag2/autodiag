@@ -46,26 +46,26 @@ static bool service_is_uds(byte service) {
 }
 static bool ad_uds_service_allowed(GState *state, byte service_id) {
     switch (service_id) {
-        case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
-        case UDS_SERVICE_TESTER_PRESENT:
-        case UDS_SERVICE_READ_DTC_INFORMATION:
-        case UDS_SERVICE_READ_DATA_BY_IDENTIFIER:
+        case AD_UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
+        case AD_UDS_SERVICE_TESTER_PRESENT:
+        case AD_UDS_SERVICE_READ_DTC_INFORMATION:
+        case AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER:
             return true;
         
-        case UDS_SERVICE_SECURITY_ACCESS:
+        case AD_UDS_SERVICE_SECURITY_ACCESS:
             return state->uds.session_type == UDS_SESSION_PROGRAMMING;
-        case UDS_SERVICE_ECU_RESET:
-        case UDS_SERVICE_REQUEST_DOWNLOAD:
-        case UDS_SERVICE_REQUEST_UPLOAD:
-        case UDS_SERVICE_TRANSFER_DATA:
-        case UDS_SERVICE_REQUEST_TRANSFER_EXIT:
+        case AD_UDS_SERVICE_ECU_RESET:
+        case AD_UDS_SERVICE_REQUEST_DOWNLOAD:
+        case AD_UDS_SERVICE_REQUEST_UPLOAD:
+        case AD_UDS_SERVICE_TRANSFER_DATA:
+        case AD_UDS_SERVICE_REQUEST_TRANSFER_EXIT:
         // unsure
-        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
-        case UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
-        case UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS:
+        case AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER:
+        case AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS:
+        case AD_UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS:
             return state->uds.session_type == UDS_SESSION_PROGRAMMING && state->uds.security_access_granted;
 
-        case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
+        case AD_UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION:
             return state->uds.session_type == UDS_SESSION_EXTENDED_DIAGNOSTIC;
 
     }
@@ -210,7 +210,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
         case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return generator->response_saej1979_vehicle_identification_request(generator, binRequest);
-        case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
+        case AD_UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
                 if ( binRequest->buffer[1] == UDS_SESSION_DEFAULT ) {
                     ad_uds_reset_default_session(state);
@@ -223,14 +223,14 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 ));
             }
         } break;
-        case UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
+        case AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
             binResponse = generator->response_uds_did_wrapper(generator, binRequest);
         } break;
-        case UDS_SERVICE_READ_DTC_INFORMATION: {
+        case AD_UDS_SERVICE_READ_DTC_INFORMATION: {
             if ( 1 < binRequest->size ) {
                 ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
                 switch(binRequest->buffer[1]) {
-                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
+                    case AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC: {
                         ad_buffer_append_byte(binResponse, state->uds.DTCSupportedStatusMask);
                         for(int i = 0; i < state->uds.dtcs->size; i++) {
                             final UDS_DTC * dtc = state->uds.dtcs->list[i];
@@ -238,7 +238,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             ad_buffer_append_byte(binResponse, dtc->status);
                         }
                     } break;
-                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_SEVERITY_MASK_RECORD: {
+                    case AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_SEVERITY_MASK_RECORD: {
                         if ( binRequest->size <= 3 ) {
                             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                         } else {
@@ -254,7 +254,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                             }
                         }
                     } break;
-                    case UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK: {
+                    case AD_UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK: {
                         if ( binRequest->size <= 2 ) {
                             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                         } else {
@@ -274,7 +274,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
-        case UDS_SERVICE_TESTER_PRESENT: {
+        case AD_UDS_SERVICE_TESTER_PRESENT: {
             if ( 1 < binRequest->size ) {
                 switch(binRequest->buffer[1]) {
                     case UDS_TESTER_PRESENT_SUB_ZERO:
@@ -293,7 +293,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
-        case UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
+        case AD_UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION: {
             if ( 3 < binRequest->size ) {
                 ad_list_DTC_clear((ad_list_DTC*)state->uds.dtcs);
                 ad_list_DTC_clear(state->obd.dtcs);
@@ -303,7 +303,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
-        case UDS_SERVICE_SECURITY_ACCESS: {
+        case AD_UDS_SERVICE_SECURITY_ACCESS: {
             if ( 1 < binRequest->size ) {
                 final int securit_seed = 0x4321;
                 switch(binRequest->buffer[1]) {
@@ -332,7 +332,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
-        case UDS_SERVICE_ECU_RESET: {
+        case AD_UDS_SERVICE_ECU_RESET: {
             if ( 1 < binRequest->size ) {
                 final byte resetType = binRequest->buffer[1];
                 ad_uds_reset_default_session(state);
@@ -341,7 +341,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
-        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
+        case AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
             if ( 2 < binRequest->size ) {
                 Buffer * did_buffer = ad_buffer_slice(binRequest, 1, 2);
                 uint16_t did = ad_buffer_to_be16(did_buffer);

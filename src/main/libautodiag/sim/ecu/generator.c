@@ -196,7 +196,7 @@ bool sim_ecu_generator_fill_success(Buffer * binResponse, Buffer * binRequest) {
             }
         } break;
         // Only one data to write per request
-        case UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
+        case AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER: {
             if ( 2 < binRequest->size ) {
                 AD_BUFFER_APPEND_BYTES(binResponse, binRequest->buffer[1], binRequest->buffer[2]);
             } else {

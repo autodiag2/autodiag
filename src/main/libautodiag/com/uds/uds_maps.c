@@ -62,27 +62,27 @@ char * ad_uds_nrc_to_string(final UDS_NRC nrc) {
 char* ad_uds_service_to_string(final UDSService key) {
     if ( service_to_string_map == null ) {
         service_to_string_map = ad_object_hashmap_Int_string_new();
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL), ad_object_string_new_from("Diagnostic Session Control"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_ECU_RESET), ad_object_string_new_from("ECU Reset"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION), ad_object_string_new_from("Clear Diagnostic Information"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_READ_DTC_INFORMATION), ad_object_string_new_from("Read DTC Information"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_READ_DATA_BY_IDENTIFIER), ad_object_string_new_from("Read Data By Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_READ_MEMORY_BY_ADDRESS), ad_object_string_new_from("Read Memory By Address"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_READ_SCALING_DATA_BY_IDENTIFIER), ad_object_string_new_from("Read Scaling Data By Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_SECURITY_ACCESS), ad_object_string_new_from("Security Access"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_COMMUNICATION_CONTROL), ad_object_string_new_from("Communication Control"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_AUTHENTICATION), ad_object_string_new_from("Authentication"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_READ_DATA_BY_PERIOD_IDENTIFIER), ad_object_string_new_from("Read Data By Period Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_DYNAMICALLY_DEFINE_DATA_IDENTIFIER), ad_object_string_new_from("Dynamically Define Data Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER), ad_object_string_new_from("Write Data By Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_INPUT_OUTPUT_CONTROL_BY_IDENTIFIER), ad_object_string_new_from("Input Output Control By Identifier"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_ROUTINE_CONTROL), ad_object_string_new_from("Routine Control"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_REQUEST_DOWNLOAD), ad_object_string_new_from("Request Download"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_REQUEST_UPLOAD), ad_object_string_new_from("Request Upload"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_TRANSFER_DATA), ad_object_string_new_from("Transfer Data"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_REQUEST_TRANSFER_EXIT), ad_object_string_new_from("Request Transfer Exit"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_REQUEST_FILE_TRANSFER), ad_object_string_new_from("Request File Transfer"));
-        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_TESTER_PRESENT), ad_object_string_new_from("Tester Present"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL), ad_object_string_new_from("Diagnostic Session Control"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_ECU_RESET), ad_object_string_new_from("ECU Reset"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_CLEAR_DIAGNOSTIC_INFORMATION), ad_object_string_new_from("Clear Diagnostic Information"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_READ_DTC_INFORMATION), ad_object_string_new_from("Read DTC Information"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER), ad_object_string_new_from("Read Data By Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS), ad_object_string_new_from("Read Memory By Address"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_READ_SCALING_DATA_BY_IDENTIFIER), ad_object_string_new_from("Read Scaling Data By Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_SECURITY_ACCESS), ad_object_string_new_from("Security Access"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_COMMUNICATION_CONTROL), ad_object_string_new_from("Communication Control"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_AUTHENTICATION), ad_object_string_new_from("Authentication"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_READ_DATA_BY_PERIOD_IDENTIFIER), ad_object_string_new_from("Read Data By Period Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_DYNAMICALLY_DEFINE_DATA_IDENTIFIER), ad_object_string_new_from("Dynamically Define Data Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER), ad_object_string_new_from("Write Data By Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_INPUT_OUTPUT_CONTROL_BY_IDENTIFIER), ad_object_string_new_from("Input Output Control By Identifier"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_ROUTINE_CONTROL), ad_object_string_new_from("Routine Control"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_REQUEST_DOWNLOAD), ad_object_string_new_from("Request Download"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_REQUEST_UPLOAD), ad_object_string_new_from("Request Upload"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_TRANSFER_DATA), ad_object_string_new_from("Transfer Data"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_REQUEST_TRANSFER_EXIT), ad_object_string_new_from("Request Transfer Exit"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_REQUEST_FILE_TRANSFER), ad_object_string_new_from("Request File Transfer"));
+        ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(AD_UDS_SERVICE_TESTER_PRESENT), ad_object_string_new_from("Tester Present"));
     }
     ad_object_string * result = ad_object_hashmap_Int_string_get(service_to_string_map, ad_object_Int_new_from(key));
     if ( result ) {

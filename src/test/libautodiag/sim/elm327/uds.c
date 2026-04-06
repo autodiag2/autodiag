@@ -55,7 +55,7 @@ bool testSimUDS() {
     final VehicleIFace* iface = tf_serial_open(strdup(elm327->device_location));
     {
         viface_send(iface, ad_buffer_from_ints(
-            UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
+            AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER,
             UDS_DID_Active_Diagnostic_Session_Data_Identifier_information >> 8,
         ));
         viface_clear_data(iface);
@@ -66,7 +66,7 @@ bool testSimUDS() {
             for(int j = 0; j < ecu->data_buffer->size; j++) {
                 final Buffer * data = ecu->data_buffer->list[j];
                 assert(data->buffer[0] == UDS_NEGATIVE_RESPONSE);
-                assert(data->buffer[1] == UDS_SERVICE_READ_DATA_BY_IDENTIFIER);
+                assert(data->buffer[1] == AD_UDS_SERVICE_READ_DATA_BY_IDENTIFIER);
                 assert(data->buffer[2] == UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                 passed = true;
             }
