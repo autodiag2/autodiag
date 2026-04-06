@@ -188,6 +188,7 @@ bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type);
  * @param vin_ascii ascii values of the vin
  */
 bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii);
+bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 

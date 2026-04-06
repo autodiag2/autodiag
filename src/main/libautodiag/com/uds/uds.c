@@ -8,66 +8,7 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
             vin_ascii->size
         );
     }
-    bool * result = null;
-
-    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
-        return false;
-    }
-
-    if ( ! ad_uds_security_access(iface, 0) ) {
-        return false;
-    }
-
-    viface_lock(iface);
-
-    Buffer * request = ad_buffer_new();
-    ad_buffer_append_byte(request, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
-    ad_buffer_append_uint16(request, UDS_DID_VIN);
-    ad_buffer_append(request, vin_ascii);
-
-    viface_send(iface, request);
-    ad_buffer_free(request);
-
-    viface_clear_data(iface);
-    viface_recv(iface);
-
-    for(int i = 0; i < iface->vehicle->ecus->size; i++) {
-        final ad_object_ECU * ecu = iface->vehicle->ecus->list[i];
-        for(int j = 0; j < ecu->data_buffer->size; j++) {
-            final Buffer * data = ecu->data_buffer->list[j];
-
-            if ( result == null ) {
-                result = booldup(true);
-            }
-
-            if ( data->size <= 0 ) {
-                log_msg(LOG_WARNING, "Empty response buffer");
-                *result &= false;
-                continue;
-            }
-
-            if ( data->buffer[0] == UDS_NEGATIVE_RESPONSE ) {
-                log_msg(LOG_ERROR, "Negative response while writing VIN");
-                ad_buffer_dump(data);
-                *result &= false;
-            } else if ( data->size == 3
-                     && data->buffer[0] == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE)
-                     && data->buffer[1] == ((UDS_DID_VIN >> 8) & 0xFF) 
-                     && data->buffer[2] == (UDS_DID_VIN & 0xFF) ) {
-                *result &= true;
-            } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
-                log_msg(LOG_WARNING, "Unexpected positive response payload while writing VIN");
-                ad_buffer_dump(data);
-                *result &= false;
-            } else {
-                log_msg(LOG_WARNING, "Unknown byte at first");
-                ad_buffer_dump(data);
-                *result &= false;
-            }
-        }
-    }
-    viface_unlock(iface);
-    return result == null ? false : *result;
+    return ad_uds_write_did(iface, UDS_DID_VIN, vin_ascii);
 }
 bool ad_uds_security_access(final VehicleIFace * iface, int level) {
     return ad_uds_security_access_ecu_generator_citroen_c5_x7(iface);
@@ -156,6 +97,50 @@ bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
     }
     viface_unlock(iface);
     return result == null ? false : *result;
+}
+bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value) {
+    bool * success = null;
+    iface->lock(iface);
+    Buffer * binRequest = ad_buffer_new();
+    ad_buffer_append_byte(binRequest, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
+    ad_buffer_append_uint16(binRequest, did);
+    ad_buffer_append(binRequest, value);
+    if ( iface->send(iface, binRequest) <= 0 ) {
+        log_err("Failed to send the data");
+        iface->unlock(iface);
+        return false;
+    }
+    iface->clear_data(iface);
+    if ( iface->recv(iface) <= 0 ) {
+        log_err("No ECU responded");
+        iface->unlock(iface);
+        return false;
+    }
+    ad_list_Buffer * list_buf = iface->vehicle->data_buffer;
+    for(int i = 0; i < list_buf->size; i++) {
+        Buffer * binResponse = list_buf->list[i];
+        byte b0 = binResponse->buffer[0];
+        if ( b0 == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE) ) {
+            Buffer * did_resp_buffer = ad_buffer_slice(binResponse, 1, 2);
+            uint16_t did_resp = ad_buffer_to_be16(did_resp_buffer);
+            if ( success == null ) {
+                success = booldup(did_resp == did);
+            } else {
+                *success &= (did_resp == did);
+            }
+            if ( did_resp != did ) {
+                log_warn("did differs");
+            }
+            ad_buffer_free(did_resp_buffer);
+        } else {
+            log_err("negative response found");
+            success = booldup(false);
+        }
+    }
+    iface->unlock(iface);
+    bool success_rv = success == null ? false : *success;
+    free(success);
+    return success_rv;
 }
 ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
     ad_list_Buffer * result = ad_list_Buffer_new();
