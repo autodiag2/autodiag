@@ -107,35 +107,32 @@ GEN_SERIAL_RECV(ad_serial_recv,Serial,SERIAL_RECV_ITERATOR)
 
 int ad_serial_open(final Serial * port) {
     if ( port == null ) {
-        log_msg(LOG_INFO, "Open: Cannot open since not serial port info given");
+        log_info("Open: Cannot open since not serial port info given");
         return GENERIC_FUNCTION_ERROR;
     }
     
     // Do not open serial if it has not been configured.
     if (port->location == null) {
-        log_msg(LOG_DEBUG, "Open: Cannot open since no name on the serial");
+        log_debug("Open: Cannot open since no name on the serial");
         return GENERIC_FUNCTION_ERROR;
     }
 
     ad_serial_close(port);
 
-    const char *addr = port->location;
-    char host[500];
-    char port_str[8] = "35000";
-    if ( ad_device_is_network((Device*)port) ) {
-        const char *colon = strchr(addr, ':');
+    if (ad_device_is_network((Device*)port)) {
+        const char *location = port->location;
+        char host[500];
+        char port_str[8] = "35000";
+        const char *colon = strchr(location, ':');
         if (colon) {
-            size_t len = colon - addr;
+            size_t len = colon - location;
             if (len >= sizeof(host)) return GENERIC_FUNCTION_ERROR;
-            memcpy(host, addr, len);
+            memcpy(host, location, len);
             host[len] = 0;
             strncpy(port_str, colon + 1, sizeof(port_str) - 1);
         } else {
-            strncpy(host, addr, sizeof(host) - 1);
+            strncpy(host, location, sizeof(host) - 1);
         }
-    }
-
-    if (ad_device_is_network((Device*)port)) {
         #if defined OS_POSIX
             int fd = socket(AF_INET, SOCK_STREAM, 0);
             if (fd < 0) {
