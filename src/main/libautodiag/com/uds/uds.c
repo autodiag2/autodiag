@@ -2,6 +2,12 @@
 
 bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
     assert(vin_ascii != null);
+    if ( vin_ascii->size < 17 ) {
+        log_warn("strange vin received : %s (len: %d)", 
+            ad_buffer_to_ascii_espace_breaking_chars(vin_ascii),
+            vin_ascii->size
+        );
+    }
     bool * result = null;
 
     if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
@@ -46,8 +52,8 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
                 *result &= false;
             } else if ( data->size == 3
                      && data->buffer[0] == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE)
-                     && data->buffer[1] == did->buffer[0]
-                     && data->buffer[2] == did->buffer[1] ) {
+                     && data->buffer[1] == ((UDS_DID_VIN >> 8) & 0xFF) 
+                     && data->buffer[2] == (UDS_DID_VIN & 0xFF) ) {
                 *result &= true;
             } else if ( (data->buffer[0] & UDS_POSITIVE_RESPONSE) == UDS_POSITIVE_RESPONSE ) {
                 log_msg(LOG_WARNING, "Unexpected positive response payload while writing VIN");
@@ -173,9 +179,8 @@ ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, fina
                     ad_buffer_dump(data);
                     continue;
                 }
-                Buffer * resultBuffer = ad_buffer_new();
-                ad_buffer_slice_append(resultBuffer, data, 3, data->size - 3);
-                ad_list_Buffer_append(result, resultBuffer);
+                Buffer * did_data = ad_buffer_slice(data, 3, data->size - 3);
+                ad_list_Buffer_append(result, did_data);
             } else {
                 log_msg(LOG_WARNING, "Unknown byte at first");
                 ad_buffer_dump(data);

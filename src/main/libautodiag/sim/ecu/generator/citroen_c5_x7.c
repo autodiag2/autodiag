@@ -247,7 +247,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 ad_buffer_recycle(binResponse);
                 ad_buffer_append_byte(binResponse, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE);
                 ad_buffer_append_uint16(binResponse, did);
-                state->uds.did[did] = ad_buffer_slice(binResponse, 3, binResponse->size - 3);
+                state->uds.did[did] = ad_buffer_slice(binRequest, 3, binRequest->size - 3);
                 if ( did == UDS_DID_VIN ) {
                     state->vin = ad_buffer_copy(state->uds.did[did]);
                 }
