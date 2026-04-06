@@ -16,9 +16,7 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
 
     Buffer * request = ad_buffer_new();
     ad_buffer_append_byte(request, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
-    Buffer * did = ad_buffer_new();
-    ad_buffer_assign_uint16(did, UDS_DID_VIN);
-    ad_buffer_append(request, did);
+    ad_buffer_append_uint16(request, UDS_DID_VIN);
     ad_buffer_append(request, vin_ascii);
 
     viface_send(iface, request);
@@ -62,7 +60,6 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
             }
         }
     }
-    ad_buffer_free(did);
     viface_unlock(iface);
     return result == null ? false : *result;
 }
@@ -173,6 +170,7 @@ ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, fina
                 final int received_did = data->buffer[1] << 8 | data->buffer[2];
                 if ( did != received_did ) {
                     log_msg(LOG_ERROR, "received did do not match the sent one, ignoring");
+                    ad_buffer_dump(data);
                     continue;
                 }
                 Buffer * resultBuffer = ad_buffer_new();
