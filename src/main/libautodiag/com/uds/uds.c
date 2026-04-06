@@ -8,7 +8,7 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
             vin_ascii->size
         );
     }
-    return ad_uds_write_did(iface, UDS_DID_VIN, vin_ascii);
+    return ad_uds_write_did(iface, UDS_DID_VIN, vin_ascii, UDS_SESSION_PROGRAMMING, 0x01);
 }
 bool ad_uds_security_access(final VehicleIFace * iface, int level) {
     return ad_uds_security_access_ecu_generator_citroen_c5_x7(iface);
@@ -98,8 +98,16 @@ bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
     viface_unlock(iface);
     return result == null ? false : *result;
 }
-bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value) {
+bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value, int session_type, int security_access_level) {
     bool * success = null;
+    if ( ! ad_uds_request_session_cond(iface, session_type) ) {
+        log_err("Failing to grab the programming session");
+        return false;
+    }
+    if ( ! ad_uds_security_access(iface, security_access_level) ) {
+        log_err("Failed to get the security access");
+        return false;
+    }
     iface->lock(iface);
     Buffer * binRequest = ad_buffer_new();
     ad_buffer_append_byte(binRequest, AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER);
@@ -119,6 +127,10 @@ bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value) {
     ad_list_Buffer * list_buf = iface->vehicle->data_buffer;
     for(int i = 0; i < list_buf->size; i++) {
         Buffer * binResponse = list_buf->list[i];
+        if ( binResponse->size == 0 ) {
+            log_err("empty response");
+            continue;
+        }
         byte b0 = binResponse->buffer[0];
         if ( b0 == (AD_UDS_SERVICE_WRITE_DATA_BY_IDENTIFIER | UDS_POSITIVE_RESPONSE) ) {
             Buffer * did_resp_buffer = ad_buffer_slice(binResponse, 1, 2);
@@ -133,7 +145,12 @@ bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value) {
             }
             ad_buffer_free(did_resp_buffer);
         } else {
-            log_err("negative response found");
+            if ( 2 < binResponse->size ) {
+                log_err("incorrect length of the nrc");
+            } else {
+                byte sid = binResponse->buffer[1];
+                log_err("negative response found : %s", ad_uds_nrc_to_string(binResponse->buffer[2]));
+            }
             success = booldup(false);
         }
     }
