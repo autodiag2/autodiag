@@ -18,7 +18,7 @@ typedef struct {
 
 } GState;
 
-static void uds_reset_default_session(GState * state) {
+static void ad_uds_reset_default_session(GState * state) {
     log_msg(LOG_DEBUG, "should reset controls and settings leaving in the ram");
     state->uds.security_access_granted = false;
     state->uds.session_type = UDS_SESSION_DEFAULT;
@@ -29,7 +29,7 @@ static void * session_timer_daemon(void *arg) {
         state->uds.session_continue = false;
         usleep(UDS_SESSION_TIMEOUT_MS * 1000);
     }
-    uds_reset_default_session(state);
+    ad_uds_reset_default_session(state);
     free(state->uds.session_timer);
     state->uds.session_timer = null;
     return null;
@@ -44,7 +44,7 @@ static void start_or_update_session_timer(GState *state) {
 static bool service_is_uds(byte service) {
     return 0x10 <= service;
 }
-static bool uds_service_allowed(GState *state, byte service_id) {
+static bool ad_uds_service_allowed(GState *state, byte service_id) {
     switch (service_id) {
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL:
         case UDS_SERVICE_TESTER_PRESENT:
@@ -135,6 +135,47 @@ static Buffer * response_saej1979_vehicle_identification_request_info_type(SimEC
     }
     return ad_buffer_new();
 }
+static Buffer * response_uds_did(SimECUGenerator * generator, uint16_t did) {
+    GState * state = (GState*)generator->state;
+    unsigned * seed = generator->context;
+    switch (did) {
+        case UDS_DID_bootSoftwareIdentificationDataIdentifier: return ad_buffer_from_ascii("C5X7_BTL_ECU_9666912580");
+        case UDS_DID_applicationSoftwareIdentificationDataIdentifier: return ad_buffer_from_ascii("C5X7_APP_ECU_9666912580");
+        case UDS_DID_applicationDataIdentification: return ad_buffer_from_ascii("C5X7_CAL_2.0HDI_163");
+        case UDS_DID_bootSoftwareFingerprint: return ad_buffer_from_ascii("BTLFP20100415");
+        case UDS_DID_applicationSoftwareFingerprint: return ad_buffer_from_ascii("APPFP20110422");
+        case UDS_DID_applicationDataFingerprint: return ad_buffer_from_ascii("CALFP20110503");
+        case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: return ad_buffer_from_ints(state->uds.session_type);
+        case UDS_DID_manufacturerSparePartNumber: return ad_buffer_from_ascii("9666912580");
+        case UDS_DID_manufacturerECUSoftwareNumber: return ad_buffer_from_ascii("9675495080");
+        case UDS_DID_manufacturerECUSoftwareVersion: return ad_buffer_from_ascii("SW16.1");
+        case UDS_DID_identifierOfSystemSupplier: return ad_buffer_from_ascii("CONTINENTAL");
+        case UDS_DID_ECUManufacturingDate: return ad_buffer_from_ascii("20110321");
+        case UDS_DID_ECUSerialNumber: return ad_buffer_from_ascii("C5X7ECU00000001");
+        case UDS_DID_SupportedFunctionnalUnit: return ad_buffer_from_ints(0x00, 0x01);
+        case UDS_DID_ManufacturerKitAssemblyPartNumber: return ad_buffer_from_ascii("KITC5X7ECM001");
+        case UDS_DID_VIN:
+            if (state->vin != null && state->vin->size == 17) {
+                return ad_buffer_copy(state->vin);
+            } else {
+                return ad_buffer_from_ascii("VF7RD4HTHBL123456");
+            }
+        case UDS_DID_system_supplier_ECU_hardware_number: return ad_buffer_from_ascii("HWECMC5X7A01");
+        case UDS_DID_system_supplier_ECU_hardware_version_number: return ad_buffer_from_ascii("HW01.00");
+        case UDS_DID_system_supplier_ECU_software_number: return ad_buffer_from_ascii("SWECMC5X7A01");
+        case UDS_DID_system_supplier_ECU_software_version_number: return ad_buffer_from_ascii("9666A1.00");
+        case UDS_DID_exhaust_regulation_type_approval_number: return ad_buffer_from_ascii("EU5");
+        case UDS_DID_system_name_engine_type: return ad_buffer_from_ascii("DW10CTED4");
+        case UDS_DID_repair_shop_code_tester_serial_number: return ad_buffer_from_ascii("PSA-TOOL-000001");
+        case UDS_DID_programming_date: return ad_buffer_from_ascii("20110408");
+        case UDS_DID_ECU_installation_date: return ad_buffer_from_ascii("20110419");
+        case UDS_DID_ODX_file: return ad_buffer_from_ascii("CITROEN_C5X7_DW10C_ECM.ODX");
+        default: {
+            return ad_buffer_new_random_with_seed(10, seed);
+        } break;
+    }
+    return null;
+}
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     
     GState * state = (GState*)generator->state;
@@ -149,7 +190,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     unsigned * seed = generator->context;
 
     if ( service_is_uds(binRequest->buffer[0]) ) {
-        if ( ! uds_service_allowed(state, binRequest->buffer[0]) ) {
+        if ( ! ad_uds_service_allowed(state, binRequest->buffer[0]) ) {
             sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_CONDITIONS_NOT_CORRECT);
             return binResponse;
         }
@@ -172,7 +213,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL: {
             if ( 1 < binRequest->size ) {
                 if ( binRequest->buffer[1] == UDS_SESSION_DEFAULT ) {
-                    uds_reset_default_session(state);
+                    ad_uds_reset_default_session(state);
                 } else {
                     state->uds.session_type = binRequest->buffer[1];
                 }
@@ -183,132 +224,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             }
         } break;
         case UDS_SERVICE_READ_DATA_BY_IDENTIFIER: {
-            if (2 < binRequest->size) {
-                if ((binRequest->size - 1) % 2 != 0) {
-                    sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
-                } else {
-                    for (unsigned i = 1; i < (unsigned)(binRequest->size - 1); i += 2) {
-                        final int did = (binRequest->buffer[i] << 8) | binRequest->buffer[i + 1];
-                        ad_buffer_append_melt(binResponse, ad_buffer_from_ints(binRequest->buffer[i], binRequest->buffer[i + 1]));
-
-                        switch (did) {
-                            case UDS_DID_bootSoftwareIdentificationDataIdentifier: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_BTL_ECU_9666912580"));
-                            } break;
-
-                            case UDS_DID_applicationSoftwareIdentificationDataIdentifier: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_APP_ECU_9666912580"));
-                            } break;
-
-                            case UDS_DID_applicationDataIdentification: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7_CAL_2.0HDI_163"));
-                            } break;
-
-                            case UDS_DID_bootSoftwareFingerprint: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("BTLFP20100415"));
-                            } break;
-
-                            case UDS_DID_applicationSoftwareFingerprint: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("APPFP20110422"));
-                            } break;
-
-                            case UDS_DID_applicationDataFingerprint: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CALFP20110503"));
-                            } break;
-
-                            case UDS_DID_Active_Diagnostic_Session_Data_Identifier_information: {
-                                ad_buffer_append_byte(binResponse, state->uds.session_type);
-                            } break;
-
-                            case UDS_DID_manufacturerSparePartNumber: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9666912580"));
-                            } break;
-
-                            case UDS_DID_manufacturerECUSoftwareNumber: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9675495080"));
-                            } break;
-
-                            case UDS_DID_manufacturerECUSoftwareVersion: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("SW16.1"));
-                            } break;
-
-                            case UDS_DID_identifierOfSystemSupplier: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CONTINENTAL"));
-                            } break;
-
-                            case UDS_DID_ECUManufacturingDate: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110321"));
-                            } break;
-
-                            case UDS_DID_ECUSerialNumber: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("C5X7ECU00000001"));
-                            } break;
-
-                            case UDS_DID_SupportedFunctionnalUnit: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ints(0x00, 0x01));
-                            } break;
-
-                            case UDS_DID_ManufacturerKitAssemblyPartNumber: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("KITC5X7ECM001"));
-                            } break;
-
-                            case UDS_DID_VIN: {
-                                if (state->vin != null && state->vin->size == 17) {
-                                    ad_buffer_append(binResponse, state->vin);
-                                } else {
-                                    ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("VF7RD4HTHBL123456"));
-                                }
-                            } break;
-
-                            case UDS_DID_system_supplier_ECU_hardware_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("HWECMC5X7A01"));
-                            } break;
-
-                            case UDS_DID_system_supplier_ECU_hardware_version_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("HW01.00"));
-                            } break;
-
-                            case UDS_DID_system_supplier_ECU_software_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("SWECMC5X7A01"));
-                            } break;
-
-                            case UDS_DID_system_supplier_ECU_software_version_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("9666A1.00"));
-                            } break;
-
-                            case UDS_DID_exhaust_regulation_type_approval_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("EU5"));
-                            } break;
-
-                            case UDS_DID_system_name_engine_type: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("DW10CTED4"));
-                            } break;
-
-                            case UDS_DID_repair_shop_code_tester_serial_number: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("PSA-TOOL-000001"));
-                            } break;
-
-                            case UDS_DID_programming_date: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110408"));
-                            } break;
-
-                            case UDS_DID_ECU_installation_date: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("20110419"));
-                            } break;
-
-                            case UDS_DID_ODX_file: {
-                                ad_buffer_append_melt(binResponse, ad_buffer_from_ascii("CITROEN_C5X7_DW10C_ECM.ODX"));
-                            } break;
-
-                            default: {
-                                ad_buffer_append(binResponse, ad_buffer_new_random_with_seed(10, seed));
-                            } break;
-                        }
-                    }
-                }
-            } else {
-                sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
-            }
+            binResponse = generator->response_uds_did_wrapper(generator, binRequest);
         } break;
         case UDS_SERVICE_READ_DTC_INFORMATION: {
             if ( 1 < binRequest->size ) {
@@ -399,7 +315,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                     case UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY: {
                         assert(3 < binRequest->size);
                         int encrypted = binRequest->buffer[2] << 8 | binRequest->buffer[3];
-                        int decrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
+                        int decrypted = ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(encrypted);
                         log_msg(LOG_DEBUG, "From emu: encrypted received: 0x%X decrypted to 0x%X", encrypted, decrypted);
                         if ( securit_seed == decrypted ) {
                             ad_buffer_append_byte(binResponse, binRequest->buffer[1]);
@@ -419,7 +335,7 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         case UDS_SERVICE_ECU_RESET: {
             if ( 1 < binRequest->size ) {
                 final byte resetType = binRequest->buffer[1];
-                uds_reset_default_session(state);
+                ad_uds_reset_default_session(state);
                 ad_buffer_append_byte(binResponse, resetType);
             } else {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
@@ -464,6 +380,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
+    generator->response_uds_did = response_uds_did;
     generator->state = (GState*)malloc(sizeof(GState));
     GState * state = (GState*)generator->state;
     state->vin = null;

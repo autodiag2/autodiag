@@ -86,8 +86,8 @@ typedef enum {
     UDS_NRC_VOLTAGE_TOO_LOW = 0x93
 } UDS_NRC;
 
-char* uds_service_to_string(final UDSService key);
-char * uds_nrc_to_string(final UDS_NRC nrc);
+char* ad_uds_service_to_string(final UDSService key);
+char * ad_uds_nrc_to_string(final UDS_NRC nrc);
 
 // UDS Standardized DID (ISO14229)
 typedef enum {
@@ -124,7 +124,7 @@ typedef enum {
     UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID_VIN = 0xF802
 } UDS_SERVICE_READ_DATA_BY_IDENTIFIER_WWH_OBD_DID;
 
-ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
+ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, final int did);
 
 // SBF field (second byte after the service byte)
 typedef enum {
@@ -140,9 +140,9 @@ typedef enum {
 /**
  * UDS_SESSION or a byte for ISO/SAE reserved
  */
-ad_object_hashmap_Int_Int* uds_request_session(final VehicleIFace * iface, final byte session_type);
-bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
-bool uds_is_enabled(final VehicleIFace *iface);
+ad_object_hashmap_Int_Int* ad_uds_request_session(final VehicleIFace * iface, final byte session_type);
+bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_type);
+bool ad_uds_is_enabled(final VehicleIFace *iface);
 
 // Without a sub-function (default value), indicating that the ECU should remain in its current state and continue with the active diagnostic session.
 #define UDS_TESTER_PRESENT_SUB_ZERO 0x00
@@ -152,23 +152,23 @@ bool uds_is_enabled(final VehicleIFace *iface);
 /**
  * Send a tester present query
  */
-bool uds_tester_present(final VehicleIFace *iface, final bool response);
-void uds_viface_start_tester_present_timer(final VehicleIFace * iface);
-void uds_viface_stop_tester_present_timer(final VehicleIFace * iface);
+bool ad_uds_tester_present(final VehicleIFace *iface, final bool response);
+void ad_uds_viface_start_tester_present_timer(final VehicleIFace * iface);
+void ad_uds_viface_stop_tester_present_timer(final VehicleIFace * iface);
 #define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_SEED 0x01
 #define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY 0x02
 #define UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY 0b0001000100010001
 /**
  * Unlock ECU for programming and other capabilities
  */
-bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface);
-int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed);
-bool uds_security_access(final VehicleIFace * iface, int level);
+bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface);
+int ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed);
+bool ad_uds_security_access(final VehicleIFace * iface, int level);
 
 /**
  * Clear diagnostic information.
  */
-bool uds_clear_dtcs(final VehicleIFace * iface);
+bool ad_uds_clear_dtcs(final VehicleIFace * iface);
 
 typedef enum {
     UDS_RESET_HARD                = 0x01, /* Hard Reset */
@@ -180,14 +180,14 @@ typedef enum {
     /* 0x40–0x5F Vehicle Manufacturer Specific (OEM) */
     /* 0x60–0x7E System Supplier Specific */
     UDS_RESET_RESERVED_07         = 0x07  /* ISO/SAE Reserved */
-} uds_reset_type;
+} ad_uds_reset_type;
 
-const char *uds_reset_type_to_string(uds_reset_type v);
-bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type);
+const char *ad_uds_reset_type_to_string(ad_uds_reset_type v);
+bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type);
 /**
  * @param vin_ascii ascii values of the vin
  */
-bool uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii);
+bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
 

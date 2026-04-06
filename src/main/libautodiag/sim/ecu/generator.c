@@ -121,6 +121,31 @@ static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator
     }
     return binResponse;
 }
+static Buffer * response_uds_did_wrapper(SimECUGenerator * generator, Buffer * binRequest) {
+    Buffer * binResponse = ad_buffer_new();
+    if (2 < binRequest->size) {
+        if ((binRequest->size - 1) % 2 != 0) {
+            sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+        } else {
+            ad_buffer_append_byte(binResponse, binRequest->buffer[0] | UDS_POSITIVE_RESPONSE);
+            for (unsigned i = 1; i < (unsigned)(binRequest->size - 1); i += 2) {
+                final uint16_t did = (binRequest->buffer[i] << 8) | binRequest->buffer[i + 1];
+                if ( generator->response_uds_did == null ) {
+                    log_err("no handler attached");
+                    break;
+                }
+                Buffer * dataResponse = generator->response_uds_did(generator, did);
+                if ( 0 < dataResponse->size ) {
+                    ad_buffer_append_uint16(binResponse, did);
+                    ad_buffer_append_melt(binResponse, dataResponse);
+                }
+            }
+        }
+    } else {
+        sim_ecu_generator_fill_nrc(binResponse, binRequest, UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+    }
+    return binResponse;
+}
 SimECUGenerator * sim_ecu_generator_new() {
     SimECUGenerator * generator = (SimECUGenerator*)malloc(sizeof(SimECUGenerator));
     generator->context = null;
@@ -132,6 +157,8 @@ SimECUGenerator * sim_ecu_generator_new() {
     generator->response_saej1979_dtcs = null;
     generator->response_saej1979_vehicle_identification_request = response_saej1979_vehicle_identification_request;
     generator->response_saej1979_vehicle_identification_request_info_type = null;
+    generator->response_uds_did_wrapper = response_uds_did_wrapper;
+    generator->response_uds_did = null;
     generator->type = null;
     generator->state = null;
     return generator;

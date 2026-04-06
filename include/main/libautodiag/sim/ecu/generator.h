@@ -56,6 +56,8 @@ typedef struct SimECUGenerator {
      * How to respond to a specific info type for OBD_SERVICE_REQUEST_VEHICLE_INFORMATION service
      */
     Buffer * (*response_saej1979_vehicle_identification_request_info_type)(struct SimECUGenerator * generator, byte infoType);
+    Buffer * (*response_uds_did_wrapper)(struct SimECUGenerator * generator, Buffer * binRequest);
+    Buffer * (*response_uds_did)(struct SimECUGenerator * generator, uint16_t did);
     /**
      * Generates a response for the given request (OBD/UDS or any data protocol over for example CAN messages)
      * @param this Pointer to the SimECUGenerator instance

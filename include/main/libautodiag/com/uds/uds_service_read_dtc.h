@@ -44,7 +44,7 @@ AD_OBJECT_H(UDS_DTC,
 )
 typedef ad_object_UDS_DTC UDS_DTC;
 
-void uds_dtc_dump(final UDS_DTC * dtc);
+void ad_uds_dtc_dump(final UDS_DTC * dtc);
 UDS_DTC * UDS_DTC_new();
 UDS_DTC * UDS_DTC_new_from(final SAEJ1979_DTC *dtc);
 void UDS_DTC_free(UDS_DTC * dtc);
@@ -63,7 +63,7 @@ typedef enum {
     UDS_DTC_STATUS_WarningIndicatorRequested = 0b10000000,
 } UDS_DTC_STATUS;
 
-char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted);
+char * ad_uds_dtc_status_to_string(UDS_DTC_STATUS wanted);
 
 AD_LIST_H_DEEP(UDS_DTC,
     byte Status_Availability_Mask;
@@ -71,11 +71,11 @@ AD_LIST_H_DEEP(UDS_DTC,
 );
 AD_LIST_H(ad_list_UDS_DTC);
 
-ad_list_ad_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask);
-ad_list_ad_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter);
+ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask);
+ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter);
 /**
  * No matter if they're confirmed, report any DTC
  */
-ad_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter);
+ad_list_UDS_DTC * ad_uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter);
 
 #endif

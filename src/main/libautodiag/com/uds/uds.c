@@ -1,14 +1,14 @@
 #include "libautodiag/com/uds/uds.h"
 
-bool uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
+bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
     assert(vin_ascii != null);
     bool * result = null;
 
-    if ( ! uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
+    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
         return false;
     }
 
-    if ( ! uds_security_access(iface, 0) ) {
+    if ( ! ad_uds_security_access(iface, 0) ) {
         return false;
     }
 
@@ -66,10 +66,10 @@ bool uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii) {
     viface_unlock(iface);
     return result == null ? false : *result;
 }
-bool uds_security_access(final VehicleIFace * iface, int level) {
-    return uds_security_access_ecu_generator_citroen_c5_x7(iface);
+bool ad_uds_security_access(final VehicleIFace * iface, int level) {
+    return ad_uds_security_access_ecu_generator_citroen_c5_x7(iface);
 }
-const char *uds_reset_type_to_string(uds_reset_type v) {
+const char *ad_uds_reset_type_to_string(ad_uds_reset_type v) {
     if (v == UDS_RESET_HARD) return "Hard Reset";
     if (v == UDS_RESET_KEY_OFF_ON) return "Key Off On Reset";
     if (v == UDS_RESET_SOFT) return "Soft Reset";
@@ -84,9 +84,9 @@ const char *uds_reset_type_to_string(uds_reset_type v) {
     return "Undefined";
 }
 
-bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type) {
+bool ad_uds_reset_ecu(final VehicleIFace * iface, final ad_uds_reset_type type) {
     bool * result = null;
-    if ( ! uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
+    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_PROGRAMMING) ) {
         return false;
     }
     viface_lock(iface);
@@ -118,9 +118,9 @@ bool uds_reset_ecu(final VehicleIFace * iface, final uds_reset_type type) {
     return result == null ? false : *result;
 }
 
-bool uds_clear_dtcs(final VehicleIFace * iface) {
+bool ad_uds_clear_dtcs(final VehicleIFace * iface) {
     bool *result = null;
-    if ( ! uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {
+    if ( ! ad_uds_request_session_cond(iface, UDS_SESSION_EXTENDED_DIAGNOSTIC) ) {
         return false;
     }
     final byte emissionRelatedDTC = 0xFF;
@@ -154,7 +154,7 @@ bool uds_clear_dtcs(final VehicleIFace * iface) {
     viface_unlock(iface);
     return result == null ? false : *result;
 }
-ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
+ad_list_Buffer * ad_uds_read_data_by_identifier(final VehicleIFace * iface, final int did) {
     ad_list_Buffer * result = ad_list_Buffer_new();
     viface_lock(iface);
     final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DATA_BY_IDENTIFIER, (did & 0xFF00) >> 8, did & 0xFF);
@@ -187,11 +187,11 @@ ad_list_Buffer * uds_read_data_by_identifier(final VehicleIFace * iface, final i
     viface_unlock(iface);
     return result;
 }
-bool uds_is_enabled(final VehicleIFace *iface) {
-    return uds_request_session_cond(iface, UDS_SESSION_DEFAULT);
+bool ad_uds_is_enabled(final VehicleIFace *iface) {
+    return ad_uds_request_session_cond(iface, UDS_SESSION_DEFAULT);
 }
-bool uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
-    final ad_object_hashmap_Int_Int * result = uds_request_session(iface, session_type);
+bool ad_uds_request_session_cond(final VehicleIFace * iface, final byte session_type) {
+    final ad_object_hashmap_Int_Int * result = ad_uds_request_session(iface, session_type);
     int value = -1;
     if ( 0 < result->size ) {
         for(int i = 0; i < result->size; i++) {
@@ -206,7 +206,7 @@ bool uds_request_session_cond(final VehicleIFace * iface, final byte session_typ
     return value == -1 ? false : value;
 }
 
-bool uds_tester_present(final VehicleIFace *iface, final bool response) {
+bool ad_uds_tester_present(final VehicleIFace *iface, final bool response) {
     bool result = true;
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( UDS_SERVICE_TESTER_PRESENT, response ? UDS_TESTER_PRESENT_SUB_ZERO : UDS_TESTER_PRESENT_SUB_NO_RESPONSE));
@@ -242,7 +242,7 @@ static void * tester_present_timer_daemon(void *arg) {
         if ( iface->connection._state == VIFaceState_NOT_READY || iface->uds.tester_present_timer == null ) {
             break;
         } else {
-            if ( ! uds_tester_present(iface, true) ) {
+            if ( ! ad_uds_tester_present(iface, true) ) {
                 log_msg(LOG_ERROR, "Periodic message tester present not sent, session will reset to default");
                 break;
             }
@@ -256,13 +256,13 @@ static void * tester_present_timer_daemon(void *arg) {
     }
     return null;
 }
-void uds_viface_start_tester_present_timer(final VehicleIFace * iface) {
+void ad_uds_viface_start_tester_present_timer(final VehicleIFace * iface) {
     if ( iface->uds.tester_present_timer == null ) {
         iface->uds.tester_present_timer = (pthread_t*)malloc(sizeof(pthread_t));
         pthread_create(iface->uds.tester_present_timer, null, tester_present_timer_daemon, (void*)iface);
     }
 }
-void uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
+void ad_uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
     if ( iface->uds.tester_present_timer != null ) {
         pthread_t thread = *(iface->uds.tester_present_timer);
         free(iface->uds.tester_present_timer);
@@ -270,10 +270,10 @@ void uds_viface_stop_tester_present_timer(final VehicleIFace * iface) {
         pthread_join(thread, null);
     }
 }
-int uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
+int ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(int seed) {
     return seed ^ UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_PRIVATE_KEY;
 }
-bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface) {
+bool ad_uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface) {
     final ad_object_hashmap_Int_Int * seeds = ad_object_hashmap_Int_Int_new();
     viface_lock(iface);
     viface_send(iface, ad_buffer_from_ints( 
@@ -305,7 +305,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
                     ad_object_Int_new_from(ecu->address->buffer[1]), 
                     ad_object_Int_new_from(data->buffer[2] << 8 | data->buffer[3])
                 );
-                uds_viface_start_tester_present_timer(iface);
+                ad_uds_viface_start_tester_present_timer(iface);
             } else {
                 log_msg(LOG_ERROR, "Incorrect data byte: %02hhX", data->buffer[0]);
             }
@@ -313,7 +313,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
     }
     final ad_object_hashmap_Int_Int * verify = ad_object_hashmap_Int_Int_new();
     for(int i = 0; i < seeds->size; i++) {
-        final int encrypted = uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
+        final int encrypted = ad_uds_security_access_ecu_generator_citroen_c5_x7_encrypt(seeds->values[i]->value);
         viface_send(iface, ad_buffer_from_ints(
             UDS_SERVICE_SECURITY_ACCESS, UDS_SECURITY_ACCESS_ECU_GENERATOR_CITROEN_C5_X7_KEY,
             (encrypted & 0xFF00) >> 8,
@@ -350,7 +350,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
                         ad_object_Int_new_from(ecu->address->buffer[1]), 
                         ad_object_Int_new_from(true)
                     );
-                    uds_viface_start_tester_present_timer(iface);
+                    ad_uds_viface_start_tester_present_timer(iface);
                 } else {
                     log_msg(LOG_ERROR, "Incorrect data byte: %02hhX", data->buffer[0]);
                 }
@@ -370,7 +370,7 @@ bool uds_security_access_ecu_generator_citroen_c5_x7(final VehicleIFace * iface)
     ad_object_hashmap_Int_Int_free(seeds);
     return result == null ? false : *result;
 }
-ad_object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, final byte session_type) {
+ad_object_hashmap_Int_Int * ad_uds_request_session(final VehicleIFace * iface, final byte session_type) {
     viface_lock(iface);
     
     final ad_object_hashmap_Int_Int * result = ad_object_hashmap_Int_Int_new();
@@ -395,7 +395,7 @@ ad_object_hashmap_Int_Int * uds_request_session(final VehicleIFace * iface, fina
                     ad_object_Int_new_from(ecu->address->buffer[1]), 
                     ad_object_Int_new_from(true)
                 );
-                uds_viface_start_tester_present_timer(iface);
+                ad_uds_viface_start_tester_present_timer(iface);
             } else {
                 log_msg(LOG_ERROR, "Incorrect data byte: %02hhX", data->buffer[0]);
             }

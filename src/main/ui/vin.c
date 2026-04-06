@@ -211,7 +211,7 @@ static void tool_vin_read_clicked(GtkButton *button, gpointer user_data) {
 static void tool_vin_write_action() {
     if ( ! ensure_vehicle_connected() ) return;
     char * vin = (char*)gtk_entry_get_text(gui->vin);
-    if ( ! uds_write_vin(config.ephemere.iface, ad_buffer_from_ascii(vin) ) ) {
+    if ( ! ad_uds_write_vin(config.ephemere.iface, ad_buffer_from_ascii(vin) ) ) {
         tool_output_set("Error while writting your vin, check format, check permission");
         return;
     }

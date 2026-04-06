@@ -4,7 +4,7 @@ static ad_object_hashmap_Int_string * service_to_string_map = null;
 static ad_object_hashmap_Int_Int * service_to_response_map = null;
 static ad_object_hashmap_Int_string * nrc_to_string_map = null;
 
-char * uds_nrc_to_string(final UDS_NRC nrc) {
+char * ad_uds_nrc_to_string(final UDS_NRC nrc) {
     if ( nrc_to_string_map == null ) {
         nrc_to_string_map = ad_object_hashmap_Int_string_new();
         ad_object_hashmap_Int_string_set(nrc_to_string_map, ad_object_Int_new_from(UDS_NRC_GENERAL_REJECT), ad_object_string_new_from("General reject"));
@@ -59,7 +59,7 @@ char * uds_nrc_to_string(final UDS_NRC nrc) {
     }
 }
 
-char* uds_service_to_string(final UDSService key) {
+char* ad_uds_service_to_string(final UDSService key) {
     if ( service_to_string_map == null ) {
         service_to_string_map = ad_object_hashmap_Int_string_new();
         ad_object_hashmap_Int_string_set(service_to_string_map, ad_object_Int_new_from(UDS_SERVICE_DIAGNOSTIC_SESSION_CONTROL), ad_object_string_new_from("Diagnostic Session Control"));

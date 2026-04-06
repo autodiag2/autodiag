@@ -35,7 +35,7 @@ bool testDOIP() {
     }
     {
         VehicleIFace * iface = tf_doip_open(location);
-        ad_list_UDS_DTC * dtcs = uds_read_all_dtcs(iface, null);
+        ad_list_UDS_DTC * dtcs = ad_uds_read_all_dtcs(iface, null);
         assert(0 < dtcs->size);
         for(int i = 0; i < dtcs->size; i++) {
             log_msg(LOG_INFO, "DTC: %s", UDS_DTC_to_string(dtcs->list[i]));

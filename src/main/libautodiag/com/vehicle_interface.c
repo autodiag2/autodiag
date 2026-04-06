@@ -20,7 +20,7 @@ void viface_recorder_set_state(final VehicleIFace* iface, final bool state) {
     }
 }
 void viface_close(final VehicleIFace* iface) {
-    uds_viface_stop_tester_present_timer(iface);
+    ad_uds_viface_stop_tester_present_timer(iface);
     if ( iface->device != null ) {
         iface->device->close(iface->device);
     }
@@ -185,7 +185,7 @@ static bool connection_checking_probe(VehicleIFace * iface) {
     log_msg(LOG_DEBUG, "Sending a probe");
 
     if ( iface->uds.enabled ) {
-        if ( uds_tester_present(iface, true) ) {
+        if ( ad_uds_tester_present(iface, true) ) {
             iface->connection.checking.update_last_activity(iface);
             log_msg(LOG_DEBUG, "Probe detected connection alive");
             connection_set_state(iface, VIFaceState_READY);
@@ -293,11 +293,11 @@ void viface_unlock(final VehicleIFace* iface) {
 static void viface_open_abort(final VehicleIFace * iface) {
     iface->connection.set_state(iface, VIFaceState_NOT_READY);
     iface->uds.enabled = false;
-    uds_viface_stop_tester_present_timer(iface);
+    ad_uds_viface_stop_tester_present_timer(iface);
 }
 bool viface_open_from_iface_device(final VehicleIFace * iface, final Device* device) {
     assert(iface != null);
-    uds_viface_stop_tester_present_timer(iface);
+    ad_uds_viface_stop_tester_present_timer(iface);
     iface->connection.checking.stop(iface);
     if ( device->state != AD_DEVICE_STATE_READY ) {
         if ( device->open(device) == DEVICE_ERROR ) {
@@ -486,13 +486,13 @@ void viface_discover_vehicle(VehicleIFace* iface) {
         AD_PTR_FREE(ecu->model);
     }
     saej1979_vehicle_info_discover_ecus_name(iface);
-    iface->uds.enabled = uds_is_enabled(iface);
+    iface->uds.enabled = ad_uds_is_enabled(iface);
     saej1979_vehicle_info_discover_vin(iface);
     if ( iface->vehicle->vin == null ) {
         iface->vehicle->vin = ad_buffer_new();
     }
     if ( iface->uds.enabled && iface->vehicle->vin->size == 0 ) {
-        final ad_list_Buffer * result = uds_read_data_by_identifier(iface, UDS_DID_VIN);
+        final ad_list_Buffer * result = ad_uds_read_data_by_identifier(iface, UDS_DID_VIN);
         if ( 0 == result->size ) {
             log_err("VIN not received");
         } else if ( 1 == result->size ) {

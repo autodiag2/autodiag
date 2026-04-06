@@ -285,6 +285,32 @@ void ad_buffer_append(final Buffer * dest, final Buffer * src) {
     assert(dest != null);
     ad_buffer_append_bytes(dest, src->buffer, src->size);
 }
+void ad_buffer_append_uint8(Buffer *dest, uint8_t v) {
+    ad_buffer_append_byte(dest, (byte)v);
+}
+
+void ad_buffer_append_uint16(Buffer *dest, uint16_t v) {
+    ad_buffer_append_byte(dest, (byte)((v >> 8) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)(v & 0xFF));
+}
+
+void ad_buffer_append_uint32(Buffer *dest, uint32_t v) {
+    ad_buffer_append_byte(dest, (byte)((v >> 24) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 16) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 8) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)(v & 0xFF));
+}
+
+void ad_buffer_append_uint64(Buffer *dest, uint64_t v) {
+    ad_buffer_append_byte(dest, (byte)((v >> 56) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 48) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 40) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 32) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 24) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 16) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)((v >> 8) & 0xFF));
+    ad_buffer_append_byte(dest, (byte)(v & 0xFF));
+}
 void ad_buffer_append_bytes(final Buffer * dest, final byte *data, final unsigned size) {
     ad_buffer_ensure_capacity(dest, size);
     memcpy(dest->buffer+dest->size, data, size);

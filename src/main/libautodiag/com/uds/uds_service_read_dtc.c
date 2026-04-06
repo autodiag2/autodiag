@@ -37,7 +37,7 @@ UDS_DTC * UDS_DTC_new() {
 char * UDS_DTC_explanation(final UDS_DTC * dtc) {
     char * result = strdup("ISO14229 (UDS):");
     for(int i = 1; i < 256; i *= 2) {
-        char * status_string = uds_dtc_status_to_string(i);
+        char * status_string = ad_uds_dtc_status_to_string(i);
         assert(status_string != null);
         char * r2;
         asprintf(&r2, "%s%s%s: %d", result, strlen(result) == 0 ? "" : "\n", 
@@ -78,7 +78,7 @@ int ad_list_UDS_DTC_cmp(final ad_list_UDS_DTC * e1, final ad_list_UDS_DTC * e2) 
 }
 AD_LIST_SRC(ad_list_UDS_DTC);
 
-static ad_list_ad_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
+static ad_list_ad_list_UDS_DTC * ad_uds_read_dtcs_with_mask(final VehicleIFace * iface, final Vehicle * filter, final UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION sub, final byte StatusMask) {
     ad_list_ad_list_UDS_DTC * result = ad_list_ad_list_UDS_DTC_new();
     viface_lock(iface);
     final Buffer * binRequest = ad_buffer_from_ints(UDS_SERVICE_READ_DTC_INFORMATION, sub);
@@ -125,14 +125,14 @@ static ad_list_ad_list_UDS_DTC * uds_read_dtcs_with_mask(final VehicleIFace * if
     viface_unlock(iface);
     return result;
 }
-ad_list_ad_list_UDS_DTC * uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask) {
-    return uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
+ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_by_status_mask(final VehicleIFace * iface, final Vehicle * filter, final byte StatusMask) {
+    return ad_uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_DTC_BY_STATUS_MASK, StatusMask);
 }
-ad_list_ad_list_UDS_DTC * uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter) {
-    return uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
+ad_list_ad_list_UDS_DTC * ad_uds_read_dtc_first_confirmed_dtc(final VehicleIFace * iface, final Vehicle * filter) {
+    return ad_uds_read_dtcs_with_mask(iface, filter, UDS_SERVICE_READ_DTC_INFORMATION_SUB_FUNCTION_FIRST_CONFIRMED_DTC, 0x00);
 }
-ad_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter) {
-    ad_list_ad_list_UDS_DTC * lists_dtcs = uds_read_dtc_by_status_mask(iface, filter,
+ad_list_UDS_DTC * ad_uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * filter) {
+    ad_list_ad_list_UDS_DTC * lists_dtcs = ad_uds_read_dtc_by_status_mask(iface, filter,
         UDS_DTC_STATUS_TestFailed | UDS_DTC_STATUS_TestFailedThisOperationCycle |
         UDS_DTC_STATUS_PendingDTC | UDS_DTC_STATUS_ConfirmedDTC |
         UDS_DTC_STATUS_TestNotCompletedSinceLastClear | UDS_DTC_STATUS_TestFailedSinceLastClear |
@@ -147,11 +147,11 @@ ad_list_UDS_DTC * uds_read_all_dtcs(final VehicleIFace * iface, final Vehicle * 
     }
     return dtcs;
 }
-void uds_dtc_dump(final UDS_DTC * dtc) {
+void ad_uds_dtc_dump(final UDS_DTC * dtc) {
     log_msg(LOG_DEBUG, "%s", dtc->to_string(AD_DTC(dtc)));
 }
 
-char * uds_dtc_status_to_string(UDS_DTC_STATUS wanted) {
+char * ad_uds_dtc_status_to_string(UDS_DTC_STATUS wanted) {
     switch (wanted) {
         case UDS_DTC_STATUS_TestFailed:
             return strdup("Test Failed");

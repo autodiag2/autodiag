@@ -148,7 +148,7 @@ static void read_codes_daemon_internal() {
                     }
                 }
                 if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
-                    ad_list_DTC_append_list(list_dtc_uds, (ad_list_DTC*)uds_read_all_dtcs(iface, filter));
+                    ad_list_DTC_append_list(list_dtc_uds, (ad_list_DTC*)ad_uds_read_all_dtcs(iface, filter));
                     for(unsigned i = 0; i < list_dtc_uds->size; i++) {
                         final DTC * dtc = list_dtc_uds->list[i];
                         if ( ad_list_DTC_contains(list_dtc_obd, dtc) ) {
@@ -205,7 +205,7 @@ static void clear_codes_daemon_internal() {
             at_least_one = true;
         }
         if ( gtk_check_menu_item_get_active(gui->menuBar.data.uds.origin) ) {
-            if ( uds_clear_dtcs(iface) ) {
+            if ( ad_uds_clear_dtcs(iface) ) {
                 log_msg(LOG_DEBUG, "DTCs(UDS) successfully cleared");
             } else {
                 log_msg(LOG_ERROR, "Error while clearing DTCs(UDS)");
