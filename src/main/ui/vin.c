@@ -51,6 +51,9 @@ static gboolean tool_output_set_gsource(gpointer data) {
 static void tool_output_set(char * text) {
     g_idle_add(tool_output_set_gsource, strdup(text));
 }
+static void tool_errorfeedback(char * title, char * desc) {
+    g_idle_add(tool_output_set_gsource, gprintf("%s: %s", title, desc));
+}
 static gboolean tool_output_append_gsource(gpointer data) {
     char * text = (char*)data;
 
@@ -185,8 +188,15 @@ THREAD_WRITE_DAEMON(
 static void tool_query_clicked(GtkButton *button, gpointer user_data) {
     thread_allocate_and_start(&gui->tool.queryThread, &tool_query_daemon);
 }
+static bool ensure_uds_enabled() {
+    if ( ! config.ephemere.iface->uds.enabled ) {
+        tool_errorfeedback("UDS not enabled", "");
+    }
+    return config.ephemere.iface->uds.enabled;
+}
 static void tool_vin_read_action() {
     if ( ! ensure_vehicle_connected() ) return;
+    if ( ! ensure_uds_enabled() ) return;
 
     char * vin = config.ephemere.iface->vehicle->vin == null ? strdup("") : ad_buffer_to_ascii_espace_breaking_chars(config.ephemere.iface->vehicle->vin);
     char * txt = strlen(vin) == 0 ? strdup("cannot retrieve vin") : gprintf("Reading VIN from this vehicle\nVIN : %s", vin);
