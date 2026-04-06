@@ -9,7 +9,7 @@
 #include "saej1979.h"
 #include "libautodiag/com/vehicle_signal.h"
 
-int ad_saej1979_signal_rv_offset_bytes_default(Buffer * input_signal);
+int ad_saej1979_signal_rv_offset_bytes_default(Buffer * input_signal, char * input_formula);
 
 #define AD_SIGNAL_SAEJ1979_REGISTER( \
     param_name, \

@@ -67,7 +67,7 @@ AD_OBJECT_H(vehicle_signal,
      * If the signal is located at a fixed offset in the response, this is the number of bytes to skip to get to the signal value.
      * For example for a signal located at $2 in the response, this value should be 2. This is used for auto-inverting signals.
      */
-    int (*rv_offset_bytes)(Buffer * input_signal);
+    int (*rv_offset_bytes)(Buffer * input_signal, char * input_formula);
 )
 
 AD_HASHMAP_H(string, vehicle_signal)

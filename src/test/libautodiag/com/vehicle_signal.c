@@ -32,7 +32,7 @@ static Buffer * response(SimECUGenerator * g, Buffer * binRequest) {
     }
     return ad_buffer_new_random(10);
 }
-static int response_bytes_offset(Buffer * buffer) {
+static int response_bytes_offset(Buffer * buffer, char * input_formula) {
     if ( buffer->size >= 3 && buffer->buffer[0] == 0x41 ) {
         return 2;
     }

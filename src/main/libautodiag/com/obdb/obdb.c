@@ -322,9 +322,6 @@ static char *ad_obdb_build_rv_formula(cJSON *fmt, char * input_cmd) {
     mul = ad_obdb_json_get_number_or_default(fmt, "mul", 1.0);
     div = ad_obdb_json_get_number_or_default(fmt, "div", 1.0);
 
-    Buffer * input_buffer = ad_buffer_from_ascii_hex(input_cmd);
-    bix += input_buffer->size * 8;
-    ad_buffer_free(input_buffer);
     expr = ad_obdb_base_extract_expr(bix, len, sign);
     if (expr == null) {
         return null;
@@ -363,8 +360,11 @@ static char *ad_obdb_build_rv_formula(cJSON *fmt, char * input_cmd) {
 
     return expr;
 }
-static int ad_obdb_rv_offset_bytes(Buffer * input_signal) {
-    return input_signal->size;
+static int ad_obdb_rv_offset_bytes(Buffer * input_signal, char * input_formula) {
+    Buffer * input_signal_trunc = ad_buffer_from_ascii_hex(input_formula);
+    int rv = input_signal_trunc->size;
+    ad_buffer_free(input_signal_trunc);
+    return rv;
 }
 static int ad_obdb_register_signal(const char *registry,
                                    const char *target_ecu,

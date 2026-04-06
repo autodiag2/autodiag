@@ -1,6 +1,6 @@
 #include "libautodiag/com/obd/saej1979/data.h"
 
-int ad_saej1979_signal_rv_offset_bytes_default(Buffer * input_signal) {
+int ad_saej1979_signal_rv_offset_bytes_default(Buffer * input_signal, char * input_formula) {
     if ( input_signal == null ) {
         return 0;
     }

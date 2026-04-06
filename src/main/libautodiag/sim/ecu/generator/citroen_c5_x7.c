@@ -199,6 +199,8 @@ static void init_did(GState *state, unsigned *seed) {
 static Buffer * response_uds_did(SimECUGenerator * generator, uint16_t did) {
     GState * state = (GState*)generator->state;
     unsigned * seed = generator->context;
+    log_err("did = %d", did);
+    ad_buffer_dump(state->uds.did[did]);
     return ad_buffer_copy(state->uds.did[did]);
 }
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
@@ -404,14 +406,13 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response_uds_did = response_uds_did;
     generator->state = (GState*)malloc(sizeof(GState));
     generator->context = (unsigned*)malloc(sizeof(unsigned));
-    *((unsigned *)generator->context) = 1;
     GState * state = (GState*)generator->state;
-    init_did(state, generator->context);
-    state->vin = null;
+    state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
+    state->uds.did[UDS_DID_VIN] = ad_buffer_copy(state->vin);
+    *((unsigned *)generator->context) = 1;
     state->obd.dtcs = null;
     state->obd.mil_on = true;
-    set_session_type(state, UDS_SESSION_DEFAULT);
-
+    
     state->uds.security_access_granted = false;
     state->uds.dtcs = null;
     state->uds.DTCSupportedStatusMask = 
@@ -422,7 +423,6 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->uds.session_timer = null;
     state->uds.session_continue = true;
     
-    state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     state->uds.dtcs = ad_list_UDS_DTC_new();
     state->obd.dtcs = ad_list_DTC_new();
 
@@ -434,5 +434,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
         ad_list_DTC_append(state->obd.dtcs, (DTC*)dtc);
         ad_list_UDS_DTC_append(state->uds.dtcs, UDS_DTC_new_from(dtc));
     }
+    init_did(state, generator->context);
+    set_session_type(state, UDS_SESSION_DEFAULT);
     return generator;
 }
