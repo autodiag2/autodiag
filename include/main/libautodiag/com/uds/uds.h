@@ -191,5 +191,6 @@ bool ad_uds_write_vin(final VehicleIFace * iface, final Buffer * vin_ascii);
 bool ad_uds_write_did(VehicleIFace * iface, uint16_t did, Buffer * value, int session_type, int security_access_level);
 
 #include "libautodiag/com/uds/uds_service_read_dtc.h"
+#include "libautodiag/com/uds/flash_utils.h"
 
 #endif
