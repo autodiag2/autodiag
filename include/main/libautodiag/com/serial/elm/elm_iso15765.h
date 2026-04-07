@@ -84,7 +84,7 @@ int oneHex(char c);
                         log_msg(LOG_DEBUG, "consecutive frame"); \
                         final int sequence_number = oneHex(*ptr); \
                         conversation->current_data_length = min(CAN_MAX_BYTES_PER_MESSAGE - 1,conversation->remaining_data_bytes_to_receive); \
-                        conversation->current_sn = sequence_number; \
+                        conversation->current_sn = (conversation->current_sn / 16) * 16 + sequence_number; \
                     } \
                     ptr += 1 + elm->printing_of_spaces; \
                 } break; \

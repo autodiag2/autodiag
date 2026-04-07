@@ -124,7 +124,7 @@ Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, B
                 memory = ad_buffer_slice(binResponse, 1, binResponse->size - 1);
                 break;
             } else {
-                log_warn("negative response");
+                log_warn("negative response: %s", ad_buffer_to_hex_string(binResponse));
             }
         } else {
             log_warn("null buffer");

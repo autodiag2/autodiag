@@ -152,7 +152,7 @@ static ad_list_Buffer * request_frames(SimELM327* elm327, SimECU * ecu, Buffer *
                 for(int i = AD_ISO15765_FIRST_FRAME_MAX_BYTES, sn = 0; i < dataRequest->size; i += AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES, sn ++) {
                     Buffer * consecutive_frame = ad_buffer_new();
                     ad_buffer_append(consecutive_frame, requestHeader);
-                    ad_buffer_append_byte(consecutive_frame, (Iso15765ConsecutiveFrame << 4) | sn);
+                    ad_buffer_append_byte(consecutive_frame, (Iso15765ConsecutiveFrame << 4) | sn % 16);
                     int upper_bound = dataRequest->size - i;
                     ad_buffer_slice_append(consecutive_frame, dataRequest, i, min(AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES, upper_bound));
                     ad_list_Buffer_append(requestFrames, consecutive_frame);
@@ -268,7 +268,7 @@ static ad_list_Buffer * response_frames(SimELM327* elm327, SimECU * ecu, Buffer 
                     ad_buffer_prepend_byte(responseBodyChunk, pci);
                 } else {
                     log_msg(LOG_DEBUG, "reply consecutive frame");
-                    final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn;
+                    final byte pci = Iso15765ConsecutiveFrame << 4 | iso_15765_multi_message_sn % 16;
                     ad_buffer_prepend_byte(responseBodyChunk, pci);
                 }
             } else {
