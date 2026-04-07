@@ -30,11 +30,25 @@ void ad_object_ecu_memory_free(ad_object_ecu_memory * m) {
         free(m);
     }
 }
-bool ad_uds_write_memory_by_address(VehicleIFace * iface, byte fmt_address, byte fmt_length, Buffer * address, Buffer * length, Buffer * memory) {
+bool ad_uds_write_memory_by_address(VehicleIFace * iface, Buffer * address, Buffer * length, Buffer * memory) {
+    if ( 0x0F < address->size ) {
+        log_err("too long");
+        return false;
+    }
+    if ( 0x0F < length->size ) {
+        log_err("too long");
+        return false;
+    }
+    if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING) ) {
+        return false;
+    }
+    if ( ! ad_uds_security_access(iface, 0x01) ) {
+        return false;
+    }
     iface->lock(iface);
     Buffer * binRequest = ad_buffer_from_ints(
         AD_UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS, 
-        (fmt_address << 4) | fmt_length
+        ((length->size << 4) & 0xF0) | (address->size & 0x0F)
     );
     ad_buffer_append(binRequest, address);
     ad_buffer_append(binRequest, length);
@@ -66,12 +80,29 @@ bool ad_uds_write_memory_by_address(VehicleIFace * iface, byte fmt_address, byte
     iface->unlock(iface);
     return result;
 }
-Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, byte fmt_address, byte fmt_length, Buffer * address, Buffer * length) {
+Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, Buffer * length) {
     Buffer * memory = null;
     iface->lock(iface);
+
+    if ( 0x0F < address->size ) {
+        log_err("too long");
+        iface->unlock(iface);
+        return null;
+    }
+    if ( 0x0F < length->size ) {
+        log_err("too long");
+        iface->unlock(iface);
+        return null;
+    }
+    if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING) ) {
+        return false;
+    }
+    if ( ! ad_uds_security_access(iface, 0x01) ) {
+        return false;
+    }
     Buffer * binRequest = ad_buffer_from_ints(
         AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS, 
-        (fmt_address << 4) | fmt_length
+        ((length->size << 4) & 0xF0) | (address->size & 0x0F)
     );
     ad_buffer_append(binRequest, address);
     ad_buffer_append(binRequest, length);

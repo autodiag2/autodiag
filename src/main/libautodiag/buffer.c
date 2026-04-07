@@ -66,6 +66,13 @@ Buffer * ad_buffer_assign_uint8(Buffer * buffer, uint8_t i) {
     buffer->size = 1;
     return buffer;
 }
+Buffer * ad_buffer_assign_at(Buffer * to, uint64_t at, Buffer * from) {
+    assert(to != null);
+    assert(from != null);
+    ad_buffer_ensure_capacity(to, at + from->size);
+    memcpy(to->buffer + at, from->buffer, from->size);
+    return to;
+}
 Buffer * ad_buffer_assign_uint16(Buffer * buffer, uint16_t i) {
     ad_buffer_recycle(buffer);
     ad_buffer_ensure_capacity(buffer, 2);
@@ -447,6 +454,13 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer) {
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
     assert(buffer != null);
     return ascii_escape_breaking_chars_n((char *)buffer->buffer, buffer->size);
+}
+uint64_t ad_buffer_to_be(Buffer * buffer) {
+    uint64_t r = 0;
+    for(int i = buffer->size-1; 0 < i; i++) {
+        r += buffer->buffer[i] << ((7-i) * 8);
+    }
+    return r;
 }
 uint8_t ad_buffer_to_be8(Buffer * buffer) {
     assert(buffer != null);

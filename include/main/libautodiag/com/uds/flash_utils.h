@@ -13,7 +13,7 @@ AD_OBJECT_H(ecu_memory,
     Buffer * length;
     Buffer * content;
 )
-bool ad_uds_write_memory_by_address(VehicleIFace * iface, byte fmt_address, byte fmt_length, Buffer * address, Buffer * length, Buffer * memory);
-Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, byte fmt_address, byte fmt_length, Buffer * address, Buffer * length);
+bool ad_uds_write_memory_by_address(VehicleIFace * iface, Buffer * address, Buffer * length, Buffer * memory);
+Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, Buffer * length);
 
 #endif

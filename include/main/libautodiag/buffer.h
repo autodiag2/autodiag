@@ -130,6 +130,7 @@ char* ad_buffer_to_hex_string(Buffer *buffer);
 char * ad_buffer_to_ascii(final Buffer *buffer);
 char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer);
 char * ad_buffer_to_hexdump(final Buffer *buffer);
+uint64_t ad_buffer_to_be(Buffer * buffer);
 uint8_t ad_buffer_to_be8(Buffer * buffer);
 uint16_t ad_buffer_to_be16(Buffer * buffer);
 uint32_t ad_buffer_to_be32(Buffer * buffer);
@@ -192,5 +193,9 @@ void ad_buffer_slice_non_alphanum(final Buffer *buffer);
 
 Buffer * ad_buffer_or(Buffer * b1, Buffer * b2);
 Buffer * ad_buffer_xor(Buffer * b1, Buffer * b2);
+/**
+ * Embed one buffer into an other
+ */
+Buffer * ad_buffer_assign_at(Buffer * to, uint64_t at, Buffer * from);
 
 #endif

@@ -10,6 +10,7 @@ typedef struct {
         pthread_t * session_timer;
         bool session_continue;
         Buffer * did[0xFFFF];
+        Buffer * memory;
     } uds;
     struct {
         ad_list_DTC * dtcs;
@@ -17,6 +18,8 @@ typedef struct {
     } obd;
 
 } GState;
+
+#define GSTATE_UDS_MEMORY_SZ 0xFFFF
 
 static int get_session_type(GState *state) {
     Buffer * b = state->uds.did[AD_UDS_DID_Active_Diagnostic_Session_Data_Identifier_information];
@@ -344,6 +347,55 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
                 sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
             }
         } break;
+        case AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS: {
+            if ( 1 < binRequest->size ) {
+                byte length = binRequest->buffer[1] >> 4;
+                byte address_length = binRequest->buffer[1] & 0x0F;
+                if ( ! ((2 + address_length) < binRequest->size) ) {
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                    break;
+                }
+                if ( ! ((2 + address_length + length) < binRequest->size) ) {
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                    break;
+                }
+                Buffer * memory_address = ad_buffer_slice(binRequest, 2, address_length);
+                Buffer * memory_length = ad_buffer_slice(binRequest, 2 + address_length, length);
+                uint64_t read_address = ad_buffer_to_be(memory_address);
+                uint64_t read_length = ad_buffer_to_be(memory_length);
+                if ( 0x0000 <= read_address && (read_address + read_length) <= GSTATE_UDS_MEMORY_SZ ) {
+                    ad_buffer_slice_append(binResponse, state->uds.memory, read_address, read_length);
+                } else {
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_REQUEST_OUT_OF_RANGE);
+                }
+            } else {
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        } break;
+        case AD_UDS_SERVICE_WRITE_MEMORY_BY_ADDRESS: {
+            if ( 1 < binRequest->size ) {
+                byte formatLength = binRequest->buffer[1] >> 4;
+                byte formatAddress = binRequest->buffer[1] & 0x0F;
+                if ( ! ((2 + formatLength) < binRequest->size) ) {
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                    break;
+                }
+                if ( ! ((2 + formatLength + formatAddress) < binRequest->size) ) {
+                    sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+                    break;
+                }
+                Buffer * memory_address = ad_buffer_slice(binRequest, 2, formatAddress);
+                Buffer * memory_length = ad_buffer_slice(binRequest, 2 + formatAddress, formatLength);
+                uint64_t write_address = ad_buffer_to_be(memory_address);
+                uint64_t write_length = ad_buffer_to_be(memory_length);
+                int dataRecordOffset = 2 + formatAddress + formatLength;
+                Buffer * dataRecord = ad_buffer_slice(binRequest, dataRecordOffset, binRequest->size - dataRecordOffset);
+                ad_buffer_assign_at(state->uds.memory, write_address, dataRecord);
+                ad_buffer_slice_append(binResponse, binRequest, 1, dataRecordOffset - 1);
+            } else {
+                sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
+            }
+        } break;
         case AD_UDS_SERVICE_SECURITY_ACCESS: {
             if ( 1 < binRequest->size ) {
                 final int securit_seed = 0x4321;
@@ -409,6 +461,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     GState * state = (GState*)generator->state;
     state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
     state->uds.did[AD_UDS_DID_VIN] = ad_buffer_copy(state->vin);
+    state->uds.memory = ad_buffer_new_random(GSTATE_UDS_MEMORY_SZ);
     *((unsigned *)generator->context) = 1;
     state->obd.dtcs = null;
     state->obd.mil_on = true;
