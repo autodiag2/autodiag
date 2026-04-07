@@ -72,19 +72,33 @@ int oneHex(char c);
                     ad_list_Iso15765Conversation_append(conversations,conversation); \
                 } break; \
                 case Iso15765ConsecutiveFrame: { \
-                    if ( strlen(ptr) < (1 + elm->printing_of_spaces) ) { \
+                    if (strlen(ptr) < (1 + elm->printing_of_spaces)) { \
                         log_msg(LOG_ERROR, "Incoming frame is too short"); \
                         return false; \
                     } \
-                    if ( conversation == null ) { \
+                    if (conversation == null) { \
                         log_msg(LOG_ERROR, "Conversation has not started properly"); \
-                        final Buffer * bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm,ptr,end_ptr); \
+                        final Buffer *bin_buffer = elm_ascii_to_bin_str((ELMDevice*)elm, ptr, end_ptr); \
                         ad_buffer_dump(bin_buffer); \
                     } else { \
-                        log_msg(LOG_DEBUG, "consecutive frame"); \
                         final int sequence_number = oneHex(*ptr); \
-                        conversation->current_data_length = min(CAN_MAX_BYTES_PER_MESSAGE - 1,conversation->remaining_data_bytes_to_receive); \
-                        conversation->current_sn = (conversation->current_sn / 16) * 16 + sequence_number; \
+                        final int expected_sequence_number = (conversation->current_sn + 1) & 0xF; \
+                        int absolute_sn = (conversation->current_sn & ~0xF) | sequence_number; \
+                        \
+                        if (sequence_number != expected_sequence_number) { \
+                            if (sequence_number == 0 && expected_sequence_number == 0) { \
+                                absolute_sn += 0x10; \
+                            } else { \
+                                log_msg(LOG_ERROR, "Unexpected consecutive frame sequence number: got=%X expected=%X", sequence_number, expected_sequence_number); \
+                                return false; \
+                            } \
+                        } else if (sequence_number == 0 && (conversation->current_sn & 0xF) == 0xF) { \
+                            absolute_sn += 0x10; \
+                        } \
+                        \
+                        conversation->current_data_length = min(CAN_MAX_BYTES_PER_MESSAGE - 1, conversation->remaining_data_bytes_to_receive); \
+                        conversation->current_sn = absolute_sn; \
+                        log_debug("consecutive frame with order : %d", conversation->current_sn); \
                     } \
                     ptr += 1 + elm->printing_of_spaces; \
                 } break; \
