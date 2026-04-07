@@ -17,7 +17,7 @@ typedef enum {
 }Iso15765ControlFrameFlowStatus;
 #define Iso15765ControlFrameFlowStatus_MAX Iso15765ControlFrameFlowStatus_OverLoad
 #define ISO_15765_SINGLE_FRAME_DATA_BYTES 7
-
+#define AD_ISO15765_FLOW_MAX_SZ 0xFFF
 typedef enum {
     Iso15765SingleFrame,
     Iso15765FirstFrame,

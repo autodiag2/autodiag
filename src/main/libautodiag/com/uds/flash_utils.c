@@ -39,6 +39,10 @@ bool ad_uds_write_memory_by_address(VehicleIFace * iface, Buffer * address, Buff
         log_err("too long");
         return false;
     }
+    if ( AD_ISO15765_FLOW_MAX_SZ < memory->size ) {
+        log_err("too long send with TransferData");
+        return false;
+    }
     if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING) ) {
         return false;
     }
@@ -88,6 +92,10 @@ Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, B
         return null;
     }
     if ( 0x0F < length->size ) {
+        log_err("too long");
+        return null;
+    }
+    if ( AD_ISO15765_FLOW_MAX_SZ < ad_buffer_to_be(length) ) {
         log_err("too long");
         return null;
     }

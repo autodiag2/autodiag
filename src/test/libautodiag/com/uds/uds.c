@@ -38,5 +38,11 @@ bool testUDS() {
         Buffer * dataRecord3 = ad_uds_read_memory_by_address(iface, address, length);
         assert(ad_buffer_cmp(dataRecord3, writeRecord) == 0);
     }
+    {
+        Buffer * address = ad_buffer_from_ascii_hex("0000");
+        Buffer * length = ad_buffer_from_ascii_hex("1000");
+        Buffer * writeRecord = ad_buffer_new_random(ad_buffer_to_be(length));
+        assert(!ad_uds_write_memory_by_address(iface, address, length, writeRecord));
+    }
     return true;
 }
