@@ -82,16 +82,13 @@ bool ad_uds_write_memory_by_address(VehicleIFace * iface, Buffer * address, Buff
 }
 Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, Buffer * length) {
     Buffer * memory = null;
-    iface->lock(iface);
 
     if ( 0x0F < address->size ) {
         log_err("too long");
-        iface->unlock(iface);
         return null;
     }
     if ( 0x0F < length->size ) {
         log_err("too long");
-        iface->unlock(iface);
         return null;
     }
     if ( ! ad_uds_request_session_cond(iface, AD_UDS_SESSION_PROGRAMMING) ) {
@@ -100,6 +97,7 @@ Buffer * ad_uds_read_memory_by_address(VehicleIFace * iface, Buffer * address, B
     if ( ! ad_uds_security_access(iface, 0x01) ) {
         return false;
     }
+    iface->lock(iface);
     Buffer * binRequest = ad_buffer_from_ints(
         AD_UDS_SERVICE_READ_MEMORY_BY_ADDRESS, 
         ((length->size << 4) & 0xF0) | (address->size & 0x0F)

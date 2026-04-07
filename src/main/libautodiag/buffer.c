@@ -455,11 +455,15 @@ char * ad_buffer_to_ascii_espace_breaking_chars(Buffer * buffer) {
     assert(buffer != null);
     return ascii_escape_breaking_chars_n((char *)buffer->buffer, buffer->size);
 }
-uint64_t ad_buffer_to_be(Buffer * buffer) {
+uint64_t ad_buffer_to_be(Buffer *buffer) {
     uint64_t r = 0;
-    for(int i = buffer->size-1; 0 < i; i++) {
-        r += buffer->buffer[i] << ((7-i) * 8);
+
+    assert(buffer != null);
+
+    for (int i = 0; i < buffer->size && i < 8; i++) {
+        r = (r << 8) | (uint64_t)buffer->buffer[i];
     }
+
     return r;
 }
 uint8_t ad_buffer_to_be8(Buffer * buffer) {

@@ -351,11 +351,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 byte length = binRequest->buffer[1] >> 4;
                 byte address_length = binRequest->buffer[1] & 0x0F;
-                if ( ! ((2 + address_length) < binRequest->size) ) {
+                if ( ! ((2 + address_length) <= binRequest->size) ) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                     break;
                 }
-                if ( ! ((2 + address_length + length) < binRequest->size) ) {
+                if ( ! ((2 + address_length + length) <= binRequest->size) ) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                     break;
                 }
@@ -376,11 +376,11 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
             if ( 1 < binRequest->size ) {
                 byte formatLength = binRequest->buffer[1] >> 4;
                 byte formatAddress = binRequest->buffer[1] & 0x0F;
-                if ( ! ((2 + formatLength) < binRequest->size) ) {
+                if ( ! ((2 + formatLength) <= binRequest->size) ) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                     break;
                 }
-                if ( ! ((2 + formatLength + formatAddress) < binRequest->size) ) {
+                if ( ! ((2 + formatLength + formatAddress) <= binRequest->size) ) {
                     sim_ecu_generator_fill_nrc(binResponse, binRequest, AD_UDS_NRC_IncorrectMessageLengthOrInvalidFormat);
                     break;
                 }
