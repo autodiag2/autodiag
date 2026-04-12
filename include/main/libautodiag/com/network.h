@@ -17,7 +17,7 @@
 #elif defined OS_WINDOWS
 #   pragma comment(lib, "Ws2_32.lib")
     typedef SOCKET sock_t;
-#   define socklen_t int
+    typedef int socklen_t;
 #   define SOCK_T_INVALID INVALID_SOCKET
 #   define close_sock closesocket
 #else
