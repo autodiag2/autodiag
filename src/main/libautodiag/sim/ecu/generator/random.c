@@ -56,18 +56,25 @@ static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
     switch(binRequest->buffer[0]) {
         case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
         case OBD_SERVICE_SHOW_CURRENT_DATA:
-            return generator->response_saej1979_pids(generator, binRequest);
+            ad_buffer_free(binResponse);
+            binResponse = generator->response_saej1979_pids(generator, binRequest);
+            break;
 
         case OBD_SERVICE_PENDING_DTC:
         case OBD_SERVICE_PERMANENT_DTC:
         case OBD_SERVICE_SHOW_DTC:
-            return generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
+            ad_buffer_free(binResponse);
+            binResponse = generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
+            break;
 
         case OBD_SERVICE_CLEAR_DTC: {
             log_msg(LOG_DEBUG, "Clearing DTCs");
         } break;
 
-        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: return generator->response_saej1979_vehicle_identification_request(generator, binRequest);        
+        case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION: 
+            ad_buffer_free(binResponse);
+            binResponse = generator->response_saej1979_vehicle_identification_request(generator, binRequest);
+            break;
     }
     return binResponse;
 }
