@@ -75,11 +75,11 @@ class UDS_NRC(c_int):
     VOLTAGE_TOO_HIGH = 0x92
     VOLTAGE_TOO_LOW = 0x93
 
-lib.uds_service_to_string.argtypes = [UDSService]
-lib.uds_service_to_string.restype = c_char_p
+lib.ad_uds_service_to_string.argtypes = [UDSService]
+lib.ad_uds_service_to_string.restype = c_char_p
 
-lib.uds_nrc_to_string.argtypes = [UDS_NRC]
-lib.uds_nrc_to_string.restype = c_char_p
+lib.ad_uds_nrc_to_string.argtypes = [UDS_NRC]
+lib.ad_uds_nrc_to_string.restype = c_char_p
 
 class READ_DATA_BY_IDENTIFIER_DID(c_int):
     bootSoftwareIdentificationDataIdentifier = 0xF180
@@ -112,8 +112,8 @@ class READ_DATA_BY_IDENTIFIER_DID(c_int):
 class READ_DATA_BY_IDENTIFIER_WWH_OBD_DID(c_int):
     READ_DATA_BY_IDENTIFIER_WWH_OBD_DID_VIN = 0xF802
 
-lib.uds_read_data_by_identifier.argtypes = [POINTER(VehicleIFace), c_int]
-lib.uds_read_data_by_identifier.restype = POINTER(list_Buffer)
+lib.ad_uds_read_data_by_identifier.argtypes = [POINTER(VehicleIFace), c_int]
+lib.ad_uds_read_data_by_identifier.restype = POINTER(list_Buffer)
 
 class UDS_SESSION(c_ubyte):
     DEFAULT = 0x01
@@ -121,17 +121,17 @@ class UDS_SESSION(c_ubyte):
     EXTENDED_DIAGNOSTIC = 0x03
     SYSTEM_SAFETY_DIAGNOSTIC = 0x04
 
-lib.uds_request_session_cond.argtypes = [POINTER(VehicleIFace), c_ubyte]
-lib.uds_request_session_cond.restype = c_bool
+lib.ad_uds_request_session_cond.argtypes = [POINTER(VehicleIFace), c_ubyte]
+lib.ad_uds_request_session_cond.restype = c_bool
 
-lib.uds_is_enabled.argtypes = [POINTER(VehicleIFace)]
-lib.uds_is_enabled.restype = c_bool
+lib.ad_uds_is_enabled.argtypes = [POINTER(VehicleIFace)]
+lib.ad_uds_is_enabled.restype = c_bool
 
-lib.uds_tester_present.argtypes = [POINTER(VehicleIFace), c_bool]
-lib.uds_tester_present.restype = c_bool
+lib.ad_uds_tester_present.argtypes = [POINTER(VehicleIFace), c_bool]
+lib.ad_uds_tester_present.restype = c_bool
 
-lib.uds_clear_dtcs.argtypes = [POINTER(VehicleIFace)]
-lib.uds_clear_dtcs.restype = c_bool
+lib.ad_uds_clear_dtcs.argtypes = [POINTER(VehicleIFace)]
+lib.ad_uds_clear_dtcs.restype = c_bool
 
 class UDS():
     """
@@ -142,16 +142,16 @@ class UDS():
         self.iface = iface
 
     @staticmethod
-    def service_to_string(service_id): return lib.uds_service_to_string(service_id).decode()
+    def service_to_string(service_id): return lib.ad_uds_service_to_string(service_id).decode()
     @staticmethod
-    def nrc_to_string(nrc): return lib.uds_nrc_to_string(nrc).decode()
+    def nrc_to_string(nrc): return lib.ad_uds_nrc_to_string(nrc).decode()
 
-    def request_session(self, session: UDS_SESSION) -> bool: return lib.uds_request_session_cond(byref(self.iface), session)
-    def is_enabled(self): return lib.uds_is_enabled(byref(self.iface))
-    def tester_present(self): return lib.uds_tester_present(byref(self.iface), True)
-    def clear_dtcs(self): return lib.uds_clear_dtcs(byref(self.iface))
+    def request_session(self, session: UDS_SESSION) -> bool: return lib.ad_uds_request_session_cond(byref(self.iface), session)
+    def is_enabled(self): return lib.ad_uds_is_enabled(byref(self.iface))
+    def tester_present(self): return lib.ad_uds_tester_present(byref(self.iface), True)
+    def clear_dtcs(self): return lib.ad_uds_clear_dtcs(byref(self.iface))
     def read_dtcs(self) -> Array[UDS_DTC]: 
-        list_dtc_ptr = lib.uds_read_all_dtcs(byref(self.iface), None)
+        list_dtc_ptr = lib.ad_uds_read_all_dtcs(byref(self.iface), None)
         list_dtc = list_dtc_ptr.contents
         dtcs = []
         for i in range(list_dtc.size):

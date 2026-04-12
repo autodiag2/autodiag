@@ -26,7 +26,8 @@ GeneratorResponseFunc = CFUNCTYPE(POINTER(Buffer), POINTER(Generator), POINTER(B
 GeneratorResponseForPythonFunc = CFUNCTYPE(None, POINTER(Generator), POINTER(Buffer), POINTER(Buffer))
 GeneratorContextToStringFunc = CFUNCTYPE(c_char_p, POINTER(Generator))
 GeneratorContextLoadFromStringFunc = CFUNCTYPE(c_bool, POINTER(Generator), c_char_p)
-
+GeneratorResponseUDSDidWrapperFunc = CFUNCTYPE(POINTER(Buffer), POINTER(Generator), POINTER(Buffer))
+GeneratorResponseUDSDidFunc = CFUNCTYPE(POINTER(Buffer), POINTER(Generator), c_int16)
 class GeneratorFlavour(Structure):
     _fields_ = [
         ("is_Iso15765_4", c_bool),
@@ -43,6 +44,8 @@ Generator._fields_ = [
     ("response_saej1979_dtcs", GeneratorResponseDTCFunc),
     ("response_saej1979_vehicle_identification_request", GeneratorResponseVehicleInfoFunc),
     ("response_saej1979_vehicle_identification_request_info_type", GeneratorResponseVehicleInfoTypeFunc),
+    ("response_uds_did_wrapper", GeneratorResponseUDSDidWrapperFunc),
+    ("response_uds_did", GeneratorResponseUDSDidFunc),
     ("response_unused", GeneratorResponseFunc),
     ("response", GeneratorResponseForPythonFunc),
     ("context_to_string", GeneratorContextToStringFunc),

@@ -209,7 +209,7 @@ int ad_serial_open(final Serial * port) {
         if (port->implementation->handle->win_handle == INVALID_HANDLE_VALUE) {
             log_msg(LOG_WARNING, "Cannot open the port %s", port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
-            port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
+            port->serial_state = SERIAL_STATE_OPEN_ERROR;
             return GENERIC_FUNCTION_ERROR;
         }
         log_msg(LOG_DEBUG, "Openning port: %s", port->location);
@@ -279,7 +279,7 @@ int ad_serial_open(final Serial * port) {
             if (bytes_written != 2) { // If Tx timeout occured
                 log_msg(LOG_WARNING, "Inactive port detected %s", port->location);
                 CloseHandle(port->implementation->handle->win_handle);
-                port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
+                port->serial_state = SERIAL_STATE_OPEN_ERROR;
                 port->state = AD_DEVICE_STATE_NOT_READY;
                 return GENERIC_FUNCTION_ERROR;
             }
@@ -296,11 +296,11 @@ int ad_serial_open(final Serial * port) {
             perror(port->location);
             port->state = AD_DEVICE_STATE_NOT_READY;
             if ( errno == ENOENT ) {
-                port->ad_serial_state = SERIAL_STATE_DISCONNECTED;
+                port->serial_state = SERIAL_STATE_DISCONNECTED;
             } else if ( errno == EPERM ) {
-                port->ad_serial_state = SERIAL_STATE_MISSING_PERM;
+                port->serial_state = SERIAL_STATE_MISSING_PERM;
             } else {
-                port->ad_serial_state = SERIAL_STATE_OPEN_ERROR;
+                port->serial_state = SERIAL_STATE_OPEN_ERROR;
             }
             return GENERIC_FUNCTION_ERROR;
         }
@@ -361,7 +361,7 @@ const char * ad_serial_describe_state(final Serial * port) {
         return parent;
     }
 
-    switch(port->ad_serial_state) {
+    switch(port->serial_state) {
         case SERIAL_STATE_USER_IGNORED:
             return "User ignored (eg. user ignored the serial port during the scan)";
         case SERIAL_STATE_OPEN_ERROR:

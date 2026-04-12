@@ -24,8 +24,8 @@ class Serial(Structure):
     ]
 
     def __new__(cls):
-        lib.serial_new.restype = POINTER(Serial)
-        ptr = lib.serial_new()
+        lib.ad_serial_new.restype = POINTER(Serial)
+        ptr = lib.ad_serial_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
         obj = cast(ptr, POINTER(cls)).contents
@@ -40,39 +40,39 @@ class Serial(Structure):
         self.device.location = location.encode()
 
     def init(self):
-        lib.serial_init.argtypes = [POINTER(Serial)]
-        lib.serial_init.restype = None
-        lib.serial_init(pointer(self))
+        lib.ad_serial_init.argtypes = [POINTER(Serial)]
+        lib.ad_serial_init.restype = None
+        lib.ad_serial_init(pointer(self))
 
     def open(self):
-        lib.serial_open.argtypes = [POINTER(Serial)]
-        lib.serial_open.restype = c_int
-        return lib.serial_open(pointer(self))
+        lib.ad_serial_open.argtypes = [POINTER(Serial)]
+        lib.ad_serial_open.restype = c_int
+        return lib.ad_serial_open(pointer(self))
 
     def close(self):
-        lib.serial_close.argtypes = [POINTER(Serial)]
-        lib.serial_close.restype = None
-        lib.serial_close(pointer(self))
+        lib.ad_serial_close.argtypes = [POINTER(Serial)]
+        lib.ad_serial_close.restype = None
+        lib.ad_serial_close(pointer(self))
 
     def lock(self):
-        lib.serial_lock.argtypes = [POINTER(Serial)]
-        lib.serial_lock.restype = None
-        lib.serial_lock(pointer(self))
+        lib.ad_serial_lock.argtypes = [POINTER(Serial)]
+        lib.ad_serial_lock.restype = None
+        lib.ad_serial_lock(pointer(self))
 
     def unlock(self):
-        lib.serial_unlock.argtypes = [POINTER(Serial)]
-        lib.serial_unlock.restype = None
-        lib.serial_unlock(pointer(self))
+        lib.ad_serial_unlock.argtypes = [POINTER(Serial)]
+        lib.ad_serial_unlock.restype = None
+        lib.ad_serial_unlock(pointer(self))
 
     def dump(self):
-        lib.serial_dump.argtypes = [POINTER(Serial)]
-        lib.serial_dump.restype = None
-        lib.serial_dump(pointer(self))
+        lib.ad_serial_dump.argtypes = [POINTER(Serial)]
+        lib.ad_serial_dump.restype = None
+        lib.ad_serial_dump(pointer(self))
 
     def debug(self):
-        lib.serial_debug.argtypes = [POINTER(Serial)]
-        lib.serial_debug.restype = None
-        lib.serial_debug(pointer(self))
+        lib.ad_serial_debug.argtypes = [POINTER(Serial)]
+        lib.ad_serial_debug.restype = None
+        lib.ad_serial_debug(pointer(self))
 
     def debug_from_python(self):
         print("Serial: {")
@@ -85,50 +85,50 @@ class Serial(Structure):
         print("}")
 
     def free(self):
-        lib.serial_free.argtypes = [POINTER(Serial)]
-        lib.serial_free.restype = None
-        lib.serial_free(pointer(self))
+        lib.ad_serial_free.argtypes = [POINTER(Serial)]
+        lib.ad_serial_free.restype = None
+        lib.ad_serial_free(pointer(self))
 
     def send(self, command: str) -> int:
-        lib.serial_send.argtypes = [POINTER(Serial), char_p]
-        lib.serial_send.restype = c_int
-        return lib.serial_send(pointer(self), command.encode('utf-8'))
+        lib.ad_serial_send.argtypes = [POINTER(Serial), char_p]
+        lib.ad_serial_send.restype = c_int
+        return lib.ad_serial_send(pointer(self), command.encode('utf-8'))
 
     def recv(self) -> int:
-        lib.serial_recv.argtypes = [POINTER(Serial)]
-        lib.serial_recv.restype = c_int
-        return lib.serial_recv(pointer(self))
+        lib.ad_serial_recv.argtypes = [POINTER(Serial)]
+        lib.ad_serial_recv.restype = c_int
+        return lib.ad_serial_recv(pointer(self))
 
     def recv_internal(self) -> int:
-        lib.serial_recv_internal.argtypes = [POINTER(Serial)]
-        lib.serial_recv_internal.restype = c_int
-        return lib.serial_recv_internal(pointer(self))
+        lib.ad_serial_recv_internal.argtypes = [POINTER(Serial)]
+        lib.ad_serial_recv_internal.restype = c_int
+        return lib.ad_serial_recv_internal(pointer(self))
 
     def describe_communication_layer(self) -> str:
-        lib.serial_describe_communication_layer.argtypes = [POINTER(Serial)]
-        lib.serial_describe_communication_layer.restype = char_p
-        res = lib.serial_describe_communication_layer(pointer(self))
+        lib.ad_serial_describe_communication_layer.argtypes = [POINTER(Serial)]
+        lib.ad_serial_describe_communication_layer.restype = char_p
+        res = lib.ad_serial_describe_communication_layer(pointer(self))
         return res.decode('utf-8') if res else None
     
     def describe_state(self) -> str:
-        lib.serial_describe_state.argtypes = [POINTER(Serial)]
-        lib.serial_describe_state.restype = char_p
-        res = lib.serial_describe_state(pointer(self))
+        lib.ad_serial_describe_state.argtypes = [POINTER(Serial)]
+        lib.ad_serial_describe_state.restype = char_p
+        res = lib.ad_serial_describe_state(pointer(self))
         return res.decode('utf-8') if res else None
 
     def query_at_command(self, cmd: str, *args) -> bool:
-        lib.serial_query_at_command.argtypes = [POINTER(Serial), char_p]
-        lib.serial_query_at_command.restype = bool
+        lib.ad_serial_query_at_command.argtypes = [POINTER(Serial), char_p]
+        lib.ad_serial_query_at_command.restype = bool
         command = cmd % args if args else cmd
-        return lib.serial_query_at_command(pointer(self), command.encode('utf-8'))
+        return lib.ad_serial_query_at_command(pointer(self), command.encode('utf-8'))
 
     def send_at_command(self, cmd: str, *args) -> bool:
-        lib.serial_send_at_command.argtypes = [POINTER(Serial), char_p]
-        lib.serial_send_at_command.restype = bool
+        lib.ad_serial_send_at_command.argtypes = [POINTER(Serial), char_p]
+        lib.ad_serial_send_at_command.restype = bool
         command = cmd % args if args else cmd
-        return lib.serial_send_at_command(pointer(self), command.encode('utf-8'))
+        return lib.ad_serial_send_at_command(pointer(self), command.encode('utf-8'))
 
     def reset_to_default(self):
-        lib.serial_reset_to_default.argtypes = [POINTER(Serial)]
-        lib.serial_reset_to_default.restype = None
-        lib.serial_reset_to_default(pointer(self))
+        lib.ad_serial_reset_to_default.argtypes = [POINTER(Serial)]
+        lib.ad_serial_reset_to_default.restype = None
+        lib.ad_serial_reset_to_default(pointer(self))

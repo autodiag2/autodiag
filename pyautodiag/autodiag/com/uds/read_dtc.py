@@ -43,8 +43,8 @@ class UDS_DTC_STATUS(c_uint8):
     TestNotCompletedThisOperationCycle = 0b01000000
     WarningIndicatorRequested = 0b10000000
 
-lib.uds_dtc_status_to_string.argtypes = [UDS_DTC_STATUS]
-lib.uds_dtc_status_to_string.restype = c_char_p
+lib.ad_uds_dtc_status_to_string.argtypes = [UDS_DTC_STATUS]
+lib.ad_uds_dtc_status_to_string.restype = c_char_p
 
 class UDS_DTC(Structure):
 
@@ -54,8 +54,8 @@ class UDS_DTC(Structure):
     ]
 
     def __new__(cls):
-        lib.UDS_DTC_new.restype = POINTER(cls)
-        ptr = lib.UDS_DTC_new()
+        lib.AD_UDS_DTC_new.restype = POINTER(cls)
+        ptr = lib.AD_UDS_DTC_new()
         if not ptr:
             raise MemoryError("Failed to create Serial instance")
         obj = cast(ptr, POINTER(cls)).contents
@@ -74,17 +74,17 @@ class UDS_DTC(Structure):
         print(f" status: {self.status}")
         print("}")
 
-    def __str__(self): return lib.UDS_DTC_to_string(byref(self)).decode()
-    def explanation(self): return lib.UDS_DTC_explanation(byref(self)).decode()
+    def __str__(self): return lib.AD_UDS_DTC_to_string(byref(self)).decode()
+    def explanation(self): return lib.AD_UDS_DTC_explanation(byref(self)).decode()
 
-lib.uds_dtc_dump.argtypes = [POINTER(UDS_DTC)]
-lib.uds_dtc_dump.restype = None
+lib.ad_uds_dtc_dump.argtypes = [POINTER(UDS_DTC)]
+lib.ad_uds_dtc_dump.restype = None
 
-lib.UDS_DTC_new_from.restype = POINTER(UDS_DTC)
-lib.UDS_DTC_to_string.argtypes = [POINTER(UDS_DTC)]
-lib.UDS_DTC_to_string.restype = c_char_p
-lib.UDS_DTC_explanation.argtypes = [POINTER(UDS_DTC)]
-lib.UDS_DTC_explanation.restype = c_char_p
+lib.AD_UDS_DTC_new_from.restype = POINTER(UDS_DTC)
+lib.AD_UDS_DTC_to_string.argtypes = [POINTER(UDS_DTC)]
+lib.AD_UDS_DTC_to_string.restype = c_char_p
+lib.AD_UDS_DTC_explanation.argtypes = [POINTER(UDS_DTC)]
+lib.AD_UDS_DTC_explanation.restype = c_char_p
 
 class list_UDS_DTC(Structure):
     _fields_ = [
@@ -94,5 +94,5 @@ class list_UDS_DTC(Structure):
         ("ecu", POINTER(ECU))
     ]
 
-lib.uds_read_all_dtcs.argtypes = [POINTER(VehicleIFace), POINTER(Vehicle)]
-lib.uds_read_all_dtcs.restype = POINTER(list_UDS_DTC)
+lib.ad_uds_read_all_dtcs.argtypes = [POINTER(VehicleIFace), POINTER(Vehicle)]
+lib.ad_uds_read_all_dtcs.restype = POINTER(list_UDS_DTC)

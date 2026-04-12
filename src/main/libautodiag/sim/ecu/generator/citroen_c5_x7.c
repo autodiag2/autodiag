@@ -202,8 +202,6 @@ static void init_did(GState *state, unsigned *seed) {
 static Buffer * response_uds_did(SimECUGenerator * generator, uint16_t did) {
     GState * state = (GState*)generator->state;
     unsigned * seed = generator->context;
-    log_err("did = %d", did);
-    ad_buffer_dump(state->uds.did[did]);
     return ad_buffer_copy(state->uds.did[did]);
 }
 static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {

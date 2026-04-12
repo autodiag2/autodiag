@@ -48,7 +48,7 @@ typedef struct {
 
 typedef struct {
     Device;
-    SerialState ad_serial_state;   // device specific state of the serial port 
+    SerialState serial_state;   // device specific state of the serial port 
     bool echo;                  // Not part of the serial standard but defined here for convenience
     int baud_rate;              // RS232 speed in bauds
     char *eol;                  // Not part of the serial standard but defined here for convenience
