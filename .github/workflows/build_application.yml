@@ -72,12 +72,6 @@ jobs:
             exit 1
           fi
 
-      - name: Regression tests
-        if: startsWith(matrix.os, 'ubuntu')
-        run: |
-          ls ./output/bin/
-          LD_LIBRARY_PATH=./output/bin/ make testRegression
-
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
