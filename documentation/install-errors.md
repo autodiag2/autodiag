@@ -25,3 +25,11 @@ The shared library cannot be found: (adapt to the current location of the lib)
 ```
 export LD_LIBRARY_PATH=$HOME/.local/lib/
 ```
+#### Fedora
+```
+./autodiag: symbol lookup error: ./autodiag: undefined symbol: ad_object_vehicle_signal_register_all
+```
+The binary do not find libautodiag, then specify where it is located:
+```
+[root@99886c0c484c bin]# LD_LIBRARY_PATH=$(pwd) ./autodiag
+```

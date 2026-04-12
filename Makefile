@@ -215,9 +215,10 @@ tarball: tools_prerequistes
 	mkdir -p "$${prefix}" && \
 	git ls-tree -r HEAD --name-only | grep -v '^.git' | grep -v '^\.' > "$${tmp}" && \
 	cpio -pdm "$${prefix}" < "$${tmp}" && \
-	cp -a dependencies/mongoose "$${prefix}/" && \
-	cp -a dependencies/sqlite3 "$${prefix}/" && \
-	cp -a dependencies/cJSON "$${prefix}/" && \
+	mkdir -p "$${prefix}/dependencies" && \
+	cp -a dependencies/mongoose "$${prefix}/dependencies/" && \
+	cp -a dependencies/sqlite3 "$${prefix}/dependencies/" && \
+	cp -a dependencies/cJSON "$${prefix}/dependencies/" && \
 	mkdir -p "$${prefix}/data" && \
 	cp -a data/data "$${prefix}/data/" && \
 	tar jcf "$${prefix}".tar.bz2 "$${prefix}" && \
