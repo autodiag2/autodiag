@@ -165,23 +165,6 @@ bool log_has_level(final LogLevel level) {
 #ifdef OS_ANDROID
 #   warning log_backtrace not implemented for this platform
     void log_backtrace() {}
-#elif defined(OS_POSIX)
-#   include <execinfo.h>
-#   include <stdlib.h>
-
-    void log_backtrace() {
-        void *buffer[64];
-        int nptrs = backtrace(buffer, 64);
-        char **symbols = backtrace_symbols(buffer, nptrs);
-        if (!symbols) return;
-
-        printf("Backtrace (%d frames):\n", nptrs);
-        for (int i = 0; i < nptrs; i++) {
-            printf("%s\n", symbols[i]);
-        }
-        free(symbols);
-    }
-
 #elif defined(OS_WINDOWS)
 #   include <windows.h>
 #   include <dbghelp.h>
@@ -212,6 +195,22 @@ bool log_has_level(final LogLevel level) {
 
         free(symbol);
         SymCleanup(process);
+    }
+#elif defined(OS_POSIX)
+#   include <execinfo.h>
+#   include <stdlib.h>
+
+    void log_backtrace() {
+        void *buffer[64];
+        int nptrs = backtrace(buffer, 64);
+        char **symbols = backtrace_symbols(buffer, nptrs);
+        if (!symbols) return;
+
+        printf("Backtrace (%d frames):\n", nptrs);
+        for (int i = 0; i < nptrs; i++) {
+            printf("%s\n", symbols[i]);
+        }
+        free(symbols);
     }
 
 #else
