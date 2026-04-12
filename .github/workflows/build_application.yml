@@ -22,8 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        #    arm64         amd64                          amd64
-        os: [macos-latest, windows-latest, fedora-latest, ubuntu-latest]
+        #    arm64         amd64           amd64
+        os: [macos-latest, windows-latest, ubuntu-latest] #, fedora-latest
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
@@ -60,14 +60,11 @@ jobs:
         run: |
           if [[ "${{ matrix.os }}" == ubuntu* ]]; then
             make distDebian
-            make clean
-            TOOLCHAIN=x86_64-w64-mingw32- make compile_progs_compat
           elif [[ "${{ matrix.os }}" == macos* ]]; then
             make distMacOS
           elif [[ "${{ matrix.os }}" == windows* ]]; then
             location="$(pwd)"
             /c/tools/msys64/usr/bin/bash -lc "cd $location && LIBRARY_PATH=/mingw64/lib/ make distWindows"
-            rm -f output/bin/libautodiag-windows-x86_64.dll
           elif [[ "${{ matrix.os }}" == fedora* ]]; then
             make distFedora
           else
