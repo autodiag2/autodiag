@@ -1,3 +1,5 @@
+#include "libautodiag/jni/com/vehicle_signal.h"
+
 #ifdef OS_ANDROID
 
 JNIEXPORT jobjectArray JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getSimSignals(JNIEnv *env, jclass clazz) {
