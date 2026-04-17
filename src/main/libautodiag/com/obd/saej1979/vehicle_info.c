@@ -26,7 +26,7 @@ static Buffer * saej1979_info_type_retrieve(Device * device, Buffer * data) {
                 if ( (data_i % 5) == 0 ) {
                     messageCount ++;
                     if ( messageCount != data->buffer[data_i] ) {
-                        log_err("missordering detecting in received infotype vin should reorder"); \
+                        log_err("missordering detecting in received infotype vin should reorder");
                     }
                     continue;
                 }

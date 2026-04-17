@@ -23,6 +23,9 @@ Automotive diagnostic software with many protocols.
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors.png"></td>
     <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors-graph.png"></td>
   </tr>
+  <tr>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/dyno.png"></td>
+  </tr>
 </table>
 
 # Quick guide to read codes with ELM327
