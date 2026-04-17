@@ -34,6 +34,7 @@
             "setDtcCleared",
             "(Z)V"
         );
+        ad_object_vehicle_signal_register_all();
         return JNI_VERSION_1_6;
     }
 

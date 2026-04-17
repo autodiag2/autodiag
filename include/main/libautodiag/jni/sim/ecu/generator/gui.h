@@ -3,6 +3,7 @@
 
 #include "libautodiag/compile_target.h"
 #include "libautodiag/sim/ecu/generator.h"
+#include "libautodiag/com/vehicle_signal.h"
 
 #ifdef OS_ANDROID
 #include <jni.h>
