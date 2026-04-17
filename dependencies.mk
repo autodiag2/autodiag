@@ -1529,6 +1529,8 @@ output/obj/main/libautodiag/installation.o: \
   include/main/libautodiag/lang/list.h include/main/libautodiag/buffer.h \
   include/main/libautodiag/log.h include/main/libautodiag/byte.h \
   include/main/libautodiag/math.h
+output/obj/main/libautodiag/jni/com/vehicle_signal.o: \
+  src/main/libautodiag/jni/com/vehicle_signal.c
 output/obj/main/libautodiag/jni/sim/ecu/generator/gui.o: \
   src/main/libautodiag/jni/sim/ecu/generator/gui.c \
   include/main/libautodiag/jni/sim/ecu/generator/gui.h \

@@ -4,15 +4,14 @@
 
     static JavaVM *g_vm;
     static jclass g_libautodiag;
-    static jmethodID mid_vehicle_speed;
-    static jmethodID mid_coolant_temperature;
-    static jmethodID mid_engine_rpm;
+    static jmethodID mid_signal_value;
     static jmethodID mid_mil_status;
     static jmethodID mid_dtc_cleared;
     static jmethodID mid_ecu_name;
     static jmethodID mid_vin;
     static jmethodID mid_dtcs;
     static jmethodID mid_set_dtc_cleared;
+    static jmethodID mid_signal_value;
 
     JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
         JNIEnv *env;
@@ -23,10 +22,7 @@
 
         jclass cls = (*env)->FindClass(env, "com/github/autodiag2/elm327emu/libautodiag");
         g_libautodiag = (*env)->NewGlobalRef(env, cls);
-
-        mid_vehicle_speed = (*env)->GetStaticMethodID(env, g_libautodiag, "getVehicleSpeed", "()I");
-        mid_coolant_temperature  = (*env)->GetStaticMethodID(env, g_libautodiag, "getCoolantTemp", "()I");
-        mid_engine_rpm   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEngineRpm", "()I");
+        mid_signal_value = (*env)->GetStaticMethodID(env, g_libautodiag, "getSignalValue", "(Ljava/lang/String;)D");
         mid_mil_status   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "()Z");
         mid_dtc_cleared   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
         mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
@@ -49,11 +45,15 @@
         return env;
     }
 
-    #define response_saej1979_pid_with_signal(signal_path, mid_signal) { \
-        const ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
-        double value = (*env)->CallStaticIntMethod(env, g_libautodiag, mid_signal); \
-        Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
-        ad_buffer_append_melt(binResponse, signal_inverted); \
+    #define response_saej1979_pid_with_signal(signal_path) { \
+        ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
+        jstring signal_path_j = (*env)->NewStringUTF(env, signal_path); \
+        double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, signal_path_j); \
+        (*env)->DeleteLocalRef(env, signal_path_j); \
+        if ( value != NAN ) { \
+            Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
+            ad_buffer_append_melt(binResponse, signal_inverted); \
+        } \
     }
 
     static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
@@ -61,7 +61,7 @@
         Buffer * binResponse = ad_buffer_new();
         JNIEnv *env = get_env();
         final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
-        bool useParent = true;
+        bool generic = true;
         bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status);
         bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
@@ -76,7 +76,7 @@
             case 0x20:
             case 0x00: {
                 ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFF"));
-                useParent = false;
+                generic = false;
             } break;
             case 0x01: {
                 bool is_checked = mil_status;
@@ -87,23 +87,15 @@
                     status->buffer[0] |= is_checked << 7;
                 }
                 ad_buffer_append_melt(binResponse, status);
-                useParent = false;
-            } break;
-            case 0x05: {
-                response_saej1979_pid_with_signal("SAEJ1979.coolant_temp", mid_coolant_temperature);
-                useParent = false;
-            } break;
-            case 0x0C: {
-                response_saej1979_pid_with_signal("SAEJ1979.engine_speed", mid_engine_rpm);
-                useParent = false;
-            } break;
-            case 0x0D: {
-                response_saej1979_pid_with_signal("SAEJ1979.vehicle_speed", mid_vehicle_speed);
-                useParent = false;
+                generic = false;
             } break;
         }
-        if ( useParent ) {
-            return parent->response_saej1979_pid(parent, pid, frameNumber);
+        if ( generic ) {
+            ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
+            if ( signal == null ) {
+                return parent->response_saej1979_pid(parent, pid, frameNumber);
+            }
+            response_saej1979_pid_with_signal(ad_object_vehicle_signal_get_exec_path(signal));
         }
         return binResponse;
     }
