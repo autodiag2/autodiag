@@ -53,7 +53,9 @@
         (*env)->DeleteLocalRef(env, signal_path_j); \
         if ( value != NAN ) { \
             Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
-            ad_buffer_append_melt(binResponse, signal_inverted); \
+            if ( signal_inverted != null ) { \
+                ad_buffer_append_melt(binResponse, signal_inverted); \
+            } \
         } \
     }
 
@@ -218,7 +220,7 @@
         generator->response_saej1979_dtcs = response_saej1979_dtcs;
         generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
         generator->state = sim_ecu_generator_new_citroen_c5_x7();
-        generator->context = null;
+        generator->context = (unsigned*)malloc(sizeof(unsigned));
         return generator;
     }
 
