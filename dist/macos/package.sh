@@ -40,6 +40,32 @@ for LIB in output/bin/*.dylib; do
     done
 done
 
+# Add icon
+PLIST="$APP_PATH/Contents/Info.plist"
+cat > "$PLIST" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+ "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>autodiag</string>
+    <key>CFBundleExecutable</key>
+    <string>autodiag</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.github.autodiag2.autodiag</string>
+    <key>CFBundleVersion</key>
+    <string>1.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>media/app.icns</string>
+    <key>LSApplicationCategoryType</key>
+    <string>public.app-category.developer-tools</string>
+</dict>
+</plist>
+EOF
+
 # Ad-hoc sign the app
 codesign --force --deep --sign - "$APP_PATH"
 hdiutil create -volname "$APP_NAME" -srcfolder "$APP_PATH" -ov -format UDZO "$APP_PACKAGE"
