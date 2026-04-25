@@ -10,6 +10,8 @@ LIB_BUILD_DIR=$(PKG_SRC_DIR)/libautodiag/
 
 APP_BIN=$(APP_BUILD_DIR)/usr/bin/
 APP_SHARE=$(APP_BUILD_DIR)/usr/share/autodiag
+APP_APPLICATIONS=$(APP_BUILD_DIR)/usr/share/applications
+APP_ICONS=$(APP_BUILD_DIR)/usr/share/pixmaps
 BUILDINFO_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).buildinfo
 CHANGES_FILENAME=$(APP_NAME)_$(APP_VERSION)_$(shell dpkg-architecture -qDEB_HOST_ARCH).changes
 
@@ -27,7 +29,7 @@ binary:
 	mkdir -p \
 		$(APP_BUILD_DIR)/DEBIAN $(APP_BIN) $(APP_SHARE) \
 		$(LIB_BUILD_DIR)/DEBIAN $(LIB_LIB) $(LIB_SHARE) $(LIB_SHARE_COMPAT) \
-		$(DEV_BUILD_DIR)/DEBIAN $(DEV_INCLUDE)
+		$(DEV_BUILD_DIR)/DEBIAN $(DEV_INCLUDE) $(APP_APPLICATIONS) $(APP_ICONS)
 
 	for f in $(SRC_ROOT)/output/bin/*; do \
 		case "$$f" in \
@@ -41,6 +43,12 @@ binary:
 		install -m 644 "$$lib" $(LIB_LIB) ; \
 		ln -s $$(basename $$lib) $(LIB_LIB)/libautodiag.so ; \
 	done
+
+	install -m 644 $(SRC_ROOT)/dist/linux/autodiag.desktop \
+		$(APP_APPLICATIONS)/autodiag.desktop
+
+	install -m 644 $(SRC_ROOT)/media/app_icon.png \
+		$(APP_ICONS)/autodiag.png
 
 	cp -r $(SRC_ROOT)/data/data $(LIB_SHARE_COMPAT)
 

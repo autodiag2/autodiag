@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Autodiag
+Exec=/usr/bin/autodiag
+Icon=autodiag
+Type=Application
+Categories=Utility;
+Terminal=false
