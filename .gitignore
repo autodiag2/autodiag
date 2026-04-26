@@ -22,3 +22,4 @@ private-doc
 *.dmg
 *.deb
 autodiag_*.buildinfo
+.DS_Store
