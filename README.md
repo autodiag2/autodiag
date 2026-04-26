@@ -1,9 +1,9 @@
+# autodiag
 [![Workflow](https://github.com/autodiag2/autodiag/actions/workflows/build_application.yml/badge.svg?event=push)](https://github.com/autodiag2/autodiag/actions)
 [![License](https://img.shields.io/github/license/autodiag2/autodiag)](https://github.com/autodiag2/autodiag/blob/main/LICENSE)
 [![Release](https://img.shields.io/github/v/release/autodiag2/autodiag)](https://github.com/autodiag2/autodiag/releases)
 ![Downloads](https://img.shields.io/github/downloads/autodiag2/autodiag/total)
 
-# autodiag
 Automotive diagnostic software with many protocols.
  - Read the codes through OBD/UDS with a list maintained at [database](https://github.com/autodiag2/database).
  - Read and curve sensors values (signals eg. obdb).
