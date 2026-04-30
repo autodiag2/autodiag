@@ -11,6 +11,14 @@ void ad_list_SimECU_empty(ad_list_SimECU * list) {
         ad_list_SimECU_remove_at(list, 0);
     }
 }
+SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, byte address) {
+    for(int i = 0; i < list->size; i++) {
+        if ( list->list[i]->address == address ) {
+            return list->list[i];
+        }
+    }
+    return null;
+}
 /**
  * Respond to use request (at commands, OBD, UDS)
  */

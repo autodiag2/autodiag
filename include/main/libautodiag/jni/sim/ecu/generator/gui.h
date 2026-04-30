@@ -1,6 +1,7 @@
 #ifndef __AD_JNI_SIM_ECU_GENERATOR_GUI_H
 #define __AD_JNI_SIM_ECU_GENERATOR_GUI_H
 
+#include "libautodiag/jni/loader.h"
 #include "libautodiag/compile_target.h"
 #include "libautodiag/sim/ecu/generator.h"
 #include "libautodiag/com/vehicle_signal.h"

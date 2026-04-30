@@ -14,5 +14,6 @@ void ad_list_SimECU_empty(ad_list_SimECU * list);
 
 SimECU* sim_ecu_new(byte address);
 Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest);
+SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, byte address);
 
 #endif

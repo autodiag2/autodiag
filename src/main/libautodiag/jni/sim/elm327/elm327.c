@@ -1,6 +1,7 @@
 #include "libautodiag/jni/sim/elm327/elm327.h"
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
 #include "libautodiag/jni/target_device.h"
+#include "libautodiag/jni/sim/ecu/generator/byte_array.h"
 
 #ifdef OS_ANDROID
 static SimELM327 *_sim = null;
@@ -24,11 +25,6 @@ JNIEXPORT jstring JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_launch
     sim->device_type = sim_elm327_device_type_from_str((char*)kindStr);
 
     (*env)->ReleaseStringUTFChars(env, kind, kindStr);
-
-    assert(0 < LIST_SIM_ECU(sim->ecus)->size);
-    final SimECU * target_ecu = LIST_SIM_ECU(sim->ecus)->list[LIST_SIM_ECU(sim->ecus)->size - 1];
-    final SimECUGenerator * generator;
-    target_ecu->generator = sim_ecu_generator_new_gui();
 
     sim_elm327_loop_as_daemon(sim);
     sim_elm327_loop_daemon_wait_ready(sim);
@@ -87,5 +83,44 @@ JNIEXPORT jint JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getProtoc
     if (!sim)
         return -1;
     return sim->protocolRunning;
+}
+
+JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_setResponseByteArrayByAddress(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address,
+    jobject callbackObject
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim) return;
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+
+    if (ecu == NULL) {
+        ecu = sim_ecu_new((byte)address);
+        ad_list_SimECU_append(sim->ecus, ecu);
+    }
+
+    // create new byte array generator (JNI callback is handled inside)
+    ecu->generator = sim_ecu_generator_new_byte_array(callbackObject);
+}
+JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim) return;
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+
+    if (ecu == NULL) {
+        ecu = sim_ecu_new((byte)address);
+        ad_list_SimECU_append(sim->ecus, ecu);
+    }
+
+    ecu->generator = sim_ecu_generator_new_gui();
 }
 #endif

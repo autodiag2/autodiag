@@ -1,51 +1,6 @@
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
 
 #ifdef OS_ANDROID
-
-    static JavaVM *g_vm;
-    static jclass g_libautodiag;
-    static jmethodID mid_signal_value;
-    static jmethodID mid_mil_status;
-    static jmethodID mid_dtc_cleared;
-    static jmethodID mid_ecu_name;
-    static jmethodID mid_vin;
-    static jmethodID mid_dtcs;
-    static jmethodID mid_set_dtc_cleared;
-    static jmethodID mid_signal_value;
-
-    JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-        JNIEnv *env;
-        g_vm = vm;
-
-        if ((*vm)->GetEnv(vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK)
-            return JNI_ERR;
-
-        jclass cls = (*env)->FindClass(env, "com/github/autodiag2/elm327emu/libautodiag");
-        g_libautodiag = (*env)->NewGlobalRef(env, cls);
-        mid_signal_value = (*env)->GetStaticMethodID(env, g_libautodiag, "getSignalValue", "(Ljava/lang/String;)D");
-        mid_mil_status   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "()Z");
-        mid_dtc_cleared   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
-        mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
-        mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "()Ljava/lang/String;");
-        mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "()[Ljava/lang/String;");
-        mid_set_dtc_cleared = (*env)->GetStaticMethodID(
-            env,
-            g_libautodiag,
-            "setDtcCleared",
-            "(Z)V"
-        );
-        ad_object_vehicle_signal_register_all();
-        return JNI_VERSION_1_6;
-    }
-
-    static JNIEnv *get_env(void) {
-        JNIEnv *env = null;
-        if ((*g_vm)->GetEnv(g_vm, (void**)&env, JNI_VERSION_1_6) != JNI_OK) {
-            (*g_vm)->AttachCurrentThread(g_vm, &env, null);
-        }
-        return env;
-    }
-
     #define response_saej1979_pid_with_signal(signal_path) { \
         ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
         jstring signal_path_j = (*env)->NewStringUTF(env, signal_path); \
