@@ -75,6 +75,7 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setProtocol(
     if (!sim)
         return;
 
+    sim->default_protocol = protocol;
     sim->protocolRunning = protocol;
     sim->nvm.protocol = protocol;
 }

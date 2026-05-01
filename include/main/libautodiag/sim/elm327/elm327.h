@@ -24,8 +24,6 @@
 #include "libautodiag/jni/target_device.h"
 #include "libautodiag/sim/elm327/network.h"
 
-#define SIM_ELM327_DEFAULT_PROTO ELM327_PROTO_ISO_15765_4_CAN_1
-
 typedef struct {
     SimImplementation;
     pthread_t activity_monitor_thread;
@@ -61,6 +59,7 @@ typedef struct _SimELM327 {
 	char * eol;
 	bool echo;
 	ELM327_PROTO protocolRunning;
+    ELM327_PROTO default_protocol;
 	bool protocol_is_auto_running;
 	bool printing_of_spaces;
 	bool printing_of_headers;

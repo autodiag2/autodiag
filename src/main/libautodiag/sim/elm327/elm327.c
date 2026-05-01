@@ -252,7 +252,7 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     elm327->vehicle_response_timeout = SIM_ELM327_PP_GET(elm327,0x03) * 4;
     elm327->vehicle_response_timeout_adaptive = true;
     elm327->isMemoryEnabled = true;
-    elm327->nvm.protocol = SIM_ELM327_DEFAULT_PROTO;
+    elm327->nvm.protocol = elm327->default_protocol;
     elm327->nvm.protocol_is_auto = true;
     sim_elm327_non_volatile_memory_load(elm327, type);
     asprintf(&elm327->eol,"%c%c", SIM_ELM327_PP_GET(elm327,0x0D), SIM_ELM327_PP_GET(elm327,0x0A));
@@ -287,6 +287,7 @@ SimELM327* sim_elm327_new() {
     elm327->device_type = SimELM327_DEVICE_TYPE_UNSET;
     SimELM327Implementation * impl = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->implementation = (SimImplementation*)impl;
+    elm327->default_protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
     impl->handle = ad_object_handle_t_new();
     impl->server_handle = ad_object_handle_t_new();
     impl->loop_thread = null;
@@ -340,7 +341,6 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
     ad_buffer_ensure_termination(buffer);
     return true;
 }
-
 bool sim_elm327_reply(SimELM327 * elm327, char * ad_serial_request, char * ad_serial_response, final bool isGeneric) {
     char * response;
     if ( isGeneric ) {
@@ -831,7 +831,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
             bool isHexRequest = true;
             sim_elm327_parse_request(elm327, ad_serial_request, &isHexRequest, null);
             if ( isHexRequest ) {
-                elm327->protocolRunning = SIM_ELM327_DEFAULT_PROTO;
+                elm327->protocolRunning = elm327->default_protocol;
             }
         }
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {

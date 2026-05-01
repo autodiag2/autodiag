@@ -44,6 +44,7 @@ class SimELM327(Structure):
         ("eol", char_p),
         ("echo", bool),
         ("protocolRunning", c_int),
+        ("default_protocol", c_int),
         ("protocol_is_auto_running", c_int),
         ("printing_of_spaces", c_int),
         ("printing_of_headers", c_int),
