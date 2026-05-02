@@ -85,7 +85,18 @@ JNIEXPORT jint JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getProtoc
         return -1;
     return sim->protocolRunning;
 }
+JNIEXPORT void JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_removeEcuByAddress(JNIEnv *env, jobject thiz, jbyte address) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim)
+        return;
 
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+
+    if (ecu == NULL) {
+        return;
+    }
+    ad_list_SimECU_remove(sim->ecus, ecu);
+}
 JNIEXPORT void JNICALL
 Java_com_github_autodiag2_elm327emu_libautodiag_setResponseByteArrayByAddress(
     JNIEnv *env,
