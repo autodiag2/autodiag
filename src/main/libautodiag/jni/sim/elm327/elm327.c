@@ -135,4 +135,42 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(
 
     ecu->generator = sim_ecu_generator_new_gui(address);
 }
+JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address,
+    jstring type,
+    jstring context
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim) return;
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+
+    if (ecu == NULL) {
+        ecu = sim_ecu_new((byte)address);
+        ad_list_SimECU_append(sim->ecus, ecu);
+    }
+
+    const char * typeStr = (*env)->GetStringUTFChars(env, type, null);
+    const char * contextStr = (*env)->GetStringUTFChars(env, context, null);
+    if ( strcasecmp(typeStr, "replay") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_replay();
+    } else if ( strcasecmp(typeStr, "random") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_random();
+    } else if ( strcasecmp(typeStr, "cycle") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_cycle();
+    } else if ( strcasecmp(typeStr, "citroen_c5_x7") == 0 ) {
+        ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+    } else {
+        log_msg(LOG_ERROR, "Unknown generator type '%s'", typeStr);
+    }
+    bool res = ecu->generator->context_load_from_string(ecu->generator, (char*)contextStr);
+    if ( !res ) {
+        log_msg(LOG_ERROR, "Failed to load context from string '%s' for generator type '%s'", contextStr, typeStr);
+    }
+    (*env)->ReleaseStringUTFChars(env, type, typeStr);
+    (*env)->ReleaseStringUTFChars(env, context, contextStr);
+}
 #endif

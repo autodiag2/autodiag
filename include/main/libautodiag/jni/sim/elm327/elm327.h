@@ -21,7 +21,7 @@ JNIEXPORT jint JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getProtoc
 JNIEXPORT void JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_setResponseByteArrayByAddress(JNIEnv *env, jobject thiz, jbyte address, jobject callbackObject);
 JNIEXPORT void JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(JNIEnv *env,jobject thiz,jbyte address);
 JNIEXPORT void JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_removeEcuByAddress(JNIEnv *env, jobject thiz, jbyte address);
-
+JNIEXPORT void JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(JNIEnv *env,jobject thiz,jbyte address,jstring type,jstring context);
 #endif
 
 #endif
