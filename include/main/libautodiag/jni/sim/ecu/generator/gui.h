@@ -10,7 +10,7 @@
 #include <jni.h>
 #include <string.h>
 
-SimECUGenerator* sim_ecu_generator_new_gui();
+SimECUGenerator* sim_ecu_generator_new_gui(jbyte address);
 
 #endif
 

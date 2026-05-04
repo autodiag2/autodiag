@@ -133,6 +133,6 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(
         ad_list_SimECU_append(sim->ecus, ecu);
     }
 
-    ecu->generator = sim_ecu_generator_new_gui();
+    ecu->generator = sim_ecu_generator_new_gui(address);
 }
 #endif

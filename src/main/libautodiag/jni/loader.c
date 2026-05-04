@@ -10,7 +10,6 @@
     jmethodID mid_vin;
     jmethodID mid_dtcs;
     jmethodID mid_set_dtc_cleared;
-    jmethodID mid_signal_value;
 
     JavaVM* getJavaVM() {
         return g_vm;
@@ -25,17 +24,17 @@
 
         jclass cls = (*env)->FindClass(env, "com/github/autodiag2/elm327emu/libautodiag");
         g_libautodiag = (*env)->NewGlobalRef(env, cls);
-        mid_signal_value = (*env)->GetStaticMethodID(env, g_libautodiag, "getSignalValue", "(Ljava/lang/String;)D");
-        mid_mil_status   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "()Z");
-        mid_dtc_cleared   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "()Z");
-        mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "()Ljava/lang/String;");
-        mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "()Ljava/lang/String;");
-        mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "()[Ljava/lang/String;");
+        mid_signal_value = (*env)->GetStaticMethodID(env, g_libautodiag, "getSignalValue", "(BLjava/lang/String;)D");
+        mid_mil_status   = (*env)->GetStaticMethodID(env, g_libautodiag, "getMil", "(B)Z");
+        mid_dtc_cleared   = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcCleared", "(B)Z");
+        mid_ecu_name   = (*env)->GetStaticMethodID(env, g_libautodiag, "getEcuName", "(B)Ljava/lang/String;");
+        mid_vin   = (*env)->GetStaticMethodID(env, g_libautodiag, "getVin", "(B)Ljava/lang/String;");
+        mid_dtcs = (*env)->GetStaticMethodID(env, g_libautodiag, "getDtcs", "(B)[Ljava/lang/String;");
         mid_set_dtc_cleared = (*env)->GetStaticMethodID(
             env,
             g_libautodiag,
             "setDtcCleared",
-            "(Z)V"
+            "(BZ)V"
         );
         ad_object_vehicle_signal_register_all();
         return JNI_VERSION_1_6;

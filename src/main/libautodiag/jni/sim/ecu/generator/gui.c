@@ -4,7 +4,8 @@
     #define response_saej1979_pid_with_signal(signal_path) { \
         ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
         jstring signal_path_j = (*env)->NewStringUTF(env, signal_path); \
-        double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, signal_path_j); \
+        jbyte address = *(jbyte*)generator->context; \
+        double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, address, signal_path_j); \
         (*env)->DeleteLocalRef(env, signal_path_j); \
         if ( value != NAN ) { \
             Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
@@ -18,11 +19,11 @@
         unsigned * seed = generator->context;
         Buffer * binResponse = ad_buffer_new();
         JNIEnv *env = get_env();
-        final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
+        jbyte address = *(jbyte*)generator->context;
         bool generic = true;
-        bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status);
-        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
-        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
+        bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status, address);
+        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared, address);
+        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs, address);
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
         // Should append only bytes according to the PID, but for simplicity we just append random data
         switch(pid) {
@@ -51,7 +52,7 @@
         if ( generic ) {
             ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
             if ( signal == null ) {
-                return parent->response_saej1979_pid(parent, pid, frameNumber);
+                return binResponse;
             }
             response_saej1979_pid_with_signal(ad_object_vehicle_signal_get_exec_path(signal));
         }
@@ -60,8 +61,9 @@
     static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
         JNIEnv *env = get_env();
         Buffer * binResponse = ad_buffer_new();
-        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared);
-        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs);
+        jbyte address = *(jbyte*)generator->context;
+        bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared, address);
+        jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs, address);
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
         ad_list_Buffer * dtcs_list = ad_list_Buffer_new();
         if ( service_id == OBD_SERVICE_SHOW_DTC ) {
@@ -91,9 +93,9 @@
     }
     static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
         JNIEnv *env = get_env();
-        unsigned * seed = generator->context;
-        jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name);
-        jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin);
+        jbyte address = *(jbyte*)generator->context;
+        jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name, address);
+        jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin, address);
 
         const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
@@ -102,11 +104,11 @@
             case 0x01:                                          return ad_buffer_from_ascii_hex("05");
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   return ad_buffer_from_ascii(vin);
             case 0x03:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x04:                                          return ad_buffer_new_random_with_seed(16, seed);
+            case 0x04:                                          return ad_buffer_new_random(16);
             case 0x05:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x06:                                          return ad_buffer_new_random_with_seed(4, seed);
+            case 0x06:                                          return ad_buffer_new_random(4);
             case 0x07:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x08:                                          return ad_buffer_new_random_with_seed(4, seed);
+            case 0x08:                                          return ad_buffer_new_random(4);
             case 0x09:                                          return ad_buffer_from_ascii_hex("01");
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                 final Buffer * name = ad_buffer_from_ascii(ecu_name);
@@ -121,10 +123,9 @@
         if ( binRequest->size == 0 ) {
             return ad_buffer_new();
         }
+        jbyte address = *(jbyte*)generator->context;
 
-        final SimECUGenerator * parent = (SimECUGenerator*) generator->state;
         final Buffer *binResponse = ad_buffer_new();
-        bool useParent = true;
         if ( ! sim_ecu_generator_fill_success(binResponse, binRequest) ) {
             return ad_buffer_new();
         }
@@ -134,27 +135,21 @@
                     env,
                     g_libautodiag,
                     mid_set_dtc_cleared,
+                    address,
                     JNI_TRUE
                 );
                 log_msg(LOG_DEBUG, "Clearing DTCs");
-                useParent = false;
             } break;
             case OBD_SERVICE_SHOW_DTC: {
                 binResponse = generator->response_saej1979_dtcs_wrapper(generator, binRequest->buffer[0]);
-                useParent = false;
             } break;
             case OBD_SERVICE_SHOW_CURRENT_DATA:
             case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
                 binResponse = generator->response_saej1979_pids(generator, binRequest);
-                useParent = false;
                 break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION:
                 binResponse = generator->response_saej1979_vehicle_identification_request(generator, binRequest);
-                useParent = false;
                 break;
-        }
-        if ( useParent ) {
-            return parent->response(parent, binRequest);
         }
         return binResponse;
     }
@@ -164,7 +159,7 @@
     static bool context_load_from_string(SimECUGenerator * this, char * context) {
         return true;
     }
-    SimECUGenerator* sim_ecu_generator_new_gui() {
+    SimECUGenerator* sim_ecu_generator_new_gui(jbyte address) {
         SimECUGenerator * generator = sim_ecu_generator_new();
         generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
         generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
@@ -174,8 +169,9 @@
         generator->response_saej1979_pid = response_saej1979_pid;
         generator->response_saej1979_dtcs = response_saej1979_dtcs;
         generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
-        generator->state = sim_ecu_generator_new_citroen_c5_x7();
-        generator->context = (unsigned*)malloc(sizeof(unsigned));
+        generator->state = null;
+        generator->context = (jbyte*)malloc(sizeof(jbyte));
+        *(jbyte*)generator->context = address;
         return generator;
     }
 
