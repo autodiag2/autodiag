@@ -40,7 +40,8 @@ Automotive diagnostic software with many protocols.
 5. If ELM327 USB: Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
 6. Select the right COM port eg. COM5 (ELM USB, Bluetooth) or the ip address (ELM Wifi)
 #### MacOS
-5. Set the ip address of adapter
+5.1. If ELM327 USB: Download the driver example from [ftdichip](https://ftdichip.com/drivers/)
+5.2. If Wifi: Set the ip address of adapter
 <br /><br />
 
 7. Read codes
@@ -55,7 +56,7 @@ See [here](/documentation/install-errors.md)
 | autodiag              | ✔️                 | ✔️       | ✔️     | ❌      |
 | elm327sim             | ✔️                 | ✔️       | ✔️     | ✔️      |
 | doipsim               | ✔️                 | ✔️       | ✔️     | ✔️      |
-| ELM USB               | ✔️                 | ✔️       | ❌     | ❌      |
+| ELM USB               | ✔️                 | ✔️       | ✔️     | ❌      |
 | ELM Bluetooth         | ✔️                 | ✔️       | ❌     | ✔️      |
 | ELM Wifi              | ✔️                 | ✔️       | ✔️     | ✔️      |
 | vgate iCar Pro Wi-FI  | ✔️                 | ✔️       | ✔️     | ✔️      |
