@@ -269,7 +269,7 @@ int ad_object_handle_t_write(ad_object_handle_t * h, byte * tx_buf, int bytes_to
         if ( h->posix_handle != -1 ) {
             int bytes_sent = write(h->posix_handle, tx_buf, bytes_to_send);
             if ( bytes_sent != bytes_to_send ) {
-                log_msg(LOG_ERROR, "Error while writting to the serial");
+                log_msg(LOG_ERROR, "Error while writting to the serial: %s", strerror(errno));
                 return -1;
             }
             return bytes_sent;
