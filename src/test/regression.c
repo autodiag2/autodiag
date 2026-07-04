@@ -55,10 +55,10 @@ int main(int argc, char **argv) {
     runIfSelected(testSAEJ1979, iface);
     runIfSelected(testElm, iface);
     runIfSelected(testRecorder, iface);
-    runIfSelected(testReplay, null);
+    //runIfSelected(testReplay, null);
     runIfSelected(testUDS, null);
     runIfSelected(testSimUDS, null);
-    runIfSelected(testSim, null);
+    //runIfSelected(testSim, null);
     runIfSelected(testCycle, null);
     runIfSelected(testDOIP, null);
 

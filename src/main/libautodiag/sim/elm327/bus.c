@@ -338,16 +338,35 @@ bool sim_elm327_parse_request(SimELM327 * elm327, char * hex_string_request, boo
     }
     return true;
 }
+char * sim_elm327_hex_string_request_reduce(SimELM327 * elm327, char * hex_string_request) {
+    char * result = (char*)malloc(sizeof(char) * (strlen(hex_string_request) + 1));
+    int j = 0;
+    for(int i = 0; i < strlen(hex_string_request); i++) {
+        char c = hex_string_request[i];
+        if ( c == ' ' || strstr(elm327->eol, &c) != null ) {
+
+        } else {
+            result[j++] = c;
+        }
+    }
+    result[j] = 0x00;
+    return result;
+}
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char *response = null;
     bool isHexString = true;
-    bool hasSpaces = false;
-    sim_elm327_parse_request(elm327, hex_string_request, &isHexString, &hasSpaces);
+    sim_elm327_parse_request(elm327, hex_string_request, &isHexString, null);
     if ( isHexString && elm327->responses ) {
         
         final Buffer * dataRequest = ad_buffer_new();
-        char * end_ptr = strstr(hex_string_request,elm327->eol);
-        elm_ascii_to_bin_internal(hasSpaces, dataRequest, hex_string_request, end_ptr == null ? hex_string_request + strlen(hex_string_request): end_ptr);
+        char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
+        int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
+        if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
+            log_msg(LOG_DEBUG, "Ignoring optimization request");
+            hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
+        }
+        elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);
+        free(hex_string_req_reduced);
         log_msg(LOG_DEBUG, "TODO: handle multiple data request");
         for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
             SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
