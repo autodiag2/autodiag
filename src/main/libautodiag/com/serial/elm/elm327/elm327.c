@@ -43,8 +43,12 @@ int elm327_send(final ELM327Device* elm327, const char *command) {
             memcpy(hex,command,2);
             int service = strtol(hex,null,16);
             switch(service) {
-                case 0x01:
-                case 0x02: {
+                case OBD_SERVICE_SHOW_CURRENT_DATA:
+                case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA: {
+                    if ( (strlen(command) % 2) != 0 ) {
+                        log_msg(LOG_DEBUG, "optimization already detected");
+                        break;
+                    } 
                     char *commandLine;
                     asprintf(&commandLine,"%s%d",command,1);
                     int bytes = ad_serial_send((Serial *)elm327,commandLine);
