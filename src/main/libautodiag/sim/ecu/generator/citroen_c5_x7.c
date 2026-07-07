@@ -476,7 +476,26 @@ static bool from_json(SimECUGenerator * this, cJSON * content) {
             add_dtc(state, cJSON_GetStringValue(dtc));
         }
     }
+    double seed = cJSON_GetNumberItem(content, "seed");
+    if ( seed != NAN ) {
+        unsigned seed_u = (unsigned)seed;
+        *((unsigned *)this->context) = seed_u;
+    }
     return true;
+}
+static cJSON * to_json(SimECUGenerator * this) {
+    cJSON * json = cJSON_CreateObject();
+    GState * state = (GState*)this->state;
+    unsigned seed = *((unsigned *)this->context);
+    cJSON_AddNumberToObject(json, "seed", (double)seed);
+    cJSON_AddStringToObject(json, "vin", ad_buffer_to_ascii(state->vin));
+    cJSON * dtcs = cJSON_AddArrayToObject(json, "dtcs");
+    for(int i = 0; i < state->obd.dtcs->size; i++) {
+        DTC * dtc = state->obd.dtcs->list[i];
+        char * dtc_str = saej1979_dtc_to_string(dtc);
+        cJSON_AddItemToArray(dtcs, cJSON_CreateString(dtc_str));
+    }
+    return json;
 }
 
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
@@ -491,6 +510,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->response_uds_did = response_uds_did;
     generator->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
+    generator->to_json = SIM_ECU_GENERATOR_TO_JSON(to_json);
     generator->state = (GState*)malloc(sizeof(GState));
     generator->context = (unsigned*)malloc(sizeof(unsigned));
     GState * state = (GState*)generator->state;

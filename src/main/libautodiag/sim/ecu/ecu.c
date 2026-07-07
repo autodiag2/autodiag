@@ -40,10 +40,6 @@ SimECU* sim_ecu_new(ECU_address address) {
     return emu;
 }
 
-cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
-    return null;
-}
-
 static ad_object_hashmap_string_Ptr *generators = NULL;
 
 static void ensureGeneratorsTable();
@@ -90,6 +86,18 @@ static void ensureGeneratorsTable()
     ad_object_SimECU_register_generator("cycle", sim_ecu_generator_new_cycle);
     ad_object_SimECU_register_generator("CitroenC5X7", sim_ecu_generator_new_citroen_c5_x7);
     ad_object_SimECU_register_generator("replay", sim_ecu_generator_new_replay);
+}
+cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
+    cJSON * json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "schema", SIM_ECU_SCHEMA);
+    cJSON_AddNumberToObject(json, "version", SIM_ECU_SCHEMA_VERSION);
+    cJSON_AddStringToObject(json, "displayName", "");
+    cJSON_AddNumberToObject(json, "address", (double)ecu->address);
+    cJSON_AddItemToObject(json, "content", ecu->generator->to_json == null ?
+        cJSON_CreateObject() :
+        ecu->generator->to_json(ecu->generator)
+    );
+    return json;
 }
 bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     char * schema = cJSON_GetStringItem(json, "schema", "");

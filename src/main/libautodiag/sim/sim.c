@@ -85,6 +85,18 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
     return rv;
 }
 
+char * sim_to_json(Sim *sim) {
+    cJSON * json = cJSON_CreateObject();
+    cJSON_AddStringToObject(json, "schema", SIM_SCHEMA);
+    cJSON_AddNumberToObject(json, "version", SIM_SCHEMA_VERSION);
+    cJSON * ecus = cJSON_AddArrayToObject(json, "content");
+    for(int i = 0; i < sim->ecus->size; i++) {
+        SimECU * ecu = sim->ecus->list[i];
+        cJSON * jecu = ad_object_SimECU_to_json(ecu);
+        cJSON_AddItemToArray(ecus, jecu);
+    }
+    return cJSON_PrintUnformatted(json);
+}
 int sim_load_from_json(Sim * sim, char * json_context) {
     cJSON * json = null;
     FILE *f = fopen(json_context, "r");

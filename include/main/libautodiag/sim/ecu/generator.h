@@ -83,9 +83,13 @@ typedef struct SimECUGenerator {
      */
     bool (*context_load_from_string)(struct SimECUGenerator * this, char * context);
     /**
-     * Load values in this generator.
+     * Load values in this generator (ext of the context).
      */
     bool (*from_json)(struct SimECUGenerator * this, cJSON * content);
+    /**
+     * Get values from this generator (ext of the context).
+     */
+    cJSON * (*to_json)(struct SimECUGenerator * this);
 } SimECUGenerator;
 
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, Buffer * binRequest, byte nrc);
@@ -102,4 +106,6 @@ SimECUGenerator* sim_ecu_generator_new_replay();
 #define SIM_ECU_GENERATOR_CONTEXT_TO_STRING(f) ((char* (*)(SimECUGenerator *))f)
 #define SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(f) ((bool (*)(SimECUGenerator *, char*))f)
 #define SIM_ECU_GENERATOR_FROM_JSON(f) ((bool (*)(SimECUGenerator*,cJSON*))f)
+#define SIM_ECU_GENERATOR_TO_JSON(f) ((cJSON* (*)(SimECUGenerator*))f)
+
 #endif

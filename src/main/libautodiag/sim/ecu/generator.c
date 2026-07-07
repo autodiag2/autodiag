@@ -162,6 +162,7 @@ SimECUGenerator * sim_ecu_generator_new() {
     generator->type = null;
     generator->state = null;
     generator->from_json = null;
+    generator->to_json = null;
     return generator;
 }
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, final Buffer * binRequest, byte nrc) {
