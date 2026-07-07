@@ -86,7 +86,9 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     unsigned * seed = this->context;
     return sscanf(context, "%d", seed) == 1;
 }
-
+static bool from_json(SimECUGenerator * this, cJSON * context) {
+    return true;
+}
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
@@ -97,6 +99,7 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
+    generator->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;

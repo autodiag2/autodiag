@@ -32,6 +32,9 @@ typedef struct {
 
 #define SIM(var) ((Sim*)var)
 
+#define SIM_SCHEMA "autodiag/sim/any"
+#define SIM_SCHEMA_VERSION 1.0   
+
 /**
  * Load the sim contained in the json context, any existing sim settings are dropped.
  * @param json_context filepath or string containing the json

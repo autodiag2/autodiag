@@ -86,7 +86,7 @@ int sim_read(Sim * sim, int timeout_ms, Buffer * readed) {
 }
 
 int sim_load_from_json(Sim * sim, char * json_context) {
-    cJSON * root = null;
+    cJSON * json = null;
     FILE *f = fopen(json_context, "r");
     if ( f ) {
         fseek(f, 0, SEEK_END);
@@ -96,42 +96,54 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         fread(buf, 1, len, f);
         buf[len] = 0;
         fclose(f);
-        root = cJSON_Parse(buf);
+        json = cJSON_Parse(buf);
         free(buf);
     } else {
         if (errno == ENOENT || errno == ENAMETOOLONG) {
-            root = cJSON_Parse(json_context);
-            if ( ! root ) {
+            json = cJSON_Parse(json_context);
+            if ( ! json ) {
                 log_msg(LOG_ERROR, "Context '%s' is not a file and not a json string");
             }
         } else if (errno == EACCES) {
             log_msg(LOG_ERROR, "File '%s' exists but missing reading permission", json_context);
         }
     }
-    if (!root) {
+    if (!json) {
         log_msg(LOG_ERROR, "Impossible to get the flow from the json aborting ...");
         return GENERIC_FUNCTION_ERROR;
     }
     ad_list_SimECU_clear(LIST_SIM_ECU(sim->ecus));
-    if ( ! cJSON_IsArray(root) ) {
-        assert(cJSON_IsObject(root));
-        cJSON * arr = cJSON_CreateArray();
-        cJSON_AddItemToArray(arr, root);
-        root = arr;
-    }
-    if ( 0 == cJSON_GetArraySize(root) ) {
-        log_msg(LOG_ERROR, "No ECUs in this file");
+
+    char * schema = cJSON_GetStringItem(json, "schema", "");
+    if ( strncmp(schema, SIM_SCHEMA, strlen(SIM_SCHEMA)) != 0 ) {
+        log_msg(LOG_ERROR, "schema invalid : %s", schema);
         return GENERIC_FUNCTION_ERROR;
     }
-    for(int i = 0; i < cJSON_GetArraySize(root); i++) {
-        cJSON * obj = cJSON_GetArrayItem(root, i);
-        char *context = cJSON_PrintUnformatted(obj);
-        cJSON * address_obj = cJSON_GetObjectItem(obj, "ecu");
-        char * address_str = address_obj->valuestring;
-        final Buffer * address = ad_buffer_from_ascii_hex(address_str);
-        final SimECU * ecu = sim_ecu_new(address->buffer[address->size-1]);
-        ecu->generator = sim_ecu_generator_new_replay();
-        ecu->generator->context = context;
+    double version = cJSON_GetNumberItem(json, "version");
+    if ( version != SIM_SCHEMA_VERSION ) {
+        log_msg(LOG_ERROR, "invalid version");
+        return GENERIC_FUNCTION_ERROR;
+    }
+    cJSON * content = cJSON_GetObjectItem(json, "content");
+    if ( content == null ) {
+        log_msg(LOG_ERROR, "no content");
+        return GENERIC_FUNCTION_ERROR;
+    }
+    if ( ! cJSON_IsArray(content) ) {
+        if ( ! cJSON_IsObject(content) ) {
+            log_msg(LOG_ERROR, "invalid content");
+            return GENERIC_FUNCTION_ERROR;
+        }
+        cJSON * arr = cJSON_CreateArray();
+        cJSON_AddItemToArray(arr, content);
+        json = arr;
+    }
+    for(int i = 0; i < cJSON_GetArraySize(content); i++) {
+        cJSON * ecu_json = cJSON_GetArrayItem(content, i);
+        final SimECU * ecu = sim_ecu_new(SIM_ECU_DEFAULT_ADDRESS);
+        if ( ! ad_object_SimECU_from_json(ecu, ecu_json) ) {
+            log_err("parsing of ecu : %s", cJSON_PrintUnformatted(ecu_json));
+        }
         ad_list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);
     }
     return GENERIC_FUNCTION_SUCCESS;
