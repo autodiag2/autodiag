@@ -148,7 +148,7 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         }
         cJSON * arr = cJSON_CreateArray();
         cJSON_AddItemToArray(arr, content);
-        json = arr;
+        content = arr;
     }
     for(int i = 0; i < cJSON_GetArraySize(content); i++) {
         cJSON * ecu_json = cJSON_GetArrayItem(content, i);

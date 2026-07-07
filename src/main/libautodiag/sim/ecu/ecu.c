@@ -125,8 +125,8 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     if ( *type == '/' ) {
         type ++;
     }
-    SimECUGenerator * gen = generator_new(type);
-    if ( ecu->generator == null || strcmp(gen->type, ecu->generator->type) != 0 ) {
+    if ( ecu->generator == null || strcmp(type, ecu->generator->type) != 0 ) {
+        SimECUGenerator * gen = generator_new(type);
         if ( gen == null ) {
             log_msg(LOG_ERROR, "cannot instanciate gen type : %s", type);
             return false;

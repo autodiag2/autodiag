@@ -328,7 +328,22 @@ static void ensureNetworkOK() {
     final VehicleIFace* iface = tf_ad_serial_open(strdup(elm327->device_location));
     assert(iface != null);
 }
+static void ensureSerializationOK() {
+    SimELM327* elm327 = sim_elm327_new();
+    SimECU * ecu1 = sim_ecu_new(0xE9);
+    ecu1->generator = sim_ecu_generator_new_citroen_c5_x7();
+    SimECU * ecu2 = sim_ecu_new(0xEA);
+    ecu2->generator = sim_ecu_generator_new_random();
+    char * json = sim_to_json(elm327);
+    SimELM327* elm327_2 = sim_elm327_new();
+    sim_load_from_json(elm327_2, json);
+    assert(strcmp(json,
+        sim_to_json(elm327_2))
+        == 0
+    );
+}
 bool testSimELM327() {
+    ensureSerializationOK();
     testAutomaticMode();
     testNODTCcountonSAEJ1979();
     testDTCcountonSAEJ1979();
