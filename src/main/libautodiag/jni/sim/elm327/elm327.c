@@ -179,6 +179,10 @@ Java_com_github_autodiag2_elm327emu_libautodiag_simEcuLoadFromJson(
     if (!sim) return;
 
     SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+    if (!ecu) {
+        log_err("ECU 0x%02x not found", (byte)address);
+        return;
+    }
     const char * json_str = (*env)->GetStringUTFChars(env, json, null);
     (*env)->ReleaseStringUTFChars(env, json, json_str);
     if ( json_str == null ) {
