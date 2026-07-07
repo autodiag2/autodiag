@@ -136,6 +136,21 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(
     ecu->generator = sim_ecu_generator_new_gui(address);
 }
 JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_sim_ecu_load_from_json(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address,
+    jstring json
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim) return;
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+    const char * json_str = (*env)->GetStringUTFChars(env, type, null);
+    cJSON * jsonOBj = cJSON_Parse(json_str);
+    ad_object_SimECU_from_json(ecu, jsonOBj);
+}
+JNIEXPORT void JNICALL
 Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
     JNIEnv *env,
     jobject thiz,

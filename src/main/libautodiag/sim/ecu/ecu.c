@@ -126,14 +126,16 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
         type ++;
     }
     SimECUGenerator * gen = generator_new(type);
-    if ( gen == null ) {
-        log_msg(LOG_ERROR, "cannot instanciate gen type : %s", type);
-        return false;
-    }
-    ecu->generator = gen;
-    if ( ecu->generator->from_json == null ) {
-        log_msg(LOG_WARNING, "cannot load the state from json function not defined");
-        return false;
+    if ( ecu->generator == null || strcmp(gen->type, ecu->generator->type) != 0 ) {
+        if ( gen == null ) {
+            log_msg(LOG_ERROR, "cannot instanciate gen type : %s", type);
+            return false;
+        }
+        ecu->generator = gen;
+        if ( ecu->generator->from_json == null ) {
+            log_msg(LOG_WARNING, "cannot load the state from json function not defined");
+            return false;
+        }
     }
     return ecu->generator->from_json(ecu->generator, content);
 }
