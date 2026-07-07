@@ -1,5 +1,8 @@
 #include "libautodiag/sim/ecu/generator.h"
 
+#define SIM_ECU_GENERATOR_CITROEN_C5_X7_VIN "VF1BB05CF26010203"
+#define SIM_ECU_GENERATOR_CITROEN_C5_X7_TYPE "Citroen C5 X7"
+
 typedef struct {
     Buffer * vin;
 
@@ -443,15 +446,45 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     unsigned * seed = this->context;
     return sscanf(context, "%d", seed) == 1;
 }
-static bool from_json(SimECUGenerator * this, cJSON * context) {
+static void clear_dtcs(GState * state) {
+    ad_list_DTC_clear(state->obd.dtcs);
+    ad_list_AD_UDS_DTC_clear(state->uds.dtcs);
+}
+static void add_dtc(GState * state, char * dtc) {
+    SAEJ1979_DTC * dtco = saej1979_dtc_from_string(dtc);
+    ad_list_DTC_append(state->obd.dtcs, (DTC*)dtco);
+    ad_list_AD_UDS_DTC_append(state->uds.dtcs, AD_UDS_DTC_new_from(dtco));
+}
+static void set_vin(GState * state, char * vin) {
+    state->vin = ad_buffer_from_ascii(vin);
+    state->uds.did[AD_UDS_DID_VIN] = ad_buffer_copy(state->vin);
+}
+static bool from_json(SimECUGenerator * this, cJSON * content) {
+    GState * state = (GState*)this->state;
+    char * vin = cJSON_GetStringItem(content, "vin", SIM_ECU_GENERATOR_CITROEN_C5_X7_VIN);
+    if ( 0 < strlen(vin) ) {
+        set_vin(state, vin);
+    }
+    clear_dtcs(state);
+    cJSON * dtcs = cJSON_GetObjectItem(content, "dtcs");
+    if ( dtcs != null ) {
+        assert(cJSON_IsArray(dtcs));
+        cJSON * dtc = null;
+        cJSON_ArrayForEach(
+            dtc, dtcs
+        ) {
+            add_dtc(state, cJSON_GetStringValue(dtc));
+        }
+    }
     return true;
 }
+
 SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
-    generator->type = strdup("Citroen C5 X7");
+    generator->type = strdup(SIM_ECU_GENERATOR_CITROEN_C5_X7_TYPE);
     generator->flavour.is_Iso15765_4 = false;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
@@ -461,8 +494,7 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     generator->state = (GState*)malloc(sizeof(GState));
     generator->context = (unsigned*)malloc(sizeof(unsigned));
     GState * state = (GState*)generator->state;
-    state->vin = ad_buffer_from_ascii("VF1BB05CF26010203");
-    state->uds.did[AD_UDS_DID_VIN] = ad_buffer_copy(state->vin);
+    set_vin(state, SIM_ECU_GENERATOR_CITROEN_C5_X7_VIN);
     state->uds.memory = ad_buffer_new_random(GSTATE_UDS_MEMORY_SZ);
     *((unsigned *)generator->context) = 1;
     state->obd.dtcs = null;
@@ -481,14 +513,8 @@ SimECUGenerator* sim_ecu_generator_new_citroen_c5_x7() {
     state->uds.dtcs = ad_list_AD_UDS_DTC_new();
     state->obd.dtcs = ad_list_DTC_new();
 
-    ad_list_ad_object_string * dtcs = ad_list_ad_object_string_new();
-    ad_list_ad_object_string_append(dtcs, ad_object_string_new_from("P0103"));
-    ad_list_ad_object_string_append(dtcs, ad_object_string_new_from("P0104"));
-    for(int i = 0; i < dtcs->size; i++) {
-        SAEJ1979_DTC * dtc = saej1979_dtc_from_string(dtcs->list[i]->data);
-        ad_list_DTC_append(state->obd.dtcs, (DTC*)dtc);
-        ad_list_AD_UDS_DTC_append(state->uds.dtcs, AD_UDS_DTC_new_from(dtc));
-    }
+    add_dtc(state, "P0103");
+    add_dtc(state, "P0104");
     init_did(state, generator->context);
     set_session_type(state, AD_UDS_SESSION_DEFAULT);
     return generator;

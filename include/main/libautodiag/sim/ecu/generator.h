@@ -4,7 +4,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/com/obd/obd.h"
 #include "libautodiag/com/uds/uds.h"
-#include "cJSON.h"
+#include "libautodiag/dependencies/json.h"
 
 typedef struct SimECUGenerator {
     /**
