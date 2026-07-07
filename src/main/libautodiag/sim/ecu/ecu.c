@@ -91,12 +91,23 @@ cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
     cJSON * json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "schema", SIM_ECU_SCHEMA);
     cJSON_AddNumberToObject(json, "version", SIM_ECU_SCHEMA_VERSION);
-    cJSON_AddStringToObject(json, "displayName", "");
-    cJSON_AddNumberToObject(json, "address", ECU_address_to_double(ecu->address));
-    cJSON_AddItemToObject(json, "content", ecu->generator->to_json == null ?
-        cJSON_CreateObject() :
-        ecu->generator->to_json(ecu->generator)
-    );
+    cJSON * content = cJSON_AddObjectToObject(json, "content");
+    cJSON_AddStringToObject(content, "displayName", "");
+    cJSON_AddNumberToObject(content, "address", ECU_address_to_double(ecu->address));
+
+    cJSON *generator_json =
+        ecu->generator->to_json == NULL
+            ? cJSON_CreateObject()
+            : ecu->generator->to_json(ecu->generator);
+
+    while (generator_json->child != NULL) {
+        cJSON *item = generator_json->child;
+        cJSON_DetachItemViaPointer(generator_json, item);
+        cJSON_AddItemToObject(content, item->string, item);
+    }
+
+    cJSON_Delete(generator_json);
+       
     return json;
 }
 bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
@@ -117,12 +128,12 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
         log_msg(LOG_ERROR, "no content");
         return false;
     }
-    double address = cJSON_GetNumberItem(json, "address");
+    double address = cJSON_GetNumberItem(content, "address");
     if ( address == NAN ) {
         address = SIM_ECU_DEFAULT_ADDRESS;
     }
     ECU_address_assign(ecu->address, ECU_address_from_double(address));
-    char * displayName = cJSON_GetStringItem(json, "displayName", "");
+    char * displayName = cJSON_GetStringItem(content, "displayName", "");
     char * type = schema + strlen(SIM_ECU_SCHEMA);
     if ( *type == '/' ) {
         type ++;
