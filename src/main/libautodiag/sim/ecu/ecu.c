@@ -92,7 +92,7 @@ cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
     cJSON_AddStringToObject(json, "schema", SIM_ECU_SCHEMA);
     cJSON_AddNumberToObject(json, "version", SIM_ECU_SCHEMA_VERSION);
     cJSON_AddStringToObject(json, "displayName", "");
-    cJSON_AddNumberToObject(json, "address", (double)ecu->address);
+    cJSON_AddNumberToObject(json, "address", ECU_address_to_double(ecu->address));
     cJSON_AddItemToObject(json, "content", ecu->generator->to_json == null ?
         cJSON_CreateObject() :
         ecu->generator->to_json(ecu->generator)
@@ -121,7 +121,7 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     if ( address == NAN ) {
         address = SIM_ECU_DEFAULT_ADDRESS;
     }
-    ECU_address_assign(ecu->address, (ECU_address)address);
+    ECU_address_assign(ecu->address, ECU_address_from_double(address));
     char * displayName = cJSON_GetStringItem(json, "displayName", "");
     char * type = schema + strlen(SIM_ECU_SCHEMA);
     if ( *type == '/' ) {

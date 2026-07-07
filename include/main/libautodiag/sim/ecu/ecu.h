@@ -6,6 +6,13 @@
 
 typedef byte ECU_address;
 #define ECU_address_assign(ecu_address, address) ecu_address = address
+static inline double ECU_address_to_double(ECU_address address) {
+    return (double)(int8_t)address;
+}
+
+static inline ECU_address ECU_address_from_double(double value) {
+    return (ECU_address)(int8_t)value;
+}
 
 typedef struct SimECU {
     ECU_address address;
