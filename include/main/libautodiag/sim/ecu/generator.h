@@ -4,6 +4,7 @@
 #include "libautodiag/lib.h"
 #include "libautodiag/com/obd/obd.h"
 #include "libautodiag/com/uds/uds.h"
+#include "cJSON.h"
 
 typedef struct SimECUGenerator {
     /**
@@ -81,6 +82,10 @@ typedef struct SimECUGenerator {
      * @return false in case a string representation is not enough to describe the context, true in case of success
      */
     bool (*context_load_from_string)(struct SimECUGenerator * this, char * context);
+    /**
+     * Load values in this generator.
+     */
+    bool (*from_json)(struct SimECUGenerator * this, cJSON * content);
 } SimECUGenerator;
 
 void sim_ecu_generator_fill_nrc(Buffer * binResponse, Buffer * binRequest, byte nrc);
@@ -96,5 +101,5 @@ SimECUGenerator* sim_ecu_generator_new_replay();
 #define SIM_ECU_GENERATOR_RESPONSE(f) ((Buffer* (*)(SimECUGenerator *, Buffer *))f)
 #define SIM_ECU_GENERATOR_CONTEXT_TO_STRING(f) ((char* (*)(SimECUGenerator *))f)
 #define SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(f) ((bool (*)(SimECUGenerator *, char*))f)
-
+#define SIM_ECU_GENERATOR_FROM_JSON(f) ((bool (*)(SimECUGenerator*,cJSON*))f)
 #endif

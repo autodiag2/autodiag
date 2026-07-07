@@ -12,6 +12,14 @@ double counter_get_fraction(GtkWidget *widget) {
         return *((double*)g_object_get_data(G_OBJECT(widget),COUNTER_KEY_THROTTLE_FRACTION));
     }
 }
+void counter_set_fraction(GtkWidget *widget, double fraction) {
+    if ( GTK_IS_PROGRESS_BAR(widget) ) {
+        gtk_progress_bar_set_fraction((GtkProgressBar*)widget, fraction);
+    } else {
+        double * fraction_v_ptr = doubledup(fraction);
+        g_object_set_data(G_OBJECT(widget), COUNTER_KEY_THROTTLE_FRACTION, fraction_v_ptr);
+    }
+}
 char* counter_get_label(GtkWidget *widget) {
     final char * text;
     if ( GTK_IS_PROGRESS_BAR(widget) ) {

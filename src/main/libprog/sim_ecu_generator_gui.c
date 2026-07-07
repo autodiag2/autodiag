@@ -1,5 +1,8 @@
 #include "libprog/sim_ecu_generator_gui.h"
 
+static void clearSignals(SimECUGenerator *generator);
+static void signal_widget_add(SimECUGenerator *generator, char *signal_path, char *counter_image);
+
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     Buffer * binResponse = ad_buffer_new();
@@ -37,8 +40,7 @@ static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_i
     }
     return binResponse;
 }
-static void use_inverted_signal(SimECUGenerator *generator, Buffer * binResponse, char * signal_path) {
-    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+static GtkWidget * getSignalWidgetByPath(SimECUGenerator *generator, char * signal_path) {
     ad_object_hashmap_string_Ptr * signals_widgets = generator->state;
     GtkWidget * signal_widget = null;
     for(int i = 0; i < signals_widgets->size; i++) {
@@ -48,8 +50,31 @@ static void use_inverted_signal(SimECUGenerator *generator, Buffer * binResponse
             break;
         }
     }
+    return signal_widget;
+}
+static bool setSignalValueByPath(SimECUGenerator *generator, char * signal_path, double value) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    GtkWidget * signal_widget = getSignalWidgetByPath(generator, signal_path);
     if ( signal_widget == null ) {
-        log_err("signal %s not linked", signal_path);
+        log_msg(LOG_ERROR, "signal not linked");
+        return false;
+    }
+    ad_object_vehicle_signal * signal = ad_signal_get(signal_path);
+    char * txt = gprintf("%.2f %s", value, signal->unit);
+    counter_set_label(signal_widget, txt);
+    free(txt);
+    double span = signal->rv_max - signal->rv_min;
+    double percent = (value - signal->rv_min) / span;
+    assert(0 <= percent);
+    assert(percent <= 1.0);
+    counter_set_fraction(signal_widget, percent);
+    return true;
+}
+static void use_inverted_signal(SimECUGenerator *generator, Buffer * binResponse, char * signal_path) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    GtkWidget * signal_widget = getSignalWidgetByPath(generator, signal_path);
+    if ( signal_widget == null ) {
+        log_msg(LOG_ERROR, "signal not linked");
         return;
     }
     gdouble percent = counter_get_fraction(signal_widget);
@@ -100,6 +125,21 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
         }
     }
     return binResponse;
+}
+static void clearDTCs(SimECUGeneratorGui *gui) {
+    GList *children = gtk_container_get_children(GTK_CONTAINER(gui->dtcs.listView));
+
+    for (GList *l = children; l != NULL; l = l->next) {
+        gtk_widget_destroy(GTK_WIDGET(l->data));
+    }
+
+    g_list_free(children);
+}
+
+static void addDTC(SimECUGeneratorGui *gui, const char *dtc) {
+    GtkWidget *label = gtk_label_new(dtc);
+    gtk_widget_show(label);
+    gtk_container_add(GTK_CONTAINER(gui->dtcs.listView), label);
 }
 static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
@@ -176,6 +216,50 @@ static char * context_to_string(SimECUGenerator * this) {
 static bool context_load_from_string(SimECUGenerator * this, char * context) {
     return false;
 }
+static bool from_json(SimECUGenerator * this, cJSON * content) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)this->context;
+    if ( gui == null ) {
+        log_msg(LOG_ERROR, "try to load on a non attached gui");
+        return false;
+    }
+    char * ecu_name = cJSON_GetStringItem(content, "ecuName", "");
+    gtk_entry_set_text(gui->ecuName, ecu_name);
+    char * vin = cJSON_GetStringItem(content, "vin", "");
+    gtk_entry_set_text(gui->vin, vin);
+
+    double mil = cJSON_GetBoolItem(content, "mil", false);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.milOn), mil);
+    double dtcCleared = cJSON_GetBoolItem(content, "dtcCleared", false);
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(gui->dtcs.dtcCleared), dtcCleared);
+    clearDTCs(gui);
+    cJSON * dtcs = cJSON_GetObjectItem(content, "dtcs");
+    if ( dtcs != null ) {
+        assert(cJSON_IsArray(dtcs));
+        cJSON * dtc = null;
+        cJSON_ArrayForEach(
+            dtc, dtcs
+        ) {
+            addDTC(gui, cJSON_GetStringValue(dtc));
+        }
+    }
+    clearSignals(this);
+    cJSON * signals = cJSON_GetObjectItem(content, "signals");
+    if ( signals != null ) {
+        cJSON * signal = null;
+        cJSON_ArrayForEach(
+            signal, signals
+        ) {
+            char * path = cJSON_GetStringItem(signal, "path", "");
+            if ( strlen(path) == 0 ) {
+                continue;
+            }
+            double value = cJSON_GetNumberItem(signal, "value");
+            signal_widget_add(this, path, "counter_85_2_255_0_0_255.png");
+            setSignalValueByPath(this, path, value);
+        }
+    }
+    return true;
+}
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
@@ -187,6 +271,7 @@ SimECUGenerator* sim_ecu_generator_new_gui() {
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
     generator->state = null;
+    generator->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
     return generator;
 }
 
@@ -197,9 +282,7 @@ static void add_dtc(GtkButton *button, gpointer user_data) {
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(simGui->dtcs.invalidDtc),"%s: expected LXXXX where L is P,C,B,U",dtc_string);
         gtk_widget_show_on_main_thread(simGui->dtcs.invalidDtc);
     } else {
-        GtkWidget *label = gtk_label_new(dtc_string);
-        gtk_container_add((GtkContainer*)simGui->dtcs.listView,label);
-        gtk_widget_show(label);
+        addDTC(simGui, dtc_string);
     }
 }
 
@@ -216,6 +299,23 @@ typedef struct SimSignalWidgetCtx {
     GtkWidget *counter;
 } SimSignalWidgetCtx;
 
+static void clearSignals(SimECUGenerator *generator) {
+    SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
+    GList *children;
+    GList *it;
+
+    if (gui == null) {
+        return;
+    }
+
+    children = gtk_container_get_children(GTK_CONTAINER(gui->data.container));
+
+    for (it = children; it != null; it = it->next) {
+        gtk_widget_destroy(GTK_WIDGET(it->data));
+    }
+
+    g_list_free(children);
+}
 static void signal_widget_add(SimECUGenerator *generator, char *signal_path, char *counter_image) {
     SimECUGeneratorGui *gui = (SimECUGeneratorGui *)generator->context;
     ad_object_vehicle_signal *signal;
@@ -292,7 +392,6 @@ static void on_signal_add_clicked(GtkButton *button, gpointer userdata) {
     if (signal_path == NULL || *signal_path == '\0') {
         return;
     }
-
     signal_widget_add(generator, (char *)signal_path, "counter_85_2_255_0_0_255.png");
 }
 SimECUGeneratorGui * sim_ecu_generator_gui_set_context(SimECUGenerator *generator, char * ecuDesignation) {

@@ -39,3 +39,35 @@ SimECU* sim_ecu_new(byte address) {
     emu->generator = sim_ecu_generator_new_random();
     return emu;
 }
+
+cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
+    return null;
+}
+bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
+    char * schema = cJSON_GetStringItem(json, "schema", "");
+    if ( strcmp(schema, SIM_ECU_SCHEMA) != 0 ) {
+        log_msg(LOG_ERROR, "schema invalid : %s", schema);
+        return false;
+    }
+    double version = cJSON_GetNumberItem(json, "version");
+    if ( version != SIM_ECU_SCHEMA_VERSION ) {
+        log_msg(LOG_ERROR, "invalid version");
+        return false;
+    }
+    cJSON * content = cJSON_GetObjectItem(json, "content");
+    if ( content == null ) {
+        log_msg(LOG_ERROR, "no content");
+        return false;
+    }
+    double address = cJSON_GetNumberItem(json, "address");
+    if ( address == NAN ) {
+        address = SIM_ECU_DEFAULT_ADDRESS;
+    }
+    ECU_address_assign(ecu->address, (ECU_address)address);
+    char * displayName = cJSON_GetStringItem(json, "displayName", "");
+    if ( ecu->generator->from_json == null ) {
+        log_msg(LOG_WARNING, "no from json attached");
+        return false;
+    }
+    return ecu->generator->from_json(ecu->generator, content);
+}

@@ -1457,6 +1457,20 @@ output/obj/main/libautodiag/com/vehicle_signal.o: \
   include/main/libautodiag/com/serial/elm/elm322.h \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/obd/saej1979/saej1979.h
+output/obj/main/libautodiag/dependencies/cJSON.o: \
+  src/main/libautodiag/dependencies/cJSON.c \
+  include/main/libautodiag/dependencies/json.h \
+  include/main/libautodiag/lang/all.h \
+  include/main/libautodiag/lang/lang.h \
+  include/main/libautodiag/lang/object.h \
+  include/main/libautodiag/lang/Int.h \
+  include/main/libautodiag/lang/Ptr.h \
+  include/main/libautodiag/lang/hashmap.h \
+  include/main/libautodiag/lang/list.h \
+  include/main/libautodiag/lang/hashmap_common.h \
+  include/main/libautodiag/string.h \
+  include/main/libautodiag/compile_target.h \
+  include/main/libautodiag/math.h dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/dirent.o: src/main/libautodiag/dirent.c \
   include/main/libautodiag/dirent.h \
   include/main/libautodiag/compile_target.h
@@ -1638,7 +1652,8 @@ output/obj/main/libautodiag/jni/sim/ecu/generator/byte_array.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/jni/sim/ecu/generator/gui.o: \
   src/main/libautodiag/jni/sim/ecu/generator/gui.c \
   include/main/libautodiag/jni/sim/ecu/generator/gui.h \
@@ -1699,7 +1714,8 @@ output/obj/main/libautodiag/jni/sim/ecu/generator/gui.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/jni/sim/elm327/elm327.o: \
   src/main/libautodiag/jni/sim/elm327/elm327.c \
   include/main/libautodiag/jni/sim/elm327/elm327.h \
@@ -1763,6 +1779,8 @@ output/obj/main/libautodiag/jni/sim/elm327/elm327.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2027,6 +2045,8 @@ output/obj/main/libautodiag/sim/doip/doip.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
@@ -2098,6 +2118,8 @@ output/obj/main/libautodiag/sim/doip/doip_discover.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
@@ -2163,7 +2185,9 @@ output/obj/main/libautodiag/sim/ecu/ecu.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h
 output/obj/main/libautodiag/sim/ecu/generator.o: \
   src/main/libautodiag/sim/ecu/generator.c \
   include/main/libautodiag/sim/ecu/generator.h \
@@ -2222,7 +2246,8 @@ output/obj/main/libautodiag/sim/ecu/generator.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/sim/ecu/generator/citroen_c5_x7.o: \
   src/main/libautodiag/sim/ecu/generator/citroen_c5_x7.c \
   include/main/libautodiag/sim/ecu/generator.h \
@@ -2281,7 +2306,8 @@ output/obj/main/libautodiag/sim/ecu/generator/citroen_c5_x7.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/sim/ecu/generator/cycle.o: \
   src/main/libautodiag/sim/ecu/generator/cycle.c \
   include/main/libautodiag/sim/ecu/generator.h \
@@ -2340,7 +2366,8 @@ output/obj/main/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/sim/ecu/generator/random.o: \
   src/main/libautodiag/sim/ecu/generator/random.c \
   include/main/libautodiag/sim/ecu/generator.h \
@@ -2399,7 +2426,8 @@ output/obj/main/libautodiag/sim/ecu/generator/random.o: \
   include/main/libautodiag/com/serial/elm/elm320.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
-  include/main/libautodiag/com/uds/flash_utils.h
+  include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h
 output/obj/main/libautodiag/sim/ecu/generator/replay.o: \
   src/main/libautodiag/sim/ecu/generator/replay.c \
   include/main/libautodiag/sim/ecu/generator.h \
@@ -2521,6 +2549,8 @@ output/obj/main/libautodiag/sim/elm327/bus.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2591,6 +2621,8 @@ output/obj/main/libautodiag/sim/elm327/elm327.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2664,6 +2696,8 @@ output/obj/main/libautodiag/sim/elm327/network.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2735,6 +2769,8 @@ output/obj/main/libautodiag/sim/elm327/nvm.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -2804,6 +2840,8 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
   include/main/libautodiag/jni/loader.h \
@@ -2813,8 +2851,7 @@ output/obj/main/libautodiag/sim/sim.o: src/main/libautodiag/sim/sim.c \
   include/main/libautodiag/com/doip/doip.h \
   include/main/libautodiag/com/doip/device.h \
   include/main/libautodiag/com/doip/message/diag.h \
-  include/main/libautodiag/sim/doip/doip_discover.h \
-  dependencies/cJSON/cJSON.h
+  include/main/libautodiag/sim/doip/doip_discover.h
 output/obj/main/libautodiag/string.o: src/main/libautodiag/string.c \
   include/main/libautodiag/string.h include/main/libautodiag/lang/lang.h \
   include/main/libautodiag/lang/object.h \
@@ -2894,6 +2931,8 @@ output/obj/main/libprog/cli_helpers.o: src/main/libprog/cli_helpers.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -3019,6 +3058,8 @@ output/obj/main/libprog/doip_cli.o: src/main/libprog/doip_cli.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
@@ -3093,6 +3134,8 @@ output/obj/main/libprog/elm327_cli.o: src/main/libprog/elm327_cli.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/cli_helpers.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
@@ -3169,6 +3212,8 @@ output/obj/main/libprog/sim_ecu_generator_gui.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -3246,6 +3291,8 @@ output/obj/main/libprog/terminal_cli.o: src/main/libprog/terminal_cli.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/sim/doip/doip_discover.h \
@@ -3443,6 +3490,8 @@ output/obj/main/prog/autodiag.o: src/main/prog/autodiag.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
@@ -3521,6 +3570,8 @@ output/obj/main/prog/doipsim.o: src/main/prog/doipsim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/jni/target_device.h \
@@ -3595,6 +3646,8 @@ output/obj/main/prog/elm327sim.o: src/main/prog/elm327sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/cli_helpers.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
@@ -3853,6 +3906,8 @@ output/obj/main/ui/main.o: src/main/ui/main.c include/main/ui/main.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
@@ -3932,6 +3987,8 @@ output/obj/main/ui/options.o: src/main/ui/options.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
@@ -4016,6 +4073,8 @@ output/obj/main/ui/trouble_code_reader.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libprog/sim_ecu_generator_gui.h \
   include/main/libautodiag/sim/elm327/elm327.h \
   include/main/libautodiag/sim/sim.h \
@@ -4325,6 +4384,8 @@ output/obj/test/fuzz.o: src/test/fuzz.c src/testFixtures/libTest.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4395,6 +4456,8 @@ output/obj/test/libautodiag/buffer.o: src/test/libautodiag/buffer.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4465,6 +4528,8 @@ output/obj/test/libautodiag/com/doip/doip.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4535,6 +4600,8 @@ output/obj/test/libautodiag/com/network.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4605,6 +4672,8 @@ output/obj/test/libautodiag/com/obd/obd.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4675,6 +4744,8 @@ output/obj/test/libautodiag/com/obd/saej1979.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4746,6 +4817,8 @@ output/obj/test/libautodiag/com/obdb/obdb.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4818,6 +4891,8 @@ output/obj/test/libautodiag/com/recorder.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4888,6 +4963,8 @@ output/obj/test/libautodiag/com/serial/elm/elm.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -4959,6 +5036,8 @@ output/obj/test/libautodiag/com/serial/elm/elm327/elm327.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5029,6 +5108,8 @@ output/obj/test/libautodiag/com/serial/serial.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5100,6 +5181,8 @@ output/obj/test/libautodiag/com/serial/serial_list.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5171,6 +5254,8 @@ output/obj/test/libautodiag/com/signal_input_builder.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5241,6 +5326,8 @@ output/obj/test/libautodiag/com/uds/uds.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5311,6 +5398,8 @@ output/obj/test/libautodiag/com/vehicle_signal.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5382,6 +5471,8 @@ output/obj/test/libautodiag/expr.o: src/test/libautodiag/expr.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5452,6 +5543,8 @@ output/obj/test/libautodiag/hashmap.o: src/test/libautodiag/hashmap.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5522,6 +5615,8 @@ output/obj/test/libautodiag/initools.o: src/test/libautodiag/initools.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5592,6 +5687,8 @@ output/obj/test/libautodiag/lib.o: src/test/libautodiag/lib.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5662,6 +5759,8 @@ output/obj/test/libautodiag/model/iso3779.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5733,6 +5832,8 @@ output/obj/test/libautodiag/sim/ecu/generator/cycle.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5804,6 +5905,8 @@ output/obj/test/libautodiag/sim/ecu/generator/replay.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5874,6 +5977,8 @@ output/obj/test/libautodiag/sim/elm327/sim.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -5944,6 +6049,8 @@ output/obj/test/libautodiag/sim/elm327/uds.o: \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -6014,6 +6121,8 @@ output/obj/test/libautodiag/sim/sim.o: src/test/libautodiag/sim/sim.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -6084,6 +6193,8 @@ output/obj/test/libprog/config.o: src/test/libprog/config.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -6154,6 +6265,8 @@ output/obj/test/regression.o: src/test/regression.c \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \
@@ -6223,6 +6336,8 @@ output/obj/test/smoke.o: src/test/smoke.c src/testFixtures/libTest.h \
   include/main/libautodiag/com/uds/uds.h \
   include/main/libautodiag/com/uds/uds_service_read_dtc.h \
   include/main/libautodiag/com/uds/flash_utils.h \
+  dependencies/cJSON/cJSON.h \
+  include/main/libautodiag/dependencies/json.h \
   include/main/libautodiag/sim/sim.h \
   include/main/libautodiag/sim/doip/doip.h \
   include/main/libautodiag/com/doip/doip.h \

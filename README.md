@@ -69,10 +69,6 @@ Repairing modern vehicle is not always easy due to lake of free tools. The need 
 This is a light approach to fix vehicle because it reduces the amount of hardware required to work on it, only have to buy a small elm adaptater.
 This tool is inspired by [scantool](https://doc.ubuntu-fr.org/scantool).
 
-# Roadmap
-- Implement more UDS unlocks accross cars (currently only ECU sim unlockable)
-- Implement ecu emulating with loading firmware files
-
 # How 
 With low level c language everything is possible.  
 With unit test, the software will be reliable.  

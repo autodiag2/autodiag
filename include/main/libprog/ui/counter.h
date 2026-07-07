@@ -25,7 +25,7 @@ GtkWidget* counter_init_modifiable(GtkWidget* bar, char *pngName, bool isModifia
 double counter_get_fraction(GtkWidget *widget);
 char* counter_get_label(GtkWidget *widget);
 void counter_set_label(GtkWidget *widget, char* label);
-
+void counter_set_fraction(GtkWidget *widget, double fraction);
 #define COUNTER_REL_FILE_PATH_KEY "counter_rel_file_path"
 #define COUNTER_KEY_THROTTLE_LENGTH_ON_PICTURE "counter_throttle_length_on_picture"
 #define COUNTER_KEY_THROTTLE_R "counter_key_throttle_r"

@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define or ||
+#define and &&
 #define final
 #define null NULL
 #ifndef TRUE
