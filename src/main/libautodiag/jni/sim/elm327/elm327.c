@@ -135,8 +135,41 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseGuiByAddress(
 
     ecu->generator = sim_ecu_generator_new_gui(address);
 }
+JNIEXPORT jstring JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_simEcuToJson(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (sim == NULL) {
+        return NULL;
+    }
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+    if (ecu == NULL) {
+        return NULL;
+    }
+
+    cJSON *jsonObj = ad_object_SimECU_to_json(ecu);
+    if (jsonObj == NULL) {
+        return NULL;
+    }
+
+    char *jsonStr = cJSON_PrintUnformatted(jsonObj);
+    cJSON_Delete(jsonObj);
+
+    if (jsonStr == NULL) {
+        return NULL;
+    }
+
+    jstring result = (*env)->NewStringUTF(env, jsonStr);
+    free(jsonStr);
+
+    return result;
+}
 JNIEXPORT void JNICALL
-Java_com_github_autodiag2_elm327emu_libautodiag_sim_ecu_load_from_json(
+Java_com_github_autodiag2_elm327emu_libautodiag_simEcuLoadFromJson(
     JNIEnv *env,
     jobject thiz,
     jbyte address,
@@ -146,7 +179,7 @@ Java_com_github_autodiag2_elm327emu_libautodiag_sim_ecu_load_from_json(
     if (!sim) return;
 
     SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
-    const char * json_str = (*env)->GetStringUTFChars(env, type, null);
+    const char * json_str = (*env)->GetStringUTFChars(env, json, null);
     cJSON * jsonOBj = cJSON_Parse(json_str);
     ad_object_SimECU_from_json(ecu, jsonOBj);
 }
