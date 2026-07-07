@@ -16,9 +16,9 @@ AD_LIST_H(SimECU)
 #define LIST_SIM_ECU(var) ((ad_list_SimECU*)var)
 void ad_list_SimECU_empty(ad_list_SimECU * list);
 
-SimECU* sim_ecu_new(byte address);
+SimECU* sim_ecu_new(ECU_address address);
 Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest);
-SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, byte address);
+SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, ECU_address address);
 
 #define SIM_ECU_DEFAULT_ADDRESS 0xE8
 #define SIM_ECU_SCHEMA "autodiag/sim/ecu"
@@ -26,5 +26,13 @@ SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, byte address);
 
 cJSON * ad_object_SimECU_to_json(SimECU * ecu);
 bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json);
+
+typedef SimECUGenerator *(*SimECUGeneratorNewFunc)();
+/**
+ * Use this to add a generator type.
+ */
+void ad_object_SimECU_register_generator(
+    const char *name,
+    SimECUGeneratorNewFunc generator_new_func);
 
 #endif

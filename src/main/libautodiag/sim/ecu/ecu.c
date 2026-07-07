@@ -11,7 +11,7 @@ void ad_list_SimECU_empty(ad_list_SimECU * list) {
         ad_list_SimECU_remove_at(list, 0);
     }
 }
-SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, byte address) {
+SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, ECU_address address) {
     for(int i = 0; i < list->size; i++) {
         if ( list->list[i]->address == address ) {
             return list->list[i];
@@ -33,7 +33,7 @@ Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest) {
     return binResponse;
 }
 
-SimECU* sim_ecu_new(byte address) {
+SimECU* sim_ecu_new(ECU_address address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
@@ -43,9 +43,57 @@ SimECU* sim_ecu_new(byte address) {
 cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
     return null;
 }
+
+static ad_object_hashmap_string_Ptr *generators = NULL;
+
+static void ensureGeneratorsTable();
+
+static SimECUGenerator *generator_new(const char *name)
+{
+    ensureGeneratorsTable();
+
+    ad_object_Ptr *ptr = ad_object_hashmap_string_Ptr_get(
+        generators,
+        ad_object_string_new_from((char*)name)
+    );
+
+    if (ptr == null or ptr->value == null) {
+        return null;
+    }
+
+    SimECUGeneratorNewFunc func = (SimECUGeneratorNewFunc)ptr->value;
+    return func();
+}
+
+void ad_object_SimECU_register_generator(
+    const char *name,
+    SimECUGeneratorNewFunc generator_new_func)
+{
+    ensureGeneratorsTable();
+
+    ad_object_hashmap_string_Ptr_set(
+        generators,
+        ad_object_string_new_from((char*)name),
+        ad_object_Ptr_new_from((void *)generator_new_func)
+    );
+}
+
+static void ensureGeneratorsTable()
+{
+    if (generators != null) {
+        return;
+    }
+
+    generators = ad_object_hashmap_string_Ptr_new();
+
+    ad_object_SimECU_register_generator("random", sim_ecu_generator_new_random);
+    ad_object_SimECU_register_generator("cycle", sim_ecu_generator_new_cycle);
+    ad_object_SimECU_register_generator("CitroenC5X7", sim_ecu_generator_new_citroen_c5_x7);
+    ad_object_SimECU_register_generator("replay", sim_ecu_generator_new_replay);
+}
 bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     char * schema = cJSON_GetStringItem(json, "schema", "");
-    if ( strcmp(schema, SIM_ECU_SCHEMA) != 0 ) {
+    if ( strncmp(schema, SIM_ECU_SCHEMA, strlen(SIM_ECU_SCHEMA)) != 0 ) {
         log_msg(LOG_ERROR, "schema invalid : %s", schema);
         return false;
     }
@@ -65,8 +113,18 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     }
     ECU_address_assign(ecu->address, (ECU_address)address);
     char * displayName = cJSON_GetStringItem(json, "displayName", "");
+    char * type = schema + strlen(SIM_ECU_SCHEMA);
+    if ( *type == '/' ) {
+        type ++;
+    }
+    SimECUGenerator * gen = generator_new(type);
+    if ( gen == null ) {
+        log_msg(LOG_ERROR, "cannot instanciate gen type : %s", type);
+        return false;
+    }
+    ecu->generator = gen;
     if ( ecu->generator->from_json == null ) {
-        log_msg(LOG_WARNING, "no from json attached");
+        log_msg(LOG_WARNING, "cannot load the state from json function not defined");
         return false;
     }
     return ecu->generator->from_json(ecu->generator, content);
