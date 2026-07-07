@@ -6,6 +6,9 @@ char * cJSON_GetStringItem(cJSON * json, char * name, char * default_value) {
         return strdup(default_value);
     }
     char * value = cJSON_GetStringValue(item);
+    if ( value == null ) {
+        return strdup(default_value);
+    }
     return value;
 }
 double cJSON_GetNumberItem(cJSON * json, char * name) {

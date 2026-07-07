@@ -100,6 +100,8 @@ cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
     return json;
 }
 bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
+    assert(ecu != null);
+    assert(json != null);
     char * schema = cJSON_GetStringItem(json, "schema", "");
     if ( strncmp(schema, SIM_ECU_SCHEMA, strlen(SIM_ECU_SCHEMA)) != 0 ) {
         log_msg(LOG_ERROR, "schema invalid : %s", schema);
@@ -125,6 +127,7 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
     if ( *type == '/' ) {
         type ++;
     }
+
     if ( ecu->generator == null || strcmp(type, ecu->generator->type) != 0 ) {
         SimECUGenerator * gen = generator_new(type);
         if ( gen == null ) {
@@ -132,10 +135,10 @@ bool ad_object_SimECU_from_json(SimECU * ecu, cJSON * json) {
             return false;
         }
         ecu->generator = gen;
-        if ( ecu->generator->from_json == null ) {
-            log_msg(LOG_WARNING, "cannot load the state from json function not defined");
-            return false;
-        }
+    }
+    if ( ecu->generator->from_json == null ) {
+        log_msg(LOG_WARNING, "cannot load the state from json function not defined");
+        return false;
     }
     return ecu->generator->from_json(ecu->generator, content);
 }
