@@ -1,7 +1,6 @@
 #include "libautodiag/sim/ecu/generator.h"
 
 #define SIM_ECU_GENERATOR_CITROEN_C5_X7_VIN "VF1BB05CF26010203"
-#define SIM_ECU_GENERATOR_CITROEN_C5_X7_TYPE "Citroen C5 X7"
 
 typedef struct {
     Buffer * vin;

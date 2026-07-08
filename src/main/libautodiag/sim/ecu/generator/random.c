@@ -102,12 +102,13 @@ static cJSON * to_json(SimECUGenerator * this) {
     }
     return json;
 }
+
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
     generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
-    generator->type = strdup("random");
+    generator->type = strdup(SIM_ECU_GENERATOR_RANDOM_TYPE);
     generator->flavour.is_Iso15765_4 = 0;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;

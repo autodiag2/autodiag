@@ -263,7 +263,7 @@ static bool from_json(SimECUGenerator * this, cJSON * content) {
 SimECUGenerator* sim_ecu_generator_new_gui() {
     SimECUGenerator * generator = sim_ecu_generator_new();
     generator->response = SIM_ECU_GENERATOR_RESPONSE(response);
-    generator->type = strdup("gui");
+    generator->type = strdup(SIM_ECU_GENERATOR_GUI_TYPE);
     generator->flavour.is_Iso15765_4 = 0;
     generator->response_saej1979_pid = response_saej1979_pid;
     generator->response_saej1979_dtcs = response_saej1979_dtcs;

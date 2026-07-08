@@ -128,21 +128,21 @@ int sim_doip_cli_main(int argc, char **argv) {
             if ( arg == null ) {
                 printf("give the context to the -c, cannot be empty\n");
                 return 0;
-            } else if ( strcasecmp(generator->type, "random") == 0 ) {
+            } else if ( strcasecmp(generator->type, SIM_ECU_GENERATOR_RANDOM_TYPE) == 0 ) {
                 unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                 generator->context = context; 
                 if ( sscanf(arg, "%u", context) != 1 ) {
                     printf("Expected unsigned context for random generator, context is used as the seed\n");
                     return 1;
                 }
-            } else if ( strcasecmp(generator->type, "cycle") == 0 ) {
+            } else if ( strcasecmp(generator->type, SIM_ECU_GENERATOR_CYCLE_TYPE) == 0 ) {
                 unsigned *context = (unsigned*)malloc(sizeof(unsigned));
                 generator->context = context; 
                 if ( sscanf(arg, "%u", context) != 1 ) {
                     printf("Expected unsigned number of gears for cycle of generator\n");
                     return 1;
                 }
-            } else if ( strcasecmp(generator->type, "replay") == 0 ) {
+            } else if ( strcasecmp(generator->type, SIM_ECU_GENERATOR_REPLAY_TYPE) == 0 ) {
                 generator->context = strdup(arg);
             } else {
                 printf("Generator type %s as no user definable context\n", generator->type);

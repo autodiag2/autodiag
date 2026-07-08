@@ -55,7 +55,7 @@
             "response",
             "([B)[B"
         );
-        generator->type = strdup("ByteArray");
+        generator->type = strdup(SIM_ECU_GENERATOR_TYPE_ARRAY);
         generator->context = ctx;
         generator->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
         generator->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);

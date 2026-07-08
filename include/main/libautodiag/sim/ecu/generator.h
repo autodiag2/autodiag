@@ -108,4 +108,11 @@ SimECUGenerator* sim_ecu_generator_new_replay();
 #define SIM_ECU_GENERATOR_FROM_JSON(f) ((bool (*)(SimECUGenerator*,cJSON*))f)
 #define SIM_ECU_GENERATOR_TO_JSON(f) ((cJSON* (*)(SimECUGenerator*))f)
 
+#define SIM_ECU_GENERATOR_RANDOM_TYPE "random"
+#define SIM_ECU_GENERATOR_CYCLE_TYPE "cycle"
+#define SIM_ECU_GENERATOR_GUI_TYPE "gui"
+#define SIM_ECU_GENERATOR_CITROEN_C5_X7_TYPE "citroen_c5_x7"
+#define SIM_ECU_GENERATOR_REPLAY_TYPE "replay"
+#define SIM_ECU_GENERATOR_TYPE_ARRAY "bytearray"
+
 #endif

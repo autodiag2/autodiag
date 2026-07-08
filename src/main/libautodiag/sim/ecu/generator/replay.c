@@ -156,7 +156,7 @@ SimECUGenerator* sim_ecu_generator_new_replay() {
     g->response = SIM_ECU_GENERATOR_RESPONSE(response);
     g->context_load_from_string = SIM_ECU_GENERATOR_CONTEXT_LOAD_FROM_STRING(context_load_from_string);
     g->context_to_string = SIM_ECU_GENERATOR_CONTEXT_TO_STRING(context_to_string);
-    g->type = strdup("replay");
+    g->type = strdup(SIM_ECU_GENERATOR_REPLAY_TYPE);
     g->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
     init_state(g);
     return g;
