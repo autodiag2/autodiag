@@ -197,6 +197,25 @@ Java_com_github_autodiag2_elm327emu_libautodiag_simEcuLoadFromJson(
     ad_object_SimECU_from_json(ecu, jsonOBj);
 }
 JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeByAddress(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address,
+    jstring type
+) {
+    jstring empty = (*env)->NewStringUTF(env, "");
+
+    Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
+        env,
+        thiz,
+        address,
+        type,
+        empty
+    );
+
+    (*env)->DeleteLocalRef(env, empty);
+}
+JNIEXPORT void JNICALL
 Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
     JNIEnv *env,
     jobject thiz,
