@@ -87,7 +87,20 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     return sscanf(context, "%d", seed) == 1;
 }
 static bool from_json(SimECUGenerator * this, cJSON * context) {
+    double seed = cJSON_GetNumberItem(context, "seed");
+    if ( seed != NAN ) {
+        unsigned * seed_ctx = (unsigned *)this->context;
+        assert(seed_ctx != null);
+        *seed_ctx = (unsigned)seed;
+    }
     return true;
+}
+static cJSON * to_json(SimECUGenerator * this) {
+    cJSON * json = cJSON_CreateObject();
+    if ( this->context != null ) {
+        cJSON_AddNumberToObject(json, "seed",(double)*((unsigned *)this->context));
+    }
+    return json;
 }
 SimECUGenerator* sim_ecu_generator_new_random() {
     SimECUGenerator * generator = sim_ecu_generator_new();
@@ -100,6 +113,7 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     generator->response_saej1979_dtcs = response_saej1979_dtcs;
     generator->response_saej1979_vehicle_identification_request_info_type = response_saej1979_vehicle_identification_request_info_type;
     generator->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
+    generator->to_json = SIM_ECU_GENERATOR_TO_JSON(to_json);
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;
