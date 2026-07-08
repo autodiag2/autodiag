@@ -84,7 +84,7 @@ static void ensureGeneratorsTable()
 
     ad_object_SimECU_register_generator("random", sim_ecu_generator_new_random);
     ad_object_SimECU_register_generator("cycle", sim_ecu_generator_new_cycle);
-    ad_object_SimECU_register_generator("CitroenC5X7", sim_ecu_generator_new_citroen_c5_x7);
+    ad_object_SimECU_register_generator("citroen_c5_x7", sim_ecu_generator_new_citroen_c5_x7);
     ad_object_SimECU_register_generator("replay", sim_ecu_generator_new_replay);
 }
 
