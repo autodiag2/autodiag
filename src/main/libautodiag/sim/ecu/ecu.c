@@ -87,9 +87,17 @@ static void ensureGeneratorsTable()
     ad_object_SimECU_register_generator("CitroenC5X7", sim_ecu_generator_new_citroen_c5_x7);
     ad_object_SimECU_register_generator("replay", sim_ecu_generator_new_replay);
 }
+
 cJSON * ad_object_SimECU_to_json(SimECU * ecu) {
+    assert(ecu != null);
     cJSON * json = cJSON_CreateObject();
-    cJSON_AddStringToObject(json, "schema", SIM_ECU_SCHEMA);
+    if ( ecu->generator == null ) {
+        log_err("generator not attached");
+        return json;
+    }
+    char * schema = gprintf("%s/%s", SIM_ECU_SCHEMA, ecu->generator->type);
+    cJSON_AddStringToObject(json, "schema", schema);
+    free(schema);
     cJSON_AddNumberToObject(json, "version", SIM_ECU_SCHEMA_VERSION);
     cJSON * content = cJSON_AddObjectToObject(json, "content");
     cJSON_AddStringToObject(content, "displayName", "");

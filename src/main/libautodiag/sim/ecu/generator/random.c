@@ -86,12 +86,12 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     unsigned * seed = this->context;
     return sscanf(context, "%d", seed) == 1;
 }
-static bool from_json(SimECUGenerator * this, cJSON * context) {
-    double seed = cJSON_GetNumberItem(context, "seed");
-    if ( seed != NAN ) {
-        unsigned * seed_ctx = (unsigned *)this->context;
-        assert(seed_ctx != null);
-        *seed_ctx = (unsigned)seed;
+static bool from_json(SimECUGenerator * this, cJSON * content) {
+    double seed_item = cJSON_GetNumberItem(content, "seed");
+    if ( seed_item != NAN ) {
+        unsigned * seed = (unsigned *)this->context;
+        assert(seed != null);
+        *seed = (unsigned)seed_item;
     }
     return true;
 }

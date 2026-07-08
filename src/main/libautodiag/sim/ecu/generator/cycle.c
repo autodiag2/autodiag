@@ -114,12 +114,12 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     unsigned * gears = this->context;
     return sscanf(context, "%d", gears) == 1;
 }
-static bool from_json(SimECUGenerator * this, cJSON * context) {
-    double gears = cJSON_GetNumberItem(context, "gears");
-    if ( gears != NAN ) {
-        unsigned * gears_ctx = (unsigned *)this->context;
-        assert(gears_ctx != null);
-        *gears_ctx = (unsigned)gears;
+static bool from_json(SimECUGenerator * this, cJSON * content) {
+    double gears_item = cJSON_GetNumberItem(content, "gears");
+    if ( gears_item != NAN ) {
+        unsigned * gears = (unsigned *)this->context;
+        assert(gears != null);
+        *gears = (unsigned)gears_item;
     }
     return true;
 }
