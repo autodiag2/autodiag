@@ -1,12 +1,19 @@
 #include "libautodiag/sim/ecu/generator.h"
 
+typedef struct {
+    bool use_signals;
+} GState;
+
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     unsigned * seed = generator->context;
     return ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 1, seed);
 }
+
 static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
+    assert(generator != null);
     Buffer * binResponse = ad_buffer_new();
-    // Should append only bytes according to the PID, but for simplicity we just append random data
+    GState * state = (GState*)generator->state;
+    assert(state != null);
     switch(pid) {
         case 0xC0:
         case 0xA0:
@@ -19,6 +26,19 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
         } break;
         default: {
             unsigned * seed = generator->context;
+             if ( state->use_signals ) {
+                ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
+                if ( signal != null ) {
+                    double percent = math_rand_double_1_0(seed);
+                    double value = signal->rv_max - signal->rv_min;
+                    value = (percent * value) + signal->rv_min;
+                    Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
+                    if ( signal_inverted != null ) {
+                        ad_buffer_append_melt(binResponse, signal_inverted);
+                        return binResponse;
+                    }
+                }
+            }
             ad_buffer_append_melt(binResponse,
                 ad_buffer_new_random_with_seed(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2, seed));
         } break;
@@ -87,20 +107,29 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     return sscanf(context, "%d", seed) == 1;
 }
 static bool from_json(SimECUGenerator * this, cJSON * content) {
+    assert(this != null);
+    assert(content != null);
+    GState * state = (GState*)this->state;
+    assert(state != null);
     double seed_item = cJSON_GetNumberItem(content, "seed");
     if ( seed_item != NAN ) {
         unsigned * seed = (unsigned *)this->context;
         assert(seed != null);
         *seed = (unsigned)seed_item;
     }
+    state->use_signals = cJSON_GetBoolItem(content, "use_signals", false);
     return true;
 }
 static cJSON * to_json(SimECUGenerator * this) {
-    cJSON * json = cJSON_CreateObject();
+    assert(this != null);
+    GState * state = (GState*)this->state;
+    assert(state != null);
+    cJSON * content = cJSON_CreateObject();
     if ( this->context != null ) {
-        cJSON_AddNumberToObject(json, "seed",(double)*((unsigned *)this->context));
+        cJSON_AddNumberToObject(content, "seed",(double)*((unsigned *)this->context));
     }
-    return json;
+    cJSON_AddBoolToObject(content, "use_signals", state->use_signals);
+    return content;
 }
 
 SimECUGenerator* sim_ecu_generator_new_random() {
@@ -118,5 +147,8 @@ SimECUGenerator* sim_ecu_generator_new_random() {
     unsigned * seed = (unsigned*)malloc(sizeof(unsigned));
     *seed = 1;
     generator->context = seed;
+    generator->state = (GState*)malloc(sizeof(GState));
+    GState * state = (GState*)generator->state;
+    state->use_signals = false;
     return generator;
 }

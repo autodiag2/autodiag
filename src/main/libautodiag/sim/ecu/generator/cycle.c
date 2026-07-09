@@ -2,6 +2,7 @@
 
 typedef struct {
     byte cycle_percent[256][256];
+    bool use_signals;
 } GState;
 static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
     GState * state = (GState*)generator->state;
@@ -11,7 +12,6 @@ static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_i
 static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
     Buffer * binResponse = ad_buffer_new();
     GState * state = (GState*)generator->state;
-    // Should append only bytes according to the PID, but for simplicity we just append random data
     switch(pid) {
         case 0xC0:
         case 0xA0:
@@ -23,12 +23,28 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
             ad_buffer_append_melt(binResponse, ad_buffer_from_ascii_hex("FFFFFFFF"));
         } break;
         default: {
+            if ( state->use_signals ) {
+                ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
+                if ( signal != null ) {
+                    byte percent_byte = state->cycle_percent[
+                        frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
+                    ][pid];
+                    double percent = percent_byte / (1.0 * 256);
+                    double value = signal->rv_max - signal->rv_min;
+                    value = (percent * value) + signal->rv_min;
+                    Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
+                    if ( signal_inverted != null ) {
+                        ad_buffer_append_melt(binResponse, signal_inverted);
+                        return binResponse;
+                    }
+                }
+            }
             ad_buffer_append_melt(binResponse,
-                            ad_buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2,
-                                state->cycle_percent[
-                                    frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
-                                ][pid])
-                        );
+                ad_buffer_new_cycle(ISO_15765_SINGLE_FRAME_DATA_BYTES - 2,
+                    state->cycle_percent[
+                        frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
+                    ][pid])
+            );
         } break;
     }
     return binResponse;
@@ -115,20 +131,29 @@ static bool context_load_from_string(SimECUGenerator * this, char * context) {
     return sscanf(context, "%d", gears) == 1;
 }
 static bool from_json(SimECUGenerator * this, cJSON * content) {
+    assert(this != null);
+    assert(content != null);
+    GState * state = (GState*)this->state;
+    assert(state != null);
     double gears_item = cJSON_GetNumberItem(content, "gears");
     if ( gears_item != NAN ) {
         unsigned * gears = (unsigned *)this->context;
         assert(gears != null);
         *gears = (unsigned)gears_item;
     }
+    state->use_signals = cJSON_GetBoolItem(content, "use_signals", false);
     return true;
 }
 static cJSON * to_json(SimECUGenerator * this) {
-    cJSON * json = cJSON_CreateObject();
+    assert(this != null);
+    GState * state = (GState*)this->state;
+    assert(state != null);
+    cJSON * content = cJSON_CreateObject();
     if ( this->context != null ) {
-        cJSON_AddNumberToObject(json, "gears",(double)*((unsigned *)this->context));
+        cJSON_AddNumberToObject(content, "gears",(double)*((unsigned *)this->context));
     }
-    return json;
+    cJSON_AddBoolToObject(content, "use_signals", state->use_signals);
+    return content;
 }
 SimECUGenerator* sim_ecu_generator_new_cycle() {
     SimECUGenerator * generator = sim_ecu_generator_new();
@@ -143,6 +168,7 @@ SimECUGenerator* sim_ecu_generator_new_cycle() {
     generator->from_json = SIM_ECU_GENERATOR_FROM_JSON(from_json);
     generator->to_json = SIM_ECU_GENERATOR_TO_JSON(to_json);
     GState * state = (GState*)calloc(1, sizeof(GState));
+    state->use_signals = false;
     generator->state = (void*)state;
     unsigned * gears = (unsigned*)malloc(sizeof(unsigned));
     *gears = 10;

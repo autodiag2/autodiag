@@ -18,13 +18,19 @@ double cJSON_GetNumberItem(cJSON * json, char * name) {
     }
     return cJSON_GetNumberValue(item);
 }
-bool cJSON_GetBoolItem(cJSON * json, char * name, bool default_value) {
-    double value = cJSON_GetNumberItem(json, name);
-    if ( value == 1.0 ) {
-        return true;
+bool cJSON_GetBoolItem(cJSON *json, char *name, bool default_value) {
+    if (json == NULL || name == NULL) {
+        return default_value;
     }
-    if ( value == 0.0 ) {
-        return false;
+
+    cJSON *item = cJSON_GetObjectItemCaseSensitive(json, name);
+    if (item == NULL) {
+        return default_value;
     }
+
+    if (cJSON_IsBool(item)) {
+        return cJSON_IsTrue(item);
+    }
+
     return default_value;
 }

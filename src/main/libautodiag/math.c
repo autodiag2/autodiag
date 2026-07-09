@@ -11,3 +11,7 @@ int math_rand_r(unsigned *seed) {
     *seed = next;
     return result;
 }
+
+double math_rand_double_1_0(unsigned * seed) {
+    return (double)math_rand_r(seed) / MATH_RAND_R_MAX;
+}
