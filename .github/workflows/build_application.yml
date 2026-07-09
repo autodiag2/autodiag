@@ -49,9 +49,6 @@ jobs:
             sudo dnf install -y make gcc gcc-c++ glibc-devel gtk3 gtk3-devel git rpm-build rpmdevtools cpio
           fi
 
-      - name: Clone external database
-        run: git clone --depth=1 https://github.com/autodiag2/database data || true
-
       - name: Submodule update
         run: git submodule update --init --recursive || true
 
@@ -104,10 +101,6 @@ jobs:
           mkdir -p pyautodiag/autodiag/libs
           cd pyautodiag/autodiag/libs
           gh release download "$tag" --pattern "*.so" --pattern "*.dylib" --pattern "*.dll" --repo "$GITHUB_REPOSITORY"
-
-      - name: Clone database
-        run: |
-          git clone --depth 1 https://github.com/autodiag2/database pyautodiag/autodiag/data
 
       - name: Build Python package
         working-directory: pyautodiag
