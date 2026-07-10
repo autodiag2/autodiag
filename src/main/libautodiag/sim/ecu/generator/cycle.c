@@ -29,7 +29,7 @@ static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid
                     byte percent_byte = state->cycle_percent[
                         frameNumber == AD_SAEJ1979_DATA_FRAME_LIVE ? OBD_SERVICE_SHOW_CURRENT_DATA : OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA
                     ][pid];
-                    double percent = percent_byte / (1.0 * 256);
+                    double percent = percent_byte / (100.0);
                     double value = signal->rv_max - signal->rv_min;
                     value = (percent * value) + signal->rv_min;
                     Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
