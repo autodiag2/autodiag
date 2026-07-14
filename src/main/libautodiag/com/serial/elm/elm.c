@@ -223,6 +223,9 @@ bool elm_ensure_protocol_config_success(final ELMDevice* elm, final int protocol
     do {
         elm->send(AD_DEVICE(elm), testerOrder);
         elm->clear_data(AD_DEVICE(elm));
+        if ( 3 <= elm->protocol && elm->protocol <= 5 ) {
+            usleep(1000 * 3000); // SIM_ELM327_ISO_BUS_INIT_SLOW_MS
+        }
         final int detectionResult = elm->recv(AD_DEVICE(elm));
         if ( detectionResult == DEVICE_RECV_DATA ) {
             sanityCheck = true;

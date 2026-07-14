@@ -12,6 +12,7 @@ void testAutomaticMode() {
     ELM327Device * device = (ELM327Device *)iface->device;
     device->protocol = ELM327_PROTO_AUTOMATIC;
     iface->send(iface, ad_buffer_from_ascii_hex("0100"));
+    usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
     iface->clear_data(iface);
     iface->recv(iface);
     device->fetch_protocol(device);
@@ -30,6 +31,7 @@ void testNODTCcountonSAEJ1979() {
     ELM327Device * device = (ELM327Device *)iface->device;
     device->protocol = ELM327_PROTO_ISO_14230_4_KWP2000_2;
     iface->send(iface, ad_buffer_from_ascii_hex("03"));
+    usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
     iface->clear_data(iface);
     iface->recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
@@ -53,6 +55,7 @@ void testDTCcountonSAEJ1979() {
     ELM327Device * device = (ELM327Device *)iface->device;
     device->protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
     iface->send(iface, ad_buffer_from_ascii_hex("03"));
+    usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
     iface->clear_data(iface);
     iface->recv(iface);
     assert(iface->vehicle->data_buffer->size == 1);
@@ -78,6 +81,7 @@ void testKWP2000LongMessages() {
     device->protocol = ELM327_PROTO_ISO_14230_4_KWP2000_2;
     iface->send(iface, ad_buffer_from_ascii_hex("01010101010101010101010101"));
     iface->clear_data(iface);
+    usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
     iface->recv(iface);
     assert(0 < iface->vehicle->data_buffer->size);
     iface->unlock(iface);
@@ -113,6 +117,7 @@ void testSimELM327_1() {
             {
                 viface_send_str(iface,"0101");
                 viface_clear_data(iface);
+                usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
                 viface_recv(iface);
                 assert(iface->vehicle->data_buffer->size == 3);
 
@@ -141,6 +146,7 @@ void testSimELM327_1() {
         {
             viface_send_str(iface,"0101");
             viface_clear_data(iface);
+            usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
             viface_recv(iface);
             assert(iface->vehicle->data_buffer->size == 3);
             
@@ -417,6 +423,7 @@ bool testSimELM327() {
         iface->device->recv(iface->device);
         viface_clear_data(iface);
         iface->device->send(iface->device,"0902");
+        usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
         iface->device->recv(iface->device);
         final Serial* serial = (Serial*)iface->device;
         assert(strstr(serial->recv_buffer->buffer, "020") != null);

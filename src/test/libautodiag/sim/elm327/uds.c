@@ -20,6 +20,7 @@ void testMultiplePIDsPerFrame() {
         iface->unlock(iface);
         iface->send(iface, ad_buffer_from_ascii_hex("010100"));
         iface->clear_data(iface);
+        usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
         iface->recv(iface);
         assert(iface->vehicle->data_buffer->size == 1);
         Buffer * data_buffer = iface->vehicle->data_buffer->list[0];
@@ -38,6 +39,7 @@ void testMultiplePIDsPerFrame() {
         iface->unlock(iface);
         iface->send(iface, ad_buffer_from_ascii_hex("010100"));
         iface->clear_data(iface);
+        usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
         iface->recv(iface);
         assert(iface->vehicle->data_buffer->size == 1);
         Buffer * data_buffer = iface->vehicle->data_buffer->list[0];

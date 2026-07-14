@@ -343,7 +343,13 @@ char * sim_elm327_hex_string_request_reduce(SimELM327 * elm327, char * hex_strin
     int j = 0;
     for(int i = 0; i < strlen(hex_string_request); i++) {
         char c = hex_string_request[i];
-        if ( c == ' ' || strstr(elm327->eol, &c) != null ) {
+        bool isEol = false;
+        for(int k = 0; k < strlen(elm327->eol); k++) {
+            if ( elm327->eol[k] == c ) {
+                isEol = true;
+            }
+        }
+        if ( c == ' ' || isEol ) {
 
         } else {
             result[j++] = c;
@@ -384,10 +390,10 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
         }
         if ( response_needed ) {
-            response = gprintf("BUS INIT: OK%s", elm327->eol);
+            response = gprintf("BUS INIT: OK");
         } else {
             if ( ! elm327->iso.bus_initialized ) {
-                return gprintf("BUS INIT: ...%s", elm327->eol);
+                return gprintf("BUS INIT: ...");
             }
         }
     }
@@ -398,7 +404,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
     int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
     if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
-        log_msg(LOG_DEBUG, "Ignoring optimization request");
+        log_msg(LOG_DEBUG, "Ignoring optimization request '%s'", hex_string_req_reduced);
         hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
     }
     elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);

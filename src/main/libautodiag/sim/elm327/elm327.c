@@ -352,7 +352,7 @@ bool sim_elm327_reply(SimELM327 * elm327, char * ad_serial_request, char * ad_se
         asprintf(&response,"%s%s%s%s%s",
             elm327->echo ? ad_serial_request : "", elm327->echo ? elm327->eol : "", 
             ad_serial_response,
-            elm327->eol,
+            omitPrompt ? "" : elm327->eol,
             omitPrompt ? "" : SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
         );
     } else {
@@ -854,11 +854,15 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
         } else {
             if ( 3 <= elm327->protocolRunning && elm327->protocolRunning <= 5 ) {
                 if AT_PARSE("fi") {
+                    SIM_ELM327_REPLY_FULL(true, true, "BUS INIT: ...");
                     usleep(SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS * 1000);
-                    SIM_ELM327_REPLY_GENERIC("BUS INIT: ...OK");
+                    SIM_ELM327_REPLY_FULL(false, true, "OK%s>", elm327->eol);
+                    elm327->iso.bus_initialized = true;
                 } else if AT_PARSE("si") {
+                    SIM_ELM327_REPLY_FULL(true, true, "BUS INIT: ...");
                     usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
-                    SIM_ELM327_REPLY_GENERIC("BUS INIT: ...OK");
+                    SIM_ELM327_REPLY_FULL(false, true, "OK%s>", elm327->eol);
+                    elm327->iso.bus_initialized = true;
                 } else {
                     char * response = sim_elm327_bus(elm327,ad_serial_request);
                     if ( response != null ) {
@@ -866,6 +870,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
                         set_last_bin_command(ad_serial_request);
                         SIM_ELM327_REPLY_FULL(true, omit_prompt, "%s", response);
                         free(response);
+                        if ( omit_prompt ) {
+                            usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
+                            SIM_ELM327_REPLY_FULL(false, true, "OK");
+                            elm327->iso.bus_initialized = true;
+                            response = sim_elm327_bus(elm327,ad_serial_request);
+                            assert(response != null);
+                            SIM_ELM327_REPLY_FULL(false, true, "%s%s>", response, elm327->eol);
+                        }
                     }                
                 }
             } else {
