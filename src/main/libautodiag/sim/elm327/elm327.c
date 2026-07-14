@@ -77,8 +77,13 @@ void sim_elm327_set_baud_rate_divisor_timeout(final SimELM327 * elm327, final in
  * Init an emulation loading settings from nvm
  */
 void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type) {
+    assert(elm327 != null);
     elm327->nvm.user_memory = 0;
 
+    if ( type == SIM_ELM327_INIT_TYPE_POWER_OFF || type == SIM_ELM327_INIT_TYPE_RESET ) {
+        elm327->iso.bus_init_start = 0;
+        elm327->iso.bus_initialized = false;
+    }
     if ( type == SIM_ELM327_INIT_TYPE_POWER_OFF ) {
         elm327->nvm.programmable_parameters = ad_buffer_new();
         elm327->nvm.programmable_parameters_states = ad_buffer_new();
@@ -341,14 +346,14 @@ bool sim_elm327_receive(SimELM327 * elm327, final Buffer * buffer, int timeout) 
     ad_buffer_ensure_termination(buffer);
     return true;
 }
-bool sim_elm327_reply(SimELM327 * elm327, char * ad_serial_request, char * ad_serial_response, final bool isGeneric) {
+bool sim_elm327_reply(SimELM327 * elm327, char * ad_serial_request, char * ad_serial_response, final bool isGeneric, final bool omitPrompt) {
     char * response;
     if ( isGeneric ) {
         asprintf(&response,"%s%s%s%s%s",
             elm327->echo ? ad_serial_request : "", elm327->echo ? elm327->eol : "", 
             ad_serial_response,
             elm327->eol,
-            SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
+            omitPrompt ? "" : SerialResponseStr[SERIAL_RESPONSE_PROMPT-SerialResponseOffset]
         );
     } else {
         asprintf(&response,"%s%s", ad_serial_response, elm327->eol);
@@ -382,11 +387,12 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
     
     #define AT_PARSE(atpart) (command_reduced != null && strcasebeginwith(command_reduced, atpart) && ((last_index = strlen(atpart)) >= 0))
     #define AT_DATA_START command_reduced+last_index
-    #define SIM_ELM327_REPLY(isGeneric, ...) \
+    #define SIM_ELM327_REPLY(isGeneric, ...) SIM_ELM327_REPLY_FULL(isGeneric, false, __VA_ARGS__)
+    #define SIM_ELM327_REPLY_FULL(isGeneric, omitPrompt, ...) \
         if ( ! preventWrite ) { \
             char *ad_serial_response; \
             asprintf(&ad_serial_response, __VA_ARGS__); \
-            if ( ! sim_elm327_reply(elm327, ad_serial_request, ad_serial_response, isGeneric) ) { \
+            if ( ! sim_elm327_reply(elm327, ad_serial_request, ad_serial_response, isGeneric, omitPrompt) ) { \
                 char * ad_serial_request_str = ascii_escape_breaking_chars(ad_serial_request); \
                 char * ad_serial_response_str = ascii_escape_breaking_chars(ad_serial_response); \
                 log_msg(LOG_ERROR, "Error while trying to reply to the command '%s' by '%s'", \
@@ -848,14 +854,17 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
         } else {
             if ( 3 <= elm327->protocolRunning && elm327->protocolRunning <= 5 ) {
                 if AT_PARSE("fi") {
-                    SIM_ELM327_REPLY_OK();
+                    usleep(SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS * 1000);
+                    SIM_ELM327_REPLY_GENERIC("BUS INIT: ...OK");
                 } else if AT_PARSE("si") {
-                    SIM_ELM327_REPLY_OK();
+                    usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
+                    SIM_ELM327_REPLY_GENERIC("BUS INIT: ...OK");
                 } else {
                     char * response = sim_elm327_bus(elm327,ad_serial_request);
                     if ( response != null ) {
+                        bool omit_prompt = ! elm327->iso.bus_initialized;
                         set_last_bin_command(ad_serial_request);
-                        SIM_ELM327_REPLY_GENERIC("%s", response);
+                        SIM_ELM327_REPLY_FULL(true, omit_prompt, "%s", response);
                         free(response);
                     }                
                 }
@@ -1114,7 +1123,7 @@ void sim_elm327_loop(SimELM327 * elm327) {
         free(buffer_str);
         
         if ( ! sim_elm327_command_and_protocol_interpreter(elm327, strdup((char*)recv_buffer->buffer), false, &shouldWriteNvm) ) {
-            if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true) ) {
+            if ( ! sim_elm327_reply(elm327, (char *)recv_buffer->buffer, ELMResponseStr[ELM_RESPONSE_UNKNOWN-ELMResponseOffset], true, false) ) {
                 log_msg(LOG_ERROR, "Error while trying to send, exiting the loop");
                 return;
             }

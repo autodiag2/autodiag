@@ -53,6 +53,9 @@ typedef enum {
 } SimELM327_DEVICE_TYPE;
 SimELM327_DEVICE_TYPE sim_elm327_device_type_from_str(char * str);
 
+#define SIM_ELM327_ISO_BUS_INIT_SLOW_MS 3000
+#define SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS 1000 
+
 typedef struct _SimELM327 {
     Sim;
     SimELM327_DEVICE_TYPE device_type;
@@ -117,6 +120,20 @@ typedef struct _SimELM327 {
         int timeout_multiplier;
         bool display_dlc;
     } can;
+
+    /**
+     * Protos 3 to 5
+     */
+    struct {
+        /**
+         * Does the bus is initialized correctly
+         */
+        bool bus_initialized;
+        /**
+         * ms of the start of init
+         */
+        uint64_t bus_init_start;
+    } iso;
 
     /**
      * Is non volatile memory enabled

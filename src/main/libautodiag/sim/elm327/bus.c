@@ -352,178 +352,210 @@ char * sim_elm327_hex_string_request_reduce(SimELM327 * elm327, char * hex_strin
     result[j] = 0x00;
     return result;
 }
+bool elm327_protocol_is_iso(int protocol) {
+    return ELM327_PROTO_ISO_9141_2 <= protocol && protocol <= ELM327_PROTO_ISO_14230_4_KWP2000_2;
+}
+
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
-    char *response = null;
     bool isHexString = true;
     sim_elm327_parse_request(elm327, hex_string_request, &isHexString, null);
-    if ( isHexString && elm327->responses ) {
-        
-        final Buffer * dataRequest = ad_buffer_new();
-        char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
-        int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
-        if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
-            log_msg(LOG_DEBUG, "Ignoring optimization request");
-            hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
-        }
-        elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);
-        free(hex_string_req_reduced);
-        log_msg(LOG_DEBUG, "TODO: handle multiple data request");
-        for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
-            SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
-
-            if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
-                if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
-                    continue;
+    if ( ! isHexString ) {
+        return null;
+    }
+    char *response = strdup("");
+    if ( elm327_protocol_is_iso(elm327->protocolRunning) ) {
+        bool response_needed = false;
+        if ( ! elm327->iso.bus_initialized ) {
+            if ( elm327->iso.bus_init_start == 0 ) {
+                elm327->iso.bus_init_start = time_ms();
+            }
+            
+            if ( SIM_ELM327_ISO_BUS_INIT_SLOW_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+                elm327->iso.bus_initialized = true;
+                response_needed = true;
+            }
+            if ( elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_1 || 
+                elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_2
+            ) {
+                if ( SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+                    elm327->iso.bus_initialized = true;
+                    response_needed = true;
                 }
-            }
-
-            ad_list_Buffer * requestFrames = request_frames(elm327, ecu, dataRequest);
-
-            char * errorCauseReturn;
-            final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, requestFrames, &errorCauseReturn);
-            ad_list_Buffer_free(requestFrames);
-            if ( extractedDataRequest == null ) {
-                response = errorCauseReturn;
-                break;
-            }
-            if ( extractedDataRequest->size == 0 ) {
-                log_msg(LOG_DEBUG, "Not addressed to this ECU");
-                continue;
-            }
-            char * ecuResponse = null;
-            ecu->generator->flavour.is_Iso15765_4 = elm327_protocol_is_can(elm327->protocolRunning);
-            final Buffer * dataResponse = sim_ecu_response(ecu,extractedDataRequest);
-
-            assert(dataResponse != null);
-            if ( extractedDataRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
-                if ( 0 < dataResponse->size ) {
-                    if ( (dataResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
-                        log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
-                        ad_buffer_recycle(dataResponse);
-                        ecuResponse = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
-                    }
-                }
-            }
-            ad_buffer_free(extractedDataRequest);
-            if ( ecuResponse == null && 0 < dataResponse->size ) {
-                ad_list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
-
-                if ( ! elm327->printing_of_headers ) {
-                    if ( 1 < frames->size ) {
-                        log_msg(LOG_DEBUG, "Should add the multiple single frames format");
-                        asprintf(&ecuResponse, "%03d%s", dataResponse->size, elm327->eol);
-                    }
-                }
-                for(int frame_idx = 0; frame_idx < frames->size; frame_idx++) {
-                    Buffer * frame = frames->list[frame_idx];
-                    char * header = null;
-                    Buffer * headerBin = response_frame_extract_header(elm327, frame);
-                    if ( elm327->printing_of_headers ) {
-                        header = elm327_response_header_str(elm327, headerBin);
-                    } else {
-                        if ( elm327_protocol_is_can(elm327->protocolRunning) && 1 < frames->size ) {
-                            header = gprintf("%d:", frame_idx);
-                        }
-                    }
-                    ad_buffer_free(headerBin);
-                    if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
-                        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                            byte pci_0 = ad_buffer_extract_0(frame);
-                            switch((pci_0 & 0xF0) >> 4) {
-                                case Iso15765FirstFrame:
-                                    ad_buffer_extract_0(frame);
-                                    break;
-                                case Iso15765ConsecutiveFrame:
-                                case Iso15765SingleFrame:
-                                    break;
-                                default:
-                                    log_msg(LOG_DEBUG, "TODO");
-                                    break;
-                            }
-                        }
-                    }
-                    char *elmFrameStr;
-                    char *elmFrameDataStr = elm_ascii_from_bin(elm327->printing_of_spaces, frame);
-                    asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
-                        header == null ? "" : header, (header != null && elm327->printing_of_spaces) ? " " : "", 
-                        elmFrameDataStr, elm327->eol
-                    );
-                    if ( header != null ) {
-                        free(header);
-                    }
-                    free(elmFrameDataStr);
-                    free(ecuResponse);
-                    ecuResponse = elmFrameStr;
-                }
-
-                ad_list_Buffer_empty(frames);
-                free(frames);
-            }
-            ad_buffer_free(dataResponse);
-
-            Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
-            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                assert(elm327->can.mask != null);
-                assert(elm327->can.filter != null);
-                assert(elm327->can.mask->size == elm327->can.filter->size);
-                if ( response_header_bin->size == elm327->can.mask->size ) {
-                    bool filtered = false;
-                    for(int i = 0; i < elm327->can.mask->size; i ++) {
-                        byte m = elm327->can.mask->buffer[i];
-                        int cmp1 = (response_header_bin->buffer[i] & m);
-                        int cmp2 = (elm327->can.filter->buffer[i] & m);
-                        if ( cmp1 != cmp2 ) {
-                            filtered = true;
-                            break;
-                        }
-                    }
-                    if ( filtered ) {
-                        free(ecuResponse);
-                        ecuResponse = null;
-                    }
-                } else {
-                    if ( 0 < elm327->can.mask->size ) {
-                        log_msg(LOG_WARNING, "A mask is set but with the wrong format for protocol - filtering will not work");
-                    }
-                }
-            }
-
-            int sz = min(response_header_bin->size,12);
-            ad_buffer_recycle(elm327->obd_buffer);
-            ad_buffer_ensure_capacity(elm327->obd_buffer,sz);
-            memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
-            elm327->obd_buffer->size = sz;
-            ad_buffer_free(response_header_bin);
-
-            if ( ecuResponse != null ) {
-                char * tmpResponseResult;
-                asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,ecuResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
-                free(ecuResponse);
-                ecuResponse = null;
-                free(response);
-                response = null;
-                response = tmpResponseResult;
             }
         }
-        ad_buffer_free(dataRequest);
-        if ( response == null ) {
-            double part = 1;
-            if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) && 
-                    elm327->vehicle_response_timeout_adaptive ) {
-                final int adaptive_response_should_be_quicker_than_default = 5;
-                part = ( rand() / (1.0 * RAND_MAX) ) / adaptive_response_should_be_quicker_than_default;
+        if ( response_needed ) {
+            response = gprintf("BUS INIT: OK%s", elm327->eol);
+        } else {
+            if ( ! elm327->iso.bus_initialized ) {
+                return gprintf("BUS INIT: ...%s", elm327->eol);
             }
-            useconds_t timeout_usec = elm327->vehicle_response_timeout * 1e3 * part;
-            if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-                timeout_usec *= elm327->can.timeout_multiplier;
-            }
-            usleep(timeout_usec);
-            asprintf(&response,"%s%s", ELM327ResponseStr[ELM327_RESPONSE_NO_DATA-ELM327_RESPONSE_OFFSET],elm327->eol);
         }
-        sim_elm327_start_activity_monitor(elm327);
     }
     if ( ! elm327->responses ) {
-        response = strdup("");
+        return strdup("");
     }
+    final Buffer * dataRequest = ad_buffer_new();
+    char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
+    int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
+    if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
+        log_msg(LOG_DEBUG, "Ignoring optimization request");
+        hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
+    }
+    elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);
+    free(hex_string_req_reduced);
+    log_msg(LOG_DEBUG, "TODO: handle multiple data request");
+    for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
+        SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
+
+        if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) ) {
+            if ( elm327->receive_address != null && *elm327->receive_address != ecu->address) {
+                continue;
+            }
+        }
+
+        ad_list_Buffer * requestFrames = request_frames(elm327, ecu, dataRequest);
+
+        char * errorCauseReturn;
+        final Buffer * extractedDataRequest = data_extract_if_accepted((SimELM327*)elm327, ecu, requestFrames, &errorCauseReturn);
+        ad_list_Buffer_free(requestFrames);
+        if ( extractedDataRequest == null ) {
+            response = errorCauseReturn;
+            break;
+        }
+        if ( extractedDataRequest->size == 0 ) {
+            log_msg(LOG_DEBUG, "Not addressed to this ECU");
+            continue;
+        }
+        char * ecuResponse = null;
+        ecu->generator->flavour.is_Iso15765_4 = elm327_protocol_is_can(elm327->protocolRunning);
+        final Buffer * dataResponse = sim_ecu_response(ecu,extractedDataRequest);
+
+        assert(dataResponse != null);
+        if ( extractedDataRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
+            if ( 0 < dataResponse->size ) {
+                if ( (dataResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
+                    log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
+                    ad_buffer_recycle(dataResponse);
+                    ecuResponse = strdup(SerialResponseStr[SERIAL_RESPONSE_OK-SerialResponseOffset]);
+                }
+            }
+        }
+        ad_buffer_free(extractedDataRequest);
+        if ( ecuResponse == null && 0 < dataResponse->size ) {
+            ad_list_Buffer * frames = response_frames(elm327, ecu, dataResponse);
+
+            if ( ! elm327->printing_of_headers ) {
+                if ( 1 < frames->size ) {
+                    log_msg(LOG_DEBUG, "Should add the multiple single frames format");
+                    asprintf(&ecuResponse, "%03d%s", dataResponse->size, elm327->eol);
+                }
+            }
+            for(int frame_idx = 0; frame_idx < frames->size; frame_idx++) {
+                Buffer * frame = frames->list[frame_idx];
+                char * header = null;
+                Buffer * headerBin = response_frame_extract_header(elm327, frame);
+                if ( elm327->printing_of_headers ) {
+                    header = elm327_response_header_str(elm327, headerBin);
+                } else {
+                    if ( elm327_protocol_is_can(elm327->protocolRunning) && 1 < frames->size ) {
+                        header = gprintf("%d:", frame_idx);
+                    }
+                }
+                ad_buffer_free(headerBin);
+                if ( elm327->can.auto_format && ! elm327->printing_of_headers ) {
+                    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+                        byte pci_0 = ad_buffer_extract_0(frame);
+                        switch((pci_0 & 0xF0) >> 4) {
+                            case Iso15765FirstFrame:
+                                ad_buffer_extract_0(frame);
+                                break;
+                            case Iso15765ConsecutiveFrame:
+                            case Iso15765SingleFrame:
+                                break;
+                            default:
+                                log_msg(LOG_DEBUG, "TODO");
+                                break;
+                        }
+                    }
+                }
+                char *elmFrameStr;
+                char *elmFrameDataStr = elm_ascii_from_bin(elm327->printing_of_spaces, frame);
+                asprintf(&elmFrameStr, "%s%s%s%s%s", ecuResponse == null ? "" : ecuResponse, 
+                    header == null ? "" : header, (header != null && elm327->printing_of_spaces) ? " " : "", 
+                    elmFrameDataStr, elm327->eol
+                );
+                if ( header != null ) {
+                    free(header);
+                }
+                free(elmFrameDataStr);
+                free(ecuResponse);
+                ecuResponse = elmFrameStr;
+            }
+
+            ad_list_Buffer_empty(frames);
+            free(frames);
+        }
+        ad_buffer_free(dataResponse);
+
+        Buffer * response_header_bin = response_header(elm327,ecu,ELM327_CAN_28_BITS_DEFAULT_PRIO);
+        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+            assert(elm327->can.mask != null);
+            assert(elm327->can.filter != null);
+            assert(elm327->can.mask->size == elm327->can.filter->size);
+            if ( response_header_bin->size == elm327->can.mask->size ) {
+                bool filtered = false;
+                for(int i = 0; i < elm327->can.mask->size; i ++) {
+                    byte m = elm327->can.mask->buffer[i];
+                    int cmp1 = (response_header_bin->buffer[i] & m);
+                    int cmp2 = (elm327->can.filter->buffer[i] & m);
+                    if ( cmp1 != cmp2 ) {
+                        filtered = true;
+                        break;
+                    }
+                }
+                if ( filtered ) {
+                    free(ecuResponse);
+                    ecuResponse = null;
+                }
+            } else {
+                if ( 0 < elm327->can.mask->size ) {
+                    log_msg(LOG_WARNING, "A mask is set but with the wrong format for protocol - filtering will not work");
+                }
+            }
+        }
+
+        int sz = min(response_header_bin->size,12);
+        ad_buffer_recycle(elm327->obd_buffer);
+        ad_buffer_ensure_capacity(elm327->obd_buffer,sz);
+        memmove(elm327->obd_buffer->buffer, response_header_bin->buffer, sz);
+        elm327->obd_buffer->size = sz;
+        ad_buffer_free(response_header_bin);
+
+        if ( ecuResponse != null ) {
+            char * tmpResponseResult;
+            asprintf(&tmpResponseResult,"%s%s%s",response==null?"":response,ecuResponse,i+1<LIST_SIM_ECU(elm327->ecus)->size ? elm327->eol : "");
+            free(ecuResponse);
+            ecuResponse = null;
+            free(response);
+            response = null;
+            response = tmpResponseResult;
+        }
+    }
+    ad_buffer_free(dataRequest);
+    if ( strlen(response) == 0 ) {
+        double part = 1;
+        if ( ! elm327_protocol_is_j1939(elm327->protocolRunning) && 
+                elm327->vehicle_response_timeout_adaptive ) {
+            final int adaptive_response_should_be_quicker_than_default = 5;
+            part = ( rand() / (1.0 * RAND_MAX) ) / adaptive_response_should_be_quicker_than_default;
+        }
+        useconds_t timeout_usec = elm327->vehicle_response_timeout * 1e3 * part;
+        if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
+            timeout_usec *= elm327->can.timeout_multiplier;
+        }
+        usleep(timeout_usec);
+        asprintf(&response,"%s%s", ELM327ResponseStr[ELM327_RESPONSE_NO_DATA-ELM327_RESPONSE_OFFSET],elm327->eol);
+    }
+    sim_elm327_start_activity_monitor(elm327);
     return response;
 }

@@ -67,6 +67,7 @@ int elm327_send(final ELM327Device* elm327, const char *command) {
         case SERIAL_RESPONSE_PROMPT: \
             continue_reception = false; \
             break; \
+        case ELM327_BUS_INIT: \
         case ELM327_RESPONSE_SEARCHING: \
             break; \
         default: \

@@ -58,6 +58,7 @@ static void *launch(void *d) {
         printf("%s\n", data.sim->device_location);
         if ( data.proto != null ) {
             data.sim->protocolRunning = *data.proto;
+            data.sim->default_protocol = *data.proto;
         }
         if ( data.proto_is_auto != null ) {
             data.sim->protocol_is_auto_running = *data.proto_is_auto;

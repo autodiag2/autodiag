@@ -109,6 +109,7 @@ int elm329_send(final ELM329Device* elm329, const char *command) {
         case SERIAL_RESPONSE_PROMPT: \
             continue_reception = false; \
             break; \
+        case ELM329_BUS_INIT: \
         case ELM329_RESPONSE_SEARCHING: \
             break; \
         default: \
