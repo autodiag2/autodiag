@@ -58,6 +58,7 @@ void elm323_init(ELM323Device* d) {
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
     d->protocol = AD_DEVICE_ELM_PROTO_AUTO + 1;
     d->fetch_protocol = AD_DEVICE_ELM_FETCH_PROTOCOL(fetch_current_protocol);
+    d->verify_checksum = null;
 }
 
 ELM323Device* elm323_new() {

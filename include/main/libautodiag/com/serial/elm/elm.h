@@ -33,12 +33,36 @@ typedef struct ELMDevice {
      * Fetch and store proto
      */
     bool (*fetch_protocol)(final struct ELMDevice * elm);
+    /**
+     * Assuming printing of headers is on.
+     */
+    bool (*verify_checksum)(final struct ELMDevice * elm, final Buffer * buffer);
 } ELMDevice;
+
+static inline byte j1850_crc(final Buffer * buffer)
+{
+    assert(buffer != null);
+    assert(0 < buffer->size);
+    byte crc = 0xFF;
+
+    for(int i = 0; i < buffer->size-1; i++) {
+        crc ^= buffer->buffer[i];
+        for (int j = 0; j < 8; j++) {
+            if (crc & 0x80)
+                crc = (crc << 1) ^ 0x1D;
+            else
+                crc <<= 1;
+        }
+    }
+
+    return crc ^ 0xFF;
+}
 
 #define AD_ELM_DEVICE_CONFIGURE(var) ((bool (*)(final Device*))var)
 #define AD_ELM_DEVICE(var) ((struct ELMDevice*)var)
 #define AD_ELM_DEVICE_PROTO_IS_CAN(var) ((bool (*)(final Device*))var)
 #define AD_DEVICE_ELM_FETCH_PROTOCOL(var) ((bool (*)(struct ELMDevice *))var)
+#define AD_DEVICE_ELM_VERIFY_CHECKSUM(var) ((bool (*)(struct ELMDevice *, Buffer *))var)
 
 #define ELM_RESPONSE_UNKNOWN                 0xF00
 
@@ -47,7 +71,6 @@ static int ELMResponseStrNumber = 1;
 static char * ELMResponseStr[] = {
     "?"
 };
-
 int elm_guess_response(final char * buffer);
 int elm_linefeeds(final Serial * port, final bool state);
 int elm_echo(final Serial * port, final bool state);

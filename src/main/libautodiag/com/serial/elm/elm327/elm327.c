@@ -1,5 +1,21 @@
 #include "libautodiag/com/serial/elm/elm327/elm327.h"
 
+static bool verify_checksum(final ELM327Device * elm, final Buffer * buffer) {
+    assert(buffer != null);
+    assert(0 < buffer->size);
+    byte checksum = buffer->buffer[buffer->size-1];
+    if ( ELM327_PROTO_ISO_9141_2 <= elm->protocol && elm->protocol <= ELM327_PROTO_ISO_14230_4_KWP2000_2 ) {
+        byte computed = 0;
+        for(int i = 0; i < buffer->size; i++) {
+            computed += buffer->buffer[i];
+        }
+        return computed == 0;
+    } else if ( elm->protocol == ELM327_PROTO_SAE_J1850_1 || ELM327_PROTO_SAE_J1850_2 == elm->protocol ) {
+        byte computed = j1850_crc(buffer);
+        return computed == checksum;
+    }
+    return true;
+}
 static bool fetch_current_protocol(final ELM327Device *elm) {
     ELM327_PROTO proto = elm327_get_current_protocol(elm);
     elm->protocol = proto;
@@ -170,6 +186,7 @@ void elm327_init(ELM327Device* d) {
     d->printing_of_spaces = true;
     d->proto_is_can = AD_ELM_DEVICE_PROTO_IS_CAN(proto_is_can);
     d->fetch_protocol = AD_DEVICE_ELM_FETCH_PROTOCOL(fetch_current_protocol);
+    d->verify_checksum = AD_DEVICE_ELM_VERIFY_CHECKSUM(verify_checksum);
 }
 
 ELM327Device* elm327_new() {

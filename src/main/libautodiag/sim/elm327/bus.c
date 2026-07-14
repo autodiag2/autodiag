@@ -361,7 +361,18 @@ char * sim_elm327_hex_string_request_reduce(SimELM327 * elm327, char * hex_strin
 bool elm327_protocol_is_iso(int protocol) {
     return ELM327_PROTO_ISO_9141_2 <= protocol && protocol <= ELM327_PROTO_ISO_14230_4_KWP2000_2;
 }
-
+static void response_frame_add_checksum(SimELM327 * elm327, Buffer * frame) {
+    if ( ELM327_PROTO_ISO_9141_2 <= elm327->protocolRunning && elm327->protocolRunning <= ELM327_PROTO_ISO_14230_4_KWP2000_2 ) {
+        byte computed_checksum = 0;
+        for(int i = 0; i < frame->size; i++) {
+            computed_checksum += frame->buffer[i];
+        }
+        ad_buffer_append_byte(frame, computed_checksum);
+    } else if ( elm327->protocolRunning == ELM327_PROTO_SAE_J1850_1 || ELM327_PROTO_SAE_J1850_2 == elm327->protocolRunning ) {
+        byte computed_checksum = j1850_crc(frame);
+        ad_buffer_append_byte(frame, computed_checksum);
+    }
+}
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
     bool isHexString = true;
     sim_elm327_parse_request(elm327, hex_string_request, &isHexString, null);
@@ -459,7 +470,9 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             for(int frame_idx = 0; frame_idx < frames->size; frame_idx++) {
                 Buffer * frame = frames->list[frame_idx];
                 char * header = null;
+                response_frame_add_checksum(elm327, frame);
                 Buffer * headerBin = response_frame_extract_header(elm327, frame);
+
                 if ( elm327->printing_of_headers ) {
                     header = elm327_response_header_str(elm327, headerBin);
                 } else {
