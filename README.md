@@ -13,16 +13,16 @@ Automotive diagnostic software with many protocols.
 
 <table>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/main.png"></td>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/preferences.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/main.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/preferences.png"></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/terminal.png"></td>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/read_dtc.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/terminal.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/read_dtc.png"></td>
   </tr>
   <tr>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors.png"></td>
-    <td><img src="https://raw.githubusercontent.com/autodiag2/media/master/sensors-graph.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/sensors.png"></td>
+    <td><img src="https://raw.githubusercontent.com/autodiag2/autodiag/main/documentation/media/sensors-graph.png"></td>
   </tr>
 </table>
 
