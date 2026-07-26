@@ -5,6 +5,8 @@
 #include "libautodiag/com/obd/obd.h"
 #include "libautodiag/com/uds/uds.h"
 #include "libautodiag/dependencies/json.h"
+#include "libautodiag/eventHandlerHolder.h"
+#include "libautodiag/com/vehicle_signal.h"
 
 typedef struct SimECUGenerator {
     /**
@@ -20,6 +22,9 @@ typedef struct SimECUGenerator {
      * it is not expected to be modified by external parts using the generator.
      */
     void *state;
+
+    EventHandlerHolder * onSignalReceived;
+    void * signal_received_userdata;
 
     /**
      * Holds any information on ECU that may alter the way the generator respond.

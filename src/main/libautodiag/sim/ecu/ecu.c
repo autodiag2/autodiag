@@ -1,4 +1,5 @@
 #include "libautodiag/sim/ecu/ecu.h"
+#include "libautodiag/eventHandlerHolder.h"
 
 int SimECU_cmp(SimECU* e1, SimECU* e2) {
     return e1 - e2;
@@ -29,6 +30,27 @@ Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest) {
         ecu->generator->response_for_python(ecu->generator, binRequest, binResponse);
     } else {
         binResponse = ecu->generator->response(ecu->generator, binRequest);
+    }
+    if ( 0 < binResponse->size ) {
+        byte service = binResponse->buffer[0];
+        switch(service) {
+            case OBD_SERVICE_SHOW_CURRENT_DATA | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE:
+            case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE: {
+                if ( 1 < binResponse->size ) {
+                    byte pid = binResponse->buffer[1];
+                    ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
+                    if ( signal != null ) {
+                        char * error = null;
+                        double value = ad_expr_reduce_buffer(binResponse, signal->rv_formula, &error);
+                        if ( NAN == value ) {
+                            log_debug("error while reducing");
+                        } else {
+                            ehh_trigger(ecu->generator->onSignalReceived, (void (*)(SimECUGenerator*, ad_object_vehicle_signal *, double)), ecu->generator, signal, value);
+                        }
+                    }
+                }
+            } break;
+        }
     }
     return binResponse;
 }

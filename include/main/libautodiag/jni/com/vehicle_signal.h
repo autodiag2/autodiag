@@ -8,6 +8,8 @@
 #include <jni.h>
 #include <string.h>
 
+jobject jni_create_sim_signal(JNIEnv *env, ad_object_vehicle_signal *signal);
+
 #endif
 
 #endif

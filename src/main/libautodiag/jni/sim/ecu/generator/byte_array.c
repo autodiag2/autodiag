@@ -6,7 +6,7 @@
         JavaCallbackContext *ctx = (JavaCallbackContext *)generator->context;
 
         JNIEnv *env;
-        (*ctx->vm)->AttachCurrentThread(ctx->vm, (void **)&env, NULL);
+        (*ctx->vm)->AttachCurrentThread(ctx->vm, (JNIEnv **)&env, NULL);
 
         jbyteArray requestArray = (*env)->NewByteArray(env, binRequest->size);
         (*env)->SetByteArrayRegion(env, requestArray, 0,

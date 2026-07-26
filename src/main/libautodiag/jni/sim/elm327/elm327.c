@@ -2,6 +2,7 @@
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
 #include "libautodiag/jni/target_device.h"
 #include "libautodiag/jni/sim/ecu/generator/byte_array.h"
+#include "libautodiag/jni/com/vehicle_signal.h"
 
 #ifdef OS_ANDROID
 static SimELM327 *_sim = null;
@@ -252,5 +253,62 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
     }
     (*env)->ReleaseStringUTFChars(env, type, typeStr);
     (*env)->ReleaseStringUTFChars(env, context, contextStr);
+}
+typedef struct {
+    JavaVM *jvm;
+    jobject callback;
+} SignalReceivedCallback;
+
+static void signal_received_callback(SimECUGenerator * generator, ad_object_vehicle_signal *signal, double value)
+{
+    SignalReceivedCallback *ctx = generator->signal_received_userdata;
+
+    JNIEnv *env = NULL;
+    (*ctx->jvm)->AttachCurrentThread(ctx->jvm, (JNIEnv **)&env, NULL);
+
+    jclass cls = (*env)->GetObjectClass(env, ctx->callback);
+    jmethodID mid = (*env)->GetMethodID(
+        env,
+        cls,
+        "onSignalReceived",
+        "(Lcom/github/autodiag2/elm327emu/SimSignal;D)V"
+    );
+
+    jobject jSignal = jni_create_sim_signal(env, signal);
+
+    (*env)->CallVoidMethod(env, ctx->callback, mid, jSignal, value);
+
+    (*env)->DeleteLocalRef(env, jSignal);
+    (*env)->DeleteLocalRef(env, cls);
+}
+JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_registerOnSignalReceived(
+    JNIEnv *env,
+    jobject thiz,
+    jbyte address,
+    jobject callbackObject
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim) return;
+
+    SimECU *ecu = ad_list_SimECU_search_by_address(sim->ecus, (byte)address);
+
+    if (ecu == NULL) {
+        ecu = sim_ecu_new((byte)address);
+        ad_list_SimECU_append(sim->ecus, ecu);
+    }
+
+    SignalReceivedCallback *ctx = malloc(sizeof(*ctx));
+
+    (*env)->GetJavaVM(env, &ctx->jvm);
+    ctx->callback = (*env)->NewGlobalRef(env, callbackObject);
+
+    ecu->generator->signal_received_userdata = ctx;
+
+    ehh_register(
+        ecu->generator->onSignalReceived,
+        signal_received_callback
+    );
+
 }
 #endif
