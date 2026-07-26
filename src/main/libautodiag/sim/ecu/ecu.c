@@ -41,7 +41,9 @@ Buffer * sim_ecu_response(SimECU * ecu, Buffer * binRequest) {
                     ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
                     if ( signal != null ) {
                         char * error = null;
-                        double value = ad_expr_reduce_buffer(binResponse, signal->rv_formula, &error);
+                        Buffer * signal_data = ad_buffer_slice(binResponse, signal->rv_offset_bytes(binResponse, signal->input_formula), binResponse->size - signal->rv_offset_bytes(binResponse, signal->input_formula));
+                        double value = ad_expr_reduce_buffer(signal_data, signal->rv_formula, &error);
+                        ad_buffer_free(signal_data);
                         if ( NAN == value ) {
                             log_debug("error while reducing");
                         } else {
