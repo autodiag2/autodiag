@@ -80,6 +80,29 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setProtocol(
     sim->protocolRunning = protocol;
     sim->nvm.protocol = protocol;
 }
+JNIEXPORT void JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_setIgnitionState(
+    JNIEnv *env,
+    jobject thiz,
+    jint state
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim)
+        return;
+
+    sim->ignitionState = 0 < state;
+}
+JNIEXPORT jint JNICALL
+Java_com_github_autodiag2_elm327emu_libautodiag_getIgnitionState(
+    JNIEnv *env,
+    jobject thiz
+) {
+    SimELM327 *sim = jni_sim_elm327_get();
+    if (!sim)
+        return false;
+
+    return sim->ignitionState;
+}
 JNIEXPORT jint JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_getProtocol(JNIEnv *env, jobject thiz) {
     SimELM327 *sim = jni_sim_elm327_get();
     if (!sim)

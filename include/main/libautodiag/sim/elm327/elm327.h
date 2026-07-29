@@ -61,6 +61,7 @@ typedef struct _SimELM327 {
     SimELM327_DEVICE_TYPE device_type;
 	char * eol;
 	bool echo;
+    bool ignitionState;
 	ELM327_PROTO protocolRunning;
     ELM327_PROTO default_protocol;
 	bool protocol_is_auto_running;
@@ -180,6 +181,10 @@ bool sim_elm327_loop_daemon_wait_ready(SimELM327 * elm327);
 void sim_elm327_destroy(SimELM327 * elm327);
 void sim_elm327_debug(final SimELM327 * elm327);
 void sim_elm327_start_activity_monitor(SimELM327 * elm327);
+/**
+ * Turn off or on ignition state.
+ */
+void sim_elm327_ignition_set(SimELM327* elm327, bool state);
 
 #define SIM_ELM327_PP_GET(elm327,parameter) \
     (elm327->nvm.programmable_parameters_states->buffer[parameter] ? elm327->nvm.programmable_parameters->buffer[parameter] : elm327->programmable_parameters_defaults->buffer[parameter])

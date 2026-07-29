@@ -284,7 +284,9 @@ void sim_elm327_init_from_nvm(SimELM327* elm327, final SIM_ELM327_INIT_TYPE type
     elm327->custom_header = ad_buffer_new();
     sim_elm327_start_activity_monitor(elm327);
 }
-
+void sim_elm327_ignition_set(SimELM327* elm327, bool state) {
+    elm327->ignitionState = state;
+}
 SimELM327* sim_elm327_new() {
     final SimELM327* elm327 = (SimELM327*)malloc(sizeof(SimELM327));
     sim_init_with_defaults((Sim*)elm327);
@@ -293,6 +295,7 @@ SimELM327* sim_elm327_new() {
     SimELM327Implementation * impl = (SimELM327Implementation*)malloc(sizeof(SimELM327Implementation));
     elm327->implementation = (SimImplementation*)impl;
     elm327->default_protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
+    elm327->ignitionState = true;
     impl->handle = ad_object_handle_t_new();
     impl->server_handle = ad_object_handle_t_new();
     impl->loop_thread = null;
@@ -492,7 +495,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
     } else if AT_PARSE("ifr") {
         SIM_ELM327_REPLY_OK();                     
     } else if AT_PARSE("ign") {
-        SIM_ELM327_REPLY_GENERIC(rand()%2?"ON":"OFF");
+        SIM_ELM327_REPLY_GENERIC(elm327->ignitionState?"ON":"OFF");
     } else if AT_PARSE("iia") {
         byte value;
         if ( sscanf(AT_DATA_START, "%02hhX", &value) == 1 ) {
