@@ -3,6 +3,23 @@
 #include "libautodiag/sim/doip/doip.h"
 #include "cJSON.h"
 
+void sim_ignition_set(Sim* sim, bool state) {
+    if ( strcmp(sim->type, "elm327") == 0 ) {
+        SimELM327 * elm327 = (SimELM327*)sim;
+        sim_elm327_ignition_set(elm327, state);
+        return;
+    }
+    log_warn("not implemented");
+}
+bool sim_ignition_get(Sim * sim) {
+    if ( strcmp(sim->type, "elm327") == 0 ) {
+        SimELM327 * elm327 = (SimELM327*)sim;
+        return elm327->ignitionState;
+    }
+    log_warn("not implemented");
+    return false;
+}
+
 SimECU * sim_search_ecu_by_address(Sim *sim, byte address) {
     for (int i = 0; i < sim->ecus->size; i++) {
         SimECU *ecu = sim->ecus->list[i];
@@ -89,12 +106,14 @@ char * sim_to_json(Sim *sim) {
     cJSON * json = cJSON_CreateObject();
     cJSON_AddStringToObject(json, "schema", SIM_SCHEMA);
     cJSON_AddNumberToObject(json, "version", SIM_SCHEMA_VERSION);
-    cJSON * ecus = cJSON_AddArrayToObject(json, "content");
+    cJSON * content = cJSON_AddObjectToObject(json, "content");
+    cJSON * ecus = cJSON_AddArrayToObject(content, "ecu");
     for(int i = 0; i < sim->ecus->size; i++) {
         SimECU * ecu = sim->ecus->list[i];
         cJSON * jecu = ad_object_SimECU_to_json(ecu);
         cJSON_AddItemToArray(ecus, jecu);
     }
+    cJSON_AddNumberToObject(content, "ignition", sim_ignition_get(sim));
     return cJSON_PrintUnformatted(json);
 }
 int sim_load_from_json(Sim * sim, char * json_context) {
@@ -141,22 +160,31 @@ int sim_load_from_json(Sim * sim, char * json_context) {
         log_msg(LOG_ERROR, "no content");
         return GENERIC_FUNCTION_ERROR;
     }
-    if ( ! cJSON_IsArray(content) ) {
-        if ( ! cJSON_IsObject(content) ) {
-            log_msg(LOG_ERROR, "invalid content");
+    if ( ! cJSON_IsObject(content) ) {
+        log_msg(LOG_ERROR, "invalid content");
+        return GENERIC_FUNCTION_ERROR;
+    }
+    cJSON * content_ecu = cJSON_GetObjectItem(content, "ecu");
+    if ( ! cJSON_IsArray(content_ecu) ) {
+        if ( ! cJSON_IsObject(content_ecu) ) {
+            log_msg(LOG_ERROR, "invalid ecu");
             return GENERIC_FUNCTION_ERROR;
         }
         cJSON * arr = cJSON_CreateArray();
-        cJSON_AddItemToArray(arr, content);
-        content = arr;
+        cJSON_AddItemToArray(arr, content_ecu);
+        content_ecu = arr;
     }
-    for(int i = 0; i < cJSON_GetArraySize(content); i++) {
-        cJSON * ecu_json = cJSON_GetArrayItem(content, i);
+    for(int i = 0; i < cJSON_GetArraySize(content_ecu); i++) {
+        cJSON * ecu_json = cJSON_GetArrayItem(content_ecu, i);
         final SimECU * ecu = sim_ecu_new(SIM_ECU_DEFAULT_ADDRESS);
         if ( ! ad_object_SimECU_from_json(ecu, ecu_json) ) {
             log_err("parsing of ecu : %s", cJSON_PrintUnformatted(ecu_json));
         }
         ad_list_SimECU_append(LIST_SIM_ECU(sim->ecus), ecu);
+    }
+    double ignition = cJSON_GetNumberItem(content, "ignition");
+    if ( ignition != NAN ) {
+        sim_ignition_set(sim, ignition);
     }
     return GENERIC_FUNCTION_SUCCESS;
 }
