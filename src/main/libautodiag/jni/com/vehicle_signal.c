@@ -76,16 +76,20 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_g
         "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;DDDLjava/lang/String;)V"
     );
     if (sim_signal_ctor == null) {
+        (*env)->DeleteLocalRef(env, sim_signal_cls);
         return null;
     }
 
     ad_object_hashmap_string_vehicle_signal * signals = ad_signals_get();
     if (signals == null) {
-        return (*env)->NewObjectArray(env, 0, sim_signal_cls, null);
+        jobjectArray out = (*env)->NewObjectArray(env, 0, sim_signal_cls, null);
+        (*env)->DeleteLocalRef(env, sim_signal_cls);
+        return out;
     }
 
     jobjectArray out = (*env)->NewObjectArray(env, signals->size, sim_signal_cls, null);
     if (out == null) {
+        (*env)->DeleteLocalRef(env, sim_signal_cls);
         return null;
     }
 
@@ -94,7 +98,7 @@ JNIEXPORT jobjectArray JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_g
         (*env)->SetObjectArrayElement(env, out, i, sim_signal);
         (*env)->DeleteLocalRef(env, sim_signal);
     }
-
+    (*env)->DeleteLocalRef(env, sim_signal_cls);
     return out;
 }
 

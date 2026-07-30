@@ -52,10 +52,12 @@
         if ( generic ) {
             ad_object_vehicle_signal * signal = ad_signal_get_from_saej1979_pid(pid);
             if ( signal == null ) {
+                (*env)->DeleteLocalRef(env, dtcs);
                 return binResponse;
             }
             response_saej1979_pid_with_signal(ad_object_vehicle_signal_get_exec_path(signal));
         }
+        (*env)->DeleteLocalRef(env, dtcs);
         return binResponse;
     }
     static Buffer * response_saej1979_dtcs(SimECUGenerator *generator, int service_id) {
@@ -89,6 +91,7 @@
             }
             ad_list_Buffer_free(dtcs_list);
         }
+        (*env)->DeleteLocalRef(env, dtcs);
         return binResponse;
     }
     static Buffer * response_saej1979_vehicle_identification_request_info_type(SimECUGenerator * generator, byte infoType) {
@@ -99,24 +102,29 @@
 
         const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
+        Buffer * binResponse = null;
         switch(infoType) {
-            case 0x00:                                          return ad_buffer_from_ascii_hex("FFFFFFFF");
-            case 0x01:                                          return ad_buffer_from_ascii_hex("05");
-            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   return ad_buffer_from_ascii(vin);
-            case 0x03:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x04:                                          return ad_buffer_new_random(16);
-            case 0x05:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x06:                                          return ad_buffer_new_random(4);
-            case 0x07:                                          return ad_buffer_from_ascii_hex("01");
-            case 0x08:                                          return ad_buffer_new_random(4);
-            case 0x09:                                          return ad_buffer_from_ascii_hex("01");
+            case 0x00:                                          binResponse = ad_buffer_from_ascii_hex("FFFFFFFF"); break;
+            case 0x01:                                          binResponse = ad_buffer_from_ascii_hex("05"); break;
+            case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_VIN:   binResponse = ad_buffer_from_ascii(vin); break;
+            case 0x03:                                          binResponse = ad_buffer_from_ascii_hex("01"); break;
+            case 0x04:                                          binResponse = ad_buffer_new_random(16); break;
+            case 0x05:                                          binResponse = ad_buffer_from_ascii_hex("01"); break;
+            case 0x06:                                          binResponse = ad_buffer_new_random(4); break;
+            case 0x07:                                          binResponse = ad_buffer_from_ascii_hex("01"); break;
+            case 0x08:                                          binResponse = ad_buffer_new_random(4); break;
+            case 0x09:                                          binResponse = ad_buffer_from_ascii_hex("01"); break;
             case OBD_SERVICE_REQUEST_VEHICLE_INFORMATION_ECU_NAME: {
                 final Buffer * name = ad_buffer_from_ascii(ecu_name);
                 ad_buffer_pad(name, 20, 0x00);
-                return name;
+                binResponse = name;
             } break;
         }
-        return ad_buffer_new();
+        (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
+        (*env)->ReleaseStringUTFChars(env, vin_j, vin);
+        (*env)->DeleteLocalRef(env, ecu_name_j);
+        (*env)->DeleteLocalRef(env, vin_j);
+        return binResponse == null ? ad_buffer_new() : binResponse;
     }
     static Buffer * response(SimECUGenerator *generator, final Buffer *binRequest) {
         JNIEnv *env = get_env();

@@ -28,7 +28,8 @@
         Buffer *out = ad_buffer_from_bytes((byte*)bytes, len);
 
         (*env)->ReleaseByteArrayElements(env, result, bytes, JNI_ABORT);
-
+        (*env)->DeleteLocalRef(env, requestArray);
+        (*env)->DeleteLocalRef(env, result);
         return out;
     }
     static char * context_to_string(SimECUGenerator * this) {
@@ -65,6 +66,7 @@
         generator->response_saej1979_dtcs = null;
         generator->response_saej1979_vehicle_identification_request_info_type = null;
         generator->state = null;
+        (*env)->DeleteLocalRef(env, cls);
         return generator;
     }
 #endif

@@ -63,7 +63,7 @@ Java_com_github_autodiag2_elm327emu_libautodiag_getProtocols(
         (*env)->SetObjectArrayElement(env, array, idx, jproto);
         (*env)->DeleteLocalRef(env, jproto);
     }
-
+    (*env)->DeleteLocalRef(env, stringClass);
     return array;
 }
 JNIEXPORT void JNICALL
@@ -208,12 +208,12 @@ Java_com_github_autodiag2_elm327emu_libautodiag_simEcuLoadFromJson(
         return;
     }
     const char * json_str = (*env)->GetStringUTFChars(env, json, null);
-    (*env)->ReleaseStringUTFChars(env, json, json_str);
     if ( json_str == null ) {
         log_err("cannot retrieve string");
         return;
     }
     cJSON * jsonOBj = cJSON_Parse(json_str);
+    (*env)->ReleaseStringUTFChars(env, json, json_str);
     if ( jsonOBj == null || !cJSON_IsObject(jsonOBj) ) {
         log_err("json parse error");
         return;
