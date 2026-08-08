@@ -296,6 +296,8 @@ SimELM327* sim_elm327_new() {
     elm327->implementation = (SimImplementation*)impl;
     elm327->default_protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
     elm327->ignitionState = true;
+    elm327->socketcan = false;
+    elm327->socketcan_iface = null;
     impl->handle = ad_object_handle_t_new();
     impl->server_handle = ad_object_handle_t_new();
     impl->loop_thread = null;
@@ -929,7 +931,13 @@ void sim_elm327_loop(SimELM327 * elm327) {
     if ( elm327->device_type == SimELM327_DEVICE_TYPE_UNSET ) {
         elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
     }
-
+    if ( elm327->socketcan_iface != null ) {
+        elm327->socketcan = ad_socketcan_open(elm327->socketcan_iface);
+        if ( elm327->socketcan == null ) {
+            log_msg(LOG_ERROR, "Failed to open socketcan interface %s (%s)", elm327->socketcan_iface, strerror(errno));
+            return;
+        }
+    }
     if ( elm327->device_type == SimELM327_DEVICE_TYPE_NETWORK ) {
         int boundPort = -1;
         sock_t serverFD = network_tcp_start(&boundPort, ELM327_NETWORK_PORT, NETWORK_BACKLOG);

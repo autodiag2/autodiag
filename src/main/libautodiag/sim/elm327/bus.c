@@ -1,4 +1,5 @@
 #include "libautodiag/sim/elm327/bus.h"
+#include "libautodiag/com/socketcan.h"
 
 /**
  * Response of the controller to the tester.
@@ -18,6 +19,17 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list
             } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
                 assert(2 <= requestFrame->size);
                 ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 2);
+                if ( elm327->socketcan ) {
+                    AdCanFrame socket_can_frame = {0};
+                    socket_can_frame.id = ad_buffer_to_be16(requestFrameHeader);
+                    int sz = min(requestFrame->size, 64);
+                    if ( sz < requestFrame->size ) {
+                        log_warn("Truncating response frame from %d to %d bytes for socketcan", requestFrame->size, sz);
+                    }
+                    memcpy(socket_can_frame.data, requestFrame->buffer, sz);
+                    socket_can_frame.size = sz;
+                    ad_socketcan_send(elm327->socketcan, &socket_can_frame);
+                }
             } else {
                 log_msg(LOG_WARNING, "Missing case here");
             }
@@ -472,6 +484,18 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
                 char * header = null;
                 response_frame_add_checksum(elm327, frame);
                 Buffer * headerBin = response_frame_extract_header(elm327, frame);
+
+                if ( elm327->socketcan && elm327_protocol_is_can(elm327->protocolRunning) ) {
+                    AdCanFrame socket_can_frame = {0};
+                    socket_can_frame.id = ad_buffer_to_be16(headerBin);
+                    int sz = min(frame->size, 64);
+                    if ( sz < frame->size ) {
+                        log_warn("Truncating response frame from %d to %d bytes for socketcan", frame->size, sz);
+                    }
+                    memcpy(socket_can_frame.data, frame->buffer, sz);
+                    socket_can_frame.size = sz;
+                    ad_socketcan_send(elm327->socketcan, &socket_can_frame);
+                }
 
                 if ( elm327->printing_of_headers ) {
                     header = elm327_response_header_str(elm327, headerBin);

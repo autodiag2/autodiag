@@ -69,6 +69,22 @@ Making the package is possible only on the target system, ie distDebian can be d
 ```bash
 make distDebian distWindows distMacOS
 ```
+# SocketCAN interactions
+the simulator inside this package can interact a socketcan iface directly:  
+First setup the can iface:  
+```bash
+sudo modprobe vcan
+sudo ip link add dev vcan0 type vcan
+sudo ip link set up vcan0
+```
+Then pass to the commandline:
+```bash
+./output/bin/elm327sim --expose-socket-can vcan0 -p 6
+```
+Then sniffing traffic with:
+```bash
+candump vcan0
+```
 
 # Python package
 See [here](/pyautodiag/README.md)

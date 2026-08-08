@@ -19,23 +19,27 @@
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <stdlib.h>
 
-int ad_socketcan_open(AdSocketCan *can, const char *interface_name)
+AdSocketCan *ad_socketcan_open(const char *interface_name)
 {
+    AdSocketCan *can = (AdSocketCan *)malloc(sizeof(AdSocketCan));
     struct sockaddr_can addr;
     struct ifreq ifr;
     int recv_own_msgs = 0;
 
     if (can == NULL || interface_name == NULL) {
         errno = EINVAL;
-        return -1;
+        free(can);
+        return NULL;
     }
 
     can->fd = -1;
 
     can->fd = socket(PF_CAN, SOCK_RAW, CAN_RAW);
     if (can->fd < 0) {
-        return -1;
+        free(can);
+        return NULL;
     }
 
     memset(&ifr, 0, sizeof(ifr));
@@ -44,7 +48,8 @@ int ad_socketcan_open(AdSocketCan *can, const char *interface_name)
     if (ioctl(can->fd, SIOCGIFINDEX, &ifr) < 0) {
         close(can->fd);
         can->fd = -1;
-        return -1;
+        free(can);
+        return NULL;
     }
 
     memset(&addr, 0, sizeof(addr));
@@ -59,16 +64,18 @@ int ad_socketcan_open(AdSocketCan *can, const char *interface_name)
             sizeof(recv_own_msgs)) < 0) {
         close(can->fd);
         can->fd = -1;
-        return -1;
+        free(can);
+        return NULL;
     }
 
     if (bind(can->fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
         close(can->fd);
         can->fd = -1;
-        return -1;
+        free(can);
+        return NULL;
     }
 
-    return 0;
+    return can;
 }
 
 void ad_socketcan_close(AdSocketCan *can)
@@ -156,18 +163,19 @@ int ad_socketcan_receive(AdSocketCan *can, AdCanFrame *frame)
 
 #else
 
-int ad_socketcan_open(AdSocketCan *can, const char *interface_name)
+AdSocketCan *ad_socketcan_open(const char *interface_name)
 {
     (void)interface_name;
 
+    AdSocketCan *can = (AdSocketCan *)malloc(sizeof(AdSocketCan));
     if (can == NULL) {
-        errno = EINVAL;
-        return -1;
+        errno = ENOMEM;
+        return NULL;
     }
 
     can->fd = -1;
     errno = ENOTSUP;
-    return -1;
+    return NULL;
 }
 
 void ad_socketcan_close(AdSocketCan *can)

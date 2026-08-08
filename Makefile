@@ -289,6 +289,7 @@ newVersion: tools_prerequistes
 
 _install: uninstall
 	mkdir -p "$(INSTALL_DATA_FOLDER_APP)" "$(INSTALL_BIN_FOLDER)" "$(INSTALL_LIB_FOLDER)"
+	@-echo "For install under user, set LD_LIBRARY_PATH=$${HOME}/.local/lib:$$LD_LIBRARY_PATH"
 
 # Manual installation
 install: tools_prerequistes _install

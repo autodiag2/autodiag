@@ -23,6 +23,7 @@
 #include "libautodiag/sim/sim.h"
 #include "libautodiag/jni/target_device.h"
 #include "libautodiag/sim/elm327/network.h"
+#include "libautodiag/com/socketcan.h"
 
 typedef struct {
     SimImplementation;
@@ -67,6 +68,8 @@ typedef struct _SimELM327 {
 	bool protocol_is_auto_running;
 	bool printing_of_spaces;
 	bool printing_of_headers;
+    char *socketcan_iface;
+    AdSocketCan *socketcan;
     char *dev_description;
     char *dev_identifier;
     double voltage;

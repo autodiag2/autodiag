@@ -1,6 +1,8 @@
 #ifndef AD_SOCKETCAN_H
 #define AD_SOCKETCAN_H
 
+#include "libautodiag/lib.h"
+
 #include <stdint.h>
 #include <stddef.h>
 
@@ -20,7 +22,7 @@ typedef struct {
     int fd;
 } AdSocketCan;
 
-int ad_socketcan_open(AdSocketCan *can, const char *interface_name);
+AdSocketCan *ad_socketcan_open(const char *interface_name);
 void ad_socketcan_close(AdSocketCan *can);
 int ad_socketcan_send(AdSocketCan *can, const AdCanFrame *frame);
 int ad_socketcan_receive(AdSocketCan *can, AdCanFrame *frame);

@@ -17,6 +17,7 @@ PRINT_MODULAR(sim_elm327_cli_help,
     " -c context                : context for the generator\n"
     " --clear-nvm               : delete the file storing nvm (pps, protocol)\n"
     " --load-from-json jsoncxt  : clear previously defined simulation definition and\n"
+    " --expose-socket-can iface : expose a socketcan interface for interacting with sim\n"
     "                             and load ecus, generators from the json provided (text, filepath)\n"
     "\n"
     "Examples:\n"
@@ -86,6 +87,24 @@ int sim_elm327_cli_main(int argc, char **argv) {
             sim_elm327_non_volatile_wipe_out();
             printf("NVM deleted\n");
             return 0;
+        } else if argIs("--expose-socket-can") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("example: --expose-socket-can can0\n");
+                return 0;
+            } else {
+                sim->socketcan_iface = strdup(arg);
+            }
+        } else if argIs("--load-from-json") {
+            argNext();
+            char * arg = argCurrent();
+            if ( arg == null ) {
+                printf("example: --load-from-json /path/to/file.json\n");
+                return 0;
+            } else {
+                sim_load_from_json((Sim*)sim, arg);
+            }
         } else if argIs("-e") {
             argNext();
             char * arg = argCurrent();
