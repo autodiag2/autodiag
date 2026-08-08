@@ -16,6 +16,17 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list
             if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
                 assert(4 <= requestFrame->size);
                 ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 4);
+                if ( elm327->socketcan ) {
+                    AdCanFrame socket_can_frame = {0};
+                    socket_can_frame.id = ad_buffer_to_be32(requestFrameHeader);
+                    int sz = min(requestFrame->size, 64);
+                    if ( sz < requestFrame->size ) {
+                        log_warn("Truncating response frame from %d to %d bytes for socketcan", requestFrame->size, sz);
+                    }
+                    memcpy(socket_can_frame.data, requestFrame->buffer, sz);
+                    socket_can_frame.size = sz;
+                    ad_socketcan_send(elm327->socketcan, &socket_can_frame);
+                }
             } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
                 assert(2 <= requestFrame->size);
                 ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 2);
@@ -487,7 +498,11 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
 
                 if ( elm327->socketcan && elm327_protocol_is_can(elm327->protocolRunning) ) {
                     AdCanFrame socket_can_frame = {0};
-                    socket_can_frame.id = ad_buffer_to_be16(headerBin);
+                    if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning)) {
+                        socket_can_frame.id = ad_buffer_to_be16(headerBin);
+                    } else {
+                        socket_can_frame.id = ad_buffer_to_be32(headerBin);
+                    }
                     int sz = min(frame->size, 64);
                     if ( sz < frame->size ) {
                         log_warn("Truncating response frame from %d to %d bytes for socketcan", frame->size, sz);
