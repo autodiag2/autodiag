@@ -163,15 +163,19 @@ $(BIN_LIB): $(OBJS_LIB)
 	$(PRINT_VOIDER)cp "$@" output/bin/
 
 # Additionnal specific dependencies
-genDependencies: cmd = $(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ -MM -MT $(subst src/,output/obj/,$(var:.c=.o)) $(var) | sed 's/^\([ \t]*\)\/.*\(\\\)/\1\2/g' | sed 's/^\([ \t]*\)\/.*/\1/g' | grep -v -e "^[ \t]\+\\\\" >> dependencies.mk;
-genDependencies: $(SOURCES)
-	@command -v sed > /dev/null 2>&1 || { echo "sed is required"; exit 1; }
-	@command -v grep > /dev/null 2>&1 || { echo "grep is required"; exit 1; }
-	@echo "Generating dependencies..."
-	@> dependencies.mk
-	@$(foreach var, $(SOURCES), $(cmd))	
+DEPFILES := $(SOURCES:src/%.c=output/dep/%.d)
 
--include dependencies.mk
+.PHONY: genDependencies
+
+genDependencies: $(DEPFILES)
+
+output/dep/%.d: src/%.c
+	@mkdir -p $(dir $@)
+	@-echo "compiling dependencies for $<"
+	@$(CC) $(CFLAGS) $(CGLAGS_GUI) -I src/testFixtures/ -I include/main/ \
+		-MM -MT $(subst output/dep/,output/obj/,$(@:.d=.o)) $< > $@
+
+-include $(DEPFILES)
 
 clean: tools_prerequistes
 	rm -rf output/obj/
