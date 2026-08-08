@@ -11,39 +11,37 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list
     for(int i = 0; i < requestFrames->size; i ++) {
         Buffer * requestFrame = requestFrames->list[i];
         Buffer * requestFrameHeader = ad_buffer_new();
+        Buffer * requestFrameLessId = ad_buffer_new();
+        AdCanFrame socket_can_frame = {0};
         log_msg(LOG_DEBUG, "Receving incoming request by the tester %s", ad_buffer_to_hex_string(requestFrame));
         if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
             if ( elm327_protocol_is_can_29_bits_id(elm327->protocolRunning) ) {
                 assert(4 <= requestFrame->size);
                 ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 4);
+                ad_buffer_slice_append(requestFrameLessId, requestFrame, 4, requestFrame->size - 4);
                 if ( elm327->socketcan ) {
-                    AdCanFrame socket_can_frame = {0};
                     socket_can_frame.id = ad_buffer_to_be32(requestFrameHeader);
-                    int sz = min(requestFrame->size, 64);
-                    if ( sz < requestFrame->size ) {
-                        log_warn("Truncating response frame from %d to %d bytes for socketcan", requestFrame->size, sz);
-                    }
-                    memcpy(socket_can_frame.data, requestFrame->buffer, sz);
-                    socket_can_frame.size = sz;
-                    ad_socketcan_send(elm327->socketcan, &socket_can_frame);
                 }
             } else if ( elm327_protocol_is_can_11_bits_id(elm327->protocolRunning) ) {
                 assert(2 <= requestFrame->size);
                 ad_buffer_slice_append(requestFrameHeader, requestFrame, 0, 2);
+                ad_buffer_slice_append(requestFrameLessId, requestFrame, 2, requestFrame->size - 2);
                 if ( elm327->socketcan ) {
-                    AdCanFrame socket_can_frame = {0};
                     socket_can_frame.id = ad_buffer_to_be16(requestFrameHeader);
-                    int sz = min(requestFrame->size, 64);
-                    if ( sz < requestFrame->size ) {
-                        log_warn("Truncating response frame from %d to %d bytes for socketcan", requestFrame->size, sz);
-                    }
-                    memcpy(socket_can_frame.data, requestFrame->buffer, sz);
-                    socket_can_frame.size = sz;
-                    ad_socketcan_send(elm327->socketcan, &socket_can_frame);
                 }
             } else {
                 log_msg(LOG_WARNING, "Missing case here");
             }
+            if ( elm327->socketcan ) {
+                int sz = min(requestFrameLessId->size, 64);
+                if ( sz < requestFrameLessId->size ) {
+                    log_warn("Truncating response frame from %d to %d bytes for socketcan", requestFrameLessId->size, sz);
+                }
+                memcpy(socket_can_frame.data, requestFrameLessId->buffer, sz);
+                socket_can_frame.size = sz;
+                ad_socketcan_send(elm327->socketcan, &socket_can_frame);
+            }
+            ad_buffer_free(requestFrameLessId);
             ad_buffer_left_shift(requestFrame, requestFrameHeader->size);
             if ( elm327->can.extended_addressing ) {
                 ad_buffer_left_shift(requestFrame, 1);

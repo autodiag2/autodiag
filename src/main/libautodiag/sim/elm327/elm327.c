@@ -296,7 +296,7 @@ SimELM327* sim_elm327_new() {
     elm327->implementation = (SimImplementation*)impl;
     elm327->default_protocol = ELM327_PROTO_ISO_15765_4_CAN_1;
     elm327->ignitionState = true;
-    elm327->socketcan = false;
+    elm327->socketcan = null;
     elm327->socketcan_iface = null;
     impl->handle = ad_object_handle_t_new();
     impl->server_handle = ad_object_handle_t_new();
