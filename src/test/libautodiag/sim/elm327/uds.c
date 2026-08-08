@@ -26,7 +26,8 @@ void testMultiplePIDsPerFrame() {
         Buffer * data_buffer = iface->vehicle->data_buffer->list[0];
         assert(data_buffer->buffer[0] == 0x41);
         assert(data_buffer->buffer[1] == 0x01);
-        assert(data_buffer->size == 2 + 4);
+        int checksum_sz = 1;
+        assert(data_buffer->size == 2 + 4 + checksum_sz);
     }
     {
         log_info("Ensure the flavoured generator reply to many PIDs");
