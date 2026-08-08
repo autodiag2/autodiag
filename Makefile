@@ -185,6 +185,7 @@ clean: tools_prerequistes
 
 veryclean: tools_prerequistes clean
 	rm -rf output/bin/
+	rm -fr output/dep/
 	rm -fr output/doc/
 
 run: tools_prerequistes default
