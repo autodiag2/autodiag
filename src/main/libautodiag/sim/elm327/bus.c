@@ -302,25 +302,27 @@ static void response_frame_add_checksum(SimELM327 * elm327, Buffer * frame) {
     }
 }
 static void ELM327RequestFrameTracker_free_conv(ELM327RequestFrameTracker *holder) {
-    if (holder == null || holder->conversation == null) {
+    if (holder == null) {
         return;
     }
 
-    if (holder->is_can) {
-        Iso15765Conversation *conversation = holder->conversation->value;
-        if (conversation != null) {
-            iso15765_conversation_free(conversation);
-        }
-    } else {
-        Buffer *buf = holder->conversation->value;
-        if (buf != null) {
-            ad_buffer_free(buf);
+    if (holder->conversation == null) {
+        holder->is_can = false;
+        return;
+    }
+
+    if (holder->conversation->value != null) {
+        if (holder->is_can) {
+            iso15765_conversation_free(holder->conversation->value);
+        } else {
+            ad_buffer_free(holder->conversation->value);
         }
     }
 
     holder->conversation->value = null;
     ad_object_Ptr_free(holder->conversation);
     holder->conversation = null;
+    holder->is_can = false;
 }
 static void ELM327RequestFrameTracker_free(ELM327RequestFrameTracker *holder) {
     if (holder != null) {
@@ -329,17 +331,20 @@ static void ELM327RequestFrameTracker_free(ELM327RequestFrameTracker *holder) {
     }
 }
 static void * ELM327RequestFrameTracker_init_conv(ELM327RequestFrameTracker * holder, bool is_can, int bytes) {
+    ELM327RequestFrameTracker_free_conv(holder);
+
     holder->is_can = is_can;
     holder->conversation = ad_object_Ptr_new();
-    if ( is_can ) {
-        Iso15765Conversation * conversation = iso15765_init_conversation(bytes);
+
+    if (is_can) {
+        Iso15765Conversation *conversation = iso15765_init_conversation(bytes);
         holder->conversation->value = conversation;
         return conversation;
-    } else {
-        Buffer * buf = ad_buffer_new();
-        holder->conversation->value = buf;
-        return buf;
     }
+
+    Buffer *buf = ad_buffer_new();
+    holder->conversation->value = buf;
+    return buf;
 }
 static ELM327RequestFrameTracker * ELM327RequestFrameTracker_new() {
     ELM327RequestFrameTracker * holder = (ELM327RequestFrameTracker*)malloc(sizeof(ELM327RequestFrameTracker));
@@ -421,7 +426,7 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
                         if ( errorCauseReturn != null ) {
                             *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
                         }
-                        return null;
+                        goto cleanup;
                     }
                 }   
                 completed_flow = holder;
@@ -466,12 +471,16 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
                     if ( errorCauseReturn != null ) {
                         *errorCauseReturn = strdup(ELM327ResponseStr[ELM327_RESPONSE_DATA_ERROR_AT_LINE-ELM327_RESPONSE_OFFSET]);
                     }
-                    return false;
+                    goto cleanup;
                 }
                 int sn = pci & 0xF;
                 int current_data_length = frame->size;
                 conversation->current_sn = sn;
                 conversation->current_data_length = current_data_length;
+                if (current_data_length > conversation->remaining_data_bytes_to_receive) {
+                    log_warn("ISO-TP frame exceeds declared data length - ignoring excess bytes");
+                    current_data_length = conversation->remaining_data_bytes_to_receive;
+                }
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
                 log_debug("todo : order check (for user generated headers for example)");
@@ -493,27 +502,21 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
         }
         senderAddress = ad_buffer_from_bytes(&requestFrameHeader->buffer[2], 1);
         ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
-        if ( ptr == null ) {
+        if (ptr == null) {
             ptr = ad_object_Ptr_new();
             ptr->value = ELM327RequestFrameTracker_new();
             ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
-            ELM327RequestFrameTracker_init_conv(ptr->value, false, 0);
-            ELM327RequestFrameTracker * holder = ptr->value;
-        } else {
-            ELM327RequestFrameTracker * holder = ptr->value;
-            if (holder->is_can) {
-                ELM327RequestFrameTracker_free_conv(holder);
-            }
-
-            ELM327RequestFrameTracker_init_conv(holder, false, 0);
-
         }
-        ELM327RequestFrameTracker * holder = ptr->value;
+
+        ELM327RequestFrameTracker *holder = ptr->value;
+        ELM327RequestFrameTracker_init_conv(holder, false, 0);
         Buffer * conversation = holder->conversation->value;
         ad_buffer_append(conversation, frame);
         completed_flow = holder;
     }
+cleanup:
     ad_buffer_free(requestFrameHeader);
+    ad_buffer_free(senderAddress);
     return completed_flow;
 }
 static Buffer *sim_ecu_generate_response(SimELM327 * elm327, SimECU * ecu, ELM327RequestFrameTracker * holder) {
