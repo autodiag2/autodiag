@@ -611,20 +611,33 @@ static Buffer * sim_ecu_collect_response_for_flow(SimELM327 * elm327, SimECU * e
         return dataRequest;
     }
     log_debug("use the first conversation for now");
+    bool is_can = elm327_protocol_is_can(elm327->protocolRunning);
+    for(int i = 0; i < ecu->conversations->size; i++) {
+        ad_object_Ptr * current_ptr = ecu->conversations->values[i];
+        ELM327RequestMessageHolder * current_holder = current_ptr->value;
+        if ( current_holder->is_can != is_can ) {
+            ad_object_hashmap_Ptr_Ptr_delete(ecu->conversations, ecu->conversations->keys[i]);
+        }
+    }
     ad_object_Ptr * ptr = ecu->conversations->values[0];
     ELM327RequestMessageHolder * holder = ptr->value;
     ad_object_hashmap_Ptr_Ptr_delete(ecu->conversations, ecu->conversations->keys[0]);
-    if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        Iso15765Conversation * iso15765_conversation = holder->conversation->value;
-        assert(iso15765_conversation != null);
-        if ( iso15765_conversation->remaining_data_bytes_to_receive != 0 ) {
-            log_warn("incomplete data flow - %s (%d remaining) - dropping", iso15765_conversation->remaining_data_bytes_to_receive, ad_buffer_to_hex_string(iso15765_conversation->data));
-        } else {
-            dataRequest = ad_buffer_copy(iso15765_conversation->data);
+
+    if ( is_can ) {
+        if ( holder->is_can ) {
+            Iso15765Conversation * iso15765_conversation = holder->conversation->value;
+            assert(iso15765_conversation != null);
+            if ( iso15765_conversation->remaining_data_bytes_to_receive != 0 ) {
+                log_warn("incomplete data flow - %s (%d remaining) - dropping", iso15765_conversation->remaining_data_bytes_to_receive, ad_buffer_to_hex_string(iso15765_conversation->data));
+            } else {
+                dataRequest = ad_buffer_copy(iso15765_conversation->data);
+            }
         }
     } else {
-        Buffer * data = holder->conversation->value;
-        dataRequest = ad_buffer_copy(data);
+        if ( ! holder->is_can ) {
+            Buffer * data = holder->conversation->value;
+            dataRequest = ad_buffer_copy(data);
+        }
     }
 
     return sim_ecu_response(ecu, dataRequest);
