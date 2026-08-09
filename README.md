@@ -7,7 +7,7 @@
 Automotive diagnostic software with many protocols.
  - Read the codes through OBD/UDS with a list maintained at [database](https://github.com/autodiag2/database).
  - Read and curve sensors values (signals eg. obdb).
- - Simulate ELM327, doip devices with a high degree of accuracy.
+ - Simulate **ELM327**, **doip**, **socketcan** devices with a high degree of accuracy.
  - Record and replay exchange with vehicle.
  - Perform dyno test.
 
