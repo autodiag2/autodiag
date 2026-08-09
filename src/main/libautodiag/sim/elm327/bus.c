@@ -442,18 +442,23 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
             case Iso15765SingleFrame: {
                 log_debug("single frame");
                 int data_length = pci & 0x0F;
-                Iso15765Conversation * conversation = ad_simECU_conversation_get_by_address(ecu, senderAddress);
-                if ( conversation != null ) {
+                ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+                if ( ptr != null ) {
+                    Iso15765Conversation * conversation = ptr->value;
+                    assert(conversation != null);
                     iso15765_conversation_free(conversation);
                     log_warn("dropping existing conversation for single frame request");
+                } else {
+                    ptr = ad_object_Ptr_new();
                 }
                 int current_data_length = data_length;
-                conversation = iso15765_init_conversation(data_length);
+                Iso15765Conversation * conversation = iso15765_init_conversation(data_length);
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
-                ad_simECU_conversation_set_by_address(ecu, senderAddress, conversation);
+                ptr->value = conversation;
+                ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 if ( data_length != frame->size ) {
                     if ( elm327->can.auto_format ) {
                         log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", data_length, frame->size);
@@ -473,22 +478,33 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 byte pci2 = ad_buffer_extract_0(frame);
                 int data_length = ((pci & 0x0F) << 8) + pci2;
                 int current_data_length = frame->size;
-                Iso15765Conversation * conversation = ad_simECU_conversation_get_by_address(ecu, senderAddress);
-                if ( conversation != null ) {
-                    log_warn("dropping existing conversation for first frame request");
-                    iso15765_conversation_free(conversation);
+                ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+                Iso15765Conversation * conversation;
+                if ( ptr != null ) {
+                    conversation = ptr->value;
+                    if ( conversation != null ) {
+                        log_warn("dropping existing conversation for first frame request");
+                        iso15765_conversation_free(conversation);
+                    }
+                } else {
+                    ptr = ad_object_Ptr_new();
                 }
                 conversation = iso15765_init_conversation(data_length);
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
-                ad_simECU_conversation_set_by_address(ecu, senderAddress, conversation);
+                ptr->value = conversation;
+                ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 log_debug("todo : data length check (for user generated headers for example)");
             } break;
             case Iso15765ConsecutiveFrame: {
                 log_debug("consecutive frame");
-                Iso15765Conversation * conversation = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+                ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+                Iso15765Conversation * conversation = null;
+                if ( ptr != null ) {
+                    conversation = ptr->value;
+                }
                 if ( conversation == null ) {
                     log_warn("dropping consecutive frame request without first frame");
                     if ( errorCauseReturn != null ) {
@@ -517,10 +533,17 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
             log_warn("Use all the bytes for now");
         }
         senderAddress = ad_buffer_from_bytes(&requestFrameHeader->buffer[2], 1);
-        Buffer * conversation = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+        ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
+        Buffer * conversation = null;
+        if ( ptr == null ) {
+            ptr = ad_object_Ptr_new();
+        } else {
+            conversation = ptr->value;
+        }
         if ( conversation == null ) {
             conversation = ad_buffer_new();
-            ad_simECU_conversation_set_by_address(ecu, senderAddress, conversation);
+            ptr->value = conversation;
+            ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
         }
         ad_buffer_append(conversation, frame);
     }
