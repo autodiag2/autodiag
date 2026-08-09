@@ -535,54 +535,65 @@ static Buffer *sim_ecu_generate_response(SimELM327 * elm327, SimECU * ecu, ELM32
     }
     return sim_ecu_response(ecu, dataRequest);
 }
-char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
+static void bus_lock(SimELM327 * elm327) {
+    SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;
+    pthread_mutex_lock(&impl->bus_lock);
+}
+static void bus_unlock(SimELM327 * elm327) {
+    SimELM327Implementation * impl = (SimELM327Implementation*)elm327->implementation;
+    pthread_mutex_unlock(&impl->bus_lock);
+}
+char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request, ad_list_Buffer * framesDirectInjection) {
     bool isHexString = true;
-    sim_elm327_parse_request(elm327, hex_string_request, &isHexString, null);
-    if ( ! isHexString ) {
-        return null;
-    }
     char *response = strdup("");
-    if ( elm327_protocol_is_iso(elm327->protocolRunning) ) {
-        bool response_needed = false;
-        if ( ! elm327->iso.bus_initialized ) {
-            if ( elm327->iso.bus_init_start == 0 ) {
-                elm327->iso.bus_init_start = time_ms();
-            }
-            
-            if ( SIM_ELM327_ISO_BUS_INIT_SLOW_MS < (time_ms() - elm327->iso.bus_init_start) ) {
-                elm327->iso.bus_initialized = true;
-                response_needed = true;
-            }
-            if ( elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_1 || 
-                elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_2
-            ) {
-                if ( SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+    final Buffer * dataRequest = ad_buffer_new();
+    if ( hex_string_request != null ) {
+        sim_elm327_parse_request(elm327, hex_string_request, &isHexString, null);
+        if ( ! isHexString ) {
+            return null;
+        }
+        if ( elm327_protocol_is_iso(elm327->protocolRunning) ) {
+            bool response_needed = false;
+            if ( ! elm327->iso.bus_initialized ) {
+                if ( elm327->iso.bus_init_start == 0 ) {
+                    elm327->iso.bus_init_start = time_ms();
+                }
+                
+                if ( SIM_ELM327_ISO_BUS_INIT_SLOW_MS < (time_ms() - elm327->iso.bus_init_start) ) {
                     elm327->iso.bus_initialized = true;
                     response_needed = true;
                 }
+                if ( elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_1 || 
+                    elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_2
+                ) {
+                    if ( SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+                        elm327->iso.bus_initialized = true;
+                        response_needed = true;
+                    }
+                }
+            }
+            if ( response_needed ) {
+                response = gprintf("BUS INIT: OK");
+            } else {
+                if ( ! elm327->iso.bus_initialized ) {
+                    return gprintf("BUS INIT: ...");
+                }
             }
         }
-        if ( response_needed ) {
-            response = gprintf("BUS INIT: OK");
-        } else {
-            if ( ! elm327->iso.bus_initialized ) {
-                return gprintf("BUS INIT: ...");
-            }
+        if ( ! elm327->responses ) {
+            return strdup("");
         }
+        char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
+        int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
+        if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
+            log_msg(LOG_DEBUG, "Ignoring optimization request '%s'", hex_string_req_reduced);
+            hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
+        }
+        elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);
+        free(hex_string_req_reduced);
+        log_msg(LOG_DEBUG, "TODO: handle multiple data request");
     }
-    if ( ! elm327->responses ) {
-        return strdup("");
-    }
-    final Buffer * dataRequest = ad_buffer_new();
-    char * hex_string_req_reduced = sim_elm327_hex_string_request_reduce(elm327, hex_string_request);
-    int hex_string_req_reduced_sz = strlen(hex_string_req_reduced);
-    if ( ( hex_string_req_reduced_sz % 2 ) != 0 ) {
-        log_msg(LOG_DEBUG, "Ignoring optimization request '%s'", hex_string_req_reduced);
-        hex_string_req_reduced[--hex_string_req_reduced_sz] = 0x00;
-    }
-    elm_ascii_to_bin_internal(false, dataRequest, hex_string_req_reduced, hex_string_req_reduced + hex_string_req_reduced_sz);
-    free(hex_string_req_reduced);
-    log_msg(LOG_DEBUG, "TODO: handle multiple data request");
+    bus_lock(elm327);
     for(int i = 0; i < LIST_SIM_ECU(elm327->ecus)->size; i++) {
         SimECU * ecu = LIST_SIM_ECU(elm327->ecus)->list[i];
 
@@ -592,7 +603,13 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             }
         }
 
-        ad_list_Buffer * requestFrames = request_frames(elm327, ecu, dataRequest);
+        ad_list_Buffer * requestFrames = null;
+        if ( framesDirectInjection != null && hex_string_request == null ) {
+            requestFrames = framesDirectInjection;
+        } else {
+            assert(hex_string_request);
+            requestFrames = request_frames(elm327, ecu, dataRequest);
+        }
         char * ecuResponse = null;
 
         ecu->generator->flavour.is_Iso15765_4 = elm327_protocol_is_can(elm327->protocolRunning);
@@ -617,7 +634,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             ad_buffer_append_melt(dataResponse, sim_ecu_generate_response(elm327, ecu, completed_flow));
         }
 
-        if ( dataRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
+        if ( 0 < dataRequest->size && dataRequest->buffer[0] == OBD_SERVICE_CLEAR_DTC ) {
             if ( 0 < dataResponse->size ) {
                 if ( (dataResponse->buffer[0] & OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE) == OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE ) {
                     log_msg(LOG_DEBUG, "DTCs cleared request received, replying OK (elm327 style)");
@@ -745,6 +762,7 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {
             response = tmpResponseResult;
         }
     }
+    bus_unlock(elm327);
     ad_buffer_free(dataRequest);
     if ( strlen(response) == 0 ) {
         double part = 1;

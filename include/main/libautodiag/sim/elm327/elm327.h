@@ -25,13 +25,15 @@
 #include "libautodiag/sim/elm327/network.h"
 #include "libautodiag/com/socketcan.h"
 
-typedef struct {
+typedef struct SimELM327Implementation {
     SimImplementation;
     pthread_t activity_monitor_thread;
     bool activity_monitor_thread_launched;
     pthread_t * loop_thread;
     bool loop_ready;
     int timeout_ms;
+    pthread_mutex_t bus_lock;
+    pthread_t socketcan_thread;
 } SimELM327Implementation;
 
 typedef enum {
@@ -176,6 +178,10 @@ typedef struct _SimELM327 {
 
 SimELM327* sim_elm327_new();
 void sim_elm327_loop(SimELM327 * elm327);
+/**
+ * Start listening on the specified socketcan interface, injecting messages direclty in the bus.
+ */
+bool sim_elm327_socketcan_listen(SimELM327 *elm327, AdSocketCan *socketcan);
 void sim_elm327_loop_as_daemon(SimELM327 * elm327);
 /**
  * Use this to wait for the daemon to be ready to receive some data.

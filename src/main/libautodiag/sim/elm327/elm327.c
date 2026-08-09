@@ -305,6 +305,7 @@ SimELM327* sim_elm327_new() {
     impl->timeout_ms = SERIAL_DEFAULT_TIMEOUT;
     impl->activity_monitor_thread_launched = false;
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
+    pthread_mutex_init(&impl->bus_lock, null);
     return elm327;
 }
 void sim_elm327_destroy(SimELM327 * elm327) {
@@ -859,7 +860,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
             if AT_PARSE("cs") {
                 SIM_ELM327_REPLY_GENERIC("T:00 R:00 ")
             } else {
-                char * response = sim_elm327_bus(elm327,ad_serial_request);
+                char * response = sim_elm327_bus(elm327,ad_serial_request, null);
                 if ( response != null ) {
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                     free(response);
@@ -878,7 +879,7 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
                     SIM_ELM327_REPLY_FULL(false, true, "OK%s>", elm327->eol);
                     elm327->iso.bus_initialized = true;
                 } else {
-                    char * response = sim_elm327_bus(elm327,ad_serial_request);
+                    char * response = sim_elm327_bus(elm327,ad_serial_request, null);
                     if ( response != null ) {
                         bool omit_prompt = ! elm327->iso.bus_initialized;
                         SIM_ELM327_REPLY_FULL(true, omit_prompt, "%s", response);
@@ -887,14 +888,14 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
                             usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
                             SIM_ELM327_REPLY_FULL(false, true, "OK");
                             elm327->iso.bus_initialized = true;
-                            response = sim_elm327_bus(elm327,ad_serial_request);
+                            response = sim_elm327_bus(elm327,ad_serial_request, null);
                             assert(response != null);
                             SIM_ELM327_REPLY_FULL(false, true, "%s%s>", response, elm327->eol);
                         }
                     }                
                 }
             } else {
-                char * response = sim_elm327_bus(elm327,ad_serial_request);
+                char * response = sim_elm327_bus(elm327,ad_serial_request, null);
                 if ( response != null ) {
                     SIM_ELM327_REPLY_GENERIC("%s", response);
                     free(response);
@@ -921,6 +922,93 @@ SimELM327_DEVICE_TYPE sim_elm327_device_type_from_str(char * str) {
     return SimELM327_DEVICE_TYPE_UNSET;
 }
 
+typedef struct {
+    SimELM327 *elm327;
+    AdSocketCan *socketcan;
+} SimELM327SocketCanThreadContext;
+
+static void *sim_elm327_socketcan_thread(void *arg) {
+    SimELM327SocketCanThreadContext *context = arg;
+    SimELM327 *elm327 = context->elm327;
+    AdSocketCan *socketcan = context->socketcan;
+
+    while (elm327->socketcan == socketcan) {
+        AdCanFrame can_frame;
+
+        if (ad_socketcan_receive(socketcan, &can_frame) < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+
+            log_warn("SocketCAN receive failed: %s", strerror(errno));
+            break;
+        }
+
+        Buffer *frame = ad_buffer_new();
+
+        if (can_frame.extended) {
+            ad_buffer_append_byte(frame, (can_frame.id >> 24) & 0xFF);
+            ad_buffer_append_byte(frame, (can_frame.id >> 16) & 0xFF);
+            ad_buffer_append_byte(frame, (can_frame.id >> 8) & 0xFF);
+            ad_buffer_append_byte(frame, can_frame.id & 0xFF);
+        } else {
+            ad_buffer_append_byte(frame, (can_frame.id >> 8) & 0xFF);
+            ad_buffer_append_byte(frame, can_frame.id & 0xFF);
+        }
+
+        ad_buffer_memcpy(frame, can_frame.data, can_frame.size);
+
+        ad_list_Buffer *frames = ad_list_Buffer_new();
+        ad_list_Buffer_append(frames, frame);
+
+        sim_elm327_bus(elm327, null, frames);
+
+        ad_list_Buffer_free(frames);
+    }
+
+    return null;
+}
+bool sim_elm327_socketcan_listen(SimELM327 *elm327, AdSocketCan *socketcan) {
+    if (elm327 == null || socketcan == null) {
+        return false;
+    }
+
+    SimELM327Implementation *impl =
+        (SimELM327Implementation *)elm327->implementation;
+
+    if (impl == null) {
+        return false;
+    }
+
+    SimELM327SocketCanThreadContext *ctx =
+        (SimELM327SocketCanThreadContext *)malloc(
+            sizeof(SimELM327SocketCanThreadContext)
+        );
+
+    if (ctx == null) {
+        log_warn("Failed to allocate SocketCAN thread context: %s",
+                 strerror(errno));
+        return false;
+    }
+
+    ctx->elm327 = elm327;
+    ctx->socketcan = socketcan;
+
+    int result = pthread_create(
+        &impl->socketcan_thread,
+        null,
+        sim_elm327_socketcan_thread,
+        ctx
+    );
+
+    if (result != 0) {
+        free(ctx);
+        log_warn("Failed to create SocketCAN thread: %s", strerror(result));
+        return false;
+    }
+
+    return true;
+}
 void sim_elm327_loop(SimELM327 * elm327) {
     sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
 
@@ -1089,6 +1177,12 @@ void sim_elm327_loop(SimELM327 * elm327) {
     bool shouldWriteNvm = false;
 
     assert(elm327->device_type != SimELM327_DEVICE_TYPE_UNSET);
+    if ( elm327->socketcan ) {
+        if ( ! sim_elm327_socketcan_listen(elm327, elm327->socketcan) ) {
+            log_err("creating of the socketCAN listener has failed");
+            return;
+        }
+    }
     while(impl->loop_thread != null) {
         ad_buffer_recycle(recv_buffer);
         if ( impl->loop_ready == false ) {
