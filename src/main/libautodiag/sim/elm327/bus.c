@@ -75,7 +75,7 @@ static ad_list_Buffer * request_frames(SimELM327* elm327, SimECU * ecu, Buffer *
             if ( AD_ISO15765_SINGLE_FRAME_MAX_BYTES < dataRequest->size ) {
                 int data_length = dataRequest->size;
                 ad_buffer_append_byte(one_frame, (Iso15765FirstFrame << 4) | ((data_length >> 8) & 0xF));
-                ad_buffer_append_byte(one_frame, data_length & 0xF);
+                ad_buffer_append_byte(one_frame, data_length & 0xFF);
                 ad_buffer_slice_append(one_frame, dataRequest, 0, AD_ISO15765_FIRST_FRAME_MAX_BYTES);
                 for(int i = AD_ISO15765_FIRST_FRAME_MAX_BYTES, sn = 1; i < dataRequest->size; i += AD_ISO15765_CONSECUTIVE_FRAME_MAX_BYTES, sn ++) {
                     Buffer * consecutive_frame = ad_buffer_new();
