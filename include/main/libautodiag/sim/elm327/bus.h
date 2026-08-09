@@ -11,4 +11,12 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request);
  */
 bool sim_elm327_parse_request(SimELM327 * elm327, char * hex_string_request, bool * isHexString_rv, bool * hasSpaces_rv);
 
+/**
+ * Incoming request in the emulator (socketCAN, internal elm327 simulation)
+ */
+typedef struct {
+    bool is_can;
+    ad_object_Ptr * conversation;
+} ELM327RequestFrameTracker;
+
 #endif
