@@ -419,8 +419,7 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 if ( data_length != frame->size ) {
                     if ( elm327->can.auto_format ) {
-                        log_msg(LOG_ERROR, "Generated pci is different than the actual request size (%d/%d)", data_length, frame->size);
-                        assert( data_length == frame->size);
+                        log_msg(LOG_WARNING, "Generated pci is different than the actual request size (%d/%d)", data_length, frame->size);
                     } else {
                         log_msg(LOG_WARNING, "Single frame pci size does not match (%d/%d)", data_length, frame->size);
                         if ( errorCauseReturn != null ) {
