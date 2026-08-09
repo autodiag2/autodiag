@@ -395,6 +395,56 @@ static Buffer* data_extract_if_accepted(SimELM327* elm327, SimECU * ecu, ad_list
     }
     return dataRequest;
 }
+typedef struct {
+    bool is_can;
+    ad_object_Ptr * conversation;
+} ELM327RequestMessageHolder;
+static void ELM327RequestMessageHolder_free_conv(ELM327RequestMessageHolder *holder) {
+    if (holder == null || holder->conversation == null) {
+        return;
+    }
+
+    if (holder->is_can) {
+        Iso15765Conversation *conversation = holder->conversation->value;
+        if (conversation != null) {
+            iso15765_conversation_free(conversation);
+        }
+    } else {
+        Buffer *buf = holder->conversation->value;
+        if (buf != null) {
+            ad_buffer_free(buf);
+        }
+    }
+
+    holder->conversation->value = null;
+    ad_object_Ptr_free(holder->conversation);
+    holder->conversation = null;
+}
+static void ELM327RequestMessageHolder_free(ELM327RequestMessageHolder *holder) {
+    if (holder != null) {
+        ELM327RequestMessageHolder_free_conv(holder);
+        free(holder);
+    }
+}
+static void * ELM327RequestMessageHolder_init_conv(ELM327RequestMessageHolder * holder, bool is_can, int bytes) {
+    holder->is_can = is_can;
+    holder->conversation = ad_object_Ptr_new();
+    if ( is_can ) {
+        Iso15765Conversation * conversation = iso15765_init_conversation(bytes);
+        holder->conversation->value = conversation;
+        return conversation;
+    } else {
+        Buffer * buf = ad_buffer_new();
+        holder->conversation->value = buf;
+        return buf;
+    }
+}
+static ELM327RequestMessageHolder * ELM327RequestMessageHolder_new() {
+    ELM327RequestMessageHolder * holder = (ELM327RequestMessageHolder*)malloc(sizeof(ELM327RequestMessageHolder));
+    holder->is_can = false;
+    holder->conversation = null;
+    return holder;
+}
 static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * frame, char ** errorCauseReturn) {
     Buffer * requestFrameHeader = ad_buffer_new();
     Buffer * senderAddress = null;
@@ -444,20 +494,19 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 int data_length = pci & 0x0F;
                 ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
                 if ( ptr != null ) {
-                    Iso15765Conversation * conversation = ptr->value;
-                    assert(conversation != null);
-                    iso15765_conversation_free(conversation);
+                    ELM327RequestMessageHolder * holder = ptr->value;
+                    ELM327RequestMessageHolder_free_conv(holder);
                     log_warn("dropping existing conversation for single frame request");
                 } else {
                     ptr = ad_object_Ptr_new();
+                    ptr->value = ELM327RequestMessageHolder_new();
                 }
                 int current_data_length = data_length;
-                Iso15765Conversation * conversation = iso15765_init_conversation(data_length);
+                Iso15765Conversation * conversation = ELM327RequestMessageHolder_init_conv(ptr->value, true, data_length);
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 conversation->data = ad_buffer_copy(frame);
-                ptr->value = conversation;
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 if ( data_length != frame->size ) {
                     if ( elm327->can.auto_format ) {
@@ -481,20 +530,20 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
                 Iso15765Conversation * conversation;
                 if ( ptr != null ) {
-                    conversation = ptr->value;
-                    if ( conversation != null ) {
+                    ELM327RequestMessageHolder * holder = ptr->value;
+                    if ( holder->conversation != null ) {
+                        ELM327RequestMessageHolder_free_conv(holder);
                         log_warn("dropping existing conversation for first frame request");
-                        iso15765_conversation_free(conversation);
                     }
                 } else {
                     ptr = ad_object_Ptr_new();
+                    ptr->value = ELM327RequestMessageHolder_new();
                 }
-                conversation = iso15765_init_conversation(data_length);
+                conversation = ELM327RequestMessageHolder_init_conv(ptr->value, true, data_length);
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 conversation->data = ad_buffer_copy(frame);
-                ptr->value = conversation;
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 log_debug("todo : data length check (for user generated headers for example)");
             } break;
@@ -503,7 +552,9 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
                 Iso15765Conversation * conversation = null;
                 if ( ptr != null ) {
-                    conversation = ptr->value;
+                    ELM327RequestMessageHolder * holder = ptr->value;
+                    assert(holder->is_can);
+                    conversation = holder->conversation->value;
                 }
                 if ( conversation == null ) {
                     log_warn("dropping consecutive frame request without first frame");
@@ -534,17 +585,20 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
         }
         senderAddress = ad_buffer_from_bytes(&requestFrameHeader->buffer[2], 1);
         ad_object_Ptr * ptr = ad_simECU_conversation_get_by_address(ecu, senderAddress);
-        Buffer * conversation = null;
         if ( ptr == null ) {
             ptr = ad_object_Ptr_new();
-        } else {
-            conversation = ptr->value;
-        }
-        if ( conversation == null ) {
-            conversation = ad_buffer_new();
-            ptr->value = conversation;
+            ptr->value = ELM327RequestMessageHolder_new();
             ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
+            ELM327RequestMessageHolder_init_conv(ptr->value, false, 0);
+        } else {
+            ELM327RequestMessageHolder * holder = ptr->value;
+            if ( holder->is_can ) {
+                log_debug("dropping existing conversation for non-CAN request");
+                ELM327RequestMessageHolder_init_conv(ptr->value, false, 0);
+            }
         }
+        ELM327RequestMessageHolder * holder = ptr->value;
+        Buffer * conversation = holder->conversation->value;
         ad_buffer_append(conversation, frame);
     }
     ad_buffer_free(requestFrameHeader);
@@ -557,18 +611,19 @@ static Buffer * sim_ecu_collect_response_for_flow(SimELM327 * elm327, SimECU * e
         return dataRequest;
     }
     log_debug("use the first conversation for now");
-    ad_object_Ptr * conversation = ecu->conversations->values[0];
+    ad_object_Ptr * ptr = ecu->conversations->values[0];
+    ELM327RequestMessageHolder * holder = ptr->value;
     ad_object_hashmap_Ptr_Ptr_delete(ecu->conversations, ecu->conversations->keys[0]);
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
-        Iso15765Conversation * iso15765_conversation = conversation->value;
+        Iso15765Conversation * iso15765_conversation = holder->conversation->value;
         assert(iso15765_conversation != null);
         if ( iso15765_conversation->remaining_data_bytes_to_receive != 0 ) {
-            log_warn("incomplete data flow - dropping");
+            log_warn("incomplete data flow - %s (%d remaining) - dropping", iso15765_conversation->remaining_data_bytes_to_receive, ad_buffer_to_hex_string(iso15765_conversation->data));
         } else {
             dataRequest = ad_buffer_copy(iso15765_conversation->data);
         }
     } else {
-        Buffer * data = conversation->value;
+        Buffer * data = holder->conversation->value;
         dataRequest = ad_buffer_copy(data);
     }
 
