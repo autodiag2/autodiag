@@ -456,7 +456,7 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
-                ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
+                conversation->data = ad_buffer_copy(frame);
                 ptr->value = conversation;
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 if ( data_length != frame->size ) {
@@ -470,7 +470,7 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                         }
                         return false;
                     }
-                }                    
+                }   
             } break;
             case Iso15765FirstFrame: {
                 log_debug("first frame");
@@ -493,7 +493,7 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                 conversation->current_sn = 0;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
-                ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
+                conversation->data = ad_buffer_copy(frame);
                 ptr->value = conversation;
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
                 log_debug("todo : data length check (for user generated headers for example)");
@@ -513,11 +513,11 @@ static bool sim_ecu_process_frame(SimELM327 * elm327, SimECU * ecu, Buffer * fra
                     return false;
                 }
                 int sn = pci & 0xF;
-                int current_data_length = frame->size - 1;
+                int current_data_length = frame->size;
                 conversation->current_sn = sn;
                 conversation->current_data_length = current_data_length;
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
-                ad_buffer_slice_append(conversation->data, frame, 1, current_data_length);
+                ad_buffer_slice_append(conversation->data, frame, 0, current_data_length);
                 log_debug("todo : order check (for user generated headers for example)");
             } break;
             case Iso15765FlowControlFrame: {
@@ -558,6 +558,7 @@ static Buffer * sim_ecu_collect_response_for_flow(SimELM327 * elm327, SimECU * e
     }
     log_debug("use the first conversation for now");
     ad_object_Ptr * conversation = ecu->conversations->values[0];
+    ad_object_hashmap_Ptr_Ptr_delete(ecu->conversations, ecu->conversations->keys[0]);
     if ( elm327_protocol_is_can(elm327->protocolRunning) ) {
         Iso15765Conversation * iso15765_conversation = conversation->value;
         assert(iso15765_conversation != null);
@@ -570,6 +571,7 @@ static Buffer * sim_ecu_collect_response_for_flow(SimELM327 * elm327, SimECU * e
         Buffer * data = conversation->value;
         dataRequest = ad_buffer_copy(data);
     }
+
     return sim_ecu_response(ecu, dataRequest);
 }
 char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request) {

@@ -31,6 +31,22 @@
     object->size = 0; \
 }
 
+#define AD_HASHMAP_H_DELETE(key_type, value_type) bool ad_object_hashmap_##key_type##_##value_type##_delete(AD_HASHMAP(key_type,value_type) * hm, AD_OBJECT(key_type) *key)
+#define AD_HASHMAP_SRC_DELETE(key_type, value_type) AD_HASHMAP_H_DELETE(key_type, value_type) { \
+    assert(hm != null); \
+    for(unsigned i = 0; i < hm->size; i++) { \
+        if ( ad_object_hashmap_##key_type##_##value_type##_key_comparator(hm->keys[i], key) == 0 ) { \
+            for(unsigned int j = 0; j < (hm->size - 1); j++) { \
+                if ( j >= i ) { \
+                    hm->keys[j] = hm->keys[j+1]; \
+                    hm->values[j] = hm->values[j+1]; \
+                } \
+            } \
+            return true; \
+        } \
+    } \
+    return false; \
+}
 #define AD_HASHMAP_H_GET(key_type, value_type) AD_OBJECT(value_type) * ad_object_hashmap_##key_type##_##value_type##_get(AD_HASHMAP(key_type,value_type) * hm, AD_OBJECT(key_type) *key)
 #define AD_HASHMAP_SRC_GET(key_type, value_type) AD_HASHMAP_H_GET(key_type, value_type) { \
     assert(hm != null); \
@@ -82,7 +98,8 @@
     ); \
     AD_HASHMAP_H_SET(key_type, value_type); \
     AD_HASHMAP_H_GET(key_type, value_type); \
-    AD_HASHMAP_H_CLEAR(key_type, value_type);
+    AD_HASHMAP_H_CLEAR(key_type, value_type); \
+    AD_HASHMAP_H_DELETE(key_type, value_type);
 
 #define AD_HASHMAP_SRC(key_type, value_type) \
     AD_HASHMAP_SRC_SET(key_type, value_type) \
@@ -90,6 +107,7 @@
     AD_HASHMAP_SRC_NEW(key_type, value_type) \
     AD_HASHMAP_SRC_FREE(key_type, value_type) \
     AD_HASHMAP_SRC_CLEAR(key_type, value_type) \
+    AD_HASHMAP_SRC_DELETE(key_type, value_type) \
     AD_OBJECT_SRC(hashmap_##key_type##_##value_type)
 
 #endif
