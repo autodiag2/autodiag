@@ -28,7 +28,7 @@ typedef enum {
 /**
  * Store the conversation with a given ECU.
  */
-typedef struct {
+typedef struct Iso15765Conversation {
     /**
      * Remaining data bytes to receive in this conversation
      */

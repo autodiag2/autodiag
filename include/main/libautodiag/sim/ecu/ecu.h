@@ -17,7 +17,11 @@ static inline ECU_address ECU_address_from_double(double value) {
 typedef struct SimECU {
     ECU_address address;
     SimECUGenerator * generator;
+    ad_object_hashmap_Ptr_Ptr * conversations;
 } SimECU;
+
+ad_object_Ptr * ad_simECU_conversation_get_by_address(SimECU * ecu, Buffer * address);
+ad_object_Ptr * ad_simECU_conversation_set_by_address(SimECU * ecu, Buffer * address, ad_object_Ptr * value);
 
 AD_LIST_H(SimECU)
 #define LIST_SIM_ECU(var) ((ad_list_SimECU*)var)

@@ -11,5 +11,6 @@ AD_HASHMAP_H(Int, Int)
 AD_HASHMAP_H(string, Ptr)
 AD_HASHMAP_H(Ptr, string)
 AD_HASHMAP_H(string, string)
+AD_HASHMAP_H(Ptr,Ptr)
 
 #endif

@@ -12,6 +12,27 @@ void ad_list_SimECU_empty(ad_list_SimECU * list) {
         ad_list_SimECU_remove_at(list, 0);
     }
 }
+ad_object_Ptr * ad_simECU_conversation_get_by_address(SimECU * ecu, Buffer * address) {
+    for (int i = 0; i < ecu->conversations->size; i++) {
+        Buffer * conv_address = ecu->conversations->keys[i]->value;
+        if ( ad_buffer_cmp(conv_address, address) == 0 ) {
+            return ecu->conversations->values[i];
+        }
+    }
+    return null;
+}
+
+ad_object_Ptr * ad_simECU_conversation_set_by_address(SimECU * ecu, Buffer * address, ad_object_Ptr * value) {
+    for (int i = 0; i < ecu->conversations->size; i++) {
+        Buffer * conv_address = ecu->conversations->keys[i]->value;
+        if ( ad_buffer_cmp(conv_address, address) == 0 ) {
+            ecu->conversations->values[i] = value;
+            return value;
+        }
+    }
+    ad_object_hashmap_Ptr_Ptr_set(ecu->conversations, ad_object_Ptr_new_from(address), value);
+    return ad_simECU_conversation_get_by_address(ecu, address);
+}
 SimECU * ad_list_SimECU_search_by_address(ad_list_SimECU * list, ECU_address address) {
     for(int i = 0; i < list->size; i++) {
         if ( list->list[i]->address == address ) {
@@ -61,6 +82,7 @@ SimECU* sim_ecu_new(ECU_address address) {
     final SimECU* emu = (SimECU*)malloc(sizeof(SimECU));
     emu->address = address;
     emu->generator = sim_ecu_generator_new_random();
+    emu->conversations = ad_object_hashmap_Ptr_Ptr_new();
     return emu;
 }
 

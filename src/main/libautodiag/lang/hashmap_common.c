@@ -73,3 +73,19 @@ ad_object_hashmap_string_string * ad_object_hashmap_string_string_assign(ad_obje
     return to;
 }
 AD_HASHMAP_SRC(string, string)
+
+int ad_object_hashmap_Ptr_Ptr_key_comparator(ad_object_Ptr *k1, ad_object_Ptr *k2) {
+    assert(k1 != null);
+    assert(k2 != null);
+    return k1->value - k2->value;
+}
+ad_object_hashmap_Ptr_Ptr * ad_object_hashmap_Ptr_Ptr_assign(ad_object_hashmap_Ptr_Ptr*to, ad_object_hashmap_Ptr_Ptr*from) {
+    assert(to != null);
+    assert(from != null);
+    ad_object_hashmap_Ptr_Ptr_clear(to);
+    for(unsigned i = 0; i < from->size; i++) {
+        ad_object_hashmap_Ptr_Ptr_set(to, ad_object_Ptr_new_from(from->keys[i]->value), ad_object_Ptr_new_from(from->values[i]->value));
+    }
+    return to;
+}
+AD_HASHMAP_SRC(Ptr, Ptr)
