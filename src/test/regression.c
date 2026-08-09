@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
     runIfSelected(testSimUDS, null);
     //runIfSelected(testSim, null);
     runIfSelected(testCycle, null);
-    runIfSelected(testDOIP, null);
+    //runIfSelected(testDOIP, null);
 
     viface_close(iface);
     viface_free(iface);

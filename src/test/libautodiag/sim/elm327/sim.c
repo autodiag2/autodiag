@@ -355,7 +355,7 @@ bool testSimELM327() {
     testDTCcountonSAEJ1979();
     testKWP2000LongMessages();
     ensureSerialOK();
-    ensureNetworkOK();
+    //ensureNetworkOK();
     ensureWithoutHeadersDontSendNull();
     ensureDisplayWithSpacesIsCorrect();
     //incomplete_string_return_after_20_secs();

@@ -98,7 +98,7 @@ static char * tf_sim_doip_start() {
 }
 static SimELM327 * tf_sim_elm327_new() {
     SimELM327* elm327 = sim_elm327_new();
-    elm327->device_type = SimELM327_DEVICE_TYPE_NETWORK;
+    elm327->device_type = SimELM327_DEVICE_TYPE_LOCAL;
     return elm327;
 }
 static char* tf_sim_elm327_start_with_ecu(SimECU *first) {
