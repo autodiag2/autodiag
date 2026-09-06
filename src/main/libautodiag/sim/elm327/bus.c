@@ -551,31 +551,33 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request, ad_list_Buf
         if ( ! isHexString ) {
             return null;
         }
-        if ( elm327_protocol_is_iso(elm327->protocolRunning) ) {
-            bool response_needed = false;
-            if ( ! elm327->iso.bus_initialized ) {
-                if ( elm327->iso.bus_init_start == 0 ) {
-                    elm327->iso.bus_init_start = time_ms();
-                }
-                
-                if ( SIM_ELM327_ISO_BUS_INIT_SLOW_MS < (time_ms() - elm327->iso.bus_init_start) ) {
-                    elm327->iso.bus_initialized = true;
-                    response_needed = true;
-                }
-                if ( elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_1 || 
-                    elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_2
-                ) {
-                    if ( SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+        if ( ! elm327->protocol_is_auto_running ) {
+            if ( elm327_protocol_is_iso(elm327->protocolRunning) ) {
+                bool response_needed = false;
+                if ( ! elm327->iso.bus_initialized ) {
+                    if ( elm327->iso.bus_init_start == 0 ) {
+                        elm327->iso.bus_init_start = time_ms();
+                    }
+                    
+                    if ( SIM_ELM327_ISO_BUS_INIT_SLOW_MS < (time_ms() - elm327->iso.bus_init_start) ) {
                         elm327->iso.bus_initialized = true;
                         response_needed = true;
                     }
+                    if ( elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_1 || 
+                        elm327->protocolRunning == ELM327_PROTO_ISO_14230_4_KWP2000_2
+                    ) {
+                        if ( SIM_ELM327_ISO_14230_BUT_INIT_FAST_MS < (time_ms() - elm327->iso.bus_init_start) ) {
+                            elm327->iso.bus_initialized = true;
+                            response_needed = true;
+                        }
+                    }
                 }
-            }
-            if ( response_needed ) {
-                response = gprintf("BUS INIT: OK");
-            } else {
-                if ( ! elm327->iso.bus_initialized ) {
-                    return gprintf("BUS INIT: ...");
+                if ( response_needed ) {
+                    response = gprintf("BUS INIT: OK");
+                } else {
+                    if ( ! elm327->iso.bus_initialized ) {
+                        return gprintf("BUS INIT: ...");
+                    }
                 }
             }
         }

@@ -881,16 +881,20 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
                 } else {
                     char * response = sim_elm327_bus(elm327,ad_serial_request, null);
                     if ( response != null ) {
-                        bool omit_prompt = ! elm327->iso.bus_initialized;
-                        SIM_ELM327_REPLY_FULL(true, omit_prompt, "%s", response);
-                        free(response);
-                        if ( omit_prompt ) {
-                            usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
-                            SIM_ELM327_REPLY_FULL(false, true, "OK");
-                            elm327->iso.bus_initialized = true;
-                            response = sim_elm327_bus(elm327,ad_serial_request, null);
-                            assert(response != null);
-                            SIM_ELM327_REPLY_FULL(false, true, "%s%s>", response, elm327->eol);
+                        if ( elm327->protocol_is_auto_running ) {
+                            SIM_ELM327_REPLY_FULL(true, false, "%s", response);
+                        } else {
+                            bool omit_prompt = ! elm327->iso.bus_initialized;
+                            SIM_ELM327_REPLY_FULL(true, omit_prompt, "%s", response);
+                            free(response);
+                            if ( omit_prompt ) {
+                                usleep(SIM_ELM327_ISO_BUS_INIT_SLOW_MS * 1000);
+                                SIM_ELM327_REPLY_FULL(false, true, "OK");
+                                elm327->iso.bus_initialized = true;
+                                response = sim_elm327_bus(elm327,ad_serial_request, null);
+                                assert(response != null);
+                                SIM_ELM327_REPLY_FULL(false, true, "%s%s>", response, elm327->eol);
+                            }
                         }
                     }                
                 }
