@@ -657,7 +657,9 @@ char * sim_elm327_bus(SimELM327 * elm327, char * hex_string_request, ad_list_Buf
             for(int frame_idx = 0; frame_idx < frames->size; frame_idx++) {
                 Buffer * frame = frames->list[frame_idx];
                 char * header = null;
-                response_frame_add_checksum(elm327, frame);
+                if ( elm327->printing_of_headers ) {
+                    response_frame_add_checksum(elm327, frame);
+                }
                 Buffer * headerBin = response_frame_extract_header(elm327, frame);
 
                 if ( elm327->socketcan && elm327_protocol_is_can(elm327->protocolRunning) ) {
