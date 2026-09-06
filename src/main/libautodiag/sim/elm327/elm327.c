@@ -1,6 +1,8 @@
 #include "libautodiag/sim/elm327/elm327.h"
 #include "libautodiag/sim/ecu/ecu.h"
 #include "libautodiag/sim/elm327/bus.h"
+#include <locale.h>
+#include <stdio.h>
 
 void sim_elm327_go_low_power() {
     log_msg(LOG_INFO, "Device go to low power");
@@ -539,7 +541,17 @@ bool sim_elm327_command_and_protocol_interpreter(SimELM327 * elm327, char* ad_se
         sim_elm327_init_from_nvm(elm327, SIM_ELM327_INIT_TYPE_POWER_OFF);
         SIM_ELM327_REPLY_ATI();
     } else if AT_PARSE("rv") {
-        SIM_ELM327_REPLY_GENERIC("13.5");
+        double voltage = elm327->voltage;
+        locale_t locale = newlocale(LC_NUMERIC_MASK, "C", NULL);
+        locale_t old = uselocale(locale);
+
+        char *s;
+        asprintf(&s, "%.1fV", voltage);
+
+        uselocale(old);
+        freelocale(locale);
+        SIM_ELM327_REPLY_GENERIC("%s", s);
+        free(s);
     } else if AT_PARSE("rtr") {
         SIM_ELM327_REPLY_OK();                                
     } else if AT_PARSE("rd") {
