@@ -417,6 +417,7 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 conversation->data = ad_buffer_copy(frame);
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
+                senderAddress = null;
                 if ( data_length != frame->size ) {
                     if ( elm327->can.auto_format ) {
                         log_msg(LOG_WARNING, "Generated pci is different than the actual request size (%d/%d)", data_length, frame->size);
@@ -454,6 +455,7 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
                 conversation->remaining_data_bytes_to_receive -= current_data_length;
                 conversation->data = ad_buffer_copy(frame);
                 ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
+                senderAddress = null;
                 log_debug("todo : data length check (for user generated headers for example)");
             } break;
             case Iso15765ConsecutiveFrame: {
@@ -505,6 +507,7 @@ static ELM327RequestFrameTracker* sim_ecu_process_frame(SimELM327 * elm327, SimE
             ptr = ad_object_Ptr_new();
             ptr->value = ELM327RequestFrameTracker_new();
             ad_simECU_conversation_set_by_address(ecu, senderAddress, ptr);
+            senderAddress = null;
         }
 
         ELM327RequestFrameTracker *holder = ptr->value;
