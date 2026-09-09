@@ -10,45 +10,59 @@ static Buffer * response_saej1979_dtcs_wrapper(SimECUGenerator *generator, int s
     ad_buffer_append_melt(binResponse,payload);
     return binResponse;
 }
-static Buffer * response_saej1979_pids(SimECUGenerator *generator, final Buffer *binRequest) {
-    if ( 0 == binRequest->size ) {
+static Buffer *response_saej1979_pids(
+        SimECUGenerator *generator,
+        final Buffer *binRequest
+) {
+    if (binRequest == null || binRequest->size == 0) {
         return ad_buffer_new();
     }
-    bool pidHasFrameNumber = false;
-    Buffer * binResponse = ad_buffer_new();
-    switch(binRequest->buffer[0]) {
-        case OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA:
-            pidHasFrameNumber = true;
-        case OBD_SERVICE_SHOW_CURRENT_DATA: {
-            int pid_i = 1;
-            ad_buffer_append_byte(binResponse, binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE);
-            if ( binRequest->size <= pid_i ) {
-                ad_buffer_recycle(binResponse);
-                break;
-            }
-            if ( generator->response_saej1979_pid == null ) {
-                log_err("response_saej1979_pid is not set for generator of type %s", generator->type);
-                ad_buffer_recycle(binResponse);
-                break;
-            }
-            do {
-                ad_buffer_append_byte(binResponse, binRequest->buffer[pid_i]);
-                int frameNumber = -1;
-                if ( pidHasFrameNumber ) {
-                    frameNumber = binRequest->buffer[pid_i+1];
-                    ad_buffer_append_byte(binResponse, frameNumber);
-                }
-                ad_buffer_append_melt(
-                    binResponse,
-                    generator->response_saej1979_pid(generator, binRequest->buffer[pid_i], frameNumber)
-                );
-                pid_i += 1 + pidHasFrameNumber;
-            } while(generator->flavour.is_Iso15765_4 && pid_i < binRequest->size);
-        } break;
+
+    bool pidHasFrameNumber = binRequest->buffer[0] == OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA;
+    Buffer *binResponse = ad_buffer_new();
+
+    if (binRequest->buffer[0] != OBD_SERVICE_SHOW_FREEEZE_FRAME_DATA &&
+        binRequest->buffer[0] != OBD_SERVICE_SHOW_CURRENT_DATA) {
+        return binResponse;
     }
+
+    if (generator->response_saej1979_pid == null) {
+        log_err(
+                "response_saej1979_pid is not set for generator of type %s",
+                generator->type
+        );
+        return binResponse;
+    }
+
+    ad_buffer_append_byte(
+            binResponse,
+            binRequest->buffer[0] | OBD_DIAGNOSTIC_SERVICE_POSITIVE_RESPONSE
+    );
+
+    int step = pidHasFrameNumber ? 2 : 1;
+
+    for (int pid_i = 1; pid_i + step <= binRequest->size; pid_i += step) {
+        byte pid = binRequest->buffer[pid_i];
+        int frameNumber = pidHasFrameNumber ? binRequest->buffer[pid_i + 1] : -1;
+
+        ad_buffer_append_byte(binResponse, pid);
+
+        if (pidHasFrameNumber) {
+            ad_buffer_append_byte(binResponse, frameNumber);
+        }
+
+        ad_buffer_append_melt(
+                binResponse,
+                generator->response_saej1979_pid(generator, pid, frameNumber)
+        );
+
+        if (!generator->flavour.is_Iso15765_4) {
+            break;
+        }
+    }
+
     return binResponse;
 }
-
 static Buffer * response_saej1979_vehicle_identification_request(SimECUGenerator * generator, Buffer * binRequest) {
     Buffer * payload = ad_buffer_new();
     int infoType_i = 1;
