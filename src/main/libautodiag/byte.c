@@ -15,15 +15,21 @@ char * bytes_to_ascii(final byte *buffer, final int size) {
     }
     return collector;
 }
-char * bytes_to_hex_string(final byte *buffer, final int size) {
+char *bytes_to_hex_string(final byte *buffer, int size) {
     assert(buffer != null);
-    char *hex = (char*)malloc(sizeof(char) * (size*2 + 1));
-    hex[0] = 0;
-    char h[3] = {0};
-    for(int i = 0; i < size; i++) {
-        sprintf((char*)&h,"%02x",buffer[i]);
-        strcpy(hex + i * 2, h);
+
+    char *hex = malloc(size * 2 + 1);
+    if (hex == null) {
+        return null;
     }
+
+    for (int i = 0; i < size; i++) {
+        static const char digits[] = "0123456789abcdef";
+        hex[i * 2] = digits[buffer[i] >> 4];
+        hex[i * 2 + 1] = digits[buffer[i] & 0x0f];
+    }
+
+    hex[size * 2] = '\0';
     return hex;
 }
 
