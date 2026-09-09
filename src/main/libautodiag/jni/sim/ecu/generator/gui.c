@@ -1,20 +1,6 @@
 #include "libautodiag/jni/sim/ecu/generator/gui.h"
 
 #ifdef OS_ANDROID
-    #define response_saej1979_pid_with_signal(signal_path) { \
-        ad_object_vehicle_signal * signal = ad_signal_get(signal_path); \
-        jstring signal_path_j = (*env)->NewStringUTF(env, signal_path); \
-        jbyte address = *(jbyte*)generator->context; \
-        double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, address, signal_path_j); \
-        (*env)->DeleteLocalRef(env, signal_path_j); \
-        if ( value != NAN ) { \
-            Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null); \
-            if ( signal_inverted != null ) { \
-                ad_buffer_append_melt(binResponse, signal_inverted); \
-            } \
-        } \
-    }
-
     static Buffer * response_saej1979_pid(SimECUGenerator *generator, final byte pid, int frameNumber) {
         unsigned * seed = generator->context;
         Buffer * binResponse = ad_buffer_new();
@@ -55,7 +41,18 @@
                 (*env)->DeleteLocalRef(env, dtcs);
                 return binResponse;
             }
-            response_saej1979_pid_with_signal(ad_object_vehicle_signal_get_exec_path(signal));
+            char * signal_path = ad_object_vehicle_signal_get_exec_path(signal);
+            jstring signal_path_j = (*env)->NewStringUTF(env, signal_path);
+            jbyte address = *(jbyte*)generator->context;
+            double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, address, signal_path_j);
+            (*env)->DeleteLocalRef(env, signal_path_j);
+            if ( value != NAN ) {
+                Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
+                if ( signal_inverted != null ) {
+                    ad_buffer_append_melt(binResponse, signal_inverted);
+                }
+            }
+            free(signal_path);
         }
         (*env)->DeleteLocalRef(env, dtcs);
         return binResponse;

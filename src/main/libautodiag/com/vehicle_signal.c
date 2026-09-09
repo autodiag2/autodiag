@@ -64,7 +64,9 @@ void ad_object_vehicle_signal_free(ad_object_vehicle_signal* signal) {
         AD_PTR_FREE(signal->unit);
         AD_PTR_FREE(signal->slug);
         ad_buffer_free(signal->dst_address);
+        signal->dst_address = null;
         ad_buffer_free(signal->src_address);
+        signal->src_address = null;
         AD_PTR_FREE(signal->examples);
         signal->rv_offset_bytes = null;
         AD_PTR_FREE(signal);
