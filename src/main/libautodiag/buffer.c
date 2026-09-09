@@ -110,6 +110,8 @@ void ad_buffer_assign(Buffer * to, Buffer * from) {
     ad_buffer_memcpy(to, from->buffer, from->size);
 }
 int ad_buffer_cmp(final Buffer *buf1, final Buffer *buf2) {
+    assert(buf1 != null);
+    assert(buf2 != null);
     if ( buf1->size != buf2->size ) {
         return -1;
     }
