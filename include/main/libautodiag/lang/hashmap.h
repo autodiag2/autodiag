@@ -42,6 +42,7 @@
                     hm->values[j] = hm->values[j+1]; \
                 } \
             } \
+            hm->size --; \
             return true; \
         } \
     } \
