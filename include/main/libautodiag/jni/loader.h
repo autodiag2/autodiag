@@ -8,8 +8,8 @@
 #ifdef OS_ANDROID
 #   include <jni.h>
 #   include <string.h>
-    JNIEnv *get_env();
-    JavaVM* getJavaVM();
+    JNIEnv *get_env(void);
+    JavaVM* getJavaVM(void);
     extern jclass g_libautodiag;
     extern jmethodID mid_signal_value;
     extern jmethodID mid_mil_status;

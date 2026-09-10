@@ -10,6 +10,10 @@
         bool mil_status   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_mil_status, address);
         bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared, address);
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs, address);
+        if ((*env)->ExceptionCheck(env) || dtcs == null) {
+            (*env)->ExceptionClear(env);
+            return binResponse;
+        }
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
         // Should append only bytes according to the PID, but for simplicity we just append random data
         switch(pid) {
@@ -43,10 +47,22 @@
             }
             char * signal_path = ad_object_vehicle_signal_get_exec_path(signal);
             jstring signal_path_j = (*env)->NewStringUTF(env, signal_path);
+            if (signal_path_j == null || (*env)->ExceptionCheck(env)) {
+                (*env)->ExceptionClear(env);
+                free(signal_path);
+                (*env)->DeleteLocalRef(env, dtcs);
+                return binResponse;
+            }
             jbyte address = *(jbyte*)generator->context;
             double value = (*env)->CallStaticDoubleMethod(env, g_libautodiag, mid_signal_value, address, signal_path_j);
             (*env)->DeleteLocalRef(env, signal_path_j);
-            if ( value != NAN ) {
+            if ((*env)->ExceptionCheck(env)) {
+                (*env)->ExceptionClear(env);
+                free(signal_path);
+                (*env)->DeleteLocalRef(env, dtcs);
+                return binResponse;
+            }
+            if ( !isnan(value) ) {
                 Buffer * signal_inverted = ad_expr_reduce_invert(value, signal->rv_formula, null);
                 if ( signal_inverted != null ) {
                     ad_buffer_append_melt(binResponse, signal_inverted);
@@ -63,13 +79,26 @@
         jbyte address = *(jbyte*)generator->context;
         bool dtc_cleared   = (*env)->CallStaticBooleanMethod(env, g_libautodiag, mid_dtc_cleared, address);
         jobjectArray dtcs = (jobjectArray)(*env)->CallStaticObjectMethod(env, g_libautodiag, mid_dtcs, address);
+        if ((*env)->ExceptionCheck(env) || dtcs == null) {
+            (*env)->ExceptionClear(env);
+            return binResponse;
+        }
         jsize dtc_count = (*env)->GetArrayLength(env, dtcs);
         ad_list_Buffer * dtcs_list = ad_list_Buffer_new();
         if ( service_id == OBD_SERVICE_SHOW_DTC ) {
             if ( ! dtc_cleared ) {
                 for (jsize i = 0; i < dtc_count; i++) {
                     jstring s = (jstring)(*env)->GetObjectArrayElement(env, dtcs, i);
+                    if (s == null || (*env)->ExceptionCheck(env)) {
+                        (*env)->ExceptionClear(env);
+                        continue;
+                    }
                     const char *dtc = (*env)->GetStringUTFChars(env, s, 0);
+                    if (dtc == null || (*env)->ExceptionCheck(env)) {
+                        (*env)->ExceptionClear(env);
+                        (*env)->DeleteLocalRef(env, s);
+                        continue;
+                    }
 
                     Buffer *dtc_bin = saej1979_dtc_bin_from_string((char*)dtc);
                     if ( dtc_bin == null ) {
@@ -97,8 +126,31 @@
         jstring ecu_name_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_ecu_name, address);
         jstring vin_j = (*env)->CallStaticObjectMethod(env, g_libautodiag, mid_vin, address);
 
+        if ((*env)->ExceptionCheck(env) || ecu_name_j == null || vin_j == null) {
+            (*env)->ExceptionClear(env);
+            if (ecu_name_j != null) {
+                (*env)->DeleteLocalRef(env, ecu_name_j);
+            }
+            if (vin_j != null) {
+                (*env)->DeleteLocalRef(env, vin_j);
+            }
+            return ad_buffer_new();
+        }
+
         const char *ecu_name = (*env)->GetStringUTFChars(env, ecu_name_j, 0);
         const char *vin = (*env)->GetStringUTFChars(env, vin_j, 0);
+        if (ecu_name == null || vin == null || (*env)->ExceptionCheck(env)) {
+            (*env)->ExceptionClear(env);
+            if (ecu_name != null) {
+                (*env)->ReleaseStringUTFChars(env, ecu_name_j, ecu_name);
+            }
+            if (vin != null) {
+                (*env)->ReleaseStringUTFChars(env, vin_j, vin);
+            }
+            (*env)->DeleteLocalRef(env, ecu_name_j);
+            (*env)->DeleteLocalRef(env, vin_j);
+            return ad_buffer_new();
+        }
         Buffer * binResponse = null;
         switch(infoType) {
             case 0x00:                                          binResponse = ad_buffer_from_ascii_hex("FFFFFFFF"); break;

@@ -257,22 +257,44 @@ Java_com_github_autodiag2_elm327emu_libautodiag_setResponseTypeContextByAddress(
         ad_list_SimECU_append(sim->ecus, ecu);
     }
 
+    if (type == null || context == null) {
+        log_msg(LOG_ERROR, "Generator type and context must not be null");
+        return;
+    }
+
     const char * typeStr = (*env)->GetStringUTFChars(env, type, null);
+    if (typeStr == null || (*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        return;
+    }
+
     const char * contextStr = (*env)->GetStringUTFChars(env, context, null);
+    if (contextStr == null || (*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        (*env)->ReleaseStringUTFChars(env, type, typeStr);
+        return;
+    }
+
+    SimECUGenerator *generator = null;
     if ( strcasecmp(typeStr, "replay") == 0 ) {
-        ecu->generator = sim_ecu_generator_new_replay();
+        generator = sim_ecu_generator_new_replay();
     } else if ( strcasecmp(typeStr, "random") == 0 ) {
-        ecu->generator = sim_ecu_generator_new_random();
+        generator = sim_ecu_generator_new_random();
     } else if ( strcasecmp(typeStr, "cycle") == 0 ) {
-        ecu->generator = sim_ecu_generator_new_cycle();
+        generator = sim_ecu_generator_new_cycle();
     } else if ( strcasecmp(typeStr, "citroen_c5_x7") == 0 ) {
-        ecu->generator = sim_ecu_generator_new_citroen_c5_x7();
+        generator = sim_ecu_generator_new_citroen_c5_x7();
     } else {
         log_msg(LOG_ERROR, "Unknown generator type '%s'", typeStr);
     }
-    bool res = ecu->generator->context_load_from_string(ecu->generator, (char*)contextStr);
-    if ( !res ) {
-        log_msg(LOG_ERROR, "Failed to load context from string '%s' for generator type '%s'", contextStr, typeStr);
+
+    if (generator != null) {
+        bool res = generator->context_load_from_string(generator, (char*)contextStr);
+        if ( !res ) {
+            log_msg(LOG_ERROR, "Failed to load context from string '%s' for generator type '%s'", contextStr, typeStr);
+        } else {
+            ecu->generator = generator;
+        }
     }
     (*env)->ReleaseStringUTFChars(env, type, typeStr);
     (*env)->ReleaseStringUTFChars(env, context, contextStr);
@@ -285,21 +307,46 @@ typedef struct {
 static void signal_received_callback(SimECUGenerator * generator, ad_object_vehicle_signal *signal, double value)
 {
     SignalReceivedCallback *ctx = generator->signal_received_userdata;
+    if (ctx == null || ctx->jvm == null || ctx->callback == null) {
+        return;
+    }
 
-    JNIEnv *env = NULL;
-    (*ctx->jvm)->AttachCurrentThread(ctx->jvm, (JNIEnv **)&env, NULL);
+    JNIEnv *env = get_env();
+    if (env == null) {
+        return;
+    }
 
     jclass cls = (*env)->GetObjectClass(env, ctx->callback);
+    if (cls == null || (*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        return;
+    }
     jmethodID mid = (*env)->GetMethodID(
         env,
         cls,
         "onSignalReceived",
         "(Lcom/github/autodiag2/elm327emu/SimSignal;D)V"
     );
+    if (mid == null || (*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        (*env)->DeleteLocalRef(env, cls);
+        return;
+    }
 
     jobject jSignal = jni_create_sim_signal(env, signal);
+    if (jSignal == null || (*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+        (*env)->DeleteLocalRef(env, cls);
+        if (jSignal != null) {
+            (*env)->DeleteLocalRef(env, jSignal);
+        }
+        return;
+    }
 
     (*env)->CallVoidMethod(env, ctx->callback, mid, jSignal, value);
+    if ((*env)->ExceptionCheck(env)) {
+        (*env)->ExceptionClear(env);
+    }
 
     (*env)->DeleteLocalRef(env, jSignal);
     (*env)->DeleteLocalRef(env, cls);

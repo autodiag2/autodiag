@@ -5,14 +5,25 @@
 
         JavaCallbackContext *ctx = (JavaCallbackContext *)generator->context;
 
-        JNIEnv *env;
-        (*ctx->vm)->AttachCurrentThread(ctx->vm, (JNIEnv **)&env, NULL);
+        JNIEnv *env = get_env();
+        if (ctx == null || ctx->callback == null || ctx->method == null || env == null) {
+            return ad_buffer_new();
+        }
 
         jbyteArray requestArray = (*env)->NewByteArray(env, binRequest->size);
+        if (requestArray == null || (*env)->ExceptionCheck(env)) {
+            (*env)->ExceptionClear(env);
+            return ad_buffer_new();
+        }
         (*env)->SetByteArrayRegion(env, requestArray, 0,
             binRequest->size,
             (jbyte *)binRequest->buffer
         );
+        if ((*env)->ExceptionCheck(env)) {
+            (*env)->ExceptionClear(env);
+            (*env)->DeleteLocalRef(env, requestArray);
+            return ad_buffer_new();
+        }
 
         jbyteArray result = (jbyteArray)(*env)->CallObjectMethod(
             env,
@@ -21,9 +32,25 @@
             requestArray
         );
 
+        if ((*env)->ExceptionCheck(env) || result == null) {
+            (*env)->ExceptionClear(env);
+            (*env)->DeleteLocalRef(env, requestArray);
+            if (result != null) {
+                (*env)->DeleteLocalRef(env, result);
+            }
+            return ad_buffer_new();
+        }
+
         // convert result back to Buffer
         jsize len = (*env)->GetArrayLength(env, result);
         jbyte *bytes = (*env)->GetByteArrayElements(env, result, NULL);
+
+        if ((*env)->ExceptionCheck(env) || bytes == null) {
+            (*env)->ExceptionClear(env);
+            (*env)->DeleteLocalRef(env, requestArray);
+            (*env)->DeleteLocalRef(env, result);
+            return ad_buffer_new();
+        }
 
         Buffer *out = ad_buffer_from_bytes((byte*)bytes, len);
 
@@ -46,7 +73,7 @@
 
         JavaCallbackContext *ctx = malloc(sizeof(JavaCallbackContext));
 
-        ctx->vm = getJavaVM(env); // store JVM reference
+        ctx->vm = getJavaVM(); // store JVM reference
         ctx->callback = (*env)->NewGlobalRef(env, callbackObject);
 
         jclass cls = (*env)->GetObjectClass(env, callbackObject);
