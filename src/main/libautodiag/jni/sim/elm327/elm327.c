@@ -14,7 +14,6 @@ SimELM327* jni_sim_elm327_get() {
     return _sim;
 }
 JNIEXPORT jstring JNICALL Java_com_github_autodiag2_elm327emu_libautodiag_launchEmu(JNIEnv *env, jobject thiz, jstring path, jstring kind) {
-    log_set_level(LOG_DEBUG);
     
     const char *nativePath = (*env)->GetStringUTFChars(env, path, null);
     jni_data_dir_set(strdup(nativePath));
